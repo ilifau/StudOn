@@ -140,9 +140,19 @@ class ilCronCheck
 				'ilCronValidator::check'
 		);
 
+        // fim: [campus] synchronize course registrations from mein campus
+        global $ilCust;
 		$this->possible_tasks = array(
 
-				// Start System Check
+			'ilMyCampusSynchronisation::start' => array(
+				'classname'		=> 'ilMyCampusSynchronisation',
+				'method'		=> 'start',
+				'location'		=> 'Services/MyCampus',
+				'condition'		=> $ilCust->getSetting('mycampus_sync_enabled')
+			),
+		// fim.
+
+			// Start System Check
 				'ilCronValidator::check' => array(
 					'classname'		=> 'ilCronValidator',
 					'method'		=> 'check',

@@ -31,8 +31,10 @@ class ilGlobalCache {
 	 * @var array
 	 */
 	protected static $types = array(
-		//		self::TYPE_MEMCACHED,
-		//		self::TYPE_XCACHE,
+		// self::TYPE_MEMCACHED,
+// fau: globalCache - enable XCache as engine
+		self::TYPE_XCACHE,
+// fau.
 		self::TYPE_APC,
 		self::TYPE_STATIC
 	);
@@ -129,7 +131,10 @@ class ilGlobalCache {
 	 */
 	protected static function generateServiceId() {
 		if (!isset(self::$unique_service_id)) {
-			self::$unique_service_id = substr(md5('il_' . CLIENT_ID), 0, 6);
+// fau: globalCache - make clients recognizable by prefix
+			// self::$unique_service_id = substr(md5('il_' . CLIENT_ID), 0, 6);
+			self::$unique_service_id = CLIENT_ID;
+// fau.
 		}
 
 		return self::$unique_service_id;

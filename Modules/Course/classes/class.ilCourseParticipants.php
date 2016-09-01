@@ -61,7 +61,15 @@ class ilCourseParticipants extends ilParticipants
 		
 		$this->NOTIFY_REGISTERED = 10;
 		$this->NOTIFY_UNSUBSCRIBE = 11;
-		$this->NOTIFY_WAITING_LIST = 12; 
+		$this->NOTIFY_WAITING_LIST = 12;
+
+		// fim: [memlot] add notification type for lot success
+		$this->NOTIFY_LOT_SUCCESS = 33;
+		// fim.
+
+		// fim: [meminf] add notification types for waiting list
+		$this->NOTIFY_WAITING_SUBSCRIBE = 41;
+		// fim.
 		
 		parent::__construct(self::COMPONENT_NAME,$a_obj_id);
 	}
@@ -83,6 +91,32 @@ class ilCourseParticipants extends ilParticipants
 		return self::$instances[$a_obj_id] = new ilCourseParticipants($a_obj_id);
 	}
 	
+	/**
+	* fim: [memsess] set the assigned course (needed to get course settings for session info)
+	*
+	* @param 	object  course object
+	*/
+	public function setCourseObject($a_course_obj)
+	{
+		$this->course_obj = $a_course_obj;
+	}
+	// fim.
+	
+	/**
+	* fim: [memsess] get the assigned course (needed to get course settings for session info)
+	*
+	* @return 	object  course object
+	*/
+	public function getCourseObject()
+	{
+		if (!is_object($this->course_obj))
+		{
+			$this->course_obj = ilObjectFactory::getInstanceByObjId($this->obj_id);
+		}
+		return $this->course_obj;
+	}
+	// fim.
+
 	/**
 	 * Get member roles
 	 * @param int $a_ref_id
@@ -241,6 +275,14 @@ class ilCourseParticipants extends ilParticipants
 		
 		global $ilObjDataCache,$ilUser;
 	
+		// fim: [memsess] get info about subscription to events
+		$course = $this->getCourseObject();
+		if ($course->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF)
+		{
+			$subscribe_to_events = true;
+		}
+		// fim.
+	
 		switch($a_type)
 		{
 			case $this->NOTIFY_DISMISS_SUBSCRIBER:
@@ -256,6 +298,9 @@ class ilCourseParticipants extends ilParticipants
 				$mail->setType(ilCourseMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER);	
 				$mail->setRefId($this->ref_id);
 				$mail->setRecipients(array($a_usr_id));
+				// fim: [memsess] add event reminder
+				$mail->setSubscribeToEvents($subscribe_to_events);
+				// fim.
 				$mail->send();				
 				break;				
 
@@ -288,6 +333,9 @@ class ilCourseParticipants extends ilParticipants
 				$mail->setType(ilCourseMembershipMailNotification::TYPE_ADMISSION_MEMBER);	
 				$mail->setRefId($this->ref_id);
 				$mail->setRecipients(array($a_usr_id));
+				// fim: [memsess] add event reminder
+				$mail->setSubscribeToEvents($subscribe_to_events);
+				// fim.
 				$mail->send();				
 				break;
 
@@ -327,6 +375,17 @@ class ilCourseParticipants extends ilParticipants
 				$mail->setAdditionalInformation(array('position' => $pos));
 				$mail->send();
 				break;
+
+			// fim: [meminf] different admin notification for waiting list
+			case $this->NOTIFY_WAITING_SUBSCRIBE:
+				$mail = new ilCourseMembershipMailNotification();
+				$mail->setType(ilCourseMembershipMailNotification::TYPE_NOTIFICATION_WAITING_SUBSCRIBE);
+				$mail->setRefId($this->ref_id);
+				$mail->setAdditionalInformation(array('usr_id' => $a_usr_id));
+				$mail->setRecipients($this->getNotificationRecipients());
+				$mail->send();
+				break;
+			// fim.
 
 			case $this->NOTIFY_SUBSCRIPTION_REQUEST:
 				$this->sendSubscriptionRequestToAdmins($a_usr_id);

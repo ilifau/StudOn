@@ -326,10 +326,24 @@ class ilDBMySQL extends ilDB
 		$this->query("SET NAMES utf8");
 		if (DEVMODE == 1)
 		{
-			$this->query("SET SESSION SQL_MODE = 'ONLY_FULL_GROUP_BY'");
+			// fim: [bugfix] don't set the specific sql mode
+			// (see Mantis Bug #4647)
+			// this would result in an error for any script
+			// $this->query("SET SESSION SQL_MODE = 'ONLY_FULL_GROUP_BY'");
+			// fim.
 		}
 
 		$this->query("SET SESSION STORAGE_ENGINE = 'MYISAM'");
+		
+// fau: waitTimeout - set the wait_timeout
+		if ($this->wait_timeout > 0)
+		{
+			$this->query("SET SESSION WAIT_TIMEOUT = " . (int) $this->wait_timeout);
+			
+			// uncomment to test the timeout
+			// sleep($this->wait_timeout);
+		}
+// fau.
 	}
 
 	/**

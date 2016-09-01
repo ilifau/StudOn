@@ -235,7 +235,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 		$page_gui->setTemplateTargetVar("ADM_CONTENT");
 		$page_gui->setLinkXML($link_xml);
 		$page_gui->setFileDownloadLink("");
-		$page_gui->setFullscreenLink($this->ctrl->getLinkTarget($this, "showMediaFullscreen"));
+        // fim: [bugfix] use deafult fullscreen link on container pages
+		// $page_gui->setFullscreenLink($this->ctrl->getLinkTarget($page_gui, "showMediaFullscreen"));
+        // fim.
 		//$page_gui->setLinkParams($this->ctrl->getUrlParameterString()); // todo
 		$page_gui->setPresentationTitle("");
 		$page_gui->setTemplateOutput(false);
@@ -414,7 +416,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 			include_once './Services/Object/classes/class.ilObjectListGUIFactory.php';
 			$lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
 			$lgui->initItem($this->object->getRefId(), $this->object->getId());
-			$this->tpl->setAlertProperties($lgui->getAlertProperties());			
+
+			// fim: [privacy] add an alert about the public vissibility of the object
+			$this->tpl->setAlertProperties(
+				$this->addPublicVisibilityAlert($lgui->getAlertProperties())
+			);
+			// fim.
 		}
 	}
 		
@@ -427,7 +434,16 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 		$gui = new ilObjectAddNewItemGUI($this->object->getRefId());
 		$gui->render();
 	}
-	
+
+	// fim: [univis] show the actions for univis import
+	function showUnivisImportActions()
+	{
+		include_once "Services/UnivIS/classes/class.ilUnivisImportActionsGUI.php";
+		$gui = new ilUnivisImportActionsGUI($this->object);
+		$gui->render();
+	}
+	// fim.
+
 	/**
 	 * Get content gui object
 	 *
@@ -502,11 +518,34 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 		// we will create nested forms in case, e.g. a news/calendar item is added
 		if ($ilCtrl->getNextClass() != "ilcolumngui")
 		{
-			$this->showAdministrationPanel($tpl);
-			$this->showPossibleSubObjects();
+			// fim: [portal] don't show admin panel in reduced view mode
+			global $ilAccess;
+			if (!$this->reduced_view_mode
+				|| $ilAccess->checkAccess("write", "", $this->object->getRefId()))
+			{
+				$this->showAdministrationPanel($tpl);
+				if (!$this->reduced_view_mode or $this->isActiveAdministrationPanel())
+				{
+					$this->showPossibleSubObjects();
+				}
+			}
+			// fim.
+		
+			// fim: [univis] show link to import univis
+			global $ilCust;
+			if ($ilCust->getSetting($this->object->getType().'_enable_univis_import'))
+			{
+				$this->showUnivisImportActions();
+			}
+			// fim.
 		}
 		
-		$this->showPermanentLink($tpl);
+		// fim: [portal] don't show permanent link on root page
+		if ($this->object->getType() != 'root')
+		{
+			$this->showPermanentLink($tpl);
+		}
+		// fim.
 
 		// add tree updater javascript
 		if ((int) $_GET["ref_id"] > 1 && $ilSetting->get("rep_tree_synchronize"))

@@ -48,6 +48,9 @@ define('AUTH_USER_TIME_LIMIT_EXCEEDED', -602);
 define('AUTH_USER_SIMULTANEOUS_LOGIN', -603);
 define('AUTH_CAPTCHA_INVALID', -604);
 
+// fim: [portal] new value for manual logout
+define('AUTH_USER_MANUAL_LOGOUT', -900);
+// fim.
 
 include_once './Services/Authentication/classes/class.ilAuthFactory.php';
 require_once('Services/Authentication/classes/class.ilSessionControl.php');
@@ -157,6 +160,12 @@ class ilAuthUtils
 			
 			define('AUTH_CURRENT',AUTH_SOAP);
 		}
+// fau: samlAuth - check for active simpleSAMLphp authentication
+		else if (isset($GLOBALS['ilSimpleSAMLInterface']))
+		{
+			define ("AUTH_CURRENT", AUTH_SHIBBOLETH);
+		}
+// fau.
 		// if Shibboleth is active and the user is authenticated
 		// we set auth_mode to Shibboleth
 		else if (	$ilSetting->get("shib_active")
@@ -208,7 +217,19 @@ class ilAuthUtils
 				// build option string for SHIB::Auth
 				$auth_params = array();
 				$auth_params['sessionName'] = "_authhttp".md5($realm);
-				$ilAuth = new ShibAuth($auth_params,true);
+
+// fau: samlAuth - check for active simpleSAMLphp authentication and use special class
+				if (isset($GLOBALS['ilSimpleSAMLInterface']))
+				{
+					require_once "./Services/AuthShibboleth/classes/class.ilSimpleSamlAuthStudOn.php";
+					$ilAuth = new ilSimpleSamlAuthStudOn($auth_params,true);
+				}
+				else
+				{
+					require_once "./Services/AuthShibboleth/classes/class.ilShibbolethStudOn.php";
+					$ilAuth = new ShibAuthStudOn($auth_params,true);
+				}
+// fau.
 				break;
 				
 			case AUTH_CAS:
@@ -782,7 +803,10 @@ class ilAuthUtils
 
 			// Read setting:
 			case AUTH_SHIBBOLETH:
-				return $ilSetting->get("shib_auth_allow_local");
+// fau: samlAuth - don't allow password change if sso is standard
+				// return $ilSetting->get("shib_auth_allow_local");
+				return false;
+// fau.
 			case AUTH_SOAP:
 				return $ilSetting->get("soap_auth_allow_local");
 			case AUTH_CAS:
@@ -847,5 +871,79 @@ class ilAuthUtils
 		return $pl_objs;
 	}
 	// end-patch auth_plugins
+
+
+// fau: idmPass - new function _isSSHAPassword
+	public static function _isSSHAPassword($a_passwd)
+	{
+		return substr($a_passwd, 0, 6) == "{SSHA}";
+	}
+// fau.
+
+
+// fau: idmPass - new function _makeSSHAPassword
+	/**
+	* generate an SSHA hash of a password
+	*
+	* @param 	string 	plain password
+	* @param 	string 	optional salt (random as default)
+	* @return   string
+	*/
+	public static function _makeSSHAPassword($a_passwd, $a_salt = "")
+	{
+		if (!$a_salt)
+		{
+			$a_salt = pack("CCCC", mt_rand(), mt_rand(), mt_rand(), mt_rand());
+		}
+
+		return "{SSHA}" . base64_encode(sha1($a_passwd . $a_salt, true) . $a_salt);
+	}
+// fau.
+
+
+// fau: idmPass - new function _checkSSHAPassword
+	/**
+	* check a password against an ssha hash
+	*
+	* @param 	string 		plain password
+	* @param 	string 		ssha hash (with prefix "{SSHA}")
+	* @return   boolean     matches (true) or not (false)
+	*/
+	public static function _checkSSHAPassword($a_passwd, $a_hash)
+	{
+		$ohash = base64_decode(substr($a_hash, 6));
+		$osalt = substr($ohash, 20);
+		$ohash = substr($ohash, 0, 20);
+		$nhash = sha1($a_passwd . $osalt, true);
+
+		return $ohash == $nhash;
+	}
+// fau.
+
+
+// fau: idmPass - new function _checkPassword
+	/**
+	* check a password (md5 or ssha encoded)
+	*
+	* @param 	string 		plain password
+	* @param 	string      encoded password
+	* @return   boolean     matches (true) or not (false)
+	*/
+	public static function _checkPassword($a_passwd, $a_hash)
+	{
+		if (self::_isSSHAPassword($a_hash))
+		{
+			return self::_checkSSHAPassword($a_passwd, $a_hash);
+		}
+		elseif ($a_hash == md5($a_passwd))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+// fau.
 }
 ?>

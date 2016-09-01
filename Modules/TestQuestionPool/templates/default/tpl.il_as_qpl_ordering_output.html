@@ -18,7 +18,9 @@
 						<img border="0" src="{THUMB_HREF}" alt="{THUMB_ALT}" title="{THUMB_TITLE}" />
 					</td>
 					<td class="ilValignTop">
-						<a target="_new" href="{PICTURE_HREF}"><img border="0" src="{ENLARGE_HREF}" alt="{ENLARGE_ALT}" title="{ENLARGE_TITLE}" /></a>
+                        <!-- fim: [exam] use colorbox -->
+						<a onclick="$.colorbox({href:'{PICTURE_HREF}', maxWidth:'100%', maxHeight:'100%'});return false;" target="_new" href="{PICTURE_HREF}"><img border="0" src="{ENLARGE_HREF}" alt="{ENLARGE_ALT}" title="{ENLARGE_TITLE}" /></a>
+                        <!-- fim. -->
 					</td>
 				</tr>
 			</table>

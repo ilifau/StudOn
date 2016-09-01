@@ -305,12 +305,16 @@ class ilTestRandomQuestionSetConfigGUI
 		
 		$form->save();
 
-		$this->sourcePoolDefinitionList->loadDefinitions();
-		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
-		$this->sourcePoolDefinitionList->saveDefinitions();
+// fau:	delayCopyRandomQuestions - don't rebuild the staging pool, just clear the sycn timestamp
 
-		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+//		$this->sourcePoolDefinitionList->loadDefinitions();
+//		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
+//		$this->sourcePoolDefinitionList->saveDefinitions();
+
+//		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
 		$this->questionSetConfig->saveToDb();
+// fau.
 
 		$this->testOBJ->saveCompleteStatus( $this->questionSetConfig );
 
@@ -366,11 +370,14 @@ class ilTestRandomQuestionSetConfigGUI
 		$this->sourcePoolDefinitionList->reindexPositions();
 		$this->sourcePoolDefinitionList->saveDefinitions();
 
-		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
-		$this->sourcePoolDefinitionList->saveDefinitions();
+// fau: delayCopyRandomQuestions - don't rebuild the staging pool, just clear the sycn timestamp
+//		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
+//		$this->sourcePoolDefinitionList->saveDefinitions();
 
-		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+//		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
 		$this->questionSetConfig->saveToDb();
+// fau.
 
 		$this->testOBJ->saveCompleteStatus( $this->questionSetConfig );
 
@@ -407,6 +414,12 @@ class ilTestRandomQuestionSetConfigGUI
 		$table->setQuestionAmountColumnEnabled(
 			$this->questionSetConfig->isQuestionAmountConfigurationModePerPool()
 		);
+
+// fau: taxFilter - show the mapped taxonomy filters if pools are synced
+		$table->setShowMappedTaxonomyFilter(
+			$this->questionSetConfig->getLastQuestionSyncTimestamp() != 0
+		);
+// fau.
 
 		require_once 'Modules/Test/classes/class.ilTestTaxonomyFilterLabelTranslater.php';
 		$translater = new ilTestTaxonomyFilterLabelTranslater($this->db);
@@ -448,14 +461,17 @@ class ilTestRandomQuestionSetConfigGUI
 		$this->sourcePoolDefinitionList->reindexPositions();
 		$this->sourcePoolDefinitionList->saveDefinitions();
 
-		$this->sourcePoolDefinitionList->loadDefinitions();
-		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
-		$this->sourcePoolDefinitionList->saveDefinitions();
-		
+// fau: delayCopyRandomQuestions - don't rebuild the staging pool, just clear the sycn timestamp
+//		$this->sourcePoolDefinitionList->loadDefinitions();
+//		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
+//		$this->sourcePoolDefinitionList->saveDefinitions();
+
 		// Bugfix for mantis: 0015082
 		$this->questionSetConfig->loadFromDb();
-		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		// $this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
 		$this->questionSetConfig->saveToDb();
+// fau.
 
 		$this->testOBJ->saveCompleteStatus( $this->questionSetConfig );
 	}
@@ -512,10 +528,13 @@ class ilTestRandomQuestionSetConfigGUI
 		$sourcePoolDefinition->saveToDb();
 		$this->sourcePoolDefinitionList->addDefinition($sourcePoolDefinition);
 
-		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
+// fau: delayCopyRandomQuestions - don't rebuild the staging pool, just clear the sycn timestamp
+//		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
 		$this->sourcePoolDefinitionList->saveDefinitions();
 
-		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		//$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
+// fau.
 		$this->questionSetConfig->saveToDb();
 
 		$this->testOBJ->saveCompleteStatus( $this->questionSetConfig );
@@ -588,10 +607,13 @@ class ilTestRandomQuestionSetConfigGUI
 
 		$sourcePoolDefinition->saveToDb();
 
+// fau: delayCopyRandomQuestions - don't rebuild the staging pool, just clear the sycn timestamp
 		$this->sourcePoolDefinitionList->loadDefinitions();
-		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
+//		$this->stagingPool->rebuild( $this->sourcePoolDefinitionList );
 
-		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+//		$this->questionSetConfig->setLastQuestionSyncTimestamp(time());
+		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
+// fau.
 		$this->questionSetConfig->saveToDb();
 
 		$this->sourcePoolDefinitionList->saveDefinitions();
@@ -717,12 +739,29 @@ class ilTestRandomQuestionSetConfigGUI
 		{
 			$infoMessage = $this->lng->txt('tst_msg_rand_quest_set_no_src_pool_defs');
 		}
+// fau: delayCopyRandomQuestions - show info message if date of last synchronisation is empty
+		elseif ($this->questionSetConfig->getLastQuestionSyncTimestamp() == 0)
+		{
+			$infoMessage = $this->lng->txt('tst_msg_rand_quest_set_not_sync');
+			$infoMessage .= "<br />{$this->buildQuestionStageRebuildLink($currentRequestCmd)}";
+			$infoMessage .="<br><small>".$this->lng->txt('tst_msg_rand_quest_set_sync_duration')."</small>";
+		}
+// fau.
 		elseif( !$this->questionSetConfig->isQuestionSetBuildable() )
 		{
+//fau: fixRandomTestBuildable - show the messages if set is not buildable
 			$infoMessage = $this->lng->txt('tst_msg_rand_quest_set_pass_not_buildable');
+			ilUtil::sendFailure(implode('<br />', $this->questionSetConfig->getBuildableMessages()));
+//fau.
 		}
 		else
 		{
+//fau: fixRandomTestBuildable - show the messages if set is buildable but messages exist
+			if (count($this->questionSetConfig->getBuildableMessages()))
+			{
+				ilUtil::sendFailure(implode('<br />', $this->questionSetConfig->getBuildableMessages()));
+			}
+//fau.
 			$syncDate = new ilDateTime(
 				$this->questionSetConfig->getLastQuestionSyncTimestamp(), IL_CAL_UNIX
 			);
@@ -734,6 +773,9 @@ class ilTestRandomQuestionSetConfigGUI
 			if( !$this->testOBJ->participantDataExist() )
 			{
 				$infoMessage .= "<br />{$this->buildQuestionStageRebuildLink($currentRequestCmd)}";
+// fau: delayCopyRandomQuestions - add info about possible long duration of synchronisation
+				$infoMessage .="<br><small>".$this->lng->txt('tst_msg_rand_quest_set_sync_duration')."</small>";
+// fau.
 			}
 		}
 		

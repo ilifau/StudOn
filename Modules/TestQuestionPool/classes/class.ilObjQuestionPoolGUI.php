@@ -226,7 +226,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 			case "ilquestionpoolexportgui":
 				require_once 'Modules/TestQuestionPool/classes/class.ilQuestionPoolExportGUI.php';
 				$exp_gui = new ilQuestionPoolExportGUI($this);
-				$exp_gui->addFormat('zip', $this->lng->txt('qpl_export_xml'), $this, 'createExportQTI');
+// fau: taxExport - use standard ilias xml export (with taxonomy support)
+				$exp_gui->addFormat("xml");
+// 				$exp_gui->addFormat("zip", $this->lng->txt('qpl_export_xml'), $this, "createExportQTI");
+// fau.
 				$exp_gui->addFormat('xls', $this->lng->txt('qpl_export_excel'), $this, 'createExportExcel');
 				$ret = $this->ctrl->forwardCommand($exp_gui);
 				break;
@@ -449,6 +452,32 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 			$qti_file = ilObjQuestionPool::_getImportDirectory().'/'.$subdir.'/'. str_replace("qpl", "qti", $subdir).".xml";
 		}
 
+// fau: taxExport - use standard import if the archive is of new format (manifest exists)
+		if (!$questions_only and is_file($basedir.'/'.$subdir."/manifest.xml"))
+		{
+			// create and insert object in objecttree
+			include_once("./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php");
+			$newObj = new ilObjQuestionPool();
+			$newObj->setType('qpl');
+			$newObj->setTitle($_FILES["xmldoc"]["name"]);
+			$newObj->create(true);
+			$this->putObjectInTree($newObj);
+
+			// use the standard importer
+			include_once("./Services/Export/classes/class.ilImport.php");
+			$imp = new ilImport((int) $_GET["ref_id"]);
+			$map = $imp->getMapping();
+			$map->addMapping("Modules/TestQuestionPool", "qpl", "new_id", $newObj->getId());
+			$imp->importObject($newObj, $full_path, $_FILES["xmldoc"]["name"], "qpl",
+				"Modules/TestQuestionPool", true);
+
+			ilUtil::delDir($basedir);
+			ilUtil::sendSuccess($this->lng->txt("object_imported"),true);
+			ilUtil::redirect("ilias.php?ref_id=".$newObj->getRefId().
+				"&baseClass=ilObjQuestionPoolGUI");
+		}
+// fau.
+
 		// start verification of QTI files
 		include_once "./Services/QTI/classes/class.ilQTIParser.php";
 		$qtiParser = new ilQTIParser($qti_file, IL_MO_VERIFY_QTI, 0, "");
@@ -668,6 +697,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		}
 		
 		// delete import directory
+		// fim: [bugfix] cleanup import sub directoy
+		unset($_SESSION["qpl_import_subdir"]);
+		// fim.
 		include_once "./Services/Utilities/classes/class.ilUtil.php";
 		ilUtil::delDir(dirname(ilObjQuestionPool::_getImportDirectory()));
 
@@ -685,6 +717,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 	
 	function cancelImportObject()
 	{
+		// fim: [bugfix] cleanup import sub directoy
+		unset($_SESSION["qpl_import_subdir"]);
+		// fim.
+
 		if ($_POST["questions_only"] == 1)
 		{
 			$this->ctrl->redirect($this, "questions");
@@ -1011,6 +1047,13 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 				$taxExp = new ilTaxonomyExplorerGUI(
 						$this, 'showNavTaxonomy', $taxId, 'ilobjquestionpoolgui', 'questions'
 				);
+
+// fau: taxDesc - open the current taxonomy path
+				if ($_GET["tax_node"])
+				{
+					$taxExp->setPathOpen($_GET["tax_node"]);
+				}
+// fau.
 				
 				if( !$taxExp->handleCommand() )
 				{
@@ -1106,14 +1149,25 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		$mode->setOptions(array(
 			'overview'           => $this->lng->txt('overview'),
 			'detailed'           => $this->lng->txt('detailed_output_solutions'),
+            // fim: [exam] add option for detailed view with scoring
+            'detailed_scoring'   => $this->lng->txt('detailed_output_scoring'),
+            // fim.
 			'detailed_printview' => $this->lng->txt('detailed_output_printview')
 		));
 		$mode->setValue(ilUtil::stripSlashes($_POST['output']));
 		
 		$ilToolbar->setFormName('printviewOptions');
 		$ilToolbar->addInputItem($mode, true);
-		$ilToolbar->addFormButton($this->lng->txt('submit'), 'print');
-
+		
+        // fim: [exam] add pagebreak option
+        require_once 'Services/Form/classes/class.ilCheckboxInputGUI.php';
+        $break = new ilCheckboxInputGUI( $this->lng->txt("print_pagebreaks"), 'pagebreak');
+        $break->setChecked($_POST['pagebreak']);
+        $ilToolbar->addInputItem($break, true);
+        // fim.
+        
+        $ilToolbar->addFormButton($this->lng->txt('submit'), 'print');
+        
 		include_once "./Modules/TestQuestionPool/classes/tables/class.ilQuestionPoolPrintViewTableGUI.php";
 		$table_gui = new ilQuestionPoolPrintViewTableGUI($this, 'print', $_POST['output']);
 		$data = $this->object->getPrintviewQuestions();
@@ -1197,7 +1251,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		}
 		$this->ctrl->redirect($this, "questions");
 	}
-	
+
 	/**
 	* create export file
 	*/

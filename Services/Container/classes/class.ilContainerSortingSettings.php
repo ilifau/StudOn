@@ -170,9 +170,11 @@ class ilContainerSortingSettings
 	public static function _cloneSettings($a_old_id,$a_new_id)
 	{
 		global $ilDB;
-		
-		$query = "SELECT sort_mode FROM container_sorting_set ".
+
+// fau: copyContainerSorting - copy all sorting settings of a container
+		$query = "SELECT sort_mode, sort_direction, new_items_position, new_items_order FROM container_sorting_set ".
 			"WHERE obj_id = ".$ilDB->quote($a_old_id ,'integer')." ";
+// fau.
 		$res = $ilDB->query($query);
 		while($row = $res->fetchRow())
 		{

@@ -590,7 +590,10 @@ class ilMediaItem
 			}
 			else
 			{
+// fau: fixRemoteImages - don't deduct size from remote image files
+				return false;
 				$loc = $this->getLocation();
+// fau.
 			}
 			$size = @getimagesize($loc);
 			

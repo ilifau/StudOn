@@ -29,6 +29,9 @@ class ilExAssignment
 	protected $exc_id;
 	protected $type;
 	protected $start_time;
+// fau: exResTime - class variable
+	protected $result_time;
+// fau.
 	protected $deadline;
 	protected $instruction;
 	protected $title;
@@ -137,6 +140,28 @@ class ilExAssignment
 	{
 		return $this->deadline;
 	}
+
+// fau: exResTime - get/set the result time
+	/**
+	 * Set result time (timestamp)
+	 *
+	 * @param	int		result time (timestamp)
+	 */
+	function setResultTime($a_val)
+	{
+		$this->result_time = $a_val;
+	}
+
+	/**
+	 * Get result time (timestamp)
+	 *
+	 * @return	int		result time (timestamp)
+	 */
+	function getResultTime()
+	{
+		return $this->result_time;
+	}
+// fau.
 
 	/**
 	 * Set instruction
@@ -436,6 +461,9 @@ class ilExAssignment
 		{
 			$this->setExerciseId($rec["exc_id"]);
 			$this->setDeadline($rec["time_stamp"]);
+// fau: exeResTime - read the result time from the database
+			$this->setResultTime($rec["res_time"]);
+// fau.
 			$this->setInstruction($rec["instruction"]);
 			$this->setTitle($rec["title"]);
 			$this->setStartTime($rec["start_time"]);
@@ -475,6 +503,9 @@ class ilExAssignment
 			"instruction" => array("clob", $this->getInstruction()),
 			"title" => array("text", $this->getTitle()),
 			"start_time" => array("integer", $this->getStartTime()),
+// fau: exeResTime - save the result time to the database
+			"res_time" => array("integer", $this->getResultTime()),
+// fau.
 			"order_nr" => array("integer", $this->getOrderNr()),
 			"mandatory" => array("integer", $this->getMandatory()),
 			"type" => array("integer", $this->getType()),
@@ -509,6 +540,9 @@ class ilExAssignment
 			"instruction" => array("clob", $this->getInstruction()),
 			"title" => array("text", $this->getTitle()),
 			"start_time" => array("integer", $this->getStartTime()),
+// fau: exeResTime - update the result time in the database
+			"res_time" => array("integer", $this->getResultTime()),
+// fau.
 			"order_nr" => array("integer", $this->getOrderNr()),
 			"mandatory" => array("integer", $this->getMandatory()),
 			"type" => array("integer", $this->getType()),
@@ -605,6 +639,9 @@ class ilExAssignment
 				"instruction" => $rec["instruction"],
 				"title" => $rec["title"],
 				"start_time" => $rec["start_time"],
+// fau: exResTime - add result time to assignments data
+				"res_time" => $rec["res_time"],
+// fau.
 				"order_val" => $order_val,
 				"mandatory" => $rec["mandatory"],
 				"type" => $rec["type"],
@@ -642,6 +679,9 @@ class ilExAssignment
 			$new_ass->setMandatory($d["mandatory"]);
 			$new_ass->setOrderNr($d["order_val"]);
 			$new_ass->setStartTime($d["start_time"]);
+// fau: exResTime - clone result time
+			$new_ass->setResultTime($d["res_time"]);
+// fau.
 			$new_ass->setType($d["type"]);
 			$new_ass->setPeerReview($d["peer"]);
 			$new_ass->setPeerReviewMin($d["peer_min"]);
@@ -735,7 +775,7 @@ class ilExAssignment
 	{
 		return ilExAssignment::lookup($a_id, "title");
 	}
-	
+
 	/**
 	 * Lookup type
 	 */
@@ -743,6 +783,17 @@ class ilExAssignment
 	{
 		return ilExAssignment::lookup($a_id, "type");
 	}
+
+// fau: exResTime - lookup result time
+	/**
+	 * Lookup Result Time
+	 */
+	static function lookupResultTime($a_id)
+	{
+		return ilExAssignment::lookup($a_id, "res_time");
+	}
+// fau.
+
 	
 	/**
 	 * Save ordering of all assignments of an exercise
@@ -3252,7 +3303,9 @@ class ilExAssignment
 					// rename file
 					rename($file_path, $target);
 										
-					if ($noti_rec_ids)
+// fau: exResTime - revent sending of multi feedback notification
+					if ($noti_rec_ids and (int) $this->getResultTime() <= time())
+// fau.
 					{
 						$exc->sendFeedbackFileNotification($file_name, $noti_rec_ids,
 							(int) $this->getId());

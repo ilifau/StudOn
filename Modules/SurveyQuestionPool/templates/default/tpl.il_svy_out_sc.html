@@ -1,12 +1,13 @@
+<!-- fim: [form] added  classes ilSurvey*. -->
 <!-- BEGIN question_data -->
 <!-- BEGIN questiontitle -->
 <div class="questionTitle">{QUESTION_TITLE}</div>
 <!-- END questiontitle -->
 
 {ERROR_MESSAGE}
-<p>{QUESTIONTEXT}<span class="obligatory">{OBLIGATORY_TEXT}</span></p>
+<p class="ilSurveyQuestiontext">{QUESTIONTEXT}<span class="obligatory">{OBLIGATORY_TEXT}</span></p>
 <!-- BEGIN tableoutput -->
-<table class="nobackground">
+<table class="nobackground ilSurveyAnswer">
 <!-- BEGIN outer_row -->
 <!-- BEGIN row -->
 <tr{ROWCLASS}>
@@ -44,7 +45,7 @@
 </table>
 <!-- END tableoutput -->
 <!-- BEGIN combooutput -->
-{TEXT_SELECTION}: <select name="{QUESTION_ID}_value" class="form-control">
+<span class="ilSurveyAnswerLabel">{TEXT_SELECTION}:</span>&nbsp;<select name="{QUESTION_ID}_value" class="form-control">
 	<option value="">{SELECT_OPTION}</option>
 <!-- BEGIN comborow -->
 	<option value="{VALUE_SC}"{SELECTED_SC}>{TEXT_SC}</option>
@@ -52,7 +53,7 @@
 </select>
 <!-- END combooutput -->
 <!-- BEGIN material -->
-<p>
+<p class="ilSurveyMaterial">
 {TEXT_MATERIAL}
 </p>
 <!-- END material -->

@@ -226,6 +226,8 @@ class ilTestScoringGUI extends ilTestServiceGUI
 		
 		$maxPointsByQuestionId = array();
 		$maxPointsExceeded = false;
+        // fim: [exam] collect messages for maxpointsExceeded
+        $maxPointExceededMessages = "";
 		foreach($questionGuiList as $questionId => $questionGui)
 		{
 			$reachedPoints = $form->getItemByPostVar("question__{$questionId}__points")->getValue();
@@ -234,8 +236,9 @@ class ilTestScoringGUI extends ilTestServiceGUI
 			if( $reachedPoints > $maxPoints )
 			{
 				$maxPointsExceeded = true;
-				
-				$form->getItemByPostVar("question__{$questionId}__points")->setAlert( sprintf(
+ 				$maxPointExceededMessages .= '<br />'.$questionGui->object->getTitle().': '.sprintf(
+                        $lng->txt('tst_manscoring_maxpoints_exceeded_input_alert'),$maxPoints);
+ 				$form->getItemByPostVar("question__{$questionId}__points")->setAlert( sprintf(
 						$lng->txt('tst_manscoring_maxpoints_exceeded_input_alert'), $maxPoints
 				));
 			}
@@ -245,10 +248,12 @@ class ilTestScoringGUI extends ilTestServiceGUI
 		
 		if( $maxPointsExceeded )
 		{
-			ilUtil::sendFailure(sprintf($lng->txt('tst_save_manscoring_failed'), $pass + 1));
+			ilUtil::sendFailure(sprintf($lng->txt('tst_save_manscoring_failed'), $pass + 1)
+                .$maxPointExceededMessages);
 			return $this->showManScoringParticipantScreen($form);
 		}
-		
+        // fim.
+
 		include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
 		
 		foreach($questionGuiList as $questionId => $questionGui)
@@ -406,6 +411,9 @@ class ilTestScoringGUI extends ilTestServiceGUI
 			
 				$area = new ilTextAreaInputGUI($lng->txt('set_manual_feedback'), "question__{$questionId}__feedback");
 				$area->setUseRTE(true);
+				// fim: [exam] add backcolor to RTE buttons
+				$area->addButton('backcolor');
+				// fim.
 				if( $initValues ) $area->setValue( $this->object->getManualFeedback($activeId, $questionId, $pass) );
 			$form->addItem($area);
 

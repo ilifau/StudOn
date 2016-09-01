@@ -18,6 +18,9 @@
 			{CHECK_EXPORT_MEMBER}&nbsp;{TXT_EXPORT_MEMBER}<br />
 			{CHECK_EXPORT_SUB}&nbsp;{TXT_EXPORT_SUB}<br />
 			{CHECK_EXPORT_WAIT}&nbsp;{TXT_EXPORT_WAIT}<br />
+            <!-- fim: [export] option to export lot list -->
+			{CHECK_EXPORT_LOT}&nbsp;{TXT_EXPORT_LOT}<br />
+			<!-- fim. -->
 		  </td>
 		</tr>
 		<tr class="tblheader">
@@ -51,6 +54,52 @@
 		  </td>
 		</tr>
 		<!-- END consultation -->
+
+		<!-- fim: [export] add header for further export data -->
+		<tr class="tblheader">
+		  <td class="std" colspan="2">
+			<div style="float:left;">{TXT_FURTHER_INFORMATIONS}</div>
+		  </td>
+		</tr>
+		<!-- fim. -->
+
+		<!-- fim: [export] checkboxes to export registrations -->
+		<!-- BEGIN registrations -->
+		<tr class="std">
+		  <td class="option" align="top">{TXT_REGISTRATIONS}</td>
+		  <td class="option_value">
+			{CHECK_EXPORT_SESSIONS}&nbsp;{TXT_SESSIONS}<br />
+			{CHECK_EXPORT_GROUPS}&nbsp;{TXT_GROUPS}<br />
+		  </td>
+		</tr>
+		<!-- END registrations -->
+		<!-- fim. -->
+
+		<!-- fim: [export] checkboxes to export learning progresses -->
+		<!-- BEGIN learning_progress -->
+		<tr class="tblheader">
+		  <td class="std" colspan="2">
+			<div style="float:left;">{TXT_LEARNING_PROGRESS}</div>
+		  </td>
+		</tr>
+		<tr class="std">
+		  <td class="std" colspan="2">
+			<div class="small" style="float:left;">{TXT_LEARNING_PROGRESS_INFO}</div>
+		  </td>
+		</tr>
+		<!-- END learning_progress -->
+
+		<!-- BEGIN learning_progress_object -->
+		<tr class="std">
+		  <td class="option" align="top">{LP_OBJECT_TYPE}</td>
+		  <td class="option_value">
+			<!-- BEGIN learning_progress_mode -->
+			{LP_MODE_CHECK}&nbsp;{LP_MODE_TXT}<br />
+			<!-- END learning_progress_mode -->
+		  </td>
+		</tr>
+		<!-- END learning_progress_object -->
+		<!-- fim. -->
 		<tr>
 		  <td class="submit ilRight" colspan="2">
 			<input type="submit" class="submit" name="cmd[export]" value="{TXT_EXPORT}" />

@@ -44,6 +44,7 @@ abstract class ilDB extends PEAR
 	*/
 	var $db;
 
+	
 	/**
 	* database-result-object
 	* @var string
@@ -63,7 +64,15 @@ abstract class ilDB extends PEAR
 		);
 	
 	var $sub_type;
-
+	
+// fau: waitTimeout - class variable
+	/**
+	 * timeout for idle database sessions in seconds
+	 * @var integer
+	 */
+	var $wait_timeout = 0;
+// fau.
+	
 	/**
 	* constructor
 	*
@@ -233,6 +242,10 @@ abstract class ilDB extends PEAR
 			$this->setDBPassword($clientIniFile ->readVariable("db", "pass"));
 			$this->setDBName($clientIniFile ->readVariable("db", "name"));
 		}
+
+// fau: waitTimeout - set from client.ini.php
+		$this->wait_timeout = (int) $clientIniFile->readVariable("db", "wait_timeout");
+// fau.
 	}
 	
 	/**
@@ -257,7 +270,23 @@ abstract class ilDB extends PEAR
 		{
 			return false;
 		}
+
+		// fim: [retry] return error for reached max connections
+		if (MDB2::isError($this->db))
+		{
 			
+			if (strpos($this->db->getUserInfo(), '[Native code: 1040]')
+			 	or strpos($this->db->getUserInfo(), '[Native code: 1226]'))
+			{
+				return "max_connections_reached";	
+			}
+			else
+			{
+				return $this->db->getUserInfo();
+			}
+		}
+		// fim.		
+				
 		$this->loadMDB2Extensions();
 		
 		// set empty value portability to PEAR::DB behaviour
@@ -267,10 +296,10 @@ abstract class ilDB extends PEAR
 		}
 		//check error
 		$this->handleError($this->db);
-		
+
 		// anything, that must be done to initialize the connection
 		$this->initConnection();
-
+		
 		return true;
 	}
 	
@@ -278,10 +307,10 @@ abstract class ilDB extends PEAR
 	* Standard way to connect to db
 	*/
 	function doConnect()
-	{
-		$this->db = MDB2::connect($this->getDSN(),
-			array("use_transactions" => true));
-	}
+		{
+			$this->db = MDB2::connect($this->getDSN(),
+				array("use_transactions" => true));
+		}
 	
 	/**
 	* Disconnect
@@ -478,6 +507,7 @@ abstract class ilDB extends PEAR
 
 		return $a_res;
 	}
+
 	
 	/**
 	* Raise an error
@@ -1399,15 +1429,17 @@ abstract class ilDB extends PEAR
 			$ilBench->startDbBench($sql);
 		}
 		$r = $this->db->query($sql);
+
 		if (is_object($ilBench))
 		{
 			$ilBench->stopDbBench();
 		}
-		
+
 		if ($a_handle_error)
 		{
 			return $this->handleError($r, "query(".$sql.")");
 		}
+
 
 		return $r;
 	}

@@ -401,7 +401,9 @@ class ilScoringAdjustmentGUI
 
 		if ( $question instanceof ilGuiAnswerScoringAdjustable )
 		{
-			$question->populateAnswerSpecificFormPart( $form );
+			// fim: [exam] set flag for scoring adjustment mode
+			$question->populateAnswerSpecificFormPart( $form , true);
+			// fim.
 			$this->suppressPostParticipationFormElements( $form,
 														  $question->getAfterParticipationSuppressionAnswerPostVars()
 			);

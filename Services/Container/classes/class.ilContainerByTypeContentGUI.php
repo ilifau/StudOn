@@ -126,6 +126,27 @@ class ilContainerByTypeContentGUI extends ilContainerContentGUI
 			$output_html = $this->insertPageEmbeddedBlocks($output_html);
 		}
 
+		// fim: [portal] insert login blocks if enabled
+		global $ilCust, $ilAccess;
+		$ref_id = $this->getContainerObject()->getRefId();
+		$container_gui = $this->getContainerGUI();
+
+		if ($container_gui->enable_login_forms and $ilCust->getSetting("ilias_root_as_login"))
+		{
+			require_once ("Services/Init/classes/class.ilCustomLoginGUI.php");
+			$output_html = ilCustomLoginGUI::addLoginBlocks($output_html);
+		}
+		// fim.
+
+		// fim: [portal] hide item list at bottom of the page in reduced view mode
+		if ($container_gui->reduced_view_mode
+		and (!$ilAccess->checkAccess("write", "", $ref_id)
+			or !$container_gui->isActiveAdministrationPanel()))
+		{
+				return $output_html;
+		}
+		// fim.
+
 		// item groups
 		$pos = $this->getItemGroupsHTML();
 		

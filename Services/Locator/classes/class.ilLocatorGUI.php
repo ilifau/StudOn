@@ -93,10 +93,18 @@ class ilLocatorGUI
 			// add item for each node on path
 			foreach ((array) $path as $key => $row)
 			{
-				if (!in_array($row["type"], array("root", "cat","crs", "fold", "grp", "icrs")))
+				if (!in_array($row["type"], array("root","cat","crs", "fold", "grp", "icrs")))
 				{
 					continue;
 				}
+				// fim: [portal] don't show the root folder in the locator
+				global $ilCust;
+				if ($row["type"] == "root" and $ilCust->getSetting("ilias_root_as_login"))
+				{
+					continue;
+				}
+				// fim.
+
 				if ($row["title"] == "ILIAS" && $row["type"] == "root")
 				{
 					$row["title"] = $this->lng->txt("repository");

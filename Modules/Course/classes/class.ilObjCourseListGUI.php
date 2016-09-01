@@ -101,16 +101,9 @@ class ilObjCourseListGUI extends ilObjectListGUI
 				"value" => $lng->txt("crs_status_blocked"));
 		}
 
-		// pending subscription
-		include_once 'Modules/Course/classes/class.ilCourseParticipants.php';
-		if (ilCourseParticipants::_isSubscriber($this->obj_id,$ilUser->getId()))
-		{
-			$props[] = array("alert" => true, "property" => $lng->txt("member_status"),
-				"value" => $lng->txt("crs_status_pending"));
-		}
-		
+		// fim: [meminf] adapted info about registration, membership limit and status
 		include_once './Modules/Course/classes/class.ilObjCourseAccess.php';
-		$info = ilObjCourseAccess::lookupRegistrationInfo($this->obj_id);
+		$info = ilObjCourseAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
 		if($info['reg_info_list_prop'])
 		{
 			$props[] = array(
@@ -122,28 +115,26 @@ class ilObjCourseListGUI extends ilObjectListGUI
 		}
 		if($info['reg_info_list_prop_limit'])
 		{
-			
 			$props[] = array(
 				'alert' => false,
-				'newline' => false,
+				'newline' => true,
 				'property' => $info['reg_info_list_prop_limit']['property'],
 				'propertyNameVisible' => strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
 				'value' => $info['reg_info_list_prop_limit']['value']
 			);
 		}
-		
-		
-		// waiting list
-		include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
-		if(ilCourseWaitingList::_isOnList($ilUser->getId(),$this->obj_id))
+		if($info['reg_info_list_prop_status'])
 		{
 			$props[] = array(
-				"alert" 	=> true,
-				"property" 	=> $lng->txt('member_status'),
-				"value"		=> $lng->txt('on_waiting_list')
+				'alert' => true,
+				'newline' => true,
+				'property' => $info['reg_info_list_prop_status']['property'],
+				'propertyNameVisible' => strlen($info['reg_info_list_prop_status']['property']) ? true : false,
+				'value' => $info['reg_info_list_prop_status']['value']
 			);
 		}
-		
+		// fim.
+
 		// check for certificates	
 		include_once "./Modules/Course/classes/class.ilCourseCertificateAdapter.php";
 		if(ilCourseCertificateAdapter::_hasUserCertificate($ilUser->getId(), $this->obj_id))
@@ -171,7 +162,9 @@ class ilObjCourseListGUI extends ilObjectListGUI
 	public function checkCommandAccess($a_permission, $a_cmd, $a_ref_id, $a_type, $a_obj_id = "")
 	{
 		// Only check cmd access for cmd 'register' and 'unregister'
-		if($a_cmd != 'view' and $a_cmd != 'leave' and $a_cmd != 'join')
+        // fim: [memad] add 'join_as_guest' as possible command
+		if($a_cmd != 'view' and $a_cmd != 'leave' and $a_cmd != 'join' and $a_cmd != 'joinAsGuest')
+           // fim.
 		{
 			$a_cmd = '';
 		}

@@ -307,6 +307,12 @@ class ilPersonalDesktopGUI
 		ilUtil::infoPanel();
 		
 		$this->tpl->setTitle($this->lng->txt("overview"));
+		// fim: [cust] show description on desktop
+		if ($this->lng->txt('pd_description') != '-pd_description-')
+		{
+			$this->tpl->setDescription($this->lng->txt('pd_description'));
+		}
+		// fim.
 		$this->tpl->setVariable("IMG_SPACE", ilUtil::getImagePath("spacer.png", false));
 		
 		$this->tpl->setContent($this->getCenterColumnHTML());
@@ -643,7 +649,8 @@ class ilPersonalDesktopGUI
 			$this->ctrl->redirectByClass("ilportfoliorepositorygui", $cmd);
 		}
 	}
-	
+
+
 	/**
 	 * workaround for menu in calendar only
 	 */

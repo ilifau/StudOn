@@ -1,0 +1,112 @@
+/**
+* fim: [webform] new language file.
+*
+* ILIAS language file (Local changes only)
+*
+* @module	    language file German
+* @modulegroup	language
+*
+* @based_on		$Id: ilias_de.lang 17144 2008-08-13 07:21:37Z bheyser $
+* @il_server    http://dupre.fim.uni-erlangen.de/ilias-dev
+* @il_version   3.10.0 Beta2 2008-07-26
+* @created      2008-08-29 18:32:42
+* @created_by   root user <fred.neumann@fim.uni-erlangen.de> 
+*/
+
+	+-----------------------------------------------------------------------------+
+	| ILIAS open source                                                           |
+	+-----------------------------------------------------------------------------+
+	| Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
+	|                                                                             |
+	| This program is free software; you can redistribute it and/or               |
+	| modify it under the terms of the GNU General Public License                 |
+	| as published by the Free Software Foundation; either version 2              |
+	| of the License, or (at your option) any later version.                      |
+	|                                                                             |
+	| This program is distributed in the hope that it will be useful,             |
+	| but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+	| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+	| GNU General Public License for more details.                                |
+	|                                                                             |
+	| You should have received a copy of the GNU General Public License           |
+	| along with this program; if not, write to the Free Software                 |
+	| Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
+	+-----------------------------------------------------------------------------+
+
+// The language file starts beyond the HTML-comment below. DO NOT modify this line!
+// To edit your language file with a spreadsheet (i.e. Excel or StarCalc) remove all lines
+// from the first line to the HTML-comment. After editing paste the lines in place again.
+// NOTICE: Character coding of all ILIAS 3 lang files is UTF-8! Please set your editor
+// to the corresponding mode! 
+// Language file names refer to ISO 639, see: http://www.oasis-open.org/cover/iso639a.html
+<!-- language file start -->
+webform#:#webform_all_categories#:#Alle Bereiche
+webform#:#webform_all_corrected#:#korrigierte
+webform#:#webform_all_courses#:#Alle Kurse
+webform#:#webform_all_modules#:#Alle Lerneinheiten
+webform#:#webform_all_not_corrected#:#nicht korrigierte
+webform#:#webform_check_date#:#Korrekturdatum
+webform#:#webform_correct#:#Als korrigiert markieren
+webform#:#webform_corrected#:#Korrigiert
+webform#:#webform_corrected_entry#:#Die Einsendung wurden als korrigiert markiert.
+webform#:#webform_corrected_entries#:#Die Einsendungen wurden als korrigiert markiert.
+webform#:#webform_create#:#Formulardefinitionen anlegen
+webform#:#webform_create_definition#:#Formulardefinition erstellen
+webform#:#webform_definition#:#Formulardefinition
+webform#:#webform_definition_deleted#:#Die Formulardefinition wurde gelöscht.
+webform#:#webform_definition_delete_failed#:#Die Formulardefinition konnte nicht gelöscht werden.
+webform#:#webform_definition_saved#:#Die Formulardefinition wurde gespeichert.
+webform#:#webform_definition_updated#:#Die Formulardefinition wurde aktualisiert.
+webform#:#webform_definitions#:#Formulardefinitionen
+webform#:#webform_definitions_not_found#:#Die Datei mit den Formulardefinitionen "%s" wurde nicht gefunden.
+webform#:#webform_definitions_read#:#Formulardefinitionen einlesen
+webform#:#webform_definitions_read_count#:#Es wurden %s Formulardefinitionen eingelesen.
+webform#:#webform_definitions_read_finished#:#Die folgenden Formulardefinitionen wurden eingelesen:<br />%s
+webform#:#webform_edit_definition#:#Formulardefinition
+webform#:#webform_field_dataset_id#:#Dataset
+webform#:#webform_field_dataset_id_info#:#Bezeichnung des Datensatzes, in dem die Inhalte des Formulars gespeichert werden.<br />Mehrere Formulare können den gleichen Datensatz verwenden. Ist keine Datensatz-Bezeichnung angegeben, wird der Formularname genommen.
+webform#:#webform_field_form_name#:#Name
+webform#:#webform_field_form_name_info#:#Eindeutiger Name des Formulars im Lernmodul.<br />Wird bei einem erneuten Einlesen der Formulardefinitionen verwendet, um eine vorhandene zu überschreiben.
+webform#:#webform_field_forum#:#Zielforum (Name)
+webform#:#webform_field_forum_info#:#Titel des Forums, an das die Einsendung zusätzlich gepostet wird.<br />Bei mehreren gleichnamigen Foren mit Schreibberechtigung für den Nutzer wird das dem Lernmodul am nächsten liegende verwendet.
+webform#:#webform_field_forum_parent#:#Oberbeitrag (Name)
+webform#:#webform_field_forum_parent_info#:#Titel eines vorhandenen Oberbeitrags im Forum, dem die Einsendung zugeordnet wird.
+webform#:#webform_field_forum_subject#:#Beitrags-Titel
+webform#:#webform_field_forum_subject_info#:#Titel des Forenbeitrags, der bei der Einsendung angelegt wird.
+webform#:#webform_field_path#:#Pfad
+webform#:#webform_field_path_info#:#Relativer Pfad zur HTML-Seite des Formulars, ausgehend vom Basisverzeichnis des Lernmoduls.
+webform#:#webform_field_send_maxdate#:#Max. Sendedatum
+webform#:#webform_field_send_maxdate_info#:#Datum, bis zu dem das Formular eingesandt werden kann.
+webform#:#webform_field_solution_date#:#Freigabedatum
+webform#:#webform_field_solution_date_info#:#Datum, ab dem die Lösungsseite verfügbar ist.
+webform#:#webform_field_solution_mode#:#Freigabe der Lösung
+webform#:#webform_field_solution_mode_info#:#Legt fest, ab wann die Lösungsseite verfügbar ist.
+webform#:#webform_field_solution_ref#:#Pfad zur Lösung
+webform#:#webform_field_solution_ref_info#:#Relativer Pfad zu einer Lösungsseite, ausgehend vom Basisverzeichnis des Lernmoduls.
+webform#:#webform_field_title#:#Titel
+webform#:#webform_field_title_info#:#Titel, der in der Liste der Formulare und Einsendungen angezeigt wird.
+webform#:#webform_filter#:#Filter
+webform#:#webform_filter_all#:#Alle
+webform#:#webform_filter_form_id#:#Einsendeformular
+webform#:#webform_filter_checked#:#Korrektur
+webform#:#webform_filter_user_id#:#Nutzer
+webform#:#webform_goto_solution#:#Zur Lösung
+webform#:#webform_no_solution#:#Für dieses Formular ist keine Lösung definiert.
+webform#:#webform_read_definitions#:#Formulardefinitionen einlesen
+webform#:#webform_read_definitions_failed#:#Die Formulardefinitionen konnten nicht eingelesen werden
+webform#:#webform_read_definitions_successful#:#Formulardefinitionen wurden einlesen
+webform#:#webform_sendings#:#Einsendungen
+webform#:#webform_savings#:#Speicherungen
+webform#:#webform_send_date#:#Einsendedatum
+webform#:#webform_sent_entry#:#Der Eintrag wurde als gesendet markiert.
+webform#:#webform_solution#:#Lösung
+webform#:#webform_solution_after_checked#:#Die Lösung kann erst nach der Korrektur durch den Tutor angezeigt werden.
+webform#:#webform_solution_after_date#:#Die Lösung kann erst ab Datum %s angezeigt werden.
+webform#:#webform_solution_after_sent#:#Die Lösung kann erst nach dem Einsenden angezeigt werden.
+webform#:#webform_solution_mode_checked#:#Nach der Korrektur
+webform#:#webform_solution_mode_date#:#Nach dem Datum
+webform#:#webform_solution_mode_send#:#Beim Einsenden
+webform#:#webform_tutor#:#Tutor
+webform#:#webform_uncorrect#:#Als unkorrigiert markieren
+webform#:#webform_uncorrected_entry#:#Die Einsendung wurden als unkorrigiert markiert.
+webform#:#webform_uncorrected_entries#:#Die Einsendungen wurden als unkorrigiert markiert.

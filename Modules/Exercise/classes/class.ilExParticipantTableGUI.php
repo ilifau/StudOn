@@ -226,7 +226,9 @@ class ilExParticipantTableGUI extends ilTable2GUI
 			$lcomment_form->setPreventDoubleSubmission(false);
 			
 			$lcomment = new ilTextAreaInputGUI($lng->txt("exc_comment_for_learner"), "lcomment_".$d["id"]."_".$this->part_id);
-			$lcomment->setInfo($lng->txt("exc_comment_for_learner_info"));
+// fau: exResTime - adapt info for comment input
+			$lcomment->setInfo($lng->txt((int) $d['res_time'] <= time() ? "exc_comment_for_learner_info" : "exc_comment_for_learner_info_nosend"));
+// fau.
 			$lcomment->setValue($lcomment_value);
 			$lcomment->setCols(45);
 			$lcomment->setRows(5);			
@@ -292,13 +294,18 @@ class ilExParticipantTableGUI extends ilTable2GUI
 					ilDatePresentation::formatDate(new ilDateTime($ft,IL_CAL_DATETIME))));
 				$this->tpl->parseCurrentBlock();
 			}
-			$ilCtrl->setParameter($this, "rcp_to", $this->user->getLogin());
-			$this->tpl->setVariable("LINK_FEEDBACK",
-				$ilCtrl->getLinkTarget($this->parent_obj, "redirectFeedbackMail"));
+// fau: exResTime - set visibility of mail link
+			if ((int) $d['res_time'] <= time())
+			{
+				$ilCtrl->setParameter($this, "rcp_to", $this->user->getLogin());
+				$this->tpl->setVariable("LINK_FEEDBACK",
+					$ilCtrl->getLinkTarget($this->parent_obj, "redirectFeedbackMail"));
 				//"ilias.php?baseClass=ilMailGUI&type=new&rcp_to=".$mem_obj->getLogin());
-			$this->tpl->setVariable("TXT_FEEDBACK",
-				$lng->txt("exc_send_mail"));
-			$ilCtrl->setParameter($this->parent_obj, "rcp_to", "");
+				$this->tpl->setVariable("TXT_FEEDBACK",
+					$lng->txt("exc_send_mail"));
+				$ilCtrl->setParameter($this->parent_obj, "rcp_to", "");
+			}
+// fau.
 
 			if($d["type"] == ilExAssignment::TYPE_UPLOAD_TEAM)
 			{

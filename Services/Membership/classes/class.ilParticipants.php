@@ -64,6 +64,27 @@ abstract class ilParticipants
 	 	$this->readParticipants();
 	 	$this->readParticipantsStatus();
 	}
+
+	/**
+	* fim: [meminf] count unique subscribers for several objects
+	*
+	* @param    array   object ids
+	* @return   array   user ids
+	*/
+	static function _countSubscribers($a_obj_ids = array())
+	{
+	    global $ilDB;
+
+		$query = "SELECT COUNT(DISTINCT usr_id) users FROM il_subscribers WHERE "
+		. $ilDB->in('obj_id', $a_obj_ids, false, 'integer');
+
+		$result = $ilDB->query($query);
+		$row = $ilDB->fetchAssoc($result);
+
+		return $row['users'];
+	}
+	// fim.
+
 	
 	/**
 	 * Get instance by obj type
@@ -206,6 +227,48 @@ abstract class ilParticipants
         return $rbacreview->isAssignedToAtLeastOneGivenRole($a_usr_id, $local_roles);
 	}
 
+// fau: mailToMembers - check if user is local or upper admin
+	/**
+	 * Static function to check if the user has an admin role of this or an upper course/group
+	 * This is used for the special case of nested groups where admins should see the member gallery
+	 * without having write access in the groups
+	 *
+	 * @param int $a_ref_id
+	 * @param int $a_usr_id
+	 * @return bool
+	 */
+	public static function _isLocalOrUpperAdmin($a_ref_id, $a_usr_id)
+	{
+		/** @var ilRbacReview $rbacreview */
+		global $rbacreview;
+
+		/** @var ilTree $tree */
+		global $tree;
+
+		// check objects from current object upwards
+		$path_ids  = array_reverse($tree->getPathId($a_ref_id));
+		foreach ($path_ids as $path_id)
+		{
+			// this gets all roles with local policies
+			// it doen't get parent roles with protected permissions
+			// so the parent objects have to be checked explictly
+			$roles = $rbacreview->getRoleListByObject($path_id);
+			foreach ($roles as $role_data)
+			{
+				if (substr($role_data['title'], 0, 13) == 'il_grp_admin_' || substr($role_data['title'], 0, 13) == 'il_crs_admin_')
+				{
+					// assigned checks are cached so it doesn't matter if roles are checked twice
+					if ($rbacreview->isAssigned($a_usr_id, $role_data['obj_id']))
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+// fau.
+
 	/**
 	 * Lookup the number of participants (crs admins, tutors, members, grp admins, members)
 	 *
@@ -326,6 +389,11 @@ abstract class ilParticipants
 		$query = 'DELETE FROM crs_waiting_list '.
 				'WHERE obj_id = '.$ilDB->quote($a_obj_id,'integer');
 		$ilDB->manipulate($query);
+
+		// fim: [memlot] delete lot list when group/course is deleted
+		require_once "./Services/Membership/classes/class.ilSubscribersLot.php";
+		ilSubscribersLot::_deleteAll($a_obj_id);
+		// fim.
 
 		return true;
 	}
@@ -575,6 +643,22 @@ abstract class ilParticipants
 	 	return $this->roles ? $this->roles : array();
 	}
 	
+	
+	/**
+	 * fim: [memad] get the actual role id of a role type
+	 * 
+	 * needed to check membership and count of members
+	 * 
+	 * @param 	integer		role type constant, e.g. IL_GRP_MEMBER
+	 * @return	integer		actual role id
+	 */ 
+	public function getRoleId($a_role_type)
+	{
+		return $this->role_data[$a_role_type];
+	}
+	// fim.
+	
+	
 	/**
 	 * Get assigned roles
 	 *
@@ -698,6 +782,11 @@ abstract class ilParticipants
 		{
 			$rbacadmin->deassignUser($role_id,$a_usr_id);
 		}
+
+		// fim: [memsess] delete event participations of the removed user
+		include_once './Modules/Session/classes/class.ilEventParticipants.php';
+		ilEventParticipants::_deleteByUserAndParent($a_usr_id, $this->ref_id);
+		// fim.
 		
 		$query = "DELETE FROM obj_members ".
 			"WHERE usr_id = ".$ilDB->quote($a_usr_id ,'integer')." ".
@@ -864,6 +953,57 @@ abstract class ilParticipants
 		);
 	 	return true;
 	}
+	
+
+	/**
+	 * fim: [memfix] Add user to a role with limited members
+	 *
+	 * @access public
+	 * @param 	int 		user id
+	 * @param 	int 		role IL_CRS_MEMBER | IL_GRP_MEMBER
+	 * @param 	int 		maximum members (0 if no maximum defined)
+	 * @return  boolean 	user added (true) or not (false) or already assigned (null)
+	 */
+	public function addLimited($a_usr_id, $a_role, $a_max)
+	{
+	 	global $rbacadmin,$ilLog,$ilAppEventHandler;
+
+	 	if($this->isAssigned($a_usr_id))
+	 	{
+	 		return null;
+	 	}
+		elseif (!$rbacadmin->assignUserLimitedCust($this->role_data[$a_role],$a_usr_id, $a_max, array($this->role_data[$a_role])))
+		{
+	        return false;
+		}
+
+	 	switch($a_role)
+	 	{
+	 		case IL_CRS_MEMBER:
+	 			$this->members[] = $a_usr_id;
+	 			break;
+
+	 		case IL_GRP_MEMBER:
+	 			$this->members[] = $a_usr_id;
+	 			break;
+	 	}
+		$this->participants[] = $a_usr_id;
+		$this->addDesktopItem($a_usr_id);
+
+		// Delete subscription request
+		$this->deleteSubscriber($a_usr_id);
+
+		include_once './Services/Membership/classes/class.ilWaitingList.php';
+		ilWaitingList::deleteUserEntry($a_usr_id,$this->obj_id);
+
+		if($this->type == 'crs') {
+		 	// Add event: used for ecs accounts
+			$ilLog->write(__METHOD__.': Raise new event: Modules/Course addParticipant');
+			$ilAppEventHandler->raise("Modules/Course", "addParticipant", array('usr_id' => $a_usr_id,'role_id' => $a_role));
+		}
+	 	return true;
+	}
+	// fim.
 	
 
 	/**

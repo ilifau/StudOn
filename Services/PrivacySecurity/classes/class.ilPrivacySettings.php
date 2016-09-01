@@ -97,7 +97,20 @@ class ilPrivacySettings
 	{
 		return $this->export_group;
 	}
-	
+
+    /**
+     * fim: [privacy] check the general right for extended access to user data
+    */
+    public function _checkExtendedAccess()
+    {
+        global $rbacsystem;
+
+        $privacy = self::_getInstance();
+        return $rbacsystem->checkAccess('export_member_data',$privacy->getPrivacySettingsRefId());
+    }
+    // fim.
+
+
 	/**
 	 * Check if a user has the permission to access approved user profile fields, course related user data and custom user data
 	 * @todo rename
@@ -109,7 +122,7 @@ class ilPrivacySettings
 		global $ilUser,$ilAccess,$rbacsystem;
 		
 		$user_id = $a_user_id ? $a_user_id : $ilUser->getId();
-		
+
 		if(ilObject::_lookupType($a_ref_id, true) == 'crs')
 		{
 			return $this->enabledCourseExport() and $ilAccess->checkAccessOfUser($user_id,'write','',$a_ref_id) and $rbacsystem->checkAccessOfUser($user_id,'export_member_data',$this->getPrivacySettingsRefId());
@@ -119,6 +132,7 @@ class ilPrivacySettings
 			return $this->enabledGroupExport() and $ilAccess->checkAccessOfUser($user_id,'write','',$a_ref_id) and $rbacsystem->checkAccessOfUser($user_id,'export_member_data',$this->getPrivacySettingsRefId());
 		}		
 	}
+
 
 	public function enableCourseExport($a_status)
 	{

@@ -40,6 +40,9 @@ class ilCopyWizardOptions
 	const OWNER_KEY = -3;
 	const DISABLE_SOAP = -4;
 	const ROOT_NODE = -5;
+// fau: copyBySoap - constant for mail option
+	const SEND_MAIL = -6;
+// fau.
 	
 	private $db;
 	

@@ -196,6 +196,24 @@ class ilEventParticipants
 		}
 		return $user_ids ? $user_ids : array();
 	}
+
+	// fim: [memsess] _getRegistrationsOfUserAndParent()
+	function _getRegistrationsOfUserAndParent($a_user_id, $a_parent_ref_id)
+	{
+		global $tree;
+
+		$event_ids = array();
+		$nodes = $tree->getChildsByType($a_parent_ref_id, "sess");
+		foreach ($nodes as $node)
+		{
+			if (self::_isRegistered($a_user_id, $node["obj_id"]))
+			{
+				$event_ids[] = $node["obj_id"];
+			}
+		}
+		return $event_ids;
+	}
+	// fim.
 	
 	public static function _hasParticipated($a_usr_id,$a_event_id)
 	{
@@ -379,6 +397,23 @@ class ilEventParticipants
 		$res = $ilDB->manipulate($query);
 		return true;
 	}
+
+
+	// fim: [memsess] _deleteByUserAndParent()
+	function _deleteByUserAndParent($a_usr_id, $a_parent_ref_id)
+	{
+		global $ilDB, $tree;
+
+		$nodes = $tree->getChildsByType($a_parent_ref_id, "sess");
+		foreach ($nodes as $node)
+		{
+			$query = "DELETE FROM event_participants ".
+				"WHERE usr_id = ".$ilDB->quote($a_usr_id, 'integer')." ".
+				"AND event_id = ".$ilDB->quote($node["obj_id"], 'integer');
+			$ilDB->manipulate($query);
+		}
+	}
+	// fim.
 
 
 	// Private

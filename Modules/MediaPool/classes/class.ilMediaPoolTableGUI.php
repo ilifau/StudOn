@@ -409,22 +409,24 @@ class ilMediaPoolTableGUI extends ilTable2GUI
 						$this->tpl->setVariable("IMG",
 							ilUtil::img(ilUtil::getImagePath("icon_".$a_set["type"].".svg")));
 					}
-					if ($med && ilUtil::deducibleSize($med->getFormat()) &&
-						$med->getLocationType() == "Reference")
-					{
-						$size = @getimagesize($med->getLocation());
-						if ($size[0] > 0 && $size[1] > 0)
-						{
-							$wr = $size[0] / 80;
-							$hr = $size[1] / 80;
-							$r = max($wr, hr);
-							$w = (int) ($size[0]/$r);
-							$h = (int) ($size[1]/$r);
-							$this->tpl->setVariable("IMG",
-								ilUtil::img($med->getLocation(), "", $w, $h));
-						}
-					}
-					
+// fau: fixRemoteImages - don't deduct size from remote image files
+//					if ($med && ilUtil::deducibleSize($med->getFormat()) &&
+//						$med->getLocationType() == "Reference")
+//					{
+//						$size = @getimagesize($med->getLocation());
+//						if ($size[0] > 0 && $size[1] > 0)
+//						{
+//							$wr = $size[0] / 80;
+//							$hr = $size[1] / 80;
+//							$r = max($wr, hr);
+//							$w = (int) ($size[0]/$r);
+//							$h = (int) ($size[1]/$r);
+//							$this->tpl->setVariable("IMG",
+//								ilUtil::img($med->getLocation(), "", $w, $h));
+//						}
+//					}
+// fau.
+
 					// output media info
 					include_once("./Services/MediaObjects/classes/class.ilObjMediaObjectGUI.php");
 					$this->tpl->setVariable("MEDIA_INFO",

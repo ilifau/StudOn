@@ -1,0 +1,8 @@
+<?php xml version = "1.0" encoding = "UTF-8"?>
+<!-- fim: [studydata] service description -->
+<service xmlns="http://www.w3.org" version="$Id$"
+	id="study">
+	<baseclasses>
+		<baseclass name="ilStudyExportRequestGUI" dir="classes" />
+	</baseclasses>
+</service>

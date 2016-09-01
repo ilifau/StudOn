@@ -59,11 +59,25 @@ class ilObjGroupAccess extends ilObjectAccess
 					return false;
 				}
 
-				include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-				if(ilGroupWaitingList::_isOnList($ilUser->getId(), $a_obj_id))
+				// fim: [memad] include handling of subscribers and lot list
+				include_once './Modules/Group/classes/class.ilGroupParticipants.php';
+				if(ilGroupParticipants::_isSubscriber($a_obj_id,$a_user_id))
 				{
 					return false;
 				}
+
+				include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
+				if(ilGroupWaitingList::_isOnList($a_user_id, $a_obj_id))
+				{
+					return false;
+				}
+
+				include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+				if (ilSubscribersLot::_isOnList($a_user_id, $a_obj_id))
+				{
+					return;
+	            }
+				// fim.
 
 				include_once './Modules/Group/classes/class.ilGroupParticipants.php';
 				if(ilGroupParticipants::_isParticipant($a_ref_id,$a_user_id))
@@ -83,16 +97,42 @@ class ilObjGroupAccess extends ilObjectAccess
 						return false;
 					}
 				}
-				// Waiting list
+				// fim: [memad] leaving of waiting list, lot list or subscription
 				if($a_permission == 'join')
 				{
+					include_once './Modules/Group/classes/class.ilGroupParticipants.php';
 					include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-					if(!ilGroupWaitingList::_isOnList($ilUser->getId(), $a_obj_id))
+					include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+					if( !ilGroupParticipants::_isSubscriber($a_obj_id,$a_user_id)
+					and !ilGroupWaitingList::_isOnList($a_user_id, $a_obj_id)
+					and !ilSubscribersLot::_isOnList($a_user_id, $a_obj_id))
 					{
 						return false;
 					}
 				}
+				// fim.
 				break;
+
+			// fim: [memad] check rights for guest accounts to request a join
+			case 'joinAsGuest':
+				
+				include_once './Modules/Group/classes/class.ilGroupParticipants.php';
+
+				// don't show join_as_guest command if user is already assigned
+				if(ilGroupParticipants::_isParticipant($a_ref_id, $a_user_id))
+				{
+					return false;
+				}
+				
+				// don't show join_as_guest command if user can join
+				if ($rbacsystem->checkAccessOfUser($a_user_id,'join',$a_ref_id))
+				{
+					return false;
+				}
+
+				break;
+			// fim.
+				
 				
 		}
 
@@ -133,8 +173,18 @@ class ilObjGroupAccess extends ilObjectAccess
 
 		$commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
+		// fim: [memad] general command for editing requests, waiting list, lot list
 		// on waiting list
-		$commands[]	= array('permission' => "join", "cmd" => "leave", "lang_var" => "leave_waiting_list");
+		$commands[]	= array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
+		// fim.
+
+		// fim: [memad] add command for guest accounts to request a join
+		include_once('Services/User/classes/class.ilUserUtil.php');
+		if (ilUserUtil::_isGuestHearer())
+		{
+			$commands[]	= array('permission' => "visible", "cmd" => "joinAsGuest", "lang_var" => "join_as_guest");
+		}		
+		// fim.
 		
 		// regualar users
 		$commands[]	= array('permission' => "leave", "cmd" => "leave", "lang_var" => "grp_btn_unsubscribe");
@@ -179,8 +229,24 @@ class ilObjGroupAccess extends ilObjectAccess
 			return false;
 		}
 
-		if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
-			$ilAccess->checkAccess("visible", "", $t_arr[1]))
+		// fim: [univis] don't allow 'join' command for anonymous users
+		if ($t_arr[2] == 'join'
+			and (empty($_SESSION["AccountId"]) or $_SESSION["AccountId"] == ANONYMOUS_USER_ID))
+		{
+	        global $lng;
+
+			// ugly fix: $tpl used by ilUtil may not be initialized
+	        //ilUtil::sendInfo($lng->txt('join_grp_needs_login'), true);
+			$_SESSION['info'] = $lng->txt('join_grp_needs_login', true);
+			ilUtil::redirect(ilUtil::_getRootLoginLink($a_target), true);
+		}
+		// fim.
+
+		// fim: [bugfix] omit checking read access (bug 5323)(see ilObjCourseAccess::_checkGoto)
+		if ($ilAccess->checkAccess("visible", "", $t_arr[1]))
+		//		if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
+		//		$ilAccess->checkAccess("visible", "", $t_arr[1]))
+		// fim.
 		{
 			return true;
 		}
@@ -229,7 +295,7 @@ class ilObjGroupAccess extends ilObjectAccess
 		}
 		return false;
 	}
-	
+
 
 	/**
 	 * Preload data
@@ -252,12 +318,15 @@ class ilObjGroupAccess extends ilObjectAccess
 	 * @param int $a_obj_id
 	 * @return array
 	 */
-	public static function lookupRegistrationInfo($a_obj_id)
+	// fim: [meminf] add ref_id as parameter for checking write access
+	public static function lookupRegistrationInfo($a_obj_id, $a_ref_id = 0)
+	// fim.
 	{
 		global $ilDB, $ilUser, $lng;
-		
+
+		// fim: [meminf] query for showing memmbership limitation
 		$query = 'SELECT registration_type, registration_enabled, registration_unlimited,  registration_start, '.
-			'registration_end, registration_mem_limit, registration_max_members FROM grp_settings '.
+			'registration_end, registration_mem_limit, registration_max_members, show_mem_limit FROM grp_settings '.
 			'WHERE obj_id = '.$ilDB->quote($a_obj_id);
 		$res = $ilDB->query($query);
 		
@@ -278,8 +347,10 @@ class ilObjGroupAccess extends ilObjectAccess
 			}
 			
 			$info['reg_info_enabled'] = $row->registration_enabled;
+			$info['reg_info_show_mem_limit'] = $row->show_mem_limit;
 		}
-		
+		// fim.
+
 		$registration_possible = $info['reg_info_enabled'];
 
 		// Limited registration (added $registration_possible, see bug 0010157)
@@ -313,30 +384,73 @@ class ilObjGroupAccess extends ilObjectAccess
 				$info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
 			}
 		}
-		
-		if($info['reg_info_mem_limit'] && $registration_possible)
+
+		// fim: [meminf] get info about membership limitations and subscription status
+		global $ilAccess;
+		include_once './Modules/Group/classes/class.ilGroupParticipant.php';
+		include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
+		include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+
+		$partObj = ilGroupParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
+
+		if($info['reg_info_mem_limit'] && $info['reg_info_show_mem_limit'] && $registration_possible)
 		{
-			// Check if users are on waiting list
-			// @todo
-			
-			
-			// Check for free places
-			include_once './Modules/Group/classes/class.ilGroupParticipants.php';
-			$part = ilGroupParticipants::_getInstanceByObjId($a_obj_id);
-			if($part->getCountMembers() <= $info['reg_info_max_members'])
-			{
-				$info['reg_info_list_prop_limit']['property'] = $lng->txt('grp_list_reg_limit_places');
-				$info['reg_info_list_prop_limit']['value'] = max(
-						0,
-						$info['reg_info_max_members'] - $part->getCountMembers()
-					);
-			}
-			else
-			{
-				$info['reg_info_list_prop_limit']['property'] = '';
-				$info['reg_info_list_prop_limit']['value'] = $lng->txt('grp_list_reg_limit_full');
-			}
+			$show_mem_limit = true;
 		}
+		elseif ($info['reg_info_mem_limit'] && $ilAccess->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id))
+		{
+			$show_mem_limit = true;
+			$show_hidden_notice = true;
+		}
+
+		if($show_mem_limit)
+		{
+			$max_members = $info['reg_info_max_members'];
+			$members = $partObj->getNumberOfMembers();
+			$free_places = max($max_members - $members, 0);
+			$subscribers = $partObj->getNumberOfSubscribers();
+			$waiting = ilGroupWaitingList::_countSubscribers(array($a_obj_id));
+			$lotlist = ilSubscribersLot::_getCountUsers($a_obj_id);
+
+			$limits = array();
+			if ($show_hidden_notice)
+			{
+				$limits[] = $lng->txt("mem_max_users_hidden");
+			}
+			$limits[] =  $lng->txt("mem_max_users"). $max_members;
+			$limits[] =  $lng->txt("mem_free_places"). ': '. $free_places;
+			if ($subscriber + $waiting > 0)
+			{
+				$limits[] =  $lng->txt("subscribers_or_waiting_list"). ': '. (string) ($subscribers + $waiting);
+			}
+			if ($lotlist > 0)
+			{
+				$limits[] =  $lng->txt("mem_lot_candidates"). ': '. $lotlist;
+			}
+
+			$info['reg_info_list_prop_limit']['property'] = '';
+			$info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
+		}
+
+		// registration status
+		if ($partObj->isSubscriber($ilUser->getId()))
+		{
+			$status = $lng->txt("grp_status_pending");
+		}
+		elseif(ilGroupWaitingList::_isOnList($ilUser->getId(), $a_obj_id))
+		{
+			$status = $lng->txt('on_waiting_list');
+		}
+		elseif (ilSubscribersLot::_isOnList($ilUser->getId(), $a_obj_id))
+		{
+			$status = $lng->txt('mem_on_lot_list');
+		}
+		if ($status)
+		{
+			$info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
+			$info['reg_info_list_prop_status']['value'] = $status;
+		}
+		// fim.
 
 		return $info;
 	}

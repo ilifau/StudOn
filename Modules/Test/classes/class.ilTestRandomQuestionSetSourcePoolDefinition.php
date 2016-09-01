@@ -32,18 +32,36 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 	private $poolPath = null;
 	
 	private $poolQuestionCount = null;
-	
-	private $originalFilterTaxId = null;
-	
-	private $originalFilterTaxNodeId = null;
 
-	private $mappedFilterTaxId = null;
-
-	private $mappedFilterTaxNodeId = null;
+//  fau: taxFilter - deactivate ols class variables
+//	private $originalFilterTaxId = null;
+//
+//	private $originalFilterTaxNodeId = null;
+//
+//	private $mappedFilterTaxId = null;
+//
+//	private $mappedFilterTaxNodeId = null;
+//  fau.
 
 	private $questionAmount = null;
 	
 	private $sequencePosition = null;
+
+// fau: taxFilter - new class variables
+	/**
+	 * @var array taxId => [nodeId, ...]
+	 */
+	private $originalTaxonomyFilter = array();
+
+	/**
+	 * @var array taxId => [nodeId, ...]
+	 */
+	private $mappedTaxonomyFilter = array();
+// fau.
+
+// fau: typeFilter - new class variable
+	private $typeFilter = array();
+// fau.
 	
 	public function __construct(ilDB $db, ilObjTest $testOBJ)
 	{
@@ -100,46 +118,175 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 	{
 		return $this->poolQuestionCount;
 	}
-	
-	public function setOriginalFilterTaxId($originalFilterTaxId)
+
+// fau: taxFilter - hide the functions for selecting single taxonomies and nodes
+
+//	public function setOriginalFilterTaxId($originalFilterTaxId)
+//	{
+//		$this->originalFilterTaxId = $originalFilterTaxId;
+//	}
+//
+//	public function getOriginalFilterTaxId()
+//	{
+//		return $this->originalFilterTaxId;
+//	}
+//
+//	public function setOriginalFilterTaxNodeId($originalFilterNodeId)
+//	{
+//		$this->originalFilterTaxNodeId = $originalFilterNodeId;
+//	}
+//
+//	public function getOriginalFilterTaxNodeId()
+//	{
+//		return $this->originalFilterTaxNodeId;
+//	}
+//
+//	public function setMappedFilterTaxId($mappedFilterTaxId)
+//	{
+//		$this->mappedFilterTaxId = $mappedFilterTaxId;
+//	}
+//
+//	public function getMappedFilterTaxId()
+//	{
+//		return $this->mappedFilterTaxId;
+//	}
+//
+//	public function setMappedFilterTaxNodeId($mappedFilterTaxNodeId)
+//	{
+//		$this->mappedFilterTaxNodeId = $mappedFilterTaxNodeId;
+//	}
+//
+//	public function getMappedFilterTaxNodeId()
+//	{
+//		return $this->mappedFilterTaxNodeId;
+//	}
+
+// fau.
+
+// fau: taxFilter - new setters/getters for taxomony filters
+
+	/**
+	 * get the original taxonomy filter conditions
+	 * @return array	taxId => [nodeId, ...]
+	 */
+	public function getOriginalTaxonomyFilter()
 	{
-		$this->originalFilterTaxId = $originalFilterTaxId;
-	}
-	
-	public function getOriginalFilterTaxId()
-	{
-		return $this->originalFilterTaxId;
-	}
-	
-	public function setOriginalFilterTaxNodeId($originalFilterNodeId)
-	{
-		$this->originalFilterTaxNodeId = $originalFilterNodeId;
-	}
-	
-	public function getOriginalFilterTaxNodeId()
-	{
-		return $this->originalFilterTaxNodeId;
+		return $this->originalTaxonomyFilter;
 	}
 
-	public function setMappedFilterTaxId($mappedFilterTaxId)
+	/**
+	 * set the original taxonomy filter condition
+	 * @param  array taxId => [nodeId, ...]
+	 */
+	public function setOriginalTaxonomyFilter($filter = array())
 	{
-		$this->mappedFilterTaxId = $mappedFilterTaxId;
+			$this->originalTaxonomyFilter = $filter;
 	}
 
-	public function getMappedFilterTaxId()
+	/**
+	 * get the original taxonomy filter for insert into the database
+	 * @return null|string		serialized taxonomy filter
+	 */
+	private function getOriginalTaxonomyFilterForDbValue()
 	{
-		return $this->mappedFilterTaxId;
+		return empty($this->originalTaxonomyFilter) ? null : serialize($this->originalTaxonomyFilter);
 	}
 
-	public function setMappedFilterTaxNodeId($mappedFilterTaxNodeId)
+	/**
+	 * get the original taxonomy filter from database value
+	 * @param null|string		serialized taxonomy filter
+	 */
+	private function setOriginalTaxonomyFilterFromDbValue($value)
 	{
-		$this->mappedFilterTaxNodeId = $mappedFilterTaxNodeId;
+		$this->originalTaxonomyFilter = empty($value) ? array() : unserialize($value);
 	}
 
-	public function getMappedFilterTaxNodeId()
+	/**
+	 * get the mapped taxonomy filter conditions
+	 * @return 	array	taxId => [nodeId, ...]
+	 */
+	public function getMappedTaxonomyFilter()
 	{
-		return $this->mappedFilterTaxNodeId;
+		return $this->mappedTaxonomyFilter;
 	}
+
+	/**
+	 * set the original taxonomy filter condition
+	 * @param array 	taxId => [nodeId, ...]
+	 */
+	public function setMappedTaxonomyFilter($filter = array())
+	{
+		$this->mappedTaxonomyFilter = $filter;
+	}
+
+	/**
+	 * get the original taxonomy filter for insert into the database
+	 * @return null|string		serialized taxonomy filter
+	 */
+	private function getMappedTaxonomyFilterForDbValue()
+	{
+		return empty($this->mappedTaxonomyFilter) ? null : serialize($this->mappedTaxonomyFilter);
+	}
+
+	/**
+	 * get the original taxonomy filter from database value
+	 * @param null|string		serialized taxonomy filter
+	 */
+	private function setMappedTaxonomyFilterFromDbValue($value)
+	{
+		$this->mappedTaxonomyFilter = empty($value) ? array() : unserialize($value);
+	}
+
+
+	/**
+	 * set the mapped taxonomy filter from original by applying a keys map
+	 * @param ilQuestionPoolDuplicatedTaxonomiesKeysMap $taxonomiesKeysMap
+	 */
+	public function mapTaxonomyFilter(ilQuestionPoolDuplicatedTaxonomiesKeysMap $taxonomiesKeysMap)
+	{
+		$this->mappedTaxonomyFilter = array();
+		foreach ($this->originalTaxonomyFilter as $taxId => $nodeIds)
+		{
+			$mappedNodeIds = array();
+			foreach ($nodeIds as $nodeId)
+			{
+				$mappedNodeIds[] = $taxonomiesKeysMap->getMappedTaxNodeId($nodeId);
+			}
+			$this->mappedTaxonomyFilter[$taxonomiesKeysMap->getMappedTaxonomyId($taxId)] = $mappedNodeIds;
+		}
+	}
+
+// fau.
+
+// fau: typeFilter - setters and getters
+	public function setTypeFilter($typeFilter = array())
+	{
+		$this->typeFilter = $typeFilter;
+	}
+
+	public function getTypeFilter()
+	{
+		return $this->typeFilter;
+	}
+
+	/**
+	 * get the question type filter for insert into the database
+	 * @return null|string		serialized type filter
+	 */
+	private function getTypeFilterForDbValue()
+	{
+		return empty($this->typeFilter) ? null : serialize($this->typeFilter);
+	}
+
+	/**
+	 * get the question type filter from database value
+	 * @param null|string		serialized type filter
+	 */
+	private function setTypeFilterFromDbValue($value)
+	{
+		$this->typeFilter = empty($value) ? array() : unserialize($value);
+	}
+// fau.
 
 	public function setQuestionAmount($questionAmount)
 	{
@@ -177,10 +324,17 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 				case 'pool_title':			$this->setPoolTitle($value);				break;
 				case 'pool_path':			$this->setPoolPath($value);					break;
 				case 'pool_quest_count':	$this->setPoolQuestionCount($value);		break;
-				case 'origin_tax_fi':		$this->setOriginalFilterTaxId($value);		break;
-				case 'origin_node_fi':		$this->setOriginalFilterTaxNodeId($value);	break;
-				case 'mapped_tax_fi':		$this->setMappedFilterTaxId($value);		break;
-				case 'mapped_node_fi':		$this->setMappedFilterTaxNodeId($value);	break;
+// fau: taxFilter - use new db fields
+//				case 'origin_tax_fi':		$this->setOriginalFilterTaxId($value);		break;
+//				case 'origin_node_fi':		$this->setOriginalFilterTaxNodeId($value);	break;
+//				case 'mapped_tax_fi':		$this->setMappedFilterTaxId($value);		break;
+//				case 'mapped_node_fi':		$this->setMappedFilterTaxNodeId($value);	break;
+				case 'origin_tax_filter':	$this->setOriginalTaxonomyFilterFromDbValue($value);	break;
+				case 'mapped_tax_filter':	$this->setMappedTaxonomyFilterFromDbValue($value);		break;
+// fau.
+// fau: typeFilter - read from db
+				case 'type_filter':			$this->setTypeFilterFromDbValue($value);	break;
+// fau.
 				case 'quest_amount':		$this->setQuestionAmount($value);			break;
 				case 'sequence_pos':		$this->setSequencePosition($value);			break;
 			}
@@ -243,10 +397,17 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 				'pool_title' => array('text', $this->getPoolTitle()),
 				'pool_path' => array('text', $this->getPoolPath()),
 				'pool_quest_count' => array('integer', $this->getPoolQuestionCount()),
-				'origin_tax_fi' => array('integer', $this->getOriginalFilterTaxId()),
-				'origin_node_fi' => array('integer', $this->getOriginalFilterTaxNodeId()),
-				'mapped_tax_fi' => array('integer', $this->getMappedFilterTaxId()),
-				'mapped_node_fi' => array('integer', $this->getMappedFilterTaxNodeId()),
+// fau: taxFilter - use new db fields
+//				'origin_tax_fi' => array('integer', $this->getOriginalFilterTaxId()),
+//				'origin_node_fi' => array('integer', $this->getOriginalFilterTaxNodeId()),
+//				'mapped_tax_fi' => array('integer', $this->getMappedFilterTaxId()),
+//				'mapped_node_fi' => array('integer', $this->getMappedFilterTaxNodeId()),
+				'origin_tax_filter' => array('text', $this->getOriginalTaxonomyFilterForDbValue()),
+				'mapped_tax_filter' => array('text', $this->getMappedTaxonomyFilterForDbValue()),
+// fau.
+// fau: typeFilter - update in db
+				'type_filter' => array('text', $this->getTypeFilterForDbValue()),
+// fau.
 				'quest_amount' => array('integer', $this->getQuestionAmount()),
 				'sequence_pos' => array('integer', $this->getSequencePosition())
 			),
@@ -270,10 +431,17 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 				'pool_title' => array('text', $this->getPoolTitle()),
 				'pool_path' => array('text', $this->getPoolPath()),
 				'pool_quest_count' => array('integer', $this->getPoolQuestionCount()),
-				'origin_tax_fi' => array('integer', $this->getOriginalFilterTaxId()),
-				'origin_node_fi' => array('integer', $this->getOriginalFilterTaxNodeId()),
-				'mapped_tax_fi' => array('integer', $this->getMappedFilterTaxId()),
-				'mapped_node_fi' => array('integer', $this->getMappedFilterTaxNodeId()),
+// fau: taxFilter - use new db fields
+//				'origin_tax_fi' => array('integer', $this->getOriginalFilterTaxId()),
+//				'origin_node_fi' => array('integer', $this->getOriginalFilterTaxNodeId()),
+//				'mapped_tax_fi' => array('integer', $this->getMappedFilterTaxId()),
+//				'mapped_node_fi' => array('integer', $this->getMappedFilterTaxNodeId()),
+				'origin_tax_filter' => array('text', $this->getOriginalTaxonomyFilterForDbValue()),
+				'mapped_tax_filter' => array('text', $this->getMappedTaxonomyFilterForDbValue()),
+// fau.
+// fau: typeFilter - insert into db
+				'type_filter' => array('text', $this->getTypeFilterForDbValue()),
+// fau.
 				'quest_amount' => array('integer', $this->getQuestionAmount()),
 				'sequence_pos' => array('integer', $this->getSequencePosition())
 		));

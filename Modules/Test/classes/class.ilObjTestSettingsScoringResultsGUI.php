@@ -477,6 +477,24 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 		$chb_resulting_mark_only->setValue(1);
 		$chb_resulting_mark_only->setChecked($this->testOBJ->isShowGradingMarkEnabled());
 		$form->addItem($chb_resulting_mark_only);
+
+		// fim: [exam] add fields for passed / failed messages
+		$mark = new ilTextAreaInputGUI($this->lng->txt("tst_mark_tst_passed"), "mark_tst_passed");
+		$mark->setRows(3);
+		$mark->setUseRte(true);
+		$mark->setRteTagSet('extended');
+		$mark->setValue($this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstPassed()));
+		$mark->setInfo($this->lng->txt("tst_mark_tst_passed_details"));
+		$form->addItem($mark);
+
+		$mark = new ilTextAreaInputGUI($this->lng->txt("tst_mark_tst_failed"), "mark_tst_failed");
+		$mark->setRows(3);
+		$mark->setUseRte(true);
+		$mark->setRteTagSet('extended');
+		$mark->setValue($this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstFailed()));
+		$mark->setInfo($this->lng->txt("tst_mark_tst_failed_details"));
+		$form->addItem($mark);
+		// fim.
 	}
 
 	/**
@@ -524,6 +542,12 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 				(int)$form->getItemByPostVar('grading_mark')->getChecked()
 			);
 		}
+
+		// fim: [exam] save mark messages
+		$this->testOBJ->setMarkTstPassed($form->getItemByPostVar('mark_tst_passed')->getValue());
+		$this->testOBJ->setMarkTstFailed($form->getItemByPostVar('mark_tst_failed')->getValue());
+		// fim.
+
 	}
 
 	private function addResultDetailsSettingsFormSection(ilPropertyFormGUI $form)
@@ -782,12 +806,14 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 		$anonymity->setValue((int)$this->testOBJ->getAnonymity());
 		$form->addItem($anonymity);
 
+// fau: manualTestArchiving - don't show archiving switch
 		// enable_archiving
-		$enable_archiving = new ilCheckboxInputGUI($this->lng->txt('test_enable_archiving'), 'enable_archiving');
-		$enable_archiving->setInfo($this->lng->txt('test_enable_archiving_desc'));
-		$enable_archiving->setValue(1);
-		$enable_archiving->setChecked($this->testOBJ->getEnableArchiving());
-		$form->addItem($enable_archiving);
+//		$enable_archiving = new ilCheckboxInputGUI($this->lng->txt('test_enable_archiving'), 'enable_archiving');
+//		$enable_archiving->setInfo($this->lng->txt('test_enable_archiving_desc'));
+//		$enable_archiving->setValue(1);
+//		$enable_archiving->setChecked($this->testOBJ->getEnableArchiving());
+//		$form->addItem($enable_archiving);
+// fau.
 	}
 
 	/**
@@ -845,6 +871,19 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 
 	private function isScoreRecalculationRequired(ilPropertyFormGUI $form)
 	{
+// fau: preventRecalc - don't recalculate the test results if relevant settings are not changed
+		if (
+			$_POST["count_system"] == $this->testOBJ->getCountSystem() and
+			$_POST["mc_scoring"] == $this->testOBJ->getMCScoring() and
+			$_POST["score_cutting"] == $this->testOBJ->getScoreCutting() and
+			$_POST["pass_scoring"] == $this->testOBJ->getPassScoring() and
+			$_POST["pass_deletion_allowed"] == $this->testOBJ->isPassDeletionAllowed()
+		)
+		{
+			return false;
+		}
+// fau.
+
 		if ( !$this->testOBJ->participantDataExist() )
 		{
 			return false;

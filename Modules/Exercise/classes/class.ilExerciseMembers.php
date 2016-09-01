@@ -393,6 +393,7 @@ class ilExerciseMembers
 		return false;
 	}
 
+	
 	/**
 	 * Write user status
 	 *
@@ -410,6 +411,9 @@ class ilExerciseMembers
 		
 		$ilDB->manipulate("UPDATE exc_members SET ".
 			" status = ".$ilDB->quote($a_status, "text").
+			// fim: update the status time
+			", status_time = ".$ilDB->quote(ilUtil::now(), "timestamp").
+			// fim.
 			" WHERE obj_id = ".$ilDB->quote($a_obj_id, "integer").
 			" AND usr_id = ".$ilDB->quote($a_user_id, "integer")
 			);

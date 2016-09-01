@@ -140,6 +140,33 @@ class ilErrorHandling extends PEAR
 //echo $a_error_obj->getCode().":"; exit;
 		if ($a_error_obj->getCode() == $this->FATAL)
 		{
+			//  fim: [debug] show backtrace for fatal error
+			if (DEVMODE == 1)
+			{
+				echo "<b>DEVMODE</b><br><br>";
+				if (is_array($a_error_obj->backtrace))
+				{
+					echo "Backtrace:<br>";
+					foreach ($a_error_obj->backtrace as $b)
+					{
+						if ($b["function"] == "setCurrentBlock" &&
+							basename($b["file"]) != "class.ilTemplate.php")
+						{
+							echo "<b>";
+						}
+						echo "File: ".$b["file"].", ";
+						echo "Line: ".$b["line"].", ";
+						echo $b["function"]."()<br>";
+						if ($b["function"] == "setCurrentBlock" &&
+							basename($b["file"]) != "class.ilTemplate.php")
+						{
+							echo "</b>";
+						}
+					}
+				}
+			}
+			// fim.
+
 			trigger_error(stripslashes($a_error_obj->getMessage()), E_USER_ERROR);
 			exit();
 		}

@@ -411,10 +411,25 @@ class ilObjectRolePermissionTableGUI extends ilTable2GUI
 			$perms[$counter++]['show_start_info'] = true;
 		}
 
+		// fim: [admin] get settings for local user administration
+		require_once('./Services/User/classes/class.ilUserAccountSettings.php');
+		$local_user_admin_enabled = ilUserAccountSettings::getInstance()->isLocalUserAdministrationEnabled();	
+		// fim.
+		
 		// no creation permissions
 		$no_creation_operations = array();
 		foreach($rbacreview->getOperationsByTypeAndClass($this->getObjType(),'object') as $operation)
-		{
+		{		
+
+			// fim: [admin] customize permissions settings for local user administration			
+			if (($operation == 47 || $operation == 48)
+			and (!$local_user_admin_enabled))
+			{
+				continue;
+			}
+			// fim.
+			
+			
 			$this->addActiveOperation($operation);
 			$no_creation_operations[] = $operation;
 

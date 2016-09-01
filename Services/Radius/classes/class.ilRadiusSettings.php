@@ -356,6 +356,9 @@ class ilRadiusSettings
 			}
 		}
 		
+		// fim: [performance] don't search for radius rols
+		$this->default_role = 0;
+		/*
 		include_once('./Services/AccessControl/classes/class.ilObjRole.php');
 		$roles = ilObjRole::_getRolesByAuthMode('radius');
 		$this->default_role = 0;
@@ -363,6 +366,8 @@ class ilRadiusSettings
 		{
 			$this->default_role = $roles[0];
 		}
+		*/
+		// fim.
 	}
 }
 

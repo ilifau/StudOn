@@ -49,19 +49,24 @@
 	overflow-x: auto;
 }
 
+/* fau: showBestSolutionBelow  - show best solution below the user input */
 .lcol.participant
 {
-    width: 49%;
-	overflow-x: auto;
+    width: 100%;
+    float: none;
+	overflow-x: visible;
 }
 
 .rcol.solution {
-	width: 49%;
-	overflow-x: auto;
+	width: 100%;
+    float: none;
+	overflow-x: visible;
+    margin-top: 1em;
 	padding: 5px;
 	background: #E2FFC7; /* Fallback IE 6-8 */
 	background: rgba(226, 255, 199, .4);
 }
+/* fau. */
 
 #kioskOptions {
 	clear: both;
@@ -137,6 +142,13 @@ div.ilc_Question {
 	padding: 0.25em;
 	margin-top: 1em;
 }
+
+/* fim: [exam] new style for solution (needed here and in test_print)*/
+.questionPrintviewCorrectSolution {
+	border-left: 3px dotted green;
+	padding-left:10px;
+}
+/* fim. */
 
 .solutionbox {
 	color: black;

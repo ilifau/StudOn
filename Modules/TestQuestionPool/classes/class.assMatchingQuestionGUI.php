@@ -430,6 +430,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 		$show_question_text = TRUE
 	)
 	{
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+		
 		// generate the question output
 		include_once "./Services/UICore/classes/class.ilTemplate.php";
 		$template = new ilTemplate("tpl.il_as_qpl_matching_output_solution.html", TRUE, TRUE, "Modules/TestQuestionPool");
@@ -595,6 +601,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	{
 		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
 
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		$this->tpl->addJavaScript('Modules/TestQuestionPool/js/jquery-ui-1-10-3-fixed.js');
 		$this->tpl->addJavaScript('Modules/TestQuestionPool/js/ilMatchingQuestion.js');
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation('output', 'test_javascript.css', 'Modules/TestQuestionPool'));
@@ -753,6 +765,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
 	function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $user_post_solution = FALSE)
 	{
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		$this->tpl->addJavaScript('Modules/TestQuestionPool/js/jquery-ui-1-10-3-fixed.js');
 		$this->tpl->addJavaScript('Modules/TestQuestionPool/js/ilMatchingQuestion.js');
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation('output', 'test_javascript.css', 'Modules/TestQuestionPool'));

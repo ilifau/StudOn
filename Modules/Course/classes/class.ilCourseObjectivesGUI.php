@@ -1082,17 +1082,28 @@ class ilCourseObjectivesGUI
 		$options[0] = $this->lng->txt('select_one');
 		foreach ($list as $definition)
 		{
+// fau: taxFilter - get title for extended filter condition
+// fau: typeFilter - add type filter title
+			/** @var ilTestRandomQuestionSetSourcePoolDefinition $definition */
 			$title = $definition->getPoolTitle();
-			$tax_id = $definition->getMappedFilterTaxId();
-			if($tax_id)
+			$filterTitle = array();
+			$filterTitle[] = $translater->getTaxonomyFilterLabel($definition->getMappedTaxonomyFilter());
+			$filterTitle[] = $translater->getTypeFilterLabel($definition->getTypeFilter());
+			if (!empty($filterTitle))
 			{
-				$title .= (' -> '. $translater->getTaxonomyTreeLabel($tax_id));
+				$title .= ' -> '.implode(' / ', $filterTitle);
 			}
-			$tax_node = $definition->getMappedFilterTaxNodeId();
-			if($tax_node)
-			{
-				$title .= (' -> ' .$translater->getTaxonomyNodeLabel($tax_node));
-			}
+//			$tax_id = $definition->getMappedFilterTaxId();
+//			if($tax_id)
+//			{
+//				$title .= (' -> '. $translater->getTaxonomyTreeLabel($tax_id));
+//			}
+//			$tax_node = $definition->getMappedFilterTaxNodeId();
+//			if($tax_node)
+//			{
+//				$title .= (' -> ' .$translater->getTaxonomyNodeLabel($tax_node));
+//			}
+// fau.
 			$options[$definition->getId()] = $title;
 		}
 		return $options;

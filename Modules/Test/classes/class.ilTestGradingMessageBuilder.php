@@ -114,9 +114,15 @@ class ilTestGradingMessageBuilder
 		$this->tpl->setVariable('STATUS_CSS_CLASS', $this->getGradingStatusCssClass());
 		$this->tpl->parseCurrentBlock();
 
-		$this->tpl->setCurrentBlock('grading_status_msg');
-		$this->tpl->setVariable('GRADING_STATUS_MSG', $this->buildGradingStatusMsg());
-		$this->tpl->parseCurrentBlock();
+		// fim: [exam] avould line breaks for empty grading status message
+		$statusMsg = $this->buildGradingStatusMsg();
+		if (!empty($statusMsg))
+		{
+			$this->tpl->setCurrentBlock('grading_status_msg');
+			$this->tpl->setVariable('GRADING_STATUS_MSG', $this->buildGradingStatusMsg());
+			$this->tpl->parseCurrentBlock();
+		}
+		// fim.
 	}
 	
 	private function getGradingStatusCssClass()
@@ -131,12 +137,16 @@ class ilTestGradingMessageBuilder
 
 	private function buildGradingStatusMsg()
 	{
-		if( $this->isPassed() )
+		// fim: [exam] build grading status message only if no specific mark message is configured
+		if( $this->isPassed())
 		{
-			return $this->lng->txt('grading_status_passed_msg');
+			$markMsg = $this->testOBJ->getMarkTstPassed();
+			return empty($markMsg) ? $this->lng->txt('grading_status_passed_msg') : '';
 		}
 
-		return $this->lng->txt('grading_status_failed_msg');
+		$markMsg = $this->testOBJ->getMarkTstFailed();
+		return empty($markMsg) ? $this->lng->txt('grading_status_failed_msg') : '';
+		// fim.
 	}
 
 	private function isPassed()
@@ -151,9 +161,22 @@ class ilTestGradingMessageBuilder
 		$this->tpl->parseCurrentBlock();
 	}
 
-	private function buildGradingMarkMsg()
+	// fim: [exam] allow public call anduse test specific mark messages
+	public function buildGradingMarkMsg()
 	{
-		$markMsg = $this->lng->txt('grading_mark_msg');
+		if ($this->isPassed())
+		{
+			$markMsg = $this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstPassed());
+		}
+		else
+		{
+			$markMsg = $this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstFailed());
+		}
+
+		if (empty($markMsg))
+		{
+			$markMsg = $this->lng->txt('grading_mark_msg');
+		}
 
 		$markMsg = str_replace("[mark]", $this->getMarkOfficial(), $markMsg);
 		$markMsg = str_replace("[markshort]", $this->getMarkShort(), $markMsg);
@@ -163,6 +186,7 @@ class ilTestGradingMessageBuilder
 		
 		return $markMsg;
 	}
+	// fim.
 
 	private function getMarkOfficial()
 	{

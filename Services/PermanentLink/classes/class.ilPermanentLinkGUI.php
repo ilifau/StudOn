@@ -16,19 +16,21 @@
 */
 class ilPermanentLinkGUI
 {
-	protected $align_center = true;
-	
 	/**
 	* Example: type = "wiki", id (ref_id) = "234", append = "_Start_Page"
 	*/
-	function __construct($a_type, $a_id, $a_append = "", $a_target = "")
+// fau: dropUp - added dropup mode
+	function __construct($a_type, $a_id, $a_append = "", $a_target = "", $a_dropup = false)
 	{
 		$this->setType($a_type);
 		$this->setId($a_id);
 		$this->setAppend($a_append);
 		$this->setIncludePermanentLinkText(true);
 		$this->setTarget($a_target);
+
+		$this->dropup = $a_dropup;
 	}
+// fau.
 	
 	/**
 	* Set Include permanent link text.
@@ -176,7 +178,7 @@ class ilPermanentLinkGUI
 	function getHTML()
 	{
 		global $lng, $ilCtrl, $ilObjDataCache;
-		
+
 		$tpl = new ilTemplate("tpl.permanent_link.html", true, true,
 			"Services/PermanentLink");
 		
@@ -223,8 +225,10 @@ class ilPermanentLinkGUI
 		}
 		
 		
-		// bookmark links		
-		$bm_html = self::_getBookmarksSelectionList($title, $href);
+		// bookmark links
+// fau: dropUp - set parameter
+		$bm_html = self::_getBookmarksSelectionList($title, $href, $this->dropup);
+// fau.
 		
 		if ($bm_html)
 		{
@@ -239,7 +243,9 @@ class ilPermanentLinkGUI
 	 * returns the active bookmark links. if only one link is enabled, a single link is returned.
 	 * otherwise a the html of an advanced selection list is returned.
 	 */
-	public static function _getBookmarksSelectionList($title, $href)
+// fau: dropUp - added parameter for dropup mode
+	public static function _getBookmarksSelectionList($title, $href, $dropup = false)
+// fau.
 	{
 		global $ilDB, $lng, $ilSetting;
 
@@ -255,7 +261,11 @@ class ilPermanentLinkGUI
 		//$current_selection_list->setListTitle($lng->txt("bm_add_to_social_bookmarks"));
 		$current_selection_list->setId("socialbm_actions");
 		$current_selection_list->setUseImages(true);
-		
+
+// fau: dropUp - use parameter for dropup mode
+		$current_selection_list->setDropUp($dropup);
+// fau.
+
 		$cnt = 0;
 
 		if ($_SESSION["AccountId"] != ANONYMOUS_USER_ID && !$ilSetting->get('disable_bookmarks'))

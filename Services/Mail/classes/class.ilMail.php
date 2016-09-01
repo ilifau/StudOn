@@ -363,7 +363,11 @@ class ilMail
 			return false;
 		}
 
-		return (bool) $this->soap_enabled;
+		
+		// fim: [mail] don't use soap to  send mime mails
+		// return (bool) $this->soap_enabled;
+		return false;
+		// fim.
 	}
 
 
@@ -2634,9 +2638,11 @@ class ilMail
 		$http_path = ilUtil::_getHttpPath();
 
 		$lang->loadLanguageModule('mail');
+		// fim: [mail] use StudOn instead of ILIAS 4 as default
 		return sprintf($lang->txt('mail_auto_generated_info'),
-			$ilSetting->get('inst_name','ILIAS 4'),
+			$ilSetting->get('inst_name','StudOn'),
 			$http_path)."\n\n";
+		// fim.
 	}
 
 	/**
@@ -2661,7 +2667,9 @@ class ilMail
 			return $ilSetting->get('short_inst_name');
 		}
 
-		return 'ILIAS';
+		// fim: [mail] use StudOn instead of ILIAS
+		return 'StudOn';
+		// fim.
 	}
 
 	/**
@@ -2696,8 +2704,10 @@ class ilMail
 		global $ilClientIniFile;
 
 		$signature = "\n\n* * * * *\n";
-	
-		$signature .= $ilClientIniFile->readVariable('client', 'name')."\n";
+		
+		// fim: [mail] don't add client name to signature
+		// $signature .= $ilClientIniFile->readVariable('client', 'name')."\n";
+		// fim.
 		if(strlen($desc = $ilClientIniFile->readVariable('client', 'description')))
 		{
 			$signature .= $desc."\n";
@@ -2705,6 +2715,7 @@ class ilMail
 		
 		$signature .= ilUtil::_getHttpPath();
 
+		/* fim: [mail] don't add client id to link (only one client exists)
 		$clientdirs = glob(ILIAS_WEB_DIR."/*", GLOB_ONLYDIR);
 		if(is_array($clientdirs) && count($clientdirs) > 1)
 		{
@@ -2712,6 +2723,7 @@ class ilMail
 		}
 		
 		$signature .= "\n\n";
+		fim. */
 
 		return $signature;
 	}
@@ -2748,11 +2760,21 @@ class ilMail
 		{
 			return $lang->txt('mail_salutation_anonymous').',';
 		}
-
-		return $lang->txt('mail_salutation_'.$gender).' '.
-			($name['title'] ? $name['title'].' ' : '').
-			($name['firstname'] ? $name['firstname'].' ' : '').
-			$name['lastname'].',';
+		// fim: [mail] use gender specific salutation in German
+		elseif ($gender != 'n' and $lang->getLangKey() == 'de')
+		{
+			return $lang->txt('mail_salutation_'.$gender).' '.
+				($name['title'] ? $name['title'].' ' : '').
+				$name['lastname'].',';
+		}
+		else
+		{
+			return $lang->txt('mail_salutation_'.$gender).' '.
+				($name['title'] ? $name['title'].' ' : '').
+				($name['firstname'] ? $name['firstname'].' ' : '').
+				$name['lastname'].',';
+		}
+		// fim.
 	}
 
 	private function setUsePear($bool)

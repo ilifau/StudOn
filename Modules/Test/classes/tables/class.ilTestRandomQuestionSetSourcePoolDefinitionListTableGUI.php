@@ -34,6 +34,14 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 	 */
 	private $questionAmountColumnEnabled = null;
 
+
+// fau: taxFilter - flag to show the mapped taxonomy filter istead of the original
+	/**
+	 * @var boolean
+	 */
+	private $showMappedTaxomomyFilter = false;
+// fau.
+
 	/**
 	 * @var ilTestTaxonomyFilterLabelTranslater
 	 */
@@ -70,6 +78,13 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 		$this->questionAmountColumnEnabled = $questionAmountColumnEnabled;
 	}
 
+// fau: taxFilter - set flag to show the mapped tayonomy filter instead of original
+	public function setShowMappedTaxonomyFilter($showMappedTaxonomyFilter)
+	{
+		$this->showMappedTaxonomyFilter = $showMappedTaxonomyFilter;
+	}
+// fau.
+
 	public function isQuestionAmountColumnEnabled()
 	{
 		return $this->questionAmountColumnEnabled;
@@ -93,6 +108,15 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 			));
 			$this->tpl->parseCurrentBlock();
 		}
+// fau: taxFilter - show sequence position to identify the filter in the database
+		else
+		{
+			$this->tpl->setCurrentBlock('col_order_checkbox');
+			$this->tpl->setVariable('ORDER_INPUT_HTML', $set['sequence_position']);
+			$this->tpl->parseCurrentBlock();
+		}
+// fau.
+
 
 		if( $this->isQuestionAmountColumnEnabled() )
 		{
@@ -113,8 +137,15 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 		}
 
 		$this->tpl->setVariable('SOURCE_POOL_LABEL', $set['source_pool_label']);
-		$this->tpl->setVariable('FILTER_TAXONOMY', $this->getTaxonomyTreeLabel($set['filter_taxonomy']));
-		$this->tpl->setVariable('FILTER_TAX_NODE', $this->getTaxonomyNodeLabel($set['filter_tax_node']));
+
+// fau: taxFilter - set taxonomy filter label in a single coulumn
+		$this->tpl->setVariable('TAXONOMY_FILTER', $this->taxonomyLabelTranslater->getTaxonomyFilterLabel($set['taxonomy_filter'],'<br />'));
+//		$this->tpl->setVariable('FILTER_TAXONOMY', $this->getTaxonomyTreeLabel($set['filter_taxonomy']));
+//		$this->tpl->setVariable('FILTER_TAX_NODE', $this->getTaxonomyNodeLabel($set['filter_tax_node']));
+// fau.
+// fau: typeFilter - set type filter label in a column
+		$this->tpl->setVariable('TYPE_FILTER', $this->taxonomyLabelTranslater->getTypeFilterLabel($set['type_filter']));
+// fau.
 	}
 
 	private function getSelectionCheckboxHTML($sourcePoolDefinitionId)
@@ -240,10 +271,22 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 			$this->addColumn('', 'select', '1%', true);
 			$this->addColumn('', 'order', '1%', true);
 		}
+// fau: taxFilter - show order position to easily identify the filter in the database
+		else
+		{
+			$this->addColumn($this->lng->txt("position"));
+		}
+// fau.
 
 		$this->addColumn($this->lng->txt("tst_source_question_pool"),'source_question_pool', '');
-		$this->addColumn($this->lng->txt("tst_filter_taxonomy"),'tst_filter_taxonomy', '');
-		$this->addColumn($this->lng->txt("tst_filter_tax_node"),'tst_filter_tax_node', '');
+// fau: taxFilter - add one column for taxonomy and nodes
+		$this->addColumn($this->lng->txt("tst_filter_taxonomy").' / '. $this->lng->txt("tst_filter_tax_node"),'tst_filter_taxonomy', '');
+//		$this->addColumn($this->lng->txt("tst_filter_taxonomy"),'tst_filter_taxonomy', '');
+//		$this->addColumn($this->lng->txt("tst_filter_tax_node"),'tst_filter_tax_node', '');
+// fau.
+// fau: typeFilter - add column for the question types
+		$this->addColumn($this->lng->txt("tst_filter_question_type"),'tst_filter_question_type', '');
+// fau.
 
 		if( $this->isQuestionAmountColumnEnabled() )
 		{
@@ -269,8 +312,23 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 			$set['def_id'] = $sourcePoolDefinition->getId();
 			$set['sequence_position'] = $sourcePoolDefinition->getSequencePosition();
 			$set['source_pool_label'] = $sourcePoolDefinition->getPoolTitle();
-			$set['filter_taxonomy'] = $sourcePoolDefinition->getMappedFilterTaxId();
-			$set['filter_tax_node'] = $sourcePoolDefinition->getMappedFilterTaxNodeId();
+// fau: taxFilter - get new taxonomy filter for display
+			if ($this->showMappedTaxonomyFilter)
+			{
+				// mapped filter will be used after synchronisation
+				$set['taxonomy_filter'] = $sourcePoolDefinition->getMappedTaxonomyFilter();
+			}
+			else
+			{
+				// original filter will be used before synchronisation
+				$set['taxonomy_filter'] = $sourcePoolDefinition->getOriginalTaxonomyFilter();
+			}
+//			$set['filter_taxonomy'] = $sourcePoolDefinition->getMappedFilterTaxId();
+//			$set['filter_tax_node'] = $sourcePoolDefinition->getMappedFilterTaxNodeId();
+// fau.
+// fau: typeFilter - get the type filter for display
+			$set['type_filter'] = $sourcePoolDefinition->getTypeFilter();
+// fau.
 			$set['question_amount'] = $sourcePoolDefinition->getQuestionAmount();
 
 			$rows[] = $set;

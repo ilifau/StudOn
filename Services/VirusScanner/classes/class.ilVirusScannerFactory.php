@@ -22,6 +22,14 @@ class ilVirusScannerFactory
 		// create global virus scanner class instance 
 		switch (IL_VIRUS_SCANNER)
 		{
+			// fim: [debug] create simulated virus scanner
+			case "simulate":
+				require_once("./Services/VirusScanner/classes/class.ilVirusScanner.php");
+				$vs = new ilVirusScanner(IL_VIRUS_SCAN_COMMAND, IL_VIRUS_CLEAN_COMMAND);
+				return $vs;
+				break;
+			// fim.
+				
 			case "Sophos":
 				require_once("./Services/VirusScanner/classes/class.ilVirusScannerSophos.php");
 				$vs = new ilVirusScannerSophos(IL_VIRUS_SCAN_COMMAND, IL_VIRUS_CLEAN_COMMAND);

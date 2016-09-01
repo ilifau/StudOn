@@ -198,25 +198,36 @@ throw new ilRepositoryException($lng->txt("ilRepUtil::deleteObjects: Type inform
 		foreach ($a_ref_ids as $id)
 		{
 			// GET COMPLETE NODE_DATA OF ALL SUBTREE NODES
+			// fim: [trash] use left join to get node data for deleted nodes
+			// This gets the node data even if ref_id or obj_id does not exist in joined tables
 			if (!$a_from_recovery_folder)
 			{
 				$saved_tree = new ilTree(-(int)$id);
-				$node_data = $saved_tree->getNodeData($id);
+				$node_data = $saved_tree->getNodeData($id, NULL, 'LEFT');
 				$subtree_nodes = $saved_tree->getSubTree($node_data);
 			}
 			else
 			{
-				$node_data = $tree->getNodeData($id);
+				$node_data = $tree->getNodeData($id, NULL, 'LEFT');
 				$subtree_nodes = $tree->getSubTree($node_data);
 			}
+			// fim.
 
 			// BEGIN ChangeEvent: Record remove from system.
-			require_once('Services/Tracking/classes/class.ilChangeEvent.php');
-			// Record write event
-			global $ilUser, $tree;
-			$parent_data = $tree->getParentNodeData($node_data['ref_id']);
-			ilChangeEvent::_recordWriteEvent($node_data['obj_id'], $ilUser->getId(), 'purge', 
-				$parent_data['obj_id']);			
+			// fim: [trash] record write event only if parent
+			if ($node_data['ref_id'])
+			{
+				require_once('Services/Tracking/classes/class.ilChangeEvent.php');
+				// Record write event
+				global $ilUser, $tree;
+				$parent_data = $tree->getParentNodeData($node_data['ref_id']);
+				if ($parent_data['obj_id'])
+				{
+					ilChangeEvent::_recordWriteEvent($node_data['obj_id'], $ilUser->getId(), 'purge',
+						$parent_data['obj_id']);
+				}
+			}
+			// fim.
 			// END ChangeEvent: Record remove from system.
 
 			// remember already checked deleted node_ids
@@ -240,9 +251,11 @@ throw new ilRepositoryException($lng->txt("ilRepUtil::deleteObjects: Type inform
 				}
 
 				// write log entry
-				$log->write("ilObjectGUI::removeFromSystemObject(), delete obj_id: ".$node_obj->getId().
+				// fim: [trash] fix class in log entry
+				$log->write("ilRepUtil::removeFromSystemObject(), delete obj_id: ".$node_obj->getId().
 					", ref_id: ".$node_obj->getRefId().", type: ".$node_obj->getType().", ".
 					"title: ".$node_obj->getTitle());
+				// fim.
 				$affected_ids[$node["ref_id"]] = array("ref_id" => $node["ref_id"],
 					"obj_id" => $node_obj->getId(), "type" => $node_obj->getType());
 					
@@ -267,8 +280,10 @@ throw new ilRepositoryException($lng->txt("ilRepUtil::deleteObjects: Type inform
 			}
 
 			// write log entry
-			$log->write("ilObjectGUI::removeFromSystemObject(), deleted tree, tree_id: ".$node_data["tree"].
+			// fim: [trash] fix class in log entry
+			$log->write("ilRepUtil::removeFromSystemObject(), deleted tree, tree_id: ".$node_data["tree"].
 				", child: ".$node_data["child"]);
+			// fim.
 
 		}
 		
@@ -304,7 +319,10 @@ throw new ilRepositoryException($lng->txt("ilRepUtil::deleteObjects: Type inform
 				$a_checked[] = $row->tree;
 
 				$row->tree = $row->tree * (-1);
-				$del_node_data = $deleted_tree->getNodeData($row->tree);
+				// fim: [trash] use left join to get node data for deleted nodes
+				// This gets the node data even if ref_id or obj_id does not exist in joined tables
+				$del_node_data = $deleted_tree->getNodeData($row->tree, NULL, 'LEFT');
+				// fim.
 				$del_subtree_nodes = $deleted_tree->getSubTree($del_node_data);
 
 				ilRepUtil::removeDeletedNodes($row->tree,$a_checked, $a_delete_objects, $a_affected_ids);
@@ -316,9 +334,11 @@ throw new ilRepositoryException($lng->txt("ilRepUtil::deleteObjects: Type inform
 						$node_obj =& ilObjectFactory::getInstanceByRefId($node["ref_id"]);
 						
 						// write log entry
-						$log->write("ilObjectGUI::removeDeletedNodes(), delete obj_id: ".$node_obj->getId().
+						// fim: [trash] fixed class in log entry
+						$log->write("ilRepUtil::removeDeletedNodes(), delete obj_id: ".$node_obj->getId().
 							", ref_id: ".$node_obj->getRefId().", type: ".$node_obj->getType().", ".
 							"title: ".$node_obj->getTitle());
+						// fim.
 						$a_affected_ids[$node["ref_id"]] = array("ref_id" => $node["ref_id"],
 							"obj_id" => $node_obj->getId(), "type" => $node_obj->getType());
 														
@@ -330,8 +350,10 @@ throw new ilRepositoryException($lng->txt("ilRepUtil::deleteObjects: Type inform
 				$tree->deleteTree($del_node_data);
 				
 				// write log entry
+				// fim: [trash] fixed class in log entry
 				$log->write("ilObjectGUI::removeDeletedNodes(), deleted tree, tree_id: ".$del_node_data["tree"].
 					", child: ".$del_node_data["child"]);
+				// fim.
 			}
 		}
 		

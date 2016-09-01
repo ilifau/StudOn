@@ -13,12 +13,17 @@
 /.idea
 /ilias.log
 /lang
+# fau: gitIgnore - ignore .svn
+/.svn
+# fau.
 *~
 db_template_writer.php
 .DS_Store
 
 # /Customizing/
-/Customizing/global
+# fau: gitIgnore - ignore .svn
+/Customizing/global/plugins
+# fau.
 
 # /Modules/BookingManager/js/
 

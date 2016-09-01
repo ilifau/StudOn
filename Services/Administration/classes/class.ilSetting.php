@@ -98,7 +98,7 @@ class ilSetting
 				self::$settings_cache[$this->module] =& $this->setting;
 			}
 		}
-
+		
 		$query = "SELECT * FROM settings WHERE module=".$ilDB->quote($this->module, "text");
 		$res = $ilDB->query($query);
 
@@ -125,7 +125,13 @@ class ilSetting
 		{
 			return ILIAS_VERSION;
 		}
-		
+// fau: versionSuffix - define a version suffix for including css and js files
+		if ($a_keyword == "ilias_version_suffix")
+		{
+			return ILIAS_VERSION_SUFFIX;
+		}
+// fau.
+
 		if (isset($this->setting[$a_keyword]))
 		{
 			return $this->setting[$a_keyword];
@@ -209,17 +215,18 @@ class ilSetting
 
 	/**
 	* write one value to db-table settings
+	* fim: [cust] allow temporary settings (without writing to db)
+	* (needed for temporarily disabling MathJax in pdf output of tests) 
 	* @access	public
 	* @param	string		keyword
 	* @param	string		value
+	* @param	boolean		write value to db (default: true)
 	* @return	boolean		true on success
 	*/
-	function set($a_key, $a_val)
+	function set($a_key, $a_val, $a_write = true)
 	{
 		global $lng, $ilDB;
 		
-		$this->delete($a_key);
-
 		if (!isset(self::$value_type))
 		{
 	        self::$value_type = self::_getValueType();
@@ -231,15 +238,24 @@ class ilSetting
 			$a_val = substr($a_val, 0, 4000);
 		}
 
-		$ilDB->insert("settings", array(
-			"module" => array("text", $this->module),
-			"keyword" => array("text", $a_key),
-			"value" => array(self::$value_type, $a_val)));
+		if ($a_write)
+		{
+			// fim: [bugfix] change delete/insert to replace
+			$ilDB->replace("settings", 
+				array(	"module" => array("text", $this->module),
+						"keyword" => array("text", $a_key)
+				),
+				array(	"value" => array(self::$value_type, $a_val)
+				)
+			);
+			// fim.
+		}
 
 		$this->setting[$a_key] = $a_val;
 
 		return true;
 	}
+	// fim.
 	
 	function setScormDebug($a_key, $a_val)
 	{

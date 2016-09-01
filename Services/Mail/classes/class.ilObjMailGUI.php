@@ -84,7 +84,10 @@ class ilObjMailGUI extends ilObjectGUI
 
 		$cb = new ilCheckboxInputGUI($this->lng->txt('mail_use_pear_mail'), 'pear_mail_enable');
 		$cb->setInfo($this->lng->txt('mail_use_pear_mail_info'));
-		$cb->setValue(1);
+		// fim: [mail] add notification about automatic switching
+		$cb->setAlert($this->lng->txt('mail_pear_is_automaticly_switched'));
+		// fim.
+		$cb->setValue('1');
 		$this->form->addItem($cb);
 		
 		// prevent smtp mails

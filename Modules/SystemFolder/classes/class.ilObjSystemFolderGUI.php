@@ -679,6 +679,14 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 		$cb->setInfo($lng->txt("adm_activate_db_benchmark_desc"));
 		$this->form->addItem($cb);
 
+// fau: extendBenchmark - switch to activate an instant saving
+		// Activate instant saving of db benchmarks
+		$cb = new ilCheckboxInputGUI($lng->txt("adm_activate_db_benchmark_instant"), "enable_db_bench_instant");
+		$cb->setChecked($ilSetting->get("enable_db_bench_instant"));
+		$cb->setInfo($lng->txt("adm_activate_db_benchmark_instant_desc"));
+		$this->form->addItem($cb);
+// fau.
+
 		// DB Benchmark User
 		$ti = new ilTextInputGUI($lng->txt("adm_db_benchmark_user"), "db_bench_user");
 		$ti->setValue($ilSetting->get("db_bench_user"));
@@ -720,6 +728,17 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 		$this->showDbBenchResults("sorted_by_sql");
 	}
 
+// fau: extendBenchmark - new function to show benchmark grouped by sql
+	/**
+	 * Show db benchmark results
+	 */
+	function showDbBenchGroupedBySqlObject()
+	{
+		$this->benchmarkSubTabs("grouped_by_sql");
+		$this->showDbBenchResults("grouped_by_sql");
+	}
+// fau.
+
 	/**
 	 * Show db benchmark results
 	 */
@@ -740,9 +759,20 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 
 		$rec = $ilBench->getDbBenchRecords();
 
+// fau: extendBenchmark - add info about total and query time
+		$total = $ilBench->getDbBenchTotalTime();
+		if ($total > 0)
+		{
+			$query = $ilBench->getDbBenchQueryTime();
+			$info = "Total: ".round($total, 2).'s  / '
+				. "Queries: ".round($query, 2).'s '
+				. "(".round(100 * $query / $total) .'%)';
+		}
+
 		include_once("./Modules/SystemFolder/classes/class.ilBenchmarkTableGUI.php");
 		$table = new ilBenchmarkTableGUI($this, "benchmark", $rec, $a_mode);
-		$tpl->setContent($table->getHTML());
+		$tpl->setContent($info. $table->getHTML());
+// fau.
 	}
 
 	/**
@@ -760,22 +790,26 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 			$ilCtrl->getLinkTarget($this, "benchmark"));
 
 		$rec = $ilBench->getDbBenchRecords();
-		if (count($rec) > 0)
-		{
-			$ilTabs->addSubtab("chronological",
-				$lng->txt("adm_db_bench_chronological"),
-				$ilCtrl->getLinkTarget($this, "showDbBenchChronological"));
-			$ilTabs->addSubtab("slowest_first",
-				$lng->txt("adm_db_bench_slowest_first"),
-				$ilCtrl->getLinkTarget($this, "showDbBenchSlowestFirst"));
-			$ilTabs->addSubtab("sorted_by_sql",
-				$lng->txt("adm_db_bench_sorted_by_sql"),
-				$ilCtrl->getLinkTarget($this, "showDbBenchSortedBySql"));
-			$ilTabs->addSubtab("by_first_table",
-				$lng->txt("adm_db_bench_by_first_table"),
-				$ilCtrl->getLinkTarget($this, "showDbBenchByFirstTable"));
-		}
+// fau: extendBenchmark - show subtabs always, add subtab for grouping by sql
 
+		$ilTabs->addSubtab("chronological",
+			$lng->txt("adm_db_bench_chronological"),
+			$ilCtrl->getLinkTarget($this, "showDbBenchChronological"));
+		$ilTabs->addSubtab("slowest_first",
+			$lng->txt("adm_db_bench_slowest_first"),
+			$ilCtrl->getLinkTarget($this, "showDbBenchSlowestFirst"));
+		$ilTabs->addSubtab("sorted_by_sql",
+			$lng->txt("adm_db_bench_sorted_by_sql"),
+			$ilCtrl->getLinkTarget($this, "showDbBenchSortedBySql"));
+		$ilTabs->addSubtab("grouped_by_sql",
+			$lng->txt("adm_db_bench_grouped_by_sql"),
+			$ilCtrl->getLinkTarget($this, "showDbBenchGroupedBySql"));
+		$ilTabs->addSubtab("by_first_table",
+			$lng->txt("adm_db_bench_by_first_table"),
+			$ilCtrl->getLinkTarget($this, "showDbBenchByFirstTable"));
+
+// fau.
+		$ilTabs->activateTab("benchmarks");
 		$ilTabs->activateSubTab($a_current);
 	}
 
@@ -789,7 +823,9 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 
 		if ($_POST["enable_db_bench"])
 		{
-			$ilBench->enableDbBench(true, ilUtil::stripSlashes($_POST["db_bench_user"]));
+// fau: extendBenchmark - save setting of instant saving
+			$ilBench->enableDbBench(true, ilUtil::stripSlashes($_POST["db_bench_user"]), $_POST["enable_db_bench_instant"]);
+// fau.
 		}
 		else
 		{

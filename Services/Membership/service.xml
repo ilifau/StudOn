@@ -3,4 +3,9 @@
 	<crons>
 		<cron id="mem_notification" class="ilMembershipCronNotifications" />
 	</crons>
+    <!-- fim: [rpl] add registration period limiter -->
+    <baseclasses>
+        <baseclass name="ilRegistrationPeriodLimiterGUI" dir="classes" />
+    </baseclasses>
+    <!-- fim. -->
 </service>

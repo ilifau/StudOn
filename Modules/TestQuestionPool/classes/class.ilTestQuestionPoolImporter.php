@@ -29,6 +29,12 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 		{
 			$newObj = ilObjectFactory::getInstanceByObjId($new_id,false);
 		}
+// fau: taxExport - support an import of a single question pool
+		else if ($new_id = $a_mapping->getMapping('Modules/TestQuestionPool','qpl', "new_id"))	 // this mapping is only set by ilObjQuestionPoolGUI
+		{
+			$newObj = ilObjectFactory::getInstanceByObjId($new_id,false);
+		}
+// fau.
 		else	// case ii, non container
 		{
 			// Shouldn't happen
@@ -76,10 +82,59 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 		}
 
 		$a_mapping->addMapping("Modules/TestQuestionPool", "qpl", $a_id, $newObj->getId());
+
+// fau: taxExport - add mappings for imported taxonomy assignments
+		foreach($qtiParser->getImportMapping() as $key => $map)
+		{
+			// see ilGlossaryImporter::importXmlRepresentation()
+			// see ilTaxonomyDataSet::importRecord()
+
+			// $key is of form 'il_0_qst_2130209'
+			// $map['pool'] qives the new question_id of the new question pool
+			// $map['test'] gives the question_id of the new test
+			// see assNumericImport::fromXML() for an example (end of function)
+			$parts = explode('_', $key);
+			$old = end($parts);
+			$new = $map['pool'];
+
+			$a_mapping->addMapping("Services/Taxonomy", "tax_item",
+				"qpl:quest:".$old, $new);
+
+			// this is since 4.3 does not export these ids but 4.4 tax node assignment needs it
+			$a_mapping->addMapping("Services/Taxonomy", "tax_item_obj_id",
+				"qpl:quest:".$old, $newObj->getId());
+		}
+// fau.
+
 		ilObjQuestionPool::_setImportDirectory(null);
 	}
-	
-	
+
+// fau: taxExport - final procesing of taxonomy usages
+	function finalProcessing($a_mapping)
+	{
+		// see ilGlossaryImporter::finalProcessing()
+
+		include_once("./Services/Taxonomy/classes/class.ilObjTaxonomy.php");
+		$maps = $a_mapping->getMappingsOfEntity("Modules/TestQuestionPool", "qpl");
+		foreach ($maps as $old => $new)
+		{
+			if ($old != "new_id" && (int) $old > 0)
+			{
+				// get all new taxonomys of this object
+				$new_tax_ids = $a_mapping->getMapping("Services/Taxonomy", "tax_usage_of_obj", $old);
+				if (!empty($new_tax_ids))
+				{
+					$tax_ids = explode(":", $new_tax_ids);
+					foreach ($tax_ids as $tid)
+					{
+						ilObjTaxonomy::saveUsage($tid, $new);
+					}
+				}
+			}
+		}
+	}
+// fau.
+
 	/**
 	 * Create qti and xml file name
 	 * @return array 

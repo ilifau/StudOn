@@ -49,6 +49,17 @@ class ilRegistrationSettings
 	
 	const REG_HASH_LIFETIME_MIN_VALUE = 60;
 
+// fau: regCodes - new constants for login generation
+	const LOGIN_GEN_MANUAL = 'manual';
+	const LOGIN_GEN_FIRST_LASTNAME = 'firstlastname';
+	const LOGIN_GEN_GUEST_LISTENER = 'guestlistener';
+// fau.
+
+// fau: regCodes - variable for code object
+	/** @var  ilRegistrationCode $codeObj */
+	protected $codeObj;
+// fau.
+
 	private $registration_type;
 	private $password_generation_enabled;
 	private $access_limitation;
@@ -59,11 +70,75 @@ class ilRegistrationSettings
 	private $reg_hash_life_time = 0;
 	private $reg_allow_codes = false;
 	private $allowed_domains;	
-	
+
 	function ilRegistrationSettings()
 	{
 		$this->__read();
 	}
+
+// fau: regCodes - new function getInstance
+	public static function getInstance()
+	{
+		/** @var ilRegistrationSettings $instance */
+		static $instance;
+
+		if (!isset($instance))
+		{
+			$instance = new ilRegistrationSettings();
+		}
+		return $instance;
+	}
+// fau.
+
+// fau: regCodes - new function setCodeObject
+	/**
+	 * Inject a registration code object
+	 * The settings of the will override the generalsettings
+	 *
+	 * @param ilRegistrationCode $codeObj
+	 */
+	public function setCodeObject(ilRegistrationCode $codeObj)
+	{
+		$this->codeObj = $codeObj;
+	}
+// fau.
+
+
+// fau: regCodes - new function getLoginGenerationTypes
+	/**
+	 * Get a list of selectable login generation types
+	 * @return array
+	 */
+	public static function getLoginGenerationTypes()
+	{
+		global $lng;
+		$lng->loadLanguageModule('registration');
+
+		return array (
+			self::LOGIN_GEN_MANUAL => $lng->txt('reg_login_gen_manual'),
+			self::LOGIN_GEN_FIRST_LASTNAME => $lng->txt('reg_login_gen_first_lastname'),
+			self::LOGIN_GEN_GUEST_LISTENER => $lng->txt('reg_login_gen_guest_listener')
+		);
+	}
+// fau.
+
+// fau: regCodes - new function loginGenerationType
+	/**
+	 * Get the login generation type (with or without code)
+	 * @return string
+	 */
+	public function loginGenerationType()
+	{
+		if (isset($this->codeObj))
+		{
+			return $this->codeObj->login_generation_type;
+		}
+		else
+		{
+			return self::LOGIN_GEN_MANUAL;
+		}
+	}
+// fau.
 
 	function getRegistrationType()
 	{
@@ -95,6 +170,12 @@ class ilRegistrationSettings
 	}
 	public function activationEnabled()
 	{
+// fau: regCodes - take code settings for email verification with precedence
+		if (isset($this->codeObj))
+		{
+			return $this->codeObj->email_verification;
+		}
+// fau.
 		return $this->registration_type == IL_REG_ACTIVATION;
 	}
 	function registrationCodeRequired()
@@ -104,6 +185,12 @@ class ilRegistrationSettings
 	
 	function passwordGenerationEnabled()
 	{
+// fau: regCodes - take code settings for password generation with precedence
+		if (isset($this->codeObj))
+		{
+			return $this->codeObj->password_generation;
+		}
+// fau.
 		return $this->password_generation_enabled;
 	}
 	function setPasswordGenerationStatus($a_status)
@@ -141,6 +228,12 @@ class ilRegistrationSettings
 	}
 	function getApproveRecipients()
 	{
+// fau: regCodes - take the code settings for approve recipients with precedence
+		if (isset($this->codeObj))
+		{
+			return $this->codeObj->notification_users;
+		}
+// fau.
 		return $this->approve_recipient_ids ? $this->approve_recipient_ids : array();
 	}
 	function getUnknown()
@@ -170,6 +263,13 @@ class ilRegistrationSettings
 	
 	public function getRegistrationHashLifetime()
 	{
+// fau: regCodes - take the code settings for approve recipients with precedence
+		if (isset($this->codeObj))
+		{
+			return max($this->codeObj->email_verification_time, self::REG_HASH_LIFETIME_MIN_VALUE);
+		}
+// fau.
+
 		return max($this->reg_hash_life_time, self::REG_HASH_LIFETIME_MIN_VALUE);
 	}
 
@@ -193,6 +293,12 @@ class ilRegistrationSettings
 	
 	public function getAllowedDomains()
 	{
+// fau: regCodes - don't restrict email domains with a code
+		if (isset($this->codeObj))
+		{
+			return array();
+		}
+// fau.
 		return (array)$this->allowed_domains;
 	}
 	

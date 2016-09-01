@@ -101,6 +101,11 @@ class ilAuthContainerMDB2 extends Auth_Container_MDB2
 			case AUTH_LOCAL:
 				return true;
 				
+// fau: samlAuth - allow a validation of shibboleth passwords in local login
+			case AUTH_SHIBBOLETH:
+				return true;
+// fau.
+				
 			default:
 				if(ilAuthUtils::isPasswordModificationEnabled($auth_id))
 				{
@@ -133,6 +138,14 @@ class ilAuthContainerMDB2 extends Auth_Container_MDB2
 	{
 		$this->log(__METHOD__ . ' called.', AUTH_LOG_DEBUG);
 
+// fau: idmPass - extend password verification to support ssha passwords
+		require_once("Services/Authentication/classes/class.ilAuthUtils.php");
+		if (ilAuthUtils::_isSSHAPassword($raw))
+		{
+			return ilAuthUtils::_checkSSHAPassword($raw, $encoded);
+		}
+// fau.
+		
 		if(in_array($crypt_type, array('none', '')))
 		{
 			return parent::verifyPassword($raw, $encoded, $crypt_type);

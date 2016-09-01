@@ -8,12 +8,10 @@ $tpl->addBlockFile("CONTENT", "content", "tpl.error.html");
 $lng->loadLanguageModule("error");
 // #13515 - link back to "system" [see ilWebAccessChecker::sendError()]
 $nd = $tree->getNodeData(ROOT_FOLDER_ID);
-$txt = $lng->txt('error_back_to_repository');
-$tpl->SetCurrentBlock("ErrorLink");
-$tpl->SetVariable("TXT_LINK", $txt);
+// fim: [portal] changed button text to home and set link for button and logo
+$tpl->SetVariable("TXT_LINK",  $lng->txt('to_home'));
 $tpl->SetVariable("LINK", ILIAS_HTTP_PATH. '/ilias.php?baseClass=ilRepositoryGUI&amp;client_id='.CLIENT_ID);
-$tpl->ParseCurrentBlock();
-
+// fim.
 $tpl->setCurrentBlock("content");
 $tpl->setVariable("ERROR_MESSAGE",($_SESSION["failure"]));
 $tpl->setVariable("MESSAGE_HEADING", $lng->txt('error_sry_error'));

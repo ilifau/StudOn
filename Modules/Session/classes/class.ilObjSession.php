@@ -308,7 +308,34 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_type != ilMembershipRegistrationSettings::TYPE_NONE;
 	}
-	
+
+	// fim: [memsess] new function registrationPossible()
+	function registrationPossible()
+	{
+		if (!$this->enabledRegistration())
+		{
+			return false;
+		}
+		elseif ($this->getRegistrationMaxUsers() == 0)
+		{
+			return true;
+		}
+		else
+		{
+			require_once("./Modules/Session/classes/class.ilEventParticipants.php");
+			$registrations = count(ilEventParticipants::_getRegistered($this->getId()));
+			if ($registrations < $this->getRegistrationMaxUsers())
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	// fim.
+
 	/**
 	 * get appointments
 	 *
@@ -690,6 +717,35 @@ class ilObjSession extends ilObject
 		}
 	}
 	
+
+	// fim: [memsess] _getSessions() get child sessions of an object
+	// sessions are ordered by date and title
+	public static function _getSessions($a_parent_ref_id, $a_for_registration = false)
+	{
+		global $ilAccess, $tree;
+
+		$sessions = array();
+		foreach ($tree->getChildsByType($a_parent_ref_id, "sess") as $node)
+		{
+			if(!is_object($session = ilObjectFactory::getInstanceByRefId($node["child"],false)))
+			{
+				continue;
+			}
+			if ($a_for_registration and !$session->enabledRegistration())
+			{
+				continue;
+			}
+			$sort = $session->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+			$sort.= ' '.$session->getTitle();
+			$sort.= ' '.$session->getId();
+
+			$sessions[$sort] = $session;
+		}
+
+		ksort($sessions);
+		return array_values($sessions);
+	}
+	// fim.
 }
 
 ?>

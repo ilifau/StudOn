@@ -1,11 +1,39 @@
-<bdo class="ilWhiteSpaceNowrap" dir="ltr">powered by ILIAS (v{ILIAS_VERSION})</bdo> | 
-<!-- BEGIN items -->
-<a href="{URL_ITEM}"<!-- BEGIN blank --> target="_blank"<!-- END blank -->>{TXT_ITEM}</a>
-<!-- BEGIN item_separator --> | <!-- END item_separator -->
-<!-- END items -->
+<!-- fau: ownFooter - new footer layout. -->
+<div class="ilFooterContainer right">
+    <!-- BEGIN items -->
+    <a href="{URL_ITEM}"<!-- BEGIN blank --> target="_blank"<!-- END blank -->>{TXT_ITEM}</a>
+    <!-- BEGIN item_separator --> <!-- END item_separator --> |
+    <!-- END items -->
+    {PRMLINK}
+</div>
+
+<div class="ilFooterContainer">
+    <img class="ilFooterLogo" src="{FAU_LOGO}" alt="FAU Logo" />
+    <!-- BEGIN financed -->
+    <p>{TXT_FINANCED_BY}</p>
+    <!-- END financed -->
+</div>
+
+
+<div class="ilFooterContainer">
+    <img class="ilFooterLogo" src="{ILI_LOGO}" alt="ILI Logo" />
+    <!-- BEGIN contact_imprint -->
+    <p><a href="{URL_CONTACT}">{TXT_CONTACT}</a> / <a href="{URL_IMPRINT}">{TXT_IMPRINT}</a></p>
+    <!-- END contact_imprint -->
+</div>
+
+
+<div class="ilFooterContainer info">
+    <!-- BEGIN ilias_version -->
+    <a href="http://www.ilias.de">{TXT_REALISED_WITH} {ILIAS_VERSION_NUMERIC}</a><br />
+    <!-- END ilias_version -->
+    {TXT_SERVER} {SERVER_NAME}<br />
+    {USERS_ONLINE} {TXT_ACTIVE_USERS}<br />
+    {TXT_HOTLINE}
+</div>
 
 <!-- BEGIN dev_bl -->
-<div style="background-color: white; color: black; border: 1px dashed grey; padding: 10px; margin-top: 25px;">
+<div class= "ilFooterDevmode" style="background-color: white; color: black; border: 1px dashed grey; padding: 10px; margin-top: 25px;">
 {MEMORY_USAGE}
 {SESS_INFO}
 <!-- BEGIN call_history -->

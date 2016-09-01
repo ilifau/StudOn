@@ -336,7 +336,9 @@ class ilUserDataSet extends ilDataSet
 							$f["method"] != "" && isset($a_rec[$up_k]))
 						{
 							$set_method = "set".substr($f["method"], 3);
-							$user->{$set_method}($a_rec[$up_k]);
+// fau: fixPdImportXss - apply stripSlashes
+							$user->{$set_method}(ilUtil::stripSlashes($a_rec[$up_k]));
+// fau.
 //	echo "<br>-setting-".$set_method."-".$a_rec[$up_k]."-";
 						}
 					}
@@ -364,15 +366,19 @@ class ilUserDataSet extends ilDataSet
 						$this->users[$usr_id] = new ilObjUser($usr_id);
 					}
 					$user = $this->users[$usr_id];
-					$user->writePref($a_rec["Keyword"], $a_rec["Value"]);
+// fau: fixPdImportXss - apply stripSlashes
+					$user->writePref($a_rec["Keyword"], ilUtil::stripSlashes($a_rec["Value"]));
+// fau.
 				}
 				break;
 				
 			case "usr_multi":
 				$usr_id = $a_mapping->getMapping("Services/User", "usr", $a_rec["UserId"]);
 				if ($usr_id > 0 && ilObject::_lookupType($usr_id) == "usr")
-				{					
-					$this->multi[$usr_id][$a_rec["FieldId"]][] = $a_rec["Value"];
+				{
+// fau: fixPdImportXss - apply stripSlashes
+					$this->multi[$usr_id][$a_rec["FieldId"]][] = ilUtil::stripSlashes($a_rec["Value"]);
+// fau.
 				}
 				break;
 		}

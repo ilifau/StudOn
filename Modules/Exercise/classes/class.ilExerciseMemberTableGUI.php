@@ -21,7 +21,11 @@ class ilExerciseMemberTableGUI extends ilTable2GUI
 	protected $sent_col;
 	protected $peer_review;
 	protected $selected = array();
-	
+
+// fau: exResTime - flag to send a changed result
+	protected $send_result;
+// fau.
+
 	/**
 	* Constructor
 	*/
@@ -94,7 +98,11 @@ class ilExerciseMemberTableGUI extends ilTable2GUI
 				include_once './Services/Rating/classes/class.ilRatingGUI.php';
 			}														
 		}
-		
+
+// fau: exResTime - set flag for sending result
+		$this->send_result =  (int) $ass_obj->getResultTime() <= time();
+// fau.
+
 		$this->setData($data);
 		
 		$this->addColumn("", "", "1", true);
@@ -123,7 +131,9 @@ class ilExerciseMemberTableGUI extends ilTable2GUI
 			$this->addColumn($this->lng->txt("exc_exercise_sent"), "sent_time");
 		}
 		$this->addColumn($this->lng->txt("exc_submission"), "submission");
-		$this->addColumn($this->lng->txt("exc_grading"), "solved_time");
+		// fim: [exercise] sort grading column by status
+		$this->addColumn($this->lng->txt("exc_grading"), "status");
+		// fim.
 		$this->addColumn($this->lng->txt("feedback"), "feedback_time");
 		
 		$this->setDefaultOrderField("name");
@@ -332,13 +342,15 @@ class ilExerciseMemberTableGUI extends ilTable2GUI
 			$this->tpl->setVariable("LCOMMENT_SNIPPET", ilUtil::shortenText($lcomment_value, 25, true));
 			$this->tpl->setVariable("COMMENT_OVERLAY_TRIGGER_ID", $overlay_trigger_id);
 			$this->tpl->setVariable("COMMENT_OVERLAY_TRIGGER_TEXT", $lng->txt("exc_comment_for_learner_edit"));
-								
+
 			$lcomment_form = new ilPropertyFormGUI();	
 			$lcomment_form->setId($overlay_id);
 			$lcomment_form->setPreventDoubleSubmission(false);
 			
 			$lcomment = new ilTextAreaInputGUI($lng->txt("exc_comment_for_learner"), "lcomment_".$this->ass_id."_".$member_id);
-			$lcomment->setInfo($lng->txt("exc_comment_for_learner_info"));
+// fau: exResTime - adapt description of feedback input
+			$lcomment->setInfo($lng->txt($this->send_result ? "exc_comment_for_learner_info": "exc_comment_for_learner_info_nosend"));
+// fau.
 			$lcomment->setValue($lcomment_value);
 			$lcomment->setCols(45);
 			$lcomment->setRows(10);			
@@ -397,11 +409,16 @@ class ilExerciseMemberTableGUI extends ilTable2GUI
 				$this->tpl->parseCurrentBlock();
 			}
 
-			// feedback mail		
-			$this->tpl->setVariable("LINK_FEEDBACK",
-				$ilCtrl->getLinkTarget($this->parent_obj, "redirectFeedbackMail"));
-			$this->tpl->setVariable("TXT_FEEDBACK",
-				$lng->txt("exc_send_mail"));
+			// feedback mail
+// fau: exResTime - show mail link only when result can be sent
+			if ($this->send_result)
+			{
+				$this->tpl->setVariable("LINK_FEEDBACK",
+					$ilCtrl->getLinkTarget($this->parent_obj, "redirectFeedbackMail"));
+				$this->tpl->setVariable("TXT_FEEDBACK",
+					$lng->txt("exc_send_mail"));
+			}
+// fau.
 
 			if($this->type == ilExAssignment::TYPE_UPLOAD_TEAM)
 			{

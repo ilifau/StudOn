@@ -250,8 +250,9 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
 			$this->showManScoringByQuestionParticipantsTable($manPointsPost);
 			return;
 		}
-		
-		$changed_one = false;
+
+// fau: fixManScoringSuccessMessage	- show names of all changed participants
+		$changed_ids = array();
 		foreach($_POST['scoring'] as $pass => $active_ids)
 		{
 			foreach((array)$active_ids as $active_id => $questions)
@@ -272,7 +273,8 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
 
 				if($update_participant)
 				{
-					$changed_one = true;
+
+					$changed_ids[] = $active_id;
 					
 					ilLPStatusWrapper::_updateStatus(
 						$this->object->getId(), ilObjTestAccess::_getParticipantId($active_id)
@@ -281,25 +283,31 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
 			}
 		}
 
-		if($changed_one)
+		$changed_names = array();
+		foreach ($changed_ids as $active_id)
 		{
-			if($this->object->getAnonymity() == 0)
+			if ($this->object->getAnonymity() == 0)
 			{
-				$user_name 				= $user_name = ilObjUser::_lookupName( ilObjTestAccess::_getParticipantId($active_id));
-				$name_real_or_anon 		= $user_name['firstname'].' '. $user_name['lastname'];
+				$user_name = $user_name = ilObjUser::_lookupName(ilObjTestAccess::_getParticipantId($active_id));
+				$changed_names[] = $user_name['firstname'] . ' ' . $user_name['lastname'];
 			}
 			else
 			{
-				$name_real_or_anon 		= $lng->txt('anonymous');
+				$changed_names[] = $lng->txt('anonymous');
 			}
-			ilUtil::sendSuccess(sprintf($this->lng->txt('tst_saved_manscoring_successfully'), $pass + 1,$name_real_or_anon), true);
+		}
+
+		if (!empty($changed_names))
+		{
+			ilUtil::sendSuccess(sprintf($this->lng->txt('tst_saved_manscoring_successfully'), $pass + 1, implode(', ', $changed_names)), true);
 
 			require_once './Modules/Test/classes/class.ilTestScoring.php';
 			$scorer = new ilTestScoring($this->object);
 			$scorer->setPreserveManualScores(true);
 			$scorer->recalculateSolutions();
 		}
-		
+// fau.
+
 		$this->showManScoringByQuestionParticipantsTable();
 	}
 

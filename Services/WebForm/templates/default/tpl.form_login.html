@@ -1,0 +1,29 @@
+<!-- fim: [webform] new template -->
+<style>
+	body { margin:10px; }
+</style>
+
+<h1>Anmeldung erforderlich</h1>
+
+<p>Bitte loggen Sie sich ein, um Ihre Eingaben abzuschicken:</p>
+
+<form action="{FORM_ACTION}" method="post">
+
+<table>
+<tr><td>Nutzername:</td><td><input type="text" name="username" value="{USERNAME}"/></td></tr>
+<tr><td>Passwort:</td><td><input type="password" name="password" /></td></tr>
+<tr><td></td><td><input type="submit" value="Abschicken"></td></tr>
+</table>
+
+<!-- BEGIN hidden_field -->
+<input type="hidden" name="{HIDDEN_NAME}" value="{HIDDEN_VALUE}" />
+<!-- END hidden_field -->
+
+
+<p>Bemerkung: eine erneute Anmeldung kann erforderlich sein, wenn Sie l&auml;ngere Zeit an dem
+Formular gearbeitet haben, ohne eine weitere Seite aufzurufen.</p>
+
+
+</form>
+
+

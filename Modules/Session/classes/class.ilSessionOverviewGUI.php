@@ -132,9 +132,19 @@ class ilSessionOverviewGUI
 			{
 				continue;
 			}
-			$events[] = $tmp_event;
+			
+			// fim: [memsess] prepare sort key for events
+			$sort = $tmp_event->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+			$sort.= $tmp_event->getTitle();
+			$events[$sort] = $tmp_event;
+			// fim.
 		}
 		
+		// fim: [memsess] sort events by start date and title
+		ksort($events);
+		$events = array_values($events);
+		// fim.
+
 		$headerNames = array();
 		$headerVars = array();
 		$colWidth = array();
@@ -178,10 +188,19 @@ class ilSessionOverviewGUI
 							
 				$event_part = new ilEventParticipants($event_obj->getId());														
 										
+				// fim: [memsess] show different icons with additional icon for not registered
+				if ($event_obj->enabledRegistration()
+				and (!$event_part->hasParticipated($user_id))
+				and (!$event_part->isRegistered($user_id)))
+				{
+					$this->tpl->setVariable("IMAGE_PARTICIPATED", ilUtil::getImagePath('scorm/not_attempted.svg'));
+					$this->tpl->setVariable("PARTICIPATED", $this->lng->txt('event_not_registered'));
+				}
+				else
 				{			
 					$this->tpl->setVariable("IMAGE_PARTICIPATED", $event_part->hasParticipated($user_id) ? 
-											ilUtil::getImagePath('icon_ok.svg') :
-											ilUtil::getImagePath('icon_not_ok.svg'));
+											ilUtil::getImagePath('scorm/passed.svg') :
+											ilUtil::getImagePath('scorm/failed.svg'));
 					
 					$this->tpl->setVariable("PARTICIPATED", $event_part->hasParticipated($user_id) ?
 										$this->lng->txt('event_participated') :
@@ -190,6 +209,7 @@ class ilSessionOverviewGUI
 				
 				$this->tpl->parseCurrentBlock();				
 			}			
+			// fim.
 			
 			$this->tpl->setCurrentBlock("tbl_content");
 			$name = ilObjUser::_lookupName($user_id);
@@ -218,6 +238,18 @@ class ilSessionOverviewGUI
 			$this->tpl->parseCurrentBlock();
 		}
 	
+	    // fim: [memsess] add symbol legend
+		$this->tpl->setCurrentBlock("symbol_legend");
+		$this->tpl->setVariable("IMAGE_NOT_REGISTERED", ilUtil::getImagePath('scorm/not_attempted.svg'));
+		$this->tpl->setVariable("IMAGE_NOT_PARTICIPATED", ilUtil::getImagePath('scorm/failed.svg'));
+		$this->tpl->setVariable("IMAGE_PARTICIPATED", ilUtil::getImagePath('scorm/passed.svg'));
+
+		$this->tpl->setVariable("NOT_REGISTERED", $this->lng->txt('event_not_registered'));
+		$this->tpl->setVariable("NOT_PARTICIPATED", $this->lng->txt('event_not_participated'));
+		$this->tpl->setVariable("PARTICIPATED", $this->lng->txt('event_participated'));
+		$this->tpl->parseCurrentBlock();
+
+	    // fim.
 	}
 
 	/**
@@ -245,19 +277,34 @@ class ilSessionOverviewGUI
 			{
 				continue;
 			}
-			$events[] = $tmp_event;
+			// fim: [memsess] prepare sort key for events
+			$sort = $tmp_event->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+			$sort.= $tmp_event->getTitle();
+			$events[$sort] = $tmp_event;
+			// fim.
 		}
 		
+		// fim: [memsess] sort events by start date and title
+		ksort($events);
+		$events = array_values($events);
+		// fim.
+
 		$this->csv = new ilCSVWriter();
 		$this->csv->addColumn($this->lng->txt("lastname"));
 		$this->csv->addColumn($this->lng->txt("firstname"));
 		$this->csv->addColumn($this->lng->txt("login"));
 		
+		// fim: [memsess] temporary deactivate relative date presentation
+		$relative = ilDatePresentation::useRelativeDates();
+		ilDatePresentation::setUseRelativeDates(false);
 		foreach($events as $event_obj)
 		{			
 			// TODO: do not export relative dates
 			$this->csv->addColumn($event_obj->getTitle().' ('.$event_obj->getFirstAppointment()->appointmentToString().')');
 		}
+		ilDatePresentation::setUseRelativeDates($relative);
+		// fim.
+
 		
 		$this->csv->addRow();
 		
@@ -273,9 +320,20 @@ class ilSessionOverviewGUI
 			{			
 				$event_part = new ilEventParticipants((int) $event_obj->getId());
 				
-				$this->csv->addColumn($event_part->hasParticipated($user_id) ?
+				// fim: [memsess] add registration info to CSV
+				if ($event_obj->enabledRegistration()
+				and (!$event_part->isRegistered($user_id))
+				and (!$event_part->hasParticipated($user_id)))
+				{
+					$this->csv->addColumn($this->lng->txt('event_not_registered'));
+				}
+				else
+				{
+					$this->csv->addColumn($event_part->hasParticipated($user_id) ?
 										$this->lng->txt('event_participated') :
 										$this->lng->txt('event_not_participated'));
+			}
+				// fim.
 			}
 			
 			$this->csv->addRow();

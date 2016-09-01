@@ -654,8 +654,16 @@ class ilObjectCopyGUI
 			$this->searchSource();
 			return false;
 		}
-		
-		ilUtil::sendInfo($this->lng->txt($this->getType().'_copy_threads_info'));
+// fau: copyBySoap - show info about sending an email when copying is finished
+		$info = $this->lng->txt($this->getType().'_copy_threads_info');
+		global $ilCust;
+		if($ilCust->getSetting('ilias_copy_by_soap'))
+		{
+			$info.= '<br /><span class="small">'.$this->lng->txt('object_copy_with_mail_info').'</span>';
+		}
+		ilUtil::sendInfo($info);
+// fau.
+
 		include_once './Services/Object/classes/class.ilObjectCopySelectionTableGUI.php';
 		
 		$tpl->addJavaScript('./Services/CopyWizard/js/ilContainer.js');
@@ -847,7 +855,13 @@ class ilObjectCopyGUI
 
 	}
 	
-	
+// fau: copyBySoap - wrapper function for command with mail
+	protected function copyContainerWithMail()
+	{
+		$this->copyContainer();
+	}
+// fau.
+
 	/**
 	 * Copy a container
 	 * @return 
@@ -882,6 +896,13 @@ class ilObjectCopyGUI
 		}
 
 		$options = $_POST['cp_options'] ? $_POST['cp_options'] : array();
+
+// fau: copyBySoap - add wizard option if mail should be sent
+		if ($ilCtrl->getCmd() == 'copyContainerWithMail')
+		{
+			$options[ilCopyWizardOptions::SEND_MAIL] = array('send');
+		}
+// fau.
 		$orig = ilObjectFactory::getInstanceByRefId($this->getSource());
 		$result = $orig->cloneAllObject($_COOKIE['PHPSESSID'], $_COOKIE['ilClientId'], $this->getType(), $this->getTarget(), $this->getSource(), $options);
 
@@ -892,7 +913,16 @@ class ilObjectCopyGUI
 		// Check if copy is in progress
 		if ($result == $this->getTarget())
 		{
-			ilUtil::sendInfo($this->lng->txt("object_copy_in_progress"),true);
+// fau: copyBySoap - show in message if mail will be sent
+			if ($ilCtrl->getCmd() == 'copyContainerWithMail')
+			{
+				ilUtil::sendInfo($this->lng->txt("object_copy_in_progress_with_mail"),true);
+			}
+			else
+			{
+				ilUtil::sendInfo($this->lng->txt("object_copy_in_progress"), true);
+			}
+// fau.
 			$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
 				$this->getTarget());
 			$ilCtrl->redirectByClass("ilrepositorygui", "");

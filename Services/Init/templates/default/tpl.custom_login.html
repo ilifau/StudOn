@@ -1,0 +1,68 @@
+<div class="loginBlock">
+
+    <h2 id="localLoginHead" class="ilc_heading2_Headline2 loginHeadline" style="float:left;">
+        <a href="#" onclick="setLocalLoginForm(true);">{LOGIN_TITLE}</a><br />
+        <small>{LOGIN_TITLE_ADD}</small>
+    </h2>
+
+    <!-- BEGIN login_help -->
+    <div class="loginHelp" style="float:right;">
+        <a href="{HELP_LINK}" title="{HELP_TITLE}"><span class="glyphicon glyphicon-question-sign"></span></a>
+    </div>
+    <!-- END login_help -->
+
+    <div style="clear: both;"></div>
+
+    <!-- BEGIN local_login_instructions -->
+    <small>{local_login_instructions}</small>
+    <!-- END local_login_instructions -->
+
+    <form id="localLoginForm" method="post" action="{FORMACTION}" name="formlogin">
+        <input type="hidden" name="sendLogin" value="1" />
+        <input type="hidden" name="keepSession" value="1" />
+
+        <div class="form-group">
+            <label class="sr-only" for="username">{LABEL_USERNAME}</label>
+            <input id="username" name="username" class="form-control" placeholder="{LABEL_USERNAME}" value="{VAL_USERNAME}" >
+        </div>
+        <div class="form-group">
+            <label class="sr-only" for="password">{LABEL_PASSWORD}</label>
+            <input id="password" name="password" type="password" class="form-control" placeholder="{LABEL_PASSWORD}">
+        </div>
+
+        <button type="submit" class="btn btn-default">{LABEL_SUBMIT}</button>
+    </form>
+
+
+</div>
+
+<script language="JavaScript">
+
+    if ($('#username').val()) {
+        setLocalLoginForm(true);
+    }
+    else {
+        setLocalLoginForm({LOGIN_INIT_DISPLAY});
+    }
+
+    function setLocalLoginForm(display)
+    {
+        if (display)
+        {
+            $('#localLoginForm').show();
+            $('#localLoginHead').addClass('open');
+
+            if ($('#username').val()) {
+                $('#password').focus();
+            }
+            else {
+                $('#username').focus();
+            }
+        }
+        else {
+            $('#localLoginForm').hide();
+        }
+
+        return false;
+    }
+</script>

@@ -4,31 +4,37 @@
 // Prevent a general redirect to the login screen for anonymous users.
 // The checker will show an error page with login link instead
 // (see ilInitialisation::InitILIAS() for details)
+// fim: [buxfix] use REQUEST_URI instead of PHP_SELF
 $_GET["baseClass"] = "ilStartUpGUI";
 
 // Define a pseudo module to get a correct ILIAS_HTTP_PATH 
 // (needed for links on the error page).
 // "data" is assumed to be the ILIAS_WEB_DIR
 // (see ilInitialisation::buildHTTPPath() for details)
-define("ILIAS_MODULE", substr($_SERVER['PHP_SELF'],
-					   strpos($_SERVER['PHP_SELF'], "/data/") + 6));
+define("ILIAS_MODULE", substr($_SERVER['REQUEST_URI'],
+					   strpos($_SERVER['REQUEST_URI'], "/data/") + 6));
 
 // Define the cookie path to prevent a different session created for web access
 // (see ilInitialisation::setCookieParams() for details)
-$GLOBALS['COOKIE_PATH'] = substr($_SERVER['PHP_SELF'], 0,
-						  strpos($_SERVER['PHP_SELF'], "/data/"));
+$GLOBALS['COOKIE_PATH'] = substr($_SERVER['REQUEST_URI'], 0,
+						  strpos($_SERVER['REQUEST_URI'], "/data/"));
 
 // Determine the ILIAS client from the web path
 // This is needed because a session cookie may not yet exist
 // (see ilINITIALISATION::determineClient() for details)
-$client_start = strpos($_SERVER['PHP_SELF'], "/data/") + 6;
-$client_end = strpos($_SERVER['PHP_SELF'], "/", $client_start);
-$_GET['client_id'] = substr($_SERVER['PHP_SELF'], $client_start, $client_end - $client_start);
+$client_start = strpos($_SERVER['REQUEST_URI'], "/data/") + 6;
+$client_end = strpos($_SERVER['REQUEST_URI'], "/", $client_start);
+$_GET['client_id'] = substr($_SERVER['REQUEST_URI'], $client_start, $client_end - $client_start);
+// fim.
 
 // Remember if the initial session was empty
 // Then a new session record should not be written
 // (see ilSession::_writeData for details)
 $GLOBALS['WEB_ACCESS_WITHOUT_SESSION'] = (session_id() == "");
+
+// fau: httpPath - use defined http path for web forms
+$GLOBALS['USE_ILIAS_HTTP_PATH_FROM_INI'] = true;
+// fau.
 
 include_once "Services/Context/classes/class.ilContext.php";
 ilContext::init(ilContext::CONTEXT_WEB_ACCESS_CHECK);
@@ -38,6 +44,9 @@ require_once "./include/inc.header.php";
 require_once "./Services/Utilities/classes/class.ilUtil.php";
 require_once "./Services/Object/classes/class.ilObject.php";
 require_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
+// fim: [webform] include WebFormLoaderGUI
+require_once "./Services/WebForm/classes/class.ilWebFormLoaderGUI.php";
+// fim.
 
 
 /**
@@ -50,7 +59,7 @@ require_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
 * - or shows an error screen (if too less rights)
 *
 * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
-* @version $Id$
+* @version $Id: class.ilWebAccessChecker.php 60933 2015-10-01 10:56:42Z fneumann $
 *
 */
 class ilWebAccessChecker
@@ -196,7 +205,7 @@ class ilWebAccessChecker
 		echo "send_mimetype:       ". $this->send_mimetype. "\n";
 		echo "</pre>";
 		echo phpinfo();
-		exit;*/
+		exit; */
 		
 		
 		if (!file_exists($this->file))
@@ -1028,6 +1037,35 @@ class ilWebAccessChecker
 		// inline delivery
 		else
 		{
+			// fim: [webform] parse and deliver a web form
+			$fl = new ilWebFormLoaderGUI();
+			if ($page = $fl->readByURI($_SERVER["REQUEST_URI"]))
+			{
+				if (!isset($_SERVER["HTTPS"]))
+				{
+					header("Cache-Control: no-cache, must-revalidate");
+					header("Pragma: no-cache");
+				}
+	
+				if ($this->getSendMimetype())
+				{
+					header("Content-Type: " . $this->getMimeType());
+				}
+				header("Content-Length: ".(string)(strlen($page)));
+
+				if (isset($_SERVER["HTTPS"]))
+				{
+					header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+					header('Pragma: public');
+				}
+				
+				header("Connection: close");
+				
+				echo $page;
+				exit;
+			}
+			// fim.
+
 			if (!isset($_SERVER["HTTPS"]))
 			{
 				header("Cache-Control: no-cache, must-revalidate");

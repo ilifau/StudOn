@@ -192,6 +192,17 @@ class ilRbacSystem
 		$operations = explode(",",$a_operations);
 		foreach ($operations as $operation)
 		{
+			// fim: [studycond] add check for studydata based access
+			// a grant overrules the rbac access
+			if ($operation == "read" or $operation == "visible")
+			{
+				if (ilStudyAccess::_checkAccess($a_ref_id, $a_user_id))
+				{
+					continue;
+				}
+			}
+			// fim.
+
 			if ($operation == "create")
 			{
 				if (empty($a_type))
@@ -297,9 +308,11 @@ class ilRbacSystem
 		
 		$ops = array();
 
-		$query = 'SELECT ops_id FROM rbac_operations '.
+// fau: sqlCache - use sql cache
+		$query = 'SELECT SQL_CACHE ops_id FROM rbac_operations '.
 			'WHERE operation = '.$ilDB->quote($a_operation,'text');
-		$res = $ilDB->query($query);		
+		$res = $ilDB->query($query);
+// fau.
 		while($row = $ilDB->fetchObject($res))
 		{
 			$ops_id = $row->ops_id;

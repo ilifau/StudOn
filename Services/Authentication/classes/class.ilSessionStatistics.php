@@ -40,7 +40,16 @@ class ilSessionStatistics
 	public static function createRawEntry($a_session_id, $a_session_type, $a_timestamp, $a_user_id)
 	{
 		global $ilDB;
-		
+
+        // fim: [performance] don't write seesion statistics for fixed handling
+        global $ilSetting;
+        if ($ilSetting->get('session_handling_type') == ilSession::SESSION_HANDLING_FIXED)
+        {
+            return;
+        }
+        // fim.
+
+
 		if(!$a_user_id || !$a_session_id || !self::isActive())
 		{
 			return;
@@ -71,6 +80,15 @@ class ilSessionStatistics
 	 */
 	public static function closeRawEntry($a_session_id, $a_context = null, $a_expired_at = null)
 	{
+		// fim: [performance] don't write seesion statistics for fixed handling
+		global $ilSetting;
+		if ($ilSetting->get('session_handling_type') == ilSession::SESSION_HANDLING_FIXED)
+		{
+			return;
+		}
+		// fim.
+		
+		
 		global $ilDB;
 		
 		if(!self::isActive())
@@ -229,7 +247,7 @@ class ilSessionStatistics
 	 */
 	protected static function createNewAggregationSlot($a_now)
 	{
-		global $ilDB;
+		global $ilDB;		
 		
 		// get exclusive lock
 		$ilDB->lockTables(array(array("name"=>"usr_session_stats", "type"=>ilDB::LOCK_WRITE)));
@@ -260,7 +278,15 @@ class ilSessionStatistics
      * @param integer $a_now
 	 */
 	public static function aggretateRaw($a_now)
-	{								
+	{
+        // fim: [performance] don't write seesion statistics for fixed handling
+        global $ilSetting;
+        if ($ilSetting->get('session_handling_type') == ilSession::SESSION_HANDLING_FIXED)
+        {
+            return;
+        }
+        // fim.
+
 		if(!self::isActive())
 		{
 			return;

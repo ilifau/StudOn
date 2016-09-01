@@ -226,8 +226,10 @@ class ilExportFieldsInfo
 		
 		$profile = new ilUserProfile();
 		$profile->skipGroup('settings');
-		
-		foreach($profile->getStandardFields() as $key => $data)
+
+		// fim: [privacy] use only the allowed profile fields
+		foreach($profile->getAllowedStandardFields() as $key => $data)
+		// fim.
 		{
 			if($this->getType() == 'crs')
 			{

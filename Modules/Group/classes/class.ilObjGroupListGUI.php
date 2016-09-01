@@ -126,10 +126,11 @@ class ilObjGroupListGUI extends ilObjectListGUI
 		// BEGIN WebDAV get parent properties
 		$props = parent::getProperties();
 		// END WebDAV get parent properties
-		
-		include_once './Modules/Course/classes/class.ilObjCourseAccess.php';
-		$info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id);
-//var_dump($info);
+
+
+		// fim: [meminf] adapted info about refistration, membership limit and status
+		include_once './Modules/Group/classes/class.ilObjGroupAccess.php';
+		$info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
 		if($info['reg_info_list_prop'])
 		{
 			$props[] = array(
@@ -141,29 +142,25 @@ class ilObjGroupListGUI extends ilObjectListGUI
 		}
 		if($info['reg_info_list_prop_limit'])
 		{
-			
 			$props[] = array(
 				'alert' => false,
-				'newline' => false,
+				'newline' => true,
 				'property' => $info['reg_info_list_prop_limit']['property'],
 				'propertyNameVisible' => strlen($info['reg_info_list_prop_limit']['property']) ? true : false,
 				'value' => $info['reg_info_list_prop_limit']['value']
 			);
 		}
-		
-		
-		
-		// waiting list
-		include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-		if(ilGroupWaitingList::_isOnList($ilUser->getId(),$this->obj_id))
+		if($info['reg_info_list_prop_status'])
 		{
 			$props[] = array(
-				"alert" 	=> true,
-				"property" 	=> $lng->txt('member_status'),
-				"value"		=> $lng->txt('on_waiting_list')
+				'alert' => true,
+				'newline' => true,
+				'property' => $info['reg_info_list_prop_status']['property'],
+				'propertyNameVisible' => strlen($info['reg_info_list_prop_status']['property']) ? true : false,
+				'value' => $info['reg_info_list_prop_status']['value']
 			);
 		}
-		
+		// fim.
 
 		return $props;
 	}

@@ -1,0 +1,65 @@
+/* fim: [webform] doku. */
+
+Support für Einsendeformulare
+=============================
+Fred Neumann, 08/2008
+
+
+Änderungen für ILIAS 3.10
+-------------------------
+
+Verzeichnis forms/          ->  Services/WebForms
+Lang forms#:#forms*         ->  webforms#:#webforms*
+Tabellen forms_*            ->  webforms_*
+
+Klassen ilForm*             ->  ilWebForm*
+        ilSavingsManager    ->
+
+Tabelle webform_types       :    project entfernt
+                                 namespace entfernt
+                                 lm_ref_id entfernt
+                                 
+
+Durchgesehen
+------------
+ilWebForm                   ok
+ilWebFormDefinitionParser   ok
+ilWebFormSaving             ok
+ilSavingsManager            aufräumen!
+ilWebFormsManager           aufräumen!
+
+
+Datanbank-Erweiterungen
+-----------------------
+
+Mit dem Kommando
+
+mysql -uroot -ppasswort < forms/sql/webform-tables.sql
+
+die Datenbank-Erweiterungen anlegen.
+
+
+Lokalisierung
+-------------
+
+lang/ilias_de_webforms.lang
+lang/ilias_en_webforms.lang
+	- alle Einträge mit webforms# am Anfang
+
+
+ALt: Änderungen an weiteren ILIAS-Skripten (mit "fim: [forms]" markiert)
+-------------------------------------------------------------------
+
+classes/class.ilias
+	- ILIAS_HTTP_PATH berücksichtigt auch web_access
+	
+classes/class.ilUtil.php
+	- getAnyObjectsByOperations()
+	
+content/classess/class.ilObjFileBasedLM.php
+content/classess/class.ilObjFileBasedLMGUI.php
+	- Formulardefinitionen laden
+
+content/classes/class.ilWebAccessChecker.php
+	- Formular automatisch füllen
+	

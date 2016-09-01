@@ -25,7 +25,9 @@ class ilTestExportGUI extends ilExportGUI
 
 		$this->addFormat('xml', $a_parent_gui->lng->txt('ass_create_export_file'), $this, 'createTestExport');
 		$this->addFormat('csv', $a_parent_gui->lng->txt('ass_create_export_test_results'), $this, 'createTestResultsExport');
-		if($a_parent_gui->object->getEnableArchiving() == true)
+// fau: manualTestArchiving - allow creation of archive to admins
+		global $rbacsystem;
+		if($rbacsystem->checkAccess("visible", ROOT_FOLDER_ID))
 		{
 			$this->addFormat( 'arc',
 							  $a_parent_gui->lng->txt( 'ass_create_export_test_archive' ),
@@ -33,6 +35,17 @@ class ilTestExportGUI extends ilExportGUI
 							  'createTestArchiveExport'
 			);
 		}
+// fau.
+
+        // fim: [exam] Button to export test results for my campus
+        global $ilCust;
+        if ($ilCust->getSetting('tst_export_mycampus'))
+        {
+            $this->addFormat('prf', $a_parent_gui->lng->txt('ass_create_export_mycampus'), $this, 'createTestResultsMyCampus');
+        }
+        // fim.
+
+
 		$pl_names = $ilPluginAdmin->getActivePluginsForSlot(IL_COMP_MODULE, 'Test', 'texp');
 		foreach($pl_names as $pl)
 		{
@@ -96,35 +109,130 @@ class ilTestExportGUI extends ilExportGUI
 		$ilCtrl->redirectByClass('iltestexportgui');
 	}
 
+    // fim: [campus] create test results for my campus
+    public function createTestResultsMyCampus()
+    {
+        global $ilCtrl;
+        $ilCtrl->redirectByClass("iltestmycampusgui");
+    }
+    // fim.
+
+// fau: manualTestArchiving - new implementation
 	function createTestArchiveExport()
 	{
-		global $ilAccess, $ilCtrl;
+		global $ilAccess, $ilCtrl,  $lng, $rbacsystem;
 
-		if ($ilAccess->checkAccess("write", "", $this->obj->ref_id))
+		if($rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID))
 		{
 			include_once("./Modules/Test/classes/class.ilTestArchiver.php");
+			include_once("./Modules/Test/classes/class.ilTestPDFGenerator.php");
+
 			$test_id = $this->obj->getId();
 			$archive_exp = new ilTestArchiver($test_id);
-			
-			require_once './Modules/Test/classes/class.ilTestScoring.php';
-			$scoring = new ilTestScoring($this->obj);
-			$best_solution = $scoring->calculateBestSolutionForTest();
-			
-			require_once './Modules/Test/classes/class.ilTestPDFGenerator.php';
-			$generator = new ilTestPDFGenerator();
-			$generator->generatePDF($best_solution, ilTestPDFGenerator::PDF_OUTPUT_FILE, 'Best_Solution.pdf');
-			$archive_exp->handInTestBestSolution($best_solution, 'Best_Solution.pdf');
-			unlink('Best_Solution.pdf');
-			
-			$archive_exp->updateTestArchive();
-			$archive_exp->compressTestArchive();
+
+			// create PDF for the best solution
+			$best_solution_html = $this->generateBestSolution();
+			$best_solution_pdf =  ilUtil::ilTempnam().'.pdf';
+			ilTestPDFGenerator::generatePDF($best_solution_html, ilTestPDFGenerator::PDF_OUTPUT_FILE, $best_solution_pdf);
+			$archive_exp->handInTestBestSolution($best_solution_html, $best_solution_pdf);
+			unlink($best_solution_pdf);
+
+			// create PDFs for all participants (copied from ilTestScoring and adapted)
+			require_once './Modules/Test/classes/class.ilTestEvaluationGUI.php';
+			$test_evaluation_gui = new ilTestEvaluationGUI($this->obj);
+			$participants = $this->obj->getCompleteEvaluationData(false)->getParticipants();
+			if (is_array($participants))
+			{
+				/** @var  ilTestEvaluationUserData $userdata */
+				foreach ($participants as $active_id => $userdata)
+				{
+					if (is_object($userdata) && is_array($userdata->getPasses()))
+					{
+						$passes = $userdata->getPasses();
+						foreach ($passes as $pass => $passdata)
+						{
+							if (is_object( $passdata ))
+							{
+								$result_array = $this->obj->getTestResult($active_id, $pass);
+
+								$user_solution_html = $test_evaluation_gui->getPassListOfAnswers($result_array, $active_id, $pass, true, false, false, true);
+								$user_solution_pdf = ilUtil::ilTempnam().'.pdf';
+								ilTestPDFGenerator::generatePDF($user_solution_html, ilTestPDFGenerator::PDF_OUTPUT_FILE, $user_solution_pdf);
+
+								$localname = $userdata->getName().', '.$userdata->getLogin().', Pass'.$pass.'.pdf';
+								$archive_exp->handInTestUserSolution($localname, $user_solution_pdf);
+								unlink($user_solution_pdf);
+							}
+						}
+					}
+				}
+			}
+
+			// pack the archive
+			if ($archive_exp->compressTestArchive($this->obj->getTitle()))
+			{
+				ilUtil::sendSuccess($lng->txt('exp_file_created'), true);
+			}
+			else
+			{
+				ilUtil::sendFailure($lng->txt("cannot_export_archive"), TRUE);
+			}
+			$archive_exp->deleteTestArchive();
 		}
 		else
 		{
-			ilUtil::sendInfo("cannot_export_archive", TRUE);
+			ilUtil::sendFailure($lng->txt("cannot_export_archive"), TRUE);
 		}
+
 		$ilCtrl->redirectByClass('iltestexportgui');
 	}
+// fau.
+
+// fau: new function to generate the best solution
+	protected function generateBestSolution()
+	{
+		global $lng;
+
+		$template = new ilTemplate("tpl.il_as_tst_print_test_confirm.html", true, true, "Modules/Test");
+
+		$max_points= 0;
+		$counter = 0;
+		foreach ($this->obj->questions as $question)
+		{
+			/** @var AssQuestionGUI $question_gui */
+			$question_gui = $this->obj->createQuestionGUI("", $question);
+			$max_points += $question_gui->object->getMaximumPoints();
+			$counter ++;
+
+			$template->setCurrentBlock("question");
+			$template->setVariable("STYLE_PRINT_PAGEBREAKS", "page-break-before:always;");
+			$template->setVariable("COUNTER_QUESTION", $counter.".");
+			$template->setVariable("TXT_QUESTION_ID", $lng->txt('question_id_short'));
+			$template->setVariable("QUESTION_ID", $question_gui->object->getId());
+			$template->setVariable("QUESTION_TITLE", ilUtil::prepareFormOutput($question_gui->object->getTitle()));
+			$template->setVariable("QUESTION_POINTS", $question_gui->object->getMaximumPoints() . " "
+					. $lng->txt($question_gui->object->getMaximumPoints() == 1 ? "point": 'points'));
+
+			$result_output = $question_gui->getSolutionOutput(0, null, true, true, false, false, true, false);
+			$template->setVariable("SOLUTION_OUTPUT", empty($result_output) ? $question_gui->getPreview(FALSE) : $result_output);
+			$template->parseCurrentBlock("question");
+		}
+
+		$print_date = mktime(date("H"), date("i"), date("s"), date("m")  , date("d"), date("Y"));
+
+		ilDatePresentation::setUseRelativeDates(false);
+
+		$template->touchBlock('print');
+		$template->setVariable("TITLE", $this->obj->getTitle());
+		$template->setVariable("PRINT_TEST", $lng->txt("tst_print"));
+		$template->setVariable("TXT_PRINT_DATE", $lng->txt("date"));
+		$template->setVariable("VALUE_PRINT_DATE", ilDatePresentation::formatDate(new ilDate(time(),IL_CAL_UNIX)));
+		$template->setVariable("TXT_MAXIMUM_POINTS", $lng->txt("tst_maximum_points"));
+		$template->setVariable("VALUE_MAXIMUM_POINTS",$max_points);
+
+		return $template->get();
+	}
+// fau.
 
 	public function listExportFiles()
 	{
@@ -171,7 +279,9 @@ class ilTestExportGUI extends ilExportGUI
 				array_push($data, array(
 					'file'      => $exp_file,
 					'size'      => filesize($export_dir . "/" . $exp_file),
-					'timestamp' => $file_arr[0]
+                    // fim: [campus] support export files with other naming scheme
+					'timestamp' => filemtime($export_dir . "/" . $exp_file)
+                    // fim.
 				));
 			}
 		}
@@ -184,12 +294,14 @@ class ilTestExportGUI extends ilExportGUI
 				{
 					continue;
 				}
-				$file_arr = explode("_", $exp_file);
+// fau: manualTestArchiving - support other naming_scheme
 				array_push($data, array(
+
 									'file' => $exp_file,
 									'size' => filesize($archive_dir."/".$exp_file),
-									'timestamp' => $file_arr[4]
+									'timestamp' => filemtime($archive_dir . "/" . $exp_file)
 								));
+// fau.
 			}
 		}
 

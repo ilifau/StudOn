@@ -44,43 +44,56 @@ class ilHelp
 			}
 		}
 		
-		$set = $ilDB->query("SELECT tt_text FROM help_tooltip ".
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query("SELECT SQL_CACHE tt_text FROM help_tooltip ".
 			" WHERE tt_id = ".$ilDB->quote($a_tt_id, "text").
 			" AND module_id = ".$ilDB->quote($module_id, "integer")
 			);
+// fau.
 		$rec = $ilDB->fetchAssoc($set);
 		if ($rec["tt_text"] != "")
 		{
 			$t = $rec["tt_text"];
-			if ($module_id == 0)
+			// fim: [help] make showing of ids independent from OH_REF_ID
+			global $ilCust;
+			if ($ilCust->getSetting("help_show_ids"))
 			{
 				$t.="<br/><i class='small'>".$a_tt_id."</i>";
 			}
+			// fim.
 			return $t;
 		}
 		else // try to get general version
 		{
 			$fu = strpos($a_tt_id, "_");
 			$gen_tt_id = "*".substr($a_tt_id, $fu);
-			$set = $ilDB->query("SELECT tt_text FROM help_tooltip ".
+// fau: sqlCache - use sql cache
+			$set = $ilDB->query("SELECT SQL_CACHE tt_text FROM help_tooltip ".
 				" WHERE tt_id = ".$ilDB->quote($gen_tt_id, "text").
 				" AND module_id = ".$ilDB->quote($module_id, "integer")
 				);
+// fau.
 			$rec = $ilDB->fetchAssoc($set);
 			if ($rec["tt_text"] != "")
 			{
 				$t = $rec["tt_text"];
-				if ($module_id == 0)
+				// fim: [help] make showing of ids independent from OH_REF_ID
+				global $ilCust;
+				if ($ilCust->getSetting("help_show_ids"))
 				{
 					$t.="<br/><i class='small'>".$a_tt_id."</i>";
 				}
+				// fim.
 				return $t;
 			}
 		}
-		if ($module_id == 0)
+		// fim: [help] make showing of ids independent from OH_REF_ID
+		global $ilCust;
+		if ($ilCust->getSetting("help_show_ids"))
 		{
 			return "<i>".$a_tt_id."</i>";
 		}
+		// fim.
 		return "";
 	}
 
@@ -116,13 +129,14 @@ class ilHelp
 	static function getAllTooltips($a_comp = "", $a_module_id = 0)
 	{
 		global $ilDB;
-		
-		$q = "SELECT * FROM help_tooltip";
+// fau: sqlCache - use sql cache
+		$q = "SELECT SQL_CACHE * FROM help_tooltip";
 		$q.= " WHERE module_id = ".$ilDB->quote($a_module_id, "integer");
 		if ($a_comp != "")
 		{
 			$q.= " AND comp = ".$ilDB->quote($a_comp, "text");
 		}
+// fau.
 		$set = $ilDB->query($q);
 		$tts = array();
 		while ($rec  = $ilDB->fetchAssoc($set))
@@ -189,9 +203,11 @@ class ilHelp
 	{
 		global $ilDB, $lng;
 		
-		$set = $ilDB->query("SELECT DISTINCT comp FROM help_tooltip ".
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query("SELECT DISTINCT SQL_CACHE comp FROM help_tooltip ".
 			" WHERE module_id = ".$ilDB->quote($a_module_id, "integer").
 			" ORDER BY comp ");
+// fau.
 		$comps[""] = "- ".$lng->txt("help_all")." -";
 		while ($rec = $ilDB->fetchAssoc($set))
 		{

@@ -284,7 +284,11 @@ class ilSessionControl
 						// auth won't do this, we need to close session properly
 						session_destroy();
 
-						ilUtil::redirect('login.php?reached_session_limit=true');
+						// fim: [retry] show the retry page if session limit is exceeded
+						require_once("Services/Init/classes/class.ilRetryGUI.php");
+						$gui = new ilRetryGUI('max_connections_reached');
+						$gui->handleRequest();
+						// fim.
 					}
 					else
 					{

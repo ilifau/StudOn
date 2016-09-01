@@ -38,8 +38,13 @@ class ilAssIncompleteQuestionPurger
 	
 	public function purge()
 	{
-		$questionIds = $this->getPurgableQuestionIds();
-		$this->purgeQuestionIds($questionIds);
+// fau: purgeQuestionsSeldomly
+		if (rand(1, 100) == 1)
+		{
+			$questionIds = $this->getPurgableQuestionIds();
+			$this->purgeQuestionIds($questionIds);
+		}
+// fau.
 	}
 	
 	private function getPurgableQuestionIds()

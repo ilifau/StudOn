@@ -217,6 +217,11 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 					$this->tpl->setVariable('VAL_EDIT_INFO',(string) $a_set['odf_info_txt']);
 					break;
                                         
+
+                // fim: [studydata] format table output of studydata
+                case 'studydata':
+                    $a_set['studydata'] = nl2br($a_set['studydata']);
+                // fim.
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST',isset($a_set[$field]) ? (string) $a_set[$field] : '');

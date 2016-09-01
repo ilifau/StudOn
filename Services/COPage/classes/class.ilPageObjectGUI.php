@@ -1724,7 +1724,21 @@ return;
 		// ensure no cache hit, if included files/media objects have been changed
 		$params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
-		// run xslt
+		// fim: [exam] init colorbox and add parameter to open fullscreen in box
+		global $ilCust;
+		if ($ilCust->getSetting('fullscreen_in_colorbox')
+			or $this instanceof ilAssQuestionPageGUI)
+		{
+			iljQueryUtil::initColorbox();
+			$params["fullscreen_in_colorbox"] = true;
+		}
+		else
+		{
+			$params["fullscreen_in_colorbox"] = false;
+		}
+		// fim.
+
+        // run xslt
 		$md5 = md5(serialize($params).$link_xml.$template_xml);
 		
 //$a = microtime();
@@ -1744,6 +1758,10 @@ return;
 		}
 		else
 		{
+// fau: linkInSameWindow - include link class before xsl transformation
+			require_once ('./Services/Link/classes/class.ilLink.php');
+// fau.
+
 			$xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
 
 			$args = array( '/_xml' => $content, '/_xsl' => $xsl );
@@ -1790,14 +1808,23 @@ return;
 		{
 			$output = $this->insertPageToc($output);
 		}
-		
-		// insert advanced output trigger
-		$output = $this->insertAdvTrigger($output);
 
-		// workaround for preventing template engine
-		// from hiding paragraph text that is enclosed
-		// in curly brackets (e.g. "{a}", see ilLMEditorGUI::executeCommand())
-		$output = $this->replaceCurlyBrackets($output);
+// fau: shortRssLink - don't add special elements to abstract
+		if ($this->getAbstractOnly())
+		{
+			$output = $this->removeAdvTrigger($output);
+		}
+		else
+		{
+			// insert advanced output trigger
+			$output = $this->insertAdvTrigger($output);
+		}
+// fau.
+
+			// workaround for preventing template engine
+			// from hiding paragraph text that is enclosed
+			// in curly brackets (e.g. "{a}", see ilLMEditorGUI::executeCommand())
+			$output = $this->replaceCurlyBrackets($output);
 
 		// remove all newlines (important for code / pre output)
 		$output = str_replace("\n", "", $output);
@@ -2543,6 +2570,9 @@ return;
 		xslt_free($xh);
 
 		// unmask user html
+        // fim: [bugfix] allow fullscreen image in tests
+        require_once ("Services/Style/classes/class.ilObjStyleSheet.php");
+        // fim.
 		$tpl->setVariable("LOCATION_CONTENT_STYLESHEET",
 				ilObjStyleSheet::getContentStylePath(0));
 		$tpl->setVariable("LOCATION_STYLESHEET", ilUtil::getStyleSheetLocation());
@@ -2794,7 +2824,26 @@ return;
 		
 		return $a_output;
 	}
-	
+
+// fau: shortRssLink - new function RemoveAdvTrigger
+	/**
+	 * Remove adv content trigger
+	 *
+	 * @param string $a_output output
+	 * @return string modified output
+	 */
+	function RemoveAdvTrigger($a_output)
+	{
+		global $lng;
+		
+		$a_output = str_replace("{{{{{LV_show_adv}}}}}",
+			'', $a_output);
+		$a_output = str_replace("{{{{{LV_hide_adv}}}}}",
+			'', $a_output);
+		
+		return $a_output;
+	}
+// fau.
 	
 	/**
 	 * Finalizing output processing. Maybe overwritten in derived

@@ -1,0 +1,785 @@
+/**
+* StudOn: added German language variables for local customizations
+*
+* @version			$Id: $
+*/
+<!-- language file start -->
+administration#:#adm_activate_db_benchmark_instant#:#Sofort speichern###fau: extendBenchmark
+administration#:#adm_activate_db_benchmark_instant_desc#:#Die Datenbankabfragen werden sofort statt am Ende gespeichert. Das erlaubt die Aufzeichnung langer Fequests, die mit einem Timeout oder Speicherüberlauf enden.###fau: extendBenchmark
+administration#:#adm_db_bench_grouped_by_sql#:#Nach SQL gruppieren###fau: extendBenchmark
+assessment#:#ass_create_export_mycampus#:#Erstelle Ergebnisdatei für mein campus
+assessment#:#ass_mycampus_exam_number#:#Prüfungsnummer
+assessment#:#ass_mycampus_exam_number_info#:#Die Prüfungsnummer wird zur korrekten Bennung der Export-Datei benötigt. Bitte importieren Sie die Datei in <i>mein campus</i> mit dem erzeugten Namen.<br />Wenn der StudOn-Test für mehrere Prüfungen verwendet wurde, verwenden Sie die Option "Angemeldete Teilnehmer" um für jede Prüfungs eine eigene Datei auszugeben.
+assessment#:#ass_mycampus_export#:#Ergebnisse für die Notenverbuchung in <i>mein campus</i> exportieren
+assessment#:#ass_mycampus_export_forbidden#:#Um die Ergebnisse für <i>mein campus</i> zu exportieren, müssen Sie das Recht zum Teilnehmerdatenexport haben.<br /><a href="%s">Hier können Sie den Antrag dazu stellen</a>.
+assessment#:#ass_mycampus_mark_field#:#Exportierte Note
+assessment#:#ass_mycampus_mark_field_official#:#Offizielle Bezeichnung
+assessment#:#ass_mycampus_mark_field_short#:#Kurzbezeichnung
+assessment#:#ass_mycampus_marked#:#benotet
+assessment#:#ass_mycampus_marked_info#:#Bei benoteten Prüfungen muss in <i>mein campus </i> eine korrekte Drittelnote in einer der folgenden Formatierungen eingetragen werden: "1,3", "2.7" oder "400".<br />Bitte geben Sie an, welche Bezeichnung aus dem Notenschema dieses Tests exportiert werden soll. Deren Notenstufen müssen der genannten Formatierung entsprechen.
+assessment#:#ass_mycampus_not_marked#:#unbenotet
+assessment#:#ass_mycampus_not_marked_info#:#Bei unbenoteten Prüfungen wird für "bestanden" ein "+" und für "nicht bestanden" ein "-" ausgegeben.
+assessment#:#ass_mycampus_other_fields#:#Weitere Felder
+assessment#:#ass_mycampus_other_fields_info#:#Lassen Sie diese Auswahlen leer, wenn es beim Import in <i>mein campus</i> Probleme damit gibt.<br />Minimal wird die Matrikelnummer und die Bewertung exportiert.
+assessment#:#ass_mycampus_rating_type#:#Bewertungsart
+assessment#:#ass_mycampus_test_date#:#individuelles Prüfungsdatum
+assessment#:#ass_mycampus_test_starttime#:#individieller Prüfungsbeginn
+assessment#:#ass_mycampus_file_written#:#Die Ergebnisdatei für <i>mein campus</i> wurde geschrieben.
+assessment#:#ass_mycampus_filter_export#:#Export einschränken
+assessment#:#ass_mycampus_registrations_file#:#Prüfungsanmeldungen
+assessment#:#ass_mycampus_registrations_file_info#:#Wählen Sie hier die CSV-Datei die Sie für die Prüfung aus <i>mein campus</i> exportiert haben. Die erzeugte Ergebnisdatei wird den gleichen Namen haben.
+assessment#:#ass_mycampus_matcol_not_found#:#Die csv-Datei wurde nicht als Liste von Anmeldungen erkannt!<br />Sie muss in der ersten Zeile die Spaltenbezeichnungen enthalten.<br />Eine Spalte muss als <b>mtknr</b> bezeichnet sein und die Matrikelnummer der angemeldeten Nutzer enthalten.<br />Das Trennzeichen für die Spalten muss <b>;</b> sein. 
+assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
+assessment#:#ass_mycampus_export_scope#:#Teilnehmer-Auswahl
+assessment#:#ass_mycampus_export_all#:#Alle Teilnehmer
+assessment#:#ass_mycampus_export_all_info#:#Exportiert alle Ergebnisse. <strong>Beim Import in <i>mein campus</i> werden nicht angemeldete Teilnehmer hinzugefügt!</strong>
+assessment#:#ass_mycampus_export_registered#:#Angemeldete Teilnehmer
+assessment#:#ass_mycampus_export_registered_info#:#Exportiert nur die für eine Prüfung in <i>mein campus</i> angemeldeten Teilnehmer.
+assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die Anmeldedatei ist falsch benannt. Sie muss wie <strong>prf_123.csv</strong> heißen, wobei 123 die Prüfungsnummer ist.
+assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
+assessment#:#send_simple_results_body#:#%s\n\nName: %s\nMatrikelnummer: %s\nDatum des Durchlaufs: %s
+assessment#:#send_simple_results_subject#:#Ergebnis "%s" vom %s
+assessment#:#send_simple_results_to_participants#:#Einfaches Ergebnis als Mail senden (bewerteter Testdurchlauf)
+assessment#:#send_simple_results_to_participants_confirm#:#Ergebnis als Mail an die ausgewählten Teilnehmer senden?<br />Gesendet werden für den bewerteten Testdurchlauf der Name, die Matrikelnummer, das Datum des Tests und die textuelle Rückmeldung.
+assessment#:#send_simple_results_to_participants_failed#:#Die folgenden Nutzer konnten nicht angeschrieben werden:<br />%s
+assessment#:#send_simple_results_to_participants_success#:#Die folgenden Nutzer wurden angeschrieben:<br />%s
+assessment#:#sent_simple_results_to_participants#:#Die Ergebnisse wurden an die Teilnehmer gesendet
+assessment#:#show_detailed_results_with_correct_solutions#:#Detaillierte Testergebnisse mit korrekten Lösungen (bewerteter Testdurchlauf)
+assessment#:#tst_mark_tst_failed#:#Resultierende Note "nicht bestanden"
+assessment#:#tst_mark_tst_failed_details#:#Dieser Text ersetzt die Standardmeldung auf der Ergebnisseite eines nicht bestandenen Tests. Sie können darin die folgenden Platzhalter verwenden:<br /><strong>[mark]</strong> : Offizielle Bezeichnung der Notenstufe,<br /><strong>[markshort]</strong> : Kurzbezeichnung der Notenstufe,<br /><strong>[percentage]</strong> : Prozent gelöst,<br /><strong>[reached]</strong> : erreichte Punktzahl,<br /><strong>[max]</strong> : maximale Punktzahl.
+assessment#:#tst_mark_tst_passed#:#Resultierende Note "bestanden"
+assessment#:#tst_mark_tst_passed_details#:#Dieser Text ersetzt die Standardmeldung auf der Ergebnisseite eines bestandenen Tests. Sie können darin die folgenden Platzhalter verwenden:<br /><strong>[mark]</strong> : Offizielle Bezeichnung der Notenstufe,<br /><strong>[markshort]</strong> : Kurzbezeichnung der Notenstufe,<br /><strong>[percentage]</strong> : Prozent gelöst,<br /><strong>[reached]</strong> : erreichte Punktzahl,<br /><strong>[max]</strong> : maximale Punktzahl.
+assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Zur Regel %s gibt es weniger als die erforderlichen Fragen. Für jede Regel muss es genug Fragen geben, die zu keiner anderen Regel passen.
+assessment#:#tst_msg_rand_quest_set_not_sync#:#Die Regeln für die zufällige Fragenauswahl wurden neu erstellt oder geändert. Bevor der Test verwendet werden kann, müssen die Fragen aus den Pools synchronisiert werden. Dabei wird auch geprüft, ob mit den Regeln ein zufälliger Test möglich ist.
+assessment#:#tst_msg_rand_quest_set_sync_duration#:#Bei der Synchronisation werden alle Fragen die zu den Regeln passen in den Test kopiert. Diese Aktion kann bei großen Pools einige Minuten dauern.
+assessment#:#tst_filter_question_type#:#Fragentyp
+assessment#:#tst_filter_question_type_enabled#:#Verwende Fragentyp als Filter
+assessment#:#tst_recalculate_solutions#:#Ergebnisse neu berechnen
+assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
+auth#:#shib_continue#:#Weiter zu StudOn
+auth#:#shib_continue_local#:#Weiter zu StudOn
+auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.
+auth#:#shib_convert_cancel#:#Weiter ohne Umstellung
+auth#:#shib_convert_change_login#:#Ihr <strong>StudOn-Benutzername</strong> <em>%s</em> wird auf <em>%s</em> geändert. Dieser wird künftig in Foren, Mitgliederlisten und für StudOn-interne Nachrichten verwendet.
+auth#:#shib_convert_denied#:#Sie müssen über Single Sign-On angemeldet sein, um die Umstellung durchzuführen!
+auth#:#shib_convert_head#:#Umstellung auf Single Sign-On
+auth#:#shib_convert_intro#:#<p>Liebe Nutzerin / lieber Nutzer,</p><p>Sie haben sich soeben erfolgreich über <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> angemeldet. Sie können Ihren StudOn-Zugang nun darauf als Standard umstellen. Damit sind für Sie folgende <strong>Änderungen</strong> verbunden:</p>
+auth#:#shib_convert_keep_login#:#Ihr <strong>StudOn-Benutzername</strong> <em>%s</em> bleibt erhalten. Zur Anmeldung über Single Sign-On verwenden Sie aber bitte <em>%s</em>.
+auth#:#shib_convert_name#:#Ihr <strong>Vorname</strong> und <strong>Nachname</strong> wird automatisch aktualisiert und ist für Sie in StudOn nicht mehr änderbar.
+auth#:#shib_convert_not_accepted#:#Bitte stimmen Sie den Änderungen zu!
+auth#:#shib_convert_outro#:#<p>Bei der Umstellung müssen Sie noch einmal die Nutzungsbedingungen von StudOn akzeptieren.</p>
+auth#:#shib_convert_password#:#Ihr <strong>Passwort</strong> wird automatisch aktualisiert und ist in StudOn nicht mehr änderbar. Sie können Ihr Passwort im <a target="_blank" href="https://www.idm.uni-erlangen.de">Identity Management Self Service</a><span class="ilAccHidden"> (neues Fenster)</span>  ändern.
+auth#:#shib_convert_submit#:#Umstellung durchführen
+auth#:#shib_inactive_head#:#Zugang inaktiv
+auth#:#shib_inactive_text#:#<p>Wenn Sie an der Universität Erlangen-Nürnberg studieren, können Sie sich über <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> anmelden, um Ihr StudOn-Benutzerkonto zu aktivieren. Verwenden Sie dafür Ihre Benutzerkennung für den zentralen Anmeldedienst und das dazugehörige Passwort, das Sie im <a target="_blank" href="https://www.idm.uni-erlangen.de">Identity Management Self Service</a><span class="ilAccHidden"> (neues Fenster)</span>  ändern können. Die zentrale Benutzerkennung ist auch künftig Ihr StudOn-Benutzername.</p><p>Wenn Sie nicht an der Universität Erlangen-Nürnberg studieren, wenden Sie sich bitte an <a href="mailto:studon@fau.de">studon@fau.de</a>.</p>
+auth#:#shib_not_creatable_head#:#Single Sign-On ohne Matrikelnummer
+auth#:#shib_not_creatable_text#:#<p>Liebe Nutzerin / lieber Nutzer,</p><p>Zu Ihrer universitären Benutzerkennung wurde kein passender StudOn-Benutzer gefunden. Ein neuer StudOn-Zugang kann momentan nur für Studierende automatisch angelegt werden, deren Matrikelnummer beim Single Sign-On übermittelt wird.</p><p>Wenn Sie <strong>bereits einen StudOn-Zugang</strong> haben, teilen Sie uns bitte diesen und Ihre universitäre Benutzerkennung per E-Mail an <a href="mailto:studon@fau.de">studon@fau.de</a> mit. Damit können wir beide einander zuordnen, so dass das Single Sign-On für Sie funktioniert.</p><p>Wenn Sie als <strong>StudentIn</strong> für das aktuelle Semester an der Universität eingeschrieben sind und Ihren Studienbeitrag  gezahlt haben, sollte Ihre Matrikelnummer übermittelt werden. Wenden Sie sich bitte an den <a href="mailto:sso-support@uni-erlangen.de">SSO-Support</a> des Rechenzentrums, um das Problem zu klären.</p><p>Wenn Sie <strong>MitarbeiterIn</strong> der Universität sind, verwenden Sie bitte das <a href="http://www.studon.uni-erlangen.de/info/registrierung.html">Registrierungsformular für MitarbeiterInnen</a>. Geben Sie hier auch Ihre universitäre Benutzerkennung an.</p>
+auth#:#shib_recommendation_head#:#Umstellung auf Single Sign-On
+auth#:#shib_recommendation_text#:#<p>Liebe Nutzerin / lieber Nutzer,<br /></p><p>In StudOn ist das <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> die bevorzugte für Studierende und auch für Lehrende empfehlenswert.</p><p class="alert">Nur beim Single Sign-On werden Ihre Nutzerdaten automatisch aktualisiert, die Ihre Beitrittsmöglichkeit zu Kursen und Gruppen beeinflussen können.</p><p>Sie können sich jetzt per Single Sign-On anmelden und dann Ihren StudOn-Zugang auf diese Anmeldung als Standard umstellen. Verwenden Sie dafür Ihre zentrale Benutzerkennung der FAU und das dazugehörige Passwort, das Sie im <a target="_blank" href="https://www.idm.uni-erlangen.de">Identity Management Self Service</a><span class="ilAccHidden"> (neues Fenster)</span> ändern können.</p>
+auth#:#shib_reminder_head#:#Bitte verwenden Sie das Single Sign-On
+auth#:#shib_reminder_text#:#<p>Liebe Nutzerin / lieber Nutzer,</p><p>Für Ihr StudOn-Benutzerkonto ist das <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> über den Anmeldedienst der Universität als Standard eingestellt. Bitte verwenden Sie bevorzugt diese Anmeldung.</p><p class="alert">Nur beim Single Sign-On werden Ihre Nutzerdaten automatisch aktualisiert, die Ihre Beitrittsmöglichkeit zu Kursen und Gruppen beeinflussen können.</p><p>Die lokale Anmeldung können Sie nutzen, wenn das Single-Sign-On nicht funktioniert.</p>
+auth#:#shib_to_sso#:#Zum Single Sign-On
+common#:#accept_updated_user_agreement#:#Die Nutzungsbedingungen wurden neu formuliert. Am Umfang des Angebots ändert sich dadurch nichts. Bitte akzeptieren Sie die Nutzungsvereinbarung am Ende dieser Seite, um das System weiter nutzen zu können.
+common#:#accept_user_agreement#:#Bitte akzeptieren Sie die Nutzungsvereinbarung am Ende dieser Seite, um das System nutzen zu können.
+common#:#archive_structure#:#Archiv-Struktur
+common#:#book_helptext#:#<p>Über einen Buchungspool können Sie Hardware, Arbeitsplätze oder -räume verwalten. Berechtigte Benutzer können diese dann buchen.</p><p>Im Pool wird die Anzahl der Objekte und ihre verfügbare Zeit festgelegt. Diese können dann über einen Buchungsplan eingesehen werden. Bereits gebuchte Objekte oder Räume werden in der Übersicht nicht mehr angezeigt. So wird auf den ersten Blick deutlich, ob ein Objekt für den gewünschten Tag noch zur Verfügung steht. Die Buchungstermine können dann auch in den persönlichen Kalender des Nutzers übernommen werden.</p>
+common#:#cat_create_exco#:#Neuen externen Inhalt anlegen
+common#:#cat_create_perc#:#Neues Perception-Assessment anlegen
+common#:#cat_helptext#:#Mit Bereichen können Sie die Angebote Ihres Lehrstuhls oder Instituts übersichtlicher gestalten, z.B. mit einem Archiv für die Kurse früherer Semester oder eigenen Unterbereichen für die Dozentinen/Dozenten.
+common#:#catr_helptext#:#Mit einer Bereichs-Referenz können Sie auf einen Bereich verweisen, der an einer anderen Stelle in StudOn liegt. Beim Klick auf die Referenz gelangt man dann zum Bereich. Die Zugriffsrechte auf diesen Bereich bleiben durch die Referenz unverändert.
+common#:#chat_helptext#:#Ein Chat in StudOn funktioniert ähnlich wie ein Instant Messenger (z.B. ICQ, AIM, Skype). Sie können Chats in Ihren Kursen oder auch z.B. als Kommunikationsinstrument für Arbeitsgruppen zur Verfügung stellen.
+common#:#cont_limit_starts#:#Beschränkte Wiedergaben
+common#:#cont_limit_starts_count#:#Anzahl der Wiedergaben
+common#:#cont_limit_starts_context#:#Zählungs-Kontext
+common#:#cont_limit_starts_user#:#Alle Aufrufe
+common#:#cont_limit_starts_session#:#Login-Sitzung
+common#:#cont_limit_starts_testpass#:#Testlauf
+common#:#cont_limit_starts_current_plays_text#:#Gestartete Wiedergaben: &nbsp;
+common#:#cont_limit_starts_max_plays_text#:#Maximale Wiedergaben: &nbsp;
+common#:#cont_limit_starts_limit_reached_text#:#Die maximale Anzahl an Wiedergaben wurde erreicht.
+common#:#cont_limit_starts_first_time_text#:#Erste Wiedergabe starten.
+common#:#crs_create_exco#:#Neuen externen Inhalt anlegen
+common#:#crs_create_perc#:#Neues Perception-Assessment anlegen
+common#:#crs_helptext#:#Kurse sind Container-Objekte, die beliebige andere Lernobjekte enthalten können und verschiedene Möglichkeiten der Mitgliederverwaltung bieten. Es empfiehlt sich, Kurse für die Organisation von Lehrveranstaltungen in StudOn zu verwenden. <a target="_blank" href="http://www.studon.uni-erlangen.de/lm113424.html">Mehr...</a>
+common#:#crsr_helptext#:#Mit einer Kurs-Referenz können Sie auf einen Kurs verweisen, der an einer anderen Stelle in StudOn liegt. Beim Klick auf die Referenz gelangt man dann zum Kurs. Die Zugriffsrechte auf diesen Kurs bleiben durch die Referenz unverändert.
+common#:#deny_regstart_message#:#<p class="alert">Der Anmeldestart darf nicht zwischen <em>%s</em> und <em>%s</em> liegen!</p>
+common#:#distinct_registrations#:#Verschiedene Anmeldungen
+common#:#docorder_err_course_not_closed#:#Der StudOn-Kurs "%s" ist nicht zur Bereitstellung von bestellten Dokumenten geeignet. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
+common#:#docorder_err_course_not_found#:#Zur Kursnummer %s wurde kein StudOn-Kurs gefunden!
+common#:#docorder_err_no_course_found#:#In StudOn wurde kein geeigneter Zielkurs gefunden. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, in denen Sie Schreibrecht haben und deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
+common#:#docorder_err_no_user_found#:#Zu Ihrer UB-Benutzernummer wurde kein StudOn-Benutzerkonto gefunden. Um den Aufsatzlieferdienst zur Bereitstellung in StudOn nutzen zu können, tragen Sie bitte in StudOn unter "persönliches Profil" Ihre UB-Benutzernummer ein.
+common#:#docorder_err_no_write_access#:#Sie haben kein Schreibrecht im StudOn-Kurs "%s"
+common#:#docorder_err_wrong_request#:#Diese Anfrage wurde nicht erkannt!
+common#:#dummy_user_firstname_mycampus#:#mein campus
+common#:#dummy_user_lastname_mycampus#:#Kursanmeldung
+common#:#duration#:#Dauer
+common#:#err_inactive_contact#:#<br/>Bitte wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a>, um das Benutzerkonto aktivieren zu lassen.
+common#:#err_inactive_new#:#Das Benutzerkonto wurde noch nicht aktiviert.
+common#:#err_inactive_set#:#Das Benutzerkonto wurde deaktiviert.
+common#:#err_inactive_time_limit#:#Ihr zeitlich befristeter Zugang ist abgelaufen.
+common#:#err_inactive_too_long#:#Das Benutzerkonto wurde länger als ein Jahr nicht mehr verwendet und daher deaktiviert.
+common#:#err_inactive_wrong_logins#:#Das Benutzerkonto wurde wegen zu vieler Fehlversuche deaktiviert.
+common#:#eval_mark_for_evaluation#:#Zur Lehrevaluation vorsehen
+common#:#eval_mark_for_evaluation_info#:#Wenn eingeschaltet, ist diese Veranstaltung zur Lehrevaluation vorgesehen.<br />Voraussetzung dafür ist die Übertragung der Veranstaltungsdaten aus UnivIS (können Sie auf dem Reiter "Inhalt" vornehmen).<br /> Fragen beantwortet das <a href="mailto:qm.phil@zuv.uni-erlangen.de">Büro für Qualitätsmanagement</a>.
+common#:#eval_mark_for_evaluation_info_import#:#Wenn eingeschaltet, ist diese Veranstaltung zur Lehrevaluation vorgesehen.<br /> Fragen beantwortet das <a href="mailto:qm.phil@zuv.uni-erlangen.de">Büro für Qualitätsmanagement</a>.
+common#:#exc_helptext#:#In Übungen können Sie Kursteilnehmern Aufgaben, z.B. im Word-Format, zur Verfügung stellen, die dann bearbeitet und wieder hochgeladen werden können. Die Bearbeitungsfrist können Sie beliebig festlegen.
+common#:#feed_helptext#:#Sie können in StudOn externe Informationen als RSS-Feeds in Ihr Lehrangebot integrieren. Dadurch haben Studierende unmittelbaren Zugriff darauf. Z.B. Nachrichten oder Börsendaten lassen sich so ganz einfach in einen Kurs einbinden. Darüber hinaus können Sie auch für sich selbst RSS-Feeds auf Ihren Persönlichen Schreibtisch ablegen.
+common#:#file_helptext#:#Stellen Sie in Ihren Kursen beliebige Dateien zum Download zur Verfügung. Sie können diese Dateien zur besseren Auffindbarkeit mit Metainformationen wie Schlüsselwörtern oder Angaben zur jeweiligen Lizenz versehen.
+common#:#fold_create_exco#:#Neuen externen Inhalt anlegen
+common#:#fold_create_perc#:#Neues Perception-Assessment anlegen
+common#:#fold_helptext#:#Mit Hilfe von Ordnern können Sie Ihre Lernangebote beliebig strukturieren, Sie können z.B. einen Ordner für Skripten oder Seminarprotokolle anlegen. Ordner sind die einfachsten Container-Elemente in StudOn – bei ihrer Erstellung müssen Sie lediglich einen Namen vergeben.
+common#:#footer_active_users#:#Nutzer online
+common#:#footer_financed_by#:#Finanziert aus Studienzuschüssen
+common#:#footer_realised_with#:#Realisiert mit ILIAS
+common#:#footer_server#:#Server:
+common#:#footer_contact#:#Kontakt
+common#:#footer_imprint#:#Impressum
+common#:#footer_hotline#:#Hotline: +49 9131 85 61133
+common#:#forgot_password#:#Lokales Passwort vergessen?
+common#:#forgot_username#:#Lokalen Benutzernamen vergessen?
+common#:#frm_helptext#:#Über Foren können Sie fachbezogene Kommunikation zwischen Lernenden und Lehrenden ermöglichen. Sie können beliebig viele Foren anlegen und darin zu Diskussionen über Fragen und Themen im Relevanzbereich Ihres Kurses anregen. Um ein neues Forum zu erstellen, müssen Sie einen ersten Beitrag zu einem bestimmten Thema verfassen.
+common#:#general_info#:#Allgemeine Informationen
+common#:#glo_helptext#:#In einem Glossar können Sie Begriffe und Definitionen zur Verfügung stellen. Auf diese Inhalte können Sie z.B. aus Lerneinheiten heraus verlinken und so häufig benötigte Informationen organisieren.
+common#:#grp_create_exco#:#Neuen externen Inhalt anlegen
+common#:#grp_create_perc#:#Neues Perception-Assessment anlegen
+common#:#grp_helptext#:#Gruppen können im Gegensatz zu Ordnern nicht nur Sachobjekte wie Dateien, Foren oder Wikis enthalten, sondern verfügen auch über Optionen der Mitgliederverwaltung, so dass Sie Gruppen Teilnehmer zuweisen können. So können Sie z.B. getrennte Arbeitsgruppen in StudOn realisieren oder Studierenden die Möglichkeit geben, Dateien hochzuladen.
+common#:#grp_status_pending#:#Antrag wird bearbeitet
+common#:#htlm_helptext#:#Wenn Sie Lerninhalte bereits als HTML-Seiten vorliegen haben, können Sie diese als HTML-Lernmodul einbinden. Laden Sie Ihren Satz von Seiten als Zip-Archiv hoch, entpacken Sie es und legen sie eine Startseite fest.<br />Die Startseite öffnet sich beim Aufruf des Lernmoduls in einem neuen Fenster. StudOn stellt sicher, dass die Inhalte nur mit den vorgesehen Rechten aufgerufen werden können.
+common#:#icon_alert_s.gif#:#Warnung
+common#:#ilias_remote_soap_login_failed#:#Es konnte keine Verbindung zur StudOn-Plattform aufgebaut werden!
+common#:#info_section_cat_roles_create_crs#:#Bereichs-Dozenten (können Inhalte anlegen)
+common#:#info_section_cat_roles_delete#:#Bereichs-Manager (können Inhalte verwalten)
+common#:#info_section_cat_roles_edit_permission#:#Bereichs-Administratoren (können Inhalte verwalten und Rechte setzen)
+common#:#info_section_cat_roles_write#:#Bereichs-Manager (können bearbeiten)
+common#:#info_section_crs_parent_roles_read#:#Nutzer mit Zugriff ohne Beitritt
+common#:#info_section_studon_admins#:#StudOn-Administratoren (können Inhalte verwalten und Rechte setzen)
+common#:#info_section_studon_admins_details#:#Benutzer: siehe <a href="http://www.studon.fau.de/contact">Kontakt-Seite</a> von StudOn.
+common#:#join_as_guest#:#Anmeldung als Gast
+common#:#join_as_guest_mail_message#:#Antrag auf Gasthörer-Zugriff\n\nBenuztername: {LOGIN}\nVorname: {FIRSTNAME}\nNachname: {LASTNAME}\nE-Mail: {EMAIL}\n\nPfad: {PATH}\nKurs/Gruppe: {OBJECT}\nLink: {LINK}\n\n{LABEL_REG_TYPE}: {REG_TYPE}{MAX_MEMBERS}\n\n
+common#:#join_as_guest_mail_subject#:#Gast-Beitritt von {LOGIN} in {OBJECT}
+common#:#join_as_guest_question_crs#:#Möchten Sie in diesen Kurs als Gasthörer aufgenommen werden?
+common#:#join_as_guest_question_grp#:#Möchten Sie in diese Gruppe als Gasthörer aufgenommen werden?
+common#:#join_as_guest_question_info#:#<p>Ihre Anfrage wird per E-Mail an das StudOn-Team geschickt. Wir überprüfen Ihre Belegung von Lehrveranstaltungen und tragen Sie als Mitglied ein, wenn der Zugriff möglich ist.</p>
+common#:#join_as_guest_success#:#Ihre Anfrage wurde abgeschickt. Sie erhalten eine Mail-Nachricht, sobald Sie aufgenommen wurden.
+common#:#join_crs_needs_login#:#Bitte melden Sie sich bei StudOn an, um dem Kurs beizutreten!
+common#:#join_crs_not_permitted#:#Sie können dem Kurs nicht beitreten!
+common#:#join_grp_needs_login#:#Bitte melden Sie sich bei StudOn an, um der Gruppe beizutreten!
+common#:#join_grp_not_permitted#:#Sie können der Gruppe nicht beitreten!
+common#:#join_link#:#Link zum Beitritt
+common#:#join_link_description#:#<span class="small">Beim Aufruf dieses Links muss sich ein Nutzer zunächst bei StudOn anmelden und wird dann zur Beitritts-Seite weitergeleitet.</span>
+common#:#label_remark#:#Hinweis
+common#:#leave_lot_list#:#Von der Auslosung abmelden
+common#:#links_password_coded#:#Passwort-Code
+common#:#lm_helptext#:#Ein ILIAS-Lernmodul ist wie ein elektronisches Buch aufgebaut. Mit dem Online-Editor erstellen Sie Seiten mit Text und Medienelementen, die in einer Kapitelstruktur eingegliedert oder als freie Seiten (Exkurse) verlinkt werden. ILIAS-Lernmodule lassen sich exportieren und in anderen Lernumgebungen oder offline weiternutzen. <p class="alert">Tipp: mit dem externen Tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> können Sie OpenOffice-Dokumente in ILIAS-Lernmodule konvertieren.</p>
+common#:#local_login_help_title#:#Hilfe zur lokalen Anmeldung
+common#:#local_login_to_ilias#:#Lokale Anmeldung
+common#:#local_login_to_ilias_addition#:#(Lehrende, Gasthörer, Gäste)
+common#:#logged_in_to_ilias#:#<strong>Sie sind bei StudOn eingeloggt.</strong>
+common#:#logged_in_to_ilias_info#:#Klicken Sie auf Abmelden, wenn Sie Ihre Sitzung schließen möchten.
+common#:#login_required_for_object#:#Bitte melden Sie sich an, um auf das Objekt zuzugreifen!
+common#:#login_to_ilias_info#:#Die lokale Anmeldung ist für Lehrende und Gasthörer, die nicht über einen Single Sign-On-Zugang verfügen.
+common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
+common#:#login_to_ilias_via_shibboleth_addition#:#(immatrikulierte Studierende)
+common#:#mcst_helptext#:#Ein Mediacast kann mehrere Medienobjekte (z.B. Audio-Dateien) beinhalten, die sich im Browser abspielen oder herunterladen lassen. <p class="alert">Umfangreiche Video-Datei (z.B. Vorlesungsaufzeichnungen) laden Sie am besten im <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> der Universität hoch. Sie können sie dort mit einem Schutz versehen und in Ihrem StudOn-Kurs als "Externer Inhalt" verlinken.</p>
+common#:#mem_add_to_lot#:#Zur Auslosung hinzufügen
+common#:#mem_added_to_lot_list#:#Sie wurden zur Auslosung angemeldet.
+common#:#mem_already_on_lot_list#:#Sie sind bereits zur Auslosung angemeldet.
+common#:#mem_edit_request#:#Anmeldung ändern
+common#:#mem_fill_free_places#:#Freie Plätze auffüllen
+common#:#mem_lot_button#:#Mitglieder auslosen
+common#:#mem_lot_candidates#:#Loskandidaten
+common#:#mem_lot_clean_button#:#Liste bereinigen (Mitglieder entfernen)
+common#:#mem_lot_cleaned#:#Die Liste wurde bereinigt:<br />Entfernt, da bereits Mitglied (auch in verbundenen Kursen/Gruppen): %s Nutzer.
+common#:#mem_lot_drawn#:#Die freien Plätze wurden ausgelost.<br />Aufgenommen: %s Nutzer.<br />Ausgeschlossen, da anderweitig Mitglied: %s Nutzer.
+common#:#mem_lot_form_title#:#Losverfahren
+common#:#mem_lot_free_places#:#Freie Plätze
+common#:#mem_lot_list_count#:#Kandidaten zur Auslosung:
+common#:#mem_lot_list_info#:#Die Teilnehmer werden nach Anmeldungsende ausgelost. Alle haben dabei die gleiche Chance, unabhängig von der Reihenfolge ihrer Anmeldung. Sie können daher den gesamten Anmeldungszeitraum nutzen!
+common#:#mem_lot_list_possible#:#Die Teilnehmer werden nach Anmeldungsende ausgelost.
+common#:#mem_lot_message_no_candidates#:#Es sind keine Kandidaten zur Auslosung vorhanden.
+common#:#mem_lot_message_no_places#:#Es sind keine freien Plätze zur Auslosung vorhanden.
+common#:#mem_lot_message_not_enabled#:#Das Losverfahren ist nicht aktiviert!
+common#:#mem_lot_message_possible#:#Sie können Mitglieder auslosen.
+common#:#mem_lot_message_subscribers#:#Es sind noch Aufnahmeanträge vorhanden. Bitte bearbeiten Sie diese, bevor Sie die Mitglieder auslosen.
+common#:#mem_lot_message_time#:#Die Auslosung ist ab %s möglich.
+common#:#mem_lot_status#:#Status
+common#:#mem_lot_table_description#:#Freie Plätze: %s, Loskandidaten: %s, Status: %s
+common#:#mem_max_users_hidden#:#Info für Admins:
+common#:#mem_on_lot_list#:#zur Auslosung angemeldet
+common#:#mem_registration_access_time#:#Anmeldung/Erstzugriff
+common#:#mem_remove_from_lot#:#Von der Auslosung entfernen
+common#:#mem_request_joining#:#Aufnahme beantragen
+common#:#mem_request_lot#:#Zur Auslosung anmelden
+common#:#mem_request_waiting#:#Auf Warteliste setzen
+common#:#mem_subscribers_added_to_lot#:#%s Antragsteller wurden zur Auslosung hinzugefügt.
+common#:#mem_subscribers_removed_from_lot#:#%s Loskandidaten wurden von der Auslosung entfernt.
+common#:#mem_user_already_subscribed#:#Sie haben bereits einen Aufnahmeantrag gestellt. Möchten Sie diesen aktualisieren oder zurückziehen?
+common#:#mep_helptext#:#In einem Mediapool können Sie Multimediadateien „lagern“, um Sie an verschiedenen Stellen in Ihrem Lernangebot, z.B. auf Inhaltsseiten von Wikis und Lernmodulen zu verwenden. <p class="alert">Umfangreiche Video-Datei (z.B. Vorlesungsaufzeichnungen) laden Sie am besten im <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> der Universität hoch. Sie können sie dort mit einem Schutz versehen und in Ihrem StudOn-Kurs als "Externer Inhalt" verlinken.</p>
+common#:#more#:#Mehr...
+common#:#object_copy_with_mail_info#:#Hinweis: Die Inhalte werden im Hintergrund kopiert. Sie können sich den Erfolg per Mail bestätigen lassen.###fau: copyBySoap
+common#:#object_copy_with_mail_suffix#:#(mit Mail-Bestätigung)###fau: copyBySoap
+common#:#object_copy_in_progress_with_mail#:#Die Kopie wird im Hintergrund durchgeführt. Sie erhalten eine Mail als Systemnachricht, wenn alle Inhalte kopiert sind.###fau: copyBySoap
+common#:#object_copy_mail_subject#:#Kopiert: %s###fau: copyBySoap
+common#:#object_copy_mail_body#:#Link zum kopierten Objekt: %s###fau: copyBySoap
+common#:#print_pagebreaks#:#Auf Einzelseiten drucken
+common#:#privacy_note_for_authors#:#Hinweis für Bearbeiter
+common#:#privacy_object_visible_to_public#:#Dieses Objekt ist für alle Benutzer des Internet sichtbar!
+common#:#privacy_object_visible_with_password#:#Dieses Objekt ist für nicht-registrierte Nutzer passwortgeschützt sichtbar!
+common#:#privacy_portfolio_visible_to_public#:#Dieses Portfolio ist für alle Benutzer des Internet sichtbar!
+common#:#privacy_portfolio_visible_with_password#:#Dieses Portfolio ist für nicht-registrierte Nutzer passwortgeschützt sichtbar!
+common#:#progress_continue#:#Weiter
+common#:#progress_done#:#Erledigt
+common#:#progress_failed#:#Fehlgeschlagen
+common#:#progress_finished#:#Fertig
+common#:#progress_info#:#Information
+common#:#progress_submit_info#:#Die Bearbeitung wird normalerweise automatisch fortgesetzt.<br />Sollten sie diese Meldung sehen, klicken Sie einmal auf "Weiter", um sie von Hand fortzusetzen. <br />Während die Anfrage läuft (Browser-Symbol rotiert), klicken Sie bitte nicht erneut.
+common#:#progress_task#:#Aufgabe
+common#:#qpl_helptext#:#In Fragenpools können Sie die Fragen anlegen und sammeln, die Sie in Ihren Tests verwenden möchten. Durch dieses Prinzip können Sie einmal erstellte Fragen immer wieder zu neuen Tests kombinieren.
+common#:#relative_link_label#:#Relativer Link
+common#:#relative_link_create#:#Link erzeugen
+common#:#relative_link_description#:#Dieser Link eignet sich für die interne Verlinkung in Kursvorlagen. Er ist beim Kopieren in der Kopie identisch. Beim Klicken wird ein Nutzer zum nächstgelegenen Ziel geleitet. Bitte beachten Sie, dass diese Funktion beim Export in andere ILIAS-Plattformen nicht verfügbar ist.
+common#:#relative_link_not_found#:#Das Linkziel zum Code %s wurde nicht gefunden!
+common#:#repository_public_suffix#:# (öffentlich)
+common#:#role_unbreak_permissions#:#Unterbrechungen löschen
+common#:#role_unbreak_permissions_desc#:#Alle lokalen Zugriffsregelungen für diese Rolle werden gelöscht. Zusammen mit "Vorhandene Objekte ändern" und "Rechte schützen" können damit die Rechteeinstellungen für alle Objekte erzwungen werden.
+common#:#rpl_warning#:#Die Registrierung startet zeitgleich mit anderen für über %s Plätze. Dadurch ist mit erhöhter Systemlast zu rechnen. Bitte wählen Sie, wenn möglich, einen anderen Zeitpunkt.
+common#:#rpl_info#:#Bitte wählen Sie, wenn möglich, einen Zeitpunkt, zu dem keine weiteren Registrierungen starten. 
+common#:#rpl_overview#:#Übersicht der Anmeldestarts
+common#:#rpl_overview_desc#:#Diese Tabelle zeigt die vorgesehenen Anmeldestarts für Gruppen und Kurse mit beschränkter Teilnehmerzahl. Pro Zeitraum sind alle Plätze summiert, für die eine Anmeldung startet. Hohe Werte geben einen Hinweis auf erhöhte Zugriffe, allerdings spielen auch andere Faktoren, z.B. die Beliebtheit von Kursen eine Rolle. Bitte wählen Sie für eigene Anmeldestarts möglichst einen freien Zeitraum. In den ersten beiden Wochen des Vorlesungszeitraums ist generell mit hoher Systemlast zu rechnen.
+common#:#rpl_previous_week#:#Vorherige Woche
+common#:#rpl_next_week#:#Folgende Woche
+common#:#sahs_helptext#:#Hier können sie Lernmodule importieren, die nach den E-Learning-Standards SCORM oder AICC entwickelt wurden. Solche Lernmodule ermöglichen z.B. eine Übergabe des Lernfortschritts an StudOn zur weiteren Auswertung.<br />Mit studOn könen Sie auch eigene SCORM-2004-Lernmodule erstellen, die eine Steuerung des Lernflusses anhand von Lernzielen und Testfragen erlauben und die als SCORM 2004-Pakete exportiert und in anderen Plattformen verwendet werden können.
+common#:#score#:#Punkte
+common#:#select_all_page_only#:#Alle auf dieser Seite auswählen. Lassen Sie mehr Zeilen pro Seite anzeigen, um alle auswählen zu können!
+common#:#sess_helptext#:#Eine Sitzung repräsentiert in StudOn eine Präsenzveranstaltung. Sie können dieses Objekt sowohl für reine Präsenzkurse einsetzen als auch im Rahmen von Blended Learning-Szenarien. Beim Erstellen von Sitzungen können Sie Rahmendaten der Präsenzveranstaltung (Zeit, Ort etc.) sowie persönliche Daten der/des Vortragenden angeben und Dateien an die Sitzung anhängen wie z.B. das Programm der Veranstaltung oder Arbeitsmaterialien.
+common#:#shib_data_missing#:#Ihr Single Sign-On hat funktioniert, aber es wurden zuwenige Daten übermittelt, um ein Benutzerkonto in StudOn anlegen zu können:<ul>%s</ul>Bitte wenden Sie sich an <a href="sso-support@rrze.uni-erlangen.de"><strong>sso-support@rrze.uni-erlangen.de</strong></a>, um das Problem zu beheben und nennen Sie dabei Ihre Benutzerkennung und die fehlenden Daten.
+common#:#shib_data_missing_email#:#<li>Ihre E-Mail-Adresse fehlt.</li>
+common#:#shib_data_missing_firstname#:#<li>Ihr Vorname fehlt.</li>
+common#:#shib_data_missing_gender#:#<li>Ihr Geschlecht fehlt.</li>
+common#:#shib_data_missing_lastname#:#<li>Ihr Nachname fehlt.</li>
+common#:#shib_help_title#:#Hilfe zum Single-Sign-On
+common#:#shib_login_used#:#Der Benutzername %s wird bereits von einem anderen Benutzer verwendet. Bitte wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a> um das Problem zu lösen!
+common#:#shib_updated_field#:#Dieses Feld wird beim Single Sign-On übertragen
+common#:#shib_user_not_found#:#Zu Ihrer Benutzerkennung wurde in dieser Installation kein Benutzerkonto gefunden. Ein automatischen Anlegen ist nicht möglich.
+common#:#spl_helptext#:#In Fragenpools können Sie die Fragen anlegen und sammeln, die Sie in Ihren Umfragen verwenden möchten. Durch dieses Prinzip können Sie einmal erstellte Fragen immer wieder zu neuen Umfragen kombinieren oder dieselben Fragen für verschiedene Umfragen benutzen.
+common#:#start#:#Start
+common#:#studon_login_exportrequest#:#Bitte loggen Sie sich ein, um den Exportantrag zu stellen!
+common#:#studon_ref_id#:#StudOn-ID
+common#:#study_data#:#Studiendaten
+common#:#studycond_add_condition#:#Bedingung hinzufügen
+common#:#studycond_back#:#Zurück zu den Einstellungen
+common#:#studycond_condition#:#Beitrittsbedingung
+common#:#studycond_condition_combi_info#:#Sie können hier mehrere Bedingungen hinzufügen, die alternativ gelten sollen, d.h. es genügt eine erfüllte zum Beitritt. Innerhalb einer Bedingung müssen alle Kriterien (Fach, Abschluss, Semester) erfüllt sein, damit die Bedingung erfüllt ist.
+common#:#studycond_condition_deleted#:#Die Bedingung wurde gelöscht.
+common#:#studycond_condition_delimiter#:#<br />oder
+common#:#studycond_condition_headline#:#Bedingungen für direkten Beitritt und Beitritt mit Passwort
+common#:#studycond_condition_info#:#Wenn Sie als Beitrittssverfahren "Direkter Beitritt" oder "Beitritt mit Passwort" gewählt habe, können Sie hier Studienfächer, Fachsemester und Abschlüsse festlegen, mit denen das möglich sein soll. Für die übrigen Nutzer gilt dann automatisch "Antrag mit Bestätigung".
+common#:#studycond_condition_info_create#:#Nach dem Anlegen können Sie hier Studiengangsbezogene Bedingungen für einen direkten Beitritt oder Beitritt mit Passwort festlegen.
+common#:#studycond_condition_saved#:#Die Bedingung wurde gespeichert.
+common#:#studycond_condition_updated#:#Die Bedingung wurde gespeichert.
+common#:#studycond_criteria_delimiter#:#,
+common#:#studycond_edit_condition#:#Bedingung bearbeiten
+common#:#studycond_edit_conditions#:#Bedingungen festlegen
+common#:#studycond_field_degree#:#Angehender Abschluß
+common#:#studycond_field_degree_info#:#Wählen Sie einen Abschluss aus oder lassen Sie die Auswahl offen, wenn der angehende Abschluss beliebig sein kann.
+common#:#studycond_field_max_semester#:#Bis Semester
+common#:#studycond_field_max_semester_info#:#Geben Sie das späteste Fachsemester an. 0 bedeutet beliebig.
+common#:#studycond_field_min_semester#:#Von Semester
+common#:#studycond_field_min_semester_info#:#Geben Sie das früheste Fachsemester an. 0 bedeutet beliebig.
+common#:#studycond_field_ref_semester#:#Bezugs-Semester
+common#:#studycond_field_ref_semester_info#:#Geben Sie hier an, auf welches Semester sich die Fachsemester-Bedingungen beziehen. Wenn Sie diese Auswahl offen lassen, beziehen sich die Bedingungen auf den Zeitpunkt des Beitritts.
+common#:#studycond_field_subject#:#Studienfach
+common#:#studycond_field_subject_info#:#Wählen Sie ein vorgegebenes Studienfach oder lassen Sie die Auswahl offen, wenn das Fach beliebig sein kann.
+common#:#studycond_max_semester#:#bis %s. Fachsemester (%s)
+common#:#studycond_min_max_semester#:#%s. bis %s. Fachsemester (%s)
+common#:#studycond_min_semester#:#ab %s. Fachsemester (%s)
+common#:#studycond_no_condition_defined#:#Keine Bedingung festgelegt.
+common#:#studydata#:#Studiengangsdaten
+common#:#studydata_edit#:#Studiengangsdaten bearbeiten
+common#:#studydata_study_no#:#Studiengang %s
+common#:#studydata_degree#:#Angehender Abschluss
+common#:#studydata_long#:#Studiengangsdaten (Fach, Semester, Abschluss, Fakultät)
+common#:#studydata_msg_incomplete#:#Die Studiendaten sind nicht vollständig! Zu einem Studiengang müssen Bezugs-Semester, Abschluss, Fakultät und mindestens ein Fach angegeben sein. Zu einem Fach müssen der Name und das Semester angegeben sein.
+common#:#studydata_ref_semester#:#Bezugs-Semester
+common#:#studydata_ref_semester_any#:#Ohne Zeitangabe:
+common#:#studydata_ref_semester_summer#:#Im Sommer %s:
+common#:#studydata_ref_semester_winter#:#Im Winter %s/%s:
+common#:#studydata_school#:#Fakultät
+common#:#studydata_semester#:#Semester
+common#:#studydata_semester_text#:# %s. Semester
+common#:#studydata_semester_subject_no#:#Semester Fach %s
+common#:#studydata_subject#:#Fach
+common#:#studydata_subject_no#:#Fach %s
+common#:#subscribers_or_waiting_list#:#Aufnahmeanträge/Warteliste
+common#:#svy_helptext#:#Sie können in StudOn Umfragen erstellen und damit z.B. Abstimmungen oder eine Evaluation Ihres Kurses realisieren. Einmal erstellte Fragen können beliebig zu neuen Umfragen kombiniert werden.
+common#:#to_home#:#Startseite
+common#:#to_login#:#Zum Login
+common#:#tst_helptext#:#Zur Überprüfung des Lernerfolgs in Ihren Kursen können Sie Tests anlegen, die sich aus unterschiedlichen Fragetypen zusammensetzen können. Möglich sind u.a. Lückentexte, Multiple Choice-, Zuordnungs- oder Freitextfragen, aber auch komplexere Aufgaben im Flash-Format lassen sich realisieren.
+common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>
+common#:#univis#:#UnivIS
+common#:#univis_category_course_import#:#Lehrveranstaltungen als Kurse importieren
+common#:#univis_category_course_update#:#Daten der importierten Kurse aktualisieren
+common#:#univis_course_data_delete#:#Verbindung mit der Lehrveranstaltung löschen
+common#:#univis_course_data_import#:#Daten einer Lehrveranstaltung importieren
+common#:#univis_course_data_other_import#:#Daten einer anderen Lehrveranstaltung importieren
+common#:#univis_course_data_update#:#Kursdaten aus UnivIS aktualisieren
+common#:#univis_data_transfer#:#UnivIS-Import
+common#:#univis_id#:#UnivIS-ID
+common#:#univis_id_info#:#Die direkte Eingabe der UnivIS-ID ist nur für Administratoren möglich. Andere können diese Information aus UnivIS importieren.
+common#:#univis_lecture_link#:#Komplette Veranstaltungsdaten anzeigen
+common#:#univis_link_object_not_found#:#Zu der Lehrveranstaltung aus UnivIS wurde in StudOn kein passender Kurs gefunden. Möglicherweise ist er noch nicht eingerichtet oder freigegeben.<br />Bitte wenden Sie sich an die in UnivIS genannten Dozentinnen/Dozenten.
+common#:#univis_link_to_studon#:#Zu dieser Veranstaltung gibt es einen <a href="%s" target="_top">Kurs in StudOn.</a>
+common#:#user_menu#:#Nutzer-Menü
+common#:#view_results#:#Ergebnisse anzeigen
+common#:#waiting_list#:#Warteliste
+common#:#webr_helptext#:#Legen Sie Linksammlungen an und verlinken Sie direkt aus Ihrem Kursangebot auf externe Inhalte zum Thema. Zu jedem Link können Sie eine Beschreibung eintragen und sogar dynamische Parameter übergeben.
+common#:#wiki_helptext#:#Wikis eignen sich besonders für die internetbasierte, gemeinsame Arbeit an einem Thema. In einem Wiki können alle Teilnehmer Seiten anlegen und Texte verfassen und überarbeiten. Auch Bilder und andere Mediendateien können auf diesen Seiten eingebunden werden.
+common#:#wizard_finish#:#Fertigstellen
+common#:#wizard_next#:#Weiter zu Schritt %s
+common#:#wizard_previous#:#Zurück zu Schritt %s
+common#:#wizard_step#:#Schritt %s:
+content#:#cont_layout_help#:#Hilfe
+content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
+content#:#cont_layout_website#:#Website
+content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
+crs#:#crs_cancel_lot_list#:#Sind Sie sicher, dass Sie sich von der Auslosung zum Kurs "%s" abmelden möchten?
+crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
+crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
+crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!
+crs#:#crs_event_subscription_after_confirmation#:#Sie können sich zu den Terminen erst nach der Annahme Ihres Aufnahmeantrags anmelden.
+crs#:#crs_info_reg_confirmation_lot#:#Sie können die Teilnahme am Losverfahren für diesen Kurs beantragen. Sie erhalten eine Nachricht, wenn Sie ausgelost wurden oder ihr Antrag abgelehnt wurde.
+crs#:#crs_info_reg_direct_lot#:#Sie können sich direkt zur Auslosung für diesen Kurs anmelden.
+crs#:#crs_info_reg_password_lot#:#Wenn Sie das Kurs-Passwort von einem Kurs-Administrator erhalten haben, können Sie sich zur Auslosung für diesen Kurs anmelden.
+crs#:#crs_limit_period_for_lot#:#Für die Aktivierung des Losverfahrens müssen Sie den Anmeldezeitraum begrenzen!
+crs#:#crs_lot_info#:#<span class="alert">Verwenden Sie das Losverfahren, wenn Sie viele Interessenten erwarten!</span><br />Alle Anmeldungen werden mit gleicher Chance gesammelt. Nach dem Anmeldezeitraum können Sie die Mitglieder per Zufall bestimmen.
+crs#:#crs_lot_list#:#Losverfahren
+crs#:#crs_mail_subscribe_to_events#:#Für diesen Kurs ist die Anmeldung zu Terminen (Sitzungen) vorgesehen. Bitte gehen Sie zum Kursinhalt, um sich zu den Terminen anzumelden!
+crs#:#crs_max_members_mode#:#Verfahren:
+crs#:#crs_max_members_mode_univis#:#Wie in UnivIS
+crs#:#crs_max_members_mode_univis_info#:#Die Einstellung wird aus UnivIS übernommen. Das "Windhundverfahren" und die "Gleichmäßige Verteilung" entsprechen in StudOn der Einstellung "Abweisung" oder "Warteliste", je nachdem, ob in UnivIS eine Warteliste aktiviert wurde. Die Einstellung "Losverfahren" wird direkt übernommen.
+crs#:#crs_mem_set_passed#:#Bestanden setzen
+crs#:#crs_mem_set_passed_success#:#Dies ausgewählten Teilnehmer wurden auf "Bestanden" gesetzt.
+crs#:#crs_new_subscription_waiting#:#Wartelisteneintrag für Kurs "%s"
+crs#:#crs_new_subscription_waiting_body#:#%s hat sich auf die Warteliste zum Kurs "%s" gesetzt.
+crs#:#crs_new_subscription_waiting_body2#:#Um Benutzer von der Warteliste in den Kurs zuzulassen oder abzuweisen, müssen Sie die Mitgliederverwaltung des Kurses aufrufen.\nWählen Sie dazu bitte folgenden Link:
+crs#:#crs_no_list#:#Abweisung
+crs#:#crs_no_list_info#:#Ist die Mitgliederanzahl überschritten, werden neue Beitritte sofort abgewiesen.
+crs#:#crs_reg_limit_reached#:#Sie konnten nicht mehr aufgenommen werden, da die maximale Teilnehmerzahl überschritten würde.
+crs#:#crs_reg_univis#:#Wie in UnivIS
+crs#:#crs_reg_univis_info#:#Der Anmeldezeitraum wird aus Univis übernommen.
+crs#:#crs_reg_user_generic_failure#:#Sie konnten nicht aufgenommen werden!
+crs#:#crs_reg_user_on_waiting_list#:#Sie sind bereits auf der Warteliste dieses Kurses eingetragen!
+crs#:#crs_removed_from_lot_list#:#Sie wurden von der Auslosung zum Kurs "%s" abgemeldet.
+crs#:#crs_show_mem_limit_label#:#Anzeigen:
+crs#:#crs_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung des Kurses zeigen
+crs#:#crs_subscribe_events_not_possible#:#Die direkte Sitzungsanmeldung ist nur beim Beitritt ohne Aufnahmeantrag oder Warteliste/Losverfahren möglich!
+crs#:#crs_subscription_event_free#:#Frei
+crs#:#crs_subscription_event_location#:#Ort:
+crs#:#crs_subscription_event_referee#:#Referent/in:
+crs#:#crs_subscription_event_registered#:#Angemeldet
+crs#:#crs_subscription_events_header#:#Anmeldung zu Terminen
+crs#:#crs_subscription_mycampus#:#Anmeldung über <em>mein campus</em>
+crs#:#crs_subscription_mycampus_info#:#Die Anmeldung erfolgt über das System <em>mein campus</em>. Voraussetzung dafür ist ein Import der Veranstaltungsdaten aus UnivIS. Diese können sie unter "Inhalt / Univis-Import" vornehmen.
+crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>Der Beitritt zu diesem Kurs erfolgt über das System <em>mein campus</em>. Der folgende Link führt Sie zur Startseite von <em>mein campus</em>. Nach dem Login gelangen Sie automatisch zur Anmeldeseite des Kurses.</p><p><a target="_blank" href="%s"><strong>Beitritt über mein campus</strong> (neues Fenster)</a></p>
+crs#:#crs_subscription_options_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
+crs#:#crs_subscription_options_password_studycond#:#Beitritt mit Kurspasswort (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
+crs#:#crs_subscription_with_events#:#Sitzungsanmeldung
+crs#:#crs_subscription_with_events_info#:#Wählen Sie hier, ob die Anmeldung zu den Sitzungen bereits bei der Kursanmeldung stattfinden soll. Das ist nur bei den Beitrittsverfahren ohne Aufnahmeantrag oder Warteliste/Losverfahren möglich.
+crs#:#crs_subscription_with_events_multiple#:#In mindestens einer der Sitzungen
+crs#:#crs_subscription_with_events_off#:#Ohne Sitzungsanmeldung
+crs#:#crs_subscription_with_events_unique#:#In genau einer der Sitzungen
+crs#:#crs_sync_my_campus#:#mein campus-Anmeldungen übertragen
+crs#:#crs_sync_my_campus_added#:#Die folgenden Kursmitglieder wurden aus mein campus übernommen : %s.
+crs#:#crs_sync_my_campus_empty#:#Es sind keine übertragbaren Anmeldungen in mein campus vorhanden!
+crs#:#crs_sync_my_campus_failure_connect#:#Konnte keine Verbindung zu mein campus aufbauen!
+crs#:#crs_sync_my_campus_failure_participants#:#Die Anmeldedaten für diesen Kurs konnten nicht abgerufen werden!
+crs#:#crs_sync_my_campus_ok#:#Die Anmeldungen aus mein campus sind als Mitglieder übernommen.
+crs#:#crs_sync_my_campus_waiting#:#Die folgenden Nutzer stehen in mein campus auf der warteliste und müssen dort noch bestätigt werden: %s.
+crs#:#crs_view_info_standard#:#Diese Ansicht präsentiert die Kursmaterialien ähnlich wie in den Online-Angeboten.
+crs#:#event_enabled#:#Aktiviert
+crs#:#event_max_participants#:#Maximale Teilnehmerzahl
+crs#:#event_max_participants_info#:#Legen Sie hier die maximale Anzahl von Sitzunsteilnehmern fest. Wird die Zahl überschritten, sind keine Anmeldungen mehr möglich ('0' bedeutet unbegrenzt).
+crs#:#event_max_participants_not_numeric#:#Die maximale Teilnehmerzahl muss eine Zahl sein!
+crs#:#event_not_registered#:#Nicht angemeldet
+crs#:#export_lp_info#:#Die Bestimmung des Status können Sie in den einzelnen Inhalten auf dem Reiter "Lernfortschritt" unter "Einstellungen" festlegen.<br />Manche Inhalte (Sitzungen, Übungen) haben zusätzliche Übersichten zur Bearbeitung von Status und Note.<br /><em>Je mehr Sie auswählen, desto länger dauer der Export.</em>
+crs#:#export_lp_marks#:#Noten/Punkte
+crs#:#export_lp_status#:#Status
+exc#:#exc_calc_all_calculated#:#Alle Gesamtergebnisse wurden neu berechnet.
+exc#:#exc_calc_calculate#:#Berechnen
+exc#:#exc_calc_mark_function#:#Noten/Punkte-Berechnung
+exc#:#exc_calc_mark_function_average#:#Durchschnitt
+exc#:#exc_calc_mark_function_average_info#:#Es wird eine Durchschnittsnote der ausgewählten Übungseinheiten gebildet.
+exc#:#exc_calc_mark_function_sum#:#Summe
+exc#:#exc_calc_mark_function_sum_info#:#Die Punkte aller ausgewählten Übungseinheiten werden addiert.
+exc#:#exc_calc_mark_select#:#Auswahl der Übungseinheiten
+exc#:#exc_calc_mark_select_count#:#Anzahl
+exc#:#exc_calc_mark_select_count_info#:#Sie müssen mindestens die obligatorischen Übungseinheiten einbeziehen. Deren Werte zählen immer.
+exc#:#exc_calc_mark_select_count_message#:#Bitte wählen Sie mindestens die obligatorischen Übungseinheiten (%s).
+exc#:#exc_calc_mark_select_highest#:#Die höchsten Werte
+exc#:#exc_calc_mark_select_info#:#Es müssen mindestens die obligatorischen Einheiten bewertet sein.<br /> Dabei werden nur die Noten/Punkte beachtet, nicht das Bestehen. Sind nicht genügend Ergebnisse vorhanden, ist das Gesamtergebnis leer.
+exc#:#exc_calc_mark_select_lowest#:#Die niedrigsten Werte
+exc#:#exc_calc_mark_select_mandatory#:#Alle verpflichtenden Übungseinheiten
+exc#:#exc_calc_mark_select_marked#:#Alle Übungseinheiten mit Note/Punkten
+exc#:#exc_calc_mark_select_number#:#Festgelegte Anzahl
+exc#:#exc_calc_mark_select_order#:#Auswahl
+exc#:#exc_calc_status#:#Status-Berechnung
+exc#:#exc_calc_status_compare#:#Bestanden, wenn
+exc#:#exc_calc_status_compare_higher#:#größer als der Schwellwert
+exc#:#exc_calc_status_compare_higher_equal#:#größer oder gleich dem Schwellwert
+exc#:#exc_calc_status_compare_info#:#Zur Berechnung müssen Sie einen Schwellwert angeben. Das kann auch ein Dezimalwert sein - Komma oder Punkt werden dabei gleich behandelt.
+exc#:#exc_calc_status_compare_lower#:#kleiner als der Schwellwert
+exc#:#exc_calc_status_compare_lower_equal#:#kleiner oder gleich dem Schwellwert
+exc#:#exc_calc_status_compare_value#:#Schwellwert
+exc#:#exc_calc_status_default#:#Standardwert
+exc#:#exc_calc_status_default_info#:#Ist mangels Einzelergebnissen das Gesamtergebnis leer, wird der Status auf diesen Wert
+exc#:#exc_calc_status_info#:#Der "Bestanden"-Status wird anhand der ermittelten Noten/Punkte berechnet.
+exc#:#exc_calculate_overall_results#:#Gesamtergebnisse berechnen
+exc#:#exc_mark#:#Note/Punkte
+exc#:#exc_pass_manual#:#Manuell
+exc#:#exc_pass_manual_description#:#Beschreibung der Anforderung auf der Info-Seite
+exc#:#exc_pass_manual_info#:#Das Bestehen der Übung wird durch die Tutoren bestimmt. In der Notenübersicht kann eine automatische Berechnung der Gesamtergebnisse auf Basis der Teilnoten/Punkte erfolgen.
+exc#:#exc_result_time#:#Ergebnistermin
+exc#:#exc_result_time_info#:#Wenn gesetzt, können die Bewertung und das Feedback des Tutors erst ab diesem Termin eingesehen werden. Vorher erfolgt auch keine automatische Benachrichtigung.
+exc#:#exc_result_time_should_be_after_end_date#:#Der Ergebnistermin muss nach dem Abgabetermin sein.
+exc#:#exc_result_time_not_for_peer_feedback#:#Der Ergebnistermin gilt nicht für das Peer-Feedback. Bitte verwenden Sie die dortige Einstellung zum Ende des Bewertungszeitraums.
+exc#:#exc_result_available_after#:#Ergebnis verfügbar ab
+exc#:#exc_not_attempted#:#Noch nicht eingereicht
+exc#:#exc_comment_for_learner_info_nosend#:#Es wird keine Benachrichtigung gesendet. Nach Erreichen des Ergebnistermins wird das Feedback in der Übungseinheiten-Übersicht angezeigt.
+exercise#:#exc_mark#:#Note/Punkte
+grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
+grp#:#crs_grp_info_reg_lot#:#Sie können nur Mitglied in einem der folgenden Kurse werden, sich aber jeweils anmelden. Es gilt dann die erste zugewiesene Mitgliedschaft.
+grp#:#group_password_registration_lot#:#Wenn Sie das Gruppen-Passwort erhalten haben, können Sie sich für diese Gruppe zur Auslosung anmelden.
+grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
+grp#:#group_req_registration_lot#:#Sie können die Teilnahme am Losverfahren für diese Gruppe beantragen. Sie erhalten eine Nachricht, wenn Sie ausgelost wurden oder ihr Antrag abgelehnt wurde.
+grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"
+grp#:#grp_added_member_body#:#Sie sind in die Gruppe "%s" aufgenommen worden.
+grp#:#grp_cancel_lot_list#:#Sind Sie sicher, dass Sie sich von der Auslosung zur Gruppe "%s" abmelden möchten?
+grp#:#grp_grp_info_reg_lot#:#Sie können nur Mitglied in einer der folgenden Gruppen werden, sich aber jeweils anmelden. Es gilt dann die erste zugewiesene Mitgliedschaft.
+grp#:#grp_limit_period_for_lot#:#Für die Aktivierung des Losverfahrens müssen Sie den Anmeldezeitraum begrenzen!
+grp#:#grp_lot_info#:#<span class="alert">Verwenden Sie das Losverfahren, wenn Sie viele Interessenten erwarten!</span><br />Alle Anmeldungen werden mit gleicher Chance gesammelt. Nach dem Anmeldezeitraum können Sie die Mitglieder per Zufall bestimmen.
+grp#:#grp_lot_list#:#Losverfahren
+grp#:#grp_max_members_mode#:#Verfahren:
+grp#:#grp_no_list#:#Abweisung
+grp#:#grp_no_list_info#:#Ist die Mitgliederanzahl überschritten, werden neue Beitritte sofort abgewiesen.
+grp#:#grp_pass_request_studycond#:#Beitritt mit Gruppenpasswort (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
+grp#:#grp_reg_direct_info_screen_lot#:#Sie können sich zur Auslosung für diese Gruppe anmelden.
+grp#:#grp_reg_limit_reached#:#Sie konnten nicht mehr aufgenommen werden, da die maximale Teilnehmerzahl überschritten würde.
+grp#:#grp_reg_limit_time_info#:#Beitritte sind nur während eines festen Zeitraumes möglich.
+grp#:#grp_reg_passwd_info_screen_lot#:#Wenn Sie das Gruppen-Passwort erhalten haben, können Sie sich für diese Gruppe zur Auslosung anmelden.
+grp#:#grp_reg_req_info_screen_lot#:#Sie können die Teilnahme am Losverfahren für diese Gruppe beantragen. Sie erhalten eine Nachricht, wenn Sie ausgelost wurden oder ihr Antrag abgelehnt wurde.
+grp#:#grp_reg_user_already_assigned#:#Sie sind bereits Mitglied in dieser Gruppe.
+grp#:#grp_reg_user_generic_failure#:#Sie konnten nicht aufgenommen werden!
+grp#:#grp_reg_user_on_waiting_list#:#Sie sind bereits auf der Warteliste dieser Gruppe eingetragen!
+grp#:#grp_removed_from_lot_list#:#Sie wurden von der Auslosung zur Gruppe "%s" abgemeldet.
+grp#:#grp_show_mem_limit_label#:#Anzeigen:
+grp#:#grp_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung der Gruppe zeigen
+grp#:#grp_type_info_create#:#<span class="alert">Übergeordnete Administratoren können unabhängig davon Zugriff haben (siehe Info-Seite nach dem Anlegen)</span>.
+grp#:#grp_type_info_edit#:#<span class="alert">Übergeordnete Administratoren können unabhängig davon Zugriff haben (siehe Info-Seite)</span>.
+grp#:#mem_error_preconditions#:#Sie konnten nicht aufgenommen werden!
+mail#:#mail_only_own_courses_info#:#Bitte schreiben Sie nur an Mitglieder Ihrer eigenen Kurse und Gruppen.<br />Verwenden Sie die Sammeladressen von Kurse nur für wichtige Mitteilungen.</br >Alles andere wird als Spam empfunden!
+mail#:#mail_pear_is_automaticly_switched#:#PEAR mail wird bei der Mail an Kurs- oder Gruppenmitglieder automatisch aktiviert, wenn dort lokale Rollen ohne eindeutige Namen existieren.
+mail#:#mail_salutation_f#:#Sehr geehrte Frau
+mail#:#mail_salutation_m#:#Sehr geehrter Herr
+mail#:#mail_smtp_not_allowed#:#Sie können nur an Benutzer im System schreiben, nicht an allgemeine E-Mail-Adressen!
+news#:#news_get_feed_info#:#Dieser Newsfeed enthält alle Nachrichten zu Ihren ausgewählten Angeboten, die von ihren Verfassern als öffentlich eingestuft wurden. Er ist durch keine Authentifizierung geschützt.
+news#:#news_get_priv_feed_info#:#Dieser Newsfeed enthält auch Nachrichten, die von ihren Verfassern als privat eingestuft wurden. Er ist durch ein Kennwort geschützt, welches Sie in den <a href=%s">Nachrichten-Einstellungen</a> festlegen können. Bitte ersetzen Sie in der URL die Zeichenkette PASSWORD durch Ihr Feed-Kennwort.
+news#:#news_get_priv_feed_passhash_title#:#URL Ihres Privaten Newsfeeds (alternativ)
+news#:#news_get_priv_feed_passhash_info#:#Diese Adresse können Sie verwenden, wenn Ihr RSS-Reader keine Kennwörter unterstützt. Wenn Sie in den <a href=%s">Nachrichten-Einstellungen</a> Ihr Feed-Kennwort ändern, ändert sich auch dieser Link. Bitte geben Sie ihn an keine anderen Personen weiter.
+news#:#news_get_priv_feed_disabled_info#:#Ihr privaten Newsfeed ist nicht aktiv. Sie können ihn in Ihren <a href=%s">"Nachrichten-Einstellungen"</a> aktivieren.
+pdesk#:#pd_description#:#
+ps#:#cleanup_rbac_log#:#Rechteeinstellungs-Log bereinigen
+ps#:#cleanup_rbac_log_finished#:#Das Rechteeinstellungs-Log wurde bereinigt.
+ps#:#ps_export_lot#:#Loskandidaten
+ps#:#ps_perform_export_excel#:#Excel-Export starten
+registration#:#registration_code_update_header#:#Code-Einstellungen bearbeiten###fau: regCodes - language vars
+registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie erhalten haben. Klicken Sie dann auf "Registrieren", um die Registrierung durchzuführen.
+registration#:#registration_code_optional_info#:#Wenn Sie einen Registrierungs-Code erhalten haben, geben Sie diesen bitte hier ein. Der Code legt Ihre Möglichkeiten in StudOn fest. Wenn Sie keinen Code besitzen, lassen sie das Feld leer. Klicken Sie anschließend auf "Registrieren".
+registration#:#reg_code_title_info#:#Dieser Titel ersetzt den Seitentitel des Registrierungsformulars.
+registration#:#reg_code_description_info#:#Die Beschreibung wird unter dem Seitentitel angezeigt.
+registration#:#reg_code_use_limit#:#Verwendbar
+registration#:#reg_code_use_limit_info#:#Anzahl möglicher Verwendungen des Codes. 0 bedeutet beliebig viele.
+registration#:#reg_code_use_count#:#Verwendet
+registration#:#reg_code_last_used#:#Zuletzt verwendet
+registration#:#reg_login_generation_type#:#Login-Erzeugung
+registration#:#reg_login_generation_type_info#:#Festlegung des Login-Namens für das neue Benutzerkonto.
+registration#:#reg_login_gen_manual#:#Manuelle Eingabe
+registration#:#reg_login_gen_first_lastname#:#Automatisch (vorname.nachname)
+registration#:#reg_login_gen_guest_listener#:#Automatisch für Gasthörer (ghs16frneuma)### fau.
+registration#:#reg_login_is_generated#:#Ihr Benutzername wir automatisch erzeugt und Ihnen nach der Registrierung angezeigt.
+registration#:#reg_choose_password#:#Wählen Sie hier selbst ein Passwort für Ihr neues Benutzerkonto. Es muss mindestens 6 Zeichen lang sein und mindesten einen Groß- und Kleinbuchstaben, eine Ziffer und ein Sonderzeichen (_.+?#-*@!$%~/:;) enthalten. Bitte merken Sie sich dieses Passwort!
+search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
+style#:#sty_custom_css#:#Spezielle Styles
+style#:#sty_custom_css_edit#:#Spezielle Styles bearbeiten
+style#:#sty_custom_css_description#:#Hier können Sie spezielle Style-Einstellungen als CSS-Code eingeben. Der Code wird an die generierte CSS-Datei angehängt. Spezielle Styles funktionieren nur in StudOn - nicht im Standard-ILIAS.
+style#:#sty_custom_css_color_info#:#Vordefinierte Farben werden wie in den Style-Formularen angegeben, z.B. color: !MeineFarbe(20);
+style#:#sty_custom_css_image_info#:#Bilder werden mit vorangestelltem ! referenziert, z.B. background-image: url(!MeinHintergrund.png);
+survey#:#anonymize_survey_description#:#Die Anonymisierung entfernt alle persönlichen Daten aus der Umfragenstatistik.<ul><li>Bei öffentlichen Umfragen mit CAPTCHA muss zum Starten ein kurzer Bildtext erkannt werden, um das Ausfüllen durch Programme zu verhindern.</li><li>Bei öffentlichen Umfragen mit Zugangsschlüssel muss eine vorab verteilte fünfstellige Kennung eingegeben werden.</li></ul>Für registrierte StudOn-Nutzer wird kein CAPTCHA oder Zugangsschlüssel benötigt.
+survey#:#anonymize_with_captcha#:#Anonyme Umfrage mit CAPTCHA
+survey#:#freetext_answers#:#Freitext-Antworten
+trac#:#lp_info_users_to_refresh#:#Es wurden soeben %s Lernfortschritte aktualisiert. Von %s Nutzern muss der Lernfortschritt noch aktualisiert werden. Bitte laden Sie die Seite gegebenenfalls neu.###fau: lpRefreshesLimit
+univis#:#crs_visibility#:#Verfügbarkeit
+univis#:#crs_visibility_unvisible#:#Nicht sichtbar
+univis#:#crs_availability_unvisible_info#:#Der Kurs wird offline geschaltet
+univis#:#univis_add_title_short#:#Kurztitel anhängen
+univis#:#univis_additional_info#:#Zusätzliche Informationen
+univis#:#univis_allfak#:#Sprachkurs für Hörer aller Fakultäten
+univis#:#univis_allfak_short#:#AllFak
+univis#:#univis_bac#:#Bachelor
+univis#:#univis_bac_short#:#BAC
+univis#:#univis_beginners#:#für Anfänger geeignet
+univis#:#univis_beginners_short#:#Anf.
+univis#:#univis_benschein#:#benoteter Schein
+univis#:#univis_benschein_short#:#ben. Schein
+univis#:#univis_category_course_update_no_found#:#Es wurden in diesem Bereich keine Kurse mit Daten aus UnivIS gefunden. Sie können in einem bestehenden Kurs die Univis-Daten auch nachträglich hinterlegen. Wechseln Sie dazu in den Kurs und rufen Sie die Datenübertragung dort auf.
+univis#:#univis_comment#:#Kommentar
+univis#:#univis_confirm_course_data_delete#:#Dieser Kurs ist mit einer Lehrveranstaltung aus UnivIS verbunden, was z.B. benötigt wird, um Anmeldungen aus <em>mein campus</em> zu übertragen. Jeder Lehrveranstaltung in UnivIS kann nur ein StudOn-Kurs zugeordnet sein.<br />Möchten Sie die Verbindung löschen, um sie für einen anderen Kurs zu ermöglichen?
+univis#:#univis_contact_data#:#Kontaktdaten
+univis#:#univis_course_data_delete_succeeded#:#Die Verbindung mit der Lehrveranstaltung wurde gelöscht. Um die Angaben im Kursprogramm zu löschen, gehen Sie bitte auf Einstellungen / Kursinfo.
+univis#:#univis_course_path#:#Studon-Kurs in:
+univis#:#univis_credits#:#Kredit:
+univis#:#univis_date_from#:#ab
+univis#:#univis_department_title#:#Name
+univis#:#univis_dipl#:#Diplom
+univis#:#univis_dipl_short#:#DIPL
+univis#:#univis_ects#:#ECTS-Studium
+univis#:#univis_ects_credits#:#ECTS-Credits:
+univis#:#univis_ects_credits_short#:#ECTS:
+univis#:#univis_ects_info#:#ECTS-Informationen
+univis#:#univis_ects_info_credits#:#Credits:
+univis#:#univis_ects_info_literature#:#Literature:
+univis#:#univis_ects_info_name#:#Title:
+univis#:#univis_ects_info_organizational#:#Organisatorisches:
+univis#:#univis_ects_info_prerequisites#:#Prerequisites:
+univis#:#univis_ects_info_summary#:#Contents:
+univis#:#univis_ects_short#:#ECTS
+univis#:#univis_einf#:#Einführende Veranstaltung gem. 10. Änderungsgesetz d. FPO
+univis#:#univis_einf_short#:#Einf.
+univis#:#univis_error_connect#:#Der UnivIS-Server ist momentan nicht erreichbar!
+univis#:#univis_error_none#:#Kein Fehler beim Import der Daten aus UnivIS
+univis#:#univis_error_transfer#:#Es gab einen Fehler bei der Datenübertragung!
+univis#:#univis_error_validate#:#Es wurden keine auswertbaren Daten zurückgegeben!
+univis#:#univis_fachstud#:#nur Fachstudium
+univis#:#univis_fachstud_short#:#Fachst.
+univis#:#univis_fruehstud#:#Frühstudium
+univis#:#univis_fruehstud_short#:#Frühst.
+univis#:#univis_gast#:#für Gasthörer zugelassen
+univis#:#univis_gast_short#:#Gasthörer
+univis#:#univis_header_settings#:#Ausgewählte Einstellungen
+univis#:#univis_header_settings_desc#:#Sie können diese Einstellungen auch nachträglich ändern.
+univis#:#univis_header_show_on_info_screen#:#Daten zur Anzeige auf der Infoseite
+univis#:#univis_header_show_on_list#:#Daten zur Anzeige bei der Auflistung
+univis#:#univis_info#:#Angaben
+univis#:#univis_info_set_activation#:#Setze oder aktualisiere die Verfügbarkeitseinstellung
+univis#:#univis_info_set_description#:#Die Beschreibung wird bei der Auflistung in StudOn unter dem Titel angezeigt. Aus UnivIS können die Angaben übernommen werden, die dort bei der Auflistung angezeigt werden.
+univis#:#univis_info_set_membership_limitation#:#<span class="alert">Diese Einstellung wird ignoriert, wenn die Anmeldung über <em>mein campus</em> läuft.</span>
+univis#:#univis_info_set_registration#:#<span class="alert">Diese Einstellung wird ignoriert, wenn die Anmeldung über <em>mein campus</em> läuft.</span><br />Ohne Auswahl wird der Anmeldezeitraum aus UnivIS übernommen und das Beitrittsverfahren auf "Direkter Beitritt" eingestellt.
+univis#:#univis_info_set_syllabus#:#In das Feld "Kursprogramm" können die Daten aus der UnivIS-Detailansicht übertragen werden. Die Auswahlen entsprechen den dortigen Teilüberschriften. Das Feld "Wichtige Informationen" bleibt für zusätzliche Angaben in StudOn unverändert.
+univis#:#univis_info_set_title#:#Bei einem Neu-Import wird der Titel immer übernommen. Der Kurztitel wird ggf. in eckigen Klammern dahinter gesetzt.
+univis#:#univis_institution#:#Institution
+univis#:#univis_keywords#:#Schlagwörter:
+univis#:#univis_ladidf#:#LADIDF
+univis#:#univis_ladidf_short#:#LADIDF
+univis#:#univis_ladidg#:#LADIDG
+univis#:#univis_ladidg_short#:#LADIDG
+univis#:#univis_ladidh#:#LADIDH
+univis#:#univis_ladidh_short#:#LADIDH
+univis#:#univis_laew#:#LAEW
+univis#:#univis_laew_short#:#LAEW
+univis#:#univis_lafb#:#LAFB
+univis#:#univis_lafb_short#:#LAFB
+univis#:#univis_lafn#:#LAFN
+univis#:#univis_lafn_short#:#LAFN
+univis#:#univis_lafv#:#LAFV
+univis#:#univis_lafv_short#:#LAFV
+univis#:#univis_lecture_conditions_desc#:#Bitte legen Sie fest, wie die Lehrveranstaltungs-Daten übernommen werden sollen.
+univis#:#univis_lecture_conditions_title#:#Einstellungen zur Datenübernahme
+univis#:#univis_lecture_message_course_blocked#:#Dieser StudOn-Kurs ist für Sie nicht änderbar. Eigentümer: %s.
+univis#:#univis_lecture_message_course_exists#:#Hierzu gibt es bereits einen Kurs in StudOn. Eigentümer: %s.
+univis#:#univis_lecture_message_course_hidden#:#Hierzu gibt es ein StudOn-Kurs, der für Sie nicht sichtbar ist. Eigentümer: %s.
+univis#:#univis_lecture_message_course_parent#:#Die Lehrveranstaltung ist bereits mit diesem Kurs verknüpft.
+univis#:#univis_lecture_search_import_desc#:#Bitte geben Sie ein Suchkriterium für die Lehrveranstaltung ein, deren Daten Sie im Kurs eintragen möchten.
+univis#:#univis_lecture_search_title#:#Nach einer Lehrveranstaltung suchen
+univis#:#univis_lecture_selection_import_desc#:#Bitte wählen Sie die Lehrveranstaltung aus, deren Daten Sie übernehmen möchten.
+univis#:#univis_lecture_selection_title#:#Lehrveranstaltung auswählen
+univis#:#univis_lecture_title#:#Titel
+univis#:#univis_lecture_type_ag#:#Arbeitsgemeinschaft
+univis#:#univis_lecture_type_ak#:#Aufbaukurs
+univis#:#univis_lecture_type_awa#:#Anleitung zu wiss. Arbeiten
+univis#:#univis_lecture_type_ek#:#Einführungskurs
+univis#:#univis_lecture_type_ex#:#Exkursion
+univis#:#univis_lecture_type_gk#:#Grundkurs
+univis#:#univis_lecture_type_gsz#:#Gremiensitzung
+univis#:#univis_lecture_type_hs#:#Hauptseminar
+univis#:#univis_lecture_type_hvl#:#Hauptvorlesung
+univis#:#univis_lecture_type_kk#:#Klausurenkurs
+univis#:#univis_lecture_type_klv#:#Klinische Visite
+univis#:#univis_lecture_type_ko#:#Kolloquium
+univis#:#univis_lecture_type_ku#:#Kurs
+univis#:#univis_lecture_type_ms#:#Mittelseminar
+univis#:#univis_lecture_type_os#:#Oberseminar
+univis#:#univis_lecture_type_pf#:#Prüfung
+univis#:#univis_lecture_type_pjs#:#Projektseminar
+univis#:#univis_lecture_type_ppu#:#Propädeutische Übung
+univis#:#univis_lecture_type_pr#:#Praktikum
+univis#:#univis_lecture_type_prs#:#Praxisseminar
+univis#:#univis_lecture_type_ps#:#Proseminar
+univis#:#univis_lecture_type_re#:#Repetitorium
+univis#:#univis_lecture_type_sem#:#Seminar
+univis#:#univis_lecture_type_sl#:#Sonstige Lehrveranstaltung
+univis#:#univis_lecture_type_ts#:#Theorieseminar
+univis#:#univis_lecture_type_tut#:#Tutorium
+univis#:#univis_lecture_type_ue#:#Übung
+univis#:#univis_lecture_type_v-ue#:#Vorlesung mit Übung
+univis#:#univis_lecture_type_vorl#:#Vorlesung
+univis#:#univis_lecturer#:#Dozent/in
+univis#:#univis_lecturer_name#:#Name
+univis#:#univis_lectures_search_import_desc#:#Bitte geben Sie ein Suchkriterium für die Lehrveranstaltungen ein, die sie als Kurse in StudOn anlegen möchten.
+univis#:#univis_lectures_search_title#:#Nach Lehrveranstaltungen suchen
+univis#:#univis_lectures_selection_import_desc#:#Bitte wählen Sie die Lehrveranstaltungen aus, die Sie importieren möchten.
+univis#:#univis_lectures_selection_title#:#Lehrveranstaltungen auswählen
+univis#:#univis_lectures_selection_update_desc#:#Bitte wählen Sie die Lehrveranstaltungen aus, deren Kursdaten Sie aktualisieren möchten.
+univis#:#univis_literature#:#Empfohlene Literatur
+univis#:#univis_mag#:#Magister
+univis#:#univis_mag_short#:#MAG
+univis#:#univis_mast#:#Master
+univis#:#univis_mast_short#:#MAST
+univis#:#univis_maxturnout#:#Maximale Teilnehmerzahl:
+univis#:#univis_medabschn1#:#1. Studienabschnitt
+univis#:#univis_medabschn1_short#:#1.Abschn.
+univis#:#univis_medabschn2#:#2. Studienabschnitt
+univis#:#univis_medabschn2_short#:#2. Abschn.
+univis#:#univis_message_course_updated#:#1 StudOn-Kurs wurde aktualisiert.
+univis#:#univis_message_courses_updated#:#%s StudOn-Kurse wurden aktualisiert.
+univis#:#univis_message_lecture_ignored#:#1 Lehrveranstaltung wurde ignoriert.
+univis#:#univis_message_lecture_imported#:#1 Lehrveranstaltung wurde als StudOn-Kurs angelegt.
+univis#:#univis_message_lectures_ignored#:#%s Lehrveranstaltungen wurde ignoriert.
+univis#:#univis_message_lectures_imported#:#%s Lehrveranstaltungen wurden als StudOn-Kurse angelegt.
+univis#:#univis_message_this_course_updated#:#Die Kursdaten wurden aktualisiert.
+univis#:#univis_mycampus_registration#:#Für diese Lehrveranstaltung ist eine Anmeldung erforderlich. Die Anmeldung erfolgt über <a href="https://www.campus.uni-erlangen.de/qisserver/rds?univisid=%s" target="_blank"><em>mein campus</em></a>.
+univis#:#univis_no_department_found#:#Es wurden keine passenden Einrichtungen gefunden. Bitte überprüfen Sie Ihre Sucheingabe!
+univis#:#univis_no_lecturer_found#:#Es wurden keine passenden Personen gefunden. Bitte überprüfen Sie Ihre Sucheingabe!
+univis#:#univis_no_lectures_found#:#Es wurden keine passenden Lehrveranstaltungen gefunden. Bitte überprüfen Sie Ihre Sucheingabe!
+univis#:#univis_no_lectures_selected#:#Bitte wählen Sie eine Lehrveranstaltung aus!
+univis#:#univis_no_title_selected#:#Bitte wählen Sie einen Titel!
+univis#:#univis_pattern_too_short#:#Bitte geben Sie mindestens %s Zeichen als Suchkriterium ein!
+univis#:#univis_praktjahr#:#Praktisches Jahr
+univis#:#univis_praktjahr_short#:#Prk. Jahr
+univis#:#univis_prerequisites#:#Voraussetzungen / Organisatorisches
+univis#:#univis_refine_department#:#Es gibt mehrere Einrichtungen, die zu Ihrer Sucheingabe passen. Bitte wählen Sie eine aus oder verfeinern Sie Ihre Sucheingabe!
+univis#:#univis_refine_lecturer#:#Es gibt mehrere Personen, die zu Ihrer Sucheingabe passen. Bitte wählen Sie eine aus oder verfeinern Sie Ihre Sucheingabe!
+univis#:#univis_schein#:#Schein
+univis#:#univis_schluessel#:#geeignet als Schlüsselqualifikation
+univis#:#univis_schluessel_short#:#Schlüssel
+univis#:#univis_schwerp#:#Studienschwerpunkte Phil.I/Phil.II
+univis#:#univis_schwerp_short#:#Schwerp.
+univis#:#univis_search_by_department#:#Einrichtung
+univis#:#univis_search_by_department_info#:#Es wird nach Lehrveranstaltungen einer Einrichtung gesucht, deren Name zur Sucheingabe passt.
+univis#:#univis_search_by_imported_courses#:#Bereits importierte Kurse in diesem Bereich
+univis#:#univis_search_by_lecturer#:#Dozentin/Dozent
+univis#:#univis_search_by_lecturer_info#:#Es wird nach Lehrveranstaltungen von Dozentinnen und Dozenten gesucht, deren Name zur Sucheingabe passt
+univis#:#univis_search_by_title#:#Lehrveranstaltung
+univis#:#univis_search_by_title_info#:#Es wird nach Lehrveranstaltungen gesucht, deren Titel zur Sucheingabe passt
+univis#:#univis_search_info_retry#:#<br />Tipp: suchen Sie eventuell über ein anderes Kriterium (Lehrveranstaltung, Einrichtung, Dozent).
+univis#:#univis_search_mode#:#Suche über:
+univis#:#univis_select_department#:#Auswahl
+univis#:#univis_select_department_info#:#Diese Einrichtungen wurden bei der Suche gefunden. Wählen Sie eine aus, um deren Lehrveranstaltungen zu listen.
+univis#:#univis_select_lecturer#:#Auswahl
+univis#:#univis_select_lecturer_info#:#Diese Personen wurden bei der Suche gefunden. Wählen Sie eine aus, um deren Lehrveranstaltungen zu listen.
+univis#:#univis_semester#:#Semester
+univis#:#univis_semester_from#:#ab
+univis#:#univis_senior#:#Seniorenstudium
+univis#:#univis_senior_short#:#Senioren
+univis#:#univis_set_activation#:#Verfügbarkeit einstellen
+univis#:#univis_set_contact_first#:#Von erster Dozentin/erstem Dozenten übernehmen
+univis#:#univis_set_contact_not#:#Nicht übernehmen
+univis#:#univis_set_contact_own#:#neue Kontaktdaten:
+univis#:#univis_set_description#:#Beschreibung übernehmen
+univis#:#univis_set_membership_limitation#:#Maximale Teilnehmerzahl aus UnivIS übernehmen
+univis#:#univis_set_registration#:#Registrierungsoptionen einstellen
+univis#:#univis_set_syllabus#:#"Kursprogramm" übernehmen
+univis#:#univis_set_title#:#Titel übernehmen
+univis#:#univis_short_info#:#Kurzangaben
+univis#:#univis_ss#:#SS %s
+univis#:#univis_studies#:#Studienfächer / Studienrichtungen
+univis#:#univis_summary#:#Inhalt
+univis#:#univis_sws#:#SWS
+univis#:#univis_term_bd#:#Blockveranstaltung
+univis#:#univis_term_d1#:#täglich
+univis#:#univis_term_s1#:#Einzeltermin am
+univis#:#univis_term_w2#:#jede 2. Woche
+univis#:#univis_terms#:#Termine
+univis#:#univis_turnout#:#Erwartete Teilnehmerzahl:
+univis#:#univis_women#:#Frauenforschung
+univis#:#univis_women_short#:#Frauen
+univis#:#univis_ws#:#WS %s/%s
+user#:#usr_public_profile_global_alert#:#Ihr persönliches Profil ist für alle Benutzer des Internet sichtbar!<br /><a href="%s">Einstellung ändern</a>
+user#:#usr_public_profile_logged_in_alert#:#Ihr persönliches Profil ist für angemeldete Benutzer sichtbar!<br /><a href="%s">Einstellung ändern</a>
+webform#:#webform_all_categories#:#Alle Bereiche
+webform#:#webform_all_corrected#:#korrigierte
+webform#:#webform_all_courses#:#Alle Kurse
+webform#:#webform_all_modules#:#Alle Lerneinheiten
+webform#:#webform_all_not_corrected#:#nicht korrigierte
+webform#:#webform_check_date#:#Korrekturdatum
+webform#:#webform_correct#:#Als korrigiert markieren
+webform#:#webform_corrected#:#Korrigiert
+webform#:#webform_corrected_entries#:#Die Einsendungen wurden als korrigiert markiert.
+webform#:#webform_corrected_entry#:#Die Einsendung wurden als korrigiert markiert.
+webform#:#webform_create#:#Formulardefinitionen anlegen
+webform#:#webform_create_definition#:#Formulardefinition erstellen
+webform#:#webform_definition#:#Formulardefinition
+webform#:#webform_definition_delete_failed#:#Die Formulardefinition konnte nicht gelöscht werden.
+webform#:#webform_definition_deleted#:#Die Formulardefinition wurde gelöscht.
+webform#:#webform_definition_saved#:#Die Formulardefinition wurde gespeichert.
+webform#:#webform_definition_updated#:#Die Formulardefinition wurde aktualisiert.
+webform#:#webform_definitions#:#Formulardefinitionen
+webform#:#webform_definitions_not_found#:#Die Datei mit den Formulardefinitionen "%s" wurde nicht gefunden.
+webform#:#webform_definitions_read#:#Formulardefinitionen einlesen
+webform#:#webform_definitions_read_count#:#Es wurden %s Formulardefinitionen eingelesen.
+webform#:#webform_definitions_read_finished#:#Die folgenden Formulardefinitionen wurden eingelesen:<br />%s
+webform#:#webform_edit_definition#:#Formulardefinition
+webform#:#webform_field_dataset_id#:#Dataset
+webform#:#webform_field_dataset_id_info#:#Bezeichnung des Datensatzes, in dem die Inhalte des Formulars gespeichert werden.<br />Mehrere Formulare können den gleichen Datensatz verwenden. Ist keine Datensatz-Bezeichnung angegeben, wird der Formularname genommen.
+webform#:#webform_field_form_name#:#Name
+webform#:#webform_field_form_name_info#:#Eindeutiger Name des Formulars im Lernmodul.<br />Wird bei einem erneuten Einlesen der Formulardefinitionen verwendet, um eine vorhandene zu überschreiben.
+webform#:#webform_field_forum#:#Zielforum (Name)
+webform#:#webform_field_forum_info#:#Titel des Forums, an das die Einsendung zusätzlich gepostet wird.<br />Bei mehreren gleichnamigen Foren mit Schreibberechtigung für den Nutzer wird das dem Lernmodul am nächsten liegende verwendet.
+webform#:#webform_field_forum_parent#:#Oberbeitrag (Name)
+webform#:#webform_field_forum_parent_info#:#Titel eines vorhandenen Oberbeitrags im Forum, dem die Einsendung zugeordnet wird.
+webform#:#webform_field_forum_subject#:#Beitrags-Titel
+webform#:#webform_field_forum_subject_info#:#Titel des Forenbeitrags, der bei der Einsendung angelegt wird.
+webform#:#webform_field_path#:#Pfad
+webform#:#webform_field_path_info#:#Relativer Pfad zur HTML-Seite des Formulars, ausgehend vom Basisverzeichnis des Lernmoduls.
+webform#:#webform_field_send_maxdate#:#Max. Sendedatum
+webform#:#webform_field_send_maxdate_info#:#Datum, bis zu dem das Formular eingesandt werden kann.
+webform#:#webform_field_solution_date#:#Freigabedatum
+webform#:#webform_field_solution_date_info#:#Datum, ab dem die Lösungsseite verfügbar ist.
+webform#:#webform_field_solution_mode#:#Freigabe der Lösung
+webform#:#webform_field_solution_mode_info#:#Legt fest, ab wann die Lösungsseite verfügbar ist.
+webform#:#webform_field_solution_ref#:#Pfad zur Lösung
+webform#:#webform_field_solution_ref_info#:#Relativer Pfad zu einer Lösungsseite, ausgehend vom Basisverzeichnis des Lernmoduls.
+webform#:#webform_field_title#:#Titel
+webform#:#webform_field_title_info#:#Titel, der in der Liste der Formulare und Einsendungen angezeigt wird.
+webform#:#webform_filter#:#Filter
+webform#:#webform_filter_all#:#Alle
+webform#:#webform_filter_checked#:#Korrektur
+webform#:#webform_filter_form_id#:#Einsendeformular
+webform#:#webform_filter_user_id#:#Nutzer
+webform#:#webform_goto_solution#:#Zur Lösung
+webform#:#webform_no_solution#:#Für dieses Formular ist keine Lösung definiert.
+webform#:#webform_read_definitions#:#Formulardefinitionen einlesen
+webform#:#webform_read_definitions_failed#:#Die Formulardefinitionen konnten nicht eingelesen werden
+webform#:#webform_read_definitions_successful#:#Formulardefinitionen wurden einlesen
+webform#:#webform_savings#:#Speicherungen
+webform#:#webform_send_date#:#Einsendedatum
+webform#:#webform_sendings#:#Einsendungen
+webform#:#webform_solution#:#Lösung
+webform#:#webform_solution_after_checked#:#Die Lösung kann erst nach der Korrektur durch den Tutor angezeigt werden.
+webform#:#webform_solution_after_date#:#Die Lösung kann erst ab Datum %s angezeigt werden.
+webform#:#webform_solution_after_sent#:#Die Lösung kann erst nach dem Einsenden angezeigt werden.
+webform#:#webform_solution_mode_checked#:#Nach der Korrektur
+webform#:#webform_solution_mode_date#:#Nach dem Datum
+webform#:#webform_solution_mode_send#:#Beim Einsenden
+webform#:#webform_tutor#:#Tutor
+webform#:#webform_uncorrect#:#Als unkorrigiert markieren
+webform#:#webform_uncorrected_entries#:#Die Einsendungen wurden als unkorrigiert markiert.
+webform#:#webform_uncorrected_entry#:#Die Einsendung wurden als unkorrigiert markiert.

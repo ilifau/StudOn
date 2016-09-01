@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- fau: linkInSameWindow - add php namespace -->
 <xsl:stylesheet version="1.0"
 								xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                                xmlns:php="http://php.net/xsl"
 								xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<!-- fau. -->
 <!-- removed xmlns:str="http://exslt.org/strings" -->
 
 <xsl:output method="xml" omit-xml-declaration="yes" />
@@ -88,6 +91,10 @@
 <xsl:param name="enable_consultation_hours"/>
 <xsl:param name="enable_my_courses"/>
 <xsl:param name="enable_amd_page_list"/>
+<!-- fim: [exam] add parameter to show fullscreen media with colorbox -->
+<xsl:param name="fullscreen_in_colorbox"/>
+<!-- fim. -->
+
 
 <xsl:template match="PageObject">
 	<xsl:if test="$mode != 'edit'">
@@ -1439,10 +1446,16 @@
 <xsl:template match="ExtLink">
 	<a class="ilc_link_ExtLink">
 		<xsl:variable name="targetframe"><xsl:value-of select="@TargetFrame"/></xsl:variable>
+        <!-- fau: linkInSameWindow - use top as default target for external links to internal urls -->
+		<xsl:variable name="link_href"><xsl:value-of select="@Href"/></xsl:variable>
 		<xsl:variable name="link_target">
-			<xsl:if test="$targetframe != ''"><xsl:value-of select="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@LinkTarget"/></xsl:if>
-			<xsl:if test="$targetframe = ''">_blank</xsl:if>
+            <xsl:choose>
+                <xsl:when test="$targetframe != ''"><xsl:value-of select="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@LinkTarget"/></xsl:when>
+                <xsl:when test="php:function('ilLink::_isLocalLink',$link_href)">_top</xsl:when>
+                <xsl:otherwise>_blank</xsl:otherwise>
+  			</xsl:choose>
 		</xsl:variable>
+        <!-- fau. -->
 		<xsl:if test="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@OnClick">
 			<xsl:attribute name="onclick"><xsl:value-of select="//LinkTargets/LinkTarget[@TargetFrame=$targetframe]/@OnClick"/></xsl:attribute>
 		</xsl:if>
@@ -2826,6 +2839,51 @@
 			</iframe>
 		</xsl:when>
 
+		<!-- fim: [media] embed limited media player -->
+		<xsl:when test = "../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'limit_starts']/@Value = 'true'">
+			<xsl:variable name="limit_count"><xsl:value-of select="../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'limit_starts_count']/@Value"/></xsl:variable>
+			<xsl:variable name="limit_context"><xsl:value-of select="../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'limit_starts_context']/@Value"/></xsl:variable>
+
+			<xsl:choose>
+				<xsl:when test="$mode='edit'">
+					<p>Page Id: <xsl:value-of select="$pg_id"/></p>
+					<p>Parent Id: <xsl:value-of select="$parent_id"/></p>
+					<p>Media Object Id: <xsl:value-of select="$cmobid"/></p>
+					<p>Purpose: <xsl:value-of select="$curPurpose"/></p>
+					<p>Mode: <xsl:value-of select="$mode"/></p>
+					<p>Source: <xsl:value-of select="$data"/></p>
+					<p>Type: <xsl:value-of select="$type"/></p>
+					<p>Width: <xsl:value-of select="$width"/></p>
+					<p>Height: <xsl:value-of select="$height"/></p>
+					<p>Limit Count: <xsl:value-of select="$limit_count"/></p>
+					<p>Limit Context: <xsl:value-of select="$limit_context"/></p>
+				</xsl:when>
+				<xsl:otherwise>
+					<iframe frameborder="0">
+						<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
+						<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>
+						<xsl:attribute name="src">
+							<xsl:value-of select="concat(
+								'Services/MediaObjects/limited_player.php?cmd=show',
+								'&amp;page_id=', $pg_id, 
+								'&amp;parent_id=', $parent_id, 
+								'&amp;mob_id=', $cmobid,
+								'&amp;purpose=', $curPurpose,
+								'&amp;source=', $data,
+								'&amp;mode=', $mode,
+								'&amp;type=', $type,
+								'&amp;width=', $width,
+								'&amp;height=', $height,
+								'&amp;limit_count=', $limit_count,
+								'&amp;limit_context=', $limit_context)" />
+						</xsl:attribute>
+						<xsl:comment>Comment to have separate iframe ending tag</xsl:comment>
+					</iframe>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:when>
+		<!-- fim. -->
+
 		<!-- mp3 (mediaelement.js) -->
 		<xsl:when test = "$type='audio/mpeg' and (substring-before($data,'.mp3') != '' or substring-before($data,'.MP3') != '')">
 			<audio class="ilPageAudio" height="30">
@@ -2993,6 +3051,11 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<a target="_blank">
+			<!-- fim: [exam] open fullscreen media in colorbox -->
+ 			<xsl:if test="$fullscreen_in_colorbox">
+				<xsl:attribute name="onclick">$.colorbox({width:window.innerWidth-100, height:window.innerHeight-100, iframe:true, href:'<xsl:value-of select="$fullscreen_link"/>&amp;mob_id=<xsl:value-of select="substring-after($cmobid,'mob_')"/>&amp;pg_id=<xsl:value-of select="$pg_id"/>'});return false;</xsl:attribute>
+			</xsl:if>
+			<!-- fim. -->
 			<xsl:attribute name="href"><xsl:value-of select="$fullscreen_link"/>&amp;mob_id=<xsl:value-of select="substring-after($cmobid,'mob_')"/>&amp;pg_id=<xsl:value-of select="$pg_id"/></xsl:attribute>
 			<img border="0" align="right">
 			<xsl:attribute name="src"><xsl:value-of select="$enlarge_path"/></xsl:attribute>

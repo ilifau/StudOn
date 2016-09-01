@@ -1,0 +1,371 @@
+Status der StudOn-Anpassungen nach ersten Merge und Lösen der Konflikte
+Alle Anpassungen durchsehen, bereinigen, Kommentare anpassen
+Erledigte Dateien mit "ok" markieren
+-----------------------------------------------------------------------
+A  +    Customizing\Vhb
+A  +    Customizing\apply_patches.php
+A  +    Customizing\classes
+A  +    Customizing\clients
+A  +    Customizing\customize.ini.php
+A  +    Customizing\global
+A  +    Customizing\patches
+A  +    Customizing\status.php
+A  +    Customizing\xlml_call.php
+M       Modules\Category\classes\class.ilObjCategoryGUI.php
+M       Modules\Chatroom\classes\class.ilObjChatroom.php
+M       Modules\Course\classes\class.ilCourseConstants.php
+M       Modules\Course\classes\class.ilCourseGroupingTableGUI.php
+M       Modules\Course\classes\class.ilCourseMembershipMailNotification.php
+M       Modules\Course\classes\class.ilCourseParticipant.php
+M       Modules\Course\classes\class.ilCourseParticipants.php
+M       Modules\Course\classes\class.ilCourseParticipantsTableGUI.php
+M       Modules\Course\classes\class.ilCourseRegistrationGUI.php
+M       Modules\Course\classes\class.ilObjCourse.php
+M       Modules\Course\classes\class.ilObjCourseAccess.php
+M       Modules\Course\classes\class.ilObjCourseGUI.php
+M       Modules\Course\classes\class.ilObjCourseGrouping.php
+M       Modules\Course\classes\class.ilObjCourseGroupingGUI.php
+M       Modules\Course\classes\class.ilObjCourseListGUI.php
+M       Modules\Course\templates\default\tpl.crs_edit_members.html
+A  +    Modules\Course\templates\default\tpl.crs_event_info.html
+M       Modules\Course\templates\default\tpl.groupings.html
+M       Modules\Course\templates\default\tpl.member_export.html
+M       Modules\Exercise\LuceneObjectDefinition.xml
+A  +    Modules\Exercise\classes\class.ilExCalculate.php
+A  +    Modules\Exercise\classes\class.ilExCalculateGUI.php
+M       Modules\Exercise\classes\class.ilExGradesTableGUI.php
+M       Modules\Exercise\classes\class.ilExerciseMembers.php
+M       Modules\Exercise\classes\class.ilObjExercise.php
+M       Modules\Exercise\classes\class.ilObjExerciseGUI.php
+M       Modules\Exercise\templates\default\tpl.exc_grades_row.html
+M       Modules\ExternalFeed\classes\class.ilObjExternalFeedGUI.php
+M       Modules\File\LuceneFileListDataSource.xml
+M       Modules\File\LuceneObjectDefinition.xml
+M       Modules\Forum\classes\class.ilForum.php
+M       Modules\Glossary\classes\class.ilObjGlossaryGUI.php
+M       Modules\Group\classes\class.ilGroupParticipantsTableGUI.php
+M       Modules\Group\classes\class.ilGroupRegistrationGUI.php
+M       Modules\Group\classes\class.ilObjGroup.php
+M       Modules\Group\classes\class.ilObjGroupAccess.php
+M       Modules\Group\classes\class.ilObjGroupGUI.php
+M       Modules\Group\classes\class.ilObjGroupListGUI.php
+M       Modules\Group\templates\default\tpl.grp_edit_members.html
+M       Modules\Group\templates\default\tpl.show_participants_row.html
+M       Modules\HTMLLearningModule\LuceneObjectDefinition.xml
+M       Modules\HTMLLearningModule\classes\class.ilObjFileBasedLMGUI.php
+M       Modules\LearningModule\classes\class.ilContObjParser.php
+M       Modules\LearningModule\classes\class.ilLMExplorerGUI.php
+M       Modules\LearningModule\classes\class.ilLMPresentationGUI.php
+M       Modules\LearningModule\classes\class.ilObjContentObject.php
+A  +    Modules\LearningModule\layouts\lm\website
+A  +    Modules\LearningModule\layouts\lm\win2toc
+M       Modules\LearningModule\templates\default\tpl.page.html
+A  +    Modules\LearningModule\templates\default\tpl.page_website.html
+M       Modules\Portfolio\classes\class.ilPortfolioTableGUI.php
+M       Modules\RootFolder\classes\class.ilObjRootFolderGUI.php
+M       Modules\ScormAicc\classes\HACP\class.ilHACPResponse.php
+M       Modules\Session\classes\class.ilEventParticipants.php
+M       Modules\Session\classes\class.ilObjSession.php
+M       Modules\Session\classes\class.ilObjSessionAccess.php
+M       Modules\Session\classes\class.ilObjSessionGUI.php
+M       Modules\Session\classes\class.ilObjSessionListGUI.php
+M       Modules\Session\classes\class.ilSessionOverviewGUI.php
+M       Modules\Session\templates\default\tpl.sess_list.html
+M       Modules\Survey\classes\class.ilObjSurvey.php
+M       Modules\Survey\classes\class.ilObjSurveyGUI.php
+M       Modules\Survey\classes\class.ilSurveyExecutionGUI.php
+A  +    Modules\Survey\templates\default\survey_form.css
+M       Modules\Survey\templates\default\tpl.il_svy_svy_content.html
+M       Modules\SurveyQuestionPool\classes\class.SurveyMatrixQuestionGUI.php
+M       Modules\SurveyQuestionPool\classes\class.SurveyMultipleChoiceQuestionGUI.php
+M       Modules\SurveyQuestionPool\classes\class.SurveySingleChoiceQuestionGUI.php
+M       Modules\SurveyQuestionPool\classes\class.ilObjSurveyQuestionPoolGUI.php
+M       Modules\SurveyQuestionPool\templates\default\tpl.il_svy_out_mc.html
+M       Modules\SurveyQuestionPool\templates\default\tpl.il_svy_out_sc.html
+M       Modules\SurveyQuestionPool\templates\default\tpl.il_svy_out_text.html
+M       Modules\SystemFolder\classes\class.ilBenchmarkTableGUI.php
+M       Modules\SystemFolder\classes\class.ilObjSystemFolder.php
+M       Modules\SystemFolder\templates\default\tpl.db_bench.html
+ M      Modules\Test
+M       Modules\Test\classes\class.assMarkSchema.php
+M       Modules\Test\classes\class.ilObjTest.php
+M       Modules\Test\classes\class.ilObjTestAccess.php
+M       Modules\Test\classes\class.ilObjTestGUI.php
+M       Modules\Test\classes\class.ilObjTestSettingsScoringResultsGUI.php
+M       Modules\Test\classes\class.ilTestEvaluationGUI.php
+M       Modules\Test\classes\class.ilTestExport.php
+M       Modules\Test\classes\class.ilTestExportGUI.php
+M       Modules\Test\classes\class.ilTestExpressPageObjectGUI.php
+M       Modules\Test\classes\class.ilTestGradingMessageBuilder.php
+A  +    Modules\Test\classes\class.ilTestMyCampusGUI.php
+A  +    Modules\Test\classes\class.ilTestMyCampusTools.php
+M       Modules\Test\classes\class.ilTestOutputGUI.php
+M       Modules\Test\classes\class.ilTestPlayerAbstractGUI.php
+M       Modules\Test\classes\class.ilTestResultsImportParser.php
+M       Modules\Test\classes\class.ilTestScoringGUI.php
+M       Modules\Test\classes\tables\class.ilResultsByQuestionTableGUI.php
+M       Modules\Test\classes\tables\class.ilTestParticipantsTableGUI.php
+M       Modules\Test\classes\tables\class.ilTestQuestionsTableGUI.php
+M       Modules\Test\templates\default\ta.css
+M       Modules\Test\templates\default\test_print.css
+M       Modules\Test\templates\default\tpl.il_as_tst_final_statement.html
+M       Modules\Test\templates\default\tpl.il_as_tst_print_test_confirm.html
+M       Modules\Test\templates\default\tpl.table_results_by_question_row.html
+ M      Modules\TestQuestionPool
+M       Modules\TestQuestionPool\classes\class.assClozeTest.php
+M       Modules\TestQuestionPool\classes\class.assClozeTestGUI.php
+M       Modules\TestQuestionPool\classes\class.assMatchingQuestion.php
+M       Modules\TestQuestionPool\classes\class.assMatchingQuestionGUI.php
+M       Modules\TestQuestionPool\classes\class.assMultipleChoice.php
+M       Modules\TestQuestionPool\classes\class.assMultipleChoiceGUI.php
+M       Modules\TestQuestionPool\classes\class.assOrderingHorizontal.php
+M       Modules\TestQuestionPool\classes\class.assOrderingQuestionGUI.php
+M       Modules\TestQuestionPool\classes\class.assQuestion.php
+M       Modules\TestQuestionPool\classes\class.assQuestionGUI.php
+M       Modules\TestQuestionPool\classes\class.assSingleChoice.php
+M       Modules\TestQuestionPool\classes\class.assSingleChoiceGUI.php
+M       Modules\TestQuestionPool\classes\class.ilAssQuestionPageGUI.php
+M       Modules\TestQuestionPool\classes\class.ilObjQuestionPool.php
+M       Modules\TestQuestionPool\classes\class.ilObjQuestionPoolGUI.php
+M       Modules\TestQuestionPool\classes\import\qti12\class.assClozeTestImport.php
+M       Modules\TestQuestionPool\classes\import\qti12\class.assMultipleChoiceImport.php
+M       Modules\TestQuestionPool\classes\import\qti12\class.assSingleChoiceImport.php
+M       Modules\TestQuestionPool\classes\tables\class.ilQuestionPoolPrintViewTableGUI.php
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_matching_output.html
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_matching_output_solution.html
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_mc_mr_output.html
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_mc_sr_output.html
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_ordering_output.html
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_printview_row.html
+M       Modules\TestQuestionPool\templates\default\tpl.il_as_qpl_question_printview.html
+M       Modules\TestQuestionPool\templates\default\tpl.prop_nestable_value.html
+M       Modules\WebResource\classes\class.ilLinkResourceItems.php
+M       Modules\WebResource\classes\class.ilObjLinkResourceAccess.php
+M       Modules\WebResource\classes\class.ilObjLinkResourceGUI.php
+M       Modules\WebResource\classes\class.ilParameterAppender.php
+M       Modules\WebResource\classes\class.ilWebResourceEditableLinkTableGUI.php
+M       Modules\WebResource\templates\default\tpl.webr_editable_link_row.html
+M       Modules\Wiki\LuceneObjectDefinition.xml
+M       Modules\WorkspaceFolder\classes\class.ilObjWorkspaceFolderTableGUI.php
+M       Services\AccessControl\classes\class.ilAccessHandler.php
+M       Services\AccessControl\classes\class.ilObjRole.php
+M       Services\AccessControl\classes\class.ilObjectRolePermissionTableGUI.php
+M       Services\AccessControl\classes\class.ilObjectRoleTemplatePermissionTableGUI.php
+M       Services\AccessControl\classes\class.ilRbacReview.php
+M       Services\AccessControl\classes\class.ilRbacSystem.php
+M       Services\Administration\classes\class.ilSetting.php
+M       Services\AdvancedEditing\classes\class.ilObjAdvancedEditing.php
+ M      Services\AuthShibboleth
+A  +    Services\AuthShibboleth\classes\class.ilShibbolethStudOn.php
+M       Services\Authentication\classes\class.ilAuthBase.php
+M       Services\Authentication\classes\class.ilAuthContainerDatabase.php
+M       Services\Authentication\classes\class.ilAuthUtils.php
+M       Services\Authentication\classes\class.ilSession.php
+M       Services\Authentication\classes\class.ilSessionControl.php
+M       Services\Authentication\classes\class.ilSessionReminder.php
+M       Services\Authentication\classes\class.ilSessionStatistics.php
+M       Services\COPage\classes\class.ilPCMediaObjectGUI.php
+M       Services\COPage\classes\class.ilPageObjectGUI.php
+M       Services\COPage\css\content.css
+M       Services\COPage\js\ilCOPagePres.js
+M       Services\COPage\xsl\page.xsl
+A  +    Services\Cache\classes\class.ilMemoryCacheFactory.php
+A  +    Services\Cache\classes\class.ilMemoryXCache.php
+M       Services\Calendar\classes\class.ilCalendarCategories.php
+M       Services\Calendar\classes\class.ilPDCalendarBlockGUI.php
+M       Services\Captcha\classes\class.ilCaptchaUtil.php
+M       Services\Component\classes\class.ilComponent.php
+M       Services\Component\classes\class.ilPlugin.php
+M       Services\Container\classes\class.ilContainer.php
+M       Services\Container\classes\class.ilContainerByTypeContentGUI.php
+M       Services\Container\classes\class.ilContainerContentGUI.php
+M       Services\Container\classes\class.ilContainerGUI.php
+M       Services\ContainerReference\classes\class.ilContainerReferenceGUI.php
+M       Services\Context\classes\class.ilContextSoap.php
+M       Services\Database\classes\class.ilAuthContainerMDB2.php
+M       Services\Database\classes\class.ilDB.php
+M       Services\Database\classes\class.ilDBInnoDB.php
+M       Services\Database\classes\class.ilDBMySQL.php
+M       Services\Database\classes\class.ilDBUpdate.php
+A  +    Services\Evaluation
+M       Services\EventHandling\classes\class.ilAppEventHandler.php
+M       Services\Feeds\classes\class.ilUserFeedWriter.php
+M       Services\Feeds\templates\default\tpl.rss_2_0.xml
+M       Services\Form\classes\class.ilFormPropertyGUI.php
+M       Services\Form\templates\default\tpl.property_form.html
+M       Services\Help\classes\class.ilHelp.php
+M       Services\Help\classes\class.ilHelpMapping.php
+M       Services\Http\classes\class.ilHTTPS.php
+A  +    Services\Idm
+M       Services\InfoScreen\classes\class.ilInfoScreenGUI.php
+M       Services\InfoScreen\templates\default\tpl.infoscreen.html
+A  +    Services\Init\classes\class.ilCustomLoginGUI.php
+M       Services\Init\classes\class.ilErrorHandling.php
+M       Services\Init\classes\class.ilIniFile.php
+M       Services\Init\classes\class.ilInitialisation.php
+A  +    Services\Init\classes\class.ilRetryGUI.php
+M       Services\Init\classes\class.ilStartUpGUI.php
+A  +    Services\Init\templates\default\tpl.custom_login.html
+A  +    Services\Init\templates\default\tpl.custom_login_links.html
+A  +    Services\Init\templates\default\tpl.custom_logout.html
+A  +    Services\Init\templates\default\tpl.custom_sso.html
+A  +    Services\Init\templates\default\tpl.infopage.html
+A  +    Services\Init\templates\default\tpl.retry_page.html
+A  +    Services\Init\templates\default\tpl.shib_conversion.html
+A  +    Services\Init\templates\default\tpl.shib_info.html
+M       Services\Language\classes\class.ilLanguage.php
+M       Services\Link\classes\class.ilLink.php
+M       Services\Locator\classes\class.ilLocatorGUI.php
+M       Services\Logging\classes\class.ilLog.php
+M       Services\Mail\LuceneDataSource.xml
+M       Services\Mail\classes\class.ilMail.php
+M       Services\Mail\classes\class.ilMailFormGUI.php
+M       Services\Mail\classes\class.ilMailNotification.php
+M       Services\Mail\classes\class.ilObjMailGUI.php
+M       Services\MainMenu\classes\class.ilMainMenuGUI.php
+M       Services\MainMenu\templates\default\tpl.main_menu_list_entries.html
+A  +    Services\MediaObjects\classes\class.ilLimitedMediaPlayerGUI.php
+A  +    Services\MediaObjects\classes\class.ilLimitedMediaPlayerUsage.php
+M       Services\MediaObjects\classes\class.ilObjMediaObject.php
+M       Services\MediaObjects\classes\class.ilPlayerUtil.php
+M       Services\MediaObjects\js\MediaObjects.js
+A  +    Services\MediaObjects\limited_player.php
+A  +    Services\MediaObjects\media_element_2_9_5
+A  +    Services\MediaObjects\templates\default\tpl.limited_media_player.html
+A  +    Services\MediaObjects\templates\default\tpl.limited_media_player_limit_reached.html
+M       Services\Membership\classes\Export\class.ilMemberExport.php
+M       Services\Membership\classes\Export\class.ilMemberExportGUI.php
+M       Services\Membership\classes\class.ilAttendanceList.php
+M       Services\Membership\classes\class.ilMemberAgreement.php
+M       Services\Membership\classes\class.ilParticipant.php
+M       Services\Membership\classes\class.ilParticipants.php
+M       Services\Membership\classes\class.ilRegistrationGUI.php
+A  +    Services\Membership\classes\class.ilRegistrationPeriodLimiter.php
+A  +    Services\Membership\classes\class.ilRegistrationPeriodLimiterGUI.php
+A  +    Services\Membership\classes\class.ilRegistrationPeriodLimiterTableGUI.php
+M       Services\Membership\classes\class.ilSubscriberTableGUI.php
+A  +    Services\Membership\classes\class.ilSubscribersLot.php
+A  +    Services\Membership\classes\class.ilSubscribersLotTableGUI.php
+A  +    Services\Membership\classes\class.ilSubscribersStudyCond.php
+A  +    Services\Membership\classes\class.ilSubscribersStudyCondGUI.php
+A  +    Services\Membership\classes\class.ilSubscribersStudyCondTableGUI.php
+M       Services\Membership\classes\class.ilWaitingList.php
+A  +    Services\Membership\classes\class.ilWaitingListAdministration.php
+M       Services\Membership\classes\class.ilWaitingListTableGUI.php
+M       Services\Membership\service.xml
+A  +    Services\Membership\templates\default\tpl.list_subscribers_studycond.html
+A  +    Services\Membership\templates\default\tpl.list_subscribers_studycond_row.html
+A  +    Services\Membership\templates\default\tpl.rpl_links_row.html
+A  +    Services\Membership\templates\default\tpl.rpl_numbers_row.html
+A  +    Services\Membership\templates\default\tpl.rpl_period_row.html
+A  +    Services\Membership\templates\default\tpl.show_subscribers_lot_row.html
+M       Services\Membership\templates\default\tpl.show_subscribers_row.html
+A  +    Services\Membership\templates\default\tpl.show_subscribers_studycond.html
+M       Services\Membership\templates\default\tpl.show_waiting_list_row.html
+A  +    Services\MyCampus
+M       Services\News\classes\class.ilNewsItem.php
+M       Services\News\classes\class.ilPDNewsBlockGUI.php
+M       Services\News\templates\default\tpl.show_priv_feed_url.html
+M       Services\Notifications\LuceneFileListDataSource.xml
+M       Services\Object\classes\class.ilObject.php
+M       Services\Object\classes\class.ilObject2GUI.php
+M       Services\Object\classes\class.ilObjectDefinition.php
+M       Services\Object\classes\class.ilObjectGUI.php
+M       Services\Object\classes\class.ilObjectListGUI.php
+M       Services\Object\classes\class.ilObjectListGUIFactory.php
+M       Services\PDFGeneration\classes\tcpdf\tcpdf.php
+M       Services\PEAR\lib\Auth.php
+M       Services\PEAR\lib\MDB2.php
+M       Services\PermanentLink\classes\class.ilPermanentLinkGUI.php
+M       Services\PersonalDesktop\classes\class.ilPDSelectedItemsBlockGUI.php
+M       Services\PersonalDesktop\classes\class.ilPersonalDesktopGUI.php
+M       Services\PrivacySecurity\classes\class.ilExportFieldsInfo.php
+M       Services\PrivacySecurity\classes\class.ilObjPrivacySecurityGUI.php
+M       Services\PrivacySecurity\classes\class.ilPrivacySettings.php
+M       Services\QTI\classes\class.ilQTIParser.php
+M       Services\RTE\classes\class.ilTinyMCE.php
+M       Services\Radius\classes\class.ilRadiusSettings.php
+M       Services\Registration\classes\class.ilAccountRegistrationGUI.php
+M       Services\Repository\classes\class.ilRepositoryGUI.php
+M       Services\Search\classes\class.ilRepositorySearchGUI.php
+M       Services\Search\classes\class.ilSearchAutoComplete.php
+A  +    Services\StudyData
+M       Services\Style\classes\class.ilObjStyleSheet.php
+M       Services\Style\classes\class.ilObjStyleSheetGUI.php
+M       Services\Style\classes\class.ilStyleImportParser.php
+A  +    Services\Style\templates\default\tpl.il_custom_css.html
+A  +    Services\Style\templates\default\tpl.il_custom_css_input.html
+M       Services\Table\classes\class.ilTable2GUI.php
+A  +    Services\Table\classes\class.ilTablePostGUI.php
+M       Services\Table\templates\default\tpl.table2.html
+A  +    Services\Table\templates\default\tpl.table_post_linkbar.html
+M       Services\TermsOfService\classes\class.ilTermsOfServiceFileSystemDocument.php
+M       Services\TermsOfService\classes\class.ilTermsOfServiceRequestTargetAdjustmentCase.php
+M       Services\Tracking\classes\class.ilLPMarks.php
+M       Services\Tracking\classes\class.ilLPTableBaseGUI.php
+M       Services\Tracking\classes\class.ilTrQuery.php
+M       Services\Tree\classes\class.ilMaterializedPathTree.php
+M       Services\Tree\classes\class.ilNestedSetTree.php
+M       Services\Tree\classes\class.ilTree.php
+M       Services\UICore\classes\class.ilCtrl.php
+M       Services\UICore\classes\class.ilTemplate.php
+A  +    Services\UnivIS
+M       Services\User\classes\class.ilObjUser.php
+M       Services\User\classes\class.ilObjUserFolderGUI.php
+M       Services\User\classes\class.ilObjUserGUI.php
+M       Services\User\classes\class.ilPersonalProfileGUI.php
+M       Services\User\classes\class.ilPersonalSettingsGUI.php
+M       Services\User\classes\class.ilPublicUserProfileGUI.php
+M       Services\User\classes\class.ilUserProfile.php
+M       Services\User\classes\class.ilUserQuery.php
+M       Services\User\classes\class.ilUserUtil.php
+M       Services\Utilities\classes\class.ilBenchmark.php
+A  +    Services\Utilities\classes\class.ilSessionValues.php
+A  +    Services\Utilities\classes\class.ilTableExport.php
+M       Services\Utilities\classes\class.ilUtil.php
+A  +    Services\Utilities\templates\default\tpl.progress.html
+A  +    Services\Utilities\templates\default\tpl.progress_form.html
+A  +    Services\Utilities\templates\default\tpl.progress_form.js
+M       Services\VirusScanner\classes\class.ilVirusScannerFactory.php
+M       Services\WebAccessChecker\classes\class.ilWebAccessChecker.php
+M       Services\WebDAV\classes\class.ilObjectDAV.php
+A  +    Services\WebForm
+A  +    Services\WebServices\SOAP\classes\class.ilRemoteIliasClient.php
+A  +    Services\Wizard
+M       Services\jQuery\classes\class.iljQueryUtil.php
+A  +    Services\jQuery\js\colorbox
+M       cron\classes\class.ilCronCheck.php
+A  +    docs\merge_studon_into_4.4.4.log
+?       docs\merge_studon_into_5.0.0.log
+A  +    docs\studon-merge.log
+?       docs\studon-status.log
+M       favicon.ico
+M       feed.php
+M       goto.php
+M       include\inc.debug.php
+M       include\inc.header.php
+M       include\inc.ilias_version.php
+A  +    include\inc.log_request.php
+ M      lang\ilias_da.lang
+M       lang\setup_de.lang
+M       login.php
+A  +    maintenance.html
+M       privfeed.php
+A  +    repository.php
+M       setup\classes\class.ilClient.php
+M       setup\classes\class.ilSetup.php
+A  +    setup\sql\dbupdate_custom.php
+M       shib_login.php
+A  +    templates\default\images\layout_website.png
+A       templates\default\images\layout_win2toc.png
+A  +    templates\default\images\studon
+A  +    templates\default\tpl.helptext_create.html
+M       templates\default\tpl.main.html
+A  +    univis.php
+A  +    vhbadmin.php
+A  +    vhblogin.php
+M       webservice\soap\classes\class.ilNusoapUserAdministrationAdapter.php
+A  +    webservice\soap\classes\class.ilSoapStudOnAdministration.php
+M       webservice\soap\classes\class.ilSoapUtils.php
+M       webservice\soap\include\inc.soap_functions.php
+M       webservice\soap\server.php

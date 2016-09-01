@@ -1,0 +1,41 @@
+--- Merging r61214 through r61262 into '.':
+U    setup\sql\5_0_hotfixes.php
+A    xml\ilias_mcst_5_0.xsd
+U    Modules\DataCollection\module.xml
+U    Modules\DataCollection\classes\class.ilObjDataCollection.php
+U    Modules\MediaCast\classes\class.ilMediaCastDataSet.php
+U    Modules\MediaCast\classes\class.ilMediaCastExporter.php
+C    Modules\MediaCast\classes\class.ilObjMediaCast.php
+U    Modules\HTMLLearningModule\classes\class.ilObjFileBasedLM.php
+U    Modules\HTMLLearningModule\classes\class.ilObjFileBasedLMAccess.php
+U    Modules\HTMLLearningModule\classes\class.ilObjFileBasedLMGUI.php
+U    Modules\Group\classes\class.ilObjGroupGUI.php
+U    Modules\TestQuestionPool\classes\class.ilObjQuestionPool.php
+C    Modules\Glossary\classes\class.ilObjGlossary.php
+U    Modules\SurveyQuestionPool\classes\class.ilObjSurveyQuestionPool.php
+U    Modules\Test\classes\class.ilObjTest.php
+U    Modules\BookingManager\classes\class.ilObjBookingPool.php
+U    Modules\Survey\classes\class.ilObjSurvey.php
+U    Modules\Bibliographic\classes\class.ilObjBibliographic.php
+U    Modules\Wiki\classes\class.ilObjWiki.php
+U    Modules\ScormAicc\classes\class.ilObjSAHSLearningModule.php
+U    Modules\LearningModule\classes\class.ilObjContentObject.php
+U    Modules\LearningModule\classes\class.ilContObjParser.php
+U    Modules\Cloud\classes\class.ilObjCloud.php
+U    Modules\Poll\classes\class.ilPollDataSet.php
+U    Modules\Poll\classes\class.ilObjPoll.php
+U    Services\Export\classes\class.ilExportTableGUI.php
+U    Services\Skill\classes\class.ilSkillUsage.php
+U    Services\Search\classes\class.ilSearchResultPresentation.php
+U    Services\COPage\js\page_editing.js
+U    Services\COPage\classes\class.ilPCSectionGUI.php
+U    Services\COPage\classes\class.ilPCParagraphGUI.php
+U    Services\COPage\classes\class.ilPageContentGUI.php
+--- Recording mergeinfo for merge of r61214 through r61262 into '.':
+ U   .
+--- Recording mergeinfo for merge of r61214 through r61262 into 'Modules\Test':
+ U   Modules\Test
+--- Recording mergeinfo for merge of r61214 through r61262 into 'Modules\TestQuestionPool':
+ U   Modules\TestQuestionPool
+Summary of conflicts:
+  Text conflicts: 2

@@ -1,3 +1,6 @@
+/* fim: [layout] changed all #003366 to #003366; */
+/* fim. */
+
 /* Page */
 div.ilc_page_frame_PageFrame
 {
@@ -146,7 +149,7 @@ span.ilc_text_inline_Accent
 /* Links */
 a.ilc_link_FootnoteLink
 {
-	color: blue;
+	color: #003366;
 	font-weight: normal;
 }
 
@@ -157,7 +160,7 @@ a.ilc_link_FootnoteLink:hover
 
 a.ilc_link_IntLink
 {
-	color: blue;
+	color: #003366;
 	font-weight: normal;
 	text-decoration: underline;
 }
@@ -169,12 +172,12 @@ a.ilc_link_IntLink:hover
 
 a.ilc_link_IntLink:visited
 {
-	color: blue;
+	color: #003366;
 }
 
 a.ilc_link_ExtLink
 {
-	color: blue;
+	color: #003366;
 	font-weight: normal;
 	text-decoration: underline;
 }
@@ -186,12 +189,12 @@ a.ilc_link_ExtLink:hover
 
 a.ilc_link_ExtLink:visited
 {
-	color: blue;
+	color: #003366;
 }
 
 a.ilc_link_FileLink
 {
-	color: blue;
+	color: #003366;
 	font-weight: normal;
 	text-decoration: underline;
 }
@@ -203,7 +206,7 @@ a.ilc_link_FileLink:hover
 
 a.ilc_link_GlossaryLink
 {
-	color: blue;
+	color: #003366;
 	font-weight: normal;
 	text-decoration: underline;
 }
@@ -251,6 +254,7 @@ div.ilc_text_block_Standard, body.ilc_text_block_Standard
 {
 	margin-top: 10px;
 	margin-bottom: 10px;
+    font-size: 15px;  /* fim: added style. */
 }
 
 div.ilc_text_block_TableContent, body.ilc_text_block_TableContent
@@ -263,6 +267,7 @@ div.ilc_text_block_TableContent, body.ilc_text_block_TableContent
 	padding-bottom: 0px;
 	padding-left: 0px;
 	padding-right: 0px;
+    font-size: 15px;  /* fim: added style. */
 }
 
 
@@ -270,6 +275,7 @@ div.ilc_text_block_List, body.ilc_text_block_List
 {
 	margin-top: 3px;
 	margin-bottom: 3px;
+    font-size: 15px;  /* fim: added style. */
 }
 
 h1.ilc_heading1_Headline1, div.ilc_text_block_Headline1, body.ilc_text_block_Headline1
@@ -303,7 +309,8 @@ div.ilc_text_block_Example, body.ilc_text_block_Example
 	padding-left: 20px;
 	border-left: 3px;
 	border-left-style: solid;
-	border-left-color: blue;
+	border-left-color: #003366;
+    font-size: 15px;  /* fim: added style. */
 }
 
 div.ilc_section_Example
@@ -313,7 +320,7 @@ div.ilc_section_Example
 	padding-left: 20px;
 	border-left: 3px;
 	border-left-style: solid;
-	border-left-color: blue;
+	border-left-color: #003366;
 }
 
 div.ilc_text_block_Citation, body.ilc_text_block_Citation
@@ -322,6 +329,7 @@ div.ilc_text_block_Citation, body.ilc_text_block_Citation
 	margin-bottom: 10px;
 	color: brown;
 	font-style: italic;
+    font-size: 15px;  /* fim: added style. */
 }
 
 div.ilc_text_block_Mnemonic, body.ilc_text_block_Mnemonic
@@ -334,6 +342,7 @@ div.ilc_text_block_Mnemonic, body.ilc_text_block_Mnemonic
 	border-width: 2px;
 	border-style: solid;
 	border-color: red;
+    font-size: 15px;  /* fim: added style. */
 }
 
 div.ilc_section_Mnemonic
@@ -355,7 +364,8 @@ div.ilc_text_block_Additional, body.ilc_text_block_Additional
 	padding: 10px;
 	border-width: 1px;
 	border-style: solid;
-	border-color: blue;
+	border-color: #003366;
+    font-size: 15px;  /* fim: added style. */
 }
 
 div.ilc_section_Additional
@@ -365,7 +375,7 @@ div.ilc_section_Additional
 	padding: 10px;
 	border-width: 1px;
 	border-style: solid;
-	border-color: blue;
+	border-color: #003366;
 }
 
 div.ilc_text_block_Remark, body.ilc_text_block_Remark
@@ -378,6 +388,7 @@ div.ilc_text_block_Remark, body.ilc_text_block_Remark
 	border-color: #909090;
 	background-color:#F0F0F0;
 	text-align: center;
+    font-size: 15px;  /* fim: added style. */
 }
 
 div.ilc_section_Remark
@@ -618,7 +629,7 @@ a.ilc_glo_ovclink_GlossaryOvCloseLink,
 a.ilc_glo_ovuglink_GlossaryOvUnitGloLink,
 a.ilc_glo_ovuglistlink_GlossaryOvUGListLink
 {
-	color: blue;
+	color: #003366;
 	font-weight: normal;
 	text-decoration: underline;
 }

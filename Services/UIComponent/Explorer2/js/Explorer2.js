@@ -37,7 +37,13 @@ il.Explorer2 = {
 			id = data.rslt.obj[0].id, // id of li element
 			container_id = event.target.id,
 			t = il.Explorer2, url;
-			
+
+// fau: taxDesc - enabled tooltips for toggled tree nodes
+        if (il.Tooltip) {
+            il.Tooltip.init();
+        }
+// fau.
+
 		// the args[2] parameter is true for the initially
 		// opened nodes, but not, if manually opened
 		// this is somhow undocumented, but it works
@@ -71,6 +77,12 @@ il.Explorer2 = {
 		$("#" + id + "_select").bind("click", function (ev) {
 			il.UICore.showRightPanel();
 			il.UICore.loadWrapperToRightPanel(id + "_expl_wrapper");
+
+// fau: taxDesc - enabled tooltips for toggled tree nodes
+            if (il.Tooltip) {
+                il.Tooltip.init();
+            }
+// fau.
 			return false;
 		});
 		$("#" + id + "_reset").bind("click", function (ev) {

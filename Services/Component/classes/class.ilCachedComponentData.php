@@ -12,7 +12,9 @@ class ilCachedComponentData {
 	/**
 	 * @var array
 	 */
-	protected static $cached_results = array();
+// fau: globalCache - make cached results non-static to include them in serialization
+	protected $cached_results = array();
+// fau.
 	/**
 	 * @var ilCachedComponentData
 	 */
@@ -119,37 +121,38 @@ class ilCachedComponentData {
 		 * @var $ilDB ilDB
 		 */
 
-		$set = $ilDB->query('SELECT * FROM il_component');
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_component');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_component[$rec['id']] = $rec;
 			$this->obj_def_name_to_id[$rec['id']] = $rec['name'];
 			$this->obj_def_name_and_type_raw[$rec['type']][$rec['name']] = $rec;
 		}
 
-		$set = $ilDB->query('SELECT * FROM il_object_def');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_object_def');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_object_def[$rec['id']] = $rec;
 		}
 
-		$set = $ilDB->query('SELECT * FROM il_object_subobj');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_object_subobj');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_object_subobj[] = $rec;
 			$parent = $rec['parent'];
 			$this->subobj_for_parent[$parent][] = $rec;
 		}
-		$set = $ilDB->query('SELECT DISTINCT(id) AS sid, parent, il_object_def.* FROM il_object_def, il_object_subobj WHERE NOT (system = 1) AND NOT (sideblock = 1) AND subobj = id');
+		$set = $ilDB->query('SELECT SQL_CACHE DISTINCT(id) AS sid, parent, il_object_def.* FROM il_object_def, il_object_subobj WHERE NOT (system = 1) AND NOT (sideblock = 1) AND subobj = id');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->grouped_rep_obj_types[$rec['parent']][] = $rec;
 		}
 
-		$set = $ilDB->query('SELECT * FROM il_pluginslot');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_pluginslot');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_pluginslot_by_comp[$rec['component']][] = $rec;
 			$this->il_pluginslot_by_id[$rec['id']] = $rec;
 			$this->il_pluginslot_by_name[$rec['name']] = $rec;
 		}
 
-		$set = $ilDB->query('SELECT * FROM il_plugin');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_plugin');
 		$this->il_plugin_active = array();
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_plugin_by_id[$rec['plugin_id']] = $rec;
@@ -158,14 +161,15 @@ class ilCachedComponentData {
 				$this->il_plugin_active[$rec['slot_id']][] = $rec;
 			}
 		}
-		$set = $ilDB->query('SELECT * FROM il_object_group');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_object_group');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_object_group[$rec['id']] = $rec;
 		}
-		$set = $ilDB->query('SELECT * FROM il_object_sub_type');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM il_object_sub_type');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->il_object_sub_type[$rec['obj_type']][] = $rec;
 		}
+// fau.
 	}
 
 
@@ -449,9 +453,10 @@ class ilCachedComponentData {
 	 */
 	public function lookupSubObjForParent($parent) {
 		if (is_array($parent)) {
+// fau: globalCache - use non-static cached_results
 			$index = md5(serialize($parent));
-			if (isset(self::$cached_results['subop_par'][$index])) {
-				return self::$cached_results['subop_par'][$index];
+			if (isset($this->cached_results['subop_par'][$index])) {
+				return $this->cached_results['subop_par'][$index];
 			}
 
 			$return = array();
@@ -463,9 +468,9 @@ class ilCachedComponentData {
 				}
 			}
 
-			self::$cached_results['subop_par'][$index] = $return;
+			$this->cached_results['subop_par'][$index] = $return;
 			$this->changed = true;
-
+// fau.
 			return $return;
 		}
 
@@ -505,6 +510,9 @@ class ilCachedComponentData {
 
 	public function __destruct() {
 		if ($this->changed) {
+// fau: globalCache - set changed to false when object is written to cache
+			$this->changed = false;
+// fau.
 			$this->global_cache->set('ilCachedComponentData', $this);
 		}
 	}
@@ -517,9 +525,10 @@ class ilCachedComponentData {
 	 */
 	public function lookupGroupedRepObj($parent) {
 		if (is_array($parent)) {
+// fau: globalCache - use non-static ccached_results
 			$index = md5(serialize($parent));
-			if (isset($cached_results['grpd_repo'][$index])) {
-				return $cached_results['grpd_repo'][$index];
+			if (isset($this->cached_results['grpd_repo'][$index])) {
+				return $this->cached_results['grpd_repo'][$index];
 			}
 
 			$return = array();
@@ -534,8 +543,8 @@ class ilCachedComponentData {
 				}
 			}
 			$this->changed = true;
-			$cached_results['grpd_repo'][$index] = $return;
-
+			$this->cached_results['grpd_repo'][$index] = $return;
+// fau.
 			return $return;
 		} else {
 			return $this->grouped_rep_obj_types[$parent];

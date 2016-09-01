@@ -1,0 +1,97 @@
+/* Startpage (infoscreen) */
+
+
+#headerimage,
+.ilInfoScreenSec h3,
+a.submit
+{
+    display: none;
+}
+
+h1.ilHeaderHasIcon
+{
+    margin-left: 0px;
+}
+
+form.ilInfoScreen
+{
+    background-color: transparent;
+    border-width: 0;
+}
+
+
+/* Survey page */
+
+.ilSurveyQuestiontext
+{
+    float: left;
+    width: 20em;
+}
+
+
+
+.ilSurveyQuestionOutput
+{
+    clear: both;
+}
+
+.ilSurveyTopRow,
+.ilSurveySuspend,
+.ilSurveyAnswerLabel,
+.ilSurveyMaterial,
+.ilSurveyContentBreak1,
+.ilSurveyContentBreak2,
+.ilSurveyBottomRowMiddle
+{
+    display: none;
+    width: 0;
+}
+
+table.fullwidth,
+tr.std,
+td.submit,
+.ilc_Page
+{
+    background-color: transparent;
+}
+
+.questionblockTitle
+{
+    font-size: 100%;
+    font-weight: normal;
+    font-style: italic;
+}
+.required
+{
+    margin-top: 1em;
+}
+
+.warning
+{
+    font-weight: normal;
+}
+
+.ilSurveyBottomTable
+{
+    margin-top: 1em;
+    width: 40em !important;
+}
+
+.ilSurveyBottomRowLeft
+{
+    width: 20em !important;
+}
+.ilSurveyBottomRowRight
+{
+    text-align: left;
+}
+
+.ilSurveyBottomRow input
+{
+    font-size: 110%;
+    line-height: 110%;
+    padding: 0.5em;
+}
+
+
+

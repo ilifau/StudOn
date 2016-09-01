@@ -431,10 +431,14 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		$this->populateContentStyleBlock();
 		$this->populateSyntaxStyleBlock();
 
-		if ($this->object->getListOfQuestions())
+		// fim: [exam] optionally suppress showing questions on the left side
+		global $ilCust;
+		if ($this->object->getListOfQuestions()
+		and	$ilCust->getSetting('tst_enable_side_list'))
 		{
 			$this->showSideList();
 		}
+		// fim.
 
 		$questionId = $this->testSequence->getQuestionForSequence($sequence);
 		
@@ -894,8 +898,11 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		$sourcePoolDefinitionList = new ilTestRandomQuestionSetSourcePoolDefinitionList($ilDB, $this->object, $sourcePoolDefinitionFactory);
 		$sourcePoolDefinitionList->loadDefinitions();
 
-		$this->processLocker->requestRandomPassBuildLock($sourcePoolDefinitionList->hasTaxonomyFilters());
-		
+// fau: typeFilter - add typefilter as criterion for process locker
+		$this->processLocker->requestRandomPassBuildLock(
+			$sourcePoolDefinitionList->hasTaxonomyFilters() || $sourcePoolDefinitionList->hasTypeFilters());
+// fau.
+
 		if( !$this->performTearsAndAngerBrokenConfessionChecks() )
 		{
 			require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetStagingPoolQuestionList.php';

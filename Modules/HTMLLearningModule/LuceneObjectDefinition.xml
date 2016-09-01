@@ -4,12 +4,14 @@
 		<xi:include href="../../Services/Object/LuceneDataSource.xml" />
 		<xi:include href="../../Services/Tagging/LuceneDataSource.xml" />
 		<xi:include href="../../Services/MetaData/LuceneDataSource.xml" />
+		<!-- fim: [lucene] don't add directory
 		<DataSource type="Directory" action="append">
 			<PathCreator name="HTLMObjectPathCreator" />
 			<Field store="YES" index="ANALYZED" name="content">
 				<Transformer name="LinefeedSanitizer" />
 			</Field>
 		</DataSource>
+		fim. -->
 		<DataSource type="JDBC" action="append">
 			<Query>
 				SELECT 1 as offline FROM file_based_lm

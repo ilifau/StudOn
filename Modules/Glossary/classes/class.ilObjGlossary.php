@@ -1175,6 +1175,9 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
 		$new_obj->setVirtualMode($this->getVirtualMode());
 		$new_obj->setPresentationMode($this->getPresentationMode());
 		$new_obj->setSnippetLength($this->getSnippetLength());
+// fau: copyGloShowTax - copy "show taxomony" setting of a glossary
+		$new_obj->setShowTaxonomy($this->getShowTaxonomy());
+// fau.
 		$new_obj->update();
 
 		// set/copy stylesheet
@@ -1216,7 +1219,10 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
 		foreach (ilGlossaryTerm::getTermList($this->getId()) as $term)
 		{
 			$new_term_id = ilGlossaryTerm::_copyTerm($term["id"], $new_obj->getId());
-			
+
+// fau: copyFlashcardTerms - add mapping of glossary terms for flashcards
+			$term_mappings[$term["id"]] = $new_term_id;
+// fau.
 			// copy tax node assignments
 			if ($tax_id > 0)
 			{
@@ -1230,6 +1236,10 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
 				}
 			}
 		}
+
+// fau: copyFlashcardTerms - save term mappings in copy wizard options
+		$cp_options->appendMapping('GloTerms_'.$this->getRefId(), (array) $term_mappings);
+// fau.
 
 		return $new_obj;
 	}

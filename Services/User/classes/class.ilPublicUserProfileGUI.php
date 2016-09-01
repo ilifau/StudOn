@@ -480,14 +480,16 @@ class ilPublicUserProfileGUI
 			$tpl->parseCurrentBlock();
 		}
 
-		
+		// fim: [privacy] don't add matriculation and client IP to the public profile
 		$val_arr = array(
 			"getHobby" => "hobby", 
 			"getGeneralInterestsAsText" => "interests_general",
 			"getOfferingHelpAsText" => "interests_help_offered",
 			"getLookingForHelpAsText" => "interests_help_looking",			
-			"getMatriculation" => "matriculation", 
-			"getClientIP" => "client_ip");
+			// "getMatriculation" => "matriculation", 
+			// "getClientIP" => "client_ip"
+		);
+		// fim.
 			
 		foreach ($val_arr as $key => $value)
 		{
@@ -627,7 +629,9 @@ class ilPublicUserProfileGUI
 			"getZipcode" => "zipcode", "getCity" => "city", "getCountry" => "country",
 			"getPhoneOffice" => "phone_office", "getPhoneHome" => "phone_home",
 			"getPhoneMobile" => "phone_mobile", "getFax" => "fax", "getEmail" => "email",
-			"getHobby" => "hobby", "getMatriculation" => "matriculation", "getClientIP" => "client_ip");
+			// fim: [privacy] don't add matriculation and client IP to the public profile
+			"getHobby" => "hobby");
+			// fim.
 
 		$org = array();
 		$adr = array();

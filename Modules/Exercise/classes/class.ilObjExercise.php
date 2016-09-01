@@ -688,6 +688,7 @@ class ilObjExercise extends ilObject
 		{
 			$a_user_id = $ilUser->getId();
 		}
+				
 		
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
 		$ass = ilExAssignment::getAssignmentDataOfExercise($this->getId());
@@ -723,8 +724,14 @@ class ilObjExercise extends ilObject
 		{
 			$passed_all_mandatory = false;
 		}
-		
-		if ($this->getPassMode() != "nr")
+
+		// fim: [exercise] respect take existing status in "manual" mode
+		if ($this->getPassMode() == "man")
+		{
+			$overall_stat = ilExerciseMembers::_lookupStatus($this->getId(), $a_user_id);
+		}
+		elseif ($this->getPassMode() != "nr")
+		// fim.
 		{
 //echo "5";
 			$overall_stat = "notgraded";
@@ -806,6 +813,12 @@ class ilObjExercise extends ilObject
 	 */
 	function exportGradesExcel()
 	{
+		
+		// fim: [exercise] check whether matriculation can be exported
+		global $ilCust;
+		$full_data = $ilCust->getSetting("export_member_data_is_allowed");
+		// fim.
+		
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
 		$ass_data = ilExAssignment::getAssignmentDataOfExercise($this->getId());
 		
@@ -822,14 +835,27 @@ class ilObjExercise extends ilObject
 		$mainworksheet = $workbook->addWorksheet();
 		
 		// header row
-		$mainworksheet->writeString(0, 0, ilExcelUtils::_convert_text($this->lng->txt("name")));
-		$cnt = 1;
+
+		// fim: [exercise] add extra fields to header
+		$col_cnt=0;
+		$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("login")));
+		$col_cnt++;			
+		$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("name")));
+		$col_cnt++;
+		if ($full_data)
+		{
+			$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("matriculation")));
+			$col_cnt++;
+		}
+		$ass_cnt=1;
 		foreach ($ass_data as $ass)
 		{
-			$mainworksheet->writeString(0, $cnt, $cnt);
-			$cnt++;
+			$mainworksheet->writeString(0, $col_cnt, $ass_cnt);
+			$col_cnt++;
+			$ass_cnt++;
 		}
-		$mainworksheet->writeString(0, $cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
+		$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
+		// fim.
 		
 		// data rows
 		$this->mem_obj = new ilExerciseMembers($this);
@@ -837,7 +863,9 @@ class ilObjExercise extends ilObject
 		$mems = array();
 		foreach ($getmems as $user_id)
 		{
-			$mems[$user_id] = ilObjUser::_lookupName($user_id);
+			// fim: [exercise] get all user fields
+			$mems[$user_id] = ilObjUser::_lookupFields($user_id);
+			// fim.
 		}
 		$mems = ilUtil::sortArray($mems, "lastname", "asc", false, true);
 
@@ -845,12 +873,19 @@ class ilObjExercise extends ilObject
 		$row_cnt = 1;
 		foreach ($mems as $user_id => $d)
 		{
-			$col_cnt = 1;
-
-			// name
-			$mainworksheet->writeString($row_cnt, 0,
-				ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]." [".$d["login"]."]"));
-
+			// fim: [exercise] add extra fields to row
+			$col_cnt = 0;
+			$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["login"]));
+			$col_cnt++;
+			$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]));
+			$col_cnt++;
+			if ($full_data)
+			{
+				$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["matriculation"]));
+				$col_cnt++;
+			}
+			// fim.
+				
 			reset($ass_data);
 
 			foreach ($ass_data as $ass)
@@ -873,14 +908,25 @@ class ilObjExercise extends ilObject
 		$worksheet2 = $workbook->addWorksheet();
 		
 		// header row
-		$worksheet2->writeString(0, 0, ilExcelUtils::_convert_text($this->lng->txt("name")));
-		$cnt = 1;
+		// fim: [exercise] add extra fields to header
+		$col_cnt=0;
+		$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("login")));
+		$col_cnt++;			
+		$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("name")));
+		$col_cnt++;
+		if ($full_data)
+		{
+			$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("matriculation")));
+			$col_cnt++;
+		}
+		$ass_cnt=1;
 		foreach ($ass_data as $ass)
 		{
-			$worksheet2->writeString(0, $cnt, $cnt);
-			$cnt++;
+			$worksheet2->writeString(0, $col_cnt, $ass_cnt);
+			$col_cnt++;
+			$ass_cnt++;
 		}
-		$worksheet2->writeString(0, $cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
+		$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
 		
 		// data rows
 		$data = array();
@@ -888,13 +934,21 @@ class ilObjExercise extends ilObject
 		reset($mems);
 		foreach ($mems as $user_id => $d)
 		{
-			$col_cnt = 1;
-			$d = ilObjUser::_lookupName($user_id);
-
-			// name
-			$worksheet2->writeString($row_cnt, 0,
-				ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]." [".$d["login"]."]"));
-
+			// fim: [exercise] add extra fields to row
+			$d = $mems[$user_id];
+			
+			$col_cnt = 0;
+			$worksheet2->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["login"]));
+			$col_cnt++;
+			$worksheet2->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]));
+			$col_cnt++;
+			if ($full_data)
+			{
+				$worksheet2->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["matriculation"]));
+				$col_cnt++;
+			}
+			// fim.
+			
 			reset($ass_data);
 
 			foreach ($ass_data as $ass)
@@ -992,10 +1046,10 @@ class ilObjExercise extends ilObject
 
 		if($this->isCompletionBySubmissionEnabled())
 		{
-			include_once 'Modules/Exercise/classes/class.ilExAssignment.php';	
-			
-			// team upload?
-			$user_ids = ilExAssignment::getTeamMembersByAssignmentId($a_ass_id, $ilUser->getId());
+			include_once 'Modules/Exercise/classes/class.ilExAssignment.php';
+
+			// #17673 - team upload?
+			$user_ids = ilExAssignment::getTeamMembersByAssignmentId($ass_id, $ilUser->getId());
 			if(!$user_ids)
 			{
 				$user_ids = array($ilUser->getId());

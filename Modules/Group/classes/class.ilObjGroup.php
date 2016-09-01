@@ -43,6 +43,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	const ERR_MISSING_PASSWORD = 'grp_missing_password';
 	const ERR_WRONG_MAX_MEMBERS = 'grp_wrong_max_members';
 	const ERR_WRONG_REG_TIME_LIMIT = 'grp_wrong_reg_time_limit';
+	// fim: [memlot] error constant for unlimited lot list 
+	const ERR_LOT_LIST_UNLIMITED = 'grp_limit_period_for_lot';
+	// fim.
 	
 	const MAIL_ALLOWED_ALL = 1;
 	const MAIL_ALLOWED_TUTORS = 2;
@@ -58,7 +61,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	protected $reg_membership_limitation = false;
 	protected $reg_max_members = 0;
 	protected $waiting_list = false;
-	
+	// fim: [memlot] class variable for lot list
+	protected $lot_list = false;
+	// fim.
+	// fim: [meminf] class variable for showimg mem limit
+	protected $show_mem_limit = true;
+	// fim.
 	
 	// Map
 	private $latitude = '';
@@ -70,8 +78,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	private $reg_access_code_enabled = false;
 
 	private $view_mode = NULL;
-	
-	private $mail_members = self::MAIL_ALLOWED_ALL;
+
+// fau: mailToMembers - change default setting for mail to members
+	private $mail_members = self::MAIL_ALLOWED_TUTORS;
+// fau.
 	
 	
 	public $members_obj;
@@ -386,6 +396,30 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		return $this->waiting_list;
 	}
 	
+	
+	// fim: [memlot] new functions enable(d)LotList()
+	function enabledLotList()
+	{
+		return (bool) $this->lot_list;
+	}
+
+	function enableLotList($a_status)
+	{
+		$this->lot_list = (bool) $a_status;
+	}
+	// fim.
+
+	// fim: [meminf] new functions get/setShowMemLimit()
+	function getShowMemLimit()
+	{
+		return $this->show_mem_limit;
+	}
+	function setShowMemLimit($a_value)
+	{
+		$this->show_mem_limit = $a_value;
+	}
+	// fim.
+
 	/**
 	* Set Latitude.
 	*
@@ -553,10 +587,37 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			$ilErr->appendMessage($this->lng->txt(self::ERR_WRONG_REG_TIME_LIMIT));
 		}
+		// fim: [memad] check deny time for registration
+		if (!$this->isRegistrationUnlimited())
+		{
+			global $ilCust;
+			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
+			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+			if ($deny_regstart_from and $deny_regstart_to)
+			{
+				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
+				$deny_regstart_to = new ilDateTime($deny_regstart_to, IL_CAL_DATETIME);
+				
+				if(ilDateTime::_before($deny_regstart_from, $this->getRegistrationStart())
+				and ilDateTime::_after($deny_regstart_to, $this->getRegistrationStart()))
+				{
+					$ilErr->appendMessage(sprintf($this->lng->txt('deny_regstart_message'),
+						ilDatePresentation::formatDate($deny_regstart_from),
+						ilDatePresentation::formatDate($deny_regstart_to)));
+				}
+			}
+		}
+		// fim.
 		if($this->isMembershipLimited() and (!is_numeric($this->getMaxMembers()) or $this->getMaxMembers() <= 0))
 		{
 			$ilErr->appendMessage($this->lng->txt(self::ERR_WRONG_MAX_MEMBERS));
 		}
+		// fim: [memlot] check registration limitation with lot list
+		elseif ($this->isMembershipLimited() and $this->enabledLotList() and $this->isRegistrationUnlimited())
+		{
+			$ilErr->appendMessage($this->lng->txt(self::ERR_LOT_LIST_UNLIMITED));
+		}
+		// fim.
 		return strlen($ilErr->getMessage()) == 0;
 	}
 	
@@ -575,9 +636,11 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			return false;
 		}
 
+		// fim: [memlot] add lot_list to create
+		// fim: [meminf] add show_mem_limit to create
 		$query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,registration_enabled,".
 			"registration_unlimited,registration_start,registration_end,registration_password,registration_mem_limit,".
-			"registration_max_members,waiting_list,latitude,longitude,location_zoom,enablemap,reg_ac_enabled,reg_ac,view_mode,mail_members_type) ".
+			"registration_max_members,waiting_list,lot_list,show_mem_limit,latitude,longitude,location_zoom,enablemap,reg_ac_enabled,reg_ac,view_mode,mail_members_type) ".
 			"VALUES(".
 			$ilDB->quote($this->getId() ,'integer').", ".
 			$ilDB->quote($this->getInformation() ,'text').", ".
@@ -591,6 +654,8 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote((int) $this->isMembershipLimited() ,'integer').", ".
 			$ilDB->quote($this->getMaxMembers() ,'integer').", ".
 			$ilDB->quote($this->isWaitingListEnabled() ? 1 : 0 ,'integer').", ".
+			$ilDB->quote($this->enabledLotList() ? 1 : 0 ,'integer').", ".
+			$ilDB->quote($this->getShowMemLimit() ? 1 : 0 ,'integer').", ".
 			$ilDB->quote($this->getLatitude() ,'text').", ".
 			$ilDB->quote($this->getLongitude() ,'text').", ".
 			$ilDB->quote($this->getLocationZoom() ,'integer').", ".
@@ -600,6 +665,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote($this->getViewMode(false),'integer').', '.
 			$ilDB->quote($this->getMailToMembersType(),'integer').' '.
 			")";
+		// fim.
 		$res = $ilDB->manipulate($query);
 
 		$ilAppEventHandler->raise('Modules/Group',
@@ -623,6 +689,8 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			return false;
 		}
 
+		// fim: [memlot] update lot_list
+		// fim: [meminf] update show_mem_limit
 		$query = "UPDATE grp_settings ".
 			"SET information = ".$ilDB->quote($this->getInformation() ,'text').", ".
 			"grp_type = ".$ilDB->quote((int) $this->getGroupType() ,'integer').", ".
@@ -636,6 +704,8 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			"registration_mem_limit = ".$ilDB->quote((int) $this->isMembershipLimited() ,'integer').", ".
 			"registration_max_members = ".$ilDB->quote($this->getMaxMembers() ,'integer').", ".
 			"waiting_list = ".$ilDB->quote($this->isWaitingListEnabled() ? 1 : 0 ,'integer').", ".
+			"lot_list = ".$ilDB->quote($this->enabledLotList() ? 1 : 0 ,'integer').", ".
+			"show_mem_limit = ".$ilDB->quote($this->getShowMemLimit() ? 1 : 0 ,'integer').", ".
 			"latitude = ".$ilDB->quote($this->getLatitude() ,'text').", ".
 			"longitude = ".$ilDB->quote($this->getLongitude() ,'text').", ".
 			"location_zoom = ".$ilDB->quote($this->getLocationZoom() ,'integer').", ".
@@ -645,6 +715,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			'view_mode = '.$ilDB->quote($this->getViewMode(false),'integer').', '.
 			'mail_members_type = '.$ilDB->quote($this->getMailToMembersType(),'integer').' '.
 			"WHERE obj_id = ".$ilDB->quote($this->getId() ,'integer')." ";
+		// fim.
 		$res = $ilDB->manipulate($query);
 		
 		$ilAppEventHandler->raise('Modules/Group',
@@ -679,7 +750,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		
 		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
 		ilGroupParticipants::_deleteAllEntries($this->getId());
-		
+
+		// fim: [memcond] delete membership conditions when group is delete
+		require_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+		ilSubscribersStudyCond::_deleteAll($this->getId());
+		// fim.
+
 		$ilAppEventHandler->raise('Modules/Group',
 			'delete',
 			array('object' => $this,
@@ -716,6 +792,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			$this->enableMembershipLimitation((bool) $row->registration_mem_limit);
 			$this->setMaxMembers($row->registration_max_members);
 			$this->enableWaitingList($row->waiting_list);
+			// fim: [memlot] read lot list enabled
+			$this->enableLotList($row->lot_list);
+			// fim.
+			// fim: [meminf] read show_mem_limit
+			$this->setShowMemLimit($row->show_mem_limit);
+			// fim.
 			$this->setLatitude($row->latitude);
 			$this->setLongitude($row->longitude);
 			$this->setLocationZoom($row->location_zoom);
@@ -759,7 +841,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		$new_obj->enableMembershipLimitation($this->isMembershipLimited());
 		$new_obj->setMaxMembers($this->getMaxMembers());
 		$new_obj->enableWaitingList($this->isWaitingListEnabled());
-		
+		// fim: [memlot] clone enabledLotList
+		$new_obj->enableLotList($this->enabledLotList());
+		// fim.
+		// fim: [meminf] clone showMemLimit
+		$new_obj->setShowMemLimit($this->getShowMemLimit());
+		// fim.
 		// map
 		$new_obj->setLatitude($this->getLatitude());
 		$new_obj->setLongitude($this->getLongitude());

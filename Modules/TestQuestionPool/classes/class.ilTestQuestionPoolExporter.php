@@ -37,6 +37,42 @@ class ilTestQuestionPoolExporter extends ilXmlExporter
 		return ilUtil::getDataDir()."/qpl_data"."/qpl_".$a_obj_id."/export_".$a_export_type;
 	}
 
+// fau: taxExport - add dependencies for taxonomy export
+	/**
+	 * Get tail dependencies
+	 *
+	 * @param		string		entity
+	 * @param		string		target release
+	 * @param		array		ids
+	 * @return		array		array of array with keys "component", entity", "ids"
+	 */
+	function getXmlExportTailDependencies($a_entity, $a_target_release, $a_ids)
+	{
+		if ($a_entity == "qpl")
+		{
+			include_once("./Services/Taxonomy/classes/class.ilObjTaxonomy.php");
+			$tax_ids = array();
+			foreach ($a_ids as $id)
+			{
+				foreach (ilObjTaxonomy::getUsageOfObject($id) as $tax_id)
+				{
+					$tax_ids[$tax_id] = $tax_id;
+				}
+			}
+
+			if (!empty($tax_ids))
+			{
+				return array (
+					array(
+						"component" => "Services/Taxonomy",
+						"entity" => "tax",
+						"ids" => $tax_ids)
+				);
+			}
+		}
+		return array();
+	}
+// fau.
 
 	/**
 	 * Get xml representation

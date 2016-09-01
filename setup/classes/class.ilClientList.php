@@ -55,7 +55,9 @@ class ilClientList
 		// get available lang-files
 		while ($entry = $d->read())
 		{
-			if (is_file($this->path."/".$entry."/client.ini.php"))
+			// fim: [cust] use the client ini file name defined in ilias.ini
+			if (is_file($this->path."/".$entry."/".ILIAS_CLIENT_INI_FILE))
+			// fim.
 			{
 				$client = new ilClient($entry, $this->db_connections);
 				$client->init();

@@ -752,6 +752,15 @@ il.COPagePres =
 				$(el).mediaelementplayer(cfg);
 			});
 		}
+
+        // fim: [media] prevent context menu for media
+        $('video').bind('contextmenu', function(e) {
+            return false;
+        });
+        $('audio').bind('contextmenu', function(e) {
+            return false;
+        });
+        // fim.
 	}
 
 };

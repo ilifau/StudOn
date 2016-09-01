@@ -1,4 +1,4 @@
-@import "less/font.less"; 
+@import "less/fau-font.less";   // fim: use fau font.
  /* rtl-review is this font safe for RTL languages? */
  
  /* rtl-review */
@@ -275,7 +275,7 @@ html, body {
 }
 
 div#minheight {
-	height:180px;
+    min-height: 130px;   // fim: changed to footer size
 	clear:both;
 	}
 
@@ -323,10 +323,12 @@ div.ilFrame {
 	float: left;
 	position: absolute;
 	padding: 5px;
-	margin-left: 15px;
+    padding-top: 25px;                                        // fim: move below treeview icon
+    margin-left: -15px;                                       // fim: move to the left
 	overflow: auto;
-	background-color: @il-secondary-container-bg;
-	border-right: 3px solid lighten(@mid-gray, 33%);
+	background-color: white;                                  // fim: white background
+	// border-right: 3px solid lighten(@mid-gray, 33%);       // fim: no border
+    box-shadow: -3px 0px 3px lighten(@mid-gray, 66%) inset;   // fim: added shadow
 	z-index: 100;
 	position: fixed;
 	top: @il-fixed-menu-height;
@@ -577,6 +579,7 @@ div.ilFrame {
 }
 
 div#mainspacekeeper {
+  margin-bottom: 10px; // fim: added margin above footer
 }
 
 div#mainscrolldiv {
@@ -947,7 +950,7 @@ h3.ilHeader {
 	display: inline;
 	font-size: @font-size-h3;
 	color: lighten(@mid-gray,30%);
-	text-transform: uppercase;
+	//text-transform: uppercase;  		// fim: no uppercase.
 }
 
 #headerimage {
@@ -994,13 +997,13 @@ div.ilHeaderDesc {
 	font-size: 90%;
 	padding: 0;
 	color: lighten(@text-color, 25%);
-	font-family: 'Open Sans Light'
+	font-family: 'roboto-light'		// fim: use fau font.
 }
 
 div.ilHeaderAlert {
 	font-size: 90%;
 	padding: 0;
-	font-family: 'Open Sans Light';
+	font-family: 'roboto-light';	// fim: use fau font.
 	color: @brand-warning;
 }
 
@@ -1030,34 +1033,63 @@ div.il_Footer {
 	font-size: 90%;
 	text-align: center;
 }
-
+// fim: changed footer completely
 footer.ilFooter {
 	position: absolute;
 	left: 0;
 	right: 0;
 	bottom: -1px !important;
-	font-size: 0.9em;
-	height: 160px;
-	margin: 0 auto;
-	padding: 20px 0 0;
+	font-size: 0.8em;
+    min-height: 130px;
+    margin: 0 auto;
+    padding: 20px 0 0 0;
 	text-align: left;
-	color: white;
-	background-color: @brand-primary;
-	div.ilFooterContainer {
-		color: white;
-		//float: left;
+	color: #f0f0f0;
+
+    background-color: transparent;
+    background-image: url("images/studon/fau-sign.png"), radial-gradient(ellipse at center center , lighten(#036,15%) 0%, #036 100%);
+    background-repeat: no-repeat;
+    background-attachment: scroll, scroll;
+    background-position: 90% 30%, 0% 0%;
+    background-clip: border-box, border-box;
+    background-origin: padding-box, padding-box;
+    background-size: auto auto, auto auto;
+
+	.ilFooterContainer {
+        float: left;
 		line-height: 1.75;
-		padding: 0 15px;
+		padding: 20px 50px 0px 0px;
+        height: 100px;
+
+        &.info {
+          padding: 5px 0px 0px 0px;
+        }
+        &.right {
+          float: right;
+          text-align: right;
+          padding: 63px 0px 0px 0px;
+        }
 	}
-	a.permalink_label,
-	div.ilFooterContainer > a {
-		color: white;
+    a {
+        color: #f0f0f0;
 		white-space: nowrap;
-		&:hover {
-			color: white;
-		}
 	}
+    .dropdown-menu a {
+      color: @text-color;
+    }
+
+    .ilFooterLogo, {
+      height: 35px;
+    }
+
+    .ilFooterDevmode {
+      clear: both;
+      a {
+        color: @text-color;
+      }
+    }
 }
+// fim.
 
 [dir="rtl"] footer.ilFooter {
 	text-align: right;
@@ -1087,7 +1119,7 @@ div.ilPermaLink a {
 
 #current_perma_link {
 	color: @text-color;
-	width: 25%;
+	width: 100px;			// fim: fixed width for permalink
 	font-size: 90%;
 	+ .btn-group {
 		vertical-align: top;
@@ -1400,7 +1432,7 @@ div.ilBox {
 
 /* Top-Bar */
 div.ilTopBar {
-  background-color: #444;
+  background-color: lighten(@brand-primary, 5%);  //fim: changed top bar background
   color: white;
   padding: 5px 10px;
 }

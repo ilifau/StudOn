@@ -33,9 +33,16 @@ include_once './Services/Object/classes/class.ilObjectAccess.php';
 
 class ilObjSessionAccess extends ilObjectAccess
 {
-	protected static $registrations = null;
+	// fim: [memsess] initialize cache for registration settings
+	protected static $registrations = array();
+	// fim.
 	protected static $registered = null;
 
+	// fim: [memsess] cache checked course conditions
+	// array($course_ref_id => true|false)
+	protected static $course_checks = array();
+	// fim.
+	
 	/**
 	 * get list of command/permission combinations
 	 *
@@ -78,14 +85,35 @@ class ilObjSessionAccess extends ilObjectAccess
 		switch($a_cmd)
 		{
 			case 'register':
-				if(self::_lookupRegistration($a_obj_id)&& $a_user_id != ANONYMOUS_USER_ID)
+				// fim: [memsess] add ref_id as parameter
+				if(self::_lookupRegistration($a_obj_id, $a_ref_id)&& $a_user_id != ANONYMOUS_USER_ID)
+				// fim.
 				{
-					return !self::_lookupRegistered($a_user_id,$a_obj_id);
+					// fim: [memsess] extened check for session registration
+					if (self::_lookupRegistered($a_user_id, $a_obj_id))
+					{
+						return false;
+					}
+					else
+					{
+						if ($max_participants = self::_lookupMaxParticipants($a_obj_id))
+						{
+							$registrations = self::_lookupRegisteredUsers($a_obj_id);
+							if ($registrations >= $max_participants)
+							{
+								return false;
+							}
+						}
+						return self::_checkCourseRegistrationSetting($a_ref_id, $a_user_id);
+					}
+					// fim.
 				}
 				return false;
 				
 			case 'unregister':
-				if(self::_lookupRegistration($a_obj_id) && $a_user_id != ANONYMOUS_USER_ID)
+				// fim: [memsess] add ref_id as parameter
+				if(self::_lookupRegistration($a_obj_id, $a_ref_id) && $a_user_id != ANONYMOUS_USER_ID)
+				// fim.
 				{
 					return self::_lookupRegistered($a_user_id,$a_obj_id);
 				}
@@ -116,24 +144,105 @@ class ilObjSessionAccess extends ilObjectAccess
 		return false;
 	}
 	
+	// fim: [memsess] check if registration is allowed by parent course
+	public static function _checkCourseRegistrationSetting($a_ref_id, $a_usr_id)
+	{
+		global $tree;
+		
+		if (!$crs_ref_id = $tree->checkForParentType($a_ref_id, 'crs'))
+		{
+			// not in course -> registration allowed
+			return true;
+		}
+		elseif (!isset(self::$course_checks[$crs_ref_id]))
+		{
+			include_once './Modules/Course/classes/class.ilObjCourse.php';
+			$crs_obj = new ilObjCourse($crs_ref_id);
+
+			if ($crs_obj->getSubscriptionWithEvents() == IL_CRS_SUBSCRIPTION_EVENTS_UNIQUE)
+			{
+				include_once './Modules/Session/classes/class.ilEventParticipants.php';
+				$regs = ilEventParticipants::_getRegistrationsOfUserAndParent($a_usr_id, $crs_ref_id);
+				self::$course_checks[$crs_ref_id] = (count($regs) == 0);
+			}
+			else
+			{
+				self::$course_checks[$crs_ref_id] = true;
+			}
+		}
+
+		return self::$course_checks[$crs_ref_id];
+	}
+	// fim.
+
+	// fim: [memsess] _lookupMaxParticipants()
+	public static function _lookupMaxParticipants($a_obj_id)
+	{
+		global $ilDB;
+		$query = "SELECT reg_limit_users FROM event "
+				. "WHERE reg_limited > 0 and obj_id = ". $ilDB->quote($a_obj_id, 'integer');
+		$res = $ilDB->query($query);
+		if ($row = $ilDB->fetchObject($res))
+		{
+			return $row->reg_limit_users;
+		}
+	}
+	// fim.
+
+	// fim: [memsess] _lookupRegisteredUsers()
+	public static function _lookupRegisteredUsers($a_obj_id)
+	{
+		global $ilDB;
+		$query = "SELECT COUNT(usr_id) users FROM event_participants "
+		        . "WHERE registered = 1 "
+				. "AND event_id = ". $ilDB->quote($a_obj_id, 'integer');
+		$res = $ilDB->query($query);
+		if ($row = $ilDB->fetchObject($res))
+		{
+			return $row->users;
+		}
+	}
+	// fim.
+
+	//fim: [memsess] add parameter to look only for registrations at the same level
 	/**
 	 * lookup registrations
 	 *
 	 * @access public
-	 * @param
+	 * @param	int	object_id
+	 * @oaram 	int ref_id (if given, lookup and cache all registration settings on the same level)
 	 * @return
 	 * @static
 	 */
-	public static function _lookupRegistration($a_obj_id)
+	public static function _lookupRegistration($a_obj_id, $a_ref_id = null)
 	{
-		if(!is_null(self::$registrations))
+		global $tree, $ilDB;
+				
+		// cache check
+		if (isset(self::$registrations[$a_obj_id]))
 		{
 			return self::$registrations[$a_obj_id];
 		}
 		
-		global $ilDB;
-		
-		$query = "SELECT registration,obj_id FROM event ";
+		if (isset($a_ref_id))
+		{
+			// if a ref id is given, all sessions on that level are searched
+			$parent_ref_id = $tree->getParentId($a_ref_id);
+			
+			$query = "SELECT e.registration, e.obj_id". 
+				" FROM tree t".
+				" INNER JOIN object_reference r ON t.child = r.ref_id".
+				" INNER JOIN event e ON e.obj_id = r.obj_id".
+				" WHERE t.parent = " . $ilDB->quote($parent_ref_id, "integer");
+		}
+		else
+		{
+			// else look only for the object
+			$query = "SELECT registration,obj_id FROM event WHERE obj_id =" . $ilDB->quote($a_obj_id, "integer");
+		}
+		//echo $query;
+			
+		// execude the query and add the result to the cache
 		$res = $ilDB->query($query);
 		while($row = $res->fetchRow(DB_FETCHMODE_OBJECT))
 		{
@@ -141,6 +250,8 @@ class ilObjSessionAccess extends ilObjectAccess
 		}
 		return self::$registrations[$a_obj_id];
 	}
+	// fim.
+	
 	
 	/**
 	 * lookup if user has registered
@@ -159,8 +270,12 @@ class ilObjSessionAccess extends ilObjectAccess
 		}
 		
 		global $ilDB,$ilUser;
-		
-		$query = "SELECT event_id, registered FROM event_participants WHERE usr_id = ".$ilDB->quote($ilUser->getId(),'integer');
+
+		// fim: [bugfix] take the user parameter instead of ilUser
+		$a_usr_id = $a_usr_id ? $a_usr_id : $ilUser->getId();
+		$query = "SELECT event_id, registered FROM event_participants WHERE usr_id = ".$ilDB->quote($a_usr_id,'integer');
+		// fim.
+
 		$res = $ilDB->query($query);
 		self::$registered[$a_usr_id] = array();
 		while($row = $res->fetchRow(DB_FETCHMODE_OBJECT))

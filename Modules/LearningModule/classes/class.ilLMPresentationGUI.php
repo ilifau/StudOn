@@ -546,6 +546,12 @@ class ilLMPresentationGUI
 					case "ilLMNotes":
 						$this->ilLMNotes();
 						break;
+
+// fau: lmFooter - new layout node for Footer
+					case "ilFooter":
+						$this->add_ilias_footer = true;
+						break;
+// fau.
 				}
 			}
 
@@ -629,6 +635,13 @@ class ilLMPresentationGUI
 			$this->tpl->fillBodyClass();
 
 		}
+
+// fau: lmFooter - add ILIAS footer
+		if ($this->add_ilias_footer)
+		{
+			$this->tpl->addILIASFooter();
+		}
+// fau.
 
 		if ($doShow)
 		{
@@ -829,8 +842,10 @@ class ilLMPresentationGUI
 	*/
 	function ilLMMenu()
 	{
+// fau: lmMenu - show lm menu as tabs instead of sub tabs
 		$this->tpl->setVariable("MENU", $this->lm_gui->setilLMMenu($this->offlineMode()
-			,$this->getExportFormat(), "content", false, true, $this->getCurrentPageId()));
+			,$this->getExportFormat(), "content", false, false, $this->getCurrentPageId()));
+// fau.
 	}
 
 	/**
@@ -902,7 +917,7 @@ class ilLMPresentationGUI
 			}
 
 			$page_id = $this->getCurrentPageId();
-			
+
 			include_once("./Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
 			$plinkgui = new ilPermanentLinkGUI("pg",
 				$page_id."_".$this->lm->getRefId(),
@@ -917,13 +932,33 @@ class ilLMPresentationGUI
 			{
 				$title.= ": ".$pg_title;
 			}
-			
-			$plinkgui->setTitle($title);
-				
-			$tpl_menu->setCurrentBlock("perma_link");
-			$tpl_menu->setVariable("PERMA_LINK", $plinkgui->getHTML());
-			$tpl_menu->parseCurrentBlock();
 
+// fau: lmFooter - use permalink in footer if footer is added
+			if ($this->add_ilias_footer)
+			{
+				$this->tpl->setPermanentLink("pg", $page_id."_".$this->lm->getRefId(), "", "_top", $title);
+			}
+			else
+			{
+				$plinkgui->setTitle($title);
+
+				$tpl_menu->setCurrentBlock("perma_link");
+				$tpl_menu->setVariable("PERMA_LINK", $plinkgui->getHTML());
+				$tpl_menu->parseCurrentBlock();
+			}
+// fau.
+
+// fau: relativeLink - add to lm page if write access
+			global $ilAccess;
+			if ($ilAccess->checkAccess("write", "", $_GET["ref_id"]) ||
+				$ilAccess->checkAccess("edit_permissions", "", $_GET["ref_id"]))
+			{
+				include_once 'Services/RelativeLink/classes/class.ilRelativeLinkGUI.php';
+				$rlink = new ilRelativeLinkGUI();
+				$rlink->setTarget(ilRelativeLink::TYPE_LM_PAGE, $page_id);
+				$tpl_menu->setVariable("RELATIVE_LINK", $rlink->getHTML(true));
+			}
+// fau.
 		}
 
 		$this->tpl->setVariable("SUBMENU", $tpl_menu->get());

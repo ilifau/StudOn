@@ -1,18 +1,15 @@
-<table class="fullwidth">
-<tr class="std">
-	<td class="std">{TERMS_OF_SERVICE_CONTENT}</td>
-</tr>
-<tr>
-	<td class="std"></td>
-</tr><!-- BEGIN get_acceptance -->
-<tr class="std">
-	<td class="std">
-		<form action="{FORM_ACTION}" method="post">
-		<label for="status"><b>{ACCEPT_TERMS_OF_SERVICE}</b></label>&nbsp;
-		{ACCEPT_CHECKBOX}&nbsp;
-		<input type="submit" class="submit" name="cmd[getAcceptance]" value="{TXT_SUBMIT}" />
-		</form>
-	</td>
-</tr>
+<!-- fim: [layout] redesigned for bootstrap, added cancel button -->
+{TERMS_OF_SERVICE_CONTENT}
+<!-- BEGIN get_acceptance -->
+<form action="{FORM_ACTION}" method="post">
+    <div class="form-group">
+       {ACCEPT_CHECKBOX} <label for="status"><b>{ACCEPT_TERMS_OF_SERVICE}</b></label>
+    </div>
+    <div class="form-group">
+        <input class="btn btn-default" type="submit"name="cmd[getAcceptance]" value="{TXT_SUBMIT}" />
+        <a class="btn btn-default" href="{URL_CANCEL}">{TXT_CANCEL}</a>
+    </div>
+
+</form>
 <!-- END get_acceptance -->
-</table>
+<!-- fim. -->

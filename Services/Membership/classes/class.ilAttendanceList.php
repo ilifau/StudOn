@@ -47,7 +47,14 @@ class ilAttendanceList
 		// always available
 		$this->presets['name'] = array($lng->txt('name'), true);
 		$this->presets['login'] = array($lng->txt('login'), true);
-		$this->presets['email'] = array($lng->txt('email'));	
+
+		// fim: [export] show email only with extended export rights
+		include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+		if (ilPrivacySettings::_checkExtendedAccess())
+		{
+			$this->presets['email'] = array($lng->txt('email'));
+		}
+		// fim.
 		
 		$lng->loadLanguageModule('crs');
 		

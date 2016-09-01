@@ -1062,6 +1062,7 @@ class SurveyMatrixQuestionGUI extends SurveyQuestionGUI
 				$template->setCurrentBlock("detail_row");
 				$template->setVariable("TEXT_OPTION", $this->lng->txt("categories"));
 				$columns = "";
+				// fim: [bugfix] took implementation from 4.2.5
 				foreach ($value["variables"] as $cvalue)
 				{
 					$columns .= "<li>" . $cvalue["title"] . ": n=". $cvalue["selected"] . 
@@ -1089,8 +1090,9 @@ class SurveyMatrixQuestionGUI extends SurveyQuestionGUI
 					}
 					$template->setVariable("TEXT_OPTION_VALUE", $html);
 					$template->parseCurrentBlock();
-				}			
-			
+				}
+				// fim.			
+							
 				// chart 
 				$template->setCurrentBlock("detail_row");				
 				$template->setVariable("TEXT_OPTION", $this->lng->txt("chart"));

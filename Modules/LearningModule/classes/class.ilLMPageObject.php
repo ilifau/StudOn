@@ -97,6 +97,11 @@ class ilLMPageObject extends ilLMObject
 	{
 		parent::delete($a_delete_meta_data);
 		$this->page_object->delete();
+
+// fau: relativeLink - delete relative link
+		require_once("./Services/RelativeLink/classes/class.ilRelativeLink.php");
+		ilRelativeLink::deleteLink(ilRelativeLink::TYPE_LM_PAGE, $this->getId());
+// fau.
 	}
 
 
@@ -157,6 +162,10 @@ class ilLMPageObject extends ilLMObject
 		include_once("./Modules/LearningModule/classes/class.ilLMObjTranslation.php");
 		ilLMObjTranslation::copy($this->getId(), $lm_page->getId());
 
+// fau: relativeLink - clone relative link
+		require_once("./Services/RelativeLink/classes/class.ilRelativeLink.php");
+		ilRelativeLink::cloneLink(ilRelativeLink::TYPE_LM_PAGE, $this->getId(), $lm_page->getId());
+// fau.
 		return $lm_page;
 	}
 

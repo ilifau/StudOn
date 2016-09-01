@@ -559,8 +559,10 @@ class ilForum
 	* @return	integer	new post ID
 	* @access public
 	*/
-	public function generateThread($forum_id, $author_id, $display_user_id, $subject, $message, $notify, $notify_posts, $alias = '', $date = '', $status = 1)
-	{	
+// fau: copyForumSticy - add parameters for stickyness and sorting of a forum thread
+	public function generateThread($forum_id, $author_id, $display_user_id, $subject, $message, $notify, $notify_posts, $alias = '', $date = '', $status = 1, $is_sticky = 0, $thread_sorting = 0)
+// fau.
+	{
 		global $ilDB;
 
 		$objNewThread = new ilForumTopic();
@@ -586,8 +588,17 @@ class ilForum
 		}
 		$objNewThread->setImportName($this->getImportName());
 		$objNewThread->setUserAlias($alias);
+// fau: copyForumSticy - set stickyness of the copied forum thread
+		$objNewThread->setSticky((int) $is_sticky);
+// fau.
 		$objNewThread->insert();
-		
+
+// fau: copyForumSticy - set sticky sorting of the copied forum thread
+		$ilDB->update('frm_threads',
+			array('thread_sorting' => array('integer',(int) $thread_sorting)),
+			array('thr_pk' => array('integer', $objNewThread->getId())));
+// fau.
+
 		if ($notify_posts == 1)
 		{
 			$objNewThread->enableNotification($author_id);
@@ -2518,7 +2529,43 @@ class ilForum
 			$message .= sprintf($this->lng->txt("forums_notification_show_post"), ILIAS_HTTP_PATH."/goto.php?target=frm_".$post_data["ref_id"]."_".$post_data["pos_thr_fk"]."_".$post_data["pos_pk"].'&client_id='.CLIENT_ID)."\n\n";
 		}
 
-		if ($cron == 1)
+        // fim: [forum] show course or group info
+        global $tree;
+        $context = array();
+        $path = $tree->getPathFull($post_data["ref_id"]);
+        foreach ($path as $key => $row) {
+            if (in_array($row['type'], array('crs','grp')))
+            {
+                $context['ref_id'] = $row['child'];
+                $context['title'] = $row['title'];
+                $context['type'] = $row['type'];
+                break;
+            }
+        }
+        if (!empty($context))
+        {
+            switch ($context['type']) {
+                case 'grp':
+                    $this->lng->loadLanguageModule('grp');
+                    require_once("./Services/Link/classes/class.ilLink.php");
+                    $message .= $this->lng->txt("grp_mail_permanent_link") ."\n"
+                            . $context['title'] ."\n"
+                            . ilLink::_getStaticLink($context['ref_id'],$context['type'], true);
+                    break;
+                case 'crs':
+                    $this->lng->loadLanguageModule('crs');
+                    require_once("./Services/Link/classes/class.ilLink.php");
+                    $message .= $this->lng->txt("crs_mail_permanent_link"). "\n"
+                            . $context['title'] ."\n"
+                            . ilLink::_getStaticLink($context['ref_id'],$context['type'], true);
+                    break;
+            }
+        }
+        // fim.
+
+
+        /* fim: don't show platform info
+        if ($cron == 1)
 		{
 			$message .= sprintf($this->lng->txt("forums_notification_intro"),
 				$this->ilias->ini->readVariable("client","name"),
@@ -2530,10 +2577,12 @@ class ilForum
 				$this->ilias->ini->readVariable("client","name"),
 				ILIAS_HTTP_PATH.'/?client_id='.CLIENT_ID)."\n\n";
 		}
+        fim. */
+
 		
 		return $message;
 	}
-	
+
 	/**
 	 * Get thread infos of object
 	 *

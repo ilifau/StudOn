@@ -131,6 +131,36 @@ class ilAuthContainerDatabase extends Auth_Container_MDB2
 			', server:'.$_SERVER['SERVER_ADDR'].':'.$_SERVER['SERVER_PORT']
 		);
 	}
+
+	
+// fau: idmPass - extend password verification to support ssha passwords
+	/**
+	 * Crypt and verfiy the entered password
+	 * this function is overwritten from PEAR Auth_Container
+	 * also defined in /Services/Databases/classes/class.ilAuthContainerMDB2.php (used for login)
+	 *
+	 * @param  string $a_plain			Entered password
+	 * @param  string $a_crypted		Password from the data container (usually this password
+	 *                					is already encrypted.
+	 * @param  string $a_cryptType		Type of algorithm with which the password from
+	 *                					the container has been crypted. (md5, crypt etc.)
+	 *                					Defaults to "md5".
+	 * @return bool   					True, if the passwords match
+	 */
+	function verifyPassword($a_plain, $a_crypted, $a_cryptType = "md5")
+	{
+		require_once("Services/Authentication/classes/class.ilAuthUtils.php");
+		if (ilAuthUtils::_isSSHAPassword($a_crypted))
+		{
+			return ilAuthUtils::_checkSSHAPassword($a_plain, $a_crypted);
+		}
+		else
+		{
+			return parent::verifyPassword($a_plain, $a_crypted, $a_cryptType);
+		}
+	}
+// fau.
+	
 }
 
 // END WebDAV: Strip Microsoft Domain Names from logins

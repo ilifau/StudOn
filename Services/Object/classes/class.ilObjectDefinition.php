@@ -144,7 +144,9 @@ class ilObjectDefinition// extends ilSaxParser
 					"translate" => "0",
 					"devmode" => "0",
 					"allow_link" => "1",
-					"allow_copy" => "0",
+// fau: copyPlugins - allow plugins to be copied in container copy
+					"allow_copy" => "1",
+// fau.
 					"rbac" => "1",
 					"group" => NULL,
 					"system" => "0",
@@ -177,7 +179,9 @@ class ilObjectDefinition// extends ilSaxParser
 		// Select all object_definitions and collect the definition id's in
 		// this array.
 		$defIds = array();
-		$set = $ilDB->query("SELECT * FROM il_object_def");
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query("SELECT SQL_CACHE * FROM il_object_def");
+// fau.
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->obj_data[$rec["id"]] = array(
 				"name" => $rec["id"],
@@ -207,7 +211,9 @@ class ilObjectDefinition// extends ilSaxParser
 		}
 
 		// get all subobject definitions in a single query
-		$set2 = $ilDB->query("SELECT * FROM il_object_subobj WHERE " . $ilDB->in('parent', $defIds, false, 'text'));
+// fau: sqlCache - use sql cache
+		$set2 = $ilDB->query("SELECT SQL_CACHE * FROM il_object_subobj WHERE " . $ilDB->in('parent', $defIds, false, 'text'));
+// fau.
 		while ($rec2 = $ilDB->fetchAssoc($set2)) {
 			$max = $rec2["mmax"];
 			if ($max <= 0) // for backward compliance
@@ -221,7 +227,9 @@ class ilObjectDefinition// extends ilSaxParser
 			);
 		}
 
-		$set = $ilDB->query("SELECT * FROM il_object_group");
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query("SELECT SQL_CACHE * FROM il_object_group");
+// fau.
 		$this->obj_group = array();
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->obj_group[$rec["id"]] = $rec;
@@ -247,7 +255,9 @@ class ilObjectDefinition// extends ilSaxParser
 					"translate" => "0",
 					"devmode" => "0",
 					"allow_link" => "1",
-					"allow_copy" => "0",
+// fau: copyPlugins - allow plugins to be copied in container copy
+					"allow_copy" => "1",
+// fau.
 					"rbac" => "1",
 					"group" => NULL,
 					"system" => "0",
@@ -916,7 +926,9 @@ class ilObjectDefinition// extends ilSaxParser
 	{
 		global $ilDB;
 
-		$set = $ilDB->queryF("SELECT * FROM il_object_def WHERE component = %s",
+// fau: sqlCache - use sql cache
+		$set = $ilDB->queryF("SELECT SQL_CACHE * FROM il_object_def WHERE component = %s",
+// fau.
 			array("text"), array($a_component_type."/".$a_component_name));
 			
 		$types = array();
@@ -938,8 +950,10 @@ class ilObjectDefinition// extends ilSaxParser
 	{
 		global $ilDB;
 
-		$set = $ilDB->queryF("SELECT component FROM il_object_def WHERE id = %s",
+// fau: sqlCache - use sql cache
+		$set = $ilDB->queryF("SELECT SQL_CACHE component FROM il_object_def WHERE id = %s",
 			array("text"), array($a_obj_type));
+// fau.
 			
 		if ($rec = $ilDB->fetchAssoc($set))
 		{
@@ -956,15 +970,17 @@ class ilObjectDefinition// extends ilSaxParser
 	{
 		global $ilDB, $ilPluginAdmin;
 		
-		$set = $ilDB->query("SELECT * FROM il_object_group");
-		$groups = array();
-		while ($gr_rec = $set->fetchRow(DB_FETCHMODE_ASSOC))
-		{
-			$groups[$gr_rec["id"]] = $gr_rec;
-		}
+// fau: globalCache: take il_object_group from cache
+//		$set = $ilDB->query("SELECT * FROM il_object_group");
+//		$groups = array();
+//		while ($gr_rec = $set->fetchRow(DB_FETCHMODE_ASSOC))
+//		{
+//			$groups[$gr_rec["id"]] = $gr_rec;
+//		}
 
 		$global_cache = ilCachedComponentData::getInstance();
-
+		$groups = $global_cache->getIlObjectGroup();
+// fau.
 
 //		if (!is_array($a_parent_obj_type))
 //		{

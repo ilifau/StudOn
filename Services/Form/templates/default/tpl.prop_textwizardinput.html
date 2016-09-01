@@ -1,7 +1,9 @@
 <div id="{ELEMENT_ID}" class="txtwzd form-inline">
 	<!-- BEGIN row -->
 	<div class="wzdrow">
-		<input type="text" class="form-control" size="{SIZE}" id="{ID}" maxlength="{MAXLENGTH}" name="{POST_VAR}" <!-- BEGIN prop_text_propval -->value="{PROPERTY_VALUE}" <!-- END prop_text_propval -->{DISABLED}/>
+        <!-- fim: [exam] add readonly variable -->
+		<input {READONLY} type="text" class="form-control" size="{SIZE}" id="{ID}" maxlength="{MAXLENGTH}" name="{POST_VAR}" <!-- BEGIN prop_text_propval -->value="{PROPERTY_VALUE}" <!-- END prop_text_propval -->{DISABLED}/>
+        <!--fim. -->
 		<!-- BEGIN edit_bl -->
 		<button type="button" name="{CMD_ADD}" class="textwizard_add  btn btn-link" id="add_{ID}" onclick="javascript: void(0); return false;" >{ADD_BUTTON}</button>
 		<button type="button" name="{CMD_REMOVE}" class="textwizard_remove  btn btn-link" id="remove_{ID}" onclick="javascript: void(0); return false;">{REMOVE_BUTTON}</button>

@@ -9,6 +9,11 @@
  * @package ilias-layout
  */
 
+// fau: samlAuth - use saml_login instead of shib_login
+include('saml_login.php');
+exit;
+// fau.
+
 // Load all the IILIAS stuff
 require_once "include/inc.header.php";
 

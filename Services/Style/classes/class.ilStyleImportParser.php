@@ -148,6 +148,11 @@ class ilStyleImportParser extends ilSaxParser
 					$this->cur_template["name"], $this->cur_template_classes);
 				break;
 
+			// fim: [content] read custom css from xml
+			case "CustomCss":
+				$this->style_obj->setCustomCss($this->cdata);
+				break;
+			// fim.
 		}
 	}
 

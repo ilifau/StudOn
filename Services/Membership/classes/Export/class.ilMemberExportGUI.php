@@ -50,6 +50,24 @@ class ilMemberExportGUI
 	private $fields_info;
 	private $fss_export = null;
 
+	
+	/**
+	 * fim: [export] add learning progress settings
+	 */
+	private $lp_objects = array 
+	(
+		'sess' => array('status', 'marks'),
+		'exc' => array('status', 'marks'),
+		'tst' => array('status'),
+		'grp' => array('status'),
+		'fold' => array('status'),
+		'lm' => array('status'),
+		'htlm' => array('status'),
+		'sahs'=> array('status'),
+		// 'wiki' => array('marks', 'status') funktioniert nicht
+	);
+	// fim.
+		
 	/**
 	 * Constructor
 	 *
@@ -65,6 +83,12 @@ class ilMemberExportGUI
 		$this->tpl = $tpl;
 		$this->lng = $lng;
 		$this->lng->loadLanguageModule('ps');
+		
+		// fim: [export] get language vars of course and tracking
+		$this->lng->loadLanguageModule('crs');
+		$this->lng->loadLanguageModule('trac');
+		// fim.
+		
 	 	$this->ref_id = $a_ref_id;
 	 	$this->obj_id = $ilObjDataCache->lookupObjId($this->ref_id);
 		$this->type = ilObject::_lookupType($this->obj_id);
@@ -85,12 +109,22 @@ class ilMemberExportGUI
 		global $ilAccess,$rbacsystem;
 
 		include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-		if(!ilPrivacySettings::_getInstance()->checkExportAccess($this->ref_id))
+		// fim: [export] jump to export request form if not granted
+		$privacy = ilPrivacySettings::_getInstance();
+		$enabled = $this->type == 'crs' ? $privacy->enabledCourseExport() : $privacy->enabledGroupExport();
+		
+		if(!$ilAccess->checkAccess('write','',$this->ref_id) or !$enabled)
 		{
 			ilUtil::sendFailure($this->lng->txt('permission_denied'),true);
 			$this->ctrl->returnToParent($this);
 		}
-		
+		elseif (!$rbacsystem->checkAccess('export_member_data',$privacy->getPrivacySettingsRefId()))
+		{
+			ilUtil::redirect("goto.php?target=studon_exportrequest");
+		}
+		// fim.		
+
+
 		$next_class = $this->ctrl->getNextClass($this);
 		$cmd = $this->ctrl->getCmd();
 
@@ -122,6 +156,9 @@ class ilMemberExportGUI
 		$this->tpl->setVariable('TXT_EXPORT_ADMIN',$this->lng->txt('ps_export_admin'));
 		$this->tpl->setVariable('TXT_EXPORT_MEMBER',$this->lng->txt('ps_export_member'));
 		$this->tpl->setVariable('TXT_EXPORT_WAIT',$this->lng->txt('ps_export_wait'));
+		// fim: [export] option to export members from the lot list
+		$this->tpl->setVariable('TXT_EXPORT_LOT',$this->lng->txt('ps_export_lot'));
+		// fim.
 		$this->tpl->setVariable('TXT_EXPORT_SUB',$this->lng->txt('ps_export_sub'));
 		
 		// Check user selection
@@ -136,6 +173,9 @@ class ilMemberExportGUI
 	 	$this->tpl->setVariable('CHECK_EXPORT_MEMBER',ilUtil::formCheckbox($this->exportSettings->enabled('member'),'export_members[member]',1));
 	 	$this->tpl->setVariable('CHECK_EXPORT_SUB',ilUtil::formCheckbox($this->exportSettings->enabled('subscribers'),'export_members[subscribers]',1));
 	 	$this->tpl->setVariable('CHECK_EXPORT_WAIT',ilUtil::formCheckbox($this->exportSettings->enabled('waiting_list'),'export_members[waiting_list]',1));
+		// fim: [export] option to export members from the lot list
+	 	$this->tpl->setVariable('CHECK_EXPORT_LOT',ilUtil::formCheckbox($this->exportSettings->enabled('lot_list'),'export_members[lot_list]',1));
+		// fim.
 		
 		$this->tpl->setVariable('TXT_EXPORT',$this->lng->txt('ps_perform_export'));
 		$this->tpl->setVariable('TXT_EXPORT_EXCEL',$this->lng->txt('ps_export_excel'));
@@ -201,12 +241,53 @@ class ilMemberExportGUI
 			$this->tpl->parseCurrentBlock();
 		}
 		
+		// fim: [export] add header for further information
+		$this->tpl->setVariable('TXT_FURTHER_INFORMATIONS', $this->lng->txt('further_informations'));
+		// fim.
+
+		// fim: [export] check to export registrations
+		$this->tpl->setCurrentBlock('registrations');
+		$this->tpl->setVariable('CHECK_EXPORT_SESSIONS',ilUtil::formCheckbox($this->exportSettings->enabled('events'),
+															'export_members[events]', 1));
+		$this->tpl->setVariable('CHECK_EXPORT_GROUPS',ilUtil::formCheckbox($this->exportSettings->enabled('groups'),
+															'export_members[groups]', 1));
+        $this->tpl->setVariable('TXT_REGISTRATIONS', $this->lng->txt('members'));
+        $this->tpl->setVariable('TXT_SESSIONS', $this->lng->txt('events'));
+        $this->tpl->setVariable('TXT_GROUPS', $this->lng->txt('groups'));
+		$this->tpl->parseCurrentBlock();
+		// fim.
+		
+		// fim: [export] add learning progress settings
+		if (count($this->lp_objects))
+		{
+			foreach ($this->lp_objects as $type => $modes)
+			{
+		    	foreach ($modes as $mode)
+		       	{
+		        	$this->tpl->setCurrentBlock('learning_progress_mode');
+		        	$this->tpl->setVariable('LP_MODE_TXT', $this->lng->txt('export_lp_'. $mode));
+		        	$this->tpl->setVariable('LP_MODE_CHECK',
+						ilUtil::formCheckbox($this->exportSettings->enabled($type.'_'.$mode), 'export_members['.$type.'_'.$mode.']', 1));
+					$this->tpl->parseCurrentBlock();		
+		       	}	
+				$this->tpl->setCurrentBlock('learning_progress_object');
+        		$this->tpl->setVariable('LP_OBJECT_TYPE', $this->lng->txt('objs_'. $type));
+				$this->tpl->parseCurrentBlock();
+			}
+			$this->tpl->setCurrentBlock('learning_progress');
+	        $this->tpl->setVariable('TXT_LEARNING_PROGRESS', $this->lng->txt('learning_progress'));
+	        $this->tpl->setVariable('TXT_LEARNING_PROGRESS_INFO', $this->lng->txt('export_lp_info'));
+	        $this->tpl->parseCurrentBlock();
+		}
+		// fim.
+
 		if($a_deliver_file and 0)
 		{
 			$this->tpl->setCurrentBlock('iframe');
 			$this->tpl->setVariable('SOURCE',$this->ctrl->getLinkTarget($this,'deliverData'));
 		}
 	}
+
 	
 	/**
 	 * Deliver Data

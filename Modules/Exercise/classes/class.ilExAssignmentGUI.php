@@ -74,8 +74,18 @@ class ilExAssignmentGUI
 					ilDatePresentation::formatDate(new ilDateTime($a_data["deadline"],IL_CAL_UNIX)));
 				$tpl->parseCurrentBlock();
 			}
-			
 		}
+
+// fau: exResTime - add info about result availability
+		if ($a_data["res_time"] > 0)
+		{
+			$tpl->setCurrentBlock("prop");
+			$tpl->setVariable("PROP", $lng->txt("exc_result_available_after"));
+			$tpl->setVariable("PROP_VAL",
+				ilDatePresentation::formatDate(new ilDateTime($a_data["res_time"],IL_CAL_UNIX)));
+			$tpl->parseCurrentBlock();
+		}
+// fau.
 
 		$mand = "";
 		if ($a_data["mandatory"])
@@ -85,13 +95,30 @@ class ilExAssignmentGUI
 		$tpl->setVariable("TITLE", $a_data["title"].$mand);
 
 		// status icon
-		$stat = ilExAssignment::lookupStatusOfUser($a_data["id"], $ilUser->getId());
+// fau: exResTime - don't show the result status before the result time is reached
+		if ((int) $a_data["res_time"] <= time())
+		{
+			$stat = ilExAssignment::lookupStatusOfUser($a_data["id"], $ilUser->getId());
+		}
+		if ($stat != "passed" and $stat != "failed")
+		{
+			if (ilExAssignment::getLastSubmission($a_data["id"], $ilUser->getId()))
+			{
+				$stat = "notgraded";
+			}
+			else
+			{
+				$stat = "not_attempted";
+			}
+		}
 		switch ($stat)
 		{
-			case "passed": 	$pic = "scorm/passed.svg"; break;
-			case "failed":	$pic = "scorm/failed.svg"; break;
-			default: 		$pic = "scorm/not_attempted.svg"; break;
+			case "passed": 		$pic = "scorm/passed.svg"; break;
+			case "failed":		$pic = "scorm/failed.svg"; break;
+			case "notgraded":	$pic = "scorm/running.svg"; break;
+			default: 			$pic = "scorm/not_attempted.svg"; break;
 		}
+// fau.
 		$tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
 		$tpl->setVariable("ALT_STATUS", $lng->txt("exc_".$stat));
 
@@ -590,59 +617,67 @@ class ilExAssignmentGUI
 				{
 					$show_global_feedback = ($last_sub != "---" && $a_data["fb_file"]);
 				}								
-				
-				$storage = new ilFSStorageExercise($a_data["exc_id"], $a_data["id"]);					
-				$cnt_files = $storage->countFeedbackFiles($feedback_id);
-				$lpcomment = ilExAssignment::lookupCommentForUser($a_data["id"], $ilUser->getId());
-				$mark = ilExAssignment::lookupMarkOfUser($a_data["id"], $ilUser->getId());
-				$status = ilExAssignment::lookupStatusOfUser($a_data["id"], $ilUser->getId());				
-				if ($lpcomment != "" || $mark != "" || $status != "notgraded" || 
-					$cnt_files > 0 || $show_global_feedback)
+
+// fau: exResTime - show tutor feedback section after result time
+				if ((int) $a_data["res_time"] <= time())
 				{
-					$info->addSection($lng->txt("exc_feedback_from_tutor"));
-					if ($lpcomment != "")
+
+					$storage = new ilFSStorageExercise($a_data["exc_id"], $a_data["id"]);
+					$cnt_files = $storage->countFeedbackFiles($feedback_id);
+					$lpcomment = ilExAssignment::lookupCommentForUser($a_data["id"], $ilUser->getId());
+					$mark = ilExAssignment::lookupMarkOfUser($a_data["id"], $ilUser->getId());
+					$status = ilExAssignment::lookupStatusOfUser($a_data["id"], $ilUser->getId());
+					if ($lpcomment != "" || $mark != "" || $status != "notgraded" ||
+						$cnt_files > 0 || $show_global_feedback)
 					{
-						$info->addProperty($lng->txt("exc_comment"),
-							$lpcomment);
-					}
-					if ($mark != "")
-					{
-						$info->addProperty($lng->txt("exc_mark"),
-							$mark);
-					}
-		
-					if ($status == "") 
-					{
-	//				  $info->addProperty($lng->txt("status"),
-	//						$lng->txt("message_no_delivered_files"));				
-					}
-					else if ($status != "notgraded")
-					{
-						$img = '<img src="'.ilUtil::getImagePath("scorm/".$status.".svg").'" '.
-							' alt="'.$lng->txt("exc_".$status).'" title="'.$lng->txt("exc_".$status).
-							'" />';
-						$info->addProperty($lng->txt("status"),
-							$img." ".$lng->txt("exc_".$status));
-					}
-					
-					if ($cnt_files > 0)
-					{
-						$info->addSection($lng->txt("exc_fb_files").
-							'<a name="fb'.$a_data["id"].'"></a>');
-						
-						if($cnt_files > 0)
+						$info->addSection($lng->txt("exc_feedback_from_tutor"));
+						if ($lpcomment != "")
 						{
-							$files = $storage->getFeedbackFiles($feedback_id);
-							foreach($files as $file)
+							$info->addProperty($lng->txt("exc_comment"),
+								// fim: [bugfix] allow html special chars in comment
+								ilUtil::prepareFormOutput($lpcomment));
+								// fim.
+						}
+						if ($mark != "")
+						{
+							$info->addProperty($lng->txt("exc_mark"),
+								$mark);
+						}
+
+						if ($status == "")
+						{
+		//				  $info->addProperty($lng->txt("status"),
+		//						$lng->txt("message_no_delivered_files"));
+						}
+						else if ($status != "notgraded")
+						{
+							$img = '<img src="'.ilUtil::getImagePath("scorm/".$status.".svg").'" '.
+								' alt="'.$lng->txt("exc_".$status).'" title="'.$lng->txt("exc_".$status).
+								'" />';
+							$info->addProperty($lng->txt("status"),
+								$img." ".$lng->txt("exc_".$status));
+						}
+
+						if ($cnt_files > 0)
+						{
+							$info->addSection($lng->txt("exc_fb_files").
+								'<a name="fb'.$a_data["id"].'"></a>');
+
+							if($cnt_files > 0)
 							{
-								$ilCtrl->setParameterByClass("ilobjexercisegui", "file", urlencode($file));
-								$info->addProperty($file,
-									$lng->txt("download"),
-									$ilCtrl->getLinkTargetByClass("ilobjexercisegui", "downloadFeedbackFile"));
-								$ilCtrl->setParameterByClass("ilobjexercisegui", "file", "");
+								$files = $storage->getFeedbackFiles($feedback_id);
+								foreach($files as $file)
+								{
+									$ilCtrl->setParameterByClass("ilobjexercisegui", "file", urlencode($file));
+									$info->addProperty($file,
+										$lng->txt("download"),
+										$ilCtrl->getLinkTargetByClass("ilobjexercisegui", "downloadFeedbackFile"));
+									$ilCtrl->setParameterByClass("ilobjexercisegui", "file", "");
+								}
 							}
-						}												
-					}	
+						}
+					}
+// fau.
 					
 					// #15002 - global feedback																	
 					if($show_global_feedback)

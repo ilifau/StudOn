@@ -1,23 +1,14 @@
+<!-- fau: regCodes - generic row template. -->
 <tr class="{CSS_ROW}">
 	<td class="std">
 		<input type="checkbox" name="id[]" value="{ID}" />
 	</td>
+	<!-- BEGIN column -->
 	<td class="std small">
-		{VAL_CODE}
+		{VAL}
 	</td>
-	<td class="std small">
-		{VAL_ROLE}
-	</td>
-	<td class="std small">
-		{VAL_ROLE_LOCAL}
-	</td>
-	<td class="std small">
-		{VAL_ALIMIT}
-	</td>
-	<td class="std small">
-		{VAL_GENERATED}
-	</td>
-	<td class="std small">
-		{VAL_USED}
+	<!-- END column -->
+	<td>
+		<a href="{LINK_EDIT}">{TXT_EDIT}</a>
 	</td>
 </tr>

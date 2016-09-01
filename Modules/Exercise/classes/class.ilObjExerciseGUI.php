@@ -65,6 +65,18 @@ class ilObjExerciseGUI extends ilObjectGUI
 //echo "-".$next_class."-".$cmd."-"; exit;
   		switch($next_class)
 		{
+			// fim: [exercise] call calculation GUI
+			case "ilexcalculategui":
+				$this->checkPermission("write");
+				
+				include_once("./Modules/Exercise/classes/class.ilExCalculateGUI.php");
+				$calc_gui =& new ilExCalculateGUI($this);
+				$ilTabs->activateTab("grades");
+				$this->ctrl->setReturn($this,'showGradesOverview');
+				$this->ctrl->forwardCommand($calc_gui);
+				break;
+			// fim.
+			
 			case "ilfilesystemgui":				
 				if($_GET["fsmode"] == "peer")
 				{					
@@ -140,9 +152,14 @@ class ilObjExerciseGUI extends ilObjectGUI
 						$ilTabs->setBackTarget($lng->txt("back"),
 							$ilCtrl->getLinkTarget($this, "showParticipant"));
 					}
-					
-					ilUtil::sendInfo($lng->txt("exc_fb_tutor_info"));
-										
+
+// fau: exResTime - prevent sending of feedback file notification
+					if ((int) ilExAssignment::lookupResultTime($_GET["ass_id"]) <= time())
+					{
+						ilUtil::sendInfo($lng->txt("exc_fb_tutor_info"));
+					}
+// fau.
+
 					include_once("./Modules/Exercise/classes/class.ilFSStorageExercise.php");
 					$fstorage = new ilFSStorageExercise($this->object->getId(), (int) $_GET["ass_id"]);
 					$fstorage->create();
@@ -170,16 +187,21 @@ class ilObjExerciseGUI extends ilObjectGUI
 					include_once("./Services/FileSystem/classes/class.ilFileSystemGUI.php");
 					$fs_gui = new ilFileSystemGUI($fstorage->getFeedbackPath($feedback_id));
 					$fs_gui->setTableId("excfbfil".(int)$_GET["ass_id"]."_".$feedback_id);
-					$fs_gui->setAllowDirectories(false);					
+					$fs_gui->setAllowDirectories(false);
 					$fs_gui->setTitle($lng->txt("exc_fb_files")." - ".
 						ilExAssignment::lookupTitle((int) $_GET["ass_id"])." - ".
 						$fs_title);
-					$pcommand = $fs_gui->getLastPerformedCommand();					
+					$pcommand = $fs_gui->getLastPerformedCommand();
 					if (is_array($pcommand) && $pcommand["cmd"] == "create_file")
 					{
-						$this->object->sendFeedbackFileNotification($pcommand["name"], 
-							$noti_rec_ids, (int) $_GET["ass_id"]);
-					}					 
+// fau: exResTime - prevent sending of feedback file notification
+						if ((int) ilExAssignment::lookupResultTime($_GET["ass_id"]) <= time())
+						{
+							$this->object->sendFeedbackFileNotification($pcommand["name"],
+								$noti_rec_ids, (int) $_GET["ass_id"]);
+						}
+// fau.
+					}
 					$ret = $this->ctrl->forwardCommand($fs_gui);
 				}
 				else 		// assignment files
@@ -680,7 +702,7 @@ class ilObjExerciseGUI extends ilObjectGUI
 		include_once("./Modules/Exercise/classes/class.ilFSStorageExercise.php");
 		$storage = new ilFSStorageExercise($this->object->getId(), (int) $_GET["ass_id"]);
 		$files = $storage->getFeedbackFiles($feedback_id);
-		$file_exist = false;	
+		$file_exist = false;
 		foreach($files as $fb_file)
 		{
 			if($fb_file == $file)
@@ -688,14 +710,14 @@ class ilObjExerciseGUI extends ilObjectGUI
 				$file_exist = true;
 				break;
 			}
-		}		
+		}
 		if(!$file_exist)
 		{
 			echo "FILE DOES NOT EXIST";
 			exit;
 		}
 		
-		// check whether assignment as already started		
+		// check whether assignment as already started
 		$not_started_yet = false;
 		if ($ass->getStartTime() > 0 && time() - $ass->getStartTime() <= 0)
 		{
@@ -797,6 +819,15 @@ class ilObjExerciseGUI extends ilObjectGUI
 				$this->lng->txt("exc_pass_minimum_nr_info"));
 			$radg->addOption($op2);
 
+			// fim: [exercise] new pass mode "man"
+			$op3 = new ilRadioOption($this->lng->txt("exc_pass_manual"), "man",
+				$this->lng->txt("exc_pass_manual_info"));
+			$instruction= new ilTextAreaInputGUI($this->lng->txt("description"), "instruction");
+			$instruction->setInfo($this->lng->txt("exc_pass_manual_description"));
+			$op3->addSubItem($instruction);	
+			$radg->addOption($op3);
+			// fim.
+				
 			// minimum number of assignments to pass
 			$ni = new ilNumberInputGUI($this->lng->txt("exc_min_nr"), "pass_nr");
 			$ni->setSize(4);
@@ -858,6 +889,13 @@ class ilObjExerciseGUI extends ilObjectGUI
 			$a_values["pass_nr"] = $this->object->getPassNr();
 		}
 		
+		// fim: [exercise] get value of instruction
+		elseif ($this->object->getPassMode() == "man")
+		{
+			$a_values["instruction"] = $this->object->getInstruction();
+		}
+		// fim.
+
 		include_once "./Services/Notification/classes/class.ilNotification.php";
 		$a_values["notification"] = ilNotification::hasNotification(
 				ilNotification::TYPE_EXERCISE_SUBMISSION, $ilUser->getId(),
@@ -875,6 +913,12 @@ class ilObjExerciseGUI extends ilObjectGUI
 		{
 			$this->object->setPassNr($a_form->getInput("pass_nr"));
 		}
+		// fim: [exercise] set the instruction for namual mode
+		elseif ($this->object->getPassMode() == "man")
+		{
+			$this->object->setInstruction($a_form->getInput("instruction"));
+		}
+		//fim.
 		
 		$this->object->setCompletionBySubmission($a_form->getInput('completion_by_submission') == 1 ? true : false);
 		
@@ -1339,6 +1383,14 @@ class ilObjExerciseGUI extends ilObjectGUI
 		{
 			$ilToolbar->addButton($lng->txt("exc_export_excel"),
 				$ilCtrl->getLinkTarget($this, "exportExcel"));
+
+			// fim: [exercise] add button to calculate the grades
+			if ($this->object->getPassMode() == "man")
+			{
+				$ilToolbar->addButton($lng->txt("exc_calculate_overall_results"),
+					$ilCtrl->getLinkTargetByClass("ilExCalculateGUI"));
+			}
+			// fim.
 		}
 
 		include_once("./Modules/Exercise/classes/class.ilExGradesTableGUI.php");
@@ -1700,7 +1752,9 @@ class ilObjExerciseGUI extends ilObjectGUI
 				ilExAssignment::updateStatusOfUser($ass_id, $user_id,
 					ilUtil::stripSlashes($_POST["status"][$key]));
 				ilExAssignment::updateNoticeForUser($ass_id, $user_id,
-					ilUtil::stripSlashes($_POST["notice"][$key]));
+					// fim: [bugfix] allow html special chars in notice
+					ilUtil::stripSlashes($_POST["notice"][$key], false));
+					// fim.
 
 				if (ilUtil::stripSlashes($_POST['mark'][$key]) != 
 					ilExAssignment::lookupMarkOfUser($ass_id, $user_id))
@@ -1710,12 +1764,7 @@ class ilObjExerciseGUI extends ilObjectGUI
 
 				ilExAssignment::updateMarkOfUser($ass_id, $user_id,
 					ilUtil::stripSlashes($_POST['mark'][$key]));
-				
-				/*
-				ilExAssignment::updateCommentForUser($ass_id, $user_id,
-					ilUtil::stripSlashes($_POST['lcomment'][$key]));				 
-				*/
-			}			
+			}
 		}
 		
 		if (count($saved_for) > 0)
@@ -1960,7 +2009,14 @@ class ilObjExerciseGUI extends ilObjectGUI
 		}
 		$info->addProperty($lng->txt("exc_assignments"), $cnt);
 		$info->addProperty($lng->txt("exc_mandatory"), $mcnt);
-		if ($this->object->getPassMode() != "nr")
+		// fim: [exercise] add instruction for manual status
+		if ($this->object->getPassMode() == "man")
+		{
+			$info->addProperty($lng->txt("exc_pass_mode"),
+				$this->object->getInstruction());
+		}
+		elseif ($this->object->getPassMode() != "nr")
+		// fim.
 		{
 			$info->addProperty($lng->txt("exc_pass_mode"),
 				$lng->txt("exc_msg_all_mandatory_ass"));
@@ -2222,6 +2278,18 @@ class ilObjExerciseGUI extends ilObjectGUI
 			$edit_date->setShowTime(true);
 			$dcb->addSubItem($edit_date);
 
+// fau: exResTime - property elements for result time
+		// result time y/n
+		$result_time_cb = new ilCheckboxInputGUI($this->lng->txt("exc_result_time"), "result_time_cb");
+		$result_time_cb->setInfo($this->lng->txt('exc_result_time_info'));
+		$this->form->addItem($result_time_cb);
+
+			// result time
+			$result_time = new ilDateTimeInputGUI("", "result_time");
+			$result_time->setShowTime(true);
+			$result_time_cb->addSubItem($result_time);
+// fau.
+
 		// mandatory
 		$cb = new ilCheckboxInputGUI($this->lng->txt("exc_mandatory"), "mandatory");
 		$cb->setInfo($this->lng->txt("exc_mandatory_info"));
@@ -2363,7 +2431,31 @@ class ilObjExerciseGUI extends ilObjectGUI
 					$valid = false;		
 				}
 			}
-			
+
+// fau: exResTime - checks for result time
+			if ($_POST["result_time_cb"] && $_POST["deadline_cb"])
+			{
+				$result_date =
+					$this->form->getItemByPostVar("result_time")->getDate();
+				$end_date =
+					$this->form->getItemByPostVar("deadline")->getDate();
+				if ($result_date->get(IL_CAL_UNIX) <
+					$end_date->get(IL_CAL_UNIX))
+				{
+					$this->form->getItemByPostVar("result_time")
+						->setAlert($lng->txt("exc_result_time_should_be_after_end_date"));
+					$valid = false;
+				}
+			}
+
+			if($_POST["result_time_cb"] && $_POST["peer"])
+			{
+				$this->form->getItemByPostVar("result_time_cb")
+					->setAlert($lng->txt("exc_result_time_not_for_peer_feedback"));
+				$valid = false;
+			}
+// fau.
+
 			if($_POST["type"] == ilExAssignment::TYPE_UPLOAD_TEAM && $_POST["peer"])
 			{				
 				$this->form->getItemByPostVar("peer")
@@ -2432,7 +2524,20 @@ class ilObjExerciseGUI extends ilObjectGUI
 			{
 				$ass->setStartTime(null);
 			}
-			
+
+// fau: exResTime - set resul ttime from the form
+			if ($_POST["result_time_cb"])
+			{
+				$date =
+					$this->form->getItemByPostVar("result_time")->getDate();
+				$ass->setResultTime($date->get(IL_CAL_UNIX));
+			}
+			else
+			{
+				$ass->setResultTime(null);
+			}
+// fau.
+
 			// deadline
 			if ($_POST["deadline_cb"])
 			{
@@ -2532,6 +2637,12 @@ class ilObjExerciseGUI extends ilObjectGUI
 		{
 			$values["start_time_cb"] = true;
 		}
+// fau: exResTime - set the checkbox vor result time
+		if ($ass->getResultTime() > 0)
+		{
+			$values["result_time_cb"] = true;
+		}
+// fau.
 		$values["mandatory"] = $ass->getMandatory();
 		$values["instruction"] = $ass->getInstruction();
 		$values["type"] = $ass->getType();
@@ -2563,7 +2674,14 @@ class ilObjExerciseGUI extends ilObjectGUI
 			$ed_item = $this->form->getItemByPostVar("start_time");
 			$ed_item->setDate($edit_date);
 		}
-		
+// fau: exResTime - set the property for result time
+		if ($ass->getResultTime() > 0)
+		{
+			$edit_date = new ilDateTime($ass->getResultTime(), IL_CAL_UNIX);
+			$ed_item = $this->form->getItemByPostVar("result_time");
+			$ed_item->setDate($edit_date);
+		}
+// fau.
 		if($ass->getFeedbackFile())
 		{						
 			$this->form->getItemByPostVar("fb")->setChecked(true);			
@@ -2690,6 +2808,28 @@ class ilObjExerciseGUI extends ilObjectGUI
 					}
 				}
 
+// fau: exResTime - checks for result time
+				if ($_POST["result_time_cb"] && $end_date)
+				{
+					// check whether start date is before end date
+					$result_date =
+						$this->form->getItemByPostVar("result_time")->getDate()->get(IL_CAL_UNIX);
+					if ($result_date < $end_date)
+					{
+						$this->form->getItemByPostVar("result_time")
+							->setAlert($lng->txt("exc_result_time_should_be_after_end_date"));
+						$valid = false;
+					}
+				}
+
+				if($_POST["result_time_cb"] && $_POST["peer"])
+				{
+					$this->form->getItemByPostVar("result_time_cb")
+						->setAlert($lng->txt("exc_result_time_not_for_peer_feedback"));
+					$valid = false;
+				}
+// fau.
+
 				if(!$end_date)
 				{
 					if($_POST["peer"])
@@ -2753,7 +2893,20 @@ class ilObjExerciseGUI extends ilObjectGUI
 			{
 				$ass->setStartTime(null);
 			}
-			
+
+// fau: exResTime - set result time at update
+			if ($_POST["result_time_cb"])
+			{
+				$date =
+					$this->form->getItemByPostVar("result_time")->getDate();
+				$ass->setResultTime($date->get(IL_CAL_UNIX));
+			}
+			else
+			{
+				$ass->setResultTime(null);
+			}
+// fau.
+
 			if(!$protected_peer_review_groups)
 			{
 				// deadline
@@ -2971,7 +3124,7 @@ class ilObjExerciseGUI extends ilObjectGUI
 			if(ilCertificate::_isComplete($adapter))
 			{
 				$ilToolbar->addButton($this->lng->txt("certificate"),
-					$this->ctrl->getLinkTarget($this, "outCertificate"));
+					$this->ctrl->getLinkTarget($this, "outC	ertificate"));
 			}
 		}	
 		
@@ -3071,6 +3224,13 @@ class ilObjExerciseGUI extends ilObjectGUI
 				$marks_obj->setComment(ilUtil::stripSlashes($v));
 				$marks_obj->setMark(ilUtil::stripSlashes($_POST["mark"][$k]));
 				$marks_obj->update();
+
+				// fim: [exercise] save the status in manual mode
+				if ($this->object->getPassMode() == "man")
+				{
+					ilExerciseMembers::_writeStatus($this->object->getId(), $k, $_POST["status"][$k]);
+				}
+				// fim.
 			}
 		}
 		ilUtil::sendSuccess($lng->txt("exc_msg_saved_grades"), true);
@@ -3085,6 +3245,19 @@ class ilObjExerciseGUI extends ilObjectGUI
 	{
 		include_once "./Services/Notification/classes/class.ilNotification.php";
 		$users = ilNotification::getNotificationsForObject(ilNotification::TYPE_EXERCISE_SUBMISSION, $this->object->getId());
+
+		// fim: [bugfix] send notifications about exercise submission only to users with read access
+		global $ilAccess;
+		$allowed_users = array();
+		foreach ($users as $user_id)
+		{
+			if ($ilAccess->checkAccessOfUser($user_id, 'read', '', $this->ref_id))
+			{
+				$allowed_users[] = $user_id;
+			}
+		}
+		$users = $allowed_users;
+		// fim.
 
 		include_once "./Modules/Exercise/classes/class.ilExerciseMailNotification.php";
 		$not = new ilExerciseMailNotification();
@@ -4829,8 +5002,10 @@ class ilObjExerciseGUI extends ilObjectGUI
 				{
 					if(in_array($user_id, $all_members))
 					{
+						// fim: [bugfix] allow html special chars in comment
 						ilExAssignment::updateCommentForUser($ass_id, $user_id,
-							ilUtil::stripSlashes($comment));
+							ilUtil::stripSlashes($comment, false));
+						// fim.
 						
 						if(trim($comment))
 						{
@@ -4838,8 +5013,9 @@ class ilObjExerciseGUI extends ilObjectGUI
 						}
 					}
 				}
-				
-				if(sizeof($reci_ids))
+// fau: exResTime - prevent sending of comment notification
+				if(sizeof($reci_ids) and (int) ilExAssignment::lookupResultTime($ass_id) <= time())
+// fau.
 				{
 					// send notification
 					$this->object->sendFeedbackFileNotification(null, $reci_ids, 

@@ -68,18 +68,18 @@ class ilHTTPS
 		{
 			case self::PROTOCOL_HTTP:
 				$should_switch_to_http = (
-					!in_array(basename($_SERVER['SCRIPT_NAME']), $this->protected_scripts) &&
-					!in_array(strtolower($_GET['cmdClass']), $this->protected_classes)
-				) && $_SERVER['HTTPS'] == 'on';
+						!in_array(basename($_SERVER['SCRIPT_NAME']), $this->protected_scripts) &&
+						!in_array(strtolower($_GET['cmdClass']), $this->protected_classes)
+					) && $_SERVER['HTTPS'] == 'on';
 
 				return $should_switch_to_http;
 				break;
 
 			case self::PROTOCOL_HTTPS:
 				$should_switch_to_https = (
-					in_array(basename($_SERVER['SCRIPT_NAME']), $this->protected_scripts) ||
-					in_array(strtolower($_GET['cmdClass']), $this->protected_classes)
-				) && $_SERVER['HTTPS'] != 'on';
+						in_array(basename($_SERVER['SCRIPT_NAME']), $this->protected_scripts) ||
+						in_array(strtolower($_GET['cmdClass']), $this->protected_classes)
+					) && $_SERVER['HTTPS'] != 'on';
 
 				return $should_switch_to_https;
 				break;
@@ -98,16 +98,18 @@ class ilHTTPS
 		// if https is enabled for scripts or classes, check for redirection
 	    if ($this->enabled)
 		{
+            // fim: [debug] allow tracing of redirections
     		if($this->shouldSwitchProtocol(self::PROTOCOL_HTTPS))
     		{
-    			header("location: https://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+                ilUtil::redirect("https://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
     			exit;
     		}
     		if($this->shouldSwitchProtocol(self::PROTOCOL_HTTP))
     		{
-    			header("location: http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+                ilUtil::redirect("http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
     			exit;
     		}
+            // fim.
 		}
 		return true;
 	}
@@ -122,7 +124,7 @@ class ilHTTPS
 		$this->protected_scripts[] = 'webdav.php';
 		// END WebDAV Use SSL for WebDAV.
 		$this->protected_scripts[] = 'shib_login.php';
-		
+
 		return true;
 	}
 

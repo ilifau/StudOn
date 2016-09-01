@@ -42,6 +42,9 @@ abstract class ilRegistrationGUI
 	
 	protected $participants;
 	protected $waiting_list = null;
+	// fim: [memlot] define lot list
+	protected $lot_list = null;
+	// fim.
 	protected $form;
 	
 	protected $registration_possible = true;
@@ -51,6 +54,11 @@ abstract class ilRegistrationGUI
 	protected $tpl;
 	protected $lng;
 	protected $ctrl; 
+
+	// fim: [memlot] add class variables for lot list and join_text
+	protected $use_lot_list = false;
+	protected $join_button_text = '';
+	// fim.
 
 	/**
 	 * Constructor
@@ -76,12 +84,36 @@ abstract class ilRegistrationGUI
 		$this->obj_id = ilObject::_lookupObjId($this->ref_id);
 		$this->type = ilObject::_lookupType($this->obj_id);
 		
+		// fim: [memcond] define matches_studycond, describe_studycond
+		global $ilUser;
+		include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+		$this->has_studycond = ilSubscribersStudyCond::_hasConditions($this->obj_id);
+		if ($this->has_studycond)
+		{
+			$this->matches_studycond = ilSubscribersStudyCond::_checkConditions($this->obj_id, $ilUser->getId());
+			$this->describe_studycond = ilSubscribersStudyCond::_getConditionsText($this->obj_id);
+		}
+		else
+		{
+			$this->matches_studycond = true;
+			$this->describe_studycond = "";
+		}
+		// fim.
+
+		// fim: [memcond] Init join button text
+		$this->join_button_text = $this->lng->txt('join');
+		// fim.
+
 		// Init participants
 		$this->initParticipants();
 		
 		// Init waiting list
 		$this->initWaitingList();
 		
+		// fim: [memlot] init lot list
+		$this->initLotList();
+		// fim.
+
 		$this->privacy = ilPrivacySettings::_getInstance();
 	}
 	
@@ -178,6 +210,51 @@ abstract class ilRegistrationGUI
 	}
 	
 	/**
+	* fim: [memlot] new function initLotList
+	* @access protected
+	*/
+	protected function initLotList()
+	{
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$this->lot_list = new ilSubscribersLot($this->container->getId());
+	}
+	// fim.
+
+
+	/**
+	* fim: [memlot] new function getLotList
+	* @return object lot list
+	* @access protected
+	*/
+	protected function getLotList()
+	{
+		return $this->lot_list;
+	}
+	// fim.
+
+
+	/**
+	* fim: [memlot] new function leaveLotList
+	* @access protected
+	*/
+	protected function leaveLotList()
+	{
+		global $ilUser,$tree,$ilCtrl;
+
+		$this->getLotList()->removeFromList($ilUser->getId());
+		$parent = $tree->getParentId($this->container->getRefId());
+
+		$message = sprintf($this->lng->txt($this->container->getType().'_removed_from_lot_list'),
+			$this->container->getTitle());
+		ilUtil::sendSuccess($message,true);
+		
+		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $parent);
+		$ilCtrl->redirectByClass("ilrepositorygui", "");
+	}
+	// fim.
+
+	
+	/**
 	 * Get title for property form
 	 *
 	 * @access protected
@@ -237,7 +314,16 @@ abstract class ilRegistrationGUI
 		$mem = new ilCustomInputGUI($this->lng->txt('groupings'));
 		
 		$tpl = new ilTemplate('tpl.membership_limitation_form.html',true,true,'Services/Membership');
-		$tpl->setVariable('LIMIT_INTRO',$this->lng->txt($this->type.'_grp_info_reg'));
+		// fim: [memlot] give different info for lor list
+		if ($this->use_lot_list)
+		{
+			$tpl->setVariable('LIMIT_INTRO',$this->lng->txt($this->type.'_grp_info_reg_lot'));
+		}
+		else
+		{
+			$tpl->setVariable('LIMIT_INTRO',$this->lng->txt($this->type.'_grp_info_reg'));
+		}
+		// fim.
 		
 		foreach($items as $ref_id)
 		{
@@ -274,6 +360,14 @@ abstract class ilRegistrationGUI
 		}
 		$this->form->addItem($mem);
 	}
+	
+	
+	/**
+	 * fim: [memsess] new function fillEventRegistration()
+	 * this function is overwritten in courses
+	 */
+	protected function fillEventRegistration() {}
+	// fim.
 	
 	/**
 	 * Show user agreement
@@ -469,17 +563,17 @@ abstract class ilRegistrationGUI
 	{
 		global $ilUser;
 
-		include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
-		if(!$this->privacy->confirmationRequired($this->type) and !ilCourseDefinedFieldDefinition::_hasFields($this->container->getId()))
-		{
-			return true;
-		}
-
+		// fim: [export] set always the acceptance time
+		include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');		
 		include_once('Services/Membership/classes/class.ilMemberAgreement.php');
 		$this->agreement = new ilMemberAgreement($ilUser->getId(),$this->container->getId());
- 		$this->agreement->setAccepted($a_status);
- 		$this->agreement->setAcceptanceTime(time());
+		if(!$this->privacy->confirmationRequired($this->type) and !ilCourseDefinedFieldDefinition::_hasFields($this->container->getId()))
+		{
+			$this->agreement->setAccepted($a_status);
+ 		}
+		$this->agreement->setAcceptanceTime(time());
  		$this->agreement->save();
+ 		// fim.
 	}
 	
 	/**
@@ -582,6 +676,12 @@ abstract class ilRegistrationGUI
 		{
 			$this->fillMaxMembers();
 		}
+		// fim: [memsess] add event registration to the form
+		if($this->isRegistrationPossible())
+		{
+			$this->fillEventRegistration();
+		}
+		// fim.
 		if($this->isRegistrationPossible())
 		{
 			$this->fillAgreement();
@@ -599,23 +699,42 @@ abstract class ilRegistrationGUI
 		
 		if($this->isRegistrationPossible() and $this->isWaitingListActive() and !$this->getWaitingList()->isOnList($ilUser->getId()))
 		{
-			$this->form->addCommandButton('join',$this->lng->txt('mem_add_to_wl'));
+			// fim: [memlot] use different join button
+			$this->form->addCommandButton('join',$this->join_button_text);
+				//$this->form->addCommandButton('join',$this->lng->txt('mem_add_to_wl'));
+			// fim.
 			$this->form->addCommandButton('cancel',$this->lng->txt('cancel'));
 		}
 		elseif($this->isRegistrationPossible() and !$this->getWaitingList()->isOnList($ilUser->getId()))
 		{
-			$this->form->addCommandButton('join',$this->lng->txt('join'));
+			// fim: [memlot] use different join button
+			$this->form->addCommandButton('join',$this->join_button_text);
+			//$this->form->addCommandButton('join',$this->lng->txt('join'));
+			// fim.
 			$this->form->addCommandButton('cancel',$this->lng->txt('cancel'));
 		}
 		if($this->getWaitingList()->isOnList($ilUser->getId()))
 		{
-			ilUtil::sendQuestion(
-				sprintf($this->lng->txt($this->container->getType().'_cancel_waiting_list'),
-				$this->container->getTitle())
-			);
+			// fim: [memad] allow to update the message
+			if ($this->getWaitingList()->isToConfirm($ilUser->getId()))
+			{
+				$this->form->addCommandButton('updateWaitingList', $this->lng->txt('crs_update_subscr_request'));
+			}
+			// fim.
 			$this->form->addCommandButton('leaveWaitingList', $this->lng->txt('leave_waiting_list'));
 			$this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
 		}
+		// fim: [memlot] add buttons for leaving the lot list
+        if($this->getLotList()->isOnList($ilUser->getId()))
+		{
+			ilUtil::sendQuestion(
+				sprintf($this->lng->txt($this->container->getType().'_cancel_lot_list'),
+				$this->container->getTitle())
+			);
+			$this->form->addCommandButton('leaveLotList', $this->lng->txt('leave_lot_list'));
+			$this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
+		}
+		// fim.
 	}
 	
 	/**
@@ -633,7 +752,24 @@ abstract class ilRegistrationGUI
 		$ilCtrl->redirectByClass("ilrepositorygui", "");
 
 	}
-	
+
+	/**
+	 * fim: [memad] update the subscription message when being on the waiting list
+	 * @return void
+	 */
+	protected function updateWaitingList()
+	{
+		global $ilUser, $tree, $ilCtrl;
+
+		$this->getWaitingList()->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
+		ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
+		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
+			$tree->getParentId($this->container->getRefId()));
+		$ilCtrl->redirectByClass("ilrepositorygui", "");
+
+	}
+	// fim.
+
 	protected function cancelSubscriptionRequest()
 	{
 		global $ilUser, $tree, $ilCtrl;
@@ -645,5 +781,155 @@ abstract class ilRegistrationGUI
 			$tree->getParentId($this->container->getRefId()));
 		$ilCtrl->redirectByClass("ilrepositorygui", "");
 	}
+	
+	/**
+	 * fim: [memad] new function to confirm requests from guest users
+	 */
+	protected function joinAsGuest()
+	{
+		require_once('Services/Utilities/classes/class.ilConfirmationGUI.php');
+		
+		$gui = new ilConfirmationGUI();
+		$gui->setFormAction($this->ctrl->getFormAction($this));
+
+		switch ($this->type)
+		{
+			case 'grp':
+				$gui->setHeaderText($this->lng->txt('join_as_guest_question_grp')
+									.$this->lng->txt('join_as_guest_question_info'));
+				break;
+				
+			case 'crs':
+				$gui->setHeaderText($this->lng->txt('join_as_guest_question_crs')
+									.$this->lng->txt('join_as_guest_question_info'));
+				break;		
+		}
+
+		$gui->setCancel($this->lng->txt('cancel'), 'cancel');
+		$gui->setConfirm($this->lng->txt('join_as_guest'), 'joinAsGuestConfirmed');
+
+		$this->tpl->setContent($gui->getHTML());
+	}
+	// fim.
+	
+	/**
+	 * fim: [memad] new function to handle join requests from guest users
+	 * 
+	 */
+	protected function joinAsGuestConfirmed()
+	{
+		global $ilCtrl, $ilSetting, $ilUser, $tree;
+		
+		require_once './Services/Language/classes/class.ilLanguageFactory.php';
+		require_once './Services/Tree/classes/class.ilPathGUI.php';
+		require_once './Services/Mail/classes/class.ilMimeMail.php';
+		require_once './Services/Link/classes/class.ilLink.php';
+		
+		// get always the installation's default language
+		$lng = ilLanguageFactory::_getLanguage();
+		$lng->loadLanguageModule('mail');
+		$lng->loadLanguageModule($this->type);
+
+		$pgui = new ilPathGUI;
+
+		$subject = $lng->txt('join_as_guest_mail_subject');
+		$subject = str_replace('{LOGIN}', $ilUser->getLogin(), $subject);
+		$subject = str_replace('{OBJECT}', $this->container->getTitle(), $subject);
+		
+		$message = $lng->txt('join_as_guest_mail_message');
+		$message = str_replace('\n', "\n", $message);
+		$message = str_replace('{FIRSTNAME}', $ilUser->getFirstname(), $message);
+		$message = str_replace('{LASTNAME}', $ilUser->getLastname(), $message);
+		$message = str_replace('{LOGIN}', $ilUser->getLogin(), $message);
+		$message = str_replace('{EMAIL}', $ilUser->getEmail(), $message);
+		$message = str_replace('{LINK}', ilLink::_getStaticLink($this->container->getRefId(),$this->type), $message);
+		$message = str_replace('{PATH}', $pgui->getPath(1,$this->container->getRefId()), $message);
+		$message = str_replace('{OBJECT}', $this->container->getTitle(), $message);
+
+		switch ($this->container->getType())
+		{
+			case 'crs':
+				$message = str_replace('{LABEL_REG_TYPE}', $this->lng->txt('crs_registration_type'), $message);
+				if ($this->container->getSubscriptionLimitationType() ==  IL_CRS_SUBSCRIPTION_DEACTIVATED)
+				{
+					$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_reg_no_selfreg'), $message);
+				}
+				else
+				{
+					switch ($this->container->getSubscriptionType())
+					{
+						case IL_CRS_SUBSCRIPTION_MYCAMPUS:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_mycampus'), $message);
+							break;
+						case IL_CRS_SUBSCRIPTION_CONFIRMATION:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_confirmation'), $message);
+							break;
+						case IL_CRS_SUBSCRIPTION_DIRECT:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_direct'), $message);
+							break;
+						case IL_CRS_SUBSCRIPTION_PASSWORD:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_password'), $message);
+							break;
+					}
+				}
+				if ($this->container->isSubscriptionMembershipLimited())
+				{
+					$message = str_replace('{MAX_MEMBERS}',
+						"\n".$this->lng->txt('crs_subscription_max_members').': '
+						.$this->container->getSubscriptionMaxMembers(), $message);
+				}
+				else
+				{
+					$message = str_replace('{MAX_MEMBERS}','', $message);
+				}
+				break;
+
+			case 'grp':
+				$message = str_replace('{LABEL_REG_TYPE}', $this->lng->txt('group_registration_mode'), $message);
+				switch ($this->container->getRegistrationType())
+				{
+					case GRP_REGISTRATION_DEACTIVATED:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_no_selfreg'), $message);
+						break;
+					case GRP_REGISTRATION_REQUEST:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_request'), $message);
+						break;
+					case GRP_REGISTRATION_DIRECT:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_direct'), $message);
+						break;
+					case GRP_REGISTRATION_PASSWORD:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_pass_request'), $message);
+						break;
+				}
+				if ($this->container->isMembershipLimited())
+				{
+					$message = str_replace('{MAX_MEMBERS}',
+						"\n".$this->lng->txt('reg_grp_max_members_short').': '
+						.$this->container->getMaxMembers(), $message);
+				}
+				else
+				{
+					$message = str_replace('{MAX_MEMBERS}','', $message);
+				}
+				break;
+		}
+
+		// send email to admins
+		$mmail = new ilMimeMail();
+		$mmail->autoCheck(false);
+		$mmail->From($ilUser->getEMail());
+		$mmail->To($ilSetting->get('admin_email'));
+		$mmail->Subject($subject);
+		$mmail->Body($message);
+		$mmail->send();
+		
+		ilUtil::sendSuccess($this->lng->txt('join_as_guest_success'),true);
+		
+		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
+			$tree->getParentId($this->container->getRefId()));
+		$ilCtrl->redirectByClass("ilrepositorygui");		
+		return true;
+	}
+	// fim.
 }
 ?>

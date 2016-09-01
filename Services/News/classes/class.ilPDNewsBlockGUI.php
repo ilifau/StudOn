@@ -287,51 +287,70 @@ class ilPDNewsBlockGUI extends ilNewsForContextBlockGUI
 	*/
 	function showFeedUrl()
 	{
+		// fim: [rss] allow private feeds by password hash
 		global $lng, $ilCtrl, $ilUser, $ilSetting;
 
-		$news_set = new ilSetting("news");
-		
-		
-		include_once("./Services/News/classes/class.ilNewsItem.php");
+		$feed_hash = ilObjUser::_lookupFeedHash($ilUser->getId(), true);
+		$feed_passwd = ilObjUser::_getFeedPass($ilUser->getId());
 
-		if ($news_set->get("enable_private_feed")) 
-		{
-			$tpl = new ilTemplate("tpl.show_priv_feed_url.html", true, true, "Services/News");				
+// fau: linkPermaShort - use shortened feed urls
+		require_once ('./Services/Link/classes/class.ilLink.php');
+		$public_url = ilLink::_getShortlinkBase('http://')
+			.'feed/'.$ilUser->getId().'/'.substr($feed_hash,0,8).'.rss';
 
-			$tpl->setVariable("TXT_PRIV_TITLE", $lng->txt("news_get_priv_feed_title"));
+		$private_url = ilLink::_getShortlinkBase('https://'. $ilUser->getLogin().":PASSWORD@")
+			.'privfeed/'.$ilUser->getId().'/'.substr($feed_hash,0,8).'.rss';
 			
-			// #14365
-			if($ilUser->_getFeedPass($_SESSION["AccountId"]))
-			{
-				$tpl->setVariable("TXT_PRIV_INFO", $lng->txt("news_get_priv_feed_info"));
-				$tpl->setVariable("TXT_PRIV_FEED_URL", $lng->txt("news_feed_url"));			
-				$tpl->setVariable("VAL_PRIV_FEED_URL",
-					str_replace("://", "://" . $ilUser->getLogin() . ":-password-@", ILIAS_HTTP_PATH)."/privfeed.php?client_id=".rawurlencode(CLIENT_ID)."&user_id=".$ilUser->getId().
-						"&hash=".ilObjUser::_lookupFeedHash($ilUser->getId(), true));
-				$tpl->setVariable("VAL_PRIV_FEED_URL_TXT",
-					str_replace("://", "://" . $ilUser->getLogin() . ":-password-@", ILIAS_HTTP_PATH)."/privfeed.php?client_id=".rawurlencode(CLIENT_ID)."&<br />user_id=".$ilUser->getId().
-						"&hash=".ilObjUser::_lookupFeedHash($ilUser->getId(), true));
-			}
-			else
-			{
-				$tpl->setVariable("TXT_PRIV_INFO", $lng->txt("news_inactive_private_feed_info"));
-				$tpl->setVariable("EDIT_SETTINGS_URL", $ilCtrl->getLinkTarget($this, "editSettings"));
-				$tpl->setVariable("EDIT_SETTINGS_TXT", $lng->txt("news_edit_news_settings"));
-			}
+		$passhash_url = ilLink::_getShortlinkBase('https://')
+			.'privfeed/'.$ilUser->getId().'/'.substr($feed_passwd,0,8).'.rss';
+// fau.
+
+		$news_set = new ilSetting("news");		
+		include_once("./Services/News/classes/class.ilNewsItem.php");
+		$tpl = new ilTemplate("tpl.show_priv_feed_url.html", true, true, "Services/News");				
+
+		// public news feed
+		$tpl->setCurrentBlock('feed_block');
+		$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("rss.png"));
+		$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_feed_title"));
+		$tpl->setVariable("TXT_INFO", $lng->txt("news_get_feed_info"));
+		$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url").':');
+		$tpl->setVariable("VAL_FEED_URL", $public_url);
+		$tpl->setVariable("VAL_FEED_URL_TXT", $public_url);
+		$tpl->parseCurrentBlock();
+		
+		if ($news_set->get("enable_private_feed") and $feed_passwd) 
+		{
+			// private feed with password
+			$tpl->setCurrentBlock('feed_block');
+			$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("privrss.png"));
+			$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_priv_feed_title"));
+			$tpl->setVariable("TXT_INFO", sprintf($lng->txt("news_get_priv_feed_info"), $ilCtrl->getLinkTarget($this,'editSettings')));
+			$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url").':');
+			$tpl->setVariable("VAL_FEED_URL", $private_url);
+			$tpl->setVariable("VAL_FEED_URL_TXT", $private_url);
+			$tpl->parseCurrentBlock();
+			
+			// private feed with password hash
+			$tpl->setCurrentBlock('feed_block');
+			$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("privrss.png"));
+			$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_priv_feed_passhash_title"));
+			$tpl->setVariable("TXT_INFO", sprintf($lng->txt("news_get_priv_feed_passhash_info"), $ilCtrl->getLinkTarget($this,'editSettings')));
+			$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url").':');
+			$tpl->setVariable("VAL_FEED_URL", $passhash_url);
+			$tpl->setVariable("VAL_FEED_URL_TXT", $passhash_url);
+			$tpl->parseCurrentBlock();
 		}
 		else
 		{
-			$tpl = new ilTemplate("tpl.show_feed_url.html", true, true, "Services/News");
+			// info about feed activation
+			$tpl->setCurrentBlock('feed_block');
+			$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("privrss.png"));
+			$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_priv_feed_title"));
+			$tpl->setVariable("TXT_INFO", sprintf($lng->txt("news_get_priv_feed_disabled_info"), $ilCtrl->getLinkTarget($this,'editSettings')));
+			$tpl->parseCurrentBlock();			
 		}
-		$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_feed_title"));
-		$tpl->setVariable("TXT_INFO", $lng->txt("news_get_feed_info"));
-		$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url"));
-		$tpl->setVariable("VAL_FEED_URL",
-			ILIAS_HTTP_PATH."/feed.php?client_id=".rawurlencode(CLIENT_ID)."&user_id=".$ilUser->getId().
-				"&hash=".ilObjUser::_lookupFeedHash($ilUser->getId(), true));
-		$tpl->setVariable("VAL_FEED_URL_TXT",
-			ILIAS_HTTP_PATH."/feed.php?client_id=".rawurlencode(CLIENT_ID)."&<br />user_id=".$ilUser->getId().
-				"&hash=".ilObjUser::_lookupFeedHash($ilUser->getId(), true));
+		// fim.
 		
 		include_once("./Services/PersonalDesktop/classes/class.ilPDContentBlockGUI.php");
 		$content_block = new ilPDContentBlockGUI();

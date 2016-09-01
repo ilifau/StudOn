@@ -32,6 +32,11 @@
 * @package ilias-core
 */
 
+// fim: [debug] optionally set error before initialisation
+error_reporting (E_ALL);
+ini_set("display_errors","on");
+// fim.
+
 require_once("Services/Init/classes/class.ilInitialisation.php");
 ilInitialisation::initILIAS();
 

@@ -1182,16 +1182,23 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 	*/
 	function getNumericgapPoints($a_original, $a_entered, $max_points, $lowerBound, $upperBound)
 	{
-		if( ! $this->checkForValidFormula($a_entered) )
-		{
-			return 0;
-		}
-		
+// fau: fixGapFormula - check entered value by evalMath
+//		if( ! $this->checkForValidFormula($a_entered) )
+//		{
+//			return 0;
+//		}
+
 		include_once "./Services/Math/classes/class.EvalMath.php";
 		$eval = new EvalMath();
 		$eval->suppress_errors = TRUE;
 		$result = 0;
-		if (($eval->e($lowerBound) !== FALSE) && ($eval->e($upperBound) !== FALSE))
+
+		if ($eval->e($a_entered) === FALSE)
+		{
+			return 0;
+		}
+		elseif (($eval->e($lowerBound) !== FALSE) && ($eval->e($upperBound) !== FALSE))
+// fau.
 		{
 			if (($eval->e($a_entered) >= $eval->e($lowerBound)) && ($eval->e($a_entered) <= $eval->e($upperBound))) $result = $max_points;
 		}
@@ -1248,6 +1255,12 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 					"value" => $data["value2"]
 				);
 			}
+			// fim: [bugfix] clear previous savings if last one is empty
+			else
+			{
+				unset($user_result[$data["value1"]]);
+			}
+			// fim.
 		}
 		
 		ksort($user_result); // this is required when identical scoring for same solutions is disabled
@@ -1627,7 +1640,14 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 
 			if( $gap->getGapSize() && ($gap->getType() == CLOZE_TEXT || $gap->getType() == CLOZE_NUMERIC) )
 			{
-				$jgap['size'] = $gap->getGapSize();
+// fau: fixMissingGapLength - use fallback for missing text gap lengths of cloze questions in page content
+				$size = $gap->getGapSize();
+				$size = $size ? $size : $this->getFixedTextLength();
+				if ($size)
+				{
+					$jgap['size'] = $size;
+				}
+// fau.
 			}
 
 			$jgap['shuffle'] = $gap->getShuffle();

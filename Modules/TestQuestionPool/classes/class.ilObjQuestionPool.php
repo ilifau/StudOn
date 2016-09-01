@@ -1308,20 +1308,29 @@ class ilObjQuestionPool extends ilObject
 * @return array The available question pools
 * @access public
 */
-	function &_getAvailableQuestionpools($use_object_id = FALSE, $equal_points = FALSE, $could_be_offline = FALSE, $showPath = FALSE, $with_questioncount = FALSE, $permission = "read", $usr_id = "")
+	// fim: [exam] add root id as param to find question pools
+	// fim: [exam] add objects(ref_id=>obj_id) that should be included
+	function &_getAvailableQuestionpools($use_object_id = FALSE, $equal_points = FALSE, $could_be_offline = FALSE, $showPath = FALSE, $with_questioncount = FALSE, $permission = "read", $usr_id = "", $root_id = 0, $added_objects = array())
+	// fim.
 	{
 		global $ilUser, $ilDB, $lng;
 
 		$result_array = array();
 		$permission = (strlen($permission) == 0) ? "read" : $permission;
-		$qpls = ilUtil::_getObjectsByOperations("qpl", $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1);
-		$obj_ids = array();
+		// fim: [exam] use root id param to find question pools
+		$qpls = ilUtil::_getObjectsByOperations("qpl", $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1, $root_id);
+		// fim.
+		// fim: [exam] initialize the list of objects with the added objects
+		$obj_ids = $added_objects;
+		// fim.
 		foreach ($qpls as $ref_id)
 		{
 			$obj_id = ilObject::_lookupObjId($ref_id);
 			$obj_ids[$ref_id] = $obj_id;
 		}
-		$titles = ilObject::_prepareCloneSelection($qpls, "qpl");
+		// fim: [exam] include added objects to the titles selection
+		$titles = ilObject::_prepareCloneSelection(array_keys($obj_ids), "qpl");
+		// fim.
 		if (count($obj_ids))
 		{
 			$in = $ilDB->in('object_data.obj_id', $obj_ids, false, 'integer');
@@ -1617,6 +1626,14 @@ class ilObjQuestionPool extends ilObject
 	public static function _updateQuestionCount($object_id)
 	{
 		global $ilDB;
+
+// fau: fixQuestionCountUpdate - prevent slow query for ilObjQuestionPool::_updateQuestionCount(0)
+// 		e.g. when a question is inserted to a learnimg module page
+		if ($object_id == 0)
+		{
+			return;
+		}
+// fau.
 		$result = $ilDB->manipulateF("UPDATE qpl_questionpool SET questioncount = %s, tstamp = %s WHERE obj_fi = %s",
 			array('integer','integer','integer'),
 			array(ilObjQuestionPool::_getQuestionCount($object_id, TRUE), time(), $object_id)

@@ -150,7 +150,9 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 	/*
 	* Rebuild the thumbnail images with a new thumbnail size
 	*/
-	protected function rebuildThumbnails()
+	// fim: [bugfix] make public to allow a call from import
+	public function rebuildThumbnails()
+	// fim.
 	{
 		if ($this->isSingleline && ($this->getThumbSize()))
 		{
@@ -169,7 +171,9 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 		return "thumb.";
 	}
 	
-	protected function generateThumbForFile($path, $file)
+	// fim: [bugfix] make public to allow a call from import
+	public function generateThumbForFile($path, $file)
+	// fim.
 	{
 		$filename = $path . $file;
 		if (@file_exists($filename))
@@ -774,14 +778,29 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 		// nothing to rework!
 	}
 
-	function syncWithOriginal()
+// fau: fixImageSync - sync images into original question
+//	function syncWithOriginal()
+//	{
+//		if ($this->getOriginalId())
+//		{
+//			$this->syncImages();
+//			parent::syncWithOriginal();
+//		}
+//	}
+
+	protected function afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId)
 	{
-		if ($this->getOriginalId())
+		$origImagePath = $this->buildImagePath($origQuestionId, $origParentObjId);
+		$dupImagePath = $this->buildImagePath($dupQuestionId, $dupParentObjId);
+
+		ilUtil::delDir($origImagePath);
+		if (is_dir($dupImagePath))
 		{
-			$this->syncImages();
-			parent::syncWithOriginal();
+			ilUtil::makeDirParents($origImagePath);
+			ilUtil::rCopy($dupImagePath, $origImagePath);
 		}
 	}
+//fau.
 
 	/**
 	* Returns the question type of the question
@@ -1034,7 +1053,9 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 		foreach ($this->getAnswers() as $id => $answer)
 		{
 			$worksheet->writeString($startrow + $i, 0, ilExcelUtils::_convert_text($answer->getAnswertext()), $format_bold);
-			if ($id == $solution[0]["value1"])
+// fau: fixSingleChoiceExcel - recognize empty result
+			if (isset($solution[0]["value1"]) and $id == $solution[0]["value1"])
+// fau.
 			{
 				$worksheet->write($startrow + $i, 1, 1);
 			}

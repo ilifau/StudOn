@@ -19,7 +19,23 @@ class ilLPStatus
 	var $db = null;	
 	
 	static $list_gui_cache;
-	
+
+// fau: lpRefreshesLimit - static variables for not refreshed users and counter of refreshes
+	/**
+	 * @var array 	List of user's that still need a status refresh if the number of refreshes is limited
+	 * 				The list is global because check may be called for multiple objects per request
+	 * @see	checkStatusForObject
+	 */
+	static $users_to_refresh = array();
+
+	/**
+	 * @var int 	Number of refreshes done in that request
+	 * 				This will be compared with a global limit of refreshes per request
+	 * @see checkStatusForObject
+	 */
+	static $refreshes_done  = 0;
+// fau.
+
 	const LP_STATUS_NOT_ATTEMPTED = 'trac_no_attempted';
 	const LP_STATUS_IN_PROGRESS = 'trac_in_progress';
 	const LP_STATUS_COMPLETED = 'trac_completed';
@@ -88,6 +104,17 @@ class ilLPStatus
 		return ilMDEducational::_getTypicalLearningTimeSeconds($a_obj_id);
 	}
 
+// fau: lpRefreshesLimit - getters for remaining users and refreshes count
+	static function _getUsersToRefresh()
+	{
+		return self::$users_to_refresh;
+	}
+
+	static function _getRefreshesDone()
+	{
+		return self::$refreshes_done;
+	}
+// fau.
 
 	/**
 	 * New status handling (st: status, nr: accesses, p: percentage, t: time spent, m: mark)
@@ -229,8 +256,8 @@ class ilLPStatus
 	{
 		return false;
 	}
-	
-		
+
+// fau: lpRefreshesLimit - respect the refreshes limit when object status is checked
 	/**
 	 * This function checks whether the status for a given number of users is dirty and must be
 	 * recalculated. "Missing" records are not inserted! 
@@ -240,50 +267,84 @@ class ilLPStatus
 	 */
 	static function checkStatusForObject($a_obj_id, $a_users = false)
 	{
-		global $ilDB;
+		global $ilDB, $ilCust, $ilLog;
 
 //@todo: there maybe the need to add extra handling for sessions here, since the
 // "in progress" status is time dependent here. On the other hand, if they registered
 // to the session, they already accessed the course and should have a "in progress"
 // anyway. But the status on the session itself may not be correct.
 
-		$sql = "SELECT usr_id FROM ut_lp_marks WHERE ".
-			" obj_id = ".$ilDB->quote($a_obj_id, "integer")." AND ".
-			" status_dirty = ".$ilDB->quote(1, "integer");
-		if(is_array($a_users) && count($a_users) > 0)
+		$limit = (int) $ilCust->getSetting('lp_refreshes_limit');
+		$limit = 0 - self::$refreshes_done;
+		$limit = $limit < 0 ? 0 : $limit;
+
+		$found = array();
+		$todo = array();
+		$rest = array();
+
+		$sql = "SELECT usr_id, status_dirty FROM ut_lp_marks WHERE ".
+			" obj_id = ".$ilDB->quote($a_obj_id, "integer");
+		if(is_array($a_users) and count($a_users) > 0)
 		{
 			$sql .= " AND ".$ilDB->in("usr_id", $a_users, false, "integer");	
-		}			
-		$set = $ilDB->query($sql);
-		$dirty = false;
-		if ($rec = $ilDB->fetchAssoc($set))
-		{
-			$dirty = true;
 		}
-
-		// check if any records are missing
-		$missing = false;
-		if (!$dirty && is_array($a_users) && count($a_users) > 0)
+		// prioritize the update by last status change
+		$sql .= ' ORDER BY status_changed ASC';
+		$set = $ilDB->query($sql);
+		while ($rec = $ilDB->fetchAssoc($set))
 		{
-			$set = $ilDB->query("SELECT count(usr_id) cnt FROM ut_lp_marks WHERE ".
-				" obj_id = ".$ilDB->quote($a_obj_id, "integer")." AND ".
-				$ilDB->in("usr_id", $a_users, false, "integer"));
-			$r = $ilDB->fetchAssoc($set);
-			if ($r["cnt"] < count($a_users))
+			$found[] = $rec['usr_id'];
+			// add dirty users to the to do list
+			// omit those that were already put by other objects on the global list
+			if ($rec['status_dirty'] and !in_array($rec['usr_id'], self::$users_to_refresh))
 			{
-				$missing = true;
+				$todo[] = $rec['usr_id'];
 			}
 		}
 
+		// check if any records are missing
+		if (is_array($a_users) and count($a_users) > 0)
+		{
+			foreach ($a_users as $user_id)
+			{
+				// add missing users to the to do list
+				// omit those that were already put by other objects on the global list
+				if (!in_array($user_id, $found) and !in_array($user_id, self::$users_to_refresh))
+				{
+					$todo[] = $user_id;
+				}
+			}
+		}
+
+		// check the limit of allows refreshes
+		if ($limit > 0 and count($todo) > $limit)
+		{
+			// take all above the limit to the global to do list
+			$rest = array_slice($todo, $limit);
+			self::$users_to_refresh = array_unique(array_merge(self::$users_to_refresh, $rest));
+
+			// take the first limit elements for doing a refresh
+			$todo = array_slice($todo, 0, $limit);
+
+			$ilLog->write('CHECK LP STATUS object:'. $a_obj_id);
+			$ilLog->write('CHECK LP STATUS limit:'. $limit);
+			$ilLog->write('CHECK LP STATUS refreshing:'.print_r($todo, true));
+			$ilLog->write('CHECK LP STATUS remaining:'. print_r($rest, true));
+		}
+
 		// refresh status, if records are dirty or missing
-		if ($dirty || $missing)
+		if (!empty($todo))
 		{
 			require_once "Services/Tracking/classes/class.ilLPStatusFactory.php"; // #13330
 			$trac_obj = ilLPStatusFactory::_getInstance($a_obj_id);
-			$trac_obj->refreshStatus($a_obj_id, $a_users);
+			$trac_obj->refreshStatus($a_obj_id, $todo);
+
+			// globally count the refreshes done
+			self::$refreshes_done += count($todo);
 		}
 	}
-	
+// fau.
+
 	protected function raiseEvent($a_obj_id, $a_usr_id, $a_status, $a_percentage)
 	{
 		global $ilAppEventHandler;

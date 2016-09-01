@@ -31,6 +31,9 @@ class ilObjSurvey extends ilObject
 	const ANONYMIZE_ON = 1; // anonymized, codes
 	const ANONYMIZE_FREEACCESS = 2; // anonymized, no codes
 	const ANONYMIZE_CODE_ALL = 3; // personalized, codes
+	// fim: [form] add captcha option
+	const ANONYMIZE_CAPTCHA = 4;
+	// fim.
 	
 	const QUESTIONTITLES_HIDDEN = 0;
 	const QUESTIONTITLES_VISIBLE = 1;	
@@ -172,6 +175,10 @@ class ilObjSurvey extends ilObject
 	const NOTIFICATION_PARENT_COURSE = 1;
 	const NOTIFICATION_INVITED_USERS = 2;
 	
+
+	// fim: [form] form mode settings
+	protected $formModeSettings = null;
+	// fim.
 
 	/**
 	* Constructor
@@ -1042,6 +1049,9 @@ class ilObjSurvey extends ilObject
 			case self::ANONYMIZE_ON:
 			case self::ANONYMIZE_FREEACCESS:
 			case self::ANONYMIZE_CODE_ALL:
+			// fim: [form] add captcha option
+			case self::ANONYMIZE_CAPTCHA:
+			// fim.
 				$this->anonymize = $a_anonymize;
 				break;
 			default:
@@ -1067,8 +1077,11 @@ class ilObjSurvey extends ilObject
 	*/
 	function isAccessibleWithoutCode()
 	{
+		// fim: [form] respect captcha option
 		return ($this->getAnonymize() == self::ANONYMIZE_OFF || 
-			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS);		
+			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+			$this->getAnonymize() == self::ANONYMIZE_CAPTCHA);	
+		// fim.
 	}
 	
 	/**
@@ -1078,8 +1091,11 @@ class ilObjSurvey extends ilObject
 	*/
 	function hasAnonymizedResults()
 	{
+		// fim: [form] respect captcha option
 		return ($this->getAnonymize() == self::ANONYMIZE_ON || 
-			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS);
+			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+			$this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+		// fim.
 	}
 
 /**
@@ -3237,7 +3253,14 @@ class ilObjSurvey extends ilObject
 	* @access public
 	*/
 	function isAllowedToTakeMultipleSurveys($userid = "")
-	{		
+	{
+		// fim: [form] allow the reuse of a survey in form mode
+		if ($this->getMetaIdentifier('FormMode'))
+		{
+			return true;
+		}
+		// fim.
+
 		// #7927: special users are deprecated
 		return false;
 		
@@ -4409,7 +4432,7 @@ class ilObjSurvey extends ilObject
 			}
 		}
 
-		$newObj->saveToDb();		
+		$newObj->saveToDb();
 		$newObj->cloneTextblocks($mapping);
 		
 		// #14929

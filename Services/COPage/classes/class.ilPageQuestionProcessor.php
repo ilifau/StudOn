@@ -351,6 +351,66 @@ class ilPageQuestionProcessor
 		}
 	}
 
+// fau: lpLmCache - new function to get statistics for multiple questions and users
+	/**
+	 * Get statistics for multiple questions and users
+	 * @param	array		question ids
+	 * @param	array		(optional) user ids
+	 * @return	array		records by user id and question id
+	 */
+	static function getMultiAnswerStatus($a_qst_ids = array(), $a_user_ids = array())
+	{
+		global $ilDB;
+
+		$query = "SELECT * FROM page_qst_answer"
+				." WHERE ". $ilDB->in("qst_id", $a_qst_ids, false, "integer");
+
+		if (!empty($a_user_ids))
+		{
+			$query .= " AND ". $ilDB->in("user_id", $a_user_ids, false, "integer");
+		}
+
+		$set = $ilDB->query($query);
+		$recs = array();
+		while ($rec = $ilDB->fetchAssoc($set))
+		{
+			$recs[$rec["user_id"]][$rec["qst_id"]] = $rec;
+		}
+		return $recs;
+	}
+// fau.
+
+// fau: lmQStat - new query function for answers in an lm
+	static function getAnswersForLm($a_lm_id, $a_user_ids = array())
+	{
+		global $ilDB;
+
+		// basic query
+		$query = "
+			SELECT pa.* FROM page_qst_answer pa
+			INNER JOIN page_question pq ON pq.question_id = pa.qst_id
+			INNER JOIN lm_tree t ON (
+				t.lm_id = ".$ilDB->quote($a_lm_id, "integer")."
+				AND pq.page_id = t.child
+				AND pq.page_parent_type = ".$ilDB->quote("lm", "text")."
+			)
+			WHERE t.lm_id = ".$ilDB->quote($a_lm_id, "integer");
+
+		if (!empty($a_user_ids))
+		{
+			$query .= " AND ". $ilDB->in("user_id", $a_user_ids, false, "integer");
+		}
+
+		$set = $ilDB->query($query);
+		$recs = array();
+		while ($rec = $ilDB->fetchAssoc($set))
+		{
+			$recs[$rec["user_id"]][$rec["qst_id"]] = $rec;
+		}
+		return $recs;
+	}
+// fau.
+
 	/**
 	 * Reset tries
 	 *

@@ -593,7 +593,13 @@ class ilObjForum extends ilObject
 				$old_post['notify'],
 				0,
 				$old_thread['thr_usr_alias'],
-				$old_thread['thr_date']);
+				$old_thread['thr_date'],
+// fau: copyForumSticy - copy the stickyness and sorting of a forum thread
+				1,
+				$old_thread['is_sticky'],
+				$old_thread['thread_sorting']
+// fau.
+			);
 			// Copy attachments
 			$old_forum_files = new ilFileDataForum($this->getId(), $old_post_id);
 			$old_forum_files->ilClone($new_obj->getId(), $new_post);

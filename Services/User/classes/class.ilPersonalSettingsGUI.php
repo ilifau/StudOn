@@ -897,7 +897,9 @@ class ilPersonalSettingsGUI
 			
 			$options = array(
 				"y" => $this->lng->txt("users_online_show_y"),
-				"associated" => $this->lng->txt("users_online_show_associated"),
+				// fim: [performance] prevent showing associated users online
+				// "associated" => $this->lng->txt("users_online_show_associated"),
+				// fim.
 				"n" => $this->lng->txt("users_online_show_n"));
 			$si->setOptions($options);
 			$si->setValue($ilUser->prefs["show_users_online"]);
@@ -992,6 +994,11 @@ class ilPersonalSettingsGUI
 		$select->setInfo($lng->txt('cal_time_format_info'));
 	    $select->setValue($user_settings->getTimeFormat());
 		$this->form->addItem($select);
+		// fim: [exam] show current IP address in profile
+		$ne = new ilNonEditableValueGUI($this->lng->txt('ip_address'));
+		$ne->setValue($_SERVER['REMOTE_ADDR']);
+		$this->form->addItem($ne);
+		// fim.
 		
 		
 		// starting point	

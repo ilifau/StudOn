@@ -61,6 +61,16 @@ class ilTestPassesSelector
 
 		return $reportablePasses;
 	}
+
+// fau: fixFinishedTest - new function getClosedPasses
+	public function getClosedPasses()
+	{
+		$existingPasses = $this->loadExistingPasses();
+		$closedPasses = $this->fetchClosedPasses($existingPasses);
+
+		return $closedPasses;
+	}
+// fau.
 	
 	private function loadExistingPasses()
 	{
@@ -102,7 +112,24 @@ class ilTestPassesSelector
 		
 		return $reportablePasses;
 	}
-	
+
+// fau: fixFinishedTest - new function fetchClosedPasses
+	private function fetchClosedPasses($existingPasses)
+	{
+		$closedPasses = array();
+
+		foreach($existingPasses as $pass)
+		{
+			if( $this->isClosedPass($pass) )
+			{
+				$closedPasses[] = $pass;
+			}
+		}
+
+		return $closedPasses;
+	}
+// fau.
+
 	private function fetchLastPass($existingPasses)
 	{
 		$lastPass = null;

@@ -41,7 +41,14 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	 * @var array
 	 */
 	private $taxFilters = array();
-	
+
+// fau: typeFilter private variable
+	/**
+	 * @var array
+	 */
+	private $typeFilter = array();
+// fau.
+
 	/**
 	 * @var array
 	 */
@@ -97,6 +104,19 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 		return $this->taxFilters;
 	}
 
+// fau: typeFilter - getter/setter
+	public function getTypeFilter()
+	{
+		return $this->typeFilter;
+	}
+
+	public function setTypeFilter($typeFilter)
+	{
+		$this->typeFilter = $typeFilter;
+	}
+// fau.
+
+
 	public function loadQuestions()
 	{		
 		$query = "
@@ -138,7 +158,9 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	private function getConditionalExpression()
 	{
 		$CONDITIONS = $this->getTaxonomyFilterExpressions();
-
+// fau: typeFilter - add the type filter expression to conditions
+		$CONDITIONS = array_merge($CONDITIONS,  $this->getTypeFilterExpressions());
+// fau.
 		$CONDITIONS = implode(' AND ', $CONDITIONS);
 
 		return strlen($CONDITIONS) ? 'AND '.$CONDITIONS : '';
@@ -184,6 +206,18 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
 		return $expressions;
 	}
+
+// fau: typeFilter - get the expressions for a type filter
+	private function getTypeFilterExpressions()
+	{
+		$expressions = array();
+		if (!empty($this->typeFilter))
+		{
+			$expressions[] = $this->db->in('question_type_fi', $this->typeFilter, false, 'integer');
+		}
+		return $expressions;
+	}
+// fau;
 
 	private function isActiveQuestionType($questionData)
 	{

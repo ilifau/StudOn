@@ -61,6 +61,13 @@ class ilMailFormCall
 
 		foreach($mail_params as $key => $value)
 		{
+			// fim: [bugfix] store long recipient lists in session to prevent them being cut by suhosin
+			if (in_array($key, array('rcp_to','rcp_cc','rcp_bcc')))
+			{
+				$_SESSION[$key] = $value;
+				$value='_session_';
+			}
+			// fim.
 			$mparams .= $argument_separator . $key . '=' . $value;
 		}
 

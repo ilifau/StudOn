@@ -92,16 +92,19 @@ if (!defined('K_TCPDF_EXTERNAL_CONFIG')) {
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	// Try to automatically set the value for the following K_PATH_URL constant.
 	// NOTE: delete this section and manually set the K_PATH_URL constant below for better performances.
-	$k_path_url = $k_path_main; // default value for console mode
-	if (isset($_SERVER['HTTP_HOST']) AND (!empty($_SERVER['HTTP_HOST']))) {
-		if(isset($_SERVER['HTTPS']) AND (!empty($_SERVER['HTTPS'])) AND (strtolower($_SERVER['HTTPS']) != 'off')) {
-			$k_path_url = 'https://';
-		} else {
-			$k_path_url = 'http://';
-		}
-		$k_path_url .= $_SERVER['HTTP_HOST'];
-		$k_path_url .= str_replace( '\\', '/', substr(K_PATH_MAIN, (strlen($_SERVER['DOCUMENT_ROOT']) - 1)));
-	}
+	// fim: [pdf] set K_PATH_URL by ILIAS_HTTP_PATH
+	$k_path_url = ILIAS_HTTP_PATH.'/Services/PDFGeneration/classes/tcpdf/';
+	//	$k_path_url = $k_path_main; // default value for console mode
+	//	if (isset($_SERVER['HTTP_HOST']) AND (!empty($_SERVER['HTTP_HOST']))) {
+	//		if(isset($_SERVER['HTTPS']) AND (!empty($_SERVER['HTTPS'])) AND (strtolower($_SERVER['HTTPS']) != 'off')) {
+	//			$k_path_url = 'https://';
+	//		} else {
+	//			$k_path_url = 'http://';
+	//		}
+	//		$k_path_url .= $_SERVER['HTTP_HOST'];
+	//		$k_path_url .= str_replace( '\\', '/', substr(K_PATH_MAIN, (strlen($_SERVER['DOCUMENT_ROOT']) - 1)));
+	//	}
+	// fim.
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	/**

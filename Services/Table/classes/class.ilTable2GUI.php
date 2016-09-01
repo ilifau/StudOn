@@ -1487,7 +1487,12 @@ echo "ilTabl2GUI->addSelectionButton() has been deprecated with 4.2. Please try 
 			return true;
 		}
 
-		if ($_POST[$this->getNavParameter()."1"] != "")
+		// fim: [univis] respect a third nav parameter set by js for previous/nect naviagetion
+		if ($_POST[$this->getNavParameter()."3"]) {
+			$this->nav_value = $_POST[$this->getNavParameter()."3"];
+		}
+		elseif ($_POST[$this->getNavParameter()."1"] != "")
+		// fim.
 		{
 			if ($_POST[$this->getNavParameter()."1"] != $_POST[$this->getNavParameter()])
 			{
@@ -2079,7 +2084,16 @@ echo "ilTabl2GUI->addSelectionButton() has been deprecated with 4.2. Please try 
 		if ((strlen($this->getFormName())) && (strlen($this->getSelectAllCheckbox())) && $this->dataExists())
 		{
 			$this->tpl->setCurrentBlock("select_all_checkbox");
-			$this->tpl->setVariable("SELECT_ALL_TXT_SELECT_ALL", $lng->txt("select_all"));
+// fau: selectAllInfo - show extended "select all" notice if table has more pages
+			if ($this->max_count > $this->getLimit() || $this->custom_prev_next)
+			{
+				$this->tpl->setVariable("SELECT_ALL_TXT_SELECT_ALL", $lng->txt("select_all_page_only"));
+			}
+			else
+			{
+				$this->tpl->setVariable("SELECT_ALL_TXT_SELECT_ALL", $lng->txt("select_all"));
+			}
+// fau.
 			$this->tpl->setVariable("SELECT_ALL_CHECKBOX_NAME", $this->getSelectAllCheckbox());
 			$this->tpl->setVariable("SELECT_ALL_FORM_NAME", $this->getFormName());
 			$this->tpl->setVariable("CHECKBOXNAME", "chb_select_all_" . $this->unique_id);
@@ -2435,7 +2449,15 @@ echo "ilTabl2GUI->addSelectionButton() has been deprecated with 4.2. Please try 
 				if ($LinkBar != "")
 					$LinkBar .= $sep;
 				$prevoffset = $this->getOffset() - $this->getLimit();
-				$LinkBar .= "<a href=\"".$link.$prevoffset.$hash."\">".$layout_prev."</a>";
+				// fim: [univis] add onclick to use POST for next link
+				$onclick=sprintf("onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
+					$this->parent_cmd,
+					$this->getNavParameter().'3',
+					$this->getOrderField().":".$this->getOrderDirection().":".$prevoffset,
+					$this->getFormName()
+				);
+				$LinkBar .= "<a $onclick href=\"".$link.$prevoffset.$hash."\">".$layout_prev."</a>";
+				// fim.
 			}
 			else
 			{
@@ -2466,7 +2488,15 @@ echo "ilTabl2GUI->addSelectionButton() has been deprecated with 4.2. Please try 
 				if ($LinkBar != "")
 					$LinkBar .= $sep; 
 				$newoffset = $this->getOffset() + $this->getLimit();
-				$LinkBar .= "<a href=\"".$link.$newoffset.$hash."\">".$layout_next."</a>";
+				// fim: [univis] add onclick to use POST for next link
+				$onclick=sprintf("onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
+					$this->parent_cmd,
+					$this->getNavParameter().'3',
+					$this->getOrderField().":".$this->getOrderDirection().":".$newoffset,
+					$this->getFormName()
+				);
+				$LinkBar .= "<a $onclick href=\"".$link.$newoffset.$hash."\">".$layout_next."</a>";
+				// fim.
 			}
 			else
 			{

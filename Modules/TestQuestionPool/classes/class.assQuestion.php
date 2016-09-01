@@ -1129,6 +1129,26 @@ abstract class assQuestion
 	 */
 	abstract protected function reworkWorkingData($active_id, $pass, $obligationsAnswered);
 
+// fau: testImportResults new function _mapWorkingData
+	/**
+	 * Map imported working data
+	 *
+	 * This function is called from the ilTestResultImportParser.
+	 * It changes nothing in general but can be overwritten in child clases
+	 * to do a type specific mapping (e.g. of term_ids) at import.
+	 *
+	 * The assoc array corresponds to a row in tst_solutions.
+	 * 'question_id' and 'active_id' are already mapped to their new values.
+	 *
+	 * @param   array   assoc array of tst_solutions row
+	 * @return  array   assoc array of tst_solutions row
+	 */
+	public static function _mapWorkingData($a_data)
+	{
+		return $a_data;
+	}
+// fau.
+
 	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
 	{
 		$previewSession->setParticipantsSolution($this->getSolutionSubmit());
@@ -3404,9 +3424,12 @@ abstract class assQuestion
 					$username = ilObjTestAccess::_getParticipantData($active_id);
 					assQuestion::_logAction(sprintf($lng->txtlng("assessment", "log_answer_changed_points", ilObjAssessmentFolder::_getLogLanguage()), $username, $old_points, $points, $ilUser->getFullname() . " (" . $ilUser->getLogin() . ")"), $active_id, $question_id);
 				}
+// fau: fixManScoringSuccessMessage - return TRUE for _setReachedPoints only if points are changed
+				return TRUE;
 			}
 
-			return TRUE;
+			return FALSE;
+// fau.
 		}
 		else
 		{
@@ -3995,7 +4018,11 @@ abstract class assQuestion
 		$a_q = nl2br((string) ilRTE::_replaceMediaObjectImageSrc($a_q, 0));
 		$a_q = str_replace("</li><br />", "</li>", $a_q);
 		$a_q = str_replace("</li><br>", "</li>", $a_q);
-		
+// fau: lmGapFormat - remove line breaks coming from the RTE editor in tables
+		$a_q = preg_replace("/(<td[^>]*>)<br \/>/","$1", $a_q);
+		$a_q = str_replace("<br />\n</td>", "</td>", $a_q);
+		$a_q = str_replace("</td><br />", "</td>", $a_q);
+// fau.
 		$a_q = ilUtil::insertLatexImages($a_q, "\[tex\]", "\[\/tex\]");
 		$a_q = ilUtil::insertLatexImages($a_q, "\<span class\=\"latex\">", "\<\/span>");
 
@@ -4382,20 +4409,23 @@ abstract class assQuestion
 		/** @var ilDB $ilDB */
 		global $ilDB;
 
+		// fim: [bugfix] order solutions by submission time
+		// sometimes more than one entry is written
 		if($this->getStep() !== NULL)
 		{
-			return $ilDB->queryF("SELECT * FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s AND step = %s",
+			return $ilDB->queryF("SELECT * FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s AND step = %s ORDER BY tstamp ASC",
 				array('integer','integer','integer', 'integer'),
 				array($active_id, $this->getId(), $pass, $this->getStep())
 			);	
 		}
 		else
 		{
-			return $ilDB->queryF("SELECT * FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s",
+			return $ilDB->queryF("SELECT * FROM tst_solutions WHERE active_fi = %s AND question_fi = %s AND pass = %s ORDER BY tstamp ASC",
 				array('integer','integer','integer'),
 				array($active_id, $this->getId(), $pass)
 			);
 		}
+		// fim.
 
 	}
 

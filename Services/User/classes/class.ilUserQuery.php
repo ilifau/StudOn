@@ -229,8 +229,10 @@ class ilUserQuery
 			}
 		}		
 		// count query
-		$count_query = "SELECT count(usr_id) cnt".
+        // fim: [performance] fix count query
+		$count_query = "SELECT count(usr_data.usr_id) cnt".
 			" FROM usr_data";
+        // fim.
 		
 		$all_multi_fields = array("interests_general", "interests_help_offered", "interests_help_looking");
 		$multi_fields = array();
@@ -242,6 +244,15 @@ class ilUserQuery
 			{
 				continue;
 			}
+
+            // fim: [studydata] don't query for studydata directly, add them later
+            if ($field == 'studydata')
+            {
+                include_once("./Services/StudyData/classes/class.ilStudyData.php");
+                $add_studydata = true;
+                continue;
+            }
+            // fim.
 			
 			if(in_array($field, $all_multi_fields))
 			{
@@ -261,18 +272,41 @@ class ilUserQuery
 		$query = "SELECT ".implode($sql_fields, ",").
 			" FROM usr_data".
 			$ut_join;
+
+        // fim: [performance] build optimized user query for role
+        if ($this->role > 0)
+        {
+            $role_join = " INNER JOIN rbac_ua ON usr_data.usr_id = rbac_ua.usr_id";
+            $role_cond = " AND rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer");
+
+            $query.= $role_join;
+            $count_query.= $role_join;
+        }
+        // fim.
+
 			
 		// filter
-		$query.= " WHERE usr_data.usr_id <> ".$ilDB->quote(ANONYMOUS_USER_ID, "integer");
 
-		// User filter
+		// fim: [bugfix] apply user filter also to count query
 		if($this->users and is_array(($this->users)))
 		{
-			$query .= ' AND '.$ilDB->in('usr_data.usr_id',$this->users,false,'integer');
+			$where = ' WHERE '.$ilDB->in('usr_data.usr_id',$this->users,false,'integer');
 		}
+        else
+        {
+            $where = " WHERE usr_data.usr_id <> ".$ilDB->quote(ANONYMOUS_USER_ID, "integer");
+        }
 
-		$count_query.= " WHERE usr_data.usr_id <> ".$ilDB->quote(ANONYMOUS_USER_ID, "integer");
-		$where = " AND";
+        $query .= $where;
+		$count_query.=  $where;
+        $where = " AND";
+        // fim.
+
+
+        // fim: [performance] apply optimized user query for role
+        $query .= $role_cond;
+        $count_query.= $role_cond;
+        // fim.
 
 		if ($this->first_letter != "")
 		{
@@ -360,16 +394,19 @@ class ilUserQuery
 			$count_query.= $add;
 			$where = " AND";
 		}
-		if ($this->role > 0)		// global role
-		{
-			$add = $where." usr_data.usr_id IN (".
-				"SELECT DISTINCT ud.usr_id ".
-				"FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) ".
-				"WHERE rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer").")";
-			$query.= $add;
-			$count_query.= $add;
-			$where = " AND";
-		}
+
+        // fim: [performance] omit old user query for roles
+//		if ($this->role > 0)		// global role
+//		{
+//			$add = $where." usr_data.usr_id IN (".
+//				"SELECT DISTINCT ud.usr_id ".
+//				"FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) ".
+//				"WHERE rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer").")";
+//			$query.= $add;
+//			$count_query.= $add;
+//			$where = " AND";
+//		}
+        // fim.
 		
 		if($this->user_folder)
 		{
@@ -403,7 +440,12 @@ class ilUserQuery
 					$query.= " ORDER BY ut_online.online_time ASC";
 				}	
 				break;
-				
+
+            // fim: [studydata] don't oeder by studydata
+            case "studydata":
+                break;
+           // fim.
+
 			default:
 				if (!in_array($this->order_field, $this->default_fields))
 				{
@@ -446,7 +488,13 @@ class ilUserQuery
 		$result = array();
 		while($rec = $ilDB->fetchAssoc($set))
 		{
-			$result[] = $rec;
+            // fim: [studydata] optionally add the studydata
+            if ($add_studydata)
+            {
+                $rec['studydata'] = ilStudyData::_getStudyDataText($rec['usr_id']);
+            }
+            // fim.
+            $result[] = $rec;
 			
 			if(sizeof($multi_fields))
 			{

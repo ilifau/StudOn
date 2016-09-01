@@ -330,28 +330,17 @@ class ilNewsItem extends ilNewsItemGen
 
 		foreach($ref_ids as $ref_id)
 		{
+// fau: shortRssLink -  simplified access check for private feeds
+			// (user is initialized in privfeed.php)
 			if (!$a_only_public)
 			{
-				// this loop should not cost too much performance
-				$acc = $ilAccess->checkAccessOfUser($a_user_id, "read", "", $ref_id);
-				
-				if (!$acc)
+				if (!$ilAccess->checkAccess("read", "", $ref_id))
 				{
 					continue;
 				}
 			}
-			if (ilNewsItem::getPrivateFeedId() != false) {
-				global $rbacsystem;
-				$acc = $rbacsystem->checkAccessOfUser(ilNewsItem::getPrivateFeedId(),"read", $ref_id);
-			
-				if (!$acc)
-				{
-					continue;
-				}
-			}
-
-			$obj_id = ilObject::_lookupObjId($ref_id);
-			$obj_type = ilObject::_lookupType($obj_id);
+// fau.
+	
 			$news = $news_item->getNewsForRefId($ref_id, $a_only_public, false,
 				$per, $a_prevent_aggregation, false, false, false, $a_user_id);
 			

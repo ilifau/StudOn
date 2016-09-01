@@ -317,6 +317,22 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		return $clone->id;
 	}
 
+// fau: fixImageSync - sync images into original question
+	protected function afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId)
+	{
+		$origImagePath = $this->buildImagePath($origQuestionId, $origParentObjId);
+		$dupImagePath = $this->buildImagePath($dupQuestionId, $dupParentObjId);
+
+		ilUtil::delDir($origImagePath);
+		if (is_dir($dupImagePath))
+		{
+			ilUtil::makeDirParents($origImagePath);
+			ilUtil::rCopy($dupImagePath, $origImagePath);
+		}
+	}
+//fau.
+
+
 	function duplicateImages($src_question_id, $src_object_id, $dest_question_id, $dest_object_id)
 	{
 		global $ilLog;
@@ -1445,16 +1461,18 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 	 * @param integer $a_random_id
 	 * @return string
 	 */
-	public function lookupAnswerTextByRandomId($a_random_id)
+// fau: fixOrderingAnswersLookup - add question id parameter
+	public function lookupAnswerTextByRandomId($a_random_id, $a_question_id)
 	{
 		global $ilDB;
 
-		$res = $ilDB->queryF('SELECT answertext FROM qpl_a_ordering WHERE random_id = %s',
-			array('integer'), array($a_random_id));
+		$res = $ilDB->queryF('SELECT answertext FROM qpl_a_ordering WHERE random_id = %s AND question_fi = %s',
+			array('integer','integer'), array($a_random_id, $a_question_id));
 		$row = $ilDB->fetchAssoc($res);
 
 		return $row['answertext'];
 	}
+// fau.
 
 	public function updateLeveledOrdering($a_index, $a_answer_text, $a_depth)
 	{

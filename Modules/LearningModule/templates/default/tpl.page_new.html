@@ -21,6 +21,9 @@
 </head>
 <body <!-- BEGIN body_class -->class="{BODY_CLASS}"<!-- END body_class -->>
 <div id="drag_zmove"></div>
+<!-- fau: lmFooter open ilAll for footer -->
+<div id="ilAll">
+<!-- fau. -->
 	{MAINMENU}
 
 	<!-- BEGIN sr_focus -->
@@ -119,7 +122,14 @@
 
 <div id="minheight"></div>
 
-
+<!-- fau: lmFooter - added footer, close ilAll -->
+<!-- BEGIN added_footer -->
+<footer id="ilFooter" class="ilFooter">
+    <div class="container-fluid ilContainerWidth">{FOOTER}</div>
+</footer>
+<!-- END added_footer -->
+</div>
+<!-- fau. -->
 <!-- BEGIN on_load_code -->
 <script type="text/javascript">
 il.Util.addOnLoad(function() {

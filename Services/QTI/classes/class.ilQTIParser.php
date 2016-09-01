@@ -1051,6 +1051,19 @@ class ilQTIParser extends ilSaxParser
 			case "itemmetadata":
 				$this->in_itemmetadata = FALSE;
 				break;
+
+			// fim: [bugfix] allow metadata fields being indeded
+			case "fieldlabel":
+				$this->metadata["label"] = $this->characterbuffer;
+				$this->characterbuffer = "";
+				break;
+			case "fieldentry":
+				$this->metadata["entry"] = $this->characterbuffer;
+				$this->characterbuffer = "";
+				break;
+			// fim.
+				
+				
 			case "qtimetadatafield":
 				// handle only specific ILIAS metadata
 				switch ($this->metadata["label"])
@@ -1363,6 +1376,14 @@ class ilQTIParser extends ilSaxParser
 				}
 				$this->mattext = NULL;
 				break;
+			// fim: [exam] add support for matbreak element
+			case "matbreak":
+				$this->mattext = new ilQTIMattext();
+				$this->mattext->setContent('<br />');
+				$this->material->addMattext($this->mattext);
+				$this->mattext = NULL;	
+				break;
+			// fim. 
 			case "matapplet":
 				if ($this->material != NULL)
 				{
@@ -1399,13 +1420,16 @@ class ilQTIParser extends ilSaxParser
 		$this->characterbuffer .= $a_data;
 		$a_data = $this->characterbuffer;
 		switch ($this->qti_element)
-		{
+		{	
+			/* fim: [bugfix] allow metadata fields being indended
 			case "fieldlabel":
 				$this->metadata["label"] = $a_data;
 				break;
 			case "fieldentry":
 				$this->metadata["entry"] = $a_data;
 				break;
+			fim. */
+				
 			case "response_label":
 				if ($this->response_label != NULL)
 				{

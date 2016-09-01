@@ -74,9 +74,11 @@ class ilMailGUI
 
 		if ($_GET["type"] == "new")
 		{
-			$_SESSION['rcp_to'] = $_GET['rcp_to'];			
-			$_SESSION['rcp_cc'] = $_GET['rcp_cc'];
-			$_SESSION['rcp_bcc'] = $_GET['rcp_bcc'];
+			// fim: [bugfix] get long recipient lists from session to prevent them being cut by suhosin
+			if ($_GET['rcp_to'] != '_session_') $_SESSION['rcp_to'] = $_GET['rcp_to'];
+			if ($_GET['rcp_cc'] != '_session_') $_SESSION['rcp_cc'] = $_GET['rcp_cc'];
+			if ($_GET['rcp_bcc'] != '_session_') $_SESSION['rcp_bcc'] = $_GET['rcp_bcc'];
+			// fim.
 
             ilMailFormCall::storeReferer($_GET);
 			

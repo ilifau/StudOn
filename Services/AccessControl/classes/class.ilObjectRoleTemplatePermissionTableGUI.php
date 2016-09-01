@@ -255,11 +255,23 @@ class ilObjectRoleTemplatePermissionTableGUI extends ilTable2GUI
 		
 		$operations = $this->getPermissions($this->getTemplateType());
 
-
+		// fim: [admin] get settings for local user administration
+		require_once('./Services/User/classes/class.ilUserAccountSettings.php');
+		$local_user_admin_enabled = ilUserAccountSettings::getInstance()->isLocalUserAdministrationEnabled();	
+		// fim.
+		
 		// Object permissions
 		$rows = array();
 		foreach($rbacreview->getOperationsByTypeAndClass($this->getTemplateType(), 'object') as $ops_id)
 		{
+			// fim: [admin] customize permissions settings for local user administration			
+			if (($ops_id == 47 || $ops_id == 48)
+			and (!$local_user_admin_enabled))
+			{
+				continue;
+			}
+			// fim.
+			
 			$operations = $this->getPermissions($this->getTemplateType());
 			
 			$operation = $rbacreview->getOperation($ops_id);

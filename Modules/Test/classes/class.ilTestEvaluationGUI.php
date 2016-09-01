@@ -802,14 +802,14 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 	*/
 	function outParticipantsPassDetails()
 	{
-		global $ilTabs, $ilAccess;
+        global $ilTabs, $ilAccess;
 
-		if (!$ilAccess->checkAccess('write', '', $this->ref_id))
-		{
-			// allow only write access
-			ilUtil::sendInfo($this->lng->txt('no_permission'), true);
-			$this->ctrl->redirectByClass('ilObjTestGUI', 'infoScreen');
-		}
+        if (!$ilAccess->checkAccess('write', '', $this->ref_id))
+        {
+            // allow only write access
+            ilUtil::sendInfo($this->lng->txt('no_permission'), true);
+            $this->ctrl->redirectByClass('ilObjTestGUI', 'infoScreen');
+        }
 
 		$this->ctrl->saveParameter($this, "active_id");
 		$active_id = (int)$_GET["active_id"];
@@ -1000,9 +1000,17 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 		if (array_key_exists("pdf", $_GET) && ($_GET["pdf"] == 1))
 		{
 			//$this->object->deliverPDFfromHTML($template->get(), $this->object->getTitle());
-
-			$name = ilObjUser::_lookupName($user_id);
-			$filename = $name['lastname'] . '_' . $name['firstname'] . '_' . $name['login'] . '__'. $this->object->getTitle();
+// fau: fixAnomymousTestPdf - don't show the user name in the PDF file name
+			if ($this->object->getAnonymity())
+			{
+				$filename = $this->lng->txt('anonymous').'__'. $this->object->getTitle();
+			}
+			else
+			{
+				$name = ilObjUser::_lookupName($user_id);
+				$filename = $name['lastname'] . '_' . $name['firstname'] . '_' . $name['login'] . '__'. $this->object->getTitle();
+			}
+// fau.
 			require_once 'class.ilTestPDFGenerator.php';
 			ilTestPDFGenerator::generatePDF($template->get(), ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $filename);
 			//ilUtil::deliverData($file, ilUtil::getASCIIFilename($this->object->getTitle()) . ".pdf", "application/pdf", false, true);
@@ -1068,7 +1076,10 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 		$this->ctrl->saveParameter($this, "pass");
 		$pass = $_GET["pass"];
 
-		$result_array = $this->getFilteredTestResult($active_id, $pass);
+// fau: fixUserPassDetails - show all question results to the participant (not filtered)
+		// $result_array = $this->getFilteredTestResult($active_id, $pass);
+		$result_array = $this->object->getTestResult($active_id, $pass);
+// fau.
 
 		$command_solution_details = "";
 		if ($this->object->getShowSolutionDetails())
@@ -1492,6 +1503,9 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 					array(
 						'qid'               => $question_id,
 						'question_title'    => $question_title,
+						// fim: [exam] add question description to table
+						'question_description' => $question_object->getComment(),
+						// fim.
 						'number_of_answers' => $answered,
 						'output'            => "<a href=\"" . $this->ctrl->getLinkTarget($this, "exportQuestionForAllParticipants") . "\">" . $this->lng->txt("pdf_export") . "</a>",
 						'file_uploads'      => $download

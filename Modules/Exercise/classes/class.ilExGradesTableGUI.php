@@ -117,10 +117,12 @@ class ilExGradesTableGUI extends ilTable2GUI
 			// grade
 			$this->tpl->setCurrentBlock("grade");
 			$status = ilExAssignment::lookupStatusOfUser($ass["id"], $user_id);
+			/* fim: [exercise] don't make status selectable for assignments
 			$this->tpl->setVariable("SEL_".strtoupper($status), ' selected="selected" ');
 			$this->tpl->setVariable("TXT_NOTGRADED", $lng->txt("exc_notgraded"));
 			$this->tpl->setVariable("TXT_PASSED", $lng->txt("exc_passed"));
 			$this->tpl->setVariable("TXT_FAILED", $lng->txt("exc_failed"));
+			fim. */
 			switch($status)
 			{
 				case "passed": 	$pic = "scorm/passed.svg"; break;
@@ -152,7 +154,8 @@ class ilExGradesTableGUI extends ilTable2GUI
 		
 		$this->tpl->setCurrentBlock("grade");
 		$status = ilExerciseMembers::_lookupStatus($this->exc_id, $user_id);
-		$this->tpl->setVariable("SEL_".strtoupper($status), ' selected="selected" ');
+		
+		// fim: [exercise] make status changeable
 		switch($status)
 		{
 			case "passed": 	$pic = "scorm/passed.svg"; break;
@@ -161,6 +164,22 @@ class ilExGradesTableGUI extends ilTable2GUI
 		}
 		$this->tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
 		$this->tpl->setVariable("ALT_STATUS", $lng->txt("exc_".$status));
+		
+		if ($this->exc->getPassMode()== "man")
+		{
+			$this->tpl->setVariable("SEL_".strtoupper($status), ' selected="selected" ');
+			$this->tpl->setVariable("TXT_NOTGRADED", $lng->txt("exc_notgraded"));
+			$this->tpl->setVariable("TXT_PASSED", $lng->txt("exc_passed"));
+			$this->tpl->setVariable("TXT_FAILED", $lng->txt("exc_failed"));
+			$this->tpl->setVariable("VAL_ID", $user_id);
+			if (($sd = ilObjExercise::_lookupStatusTime($this->exc_id, $user_id)) > 0)
+			{
+				$this->tpl->setVariable("TXT_LAST_CHANGE", $lng->txt("last_change"));
+				$this->tpl->setVariable('VAL_STATUS_DATE',
+					ilDatePresentation::formatDate(new ilDateTime($sd,IL_CAL_DATETIME)));
+			}
+		}
+		// fim.
 		
 		// mark
 		/*$this->tpl->setVariable("TXT_MARK", $lng->txt("exc_mark"));
