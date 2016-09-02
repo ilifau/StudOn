@@ -116,7 +116,7 @@ class ilPublicUserProfileGUI
 	{
 		return $this->backurl;
 	}
-		
+
 	protected function handleBackUrl($a_is_portfolio = false)
 	{
 		global $ilMainMenu, $ilTabs, $lng;
@@ -143,7 +143,7 @@ class ilPublicUserProfileGUI
 				$back);
 		}
 	}
-	
+
 	/**
 	 * Set custom preferences for public profile fields
 	 *
@@ -278,18 +278,18 @@ class ilPublicUserProfileGUI
 			{
 				ilUtil::redirect('ilias.php?baseClass=ilPersonalDesktopGUI');
 			}
-			
+
 			// Check from Database if value
 			// of public_profile = "y" show user infomation
 			$user = new ilObjUser($this->getUserId());
 			$current = $user->getPref("public_profile");
-							
+
 			// #17462 - see ilPersonalProfileGUI::initPublicProfileForm()
 			if($user->getPref("public_profile") == "g" && !$ilSetting->get('enable_global_profiles'))
 			{
 				$current = "y";
 			}
-			
+
 			if ($current != "y" &&
 				($current != "g" || !$ilSetting->get('enable_global_profiles')) &&
 				!$this->custom_prefs)
@@ -365,7 +365,7 @@ class ilPublicUserProfileGUI
 			$tpl->setVariable("VAL_BIRTHDAY", ilDatePresentation::formatDate(new ilDate($user->getBirthday(), IL_CAL_DATE)));
 			$tpl->parseCurrentBlock();
 		}
-		
+
 		if(!$this->offline)
 		{
 			// vcard
@@ -526,14 +526,16 @@ class ilPublicUserProfileGUI
 			$tpl->parseCurrentBlock();
 		}
 
-		
+		// fim: [privacy] don't add matriculation and client IP to the public profile
 		$val_arr = array(
 			"getHobby" => "hobby", 
 			"getGeneralInterestsAsText" => "interests_general",
 			"getOfferingHelpAsText" => "interests_help_offered",
 			"getLookingForHelpAsText" => "interests_help_looking",			
-			"getMatriculation" => "matriculation", 
-			"getClientIP" => "client_ip");
+			// "getMatriculation" => "matriculation",
+			// "getClientIP" => "client_ip"
+		);
+		// fim.
 			
 		foreach ($val_arr as $key => $value)
 		{
@@ -580,7 +582,7 @@ class ilPublicUserProfileGUI
 			}
 			$tpl->parseCurrentBlock();
 		}
-		
+
 		// delicious row
 		//$d_set = new ilSetting("delicious");
 		if ($this->getPublicPref($user, "public_delicious") == "y")
@@ -718,7 +720,9 @@ class ilPublicUserProfileGUI
 			"getZipcode" => "zipcode", "getCity" => "city", "getCountry" => "country",
 			"getPhoneOffice" => "phone_office", "getPhoneHome" => "phone_home",
 			"getPhoneMobile" => "phone_mobile", "getFax" => "fax", "getEmail" => "email",
-			"getHobby" => "hobby", "getMatriculation" => "matriculation", "getClientIP" => "client_ip",
+			// fim: [privacy] don't add matriculation and client IP to the public profile
+			"getHobby" => "hobby",
+			// fim.
 			"dummy" => "location");
 
 		$org = array();
@@ -772,7 +776,7 @@ class ilPublicUserProfileGUI
 				}
 			}
 		}
-		
+
 		if (count($org))
 		{
 			$vcard->setOrganization(join(";", $org));

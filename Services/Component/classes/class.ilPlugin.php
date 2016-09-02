@@ -1013,12 +1013,13 @@ abstract class ilPlugin
 	{
 		global $ilDB;
 
-		$q = "SELECT * FROM il_plugin WHERE ".
+// fau: sqlCache - use sql cache
+		$q = "SELECT SQL_CACHE * FROM il_plugin WHERE ".
 			" component_type = ".$ilDB->quote($a_ctype, "text")." AND ".
 			" component_name = ".$ilDB->quote($a_cname, "text")." AND ".
 			" slot_id = ".$ilDB->quote($a_slot_id, "text")." AND ".
 			" name = ".$ilDB->quote($a_pname, "text");
-
+// fau.
 		$set = $ilDB->query($q);
 
 		$rec = $ilDB->fetchAssoc($set);
@@ -1061,12 +1062,14 @@ abstract class ilPlugin
 	function lookupNameForId($a_ctype, $a_cname, $a_slot_id, $a_plugin_id)
 	{
 		global $ilDB;
-
-		$q = "SELECT name FROM il_plugin ".
+		
+// fau: sqlCache - use sql cache
+		$q = "SELECT SQL_CACHE name FROM il_plugin ".
 			" WHERE component_type = ".$ilDB->quote($a_ctype, "text").
 			" AND component_name = ".$ilDB->quote($a_cname, "text").
 			" AND slot_id = ".$ilDB->quote($a_slot_id, "text").
 			" AND plugin_id = ".$ilDB->quote($a_plugin_id, "text");
+// fau.
 
 		$set = $ilDB->query($q);
 		if ($rec = $ilDB->fetchAssoc($set))
@@ -1081,12 +1084,14 @@ abstract class ilPlugin
 	function lookupIdForName($a_ctype, $a_cname, $a_slot_id, $a_plugin_name)
 	{
 		global $ilDB;
-
-		$q = "SELECT plugin_id FROM il_plugin ".
+		
+// fau: sqlCache - use sql cache
+		$q = "SELECT SQL_CACHE plugin_id FROM il_plugin ".
 			" WHERE component_type = ".$ilDB->quote($a_ctype, "text").
 			" AND component_name = ".$ilDB->quote($a_cname, "text").
 			" AND slot_id = ".$ilDB->quote($a_slot_id, "text").
 			" AND name = ".$ilDB->quote($a_plugin_name, "text");
+// fau.
 
 		$set = $ilDB->query($q);
 		if ($rec = $ilDB->fetchAssoc($set))

@@ -589,10 +589,12 @@ class assFileUpload extends assQuestion implements ilObjQuestionScoringAdjustabl
 		}
 		else
 		{
+// fau: fixFileUploadQuestionSize - use ini_get for upload_max_filesize to allow config via apache
 			// get the value for the maximal uploadable filesize from the php.ini (if available)
-			$umf = get_cfg_var("upload_max_filesize");
+			$umf = ini_get("upload_max_filesize");
 			// get the value for the maximal post data from the php.ini (if available)
-			$pms = get_cfg_var("post_max_size");
+			$pms = ini_get("post_max_size");
+// fau.
 
 			//convert from short-string representation to "real" bytes
 			$multiplier_a=array("K"=>1024, "M"=>1024*1024, "G"=>1024*1024*1024);

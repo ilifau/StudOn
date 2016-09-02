@@ -158,7 +158,7 @@ class ilObjExercise extends ilObject
 
 	}
 
-	
+
 	function saveData()
 	{
 		global $ilDB;
@@ -202,7 +202,7 @@ class ilObjExercise extends ilObject
 	 	$new_obj->saveData();
 	 	$new_obj->setPassNr($this->getPassNr());
 	 	$new_obj->setShowSubmissions($this->getShowSubmissions());
-	 	$new_obj->setCompletionBySubmission($this->isCompletionBySubmissionEnabled());	 
+	 	$new_obj->setCompletionBySubmission($this->isCompletionBySubmissionEnabled());
 	 	$new_obj->update();
 	 	
 		// Copy criteria catalogues
@@ -211,19 +211,19 @@ class ilObjExercise extends ilObject
 		foreach(ilExcCriteriaCatalogue::getInstancesByParentId($this->getId()) as $crit_cat)
 		{
 			$new_id = $crit_cat->cloneObject($new_obj->getId());
-			$crit_cat_map[$crit_cat->getId()] = $new_id;			
+			$crit_cat_map[$crit_cat->getId()] = $new_id;
 		}
-			
+
 		// Copy assignments
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
-		ilExAssignment::cloneAssignmentsOfExercise($this->getId(), $new_obj->getId(), $crit_cat_map);	
+		ilExAssignment::cloneAssignmentsOfExercise($this->getId(), $new_obj->getId(), $crit_cat_map);
 		
 		// Copy learning progress settings
 		include_once('Services/Tracking/classes/class.ilLPObjSettings.php');
 		$obj_settings = new ilLPObjSettings($this->getId());
 		$obj_settings->cloneSettings($new_obj->getId());
 		unset($obj_settings);
-			
+
 		return $new_obj;
 	}
 	
@@ -250,7 +250,7 @@ class ilObjExercise extends ilObject
 
 		//$this->file_obj->delete();
 		//$this->members_obj->delete();
-		
+
 		include_once "Modules/Exercise/classes/class.ilExcCriteriaCatalogue.php";
 		ilExcCriteriaCatalogue::deleteByParent($this->getId());
 
@@ -360,31 +360,31 @@ class ilObjExercise extends ilObject
 	function sendAssignment(ilExAssignment $a_ass, $a_members)
 	{
 		global $lng, $ilUser;
-		
+
 		$a_members = array_keys($a_members);
-		
+
 		$lng->loadLanguageModule("exc");
-		
+
 		// subject
 		$subject = $a_ass->getTitle()
 			? $this->getTitle().": ".$a_ass->getTitle()
 			: $this->getTitle();
-		
-		
+
+
 		// body
-		
+
 		$body = $a_ass->getInstruction();
 		$body .= "\n\n";
-		
+
 		$body .= $lng->txt("exc_edit_until").": ";
 		$body .= (!$a_ass->getDeadline())
 		  ? $lng->txt("exc_no_deadline_specified")
 		  : ilDatePresentation::formatDate(new ilDateTime($a_ass->getDeadline(), IL_CAL_UNIX));
 		$body .= "\n\n";
-		
+
 		include_once "Services/Link/classes/class.ilLink.php";
 		$body .= ilLink::_getLink($this->getRefId(), "exc");
-		
+
 
 		// files
 		$file_names = array();
@@ -411,7 +411,7 @@ class ilObjExercise extends ilObject
 			unset($tmp_obj);
 		}
 		$recipients = implode("," ,$recipients);
-	
+
 		// send mail
 		include_once "Services/Mail/classes/class.ilMail.php";
 		$tmp_mail_obj = new ilMail($ilUser->getId());
@@ -419,7 +419,7 @@ class ilObjExercise extends ilObject
 			$recipients,
 			"",
 			"",
-			$subject, 
+			$subject,
 			$body,
 			$file_names,
 			array("normal")
@@ -438,7 +438,7 @@ class ilObjExercise extends ilObject
 		{
 			$member_status = $a_ass->getMemberStatus($member_id);
 			$member_status->setSent(true);
-			$member_status->update();			
+			$member_status->update();
 		}
 
 		return true;
@@ -490,8 +490,14 @@ class ilObjExercise extends ilObject
 		{
 			$passed_all_mandatory = false;
 		}
-		
-		if ($this->getPassMode() != "nr")
+
+		// fim: [exercise] respect take existing status in "manual" mode
+		if ($this->getPassMode() == "man")
+		{
+			$overall_stat = ilExerciseMembers::_lookupStatus($this->getId(), $a_user_id);
+		}
+		elseif ($this->getPassMode() != "nr")
+		// fim.
 		{
 //echo "5";
 			$overall_stat = "notgraded";
@@ -573,6 +579,12 @@ class ilObjExercise extends ilObject
 	 */
 	function exportGradesExcel()
 	{
+
+		// fim: [exercise] check whether matriculation can be exported
+		global $ilCust;
+		$full_data = $ilCust->getSetting("export_member_data_is_allowed");
+		// fim.
+
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
 		$ass_data = ilExAssignment::getInstancesByExercise($this->getId());
 		
@@ -589,38 +601,59 @@ class ilObjExercise extends ilObject
 		$mainworksheet = $workbook->addWorksheet();
 		
 		// header row
-		$mainworksheet->writeString(0, 0, ilExcelUtils::_convert_text($this->lng->txt("name")));
-		$cnt = 1;
+
+		// fim: [exercise] add extra fields to header
+		$col_cnt=0;
+		$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("login")));
+		$col_cnt++;
+		$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("name")));
+		$col_cnt++;
+		if ($full_data)
+		{
+			$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("matriculation")));
+			$col_cnt++;
+		}
+		$ass_cnt=1;
 		foreach ($ass_data as $ass)
 		{
-			$mainworksheet->writeString(0, $cnt, $cnt);
-			$cnt++;
+			$mainworksheet->writeString(0, $col_cnt, $ass_cnt);
+			$col_cnt++;
+			$ass_cnt++;
 		}
-		$mainworksheet->writeString(0, $cnt++, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
-		$mainworksheet->writeString(0, $cnt++, ilExcelUtils::_convert_text($this->lng->txt("exc_mark")));
-		$mainworksheet->writeString(0, $cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_comment_for_learner")));
-		
+		$mainworksheet->writeString(0, $col_cnt++, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
+		$mainworksheet->writeString(0, $col_cnt++, ilExcelUtils::_convert_text($this->lng->txt("exc_mark")));
+		$mainworksheet->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_comment_for_learner")));
+		// fim.
 		// data rows
 		$this->mem_obj = new ilExerciseMembers($this);
 		$getmems = $this->mem_obj->getMembers();
 		$mems = array();
 		foreach ($getmems as $user_id)
 		{
-			$mems[$user_id] = ilObjUser::_lookupName($user_id);
+			// fim: [exercise] get all user fields
+			$mems[$user_id] = ilObjUser::_lookupFields($user_id);
+			// fim.
 		}
 		$mems = ilUtil::sortArray($mems, "lastname", "asc", false, true);
 
 		include_once 'Services/Tracking/classes/class.ilLPMarks.php';
-		
+
 		$data = array();
 		$row_cnt = 1;
 		foreach ($mems as $user_id => $d)
 		{
-			$col_cnt = 1;
-
-			// name
-			$mainworksheet->writeString($row_cnt, 0,
-				ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]." [".$d["login"]."]"));
+			// fim: [exercise] add extra fields to row
+			$col_cnt = 0;
+			$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["login"]));
+			$col_cnt++;
+			$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]));
+			$col_cnt++;
+			if ($full_data)
+			{
+				$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["matriculation"]));
+				$col_cnt++;
+			}
+			// fim.
 
 			reset($ass_data);
 
@@ -639,7 +672,7 @@ class ilObjExercise extends ilObject
 			$marks_obj = new ilLPMarks($this->getId(), $user_id);
 			$mainworksheet->writeString($row_cnt, $col_cnt++, ilExcelUtils::_convert_text($marks_obj->getMark()));
 			$mainworksheet->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($marks_obj->getComment()));
-			
+
 			$row_cnt++;
 		}
 		
@@ -649,14 +682,25 @@ class ilObjExercise extends ilObject
 		$worksheet2 = $workbook->addWorksheet();
 		
 		// header row
-		$worksheet2->writeString(0, 0, ilExcelUtils::_convert_text($this->lng->txt("name")));
-		$cnt = 1;
+		// fim: [exercise] add extra fields to header
+		$col_cnt=0;
+		$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("login")));
+		$col_cnt++;
+		$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("name")));
+		$col_cnt++;
+		if ($full_data)
+		{
+			$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("matriculation")));
+			$col_cnt++;
+		}
+		$ass_cnt=1;
 		foreach ($ass_data as $ass)
 		{
-			$worksheet2->writeString(0, $cnt, $cnt);
-			$cnt++;
+			$worksheet2->writeString(0, $col_cnt, $ass_cnt);
+			$col_cnt++;
+			$ass_cnt++;
 		}
-		$worksheet2->writeString(0, $cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
+		$worksheet2->writeString(0, $col_cnt, ilExcelUtils::_convert_text($this->lng->txt("exc_total_exc")));
 		
 		// data rows
 		$data = array();
@@ -664,12 +708,20 @@ class ilObjExercise extends ilObject
 		reset($mems);
 		foreach ($mems as $user_id => $d)
 		{
-			$col_cnt = 1;
-			$d = ilObjUser::_lookupName($user_id);
+			// fim: [exercise] add extra fields to row
+			$d = $mems[$user_id];
 
-			// name
-			$worksheet2->writeString($row_cnt, 0,
-				ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]." [".$d["login"]."]"));
+			$col_cnt = 0;
+			$worksheet2->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["login"]));
+			$col_cnt++;
+			$worksheet2->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["lastname"].", ".$d["firstname"]));
+			$col_cnt++;
+			if ($full_data)
+			{
+				$worksheet2->writeString($row_cnt, $col_cnt, ilExcelUtils::_convert_text($d["matriculation"]));
+				$col_cnt++;
+			}
+			// fim.
 
 			reset($ass_data);
 
@@ -754,21 +806,21 @@ class ilObjExercise extends ilObject
 	
 	public function processExerciseStatus(ilExAssignment $a_ass, array $a_user_ids, $a_has_submitted, array $a_valid_submissions = null)
 	{
-		$a_has_submitted = (bool)$a_has_submitted;			
-		
+		$a_has_submitted = (bool)$a_has_submitted;
+
 		include_once("./Modules/Exercise/classes/class.ilExerciseMembers.php");
 		foreach($a_user_ids as $user_id)
-		{		
+		{
 			$member_status = $a_ass->getMemberStatus($user_id);
-			$member_status->setReturned($a_has_submitted);	
-			$member_status->update();	
-			
+			$member_status->setReturned($a_has_submitted);
+			$member_status->update();
+
 			ilExerciseMembers::_writeReturned($this->getId(), $user_id, $a_has_submitted);
-		}		 
-				
+		}
+
 		// re-evaluate exercise status
 		if($this->isCompletionBySubmissionEnabled())
-		{							
+		{
 			foreach($a_user_ids as $user_id)
 			{
 				$status = 'notgraded';
@@ -777,17 +829,17 @@ class ilObjExercise extends ilObject
 					if(!is_array($a_valid_submissions) ||
 						$a_valid_submissions[$user_id])
 					{
-						$status = 'passed';				
-					}					
+						$status = 'passed';
+					}
 				}
-									
+
 				$member_status = $a_ass->getMemberStatus($user_id);
-				$member_status->setStatus($status);		
-				$member_status->update();				
+				$member_status->setStatus($status);
+				$member_status->update();
 			}
-		}			
-	}	
-	
+		}
+	}
+
 	/**
 	 * Get all exercises for user
 	 *

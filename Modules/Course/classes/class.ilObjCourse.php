@@ -41,7 +41,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	const CAL_ACTIVATION_END = 4;
 	const CAL_COURSE_START = 5;
 	const CAL_COURSE_END = 6;
-	
+
 	const STATUS_DETERMINATION_LP = 1;
 	const STATUS_DETERMINATION_MANUAL = 2;
 
@@ -61,15 +61,17 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	private $reg_access_code = '';
 	private $reg_access_code_enabled = false;
 	private $status_dt = null;
-	
-	private $mail_members = ilCourseConstants::MAIL_ALLOWED_ALL;
+
+// fau: mailToMembers - change default setting for mail to members
+	private $mail_members = ilCourseConstants::MAIL_ALLOWED_TUTORS;
+// fau.
 	
 	protected $crs_start; // [ilDate]
 	protected $crs_end; // [ilDate]
 	protected $leave_end; // [ilDate]
 	protected $min_members; // [int]
 	protected $auto_fill_from_waiting; // [bool]
-	
+
 	/**
 	 *
 	 * 
@@ -305,8 +307,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	}
 	function getSubscriptionType()
 	{
-		return $this->subscription_type ? $this->subscription_type : IL_CRS_SUBSCRIPTION_DIRECT;
-		#return $this->subscription_type ? $this->subscription_type : $this->SUBSCRIPTION_DEACTIVATED;
+		// fim: [memfix] set the default subscription type to confirmation
+		return $this->subscription_type ? $this->subscription_type : IL_CRS_SUBSCRIPTION_CONFIRMATION;
+		// fim.
 	}
 	function setSubscriptionType($a_value)
 	{
@@ -320,6 +323,38 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->subscription_password = $a_value;
 	}
+
+	// fim: [memsess] new functions get/setSubscriptionWithEvents()
+	function getSubscriptionWithEvents()
+	{
+		if ($this->subscription_with_events)
+		{
+			return $this->subscription_with_events;
+		}
+		else
+		{
+			return IL_CRS_SUBSCRIPTION_EVENTS_OFF;
+		}
+	}
+	function setSubscriptionWithEvents($a_value)
+	{
+		$this->subscription_with_events = $a_value;
+	}
+	// fim.
+
+
+	// fim: [meminf] new functions get/setShowMemLimit()
+	function getShowMemLimit()
+	{
+		return $this->show_mem_limit;
+	}
+	function setShowMemLimit($a_value)
+	{
+		$this->show_mem_limit = $a_value;
+	}
+	// fim.
+
+
 	function enabledObjectiveView()
 	{
 		return $this->view_mode == IL_CRS_VIEW_OBJECTIVE;
@@ -334,6 +369,19 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->waiting_list = (bool) $a_status;
 	}
+
+	// fim: [memlot] new functions enable(d)LotList()
+	function enabledLotList()
+	{
+		return (bool) $this->lot_list;
+	}
+
+	function enableLotList($a_status)
+	{
+		$this->lot_list = (bool) $a_status;
+	}
+	// fim.
+
 
 	function inSubscriptionTime()
 	{
@@ -470,7 +518,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		
 		// Results are stored in $this->items
 		parent::getSubItems($a_admin_panel_enabled,$a_include_side_block);
-		
+
 		$limit_sess = false;		
 		if(!$a_admin_panel_enabled &&
 			!$a_include_side_block &&
@@ -486,10 +534,10 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
 		}
-				
-		
-		// do session limit		
-	
+
+
+		// do session limit
+
 		// @todo move to gui class
 		if(isset($_GET['crs_prev_sess']))
 		{
@@ -858,35 +906,35 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	}
 	
 	function setCourseStart(ilDate $a_value = null)
-	{		
+	{
 		$this->crs_start = $a_value;
 	}
-	
+
 	function getCourseStart()
-	{		
+	{
 		return $this->crs_start;
 	}
-	
+
 	function setCourseEnd(ilDate $a_value = null)
-	{		
+	{
 		$this->crs_end = $a_value;
 	}
-	
+
 	function getCourseEnd()
-	{		
+	{
 		return $this->crs_end;
 	}
-	
+
 	function setCancellationEnd(ilDate $a_value = null)
-	{		
+	{
 		$this->leave_end = $a_value;
 	}
-	
+
 	function getCancellationEnd()
-	{		
+	{
 		return $this->leave_end;
-	}	
-	
+	}
+
 	function setSubscriptionMinMembers($a_value)
 	{
 		if($a_value !== null)
@@ -895,22 +943,22 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		}
 		$this->min_members = $a_value;
 	}
-	
+
 	function getSubscriptionMinMembers()
 	{
 		return $this->min_members;
 	}
-	
+
 	function setWaitingListAutoFill($a_value)
 	{
 		$this->auto_fill_from_waiting = (bool)$a_value;
 	}
-	
+
 	function hasWaitingListAutoFill()
 	{
 		return (bool)$this->auto_fill_from_waiting;
 	}
-	
+
 	/**
 	 * Clone course (no member data)
 	 *
@@ -933,8 +981,8 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		// cognos-blu-patch: begin
 		$new_obj->getMemberObject()->updateContact($ilUser->getId(), 1);
 		// cognos-blu-patch: end
-		
-			
+
+
 		// #14596		
 		$cwo = ilCopyWizardOptions::_getInstance($a_copy_id);		
 		if($cwo->isRootNode($this->getRefId()))
@@ -1072,6 +1120,29 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			$this->appendMessage($this->lng->txt("subscription_times_not_valid"));
 		}
+		// fim: [memad] check deny time for registration
+		if($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED)
+		{
+			global $ilCust;
+			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
+			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+			if ($deny_regstart_from and $deny_regstart_to)
+			{
+				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
+				$deny_regstart_to = new ilDateTime($deny_regstart_to, IL_CAL_DATETIME);
+				$regstart = new ilDateTime($this->getSubscriptionStart(), IL_CAL_UNIX);
+
+				if(ilDateTime::_before($deny_regstart_from, $regstart)
+				and ilDateTime::_after($deny_regstart_to, $regstart))
+				{
+					$this->appendMessage(sprintf($this->lng->txt('deny_regstart_message'),
+						ilDatePresentation::formatDate($deny_regstart_from),
+						ilDatePresentation::formatDate($deny_regstart_to)));
+				}
+			}
+		}
+		// fim.
+
 		#if((!$this->getActivationUnlimitedStatus() and
 		#	!$this->getSubscriptionUnlimitedStatus()) and
 		#	($this->getSubscriptionStart() > $this->getActivationEnd() or
@@ -1087,7 +1158,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->appendMessage($this->lng->txt("crs_password_required"));
 		}
 		if($this->isSubscriptionMembershipLimited())
-		{			
+		{
 			if($this->getSubscriptionMinMembers() <= 0 && $this->getSubscriptionMaxMembers() <= 0)
 			{
 				$this->appendMessage($this->lng->txt("crs_max_and_min_members_needed"));
@@ -1110,12 +1181,31 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			$this->appendMessage($this->lng->txt('err_check_input'));
 		}
-		
-		if($this->getCourseStart() && 
+
+		if($this->getCourseStart() &&
 			$this->getCourseStart()->get(IL_CAL_UNIX) > $this->getCourseEnd()->get(IL_CAL_UNIX))
 		{
 			$this->appendMessage($this->lng->txt("crs_course_period_not_valid"));
 		}
+
+		// fim: [memlot] check registration period for lot list
+		if ($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_UNLIMITED
+		and $this->isSubscriptionMembershipLimited() and $this->enabledLotList())
+		{
+			$this->appendMessage($this->lng->txt("crs_limit_period_for_lot"));
+		}
+		// fim.
+
+		// fim: [memsess] check event registration
+		if ($this->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF
+			and ($this->getSubscriptionType() == IL_CRS_SUBSCRIPTION_CONFIRMATION
+				or ($this->enabledWaitingList() and $this->isSubscriptionMembershipLimited())
+				or ($this->enabledLotList() and $this->isSubscriptionMembershipLimited())))
+		{
+			    $this->setSubscriptionWithEvents(IL_CRS_SUBSCRIPTION_EVENTS_OFF);
+				$this->appendMessage($this->lng->txt('crs_subscribe_events_not_possible'));
+		}
+		// fim.
 
 		return $this->getMessage() ? false : true;
 	}
@@ -1189,7 +1279,12 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		
 		include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
 		ilCourseDefinedFieldDefinition::_deleteByContainer($this->getId());
-		
+
+		// fim: [memcond] delete membership conditions when course is deleted
+		require_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+		ilSubscribersStudyCond::_deleteAll($this->getId());
+		// fim.
+
 		$ilAppEventHandler->raise('Modules/Course',
 			'delete',
 			array('object' => $this,
@@ -1240,6 +1335,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->__createDefaultSettings();
 		}
 		
+		// fim: [memsess] update subscription_with_events
+		// fim: [memlot] update lot_list
+		// fim: [meminf] update show_mem_limit
 		$query = "UPDATE crs_settings SET ".
 			"syllabus = ".$ilDB->quote($this->getSyllabus() ,'text').", ".
 			"contact_name = ".$ilDB->quote($this->getContactName() ,'text').", ".
@@ -1256,6 +1354,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			"sub_mem_limit = ".$ilDB->quote((int) $this->isSubscriptionMembershipLimited() ,'integer').", ".
 			"sub_max_members = ".$ilDB->quote($this->getSubscriptionMaxMembers() ,'integer').", ".
 			"sub_notify = ".$ilDB->quote($this->getSubscriptionNotify() ,'integer').", ".
+			"subscription_with_events = ".$ilDB->quote($this->getSubscriptionWithEvents() ,'integer').", ".
+			"lot_list = ".$ilDB->quote($this->enabledLotList() ,'integer').", ".
+			"show_mem_limit = ".$ilDB->quote($this->getShowMemLimit() ,'integer').", ".
 			"view_mode = ".$ilDB->quote($this->getViewMode() ,'integer').", ".
 			"archive_start = ".$ilDB->quote($this->getArchiveStart() ,'integer').", ".
 			"archive_end = ".$ilDB->quote($this->getArchiveEnd() ,'integer').", ".
@@ -1275,14 +1376,14 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			'reg_ac = '.$ilDB->quote($this->getRegistrationAccessCode(),'text').', '.
 			'auto_notification = '.$ilDB->quote( (int)$this->getAutoNotification(), 'integer').', '.
 			'status_dt = '.$ilDB->quote((int) $this->getStatusDetermination()).', '.
-			'mail_members_type = '.$ilDB->quote((int) $this->getMailToMembersType(),'integer').', '.					
+			'mail_members_type = '.$ilDB->quote((int) $this->getMailToMembersType(),'integer').', '.
 			'crs_start = '.$ilDB->quote(($this->getCourseStart() && !$this->getCourseStart()->isNull()) ? $this->getCourseStart()->get(IL_CAL_UNIX) : null, 'integer').', '.
 			'crs_end = '.$ilDB->quote(($this->getCourseEnd() && !$this->getCourseEnd()->isNull()) ? $this->getCourseEnd()->get(IL_CAL_UNIX) : null, 'integer').', '.
 			'auto_wait = '.$ilDB->quote((int) $this->hasWaitingListAutoFill(),'integer').', '.
 			'leave_end = '.$ilDB->quote(($this->getCancellationEnd() && !$this->getCancellationEnd()->isNull()) ? $this->getCancellationEnd()->get(IL_CAL_UNIX) : null, 'integer').', '.
-			'min_members = '.$ilDB->quote((int) $this->getSubscriptionMinMembers(),'integer').'  '.				
-			"WHERE obj_id = ".$ilDB->quote($this->getId() ,'integer')."";		
-				
+			'min_members = '.$ilDB->quote((int) $this->getSubscriptionMinMembers(),'integer').'  '.
+			"WHERE obj_id = ".$ilDB->quote($this->getId() ,'integer')."";
+			// fim.
 		$res = $ilDB->manipulate($query);
 		
 		// moved activation to ilObjectActivation
@@ -1336,6 +1437,15 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		$new_obj->enableSubscriptionMembershipLimitation($this->isSubscriptionMembershipLimited());
 		$new_obj->setSubscriptionMaxMembers($this->getSubscriptionMaxMembers());
 		$new_obj->setSubscriptionNotify($this->getSubscriptionNotify());
+		// fim: [memsess] clone subscriptionWithEvents
+		$new_obj->setSubscriptionWithEvents($this->getSubscriptionWithEvents());
+		// fim.
+		// fim: [memlot] clone enableLotList
+		$new_obj->enableLotList($this->enabledLotList());
+		// fim.
+		// fim: [meminf] clone showMemLimit
+		$new_obj->setShowMemLimit($this->getShowMemLimit());
+		// fim.
 		$new_obj->setViewMode($this->getViewMode());
 		$new_obj->setOrderType($this->getOrderType());
 		$new_obj->setArchiveStart($this->getArchiveStart());
@@ -1359,7 +1469,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		$new_obj->setCancellationEnd($this->getCancellationEnd());
 		$new_obj->setWaitingListAutoFill($this->hasWaitingListAutoFill());
 		$new_obj->setSubscriptionMinMembers($this->getSubscriptionMinMembers());
-		
+
 		// #10271
 		$new_obj->setEnableCourseMap($this->getEnableCourseMap());
 		$new_obj->setLatitude($this->getLatitude());
@@ -1376,10 +1486,13 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
 		$this->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
 
+		// fim: [memsess] add subscription with events
+		// fim: [memlot] add lot_list
+		// fim: [meminf] add show_mem_limit
 		$query = "INSERT INTO crs_settings (obj_id,syllabus,contact_name,contact_responsibility,".
 			"contact_phone,contact_email,contact_consultation,activation_type,activation_start,".
 			"activation_end,sub_limitation_type,sub_start,sub_end,sub_type,sub_password,sub_mem_limit,".
-			"sub_max_members,sub_notify,view_mode,archive_start,archive_end,archive_type,abo," .
+			"sub_max_members,sub_notify,subscription_with_events,lot_list,show_mem_limit,view_mode,archive_start,archive_end,archive_type,abo," .
 			"latitude,longitude,location_zoom,enable_course_map,waiting_list,show_members, ".
 			"session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt,mail_members_type) ".
 			"VALUES( ".
@@ -1396,11 +1509,16 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote(IL_CRS_SUBSCRIPTION_DEACTIVATED ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionStart() ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionEnd() ,'integer').", ".
-			$ilDB->quote(IL_CRS_SUBSCRIPTION_DIRECT ,'integer').", ".
+			// fim: [memfix] init subscription type with "confirmation"
+			$ilDB->quote(IL_CRS_SUBSCRIPTION_CONFIRMATION ,'integer').", ".
+			// fim.
 			$ilDB->quote($this->getSubscriptionPassword() ,'text').", ".
 			"0, ".
 			$ilDB->quote($this->getSubscriptionMaxMembers() ,'integer').", ".
 			"1, ".
+			$ilDB->quote($this->getSubscriptionWithEvents() ,'integer').", ".
+			$ilDB->quote($this->enabledLotList() ,'integer').", ".
+			"1, ". // showMemLimit
 			"0, ".
 			$ilDB->quote($this->getArchiveStart() ,'integer').", ".
 			$ilDB->quote($this->getArchiveEnd() ,'integer').", ".
@@ -1422,7 +1540,8 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote((int)$this->getStatusDetermination(),'integer').', '.
 			$ilDB->quote((int) $this->getMailToMembersType(),'integer').' '.
 			")";
-			
+		// fim.
+
 		$res = $ilDB->manipulate($query);
 		$this->__readSettings();
 
@@ -1457,6 +1576,15 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->enableSubscriptionMembershipLimitation($row->sub_mem_limit);
 			$this->setSubscriptionMaxMembers($row->sub_max_members);
 			$this->setSubscriptionNotify($row->sub_notify);
+			// fim: [memsess] read subscription_with_events
+			$this->setSubscriptionWithEvents($row->subscription_with_events);
+			// fim.
+			// fim: [memlot] read lot_list
+			$this->enableLotList($row->lot_list);
+			// fim.
+			// fim: [meminf] read show_mem_limit
+			$this->setShowMemLimit($row->show_mem_limit);
+			// fim.
 			$this->setViewMode($row->view_mode);
 			$this->setArchiveStart($row->archive_start);
 			$this->setArchiveEnd($row->archive_end);
@@ -1481,7 +1609,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->setCourseEnd($row->crs_end ? new ilDate($row->crs_end, IL_CAL_UNIX) : null);
 			$this->setCancellationEnd($row->leave_end ? new ilDate($row->leave_end, IL_CAL_UNIX) : null);
 			$this->setWaitingListAutoFill($row->auto_wait);
-			$this->setSubscriptionMinMembers($row->min_members ? $row->min_members : null);			
+			$this->setSubscriptionMinMembers($row->min_members ? $row->min_members : null);
 		}
 		
 		// moved activation to ilObjectActivation
@@ -1535,6 +1663,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 		include_once "./Modules/Course/classes/class.ilCourseParticipant.php";
 		$this->member_obj = ilCourseParticipant::_getInstanceByObjId($this->getId(),$ilUser->getId());
+		// fim: [memsess] set back reference to course object (for notification mails)
+		$this->member_obj->setCourseObject($this);
+		// fim.
 		return true;
 	}
 
@@ -1549,6 +1680,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
 		$this->members_obj = ilCourseParticipants::_getInstanceByObjId($this->getId());
+		// fim: [memsess] set back reference to course object (for notification mails)
+		$this->members_obj->setCourseObject($this);
+		// fim.
 		return true;
 	}
 
@@ -1615,23 +1749,23 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 				'il_crs_member',
 				$this->getRefId()
 		);
-		
+
 		return array();
 	}
-	
+
 	/**
 	 * This method is called before "initDefaultRoles".
 	 * Therefore now local course roles are created.
-	 * 
+	 *
 	 * Grants permissions on the course object for all parent roles.
-	 * Each permission is granted by computing the intersection of the 
+	 * Each permission is granted by computing the intersection of the
 	 * template il_crs_non_member and the permission template of the parent role.
 	 * @param type $a_parent_ref
 	 */
 	public function setParentRolePermissions($a_parent_ref)
 	{
 		global $rbacadmin, $rbacreview;
-		
+
 		$parent_roles = $rbacreview->getParentRoleIds($a_parent_ref);
 		foreach((array) $parent_roles as $parent_role)
 		{
@@ -1669,14 +1803,14 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	public static function lookupCourseNonMemberTemplatesId()
 	{
 		global $ilDB;
-		
+
 		$query = 'SELECT obj_id FROM object_data WHERE type = '.$ilDB->quote('rolt','text').' AND title = '.$ilDB->quote('il_crs_non_member','text');
 		$res = $ilDB->query($query);
 		$row = $res->fetchRow(DB_FETCHMODE_ASSOC);
-		
+
 		return isset($row['obj_id']) ? $row['obj_id'] : 0;
 	}
-	
+
 	/**
 	* get ALL local roles of course, also those created and defined afterwards
 	* only fetch data once from database. info is stored in object variable
@@ -1944,7 +2078,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 					$app->setTitle($this->getTitle());
 					$app->setSubtitle('crs_start');
 					$app->setTranslationType(IL_CAL_TRANSLATION_SYSTEM);
-					$app->setDescription($this->getLongDescription());	
+					$app->setDescription($this->getLongDescription());
 					$app->setStart($this->getCourseStart());
 					$app->setFullday(true);
 					$apps[] = $app;
@@ -1953,13 +2087,13 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 					$app->setTitle($this->getTitle());
 					$app->setSubtitle('crs_end');
 					$app->setTranslationType(IL_CAL_TRANSLATION_SYSTEM);
-					$app->setDescription($this->getLongDescription());	
+					$app->setDescription($this->getLongDescription());
 					$app->setStart($this->getCourseEnd());
 					$app->setFullday(true);
 					$apps[] = $app;
 				}
-				
-				
+
+
 				return $apps ? $apps : array();
 				
 			case 'delete':
@@ -2134,7 +2268,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		foreach($this->getMembersObject()->getParticipants() as $user_id)
 		{
 		    // #15529 - force raise on sync
-		    ilLPStatusWrapper::_updateStatus($this->getId(), $user_id, null, false, true);			
+		    ilLPStatusWrapper::_updateStatus($this->getId(), $user_id, null, false, true);
 		}				
 	}
 			
@@ -2169,7 +2303,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	}
 	
 	public function handleAutoFill()
-	{	
+	{
 		if($this->enabledWaitingList() &&
 			$this->hasWaitingListAutoFill())
 		{
@@ -2204,45 +2338,45 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 					}
 				}
 			}
-		}		
+		}
 	}
-	
+
 	public static function mayLeave($a_course_id, $a_user_id = null, &$a_date = null)
 	{
 		global $ilUser, $ilDB;
-		
+
 		if(!$a_user_id)
 		{
 			$a_user_id = $ilUser->getId();
 		}
-		
+
 		$set = $ilDB->query("SELECT leave_end".
 			" FROM crs_settings".
 			" WHERE obj_id = ".$ilDB->quote($a_course_id, "integer"));
-		$row = $ilDB->fetchAssoc($set);		
+		$row = $ilDB->fetchAssoc($set);
 		if($row && $row["leave_end"])
 		{
 			// timestamp to date
-			$limit = date("Ymd", $row["leave_end"]);			
+			$limit = date("Ymd", $row["leave_end"]);
 			if($limit < date("Ymd"))
 			{
-				$a_date = new ilDate(date("Y-m-d", $row["leave_end"]), IL_CAL_DATE);		
+				$a_date = new ilDate(date("Y-m-d", $row["leave_end"]), IL_CAL_DATE);
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	public static function findCoursesWithNotEnoughMembers()
 	{
 		global $ilDB;
-		
+
 		$res = array();
-		
+
 		$now = time();
-		
+
 		include_once "Modules/Course/classes/class.ilCourseParticipants.php";
-		
+
 		$set = $ilDB->query("SELECT obj_id, min_members".
 			" FROM crs_settings".
 			" WHERE min_members > ".$ilDB->quote(0, "integer").
@@ -2262,13 +2396,13 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 				$missing = (int)$row["min_members"]-$part->getCountMembers();
 				if($missing > 0)
 				{
-					$res[$row["obj_id"]] = array($missing, $reci);		
+					$res[$row["obj_id"]] = array($missing, $reci);
 				}
 			}
 		}
-		
+
 		return $res;
 	}
-	
+
 } //END class.ilObjCourse
 ?>

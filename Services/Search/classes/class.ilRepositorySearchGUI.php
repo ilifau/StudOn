@@ -447,7 +447,9 @@ class ilRepositorySearchGUI
 		include_once './Services/Form/classes/class.ilPropertyFormGUI.php';
 		
 		$this->form =  new ilPropertyFormGUI();
-		$this->form->setFormAction($this->ctrl->getFormAction($this,'search'));
+        // fim: [bugfix] set correct fallback command
+		$this->form->setFormAction($this->ctrl->getFormAction($this,'performSearch'));
+        // fim.
 		$this->form->setTitle($this->getTitle());
 		$this->form->addCommandButton('performSearch', $this->lng->txt('search'));
 		$this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
@@ -529,31 +531,35 @@ class ilRepositorySearchGUI
 		}
 		$kind->addOption($users);
 
+        // fim: [privacy] search for roles, courses and groups only with extended access
+        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+        if (ilPrivacySettings::_checkExtendedAccess())
+        {
+            // Role
+            $roles = new ilRadioOption($this->lng->txt('search_for_role_members'),'role');
+            $role = new ilTextInputGUI($this->lng->txt('search_role_title'),'rep_query[role][title]');
+            $role->setSize(30);
+            $role->setMaxLength(120);
+            $roles->addSubItem($role);
+            $kind->addOption($roles);
 
+            // Course
+            $groups = new ilRadioOption($this->lng->txt('search_for_crs_members'),'crs');
+            $group = new ilTextInputGUI($this->lng->txt('search_crs_title'),'rep_query[crs][title]');
+            $group->setSize(30);
+            $group->setMaxLength(120);
+            $groups->addSubItem($group);
+            $kind->addOption($groups);
 
-		// Role
-		$roles = new ilRadioOption($this->lng->txt('search_for_role_members'),'role');
-		$role = new ilTextInputGUI($this->lng->txt('search_role_title'),'rep_query[role][title]');
-		$role->setSize(30);
-		$role->setMaxLength(120);
-		$roles->addSubItem($role);
-		$kind->addOption($roles);
-			
-		// Course
-		$groups = new ilRadioOption($this->lng->txt('search_for_crs_members'),'crs');
-		$group = new ilTextInputGUI($this->lng->txt('search_crs_title'),'rep_query[crs][title]');
-		$group->setSize(30);
-		$group->setMaxLength(120);
-		$groups->addSubItem($group);
-		$kind->addOption($groups);
-
-		// Group
-		$groups = new ilRadioOption($this->lng->txt('search_for_grp_members'),'grp');
-		$group = new ilTextInputGUI($this->lng->txt('search_grp_title'),'rep_query[grp][title]');
-		$group->setSize(30);
-		$group->setMaxLength(120);
-		$groups->addSubItem($group);
-		$kind->addOption($groups);
+            // Group
+            $groups = new ilRadioOption($this->lng->txt('search_for_grp_members'),'grp');
+            $group = new ilTextInputGUI($this->lng->txt('search_grp_title'),'rep_query[grp][title]');
+            $group->setSize(30);
+            $group->setMaxLength(120);
+            $groups->addSubItem($group);
+            $kind->addOption($groups);
+        }
+        // fim.
 	}
 	
 

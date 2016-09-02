@@ -111,7 +111,11 @@ abstract class ilAuthBase
 	protected function loginObserver($a_username,$a_auth)
 	{		
 		global $ilLog, $ilAppEventHandler, $ilSetting;
-		
+
+		// fim: [log] write own login log
+		$this->writeAuthLog('login', $a_username);
+		// fim.
+
 		if($this->getContainer()->loginObserver($a_username,$a_auth))
 		{
 			// validate user
@@ -203,7 +207,7 @@ abstract class ilAuthBase
 
 			// --- anonymous/registered user
 			ilLoggerFactory::getLogger('auth')->info(
-				'logged in as '. $a_auth->getUsername() . 
+				'logged in as '. $a_auth->getUsername() .
 				', remote:' . $_SERVER['REMOTE_ADDR'] . ':' . $_SERVER['REMOTE_PORT'] .
 				', server:' . $_SERVER['SERVER_ADDR'] . ':' . $_SERVER['SERVER_PORT']
 			);
@@ -226,6 +230,20 @@ abstract class ilAuthBase
 	protected function failedLoginObserver($a_username, $a_auth)
 	{
 		global $ilLog;
+
+// fau: loginFallback - check local auth alternatives
+		if ($username = $this->checkLocalAuthAlternatives())
+		{
+			$this->status = "";
+			$this->username = $username;
+            $this->setAuth($username);
+            if (!$this->local_auth_support)
+            {
+            	$this->loginObserver($username, $a_auth);
+            }
+            return;
+		}
+// fau.
 
 		ilLoggerFactory::getLogger('auth')->info(
 			': login failed for user '.$a_username.
@@ -275,7 +293,7 @@ abstract class ilAuthBase
 	protected function logoutObserver($a_username,$a_auth)
 	{
 		global $ilLog, $ilAppEventHandler;
-		
+
 		ilLoggerFactory::getLogger('auth')->info('Logout observer called for ' . $a_username);
 
 		ilSessionControl::handleLogoutEvent();
@@ -284,13 +302,111 @@ abstract class ilAuthBase
 			'Services/Authentication', 'afterLogout',
 			array('username' => $a_auth->getUsername())
 		);
-				
+
 		return $this->getContainer()->logoutObserver($a_username,$a_auth);
 	}
 	
 	public function getExceededUserName()
 	{
 		return $this->exceeded_user_name;
-	}	
+	}
+
+// fau: loginFallback - new function checkLocalAuthAlternatives
+	/**
+	 * Check for authentication alternatives
+	 *
+	 * @return	string	username (if authentified) or empty string
+	 */
+	protected function checkLocalAuthAlternatives()
+	{
+		global $ilCust;
+
+		$authentified = false;
+
+		// check for login with external account
+		if (!$authentified and $ilCust->getSetting('local_auth_external'))
+		{
+            $tmp_login = false;
+			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('local', $this->username);
+			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('default', $this->username);
+			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('shibboleth', $this->username);
+
+			if ($tmp_login)
+			{
+				$tmp_user = new ilObjUser(ilObjUser::_lookupId($tmp_login));
+				$authentified =	ilAuthUtils::_checkPassword($this->password, $tmp_user->getExternalPasswd());
+			}
+		}
+
+		// check for login with matriculation as password
+		if (!$authentified and $ilCust->getSetting('local_auth_matriculation') and $this->password != '')
+		{
+            $tmp_login = false;
+			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('local', $this->username);
+			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('default', $this->username);
+			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('shibboleth', $this->username);
+
+			if ($tmp_login)
+			{
+				$tmp_user = new ilObjUser(ilObjUser::_lookupId($tmp_login));
+				$authentified = ($this->password == $tmp_user->getMatriculation());
+			}
+		}
+
+		// check for login with matriculation as username
+		if (!$authentified and $ilCust->getSetting('local_auth_matriculation_as_username'))
+		{
+            $tmp_login = ilObjUser::_findLoginByField('matriculation', $this->username);
+            $tmp_user = new ilObjUser(ilObjUser::_lookupId($tmp_login));
+            $authentified = ilAuthUtils::_checkPassword($this->password, $tmp_user->getPasswd());
+		}
+
+		// check for support login
+		if (!$authentified and $ilCust->getSetting('local_auth_support'))
+		{
+            $tmp_login = $this->username;
+			$tmp_user = new ilObjUser(SYSTEM_USER_ID);
+            $authentified = ilAuthUtils::_checkPassword($this->password, $tmp_user->getPasswd());
+			$this->local_auth_support = true;
+		}
+
+		// return the username of the found user if succesfully authentified
+		if ($authentified)
+		{
+			return $tmp_login;
+		}
+	}
+// fau.
+
+
+	/**
+	* fim: [log] write log table
+	*/
+	protected function writeAuthLog($a_action, $a_username = null)
+	{
+	    global $ilDB;
+
+		if (empty($a_username) or $a_username == 'anonymous')
+		{
+	        return;
+		}
+
+		$date = getdate();
+		$auth_id = $ilDB->nextId('ut_auth');
+		$ilDB->insert('ut_auth', array (
+			'auth_id' => array ('integer', $auth_id),
+			'auth_time' => array ('timestamp', date('Y-m-d H:i:s', time())),
+			'auth_year' => array ('integer', $date['year']),
+			'auth_month' => array ('integer', $date['mon']),
+			'auth_day' => array ('integer', $date['mday']),
+			'auth_action' => array ('text', $a_action),
+			'auth_mode' => array ('text', ilAuthUtils::_getAuthModeName(AUTH_CURRENT)),
+			'username' => array ('text', $a_username),
+			'remote_addr' => array ('text', $_SERVER['REMOTE_ADDR']),
+			'server_addr' => array ('text', $_SERVER['SERVER_ADDR'])
+			)
+		);
+	}
+	// fim.
 }
 ?>

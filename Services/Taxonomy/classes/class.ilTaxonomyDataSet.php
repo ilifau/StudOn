@@ -161,7 +161,9 @@ class ilTaxonomyDataSet extends ilDataSet
 			{
 				case "4.3.0":
 					$this->getDirectDataFromQuery("SELECT tax_id, child ".
-						" ,parent,depth,type,title,order_nr ".
+// fau: taxDesc - add description to export
+						" ,parent,depth,type,title,description,order_nr ".
+// fau.
 						" FROM tax_tree JOIN tax_node ON (child = obj_id) ".
 						" WHERE ".
 						$ilDB->in("tax_id", $a_ids, false, "integer").
@@ -258,6 +260,9 @@ class ilTaxonomyDataSet extends ilDataSet
 						}
 						$node = new ilTaxonomyNode();
 						$node->setTitle($a_rec["Title"]);
+// fau: taxDesc - import description
+						$node->setDescription($a_rec["Description"]);
+// fau.
 						$node->setOrderNr($a_rec["OrderNr"]);
 						$node->setTaxonomyId($tax_id);
 						$node->create();

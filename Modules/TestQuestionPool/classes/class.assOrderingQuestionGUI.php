@@ -311,7 +311,9 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 		}
 	}
 
-	public function populateAnswerSpecificFormPart(ilPropertyFormGUI $form)
+	// fim: [exam] add parameter forScoringAdjustment
+	public function populateAnswerSpecificFormPart(ilPropertyFormGUI $form, $forScoringAdjustment = false)
+	// fim.
 	{
 		$orderingtype = $this->object->getOrderingType();
 
@@ -359,7 +361,32 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 			}
 			ksort( $answervalues );
 			$answers->setValues( $answervalues );
-			$answers->setAllowMove( TRUE );
+
+			// fim: [exam] disable moving and text edit for scoring adjustment
+			if ($forScoringAdjustment)
+			{
+				$answers->setAllowTextEdit( false );
+				$answers->setAllowAddRemove( false );
+
+				// TODO: allow a reordering of answers in scoring adjustment
+				// Problem:
+				// student answers are saved as as ordered list of solution orders:
+				// value1 is position in correct solution
+				// value2 is position in student's answer
+				// the answer text is not stored in the solution answer
+				// therefore a moving of correct solutions would change the order saved by the students
+				// Possible workaround:
+				// Compare old and new solution_order for the same answertext
+				// update tst_solutions and change value1 from old to new solution order
+				// Long-Term solution:
+				// Store the random_ids in the users answer like in the nested mode
+				$answers->setAllowMove( false );
+			}
+			else {
+				$answers->setAllowMove( TRUE );
+			}
+			// fim.
+
 			$answers->setRequired( TRUE );
 
 			$answers->setInfo( $this->lng->txt( 'ordering_answer_sequence_info' ) );
@@ -676,7 +703,7 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 					$fb = $this->getGenericFeedbackOutput($active_id, $pass);
 					$feedback .= strlen($fb) ? $fb : '';
 				}
-				
+
 				$fb = $this->getSpecificFeedbackOutput($active_id, $pass);
 				$feedback .=  strlen($fb) ? $fb : '';
 			}
@@ -705,14 +732,14 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 			if (($active_id > 0) && (!$show_correct_solution))
 			{
 				$solutions = $this->object->getSolutionValues($active_id, $pass);
-				
+
 				if( !count($solutions) )
 				{
 					foreach ($this->object->answers as $index => $answer)
 					{
 						array_push($solutions, array("value1" => $index, "value2" => $index+1));
 					}
-					
+
 					shuffle($keys);
 				}
 			}
@@ -848,6 +875,12 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	
 	function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		global $tpl;
 
 		$this->object->setOutputType(OUTPUT_JAVASCRIPT);
@@ -1021,6 +1054,12 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
 	function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $user_post_solution = FALSE, $inlineFeedback = false)
 	{
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		global $tpl;
 		
 		$tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_javascript.css", "Modules/TestQuestionPool"));

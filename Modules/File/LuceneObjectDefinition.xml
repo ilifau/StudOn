@@ -18,12 +18,14 @@
 			<Field store="YES" index="ANALYZED" column="file_name" type="text" name="mimeType">
 				<Transformer name="MimeTypeExtractor" />
 			</Field>
-			<DataSource type="File" action="append">
-				<PathCreator name="FileObjectPathCreator41" />
-				<Field store="YES" index="ANALYZED" name="content">
-					<Transformer name="LinefeedSanitizer" />
-				</Field>
-			</DataSource>
+            <!-- fim: [lucene] don' add file
+            <DataSource type="File" action="append">
+                <PathCreator name="FileObjectPathCreator41" />
+                <Field store="YES" index="ANALYZED" name="content">
+                    <Transformer name="LinefeedSanitizer" />
+                </Field>
+            </DataSource>
+            fim. -->
 		</DataSource>
 	</Document>
 </ObjectDefinition>

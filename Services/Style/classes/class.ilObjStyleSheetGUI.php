@@ -235,6 +235,53 @@ class ilObjStyleSheetGUI extends ilObjectGUI
 		$this->tpl->setContent($ctpl->get());
 	}
 
+	// fim: [content] edit custom css
+
+	function editCustomCssObject()
+	{
+		global $lng;
+		$this->initCustomCssForm();
+		$tpl= new ilTemplate('tpl.il_custom_css.html', true, true, "Services/Style");
+		$tpl->setVariable("DESCRIPTION", $lng->txt("sty_custom_css_description"));
+		$tpl->setVariable("COLOR_INFO",$lng->txt("sty_custom_css_color_info"));
+		$tpl->setVariable("IMAGE_INFO", $lng->txt("sty_custom_css_image_info"));
+		$tpl->setVariable("FORM", $this->form->getHTML());
+		$tpl->parse();
+		$this->tpl->setContent($tpl->get());
+	}
+
+	function initCustomCssForm()
+	{
+		global $rbacsystem, $lng;
+		include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
+		$this->form = new ilPropertyFormGUI();
+		$this->form->setTitle($lng->txt("sty_custom_css_edit"));
+		$this->form->setFormAction($this->ctrl->getFormAction($this));
+
+		$item = new ilCustomInputGUI($lng->txt("sty_custom_css"));
+		$tpl= new ilTemplate('tpl.il_custom_css_input.html', true, true, "Services/Style");
+		$tpl->setVariable("CONTENT", ilUtil::prepareFormOutput($this->object->getCustomCss()));
+		$tpl->setVariable("NAME", 'custom_css');
+		$item->setHTML($tpl->get());
+		$this->form->addItem($item);
+
+		if ($rbacsystem->checkAccess("write", (int) $_GET["ref_id"]))
+		{
+			$this->form->addCommandButton("updateCustomCss", $lng->txt("save"));
+		}
+	}
+
+	function updateCustomCssObject()
+	{
+		global $lng;
+
+		$this->object->setCustomCss(ilUtil::stripSlashes($_POST['custom_css']));
+		$this->object->update();
+		ilUtil::sendInfo($lng->txt("msg_obj_modified"), true);
+		$this->ctrl->redirect($this, "editCustomCss");
+	}
+	// fim.
+
 	/**
 	* Properties
 	*/
@@ -1191,6 +1238,12 @@ class ilObjStyleSheetGUI extends ilObjectGUI
 			$tabs_gui->addTarget("sty_templates",
 				$this->ctrl->getLinkTarget($this, "listTemplates"), "listTemplates",
 				get_class($this));
+
+			// fim: [content] tab for custom css
+			$tabs_gui->addTarget("sty_custom_css",
+				$this->ctrl->getLinkTarget($this, "editCustomCss"), "editCustomCss",
+				get_class($this));
+			// fim.
 				
 			// settings
 			$tabs_gui->addTarget("settings",

@@ -140,10 +140,12 @@ class ilNotesDataSet extends ilDataSet
 						$note->setObject("pd", 0, $usr_id);
 						$note->setType(IL_NOTE_PRIVATE);
 						$note->setAuthor($usr_id);
-						$note->setText($a_rec["NoteText"]);
-						$note->setSubject($a_rec["Subject"]);
-						$note->setCreationDate($a_rec["CreationDate"]);
-						$note->setLabel($a_rec["Label"]);
+// fau: fixPdImportXss - apply secureString
+						$note->setText(ilUtil::secureString($a_rec["NoteText"]));
+						$note->setSubject(ilUtil::secureString($a_rec["Subject"]));
+						$note->setCreationDate(ilUtil::secureString($a_rec["CreationDate"]));
+						$note->setLabel(ilUtil::secureString($a_rec["Label"]));
+// fau.
 						$note->create(true);
 					}
 				}

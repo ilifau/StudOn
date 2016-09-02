@@ -40,6 +40,9 @@ class ilAssignmentsTableGUI extends ilTable2GUI
 		$this->addColumn($this->lng->txt("exc_presentation_order"), "order_val");
 		$this->addColumn($this->lng->txt("exc_start_time"), "start_time");
 		$this->addColumn($this->lng->txt("exc_deadline"), "deadline");
+// fau: exResTime - add column for result time
+		$this->addColumn($this->lng->txt("exc_result_time"), "result_time");
+// fau.
 		$this->addColumn($this->lng->txt("exc_mandatory"), "mandatory");
 		$this->addColumn($this->lng->txt("exc_peer_review"), "peer");
 		$this->addColumn($this->lng->txt("exc_instruction"), "", "30%");
@@ -124,6 +127,13 @@ class ilAssignmentsTableGUI extends ilTable2GUI
 			$this->tpl->setVariable("TXT_START_TIME",
 				ilDatePresentation::formatDate(new ilDateTime($d["start_time"],IL_CAL_UNIX)));
 		}
+// fau: exResTime - fill column for result time
+		if ($d["res_time"] > 0)
+		{
+			$this->tpl->setVariable("TXT_RESULT_TIME",
+				ilDatePresentation::formatDate(new ilDateTime($d["res_time"],IL_CAL_UNIX)));
+		}
+// fau.
 		$this->tpl->setVariable("TXT_INSTRUCTIONS",
 			nl2br(trim(ilUtil::shortenText(strip_tags($d["instruction"]), 200, true))));
 		

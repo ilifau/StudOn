@@ -21,7 +21,9 @@ db_template_writer.php
 
 
 # /Customizing/
-/Customizing/global
+# fau: gitIgnore - ignore plugins but not the rest of customizing
+/Customizing/global/plugins
+# fau.
 
 # /Modules/BookingManager/js/
 

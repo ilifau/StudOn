@@ -395,6 +395,17 @@ class ilTestServiceGUI
 							$template->setVariable("RESULT_POINTS", $this->lng->txt("tst_reached_points") . ": " . $question_gui->object->getReachedPoints($active_id, $pass) . " " . $this->lng->txt("of") . " " . $question_gui->object->getMaximumPoints());
 							$template->parseCurrentBlock();
 						}
+						// fim: [exam] show question description if user nas write access
+						global $ilAccess;
+						if ($ilAccess->checkAccess('write', '', $_GET['ref_id']))
+						{
+							$description = $question_gui->object->getComment();
+							$description .= ' [OrigID: '. $question_gui->object->getOriginalId().']';
+							$template->setCurrentBlock("question_description");
+							$template->setVariable('QUESTION_DESCRIPTION', $description);
+							$template->parseCurrentBlock();
+						}
+						// fim.
 						$template->setVariable("COUNTER_QUESTION", $counter.". ");
 						$template->setVariable("TXT_QUESTION_ID", $this->lng->txt('question_id_short'));
 						$template->setVariable("QUESTION_ID", $question_gui->object->getId());

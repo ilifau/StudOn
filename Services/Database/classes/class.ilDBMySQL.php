@@ -219,13 +219,13 @@ class ilDBMySQL extends ilDB
 	}
 	
 	/**
-	 * Set the storage engine 
+	 * Set the storage engine
 	 */
 	function setStorageEngine($a_storage_engine) {
 		$storage_engine_var = ($this->isMysql5_6OrHigher()) ? "DEFAULT_STORAGE_ENGINE" : "STORAGE_ENGINE";
 		$this->query("SET SESSION " . $storage_engine_var . " = '" . $a_storage_engine . "'");
 	}
-	
+
 	/**
 	* Get reserved words
 	*/
@@ -334,11 +334,25 @@ class ilDBMySQL extends ilDB
 		$this->query("SET NAMES utf8");
 		if (DEVMODE == 1)
 		{
-			$this->query("SET SESSION SQL_MODE = 'ONLY_FULL_GROUP_BY'");
+			// fim: [bugfix] don't set the specific sql mode
+			// (see Mantis Bug #4647)
+			// this would result in an error for any script
+			// $this->query("SET SESSION SQL_MODE = 'ONLY_FULL_GROUP_BY'");
+			// fim.
 		}
 		$this->setStorageEngine('MYISAM');
+
+// fau: waitTimeout - set the wait_timeout
+		if ($this->wait_timeout > 0)
+		{
+			$this->query("SET SESSION WAIT_TIMEOUT = " . (int) $this->wait_timeout);
+
+			// uncomment to test the timeout
+			// sleep($this->wait_timeout);
+		}
+// fau.
 	}
-	
+
 	/**
 	* now()
 	*
@@ -422,7 +436,7 @@ class ilDBMySQL extends ilDB
 		
 		return false;
 	}
-	
+
 	/**
 	* check wether current MySQL server is version 5.6.x or higher
 	*
@@ -438,10 +452,10 @@ class ilDBMySQL extends ilDB
 			((int) $version[0] == 5 && (int) $version[1] >= 6))
 		{
 			return true;
-		}		
+		}
 		return false;
 	}
-	
+
 	/**
 	* Check query size
 	*/

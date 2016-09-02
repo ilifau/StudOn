@@ -6,6 +6,12 @@
 {TABLE_SUB}
 <br />
 <!-- END subscriber_table -->
+<!-- fim: [memlot] add lot list -->
+<!-- BEGIN subscribers_lot -->
+{TABLE_LOT}
+<br />
+<!-- END subscribers_lot -->
+<!-- fim. -->
 <form method="post" name="participants" action="{FORMACTION}">
 <!-- BEGIN admin_block -->
 {ADMINS}
@@ -29,6 +35,9 @@
 			<img src="{ARROW_DOWN}" alt="{ARROW_ALT}" />
 			<input class="btn btn-default" name="cmd[editMembers]" value="{BTN_FOOTER_EDIT}" type="submit" />
 			<input class="btn btn-default" name="cmd[deleteMembers]" value="{BTN_FOOTER_VAL}" type="submit" />
+            <!-- fim: [memad] add button to set members passed -->
+            <input class="btn btn-default" name="cmd[setMembersPassed]" value="{BTN_FOOTER_PASSED}" type="submit">
+            <!-- fim. -->
 			<input class="btn btn-default" name="cmd[sendMailToSelectedUsers]" value="{BTN_FOOTER_MAIL}" type="submit" />
 		</td>
 	</tr>

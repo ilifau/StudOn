@@ -472,6 +472,11 @@ class ilRbacReview
 				$use_phrase = false;
 			}
 
+			// fim: [mail] always use unambiguous role addresses without domain
+			$domain = null;
+			$local_part = $unambiguous_role_title;
+			// fim.
+
 			// Add a "#" prefix to the local part
 			$local_part = '#'.$local_part;
 
@@ -662,6 +667,54 @@ class ilRbacReview
 		#return $this->getParentRoles($a_endnode_id,$a_templates,$a_keep_protected);
 		return $this->__getParentRoles($pathIds,$a_templates);
 	}
+
+	/**
+	 * fim: [rights] get the context roles with specific permissions on an object
+	 * The permissions are checked in order of the input array
+	 * If a role is found for the first permission, it is not listed for the second
+	 *
+	 * @access   public
+	 * @param    integer     ref_id of an object which is end node
+	 * @param    array       list of permissions to check
+	 * @param    boolean     include the own roles (default: true)
+	 * @param    boolean     include the global roles (default: true)
+	 * @return   array       array (permission => array(role_id => role_data))
+	 */
+	function getRolesByPermissions($a_ref_id, $a_permissions = array(), $a_with_own = true, $a_with_global = true)
+	{
+		global $rbacsystem;
+
+		$roles = $this->getParentRoleIds($a_ref_id, false, false);
+		$rolf_id = $a_ref_id;	// no separate role folder since ILIAS 5
+
+		$return = array();
+
+		foreach ($roles as $role_id  => $role_data)
+		{
+			if (!$a_with_own and $this->isAssignable($role_id, $rolf_id))
+			{
+				continue;
+			}
+
+			if (!$a_with_global and $this->isGlobalRole($role_id))
+			{
+				continue;
+			}
+
+			foreach ($a_permissions as $perm)
+			{
+				if ($rbacsystem->checkPermission($a_ref_id,$role_id,$perm))
+				{
+					$return[$perm][$role_id] = $role_data;
+					break;
+				}
+			}
+		}
+		return $return;
+	}
+	// fim.
+
+
 
 	/**
 	 * Returns a list of roles in an container
@@ -1352,7 +1405,9 @@ class ilRbacReview
 	{
 		global $ilDB;
 
-		$query = 'SELECT * FROM rbac_operations ORDER BY ops_id ';
+// fau: sqlCache - use sql cache
+		$query = 'SELECT SQL_CACHE * FROM rbac_operations ORDER BY ops_id ';
+// fau.
 		$res = $this->ilDB->query($query);
 		while($row = $ilDB->fetchObject($res))
 		{
@@ -1374,7 +1429,9 @@ class ilRbacReview
 	{
 		global $ilDB;
 
-		$query = 'SELECT * FROM rbac_operations WHERE ops_id = '.$ilDB->quote($ops_id,'integer');
+// fau: sqlCache - use sql cache
+		$query = 'SELECT SQL_CACHE * FROM rbac_operations WHERE ops_id = '.$ilDB->quote($ops_id,'integer');
+// fau.
 		$res = $this->ilDB->query($query);
 		while($row = $ilDB->fetchObject($res))
 		{
@@ -1529,9 +1586,11 @@ class ilRbacReview
 
 		#$query = "SELECT * FROM rbac_ta WHERE typ_id = ".$ilDB->quote($a_typ_id,'integer');
 		
-		$query = 'SELECT * FROM rbac_ta ta JOIN rbac_operations o ON ta.ops_id = o.ops_id '.
+// fau: sqlCache - use sql cache
+		$query = 'SELECT SQL_CACHE * FROM rbac_ta ta JOIN rbac_operations o ON ta.ops_id = o.ops_id '.
 			'WHERE typ_id = '.$ilDB->quote($a_typ_id,'integer').' '.
 			'ORDER BY op_order';
+// fau.
 
 		$res = $ilDB->query($query);
 
@@ -1817,8 +1876,10 @@ class ilRbacReview
 			return array();
 		}
 		
-		$query = 'SELECT ops_id FROM rbac_operations '.
+// fau: sqlCache - use sql cache
+		$query = 'SELECT SQL_CACHE ops_id FROM rbac_operations '.
 			'WHERE '.$ilDB->in('operation',$operations,false,'text');
+// fau.
 		
 		$res = $ilDB->query($query);
 		while($row = $ilDB->fetchObject($res))
@@ -1849,8 +1910,10 @@ class ilRbacReview
         // Cache operation ids
         if (! is_array(self::$_opsCache)) {
             self::$_opsCache = array();
-
-            $q = "SELECT ops_id, operation FROM rbac_operations";
+			
+// fau: sqlCache - use sql cache
+            $q = "SELECT SQL_CACHE ops_id, operation FROM rbac_operations";
+// fau.
             $r = $ilDB->query($q);
             while ($row = $r->fetchRow(DB_FETCHMODE_OBJECT))
             {
@@ -1886,8 +1949,10 @@ class ilRbacReview
 			return array();
 		}
 		
-		$query = 'SELECT ops_id, operation FROM rbac_operations '.
+// fau: sqlCache - use sql cache
+		$query = 'SELECT SQL_CACHE ops_id, operation FROM rbac_operations '.
 			'WHERE '.$ilDB->in('operation',$operations,false,'text');
+// fau.
 			
 		$res = $ilDB->query($query);
 	
@@ -2082,7 +2147,9 @@ class ilRbacReview
 		}
 		else
 		{
-			$query = 'SELECT * FROM rbac_operations ORDER BY op_order ASC';
+// fau: sqlCache - use sql cache
+			$query = 'SELECT SQL_CACHE * FROM rbac_operations ORDER BY op_order ASC';
+// fau.
 		}
 		$res = $ilDB->query($query);
 		while ($row = $ilDB->fetchAssoc($res))

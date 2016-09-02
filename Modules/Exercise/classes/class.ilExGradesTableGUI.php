@@ -66,9 +66,9 @@ class ilExGradesTableGUI extends ilTable2GUI
 				$this->addColumn($cnt_str, "", "", false, "", $ass->getTitle());
 			}
 			$cnt++;
-		}		
+		}
 		$ilCtrl->setParameter($this->parent_obj, "ass_id", "");
-		
+
 		$this->addColumn($this->lng->txt("exc_total_exc"), "");
 		$this->addColumn($this->lng->txt("exc_comment_for_learner"), "", "1%");
 		
@@ -116,14 +116,16 @@ class ilExGradesTableGUI extends ilTable2GUI
 		foreach ($this->ass_data as $ass)
 		{
 			$member_status = new ilExAssignmentMemberStatus($ass->getId(), $user_id);
-			
+
 			// grade
 			$this->tpl->setCurrentBlock("grade");
 			$status = $member_status->getStatus();
+			/* fim: [exercise] don't make status selectable for assignments
 			$this->tpl->setVariable("SEL_".strtoupper($status), ' selected="selected" ');
 			$this->tpl->setVariable("TXT_NOTGRADED", $lng->txt("exc_notgraded"));
 			$this->tpl->setVariable("TXT_PASSED", $lng->txt("exc_passed"));
-			$this->tpl->setVariable("TXT_FAILED", $lng->txt("exc_failed"));			
+			$this->tpl->setVariable("TXT_FAILED", $lng->txt("exc_failed"));
+			fim. */
 			$pic = $member_status->getStatusIcon();
 			$this->tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
 			$this->tpl->setVariable("ALT_STATUS", $lng->txt("exc_".$status));
@@ -150,7 +152,8 @@ class ilExGradesTableGUI extends ilTable2GUI
 		
 		$this->tpl->setCurrentBlock("grade");
 		$status = ilExerciseMembers::_lookupStatus($this->exc_id, $user_id);
-		$this->tpl->setVariable("SEL_".strtoupper($status), ' selected="selected" ');
+
+		// fim: [exercise] make status changeable
 		switch($status)
 		{
 			case "passed": 	$pic = "scorm/passed.svg"; break;
@@ -160,6 +163,22 @@ class ilExGradesTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
 		$this->tpl->setVariable("ALT_STATUS", $lng->txt("exc_".$status));
 		
+		if ($this->exc->getPassMode()== "man")
+		{
+			$this->tpl->setVariable("SEL_".strtoupper($status), ' selected="selected" ');
+			$this->tpl->setVariable("TXT_NOTGRADED", $lng->txt("exc_notgraded"));
+			$this->tpl->setVariable("TXT_PASSED", $lng->txt("exc_passed"));
+			$this->tpl->setVariable("TXT_FAILED", $lng->txt("exc_failed"));
+			$this->tpl->setVariable("VAL_ID", $user_id);
+			if (($sd = ilObjExercise::_lookupStatusTime($this->exc_id, $user_id)) > 0)
+			{
+				$this->tpl->setVariable("TXT_LAST_CHANGE", $lng->txt("last_change"));
+				$this->tpl->setVariable('VAL_STATUS_DATE',
+					ilDatePresentation::formatDate(new ilDateTime($sd,IL_CAL_DATETIME)));
+			}
+		}
+		// fim.
+
 		// mark
 		/*$this->tpl->setVariable("TXT_MARK", $lng->txt("exc_mark"));
 		$this->tpl->setVariable("NAME_MARK",
@@ -173,13 +192,13 @@ class ilExGradesTableGUI extends ilTable2GUI
 		// name
 		$this->tpl->setVariable("TXT_NAME",
 			$d["lastname"].", ".$d["firstname"]." [".$d["login"]."]");
-		$this->tpl->setVariable("VAL_ID", $user_id);	
-		
+		$this->tpl->setVariable("VAL_ID", $user_id);
+
 		// #17679
-		$ilCtrl->setParameter($this->parent_obj, "part_id", $user_id);		
+		$ilCtrl->setParameter($this->parent_obj, "part_id", $user_id);
 		$url = $ilCtrl->getLinkTarget($this->parent_obj, "showParticipant");
 		$ilCtrl->setParameter($this->parent_obj, "part_id", "");
-		
+
 		$this->tpl->setVariable("LINK_NAME", $url);
 		
 		// comment
@@ -187,8 +206,8 @@ class ilExGradesTableGUI extends ilTable2GUI
 		$c = ilLPMarks::_lookupComment($user_id, $this->exc_id);
 		$this->tpl->setVariable("VAL_COMMENT",
 			ilUtil::prepareFormOutput($c));
-		
-	
+
+
 	}
 
 }

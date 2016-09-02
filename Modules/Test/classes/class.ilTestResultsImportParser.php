@@ -10,6 +10,10 @@
 */
 include_once("./Services/Xml/classes/class.ilSaxParser.php");
 
+// fau: testImportResults - include the base question class to allow question specific data mapping
+include_once("Modules/TestQuestionPool/classes/class.assQuestion.php");
+// fau.
+
 class ilTestResultsImportParser extends ilSaxParser
 {
 	private $tst_obj;
@@ -19,7 +23,11 @@ class ilTestResultsImportParser extends ilSaxParser
 	private $user_criteria_field;
 	private $user_criteria_type;
 	private $user_criteria_checked = false;
-	
+
+// fau: testImportResults - cache question types
+	private $question_types = array();
+// fau.
+
 	/**
 	* Constructor
 	*/
@@ -92,7 +100,7 @@ class ilTestResultsImportParser extends ilSaxParser
 							}
 						}
 						$next_id = $ilDB->nextId('tst_active');
-						
+
 						$ilDB->insert('tst_active', array(
 							'active_id' => array('integer', $next_id),
 							'user_fi' => array('integer', $usr_id),
@@ -185,16 +193,24 @@ class ilTestResultsImportParser extends ilSaxParser
 						));
 						break;
 					case 'tst_solutions':
+// fau: testImportResults - handle question type specific value translations
+						$a_attribs['active_fi'] = $this->active_id_mapping[$a_attribs['active_fi']];
+						$a_attribs['question_fi'] = $this->question_id_mapping[$a_attribs['question_fi']];
+
+						$classname = $this->getIncludedQuestionType($a_attribs['question_fi']);
+						$data = call_user_func(array($classname,'_mapWorkingData'), $a_attribs);
+
 						$next_id = $ilDB->nextId('tst_solutions');
 						$affectedRows = $ilDB->insert("tst_solutions", array(
 							"solution_id" => array("integer", $next_id),
-							"active_fi" => array("integer", $this->active_id_mapping[$a_attribs['active_fi']]),
-							"question_fi" => array("integer", $this->question_id_mapping[$a_attribs['question_fi']]),
-							"value1" => array("clob", (strlen($a_attribs['value1'])) ? $a_attribs['value1'] : NULL),
-							"value2" => array("clob", (strlen($a_attribs['value2'])) ? $a_attribs['value2'] : NULL),
-							"pass" => array("integer", $a_attribs['pass']),
-							"tstamp" => array("integer", $a_attribs['tstamp'])
-						));
+							"active_fi" => array("integer", $data['active_fi']),
+							"question_fi" => array("integer", $data['question_fi']),
+							"value1" => array("clob", (strlen($data['value1'])) ? $data['value1'] : NULL),
+							"value2" => array("clob", (strlen($data['value2'])) ? $data['value2'] : NULL),
+							"pass" => array("integer", $data['pass']),
+							"tstamp" => array("integer", $data['tstamp'])
+                        ));
+// fau.
 						break;
 					case 'tst_test_result':
 						$next_id = $ilDB->nextId('tst_test_result');
@@ -236,37 +252,59 @@ class ilTestResultsImportParser extends ilSaxParser
 		}
 	}
 
-  /**
+  	/**
 	* handler for character data
 	*/
 	function handlerParseCharacterData($a_xml_parser,$a_data)
 	{
 		// do nothing
 	}
-	
+
 	private function fetchAttribute($attributes, $name)
 	{
 		if( isset($attributes[$name]) )
 		{
 			return $attributes[$name];
 		}
-		
+
 		return null;
 	}
-	
+
 	private function fetchLastFinishedPass($attribs)
 	{
 		if( isset($attribs['last_finished_pass']) )
 		{
 			return $attribs['last_finished_pass'];
 		}
-		
+
 		if( $attribs['tries'] > 0 )
 		{
 			return $attribs['tries'] - 1;
 		}
-		
+
 		return null;
 	}
+
+// fau: testImportResults - new function getIncludedQuestionType
+	/**
+     * Get the question type classname for a question id
+     * cache already found types and include the question object class
+     *
+     * @param   integer     question id
+     * @return  string      type class name
+     */
+	private function getIncludedQuestionType($a_question_id)
+	{
+		if (!isset($this->question_types[$a_question_id]))
+		{
+			$type_tag = assQuestion::_getQuestionType($a_question_id);
+			assQuestion::_includeClass($type_tag);
+			$this->question_types[$a_question_id] = $type_tag;
+		}
+
+		return $this->question_types[$a_question_id];
+	}
+// fau.
+
 }
 ?>

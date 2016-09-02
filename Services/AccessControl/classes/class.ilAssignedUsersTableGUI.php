@@ -178,7 +178,14 @@ class ilAssignedUsersTableGUI extends ilTable2GUI
 		{
 			$this->tpl->setVariable('VAL_PLAIN_LOGIN',$user['login']);
 		}
-		
+
+		// fim: [rights] show inactive status in role member list
+		if(!$user['active'])
+		{
+			$this->tpl->setVariable('WARNING', $this->lng->txt('usr_account_inactive'));
+		}
+		// fim.
+
 		if(
 			($this->getRoleId() != SYSTEM_ROLE_ID or $user['usr_id'] != SYSTEM_USER_ID) and
 			($this->getRoleId() != ANONYMOUS_ROLE_ID or $user['usr_id'] != ANONYMOUS_USER_ID) and

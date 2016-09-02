@@ -9,7 +9,9 @@ try
 	$lng->loadLanguageModule("error");
 	// #13515 - link back to "system" [see ilWebAccessChecker::sendError()]
 	$nd  = $tree->getNodeData(ROOT_FOLDER_ID);
-	$txt = $lng->txt('error_back_to_repository');
+	// fim: [portal] changed button text to home
+	$txt = $lng->txt('to_home');
+	// fim.
 	$tpl->SetCurrentBlock("ErrorLink");
 	$tpl->SetVariable("TXT_LINK", $txt);
 	$tpl->SetVariable("LINK", ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilRepositoryGUI&amp;client_id=' . CLIENT_ID);

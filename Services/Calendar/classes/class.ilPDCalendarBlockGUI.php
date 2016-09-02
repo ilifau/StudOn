@@ -52,7 +52,7 @@ class ilPDCalendarBlockGUI extends ilCalendarBlockGUI
 		$this->initCategories();
 		$this->setBlockId(0);
 	}
-	
+
 	/**
 	* Get block type
 	*

@@ -49,6 +49,13 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
 		$this->setFormName('cmd');
 		
 		$this->addCommandButton('copyContainerToTargets', $this->lng->txt('obj_'.$this->type.'_duplicate'));
+// fau: copyBySoap - add button to send an email when copying is finished
+		global $ilCust;
+		if($ilCust->getSetting('ilias_copy_by_soap'))
+		{
+			$this->addCommandButton('copyContainerWithMail', $this->lng->txt('obj_' . $this->type . '_duplicate') . ' ' . $this->lng->txt('object_copy_with_mail_suffix'));
+		}
+// fau.
 		$this->addCommandButton($a_back_cmd, $this->lng->txt('btn_back'));
 	}
 	

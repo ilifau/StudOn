@@ -92,16 +92,31 @@ return;
 		{
 			if (is_array($this->db_bench) && is_object($ilDB))
 			{
+// fau: extendBenchmark - store also the total time to compare it with query time
+				global $ilias;
+				$t1 = explode(" ", $GLOBALS['ilGlobalStartTime']);
+				$t2 = explode(" ", microtime());
+				$diff = $t2[0] - $t1[0] + $t2[1] - $t1[1];
+
+				$ilias->setSetting("db_bench_total_time", $diff);
+// fau.
+
 				$this->db_bench_stop_rec = true;
 
-				$ilDB->manipulate("DELETE FROM benchmark");
-				foreach ($this->db_bench as $b)
+// fau: extendBenchmark - check instant setting, add backtrace
+				if (empty($this->db_enabled_instant))
 				{
-					$ilDB->insert("benchmark", array(
-						"duration" => array("float", $this->microtimeDiff($b["start"], $b["stop"])),
-						"sql_stmt" => array("clob", $b["sql"])
-					));
+					$ilDB->manipulate("DELETE FROM benchmark");
+					foreach ($this->db_bench as $b)
+					{
+						$ilDB->insert("benchmark", array(
+							"duration" => array("float", $this->microtimeDiff($b["start"], $b["stop"])),
+							"sql_stmt" => array("clob", $b["sql"]),
+							"backtrace" => array("clob", $b["backtrace"])
+						));
+					}
 				}
+// fau.
 			}
 			$this->enableDbBench(false);
 		}
@@ -294,16 +309,20 @@ return;
 
 		$this->db_enabled = $ilSetting->get("enable_db_bench");
 		$this->db_enabled_user = $ilSetting->get("db_bench_user");
+// fau: extendBenchmark - get setting for instant saving
+		$this->db_enabled_instant =  $ilSetting->get("enable_db_bench_instant");
+// fau.
 		return $this->db_enabled;
 	}
 
+// fau: extendBenchmark - add parameter to enable instant saving, delete old data
 	/**
 	 * Enable DB benchmarking
 	 *
 	 * @param	boolean		enable db benchmarking
 	 * @param	string		user account name that should be benchmarked
 	 */
-	function enableDbBench($a_enable, $a_user = 0)
+	function enableDbBench($a_enable, $a_user = 0, $instant = 0)
 	{
 		global $ilias;
 
@@ -314,6 +333,8 @@ return;
 			{
 				$ilias->setSetting("db_bench_user", $a_user);
 			}
+			$ilias->setSetting("enable_db_bench_instant", $instant);
+			$this->clearData();
 		}
 		else
 		{
@@ -324,6 +345,7 @@ return;
 			}
 		}
 	}
+// fau.
 
 	/**
 	 * start measurement
@@ -359,9 +381,33 @@ return;
 			$this->db_enabled_user == $ilUser->getLogin() &&
 			!$this->db_bench_stop_rec)
 		{
+// fau: extendBenchmark - add backtrace to benchmark, save instantly (to allow benchmarking of fatal errors)
+			$i = 0;
+			foreach (debug_backtrace() as $step)
+			{
+	            if ($i > 0)
+				{
+					$backtrace .= '['.$i.'] '.$step['file'].' '.$step['line'].': '.$step['function']."()\n";
+				}
+				$i++;
+			}
+			$backtrace .= '['.$i.'] '.$_SERVER['REQUEST_URI'];
+
+			if ($this->db_enabled_instant)
+			{
+				global $ilDB;
+				$ilDB->insert("benchmark", array(
+					"duration" => array("float", $this->microtimeDiff($this->start,  microtime())),
+					"sql_stmt" => array("clob", $this->sql),
+					"backtrace" => array("clob", $backtrace)
+				));
+			}
+
 			$this->db_bench[] =
 				array("start" => $this->start, "stop" => microtime(),
-					"sql" => $this->sql);
+					"sql" => $this->sql,
+					"backtrace" => $backtrace);
+// fau.
 		}
 	}
 
@@ -379,12 +425,35 @@ return;
 		$b = array();
 		while ($rec = $ilDB->fetchAssoc($set))
 		{
+// fau: extendBenchmark - get benchmarks with backtrace
 			$b[] = array("sql" => $rec["sql_stmt"],
-				"time" => $rec["duration"]);
+				"time" => $rec["duration"],
+				"backtrace" => $rec["backtrace"]);
+// fau.
 		}
 		return $b;
 	}
 
+// fau: extendBenchmark - get total and query time
+
+	function getDbBenchTotalTime()
+	{
+		global $ilias;
+		return $ilias->getSetting('db_bench_total_time');
+	}
+
+	function getDbBenchQueryTime()
+	{
+		global $ilDB;
+
+		$set = $ilDB->query("SELECT SUM(duration) dsum FROM benchmark");
+		if ($rec = $ilDB->fetchAssoc($set))
+		{
+			return $rec['dsum'];
+		}
+		return 0;
+	}
+// fau.
 }
 
 ?>

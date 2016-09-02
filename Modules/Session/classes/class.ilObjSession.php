@@ -281,12 +281,12 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_min_users;
 	}
-	
+
 	public function setRegistrationMinUsers($a_users)
 	{
 		$this->reg_min_users = $a_users;
 	}
-	
+
 	public function getRegistrationMaxUsers()
 	{
 		return $this->reg_limited_users;
@@ -311,12 +311,12 @@ class ilObjSession extends ilObject
 	{
 		$this->reg_waiting_list_autofill = (bool)$a_value;
 	}
-	
+
 	public function hasWaitingListAutoFill()
 	{
 		return (bool)$this->reg_waiting_list_autofill;
 	}
-	
+
 	/**
 	 * is registration enabled
 	 *
@@ -327,7 +327,34 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_type != ilMembershipRegistrationSettings::TYPE_NONE;
 	}
-	
+
+	// fim: [memsess] new function registrationPossible()
+	function registrationPossible()
+	{
+		if (!$this->enabledRegistration())
+		{
+			return false;
+		}
+		elseif ($this->getRegistrationMaxUsers() == 0)
+		{
+			return true;
+		}
+		else
+		{
+			require_once("./Modules/Session/classes/class.ilEventParticipants.php");
+			$registrations = count(ilEventParticipants::_getRegistered($this->getId()));
+			if ($registrations < $this->getRegistrationMaxUsers())
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	// fim.
+
 	/**
 	 * get appointments
 	 *
@@ -396,15 +423,15 @@ class ilObjSession extends ilObject
 	public function validate()
 	{
 		global $ilErr;
-		
+
 		// #17114
 		if($this->isRegistrationUserLimitEnabled() &&
 			!$this->getRegistrationMaxUsers())
-		{			
+		{
 			$ilErr->appendMessage($this->lng->txt("sess_max_members_needed"));
 			return false;
 		}
-		
+
 		return true;
 	}
 	
@@ -728,19 +755,19 @@ class ilObjSession extends ilObject
 	}
 	
 	public function handleAutoFill()
-	{	
+	{
 		if($this->isRegistrationWaitingListEnabled() &&
 			$this->hasWaitingListAutoFill())
-		{					
+		{
 			// :TODO: what about ilSessionParticipants?
-			
-			include_once './Modules/Session/classes/class.ilEventParticipants.php'; 
-			$part_obj = new ilEventParticipants($this->getId());			
+
+			include_once './Modules/Session/classes/class.ilEventParticipants.php';
+			$part_obj = new ilEventParticipants($this->getId());
 			$all_reg = $part_obj->getRegistered();
 			$now = sizeof($all_reg);
 			$max = $this->getRegistrationMaxUsers();
 			if($max > $now)
-			{				
+			{
 				include_once('./Modules/Session/classes/class.ilSessionWaitingList.php');
 				$waiting_list = new ilSessionWaitingList($this->getId());
 
@@ -754,8 +781,8 @@ class ilObjSession extends ilObject
 					{
 						continue;
 					}
-					
-					ilEventParticipants::_register($user_id, $this->getId());					
+
+					ilEventParticipants::_register($user_id, $this->getId());
 					$waiting_list->removeFromList($user_id);
 
 					$now++;
@@ -765,8 +792,37 @@ class ilObjSession extends ilObject
 					}
 				}
 			}
-		}		
+		}
 	}
+
+	// fim: [memsess] _getSessions() get child sessions of an object
+	// sessions are ordered by date and title
+	public static function _getSessions($a_parent_ref_id, $a_for_registration = false)
+	{
+		global $ilAccess, $tree;
+
+		$sessions = array();
+		foreach ($tree->getChildsByType($a_parent_ref_id, "sess") as $node)
+		{
+			if(!is_object($session = ilObjectFactory::getInstanceByRefId($node["child"],false)))
+			{
+				continue;
+			}
+			if ($a_for_registration and !$session->enabledRegistration())
+			{
+				continue;
+			}
+			$sort = $session->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+			$sort.= ' '.$session->getTitle();
+			$sort.= ' '.$session->getId();
+
+			$sessions[$sort] = $session;
+		}
+
+		ksort($sessions);
+		return array_values($sessions);
+	}
+	// fim.
 }
 
 ?>

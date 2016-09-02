@@ -108,11 +108,13 @@ class ilHelpMapping
 	{
 		global $ilDB;
 		
-		$set = $ilDB->query("SELECT * FROM help_map ".
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query("SELECT SQL_CACHE * FROM help_map ".
 			" WHERE chap = ".$ilDB->quote($a_chap, "integer").
 			" AND module_id = ".$ilDB->quote($a_module_id, "integer").
 			" ORDER BY component, screen_id, screen_sub_id"
 			);
+// fau.
 		$screen_ids = array();
 		while ($rec  = $ilDB->fetchAssoc($set))
 		{
@@ -275,13 +277,15 @@ class ilHelpMapping
 			{
 				$sc_id[2] = "-";
 			}
-			$set = $ilDB->query("SELECT chap, perm FROM help_map ".
+// fau: sqlCache - use sql cache
+			$set = $ilDB->query("SELECT SQL_CACHE chap, perm FROM help_map ".
 				" WHERE (component = ".$ilDB->quote($sc_id[0], "text").
 				" OR component = ".$ilDB->quote("*", "text").")".
 				" AND screen_id = ".$ilDB->quote($sc_id[1], "text").
 				" AND screen_sub_id = ".$ilDB->quote($sc_id[2], "text").
 				" AND module_id = ".$ilDB->quote($module, "integer")
 				);
+// fau.
 			while ($rec = $ilDB->fetchAssoc($set))
 			{
 				return true;

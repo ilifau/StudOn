@@ -82,7 +82,9 @@ class ilContextWebAccessCheck extends ilContextBase
 	public static function doAuthentication()
 	{
 		// see ilWebAccessChecker::checkAccess();
-		return false;
+// fim: [webform] authentication is needed for xlml forms
+		return true;
+// fim.
 	}
 }
 

@@ -84,6 +84,31 @@ class ilObjCourseGroupingGUI
 		$tpl->setContent($table->getHTML());
 	}
 
+	// fim: [memad] new function to add members on the waiting lists
+	function addWaitingMembers()
+	{
+		$obj_ids = array();
+		$grouping = new ilObjCourseGrouping((int) $_GET['obj_id']);
+
+		$assigned_items = $grouping->getAssignedItems();
+		foreach($assigned_items as $condition)
+		{
+	    	$obj_ids[] = $condition['target_obj_id'];
+		}
+		
+		// TODO: check if user has write permission on objects
+		if (count($obj_ids))
+		{
+			require_once('Services/Membership/classes/class.ilWaitingListAdministration.php');
+			$wait_admin = new ilWaitingListAdministration($obj_ids);
+			
+			$wait_admin->fillMembers();
+			ilUtil::sendInfo($wait_admin->getInfos());
+			$this->listGroupings();
+		}
+	}
+	// fim.
+	
 	function askDeleteGrouping()
 	{
 		global $ilErr,$ilAccess,$tpl;

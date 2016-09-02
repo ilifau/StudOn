@@ -13,6 +13,9 @@
 * @ilCtrl_Calls ilObjFileBasedLMGUI: ilFileSystemGUI, ilObjectMetaDataGUI, ilPermissionGUI, ilLearningProgressGUI, ilInfoScreenGUI
 * @ilCtrl_Calls ilObjFileBasedLMGUI: ilShopPurchaseGUI, ilCommonActionDispatcherGUI
 * @ilCtrl_Calls ilObjFileBasedLMGUI: ilLicenseGUI, ilExportGUI
+* fim: [webform] added ilWebFormDefinitionsGUI to call structure
+* @ilCtrl_Calls ilObjFileBasedLMGUI: ilWebFormDefinitionsGUI
+* fim.
 * @ingroup ModulesHTMLLearningModule
 */
 
@@ -91,11 +94,21 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 
 		switch($next_class)
 		{
+			// fim: [webform] add command class
+			case 'ilwebformdefinitionsgui':
+				$this->checkPermission("write");
+				$ilTabs->activateTab('webforms');
+				include_once("./Services/WebForm/classes/class.ilWebFormDefinitionsGUI.php");
+				$wfd_gui =& new ilWebFormDefinitionsGUI($this);
+				$ret =& $this->ctrl->forwardCommand($wfd_gui);
+				break;
+			// fim.
+
 			case 'ilobjectmetadatagui':
 				$this->checkPermission("write");
 				$ilTabs->activateTab('id_meta_data');
 				include_once "Services/Object/classes/class.ilObjectMetaDataGUI.php";
-				$md_gui = new ilObjectMetaDataGUI($this->object);	
+				$md_gui = new ilObjectMetaDataGUI($this->object);
 				$this->ctrl->forwardCommand($md_gui);
 				break;
 
@@ -329,8 +342,25 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 		$bib->setInfo($lng->txt("cont_biblio_info"));
 		$this->form->addItem($bib);
 
+		// fim: [xlml] show import_id in form
+		$item = new ilTextInputGUI($lng->txt("cont_import_id"), "cobj_import_id");
+		$item->setValue($this->object->getImportId());
+		$this->form->addItem($item);
+		//fim.
+
 		$this->form->addCommandButton("saveProperties", $lng->txt("save"));
 		$this->form->addCommandButton("toFilesystem", $lng->txt("cont_set_start_file"));
+
+		// fim: [webform] add button to create form definitions
+		global $ilCust;
+		require_once("./Services/WebForm/classes/class.ilWebFormAccess.php");
+		$importfile = ilWebFormAccess::_findXMLImportFile($this->object);
+		if ($importfile != "")
+		{
+			$lng->loadLanguageModule("webform");
+			$this->form->addCommandButton("readWebFormDefinitions", $lng->txt("webform_definitions_read"));
+		}
+		// fim.
 
 		$this->form->setTitle($lng->txt("cont_lm_properties"));
 		$this->form->setFormAction($ilCtrl->getFormAction($this, "saveProperties"));
@@ -361,6 +391,10 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 		$values["desc"] = $this->object->getDescription();
 		$values["lic"] = $this->object->getShowLicense();
 		$values["bib"] = $this->object->getShowBibliographicalData();
+
+		// fim: [xlml] get value of import id
+		$values["cobj_import_id"] = $this->object->getImportId();
+		// fim.
 
 		$this->form->setValuesByArray($values);
 	}
@@ -399,6 +433,11 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 				$this->object->setShowLicense($this->form->getInput("lic"));
 			}						
 			
+
+			// fim: [xlml] save import_id
+			$this->object->setImportId($_POST["cobj_import_id"]);
+			// fim.
+
 			$this->object->update();
 			ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
 			$this->ctrl->redirect($this, "properties");
@@ -408,6 +447,19 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 		$this->form->setValuesByPost();
 		$tpl->setContent($this->form->getHtml());
 	}
+
+
+	/**
+	* fim: [webform] readFormDefinitions
+	*
+	* @access	public
+	*/
+	function readWebFormDefinitions()
+	{
+	    global $ilCtrl;
+		$ilCtrl->redirectByClass("ilwebformdefinitionsgui", "readforms");
+	}
+	// fim.
 
 	/**
 	* edit properties of object (admin form)
@@ -862,6 +914,19 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 			$ilTabs->addTab("id_settings",
 				$lng->txt("settings"),
 				$this->ctrl->getLinkTarget($this, "properties"));
+
+			// fim: [webform] add webforms tab
+			global $ilCust;
+			require_once("./Services/WebForm/classes/class.ilWebFormAccess.php");
+			if (ilWebFormAccess::_hasForms($this->object->getID()))
+			{
+				$lng->loadLanguageModule("webform");
+
+				$ilTabs->addTab("webforms",
+					$lng->txt("webform_definitions"),
+					$this->ctrl->getLinkTargetByClass(array("ilobjfilebasedlmgui", "ilwebformdefinitionsgui"), ''));
+				}
+			// fim.
 		}
 		
 		include_once './Services/Tracking/classes/class.ilLearningProgressAccess.php';
@@ -885,10 +950,10 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
 		if($ilAccess->checkAccess('write', '', $this->ref_id))
 		{
 			include_once "Services/Object/classes/class.ilObjectMetaDataGUI.php";
-			$mdgui = new ilObjectMetaDataGUI($this->object);					
+			$mdgui = new ilObjectMetaDataGUI($this->object);
 			$mdtab = $mdgui->getTab();
 			if($mdtab)
-			{			
+			{
 				$ilTabs->addTab("id_meta_data",
 					$lng->txt("meta_data"),
 					$mdtab);

@@ -101,10 +101,10 @@ class ilSessionOverviewGUI
 		
 		$ilToolbar->addButton($this->lng->txt('event_csv_export'),
 			$this->ctrl->getLinkTarget($this,'exportCSV'));
-		
+
 		include_once 'Modules/Session/classes/class.ilSessionOverviewTableGUI.php';
 		$tbl = new ilSessionOverviewTableGUI($this, 'listSessions', $this->course_ref_id, $this->members_obj->getParticipants());
-		$this->tpl->setContent($tbl->getHTML());		
+		$this->tpl->setContent($tbl->getHTML());
 	}
 
 	/**
@@ -132,20 +132,35 @@ class ilSessionOverviewGUI
 			{
 				continue;
 			}
-			$events[] = $tmp_event;
+			// fim: [memsess] prepare sort key for events
+			$sort = $tmp_event->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+			$sort.= $tmp_event->getTitle();
+			$events[$sort] = $tmp_event;
+			// fim.
 		}
 		
+		// fim: [memsess] sort events by start date and title
+		ksort($events);
+		$events = array_values($events);
+		// fim.
+
 		$this->csv = new ilCSVWriter();
 		$this->csv->addColumn($this->lng->txt("lastname"));
 		$this->csv->addColumn($this->lng->txt("firstname"));
 		$this->csv->addColumn($this->lng->txt("login"));
 		
+		// fim: [memsess] temporary deactivate relative date presentation
+		$relative = ilDatePresentation::useRelativeDates();
+		ilDatePresentation::setUseRelativeDates(false);
 		foreach($events as $event_obj)
 		{			
 			// TODO: do not export relative dates
 			$this->csv->addColumn($event_obj->getTitle().' ('.$event_obj->getFirstAppointment()->appointmentToString().')');
 		}
-		
+		ilDatePresentation::setUseRelativeDates($relative);
+		// fim.
+
+
 		$this->csv->addRow();
 		
 		foreach($members as $user_id)
@@ -160,11 +175,22 @@ class ilSessionOverviewGUI
 			{			
 				$event_part = new ilEventParticipants((int) $event_obj->getId());
 				
-				$this->csv->addColumn($event_part->hasParticipated($user_id) ?
+				// fim: [memsess] add registration info to CSV
+				if ($event_obj->enabledRegistration()
+				and (!$event_part->isRegistered($user_id))
+				and (!$event_part->hasParticipated($user_id)))
+				{
+					$this->csv->addColumn($this->lng->txt('event_not_registered'));
+				}
+				else
+				{
+					$this->csv->addColumn($event_part->hasParticipated($user_id) ?
 										$this->lng->txt('event_participated') :
 										$this->lng->txt('event_not_participated'));
 			}
-			
+				// fim.
+			}
+
 			$this->csv->addRow();
 		}
 		$date = new ilDate(time(),IL_CAL_UNIX);

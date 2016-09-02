@@ -83,7 +83,7 @@ class ilTestArchiver
 	protected $archive_data_index;		/** @var $archive_data_index array[string[]] Archive data index as associative array */
 
 	protected $ilDB;					/** @var $ilDB ilDB */
-	
+
 	/**
 	 * @var ilTestParticipantData
 	 */
@@ -106,10 +106,10 @@ class ilTestArchiver
 		$this->ilDB						= $ilias->db;
 
 		$this->archive_data_index 		= $this->readArchiveDataIndex();
-		
+
 		$this->participantData = null;
 	}
-	
+
 	/**
 	 * @return ilTestParticipantData
 	 */
@@ -117,7 +117,7 @@ class ilTestArchiver
 	{
 		return $this->participantData;
 	}
-	
+
 	/**
 	 * @param ilTestParticipantData $participantData
 	 */
@@ -290,6 +290,27 @@ class ilTestArchiver
 		$this->logArchivingProcess( date( self::LOG_DTSGROUP_FORMAT ) . self::LOG_ADDITION_STRING . $new_path );
 	}
 
+// fau: manualTestArchiving - new function to hand in a user solution
+	/**
+	 * Hands in an individual test result for a pass.
+	 *
+	 * @param $local_name		string	Local file name
+	 * @param $source_path		string 	Path to the PDF containing the result.
+	 *
+	 * @return void
+	 */
+	public function handInTestUserSolution($local_name, $file_path)
+	{
+		$this->ensureTestArchiveIsAvailable();
+		$local_path = $this->getTestArchive().self::DIR_SEP.'user_solution';
+		ilUtil::makeDirParents($local_path);
+
+		$new_path = $local_path . self::DIR_SEP . $this->sanitizeFilename($local_name);
+		copy($file_path, $new_path);
+		$this->logArchivingProcess( date( self::LOG_DTSGROUP_FORMAT ) . self::LOG_ADDITION_STRING . $new_path );
+	}
+// fau.
+
 	/**
 	 * Hands in a test results overview.
 	 * 
@@ -438,20 +459,63 @@ class ilTestArchiver
 	/**
 	 * Generate the test archive for download.
 	 * 
-	 * @return void
+	 * @return boolean
 	 */
-	public function compressTestArchive() 
+// fau: manualTestArchiving - create new file name from test title
+// fau: manualTestArchiving - fault tolerance check if test archive directory exists
+	public function compressTestArchive($title = "test")
 	{
 		$this->updateTestArchive();
 		$this->ensureZipExportDirectoryExists();
-		
-		$zip_output_path = $this->getZipExportDirectory();
-		$zip_output_filename = 'test_archive_obj_'.$this->test_obj_id . '_' . time() . '_.zip';
-		
-		ilUtil::zip($this->getTestArchive(), $zip_output_path . self::DIR_SEP . $zip_output_filename, true);
-		return;
-	}
 
+		$zip_output_path = $this->getZipExportDirectory();
+		$zip_output_filename = 'archive_'.strtolower($this->sanitizeFilename($title,'_')).'_'. date('Y.m.d_H.i', time()).'.zip';
+
+		if(is_dir($this->getTestArchive()))
+		{
+			// set return value regarding zip success
+			return ilUtil::zip($this->getTestArchive(), $zip_output_path . self::DIR_SEP . $zip_output_filename, true);
+		}
+		return false;
+	}
+// fau.
+
+// fau: manualTestArchiving - new function to delete an archive
+	public function deleteTestArchive()
+	{
+		ilUtil::delDir($this->getTestArchive());
+	}
+// fau.
+
+// fau: manualTestArchiving - filename sanitation from http://www.house6.com/blog/?p=83
+	protected function sanitizeFilename($f, $a_space_replace = ' ') {
+		// a combination of various methods
+		// we don't want to convert html entities, or do any url encoding
+		// we want to retain the "essence" of the original file name, if possible
+		// char replace table found at:
+		// http://www.php.net/manual/en/function.strtr.php#98669
+		$replace_chars = array(
+			'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'Ae',
+			'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I',
+			'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U',
+			'Û'=>'U', 'Ü'=>'Ue', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'ae', 'ä'=>'a',
+			'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i',
+			'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'oe', 'ø'=>'o', 'ù'=>'u',
+			'ü'=>'ue', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
+		);
+		$f = strtr($f, $replace_chars);
+		// convert & to "and", @ to "at", and # to "number"
+		$f = preg_replace(array('/[\&]/', '/[\@]/', '/[\#]/'), array('-and-', '-at-', '-number-'), $f);
+		$f = preg_replace('/[^(\x20-\x7F)]*/','', $f); // removes any special chars we missed
+		$f = str_replace(' ', $a_space_replace, $f); // convert space to hyphen
+		$f = str_replace("'", '', $f); 	// removes single apostrophes
+		$f = str_replace('"', '', $f);  // removes double apostrophes
+		$f = preg_replace('/[^\w\-\.\,_ ]+/', '', $f); // remove non-word chars (leaving hyphens and periods)
+		$f = preg_replace('/[\-]+/', '-', $f); // converts groups of hyphens into one
+		$f = preg_replace('/[_]+/', '_', $f); // converts groups of dashes into one
+		return $f;
+	}
+// fau.
 	#endregion
 
 	#region PassDataDirectory
@@ -487,7 +551,7 @@ class ilTestArchiver
 		mkdir($this->getPassDataDirectory($active_fi, $pass), 0777, true);
 		return;
 	}
-	
+
 	private function buildPassDataDirectory($active_fi, $pass)
 	{
 		foreach ($this->archive_data_index as $data_index_entry)
@@ -498,7 +562,7 @@ class ilTestArchiver
 				return $this->getTestArchive() . self::DIR_SEP . implode(self::DIR_SEP, $data_index_entry);
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -513,7 +577,7 @@ class ilTestArchiver
 	protected function getPassDataDirectory($active_fi, $pass) 
 	{
 		$passDataDir = $this->buildPassDataDirectory($active_fi, $pass);
-		
+
 		if( !$passDataDir )
 		{
 			if( $this->getParticipantData() )
@@ -530,15 +594,15 @@ class ilTestArchiver
 				global $ilUser;
 				$user = $ilUser;
 			}
-			
+
 			$this->appendToArchiveDataIndex(
 				date(DATE_ISO8601), $active_fi, $pass,
 				$user->getFirstname(), $user->getLastname(), $user->getMatriculation()
 			);
-			
+
 			$passDataDir = $this->buildPassDataDirectory($active_fi, $pass);
 		}
-		
+
 		return $passDataDir;
 	}
 
@@ -595,7 +659,7 @@ class ilTestArchiver
 	{
 		// Data are taken from the current user as the implementation expects the first interaction of the pass
 		// takes place from the usage/behaviour of the current user.
-		
+
 		if( $this->getParticipantData() )
 		{
 			$usrData = $this->getParticipantData()->getUserDataByActiveId($active_fi);

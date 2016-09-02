@@ -302,7 +302,9 @@ class ilObjCourseGrouping
 	* Returns a list of all groupings for which the current user hast write permission on all assigned objects. Or groupings
 	* the given object id is assigned to.
 	*/
-	function _getVisibleGroupings($a_obj_id)
+	// fim: [meminf] add mode parameter to get the visible groupings
+	function _getVisibleGroupings($a_obj_id, $a_mode = "writable")
+	// fim.
 	{
 		global $ilObjDataCache,$ilAccess,$ilDB;
 
@@ -323,27 +325,43 @@ class ilObjCourseGrouping
 		{
 			$tmp_grouping_obj = new ilObjCourseGrouping($grouping_id);
 
-			// Check container type
-			if($tmp_grouping_obj->getContainerType() != $container_type)
+			// fim: [meminf] check container type only if searching for writable  
+			if($a_mode == "writable" and $tmp_grouping_obj->getContainerType() != $container_type)
 			{
 				continue;
 			}
+			// fim.
+			
 			// Check if container is current container
 			if($tmp_grouping_obj->getContainerObjId() == $a_obj_id)
 			{
 				$visible_groupings[] = $grouping_id;
 				continue;
 			}
+						
 			// check if items are assigned
 			if(count($items = $tmp_grouping_obj->getAssignedItems()))
 			{
 				foreach($items as $condition_data)
 				{
-					if($ilAccess->checkAccess('write','',$condition_data['target_ref_id']))
+					// fim: [meminf] respect the mode to get visible groupings
+					if ($a_mode == 'assigned')
 					{
-						$visible_groupings[] = $grouping_id;
-						break;
+						if ($a_obj_id == $condition_data['target_obj_id'])
+						{
+							$visible_groupings[] = $grouping_id;
+							break;
+						}
 					}
+					elseif ($a_mode == 'writable')
+					{
+						if($ilAccess->checkAccess('write','',$condition_data['target_ref_id']))
+						{
+							$visible_groupings[] = $grouping_id;
+							break;
+						}
+					}
+					// fim.
 				}
 				
 			}				
@@ -652,6 +670,91 @@ class ilObjCourseGrouping
 		}
 		return $items ? $items : array();
 	}
+	
+	// fim: [memlot] new function getGroupingConditions
+ 	/**
+ 	* Get grouping gonditions of a container object
+ 	*
+ 	* @param 	int     course or group object id
+ 	* @return 	array   assoc: grouping conditions
+ 	*/
+	function _getGroupingConditions($a_obj_id, $a_type)
+	{
+		global $tree;
+		
+		static $cached_conditions;
+		if (isset($cached_conditions[$a_obj_id]))
+		{
+			return $cached_conditions[$a_obj_id];
+		}		
+
+		include_once './Services/AccessControl/classes/class.ilConditionHandler.php';
+
+		$ref_id = current(ilObject::_getAllReferences($a_obj_id));
+		$trigger_ids = array();
+		$conditions = array();
+		
+		foreach(ilConditionHandler::_getConditionsOfTarget($ref_id, $a_obj_id, $a_type) as $condition)
+		{
+			if($condition['operator'] == 'not_member')
+			{
+				$trigger_ids[] = $condition['trigger_obj_id'];
+			}
+		}
+		foreach ($trigger_ids as $trigger_id)
+		{
+			foreach(ilConditionHandler::_getConditionsOfTrigger('crsg', $trigger_id) as $condition)
+			{
+				// Handle deleted items
+				if(!$tree->isDeleted($condition['target_ref_id'])
+					and $condition['operator'] == 'not_member')
+				{
+					$conditions[$condition['target_ref_id']] = $condition;
+				}
+			}
+		}
+		
+		$cached_conditions[$a_obj_id] = array_values($conditions);
+		return $cached_conditions[$a_obj_id];
+	}
+	// fim.
+	
+	// fim: [memlot] new function _checkGroupingItemsForUser
+ 	/**
+ 	* Check the grouping conditions for a user
+ 	*
+ 	* @param  	int 	    user_id
+ 	* @param    string      container type 'grp' or 'crs'
+ 	* @param  	array 		grouping conditions
+ 	* @return   string      obj_id
+ 	*/
+	function _findGroupingMembership($user_id, $type, $conditions)
+	{
+		foreach ($conditions as $condition)
+		{
+			if ($type == 'crs')
+			{
+				include_once('Modules/Course/classes/class.ilCourseParticipants.php');
+				$members = ilCourseParticipants::_getInstanceByObjId($condition['target_obj_id']);
+				if($members->isGroupingMember($user_id, $condition['value']))
+				{
+					return $condition['target_obj_id'];
+				}
+			}
+			elseif ($type == 'grp')
+			{
+				include_once('Modules/Group/classes/class.ilGroupParticipants.php');
+				$members = ilGroupParticipants::_getInstanceByObjId($condition['target_obj_id']);
+				if($members->isGroupingMember($user_id, $condition['value']))
+				{
+					return $condition['target_obj_id'];
+				}
+			}
+		}
+		return false;
+	}
+	// fim.
+	
 
 } // END class.ilObjCourseGrouping
 ?>

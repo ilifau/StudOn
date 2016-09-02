@@ -31,6 +31,14 @@ class ilCourseGroupingTableGUI extends ilTable2GUI
 		$this->addColumn($this->lng->txt('groupings_assigned_obj_'.$type), 'assigned');
 		$this->addColumn('','');
 		
+		// fim: [meminf] include subscription lists
+		require_once("./Services/Membership/classes/class.ilParticipants.php");
+		require_once("./Services/Membership/classes/class.ilWaitingList.php");
+		require_once("./Services/Membership/classes/class.ilSubscribersLot.php");
+		
+		$this->lng->loadLanguageModule('crs');
+		$this->addColumn($this->lng->txt('distinct_registrations'), 'registrations');
+		// fim.	
 		
 		$this->setTitle($this->lng->txt('groupings'));		
 
@@ -48,7 +56,9 @@ class ilCourseGroupingTableGUI extends ilTable2GUI
 	
 	protected function getItems($a_content_obj)
 	{
-		$items = ilObjCourseGrouping::_getVisibleGroupings($a_content_obj->getId());
+		// fim: [meminf] set mode parameter to get the visible groupings
+		$items = ilObjCourseGrouping::_getVisibleGroupings($a_content_obj->getId(), 'assigned');
+		// fim.
 
 		$data = array();
 		foreach($items as $grouping_id)
@@ -70,6 +80,9 @@ class ilCourseGroupingTableGUI extends ilTable2GUI
 			foreach($assigned_items as $condition)
 			{
 				$data[$grouping_id]['assigned'][] = ilObject::_lookupTitle($condition['target_obj_id']);
+				// fim: [meminf] add ids of assigned items
+				$data[$grouping_id]['assigned_ids'][] = $condition['target_obj_id'];
+				// fim.
 			}
 		}
 		
@@ -103,6 +116,38 @@ class ilCourseGroupingTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("EDIT_LINK",
 			$this->ctrl->getLinkTarget($this->parent_obj, 'edit'));		
 		$this->tpl->setVariable('TXT_EDIT',$this->lng->txt('edit'));
+
+	
+		// fim: [meminf] count the subscribers
+		$target_obj_ids = is_array($a_set['assigned_ids']) ? $a_set['assigned_ids'] : array();
+			
+		if ($count_subscribers = ilParticipants::_countSubscribers($target_obj_ids))
+		{
+			$this->tpl->setCurrentBlock("subscribers");
+			$this->tpl->setVariable('TXT_SUBSCRIBERS', $this->lng->txt('crs_subscribers'));
+			$this->tpl->setVariable('COUNT_SUBSCRIBERS', $count_subscribers);
+			$this->tpl->parseCurrentBlock();
+		}
+		if ($count_waiting = ilWaitingList::_countSubscribers($target_obj_ids))
+		{
+			$this->tpl->setCurrentBlock("waiting_list");
+			$this->tpl->setVariable('TXT_WAITING_LIST', $this->lng->txt('crs_waiting_list'));
+			$this->tpl->setVariable('COUNT_WAITING_LIST', $count_waiting);
+
+			$this->ctrl->setParameterByClass('ilobjcoursegroupinggui','obj_id',$a_set["id"]);
+			$this->tpl->setVariable("TXT_ADD_WAITING_MEMBERS",$this->lng->txt('mem_fill_free_places'));
+			$this->tpl->setVariable("LINK_ADD_WAITING_MEMBERS",$this->ctrl->getLinkTargetByClass('ilobjcoursegroupinggui','addWaitingMembers'));
+			
+			$this->tpl->parseCurrentBlock();
+		}
+		if ($count_lot = ilSubscribersLot::_countSubscribers($target_obj_ids))
+		{
+			$this->tpl->setCurrentBlock("lot_list");
+			$this->tpl->setVariable('TXT_LOT_LIST', $this->lng->txt('crs_lot_list'));
+			$this->tpl->setVariable('COUNT_LOT_LIST', $count_lot);
+			$this->tpl->parseCurrentBlock();
+		}
+		// fim.
 	}
 }
 

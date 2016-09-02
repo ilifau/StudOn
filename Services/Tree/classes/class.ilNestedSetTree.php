@@ -846,5 +846,21 @@ class ilNestedSetTree implements ilTreeImplementation
 		return $failures;
 	}
 
+
+    /**
+     * fim: [tree] new function to get an SQL condition for selecting grand childs of a node
+     * this is used by ilUtil::_getObjectsByOperations()
+     * @param array		node data
+     * @param string	alias for the tree table
+     * @return string	sql condition
+     */
+    public function getGrandChildCondition($node, $a_alias = "tree")
+    {
+        global $ilDB;
+
+        return '('.$a_alias.'.lft > '.$ilDB->quote($node['lft'], 'integer').' AND '.$a_alias.'.rgt < '.$ilDB->quote($node['rgt'],'integer').')';
+    }
+    // fim.
+
 }
 ?>

@@ -414,6 +414,12 @@ die("ilObjTaxonomyGUI::getTreeHTML is deprecated.");
 		// title
 		$ti = new ilTextInputGUI($this->lng->txt("title"), "title");
 		$this->form->addItem($ti);
+
+// fau: taxDesc - add form element for description
+		// description
+		$de = new ilTextAreaInputGUI($this->lng->txt("description"), "description");
+		$this->form->addItem($de);
+// fau.
 		
 		// order nr
 		$tax = $this->getCurrentTaxonomy();
@@ -467,6 +473,9 @@ die("ilObjTaxonomyGUI::getTreeHTML is deprecated.");
 			include_once("./Services/Taxonomy/classes/class.ilTaxonomyNode.php");
 			$node = new ilTaxonomyNode();
 			$node->setTitle($this->form->getInput("title"));
+// fau: taxDesc - save description from form
+			$node->setDescription($this->form->getInput("description"));
+// fau.
 			
 			$tax = $this->getCurrentTaxonomy();
 			if ($tax->getSortingMode() == ilObjTaxonomy::SORT_MANUAL)
@@ -511,6 +520,9 @@ die("ilObjTaxonomyGUI::getTreeHTML is deprecated.");
 			// create node
 			$node = new ilTaxonomyNode($_GET["tax_node"]);
 			$node->setTitle($this->form->getInput("title"));
+// fau: taxDesc - update description from form
+			$node->setDescription($this->form->getInput("description"));
+// fau.
 
 			$tax = $this->getCurrentTaxonomy();
 			if ($tax->getSortingMode() == ilObjTaxonomy::SORT_MANUAL)
@@ -635,6 +647,17 @@ die("ilObjTaxonomyGUI::getTreeHTML is deprecated.");
 			}
 		}
 
+// fau: taxDesc - save description
+		// save descriptions
+		if (is_array($_POST["description"]))
+		{
+			foreach ($_POST["description"] as $k => $v)
+			{
+				ilTaxonomyNode::writeDescription((int) $k,
+					ilUtil::stripSlashes($v));
+			}
+		}
+// fau.
 		
 		ilUtil::sendSuccess($lng->txt("msg_obj_modified"));
 		$ilCtrl->redirect($this, "listNodes");

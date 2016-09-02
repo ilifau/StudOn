@@ -368,7 +368,16 @@ class ilContObjParser extends ilMDSaxParser
 			}*/
 
 			$obj_dir = $origin_id;
-			$source_dir = $imp_dir."/".$this->subdir."/objects/".$obj_dir;
+			// fim: [bugfix] fixed mantis #8976 (still needed in 5.0 when importing container with question pools)
+			if (strpos($imp_dir, $this->subdir) === false)
+			{
+				$source_dir = $imp_dir."/".$this->subdir."/objects/".$obj_dir;
+			}
+			else
+			{
+				$source_dir = $imp_dir."/objects/".$obj_dir;
+			}
+			// fim.
 			$target_dir = ilUtil::getWebspaceDir()."/mobs/mm_".$mob_id;
 
 			if (@is_dir($source_dir))
@@ -696,6 +705,12 @@ case "InteractiveImage":
 					switch($a_attribs["Name"])
 					{
 						case "Layout":
+// fau: lmLayout - fault tolerant import of missing layouts
+							if (!in_array($a_attribs["Value"], ilObjContentObject::getAvailableLayouts()))
+							{
+								$a_attribs["Value"] = "toc2win";
+							}
+// fau.
 							$this->content_object->setLayout($a_attribs["Value"]);
 							break;
 

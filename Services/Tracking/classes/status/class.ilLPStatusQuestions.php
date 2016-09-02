@@ -31,6 +31,9 @@ class ilLPStatusQuestions extends ilLPStatus
 		$users = ilChangeEvent::lookupUsersInProgress($a_obj_id);
 		
 		include_once "Modules/LearningModule/classes/class.ilLMTracker.php";
+// fau: lpLmCache - preload data for an lm and multiple users
+		ilLMTracker::preloadLMTrackingData($a_obj_id, $users);
+// fau.
 		foreach($users as $user_id)
 		{
 			// :TODO: this ought to be optimized

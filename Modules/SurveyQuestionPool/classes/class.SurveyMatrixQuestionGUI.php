@@ -507,7 +507,7 @@ class SurveyMatrixQuestionGUI extends SurveyQuestionGUI
 					: "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 				$tplrow->parseCurrentBlock();
 			}
-			
+
 			switch ($question_title)
 			{
 				case 1:
@@ -1034,20 +1034,20 @@ class SurveyMatrixQuestionGUI extends SurveyQuestionGUI
 		{
 			$table[] = array(
 				(++$idx).".",
-				$value["title"], 
-				$value["selected"], 
+				$value["title"],
+				$value["selected"],
 				sprintf("%.2f", 100*$value["percentage"])."%"
 			);
 			$selsum += (int)$value["selected"];
 		}
 		$head = array(
-			"", 
-			$this->lng->txt("title"), 
-			$this->lng->txt("category_nr_selected"), 
+			"",
+			$this->lng->txt("title"),
+			$this->lng->txt("category_nr_selected"),
 			$this->lng->txt("percentage_of_selections")
 		);
 		$foot = array(null, null, $selsum, null);
-		$template->setVariable("TEXT_OPTION_VALUE", 
+		$template->setVariable("TEXT_OPTION_VALUE",
 			$this->renderStatisticsDetailsTable($head, $table, $foot));
 		$template->parseCurrentBlock();
 				
@@ -1095,23 +1095,23 @@ class SurveyMatrixQuestionGUI extends SurveyQuestionGUI
 				$table = array();
 				$idx = $selsum = 0;
 				foreach ($value["variables"] as $cvalue)
-				{					
+				{
 					$table[] = array(
 						(++$idx).".",
-						$cvalue["title"], 
-						$cvalue["selected"], 
+						$cvalue["title"],
+						$cvalue["selected"],
 						sprintf("%.2f", 100*$cvalue["percentage"])."%"
 					);
 					$selsum += (int)$cvalue["selected"];
 				}
 				$head = array(
-					"", 
-					$this->lng->txt("title"), 
-					$this->lng->txt("category_nr_selected"), 
+					"",
+					$this->lng->txt("title"),
+					$this->lng->txt("category_nr_selected"),
 					$this->lng->txt("percentage_of_selections")
 				);
 				$foot = array(null, null, $selsum, null);
-				$template->setVariable("TEXT_OPTION_VALUE", 
+				$template->setVariable("TEXT_OPTION_VALUE",
 					$this->renderStatisticsDetailsTable($head, $table, $foot));
 				$template->parseCurrentBlock();
 				

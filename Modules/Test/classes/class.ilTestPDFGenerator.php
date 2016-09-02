@@ -28,7 +28,7 @@ class ilTestPDFGenerator
 			</html>
 		";
 	}
-	
+
 	/**
 	 * @param $html
 	 * @return string
@@ -39,7 +39,7 @@ class ilTestPDFGenerator
 		{
 			return $contentHtml;
 		}
-		
+
 		$html = self::buildHtmlDocument($contentHtml, $styleHtml);
 
 		$dom = new DOMDocument("1.0", "utf-8");
@@ -47,7 +47,7 @@ class ilTestPDFGenerator
 		{
 			return $html;
 		}
-		
+
 		$invalid_elements = array();
 
 		$script_elements     = $dom->getElementsByTagName('script');
@@ -131,9 +131,36 @@ class ilTestPDFGenerator
 	
 	public static function preprocessHTML($html)
 	{
-		$pdf_css_path = self::getTemplatePath('test_pdf.css');
-		$html = self::makeHtmlDocument($html, '<style>'.file_get_contents($pdf_css_path).'</style>');
-		
+		// fim: [tex] process latex for pdf generation
+		$mathJaxSetting = new ilSetting("MathJax");
+		if ($mathJaxSetting->get("enable"))
+		{
+			// process latex images again
+			// disable mathjax for this call (without changing the database setting)
+			// this forces the server-side generation of images
+			// add "processed" flag to indicate that delimiters are already converted
+			$mathJaxSetting->set('enable','0', false);
+			$html = ilUtil::insertLatexImages($html, '', '', true);
+		}
+		// fim.
+
+		// fim: [pdf] add styles for phantomjs
+		global $ilCust;
+		if ($ilCust->getSetting('pdf_engine') == 'phantomjs')
+		{
+			$css = file_get_contents(ilUtil::getStyleSheetLocation('filesystem'))		// Delos
+				. file_get_contents(self::getTemplatePath('ta.css'))					// Test
+				. file_get_contents(self::getTemplatePath('test_phantomjs.css'));		// PDF
+
+			$html = self::makeHtmlDocument($html, '<style>'.$css.'</style>');
+		}
+		else
+		{
+			$pdf_css_path = self::getTemplatePath('test_pdf.css');
+			$html = self::makeHtmlDocument($html, '<style>'.file_get_contents($pdf_css_path).'</style>');
+		}
+		// fim.
+
 		return $html;
 	}
 

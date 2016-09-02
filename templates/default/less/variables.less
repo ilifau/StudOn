@@ -31,8 +31,8 @@
 @web-font-path: "fonts/";
 
 @mid-gray: #434343;
-@il-primary-container-bg: #FFFFFF;
-@il-secondary-container-bg: #F9F9F9;
+@il-primary-container-bg: #FAFAFC;                 // fim: changed container background
+@il-secondary-container-bg: #FAFAFC;               // fim: changed container background
 
 @il-highlight-bg: #FFFFD0;
 /* @il-highlight-bg: saturate(lighten(@brand-warning, 34%), 80%); */
@@ -42,14 +42,14 @@
 
 
 //== Scaffolding
-@body-bg:               #f0f0f0;
-@text-color:            @gray-dark;
-@link-color:            lighten(@brand-primary, 5%);
+@body-bg:               #ffffff;
+@text-color:            @mid-gray;
+@link-color:            #036; // fim: changed.
 @link-hover-color:      darken(@link-color, 15%);
 
 
 //== Typography
-@font-family-sans-serif:  'Open Sans', Verdana, Arial, Helvetica, sans-serif;
+@font-family-sans-serif:  roboto, Verdana, Arial, Helvetica, sans-serif;  // fim: changed font
 
 @font-size-base:          14px;
 @font-size-large:         ceil((@font-size-base * 1.25));
@@ -109,11 +109,11 @@
 //** Breadcrumb background color
 @breadcrumb-bg:                 transparent;
 //** Breadcrumb text color
-@breadcrumb-color:               @link-color;
+@breadcrumb-color:              lighten(@brand-primary, 15%); // fim: changed.
 //** Text color of current page in the breadcrumb
 @breadcrumb-active-color:        @link-hover-color;
 //** Textual separator for between breadcrumb elements
-@breadcrumb-separator:          "»";
+@breadcrumb-separator:          "/";                              // fim: changed
 
 //== Buttons
 //
@@ -153,8 +153,8 @@
 @ilFormInputFontSize: @font-size-small;
 @input-height-base:	(floor((@ilFormInputFontSize * @line-height-base)) + (@padding-base-vertical * 2) + 2);
 
-@ilFormColor:            	#808080;
-@ilFormBgColor:            	#fdfdfd;
+@ilFormColor:            	lighten(@text-color, 10%);  // fim: changed.  #808080;
+@ilFormBgColor:            	@il-primary-container-bg;   // fim: changed. #fdfdfd;
 
 /* ILIAS variables candidates */
 @ilMainMenuColor:			lighten(@brand-primary, 10%);

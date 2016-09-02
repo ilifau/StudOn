@@ -1,0 +1,40 @@
+<!-- fim: [media] template for limited media player. -->
+<head>
+	<script type="text/javascript" src="../../Services/jQuery/js/1_8_3/jquery-min.js"></script>
+	<script type="text/javascript" src="{PLAYER_JS_URL}"></script>
+	<link rel="stylesheet" type="text/css" href="{PLAYER_CSS_URL}" media="screen" />
+</head>
+<body>
+	<audio id="audio">
+		<source src="{FILE}" type="audio/mpeg">
+	</audio>
+	
+	<script>
+		$('#audio').mediaelementplayer({features: ['playpause','duration', 'volume'],
+			audioWidth: 260,
+			audioHeight: 30,
+			success: function(player, node) {
+				player.addEventListener('play', function(e){
+					$('.mejs-controls').attr('style','visibility:hidden;');
+					$('#count').html('{SET_USES}');
+					$.get('{UPDATE_URL}');
+				});
+				player.addEventListener('ended', function(e){
+					location.reload();
+				});
+			}
+		});
+	</script>
+
+	<table>
+		<tr>
+			<td>{CURRENT_USES_TEXT}</td>
+			<td id="count">{CURRENT_USES}</td>
+		</tr>
+		<tr>
+			<td>{MAX_USES_TEXT}</td>
+			<td>{MAX_USES}</td>
+		</tr>
+	</table>
+
+</body>

@@ -1183,7 +1183,10 @@ class ilObjectListGUI
 		// ...
 		
 		// #8280: WebDav is only supported in repository
-		if($this->context == self::CONTEXT_REPOSITORY)
+		// fim: [webdav] customize visibility of locking info and warnings
+		global $ilCust;
+		if($this->context == self::CONTEXT_REPOSITORY and $ilCust->getSetting('webdav_show_warnings'))
+		// fim.
 		{
 			// BEGIN WebDAV Display locking information
 			require_once ('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
@@ -1688,6 +1691,11 @@ class ilObjectListGUI
 
 		// see bug #16519
 		$d = $this->getDescription();
+// fau: fixDescriptionLineBreaks - repace line breaks by spaces inobject lists
+		$d = str_replace('<br>',' ', $d);
+		$d = str_replace('<br />', ' ', $d);
+		$d = str_replace("\n", ' ', $d);
+// fau.
 		$d = strip_tags($d, "<b>");
 		$this->tpl->setCurrentBlock("item_description");
 		$this->tpl->setVariable("TXT_DESC", $d);
@@ -2693,9 +2701,11 @@ class ilObjectListGUI
 		
 		$parent_ref_id = $this->container_obj->object->getRefId();
 		$parent_type = $this->container_obj->object->getType();
-		
-		if($this->checkCommandAccess('write','',$parent_ref_id,$parent_type) ||
+
+		// fim: [rights] write permission to parent is not enough to set availability
+		if( // $this->checkCommandAccess('write','',$parent_ref_id,$parent_type) ||
 			$this->checkCommandAccess('write','',$this->ref_id,$this->type))
+		// fim.
 		{												
 			$this->ctrl->setParameterByClass('ilobjectactivationgui','cadh',
 				$this->ajax_hash);	
@@ -2784,8 +2794,19 @@ class ilObjectListGUI
 						$txt = ($command["lang_var"] == "")
 							? $command["txt"]
 							: $this->lng->txt($command["lang_var"]);
-						$this->insertCommand($cmd_link, $txt,
-							$command["frame"], $command["img"], $command["cmd"]);
+
+						// fim: [layout] remember mount_webfolder command
+						if ($command["cmd"] == "mount_webfolder")
+						{
+							$mountcommand = $command;
+							$mountcommand["txt"] = $txt;
+						}
+						else
+						{
+							$this->insertCommand($cmd_link, $txt,
+								$command["frame"], $command["img"], $command["cmd"]);
+						}
+						// fim.
 					}
 				}
 				else
@@ -3293,6 +3314,15 @@ class ilObjectListGUI
 				$htpl->setVariable("PROP_CHUNKS", 
 					implode("&nbsp;&nbsp;&nbsp;", $chunks)."&nbsp;&nbsp;&nbsp;");
 			}
+
+			// fim: [layout] insert remembered mount command
+			if ($mountcommand)
+			{
+				$this->insertCommand($mountcommand['link'], $mountcommand['txt'],
+								$mountcommand["frame"], $mountcommand["img"], $mountcommand["cmd"]);
+			}
+			// fim.
+
 		}
 		
 		$htpl->setVariable("ACTION_DROP_DOWN",

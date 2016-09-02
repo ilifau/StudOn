@@ -48,7 +48,9 @@ class ilSubscriberTableGUI extends ilTable2GUI
 	 * @param
 	 * @return
 	 */
-	public function __construct($a_parent_obj,$show_content = true, $show_subject = true)
+	// fim: [memlot] new parameter add_to_lot
+	public function __construct($a_parent_obj,$show_content = true, $show_subject = true, $a_add_to_lot = false)
+	// fim.
 	{
 	 	global $lng,$ilCtrl;
 	 	
@@ -81,7 +83,13 @@ class ilSubscriberTableGUI extends ilTable2GUI
 
 		$this->addColumn('','mail','10%');
 
-		if($a_parent_obj->object->getType() == "sess")
+		// fim: [memlot] use different command for adding to lot
+		if ($a_add_to_lot)
+		{
+			$this->addMultiCommand('addSubscribersToLot',$this->lng->txt('mem_add_to_lot'));
+		}
+		elseif($a_parent_obj->object->getType() == "sess")
+		// fim.
 		{
 			$this->addMultiCommand('confirmAssignSubscribers',$this->lng->txt('sess_accept_request'));
 		}
@@ -187,6 +195,10 @@ class ilSubscriberTableGUI extends ilTable2GUI
 					$this->tpl->setVariable('VAL_CUST',(string) $a_set['odf_info_txt']);
 					break;
 				
+                // fim: [studydata] format table output of studydata
+                case 'studydata':
+                    $a_set['studydata'] = nl2br($a_set['studydata']);
+                // fim.
 
 				default:
 					$this->tpl->setCurrentBlock('custom_fields');

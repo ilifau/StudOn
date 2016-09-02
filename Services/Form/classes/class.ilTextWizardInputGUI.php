@@ -32,7 +32,12 @@ class ilTextWizardInputGUI extends ilTextInputGUI
 {
 	protected $values = array();
 	protected $allowMove = false;
-	
+
+	// fim: [exam] options to be disabled in test scoring adjustment
+	protected $allowAddRemove = true;
+	protected $allowTextEdit = true;
+	// fim.
+
 	/**
 	* Constructor
 	*
@@ -94,6 +99,51 @@ class ilTextWizardInputGUI extends ilTextInputGUI
 	{
 		return $this->allowMove;
 	}
+
+	// fim: [exam] get/set options to be disabled in test scoring adjustment
+
+	/**
+	 * Set allow add/remove
+	 *
+	 * @param	boolean	 Allow add/remmove
+	 */
+	function setAllowAddRemove($a_allow_add_remove)
+	{
+		$this->allowAddRemove = $a_allow_add_remove;
+	}
+
+	/**
+	 * Get allow add/remove
+	 *
+	 * @return	boolean	Allow add/remmove
+	 */
+	function getAllowAddRemove()
+	{
+		return $this->allowAddRemove;
+	}
+
+
+	/**
+	 * Set allow text edit
+	 *
+	 * @param	boolean	 Allow text edit
+	 */
+	function setAllowTextEdit($a_allow_text_edit)
+	{
+		$this->allowTextEdit = $a_allow_text_edit;
+	}
+
+	/**
+	 * Get allow add/remove
+	 *
+	 * @return	boolean	Allow text edit
+	 */
+	function getAllowTextEdit()
+	{
+		return $this->allowTextEdit;
+	}
+
+	// fim.
 
 	/**
 	* Check input, strip slashes etc. set alert, if input is not ok.
@@ -175,13 +225,23 @@ class ilTextWizardInputGUI extends ilTextInputGUI
 					" disabled=\"disabled\"");
 			}
 			else
+			// fim: [exam] use options in test scoring adjustment
 			{
-				$tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
-				$tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
-				include_once("./Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php");
-				$tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
-				$tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
+				if (!$this->getAllowTextEdit())
+				{
+					$tpl->setVariable('READONLY', ' readonly="readonly"');
+				}
+
+				if ($this->getAllowAddRemove())
+				{
+					$tpl->setVariable("CMD_ADD", "cmd[add" . $this->getFieldId() . "][$i]");
+					$tpl->setVariable("CMD_REMOVE", "cmd[remove" . $this->getFieldId() . "][$i]");
+					include_once("./Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php");
+					$tpl->setVariable("ADD_BUTTON", ilGlyphGUI::get(ilGlyphGUI::ADD));
+					$tpl->setVariable("REMOVE_BUTTON", ilGlyphGUI::get(ilGlyphGUI::REMOVE));
+				}
 			}
+			// fim.
 			
 			$tpl->parseCurrentBlock();
 			$i++;

@@ -1156,6 +1156,9 @@ class MDB2_Driver_Common extends PEAR
         'datatype_map' => array(),
         'datatype_map_callback' => array(),
         'nativetype_map_callback' => array(),
+// fau: idmData - allow 'new_link' as connection option
+        'new_link' => false
+// fau.
     );
 
     /**
@@ -1532,7 +1535,7 @@ class MDB2_Driver_Common extends PEAR
      * @access  public
      */
     function setOption($option, $value)
-    {
+    {   
         if (array_key_exists($option, $this->options)) {
             $this->options[$option] = $value;
             return MDB2_OK;

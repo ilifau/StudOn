@@ -36,6 +36,10 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 	 */
 	private $lastQuestionSyncTimestamp = null;
 
+//fau: fixRandomTestBuildable - variable for messages
+	private $buildableMessages = array();
+// fau.
+
 	/**
 	 * @param ilTree $tree
 	 * @param ilDB $db
@@ -271,6 +275,13 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 
 	public function isQuestionSetConfigured()
 	{
+// fau: delayCopyRandomQuestions - question set is not configured if date of last synchronisation is empty
+		if ($this->getLastQuestionSyncTimestamp() == 0 )
+		{
+			return false;
+		}
+// fau.
+
 		if( !$this->isQuestionAmountConfigComplete() )
 		{
 			return false;
@@ -333,8 +344,19 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 		require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetBuilder.php';
 		$questionSetBuilder = ilTestRandomQuestionSetBuilder::getInstance($this->db, $this->testOBJ, $this, $sourcePoolDefinitionList, $stagingPoolQuestionList);
 
-		return $questionSetBuilder->checkBuildable();
+//fau: fixRandomTestBuildable - get messages if set is not buildable
+		$buildable = $questionSetBuilder->checkBuildable();
+		$this->buildableMessages = $questionSetBuilder->getCheckMessages();
+		return $buildable;
+// fau.
 	}
+
+//fau: fixRandomTestBuildable - function to get messages
+	public function getBuildableMessages()
+	{
+		return $this->buildableMessages;
+	}
+// fau.
 	
 	public function doesQuestionSetRelatedDataExist()
 	{

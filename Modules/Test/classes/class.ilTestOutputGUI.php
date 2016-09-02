@@ -192,7 +192,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 			$objectivesAdapter->buildQuestionRelatedObjectiveList(
 				$this->testSequence, $this->questionRelatedObjectivesList
 			);
-			
+
 			if( $this->testSequence->hasOptionalQuestions() )
 			{
 				$this->adoptUserSolutionsFromPreviousPass();
@@ -226,7 +226,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		{
 			return false;
 		}
-		
+
 		if( $sequenceElement < 1 )
 		{
 			return false;
@@ -239,7 +239,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		
 		return true;
 	}
-	
+
 	protected function showQuestionCmd()
 	{
 		$_SESSION['tst_pass_finish'] = 0;
@@ -287,14 +287,14 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 			$presentationMode = ilTestPlayerAbstractGUI::PRESENTATION_MODE_VIEW;
 			$instantResponse = true;
 		}
-		
+
 		$questionGui = $this->getQuestionGuiInstance($questionId);
 
 		if( !($questionGui instanceof assQuestionGUI) )
 		{
 			$this->handleTearsAndAngerQuestionIsNull($questionId, $sequenceElement);
 		}
-		
+
 		$questionGui->setSequenceNumber($this->testSequence->getPositionOfSequence($sequenceElement));
 		$questionGui->setQuestionCount($this->testSequence->getUserQuestionCount());
 
@@ -335,26 +335,26 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 			case ilTestPlayerAbstractGUI::PRESENTATION_MODE_EDIT:
 
 				$navigationToolbarGUI->setDisabledStateEnabled(true);
-				
+
 				$this->showQuestionEditable($questionGui, $formAction, $isQuestionWorkedThrough, $instantResponse);
-				
+
 				break;
 			
 			case ilTestPlayerAbstractGUI::PRESENTATION_MODE_VIEW:
 
 				$navigationToolbarGUI->setFinishTestButtonPrimary(!$missingQuestionResultExists);
-				
+
 				if( $this->testSequence->isQuestionOptional($questionGui->object->getId()) )
 				{
 					$this->populateQuestionOptionalMessage();
 				}
-				
+
 				$this->showQuestionViewable($questionGui, $formAction, $isQuestionWorkedThrough, $instantResponse);
-				
+
 				break;
 			
 			default:
-				
+
 				require_once 'Modules/Test/exceptions/class.ilTestException.php';
 				throw new ilTestException('no presentation mode given');
 		}
@@ -365,7 +365,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		$this->populateQuestionNavigation(
 			$sequenceElement, $presentationMode == ilTestPlayerAbstractGUI::PRESENTATION_MODE_EDIT
 		);
-		
+
 		if ($instantResponse)
 		{
 			$this->populateInstantResponseBlocks(
@@ -386,7 +386,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		{
 			return $this->submitSolutionCmd();
 		}
-		
+
 		if( $this->saveQuestionSolution(true, false) )
 		{
 			$questionId = $this->testSequence->getQuestionForSequence(
@@ -396,7 +396,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 			$this->getQuestionInstance($questionId)->removeIntermediateSolution(
 				$this->testSession->getActiveId(), $this->testSession->getPass()
 			);
-			
+
 			$nextSequenceElement = $this->testSequence->getNextSequence($this->getCurrentSequenceElement());
 
 			if(!$this->isValidSequenceElement($nextSequenceElement))
@@ -441,10 +441,10 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 					$this->ctrl->setParameter($this, 'sequence', $this->getNextSequenceParameter());
 					$this->ctrl->setParameter($this, 'pmode', '');
 				}
-				
+
 				$this->ctrl->redirect($this, $this->getNextCommandParameter());
 			}
-			
+
 			$this->ctrl->setParameter($this, 'pmode', ilTestPlayerAbstractGUI::PRESENTATION_MODE_VIEW);
 		}
 
@@ -462,14 +462,14 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		$currentQuestionOBJ->resetUsersAnswer(
 			$this->testSession->getActiveId(), $this->testSession->getPass()
 		);
-		
+
 		$this->ctrl->saveParameter($this, 'sequence');
 
 		$this->ctrl->setParameter($this, 'pmode', ilTestPlayerAbstractGUI::PRESENTATION_MODE_VIEW);
 
 		$this->ctrl->redirect($this, ilTestPlayerCommands::SHOW_QUESTION);
 	}
-	
+
 	protected function skipQuestionCmd()
 	{
 		$curSequenceElement = $this->getCurrentSequenceElement();
@@ -479,7 +479,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		{
 			$nextSequenceElement = $this->testSequence->getFirstSequence();
 		}
-		
+
 		if( $this->object->isPostponingEnabled() )
 		{
 			$this->testSequence->postponeSequence($curSequenceElement);
@@ -553,7 +553,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 	{
 		return $this->testSequence->getQuestionForSequence($_GET["sequence"]);
 	}
-	
+
 	/**
 	 * saves the user input of a question
 	 */
@@ -700,8 +700,11 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		$sourcePoolDefinitionList = new ilTestRandomQuestionSetSourcePoolDefinitionList($ilDB, $this->object, $sourcePoolDefinitionFactory);
 		$sourcePoolDefinitionList->loadDefinitions();
 
-		$this->processLocker->requestRandomPassBuildLock($sourcePoolDefinitionList->hasTaxonomyFilters());
-		
+// fau: typeFilter - add typefilter as criterion for process locker
+		$this->processLocker->requestRandomPassBuildLock(
+			$sourcePoolDefinitionList->hasTaxonomyFilters() || $sourcePoolDefinitionList->hasTypeFilters());
+// fau.
+
 		if( !$this->performTearsAndAngerBrokenConfessionChecks() )
 		{
 			require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetStagingPoolQuestionList.php';
@@ -760,7 +763,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		{
 			$this->ctrl->redirect($this, ilTestPlayerCommands::QUESTION_SUMMARY);
 		}
-		
+
 		$this->ctrl->setParameter($this, 'sequence', $this->testSession->getLastSequence());
 		$this->ctrl->setParameter($this, 'pmode', '');
 		$this->ctrl->redirect($this, ilTestPlayerCommands::SHOW_QUESTION);
@@ -774,7 +777,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 	protected function adoptUserSolutionsFromPreviousPass()
 	{
 		global $ilDB, $ilUser;
-		
+
 		$assSettings = new ilSetting('assessment');
 
 		include_once ("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
@@ -809,7 +812,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 
 		return true;
 	}
-	
+
 	protected function isQuestionSummaryFinishTestButtonRequired()
 	{
 		return true;

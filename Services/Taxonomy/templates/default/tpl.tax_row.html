@@ -7,7 +7,12 @@
 	<input type="text" max_length="6" size="6" name="order[{ONODE_ID}]" value="{ORDER_NR}" />
 </td>
 <!-- END order -->
+<!-- fau: taxDesc - table column for description -->
 <td class="std">
-<input type="text" size="80" maxlength="200" name="title[{NODE_ID}]" value="{TITLE}" />
+<input type="text" size="40" maxlength="200" name="title[{NODE_ID}]" value="{TITLE}" />
 </td>
+<td class="std">
+    <textarea cols="40" rows="1" maxlength="4000" name="description[{NODE_ID}]">{DESCRIPTION}</textarea>
+</td>
+<!-- fau. -->
 </tr>

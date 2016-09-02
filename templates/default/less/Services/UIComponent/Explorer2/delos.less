@@ -85,18 +85,21 @@ a.ilTreeView {
 	top: @il-fixed-menu-height;
 	@media only screen and (max-width: 768px) {top: 140px;}
 	z-index: 1020;
+  /* fim: dont' stretch navigation toggle
 	bottom: 160px;
 	background-color: #fff;
 	border: 1px solid #e0e0e0;
 	border-left: none;
 	box-shadow: 1px 1px 2px #b9b9b9;
 	width: 6px;
+    fim. */
 	> img {
 		display: inline-block;
+        margin-top: 5px;					// fim: added margin
 		margin-left: -2px;
 		max-width: inherit;
 		background-color: #fff;
-		border-right: 2px solid #e0e0e0;
+		// border-right: 2px solid #e0e0e0;  // fim: no border.
 		width: 28px;
 		height: 28px;
 	}

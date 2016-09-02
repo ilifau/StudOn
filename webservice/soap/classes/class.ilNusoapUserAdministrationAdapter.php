@@ -778,6 +778,28 @@ class ilNusoapUserAdministrationAdapter
 								'ILIAS internal mail or as e-mail.'
 								);
 
+		// fim: [soap] register function to send user mails
+		$this->server->register('sendUserMail',
+								array('sid' => 'xsd:string',
+									  'rcp_to' => 'xsd:string',
+									  'rcp_cc' => 'xsd:string',
+									  'rcp_bcc' => 'xsd:string',
+									  'sender' => 'xsd:string',
+									  'subject' => 'xsd:string',
+									  'message' => 'xsd:string',
+									  'attachments' => 'xsd:string',
+									  'type' => 'xsd:string',
+									  'use_placholders' => 'xsd:boolean'),
+								array('status' => 'xsd:boolean'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#sendUserMail',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'ILIAS sendUserMail(): Send internal mails according to xml description. Only for internal usage '.
+								'Syntax, parameters may change in future releases');
+		// fim.
+
+
 		// Clone functions
 		$this->server->register('ilClone',
 								array('sid' => 'xsd:string','copy_identifier' => 'xsd:int'),
@@ -1301,7 +1323,104 @@ class ilNusoapUserAdministrationAdapter
 		// mcs-patch end
 		
 
-		
+
+		// fim: [soap] add new soap dunctions for meinCampus
+		$this->server->wsdl->addComplexType('studonResource',
+											'complexType',
+											'struct',
+											'all',
+											'',
+											array('univis_id' => array('name' => 'univis_id',
+																	'type' => 'xsd:string'),
+												  'perma_link' => array('name' => 'perma_link',
+																	   'type' => 'xsd:string')));
+		$this->server->wsdl->addComplexType('studonResources',
+											'complexType',
+											'array',
+											'',
+											'SOAP-ENC:Array',
+											array(),
+											array(array('ref' => 'SOAP-ENC:arrayType',
+														'wsdl:arrayType' => 'tns:studonResource[]')),
+											'tns:studonResource');
+
+
+        $this->server->register ('studonGetResources',
+								array('sid' => 'xsd:string', 'semester' => 'xsd:string'),
+								array('result' => 'tns:studonResources'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#studonGetResources',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'studonGetResources(): returns a list of semester resources');
+								
+								
+		$this->server->register ('studonHasResource',
+								array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+								array('result' => 'xsd:boolean'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#studonHasResource',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'studonHasResource(): returns true, if an object is found for the given univis_id');
+
+		$this->server->register ('studonGetPermaLink',
+								array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+								array('result' => 'xsd:string'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#studonGetPermaLink',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'studonGetPermaLink(): returns the url for a permanent link to the resource');
+
+        $this->server->register ('studonGetMembers',
+                                array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+                                array('result' => 'tns:stringArray'),
+                                SERVICE_NAMESPACE,
+                                SERVICE_NAMESPACE.'#studonGetMembers',
+                                SERVICE_STYLE,
+                                SERVICE_USE,
+                                'studonGetMembers(): returns the identities of course participants');
+
+        $this->server->register ('studonIsSoapAssignable',
+								array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+								array('result' => 'xsd:boolean'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#studonIsSoapAssignable',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'studonIsSoapAssignable(): return true if user assignment can be done by SOAP');
+
+        $this->server->register ('studonIsAssigned',
+                                array('sid' => 'xsd:string', 'identity' => 'xsd:string', 'univis_id' => 'xsd:string'),
+                                array('result' => 'xsd:boolean'),
+                                SERVICE_NAMESPACE,
+                                SERVICE_NAMESPACE.'#studonIsAssigned',
+                                SERVICE_STYLE,
+                                SERVICE_USE,
+                                'studonIsAssigned(): checks if a user is assigned to a course or group by given univis_id');
+
+
+        $this->server->register ('studonAssignMember',
+								array('sid' => 'xsd:string', 'identity' => 'xsd:string', 'univis_id' => 'xsd:string'),
+								array('result' => 'xsd:boolean'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#studonAssignMember',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'studonAssignMember(): assigns a user to a course or group by given univis_id');
+
+		$this->server->register ('studonExcludeMember',
+								array('sid' => 'xsd:string', 'identity' => 'xsd:string', 'univis_id' => 'xsd:string'),
+								array('result' => 'xsd:boolean'),
+								SERVICE_NAMESPACE,
+								SERVICE_NAMESPACE.'#studonExcludeMember',
+								SERVICE_STYLE,
+								SERVICE_USE,
+								'studonExcludeMember(): excludes a user from a course or group by given univis_id');
+		// fim.	
+
+									
 		$this->server->register('deleteProgress',
 				array(
 					'sid' => 'xsd:string',

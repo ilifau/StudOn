@@ -31,7 +31,10 @@ class ilObjSurvey extends ilObject
 	const ANONYMIZE_ON = 1; // anonymized, codes
 	const ANONYMIZE_FREEACCESS = 2; // anonymized, no codes
 	const ANONYMIZE_CODE_ALL = 3; // personalized, codes
-	
+	// fim: [form] add captcha option
+	const ANONYMIZE_CAPTCHA = 4;
+	// fim.
+
 	const QUESTIONTITLES_HIDDEN = 0;
 	const QUESTIONTITLES_VISIBLE = 1;	
 	
@@ -172,6 +175,10 @@ class ilObjSurvey extends ilObject
 	const NOTIFICATION_PARENT_COURSE = 1;
 	const NOTIFICATION_INVITED_USERS = 2;
 	
+
+	// fim: [form] form mode settings
+	protected $formModeSettings = null;
+	// fim.
 
 	/**
 	* Constructor
@@ -400,7 +407,7 @@ class ilObjSurvey extends ilObject
 				array($active_fi)
 			);
 		}
-		
+
 		include_once "Services/Object/classes/class.ilObjectLP.php";
 		$lp_obj = ilObjectLP::getInstance($this->getId());
 		$lp_obj->resetLPDataForCompleteObject();
@@ -416,7 +423,7 @@ class ilObjSurvey extends ilObject
 		global $ilDB;
 		
 		$user_ids[] = array();
-		
+
 		foreach ($finished_ids as $finished_id)
 		{
 			$result = $ilDB->queryF("SELECT finished_id FROM svy_finished WHERE finished_id = %s",
@@ -424,7 +431,7 @@ class ilObjSurvey extends ilObject
 				array($finished_id)
 			);
 			$row = $ilDB->fetchAssoc($result);
-			
+
 			if($row["user_fi"])
 			{
 				$user_ids[] = $row["user_fi"];
@@ -445,7 +452,7 @@ class ilObjSurvey extends ilObject
 				array($row["finished_id"])
 			);
 		}
-		
+
 		if(sizeof($user_ids))
 		{
 			include_once "Services/Object/classes/class.ilObjectLP.php";
@@ -1060,6 +1067,9 @@ class ilObjSurvey extends ilObject
 			case self::ANONYMIZE_ON:
 			case self::ANONYMIZE_FREEACCESS:
 			case self::ANONYMIZE_CODE_ALL:
+			// fim: [form] add captcha option
+			case self::ANONYMIZE_CAPTCHA:
+			// fim.
 				$this->anonymize = $a_anonymize;
 				break;
 			default:
@@ -1085,8 +1095,11 @@ class ilObjSurvey extends ilObject
 	*/
 	function isAccessibleWithoutCode()
 	{
-		return ($this->getAnonymize() == self::ANONYMIZE_OFF || 
-			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS);		
+		// fim: [form] respect captcha option
+		return ($this->getAnonymize() == self::ANONYMIZE_OFF ||
+			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+			$this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+		// fim.
 	}
 	
 	/**
@@ -1096,8 +1109,11 @@ class ilObjSurvey extends ilObject
 	*/
 	function hasAnonymizedResults()
 	{
-		return ($this->getAnonymize() == self::ANONYMIZE_ON || 
-			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS);
+		// fim: [form] respect captcha option
+		return ($this->getAnonymize() == self::ANONYMIZE_ON ||
+			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+			$this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+		// fim.
 	}
 
 /**
@@ -3255,7 +3271,14 @@ class ilObjSurvey extends ilObject
 	* @access public
 	*/
 	function isAllowedToTakeMultipleSurveys($userid = "")
-	{		
+	{
+		// fim: [form] allow the reuse of a survey in form mode
+		if ($this->getMetaIdentifier('FormMode'))
+		{
+			return true;
+		}
+		// fim.
+
 		// #7927: special users are deprecated
 		return false;
 		
@@ -4426,7 +4449,7 @@ class ilObjSurvey extends ilObject
 			$newObj->setStatus($this->isOnline()?self::STATUS_ONLINE: self::STATUS_OFFLINE);
 		}
 
-		$newObj->saveToDb();		
+		$newObj->saveToDb();
 		$newObj->cloneTextblocks($mapping);
 		
 		// #14929
@@ -4527,7 +4550,7 @@ class ilObjSurvey extends ilObject
 		$obj_settings = new ilLPObjSettings($this->getId());
 		$obj_settings->cloneSettings($newObj->getId());
 		unset($obj_settings);
-		
+
 		return $newObj;
 	}
 	
@@ -5398,13 +5421,13 @@ class ilObjSurvey extends ilObject
 		{
 			$print_output = str_replace("&nbsp;", "&#160;", $print_output);
 			$print_output = str_replace("&otimes;", "X", $print_output);
-			
+
 			// #17680 - metric questions use &#160; in print view
 			$print_output = str_replace("&gt;", ">", $print_output);
 			$print_output = str_replace("&lt;", "<", $print_output);
 			$print_output = str_replace("&#160;", "~|nbsp|~", $print_output);
 			$print_output = preg_replace('/&(?!amp)/', '&amp;', $print_output);
-			$print_output = str_replace("~|nbsp|~", "&#160;", $print_output);			
+			$print_output = str_replace("~|nbsp|~", "&#160;", $print_output);
 		}
 		$xsl = file_get_contents("./Modules/Survey/xml/question2fo.xsl");
 
@@ -6564,9 +6587,9 @@ class ilObjSurvey extends ilObject
 		$cut->increment(IL_CAL_DAY, $this->getReminderFrequency()*-1);
 		if(!$this->getReminderLastSent() ||
 			$cut->get(IL_CAL_DATE) >= substr($this->getReminderLastSent(), 0, 10))					
-		{				
+		{
 			$missing_ids = array();
-			
+
 			// #16871
 			$user_ids = $this->getNotificationTargetUserIds(($this->getReminderTarget() == self::NOTIFICATION_INVITED_USERS));
 			if($user_ids)

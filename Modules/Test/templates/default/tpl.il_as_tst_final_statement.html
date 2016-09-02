@@ -2,7 +2,16 @@
 <div id="finalstatement">
 	{FINALSTATEMENT}
 </div>
+<!-- fim: [exam] support redirection at final statement -->
+<!-- BEGIN submit_button -->
 <p>
 	<input type="submit" class="btn btn-default" name="cmd[afterTestPassFinished]" value="{BUTTON_CONTINUE}" />
 </p>
+<!-- END submit_button -->
+<!-- BEGIN redirect_button -->
+<p>
+    <a class="submit" href="{REDIRECT_URL}" >{BUTTON_CONTINUE}</a>
+</p>
+<!-- END redirect_button -->
+<!-- fim. -->
 </form>

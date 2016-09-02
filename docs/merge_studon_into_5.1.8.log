@@ -1,0 +1,729 @@
+ne@lassalle MINGW64 /c/www/developer/studon-lab (studon51)
+$ git cherry-pick -n b8d6e82
+error: could not apply b8d6e82... all StudOn 5.0 changes
+hint: after resolving the conflicts, mark the corrected paths
+hint: with 'git add <paths>' or 'git rm <paths>'
+
+ne@lassalle MINGW64 /c/www/developer/studon-lab (studon51)
+$ git status
+On branch studon51
+Your branch is up-to-date with 'origin/studon51'.
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+        new file:   Customizing/Vhb/classes/class.ilVhbAdmin.php
+        new file:   Customizing/Vhb/classes/class.ilVhbAuth.php
+        new file:   Customizing/Vhb/classes/class.ilVhbCourseListGUI.php
+        new file:   Customizing/Vhb/templates/default/tpl.course_selection.html
+        new file:   Customizing/Vhb/templates/default/tpl.manu_login.html
+        new file:   Customizing/apply_patches.php
+        new file:   Customizing/classes/class.ilCustomize.php
+        new file:   Customizing/classes/class.ilPatchUtils.php
+        new file:   Customizing/classes/class.ilPermissionUtils.php
+        new file:   Customizing/classes/class.ilServerStatusCheck.php
+        new file:   Customizing/clients/StudOnTest/agreement/agreement_de.html
+        new file:   Customizing/clients/StudOnTest/agreement/agreement_en.html
+        new file:   Customizing/css/startpage.css
+        new file:   Customizing/customize.ini.php
+        new file:   Customizing/global/agreement/agreement_de.html
+        new file:   Customizing/global/agreement/agreement_en.html
+        new file:   Customizing/global/encodings/class.ilEncodingWi2.php
+        new file:   Customizing/global/lang/ilias_de_dev.lang
+        new file:   Customizing/global/lang/ilias_de_exam.lang
+        new file:   Customizing/global/lang/ilias_de_exam_archiv.lang
+        new file:   Customizing/global/lang/ilias_de_test.lang
+        new file:   Customizing/global/lang/ilias_en_dev.lang
+        new file:   Customizing/global/lang/ilias_en_exam.lang
+        new file:   Customizing/global/lang/ilias_en_test.lang
+        new file:   Customizing/mathjax-test.php
+        new file:   Customizing/patches/class.ilCleanupPatches.php
+        new file:   Customizing/patches/class.ilPermissionPatches43.php
+        new file:   Customizing/patches/class.ilPermissionPatches44.php
+        new file:   Customizing/patches/class.ilPermissionPatches50.php
+        new file:   Customizing/patches/class.ilSpecificPatches.php
+        new file:   Customizing/patches/class.ilStudyDataPatches.php
+        new file:   Customizing/patches/class.ilUnivisPatches.php
+        new file:   Customizing/status.php
+        new file:   Customizing/xlml_call.php
+        modified:   Modules/Category/classes/class.ilObjCategoryGUI.php
+        modified:   Modules/Chatroom/classes/class.ilObjChatroom.php
+        modified:   Modules/Course/classes/Objectives/class.ilLOTestAssignmentTableGUI.php
+        modified:   Modules/Course/classes/Objectives/class.ilLOUtils.php
+        modified:   Modules/Course/classes/class.ilCourseConstants.php
+        modified:   Modules/Course/classes/class.ilCourseGroupingTableGUI.php
+        modified:   Modules/Course/classes/class.ilCourseObjectivesGUI.php
+        modified:   Modules/Course/classes/class.ilCourseParticipant.php
+        modified:   Modules/Course/classes/class.ilCourseParticipants.php
+        modified:   Modules/Course/classes/class.ilCourseParticipantsTableGUI.php
+        modified:   Modules/Course/classes/class.ilObjCourseGrouping.php
+        modified:   Modules/Course/classes/class.ilObjCourseGroupingGUI.php
+        modified:   Modules/Course/templates/default/tpl.crs_edit_members.html
+        new file:   Modules/Course/templates/default/tpl.crs_event_info.html
+        modified:   Modules/Course/templates/default/tpl.groupings.html
+        modified:   Modules/Exercise/LuceneObjectDefinition.xml
+        modified:   Modules/Exercise/classes/class.ilAssignmentsTableGUI.php
+        new file:   Modules/Exercise/classes/class.ilExCalculate.php
+        new file:   Modules/Exercise/classes/class.ilExCalculateGUI.php
+        modified:   Modules/Exercise/templates/default/tpl.exc_assignments_row.html
+        modified:   Modules/Exercise/templates/default/tpl.exc_grades_row.html
+        modified:   Modules/ExternalFeed/classes/class.ilObjExternalFeedGUI.php
+        modified:   Modules/File/LuceneFileListDataSource.xml
+        modified:   Modules/File/LuceneObjectDefinition.xml
+        modified:   Modules/Folder/classes/class.ilObjFolder.php
+        modified:   Modules/Forum/classes/class.ilObjForum.php
+        modified:   Modules/Glossary/classes/class.ilObjGlossary.php
+        modified:   Modules/Glossary/classes/class.ilObjGlossaryGUI.php
+        new file:   Modules/Group/classes/class.ilGroupParticipant.php
+        modified:   Modules/Group/classes/class.ilGroupParticipantsTableGUI.php
+        modified:   Modules/Group/classes/class.ilObjGroupListGUI.php
+        modified:   Modules/Group/templates/default/tpl.grp_edit_members.html
+        modified:   Modules/Group/templates/default/tpl.show_participants_row.html
+        modified:   Modules/HTMLLearningModule/LuceneObjectDefinition.xml
+        modified:   Modules/LearningModule/classes/class.ilContObjParser.php
+        modified:   Modules/LearningModule/classes/class.ilLMPageObject.php
+        modified:   Modules/LearningModule/classes/class.ilLMPresentationGUI.php
+        modified:   Modules/LearningModule/classes/class.ilLMQuestionListTableGUI.php
+        new file:   Modules/LearningModule/classes/class.ilLMQuestionUserDetailsTableGUI.php
+        new file:   Modules/LearningModule/classes/class.ilLMQuestionUsersTableGUI.php
+        modified:   Modules/LearningModule/classes/class.ilLMTracker.php
+        modified:   Modules/LearningModule/classes/class.ilObjContentObjectGUI.php
+        new file:   Modules/LearningModule/layouts/lm/help/fullscreen.xml
+        new file:   Modules/LearningModule/layouts/lm/help/main.xml
+        new file:   Modules/LearningModule/layouts/lm/website/fullscreen.xml
+        new file:   Modules/LearningModule/layouts/lm/website/main.xml
+        new file:   Modules/LearningModule/templates/default/tpl.lm_question_user_details_row.html
+        new file:   Modules/LearningModule/templates/default/tpl.lm_question_user_row.html
+        modified:   Modules/LearningModule/templates/default/tpl.lm_sub_menu.html
+        modified:   Modules/LearningModule/templates/default/tpl.page_new.html
+        modified:   Modules/MediaPool/classes/class.ilMediaPoolTableGUI.php
+        modified:   Modules/MediaPool/js/ilMediaPool.js
+        modified:   Modules/Portfolio/classes/class.ilPortfolioTableGUI.php
+        modified:   Modules/RootFolder/classes/class.ilObjRootFolderGUI.php
+        modified:   Modules/Scorm2004/templates/default/tpl.question_export.html
+        modified:   Modules/Session/classes/class.ilEventParticipants.php
+        modified:   Modules/Session/classes/class.ilObjSessionAccess.php
+        modified:   Modules/Session/classes/class.ilObjSessionGUI.php
+        modified:   Modules/Session/classes/class.ilObjSessionListGUI.php
+        modified:   Modules/Session/templates/default/tpl.sess_list.html
+        modified:   Modules/Survey/classes/class.ilSurveyExecutionGUI.php
+        new file:   Modules/Survey/templates/default/survey_form.css
+        modified:   Modules/Survey/templates/default/tpl.il_svy_svy_content.html
+        modified:   Modules/SurveyQuestionPool/classes/class.ilObjSurveyQuestionPoolGUI.php
+        modified:   Modules/SurveyQuestionPool/templates/default/tpl.il_svy_out_mc.html
+        modified:   Modules/SurveyQuestionPool/templates/default/tpl.il_svy_out_sc.html
+        modified:   Modules/SurveyQuestionPool/templates/default/tpl.il_svy_out_text.html
+        modified:   Modules/SystemFolder/classes/class.ilBenchmarkTableGUI.php
+        modified:   Modules/SystemFolder/classes/class.ilObjSystemFolder.php
+        modified:   Modules/SystemFolder/classes/class.ilObjSystemFolderGUI.php
+        modified:   Modules/SystemFolder/templates/default/tpl.db_bench.html
+        modified:   Modules/Test/classes/class.assMarkSchema.php
+        modified:   Modules/Test/classes/class.ilObjTestAccess.php
+        modified:   Modules/Test/classes/class.ilScoringAdjustmentGUI.php
+        modified:   Modules/Test/classes/class.ilTestExport.php
+        modified:   Modules/Test/classes/class.ilTestExpressPageObjectGUI.php
+        new file:   Modules/Test/classes/class.ilTestMyCampusGUI.php
+        new file:   Modules/Test/classes/class.ilTestMyCampusTools.php
+        modified:   Modules/Test/classes/class.ilTestPlayerAbstractGUI.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetBuilder.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetBuilderWithAmountPerPool.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetConfig.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetConfigGUI.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetSourcePoolDefinition.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetSourcePoolDefinitionList.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetStagingPoolBuilder.php
+        modified:   Modules/Test/classes/class.ilTestRandomQuestionSetStagingPoolQuestionList.php
+        modified:   Modules/Test/classes/class.ilTestServiceGUI.php
+        modified:   Modules/Test/classes/class.ilTestTaxonomyFilterLabelTranslater.php
+        modified:   Modules/Test/classes/forms/class.ilTestRandomQuestionSetPoolDefinitionFormGUI.php
+        modified:   Modules/Test/classes/tables/class.ilResultsByQuestionTableGUI.php
+        modified:   Modules/Test/classes/tables/class.ilTestAverageReachedPointsTableGUI.php
+        modified:   Modules/Test/classes/tables/class.ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI.php
+        modified:   Modules/Test/templates/default/ta.css
+        new file:   Modules/Test/templates/default/test_phantomjs.css
+        modified:   Modules/Test/templates/default/tpl.il_as_tst_average_reached_points_row.html
+        modified:   Modules/Test/templates/default/tpl.il_as_tst_final_statement.html
+        modified:   Modules/Test/templates/default/tpl.il_tst_rnd_quest_set_src_pool_def_row.html
+        modified:   Modules/Test/templates/default/tpl.table_results_by_question_row.html
+        modified:   Modules/Test/templates/default/tpl.tst_import_verification.html
+        modified:   Modules/TestQuestionPool/classes/class.assClozeTest.php
+        modified:   Modules/TestQuestionPool/classes/class.assClozeTestGUI.php
+        modified:   Modules/TestQuestionPool/classes/class.assFileUpload.php
+        modified:   Modules/TestQuestionPool/classes/class.assMatchingQuestion.php
+        modified:   Modules/TestQuestionPool/classes/class.assMatchingQuestionGUI.php
+        modified:   Modules/TestQuestionPool/classes/class.assMultipleChoice.php
+        modified:   Modules/TestQuestionPool/classes/class.assMultipleChoiceGUI.php
+        modified:   Modules/TestQuestionPool/classes/class.assQuestionGUI.php
+        modified:   Modules/TestQuestionPool/classes/class.assSingleChoiceGUI.php
+        modified:   Modules/TestQuestionPool/classes/class.ilAssIncompleteQuestionPurger.php
+        modified:   Modules/TestQuestionPool/classes/class.ilAssQuestionPageGUI.php
+        modified:   Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php
+        modified:   Modules/TestQuestionPool/classes/class.ilTestQuestionPoolExporter.php
+        modified:   Modules/TestQuestionPool/classes/import/qti12/class.assClozeTestImport.php
+        modified:   Modules/TestQuestionPool/classes/import/qti12/class.assMultipleChoiceImport.php
+        modified:   Modules/TestQuestionPool/classes/import/qti12/class.assSingleChoiceImport.php
+        modified:   Modules/TestQuestionPool/classes/tables/class.ilQuestionPoolPrintViewTableGUI.php
+        modified:   Modules/TestQuestionPool/templates/default/orderinghorizontal.js
+        modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_matching_output.html
+        modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_matching_output_solution.html
+        modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_mr_output.html
+        modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_sr_output.html
+        modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_ordering_output.html
+        modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_printview_row.html
+        modified:   Modules/TestQuestionPool/templates/default/tpl.prop_nestable_value.html
+        modified:   Modules/WebResource/classes/class.ilObjLinkResourceGUI.php
+        modified:   Modules/Wiki/LuceneObjectDefinition.xml
+        modified:   Modules/Wiki/classes/class.ilWikiPageGUI.php
+        modified:   Modules/WorkspaceFolder/classes/class.ilObjWorkspaceFolderTableGUI.php
+        modified:   Services/AccessControl/classes/class.ilAssignedUsersTableGUI.php
+        modified:   Services/AccessControl/classes/class.ilObjRoleFolderGUI.php
+        modified:   Services/AccessControl/classes/class.ilObjectRolePermissionTableGUI.php
+        modified:   Services/AccessControl/classes/class.ilObjectRoleTemplatePermissionTableGUI.php
+        modified:   Services/AccessControl/classes/class.ilRbacAdmin.php
+        modified:   Services/AccessControl/classes/class.ilRbacLog.php
+        modified:   Services/AccessControl/classes/class.ilRbacReview.php
+        modified:   Services/AccessControl/classes/class.ilRbacSystem.php
+        modified:   Services/AccessControl/templates/default/tpl.user_assignment_row.html
+        modified:   Services/Accordion/js/accordion.js
+        modified:   Services/Administration/classes/class.ilSetting.php
+        modified:   Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php
+        new file:   Services/AuthShibboleth/classes/class.ilSimpleSamlAuthStudOn.php
+        modified:   Services/Authentication/classes/class.ilAuthContainerDatabase.php
+        modified:   Services/Authentication/classes/class.ilSession.php
+        modified:   Services/Authentication/classes/class.ilSessionControl.php
+        modified:   Services/Authentication/classes/class.ilSessionReminder.php
+        modified:   Services/Authentication/classes/class.ilSessionStatistics.php
+        modified:   Services/Bookmarks/classes/class.ilBookmarkDataSet.php
+        modified:   Services/COPage/classes/class.ilPCMediaObjectGUI.php
+        modified:   Services/COPage/classes/class.ilPCPlugged.php
+        modified:   Services/COPage/classes/class.ilPageQuestionProcessor.php
+        modified:   Services/COPage/css/content.css
+        modified:   Services/COPage/js/ilCOPagePres.js
+        modified:   Services/Calendar/classes/Export/class.ilCalendarExport.php
+        modified:   Services/Calendar/classes/class.ilCalendarDataSet.php
+        modified:   Services/Calendar/classes/class.ilPDCalendarBlockGUI.php
+        modified:   Services/Captcha/lib/securimage_3_5_1/securimage.php
+        modified:   Services/Component/classes/class.ilComponent.php
+        modified:   Services/Component/classes/class.ilPlugin.php
+        modified:   Services/Contact/templates/default/tpl.mail_members.html
+        modified:   Services/Container/classes/class.ilContainerByTypeContentGUI.php
+        modified:   Services/Container/classes/class.ilContainerGUI.php
+        modified:   Services/ContainerReference/classes/class.ilContainerReferenceGUI.php
+        modified:   Services/Context/classes/class.ilContextWebAccessCheck.php
+        modified:   Services/CopyWizard/classes/class.ilCopyWizardOptions.php
+        modified:   Services/Database/classes/class.ilAuthContainerMDB2.php
+        modified:   Services/Database/classes/class.ilDB.php
+        new file:   Services/Evaluation/classes/class.ilEvaluationData.php
+        modified:   Services/EventHandling/classes/class.ilAppEventHandler.php
+        modified:   Services/Feeds/classes/class.ilUserFeedWriter.php
+        modified:   Services/Feeds/templates/default/tpl.rss_2_0.xml
+        modified:   Services/FileUpload/js/jquery.fileupload.js.diff
+        modified:   Services/Form/classes/class.ilFormPropertyGUI.php
+        modified:   Services/Form/classes/class.ilImageFileInputGUI.php
+        modified:   Services/Form/classes/class.ilTextWizardInputGUI.php
+        modified:   Services/Form/templates/default/tpl.prop_textwizardinput.html
+        modified:   Services/Form/templates/default/tpl.property_form.html
+        modified:   Services/GlobalCache/classes/Xcache/class.ilXcache.php
+        modified:   Services/Help/classes/class.ilHelp.php
+        modified:   Services/Help/classes/class.ilHelpMapping.php
+        modified:   Services/Http/classes/class.ilHTTPS.php
+        new file:   Services/Idm/classes/class.ilDBIdm.php
+        new file:   Services/Idm/classes/class.ilIdmData.php
+        modified:   Services/InfoScreen/classes/class.ilInfoScreenGUI.php
+        modified:   Services/InfoScreen/templates/default/tpl.infoscreen.html
+        new file:   Services/Init/classes/class.ilCustomLoginGUI.php
+        modified:   Services/Init/classes/class.ilErrorHandling.php
+        modified:   Services/Init/classes/class.ilIniFile.php
+        new file:   Services/Init/classes/class.ilRetryGUI.php
+        modified:   Services/Init/classes/class.ilStartUpGUI.php
+        new file:   Services/Init/templates/default/tpl.custom_login.html
+        new file:   Services/Init/templates/default/tpl.custom_login_links.html
+        new file:   Services/Init/templates/default/tpl.custom_logout.html
+        new file:   Services/Init/templates/default/tpl.custom_sso.html
+        new file:   Services/Init/templates/default/tpl.retry_content.html
+        new file:   Services/Init/templates/default/tpl.retry_page.html
+        new file:   Services/Init/templates/default/tpl.retry_script.html
+        new file:   Services/Init/templates/default/tpl.shib_conversion.html
+        new file:   Services/Init/templates/default/tpl.shib_info.html
+        modified:   Services/Init/templates/default/tpl.startup_screen.html
+        modified:   Services/JavaScript/js/Basic.js
+        modified:   Services/Language/classes/class.ilCachedLanguage.php
+        modified:   Services/Language/classes/class.ilLanguage.php
+        modified:   Services/Link/classes/class.ilLink.php
+        modified:   Services/Logging/classes/class.ilLog.php
+        modified:   Services/Mail/LuceneDataSource.xml
+        modified:   Services/Mail/classes/class.ilMailFormGUI.php
+        modified:   Services/Mail/classes/class.ilMailNotification.php
+        modified:   Services/Mail/classes/class.ilObjMailGUI.php
+        modified:   Services/MainMenu/templates/default/tpl.main_menu.html
+        modified:   Services/MainMenu/templates/default/tpl.main_menu_list_entries.html
+        new file:   Services/MediaObjects/classes/class.ilLimitedMediaPlayerGUI.php
+        new file:   Services/MediaObjects/classes/class.ilLimitedMediaPlayerUsage.php
+        modified:   Services/MediaObjects/classes/class.ilMediaItem.php
+        modified:   Services/MediaObjects/classes/class.ilObjMediaObject.php
+        modified:   Services/MediaObjects/classes/class.ilPlayerUtil.php
+        modified:   Services/MediaObjects/getid3/getid3/module.audio.wavpack.php
+        modified:   Services/MediaObjects/getid3/getid3/module.graphic.bmp.php
+        modified:   Services/MediaObjects/getid3/getid3/module.tag.id3v2.php
+        modified:   Services/MediaObjects/js/MediaObjects.js
+        new file:   Services/MediaObjects/limited_player.php
+        new file:   Services/MediaObjects/media_element_2_9_5/background.png
+        new file:   Services/MediaObjects/media_element_2_9_5/bigplay.png
+        new file:   Services/MediaObjects/media_element_2_9_5/controls-ted.png
+        new file:   Services/MediaObjects/media_element_2_9_5/controls-wmp-bg.png
+        new file:   Services/MediaObjects/media_element_2_9_5/controls-wmp.png
+        new file:   Services/MediaObjects/media_element_2_9_5/controls.png
+        new file:   Services/MediaObjects/media_element_2_9_5/flashmediaelement.swf
+        new file:   Services/MediaObjects/media_element_2_9_5/jquery.js
+        new file:   Services/MediaObjects/media_element_2_9_5/loading.gif
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelement-and-player.js
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelement-and-player.min.js
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelement.js
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelement.min.js
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelementplayer.css
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelementplayer.js
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelementplayer.min.css
+        new file:   Services/MediaObjects/media_element_2_9_5/mediaelementplayer.min.js
+        new file:   Services/MediaObjects/media_element_2_9_5/mejs-skins.css
+        new file:   Services/MediaObjects/media_element_2_9_5/silverlightmediaelement.xap
+        new file:   Services/MediaObjects/templates/default/tpl.limited_media_player.html
+        new file:   Services/MediaObjects/templates/default/tpl.limited_media_player_limit_reached.html
+        modified:   Services/Membership/classes/class.ilAttendanceList.php
+        modified:   Services/Membership/classes/class.ilMemberAgreement.php
+        modified:   Services/Membership/classes/class.ilParticipant.php
+        modified:   Services/Membership/classes/class.ilParticipants.php
+        modified:   Services/Membership/classes/class.ilRegistrationGUI.php
+        new file:   Services/Membership/classes/class.ilRegistrationPeriodLimiter.php
+        new file:   Services/Membership/classes/class.ilRegistrationPeriodLimiterGUI.php
+        new file:   Services/Membership/classes/class.ilRegistrationPeriodLimiterTableGUI.php
+        new file:   Services/Membership/classes/class.ilSubscribersLot.php
+        new file:   Services/Membership/classes/class.ilSubscribersLotTableGUI.php
+        new file:   Services/Membership/classes/class.ilSubscribersStudyCond.php
+        new file:   Services/Membership/classes/class.ilSubscribersStudyCondGUI.php
+        new file:   Services/Membership/classes/class.ilSubscribersStudyCondTableGUI.php
+        modified:   Services/Membership/classes/class.ilWaitingList.php
+        new file:   Services/Membership/classes/class.ilWaitingListAdministration.php
+        modified:   Services/Membership/classes/class.ilWaitingListTableGUI.php
+        modified:   Services/Membership/service.xml
+        new file:   Services/Membership/templates/default/tpl.list_subscribers_studycond.html
+        new file:   Services/Membership/templates/default/tpl.list_subscribers_studycond_row.html
+        new file:   Services/Membership/templates/default/tpl.rpl_links_row.html
+        new file:   Services/Membership/templates/default/tpl.rpl_numbers_row.html
+        new file:   Services/Membership/templates/default/tpl.rpl_period_row.html
+        new file:   Services/Membership/templates/default/tpl.show_subscribers_lot_row.html
+        modified:   Services/Membership/templates/default/tpl.show_subscribers_row.html
+        new file:   Services/Membership/templates/default/tpl.show_subscribers_studycond.html
+        modified:   Services/Membership/templates/default/tpl.show_waiting_list_row.html
+        new file:   Services/MyCampus/classes/class.ilMyCampusClient.php
+        new file:   Services/MyCampus/classes/class.ilMyCampusSynchronisation.php
+        modified:   Services/News/classes/class.ilNewsItem.php
+        modified:   Services/News/classes/class.ilPDNewsBlockGUI.php
+        modified:   Services/News/templates/default/tpl.show_priv_feed_url.html
+        modified:   Services/Notes/classes/class.ilNotesDataSet.php
+        modified:   Services/Object/classes/class.ilObject.php
+        modified:   Services/Object/classes/class.ilObject2GUI.php
+        modified:   Services/Object/classes/class.ilObjectDefinition.php
+        modified:   Services/Object/classes/class.ilObjectGUI.php
+        modified:   Services/Object/classes/class.ilObjectListGUI.php
+        modified:   Services/PDFGeneration/classes/class.ilPDFGeneration.php
+        new file:   Services/PDFGeneration/classes/class.ilPhantomJsPdfGenerator.php
+        modified:   Services/PEAR/lib/MDB2.php
+        modified:   Services/PermanentLink/classes/class.ilPermanentLinkGUI.php
+        modified:   Services/PersonalDesktop/classes/class.ilPDSelectedItemsBlockGUI.php
+        modified:   Services/PersonalDesktop/classes/class.ilPersonalDesktopGUI.php
+        modified:   Services/PrivacySecurity/classes/class.ilExportFieldsInfo.php
+        modified:   Services/PrivacySecurity/classes/class.ilObjPrivacySecurityGUI.php
+        modified:   Services/PrivacySecurity/classes/class.ilPrivacySettings.php
+        modified:   Services/QTI/classes/class.ilQTIParser.php
+        modified:   Services/RTE/classes/class.ilTinyMCE.php
+        modified:   Services/RTE/tiny_mce_3_4_7/plugins/legacyoutput/editor_plugin_src.js
+        modified:   Services/RTE/tiny_mce_3_5_11/plugins/legacyoutput/editor_plugin_src.js
+        modified:   Services/Radius/classes/class.ilRadiusSettings.php
+        modified:   Services/Registration/classes/class.ilRegistrationCode.php
+        modified:   Services/Registration/classes/class.ilRegistrationCodesTableGUI.php
+        modified:   Services/Registration/classes/class.ilRegistrationSettings.php
+        modified:   Services/Registration/templates/default/tpl.code_list_row.html
+        modified:   Services/Registration/templates/default/tpl.usr_registration.html
+        new file:   Services/RelativeLink/classes/class.ilRelativeLink.php
+        new file:   Services/RelativeLink/classes/class.ilRelativeLinkGUI.php
+        new file:   Services/RelativeLink/js/ilRelativeLink.js
+        new file:   Services/RelativeLink/service.xml
+        new file:   Services/RelativeLink/templates/default/tpl.relative_link.html
+        modified:   Services/Search/classes/class.ilRepositorySearchGUI.php
+        modified:   Services/Search/classes/class.ilSearchAutoComplete.php
+        modified:   Services/Search/templates/default/tpl.main_menu_search.html
+        new file:   Services/StudyData/classes/class.ilStudyAccess.php
+        new file:   Services/StudyData/classes/class.ilStudyData.php
+        new file:   Services/StudyData/classes/class.ilStudyDataGUI.php
+        new file:   Services/StudyData/classes/class.ilStudyExportRequestGUI.php
+        new file:   Services/StudyData/service.xml
+        new file:   Services/StudyData/templates/default/tpl.export_request.html
+        modified:   Services/Style/classes/class.ilObjStyleSheet.php
+        modified:   Services/Style/classes/class.ilObjStyleSheetGUI.php
+        modified:   Services/Style/classes/class.ilStyleImportParser.php
+        new file:   Services/Style/templates/default/tpl.il_custom_css.html
+        new file:   Services/Style/templates/default/tpl.il_custom_css_input.html
+        modified:   Services/Table/classes/class.ilTable2GUI.php
+        modified:   Services/Table/js/ServiceTable.js
+        modified:   Services/Taxonomy/classes/class.ilObjTaxonomyGUI.php
+        modified:   Services/Taxonomy/classes/class.ilTaxSelectInputGUI.php
+        modified:   Services/Taxonomy/classes/class.ilTaxonomyExplorerGUI.php
+        modified:   Services/Taxonomy/classes/class.ilTaxonomyNode.php
+        modified:   Services/Taxonomy/classes/class.ilTaxonomyTableGUI.php
+        modified:   Services/Taxonomy/templates/default/tpl.tax_row.html
+        modified:   Services/Tracking/classes/class.ilChangeEvent.php
+        modified:   Services/Tracking/classes/class.ilLPMarks.php
+        modified:   Services/Tracking/classes/class.ilLPStatus.php
+        modified:   Services/Tracking/classes/class.ilLPTableBaseGUI.php
+        modified:   Services/Tracking/classes/class.ilTrQuery.php
+        modified:   Services/Tracking/classes/status/class.ilLPStatusQuestions.php
+        modified:   Services/Tree/classes/class.ilNestedSetTree.php
+        modified:   Services/Tree/classes/class.ilTree.php
+        modified:   Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php
+        modified:   Services/UIComponent/AdvancedSelectionList/templates/default/tpl.adv_selection_list.html
+        modified:   Services/UIComponent/Explorer2/js/Explorer2.js
+        modified:   Services/UIComponent/Tabs/classes/class.ilTabsGUI.php
+        modified:   Services/UICore/classes/class.ilCachedCtrl.php
+        modified:   Services/UICore/classes/class.ilCtrl.php
+        new file:   Services/UnivIS/classes/class.ilUnivis.php
+        new file:   Services/UnivIS/classes/class.ilUnivisData.php
+        new file:   Services/UnivIS/classes/class.ilUnivisDepartment.php
+        new file:   Services/UnivIS/classes/class.ilUnivisImport.php
+        new file:   Services/UnivIS/classes/class.ilUnivisImportActionsGUI.php
+        new file:   Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php
+        new file:   Services/UnivIS/classes/class.ilUnivisImportLecturesTableGUI.php
+        new file:   Services/UnivIS/classes/class.ilUnivisLecture.php
+        new file:   Services/UnivIS/classes/class.ilUnivisLocation.php
+        new file:   Services/UnivIS/classes/class.ilUnivisOfficehour.php
+        new file:   Services/UnivIS/classes/class.ilUnivisPerson.php
+        new file:   Services/UnivIS/classes/class.ilUnivisRequest.php
+        new file:   Services/UnivIS/classes/class.ilUnivisRoom.php
+        new file:   Services/UnivIS/classes/class.ilUnivisStudy.php
+        new file:   Services/UnivIS/classes/class.ilUnivisTerm.php
+        new file:   Services/UnivIS/parser/class.univis2mysql.php
+        new file:   Services/UnivIS/parser/inc.univisdebug.php
+        new file:   Services/UnivIS/parser/models/job_model.php
+        new file:   Services/UnivIS/parser/models/lecture_model.php
+        new file:   Services/UnivIS/parser/models/model.php
+        new file:   Services/UnivIS/parser/models/org_model.php
+        new file:   Services/UnivIS/parser/models/person_model.php
+        new file:   Services/UnivIS/parser/models/publication_model.php
+        new file:   Services/UnivIS/parser/models/research_model.php
+        new file:   Services/UnivIS/parser/models/room_model.php
+        new file:   Services/UnivIS/parser/models/thesis_model.php
+        new file:   Services/UnivIS/parser/models/univis_model.php
+        new file:   Services/UnivIS/parser/modules/departments_module.php
+        new file:   Services/UnivIS/parser/modules/generic_module.php
+        new file:   Services/UnivIS/parser/modules/lectures_module.php
+        new file:   Services/UnivIS/parser/modules/persons_module.php
+        new file:   Services/UnivIS/parser/parsers/class.univisparser.php
+        new file:   Services/UnivIS/parser/sql/class.univistablemanager.php
+        new file:   Services/UnivIS/templates/default/tpl.univis_details.html
+        new file:   Services/UnivIS/templates/default/tpl.univis_frame_content.html
+        new file:   Services/UnivIS/templates/default/tpl.univis_lectures_row.html
+        modified:   Services/User/classes/class.ilObjUser.php
+        modified:   Services/User/classes/class.ilObjUserFolderGUI.php
+        modified:   Services/User/classes/class.ilObjUserGUI.php
+        modified:   Services/User/classes/class.ilPersonalProfileGUI.php
+        modified:   Services/User/classes/class.ilPersonalSettingsGUI.php
+        modified:   Services/User/classes/class.ilUserProfile.php
+        modified:   Services/User/classes/class.ilUserQuery.php
+        modified:   Services/User/classes/class.ilUserUtil.php
+        modified:   Services/Utilities/classes/class.ilBenchmark.php
+        new file:   Services/Utilities/classes/class.ilLatex.php
+        new file:   Services/Utilities/classes/class.ilSessionValues.php
+        modified:   Services/Utilities/classes/class.ilStr.php
+        new file:   Services/Utilities/classes/class.ilTableExport.php
+        modified:   Services/Utilities/classes/class.ilUtil.php
+        modified:   Services/VirusScanner/classes/class.ilVirusScannerFactory.php
+        new file:   Services/WebForm/README
+        new file:   Services/WebForm/classes/class.htmlparser.php
+        new file:   Services/WebForm/classes/class.ilWebForm.php
+        new file:   Services/WebForm/classes/class.ilWebFormAccess.php
+        new file:   Services/WebForm/classes/class.ilWebFormDefinitionsGUI.php
+        new file:   Services/WebForm/classes/class.ilWebFormDefinitionsTableGUI.php
+        new file:   Services/WebForm/classes/class.ilWebFormLoaderGUI.php
+        new file:   Services/WebForm/classes/class.ilWebFormSaving.php
+        new file:   Services/WebForm/classes/class.ilWebFormSenderGUI.php
+        new file:   Services/WebForm/classes/class.ilWebFormSendingsGUI.php
+        new file:   Services/WebForm/classes/class.ilWebFormSendingsTableGUI.php
+        new file:   Services/WebForm/classes/class.ilWebFormUtils.php
+        new file:   Services/WebForm/goto.php
+        new file:   Services/WebForm/js/restore_forms.js
+        new file:   Services/WebForm/lang/ilias_de_webform.lang
+        new file:   Services/WebForm/lang/ilias_en_webform.lang
+        new file:   Services/WebForm/send.php
+        new file:   Services/WebForm/sql/webform-tables.sql
+        new file:   Services/WebForm/templates/default/tpl.form_load.html
+        new file:   Services/WebForm/templates/default/tpl.form_login.html
+        new file:   Services/WebForm/templates/default/tpl.form_sent.html
+        new file:   Services/WebForm/templates/default/tpl.list_definitions.html
+        new file:   Services/WebForm/templates/default/tpl.list_definitions_row.html
+        new file:   Services/WebForm/templates/default/tpl.list_sendings.html
+        new file:   Services/WebForm/templates/default/tpl.list_sendings_row.html
+        new file:   Services/WebServices/SOAP/classes/class.ilRemoteIliasClient.php
+        modified:   Services/WebServices/SOAP/classes/class.ilSoapClient.php
+        new file:   Services/Wizard/classes/class.ilWizardGUI.php
+        new file:   Services/Wizard/templates/default/tpl.wizard_page.html
+        new file:   Services/Wizard/templates/default/tpl.wizard_steps.html
+        modified:   Services/XHTMLValidator/validator/php5.png
+        modified:   Services/jQuery/classes/class.iljQueryUtil.php
+        modified:   Services/jQuery/js/1_8_3/jquery.js
+        new file:   Services/jQuery/js/colorbox/README.md
+        new file:   Services/jQuery/js/colorbox/bower.json
+        new file:   Services/jQuery/js/colorbox/colorbox.ai
+        new file:   Services/jQuery/js/colorbox/colorbox.jquery.json
+        new file:   Services/jQuery/js/colorbox/content/ajax.html
+        new file:   Services/jQuery/js/colorbox/content/daisy.jpg
+        new file:   Services/jQuery/js/colorbox/content/daisy@2x.jpg
+        new file:   Services/jQuery/js/colorbox/content/homer.jpg
+        new file:   Services/jQuery/js/colorbox/content/marylou.jpg
+        new file:   Services/jQuery/js/colorbox/content/ohoopee1.jpg
+        new file:   Services/jQuery/js/colorbox/content/ohoopee2.jpg
+        new file:   Services/jQuery/js/colorbox/content/ohoopee3.jpg
+        new file:   Services/jQuery/js/colorbox/example1/colorbox.css
+        new file:   Services/jQuery/js/colorbox/example1/images/border.png
+        new file:   Services/jQuery/js/colorbox/example1/images/controls.png
+        new file:   Services/jQuery/js/colorbox/example1/images/loading.gif
+        new file:   Services/jQuery/js/colorbox/example1/images/loading_background.png
+        new file:   Services/jQuery/js/colorbox/example1/images/overlay.png
+        new file:   Services/jQuery/js/colorbox/example1/index.html
+        new file:   Services/jQuery/js/colorbox/example2/colorbox.css
+        new file:   Services/jQuery/js/colorbox/example2/images/controls.png
+        new file:   Services/jQuery/js/colorbox/example2/images/loading.gif
+        new file:   Services/jQuery/js/colorbox/example2/index.html
+        new file:   Services/jQuery/js/colorbox/example3/colorbox.css
+        new file:   Services/jQuery/js/colorbox/example3/images/controls.png
+        new file:   Services/jQuery/js/colorbox/example3/images/loading.gif
+        new file:   Services/jQuery/js/colorbox/example3/index.html
+        new file:   Services/jQuery/js/colorbox/example4/colorbox.css
+        new file:   Services/jQuery/js/colorbox/example4/images/border1.png
+        new file:   Services/jQuery/js/colorbox/example4/images/border2.png
+        new file:   Services/jQuery/js/colorbox/example4/images/loading.gif
+        new file:   Services/jQuery/js/colorbox/example4/index.html
+        new file:   Services/jQuery/js/colorbox/example5/colorbox.css
+        new file:   Services/jQuery/js/colorbox/example5/images/border.png
+        new file:   Services/jQuery/js/colorbox/example5/images/controls.png
+        new file:   Services/jQuery/js/colorbox/example5/images/loading.gif
+        new file:   Services/jQuery/js/colorbox/example5/images/loading_background.png
+        new file:   Services/jQuery/js/colorbox/example5/index.html
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-ar.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-bg.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-cs.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-da.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-de.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-es.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-et.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-fa.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-fi.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-fr.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-hr.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-hu.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-id.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-it.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-ja.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-kr.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-lv.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-nl.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-no.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-pl.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-pt-br.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-ro.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-ru.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-sk.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-sv.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-tr.js
+        new file:   Services/jQuery/js/colorbox/i18n/jquery.colorbox-zh-CN.js
+        new file:   Services/jQuery/js/colorbox/jquery.colorbox-min.js
+        new file:   Services/jQuery/js/colorbox/jquery.colorbox.js
+        modified:   cron/classes/class.ilCronCheck.php
+        new file:   docs/merge_studon_into_4.4.4.log
+        new file:   docs/merge_studon_into_5.0.0.log
+        new file:   docs/studon-merge.log
+        new file:   docs/studon-status.log
+        modified:   favicon.ico
+        modified:   feed.php
+        modified:   goto.php
+        modified:   include/inc.debug.php
+        modified:   include/inc.header.php
+        new file:   include/inc.log_request.php
+        modified:   include/inc.xsl5compliance.php
+        new file:   maintenance.html
+        modified:   privfeed.php
+        new file:   repository.php
+        new file:   saml_login.php
+        new file:   saml_logout.php
+        modified:   setup/classes/class.ilClient.php
+        modified:   setup/classes/class.ilSetup.php
+        new file:   setup/sql/dbupdate_custom.php
+        modified:   shib_login.php
+        new file:   templates/default/fonts/roboto/Roboto-Bold-webfont.eot
+        new file:   templates/default/fonts/roboto/Roboto-Bold-webfont.svg
+        new file:   templates/default/fonts/roboto/Roboto-Bold-webfont.ttf
+        new file:   templates/default/fonts/roboto/Roboto-Bold-webfont.woff
+        new file:   templates/default/fonts/roboto/Roboto-BoldItalic-webfont.eot
+        new file:   templates/default/fonts/roboto/Roboto-BoldItalic-webfont.svg
+        new file:   templates/default/fonts/roboto/Roboto-BoldItalic-webfont.ttf
+        new file:   templates/default/fonts/roboto/Roboto-BoldItalic-webfont.woff
+        new file:   templates/default/fonts/roboto/Roboto-Italic-webfont.eot
+        new file:   templates/default/fonts/roboto/Roboto-Italic-webfont.svg
+        new file:   templates/default/fonts/roboto/Roboto-Italic-webfont.ttf
+        new file:   templates/default/fonts/roboto/Roboto-Italic-webfont.woff
+        new file:   templates/default/fonts/roboto/Roboto-Light-webfont.eot
+        new file:   templates/default/fonts/roboto/Roboto-Light-webfont.svg
+        new file:   templates/default/fonts/roboto/Roboto-Light-webfont.ttf
+        new file:   templates/default/fonts/roboto/Roboto-Light-webfont.woff
+        new file:   templates/default/fonts/roboto/Roboto-Regular-webfont.eot
+        new file:   templates/default/fonts/roboto/Roboto-Regular-webfont.svg
+        new file:   templates/default/fonts/roboto/Roboto-Regular-webfont.ttf
+        new file:   templates/default/fonts/roboto/Roboto-Regular-webfont.woff
+        modified:   templates/default/images/HeaderIcon.svg
+        modified:   templates/default/images/HeaderIconAvatar.svg
+        new file:   templates/default/images/layout_help.png
+        new file:   templates/default/images/layout_website.png
+        new file:   templates/default/images/studon/fau-inverse.png
+        new file:   templates/default/images/studon/fau-sign.png
+        new file:   templates/default/images/studon/fau-white.svg
+        new file:   templates/default/images/studon/header_bg.jpg
+        new file:   templates/default/images/studon/ili-white.svg
+        new file:   templates/default/images/studon/meinCampus.png
+        new file:   templates/default/images/studon/meinCampusSmall.gif
+        new file:   templates/default/images/studon/sso-logo-150x150.png
+        new file:   templates/default/images/studon/sso-logo-48x48.png
+        new file:   templates/default/images/studon/sso-logo.png
+        new file:   templates/default/images/studon/studon-circle.png
+        new file:   templates/default/images/studon/studon-square-white.svg
+        new file:   templates/default/images/studon/studon-square.svg
+        new file:   templates/default/images/studon/studon-white.svg
+        new file:   templates/default/images/studon/studon.svg
+        new file:   templates/default/images/studon/univis_big.png
+        new file:   templates/default/images/studon/univis_transp.png
+        modified:   templates/default/less/Services/MainMenu/delos_sm.less
+        modified:   templates/default/less/Services/UIComponent/Explorer2/delos.less
+        new file:   templates/default/less/fau-font.less
+        modified:   templates/default/less/variables.less
+        modified:   templates/default/tpl.adm_content.html
+        modified:   templates/default/tpl.error.html
+        new file:   templates/default/tpl.helptext_create.html
+        modified:   templates/default/tpl.main.html
+        new file:   univis.php
+        new file:   vhbadmin.php
+        new file:   vhblogin.php
+        modified:   webservice/soap/classes/class.ilNusoapUserAdministrationAdapter.php
+        new file:   webservice/soap/classes/class.ilSoapStudOnAdministration.php
+        modified:   webservice/soap/classes/class.ilSoapUtils.php
+        modified:   webservice/soap/include/inc.soap_functions.php
+        modified:   webservice/soap/lib/nusoap.php
+        modified:   webservice/soap/server.php
+        modified:   xml/ilias_exercise_3_10.dtd
+
+Unmerged paths:
+  (use "git reset HEAD <file>..." to unstage)
+  (use "git add/rm <file>..." as appropriate to mark resolution)
+
+        both modified:   .gitignore
+        both modified:   Modules/Course/classes/class.ilCourseMembershipMailNotification.php
+        both modified:   Modules/Course/classes/class.ilCourseRegistrationGUI.php
+        both modified:   Modules/Course/classes/class.ilObjCourse.php
+        both modified:   Modules/Course/classes/class.ilObjCourseAccess.php
+        both modified:   Modules/Course/classes/class.ilObjCourseGUI.php
+        both modified:   Modules/Course/classes/class.ilObjCourseListGUI.php
+        deleted by us:   Modules/Course/templates/default/tpl.member_export.html
+        both modified:   Modules/Exercise/classes/class.ilExAssignment.php
+        both modified:   Modules/Exercise/classes/class.ilExAssignmentGUI.php
+        both modified:   Modules/Exercise/classes/class.ilExGradesTableGUI.php
+        both modified:   Modules/Exercise/classes/class.ilExParticipantTableGUI.php
+        both modified:   Modules/Exercise/classes/class.ilExerciseDataSet.php
+        both modified:   Modules/Exercise/classes/class.ilExerciseMemberTableGUI.php
+        both modified:   Modules/Exercise/classes/class.ilExerciseMembers.php
+        both modified:   Modules/Exercise/classes/class.ilObjExercise.php
+        both modified:   Modules/Exercise/classes/class.ilObjExerciseGUI.php
+        both modified:   Modules/Forum/classes/class.ilForum.php
+        both modified:   Modules/Group/classes/class.ilGroupRegistrationGUI.php
+        both modified:   Modules/Group/classes/class.ilObjGroup.php
+        both modified:   Modules/Group/classes/class.ilObjGroupAccess.php
+        both modified:   Modules/Group/classes/class.ilObjGroupGUI.php
+        both modified:   Modules/HTMLLearningModule/classes/class.ilObjFileBasedLMGUI.php
+        both modified:   Modules/LearningModule/classes/class.ilObjContentObject.php
+        both modified:   Modules/Scorm2004/scripts/buildrte/rte.js
+        both modified:   Modules/Scorm2004/scripts/questions/question_handling.js
+        both modified:   Modules/ScormAicc/scripts/SCORM1_2standard.js
+        both modified:   Modules/Session/classes/class.ilObjSession.php
+        both modified:   Modules/Session/classes/class.ilSessionOverviewGUI.php
+        both modified:   Modules/Survey/classes/class.ilObjSurvey.php
+        both modified:   Modules/Survey/classes/class.ilObjSurveyGUI.php
+        both modified:   Modules/SurveyQuestionPool/classes/class.SurveyMatrixQuestionGUI.php
+        both modified:   Modules/Test/classes/class.ilObjTest.php
+        both modified:   Modules/Test/classes/class.ilObjTestGUI.php
+        both modified:   Modules/Test/classes/class.ilObjTestSettingsScoringResultsGUI.php
+        both modified:   Modules/Test/classes/class.ilTestArchiver.php
+        both modified:   Modules/Test/classes/class.ilTestEvaluationGUI.php
+        both modified:   Modules/Test/classes/class.ilTestExportGUI.php
+        both modified:   Modules/Test/classes/class.ilTestGradingMessageBuilder.php
+        both modified:   Modules/Test/classes/class.ilTestOutputGUI.php
+        both modified:   Modules/Test/classes/class.ilTestPDFGenerator.php
+        both modified:   Modules/Test/classes/class.ilTestPassesSelector.php
+        both modified:   Modules/Test/classes/class.ilTestResultsImportParser.php
+        both modified:   Modules/Test/classes/class.ilTestScoringByQuestionsGUI.php
+        both modified:   Modules/Test/classes/class.ilTestScoringGUI.php
+        both modified:   Modules/Test/classes/tables/class.ilTestParticipantsTableGUI.php
+        both modified:   Modules/Test/templates/default/test_print.css
+        both modified:   Modules/Test/templates/default/tpl.il_as_tst_print_test_confirm.html
+        both modified:   Modules/TestQuestionPool/classes/class.assKprimChoiceGUI.php
+        both modified:   Modules/TestQuestionPool/classes/class.assOrderingHorizontal.php
+        both modified:   Modules/TestQuestionPool/classes/class.assOrderingQuestion.php
+        both modified:   Modules/TestQuestionPool/classes/class.assOrderingQuestionGUI.php
+        both modified:   Modules/TestQuestionPool/classes/class.assQuestion.php
+        both modified:   Modules/TestQuestionPool/classes/class.assSingleChoice.php
+        both modified:   Modules/TestQuestionPool/classes/class.ilObjQuestionPoolGUI.php
+        both modified:   Modules/TestQuestionPool/classes/class.ilTestQuestionPoolImporter.php
+        both modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_question_printview.html
+        both modified:   Services/Authentication/classes/class.ilAuthBase.php
+        both modified:   Services/Authentication/classes/class.ilAuthUtils.php
+        both modified:   Services/COPage/classes/class.ilPageObjectGUI.php
+        both modified:   Services/COPage/xsl/page.xsl
+        both modified:   Services/Component/classes/class.ilCachedComponentData.php
+        both modified:   Services/Container/classes/class.ilContainer.php
+        both modified:   Services/Container/classes/class.ilContainerSortingSettings.php
+        both modified:   Services/Database/classes/class.ilDBInnoDB.php
+        both modified:   Services/Database/classes/class.ilDBMySQL.php
+        both modified:   Services/GlobalCache/classes/class.ilGlobalCache.php
+        both modified:   Services/Init/classes/class.ilInitialisation.php
+        both modified:   Services/Init/templates/default/tpl.view_terms_of_service.html
+        both modified:   Services/Locator/classes/class.ilLocatorGUI.php
+        both modified:   Services/Mail/classes/class.ilMail.php
+        both modified:   Services/Mail/classes/class.ilMailFormCall.php
+        both modified:   Services/Mail/classes/class.ilMailGUI.php
+        both modified:   Services/MainMenu/classes/class.ilMainMenuGUI.php
+        both modified:   Services/Membership/classes/Export/class.ilMemberExport.php
+        both modified:   Services/Membership/classes/Export/class.ilMemberExportGUI.php
+        both modified:   Services/Membership/classes/class.ilSubscriberTableGUI.php
+        both modified:   Services/Object/classes/class.ilObjectCopyGUI.php
+        both modified:   Services/Object/classes/class.ilObjectCopySelectionTableGUI.php
+        both modified:   Services/PDFGeneration/classes/tcpdf/config/tcpdf_config.php
+        both modified:   Services/Registration/classes/class.ilAccountRegistrationGUI.php
+        both modified:   Services/Registration/classes/class.ilRegistrationSettingsGUI.php
+        both modified:   Services/Registration/templates/default/tpl.usr_registered.html
+        both modified:   Services/Repository/classes/class.ilRepUtil.php
+        both modified:   Services/Taxonomy/classes/class.ilTaxonomyDataSet.php
+        both modified:   Services/TermsOfService/classes/class.ilTermsOfServiceFileSystemDocument.php
+        both modified:   Services/Tracking/classes/repository_statistics/class.ilTrObjectUsersPropsTableGUI.php
+        both modified:   Services/Tree/classes/class.ilMaterializedPathTree.php
+        both modified:   Services/UICore/classes/class.ilTemplate.php
+        both modified:   Services/UICore/templates/default/tpl.footer.html
+        both modified:   Services/User/classes/class.ilPublicUserProfileGUI.php
+        both modified:   Services/User/classes/class.ilUserDataSet.php
+        both modified:   Services/WebAccessChecker/classes/class.ilWebAccessChecker.php
+        both modified:   error.php
+        both modified:   include/inc.ilias_version.php
+        both modified:   setup/classes/class.ilClientList.php
+        both modified:   setup/sql/ilDBTemplate.php
+        both modified:   templates/default/delos.css
+        both modified:   templates/default/delos.less
+        both modified:   templates/default/less/Services/Block/delos.less
+        both modified:   templates/default/less/Services/Calendar/delos.less
+        both modified:   templates/default/less/Services/Locator/delos.less
+        both modified:   templates/default/less/Services/MainMenu/delos.less
+        both modified:   templates/default/less/Services/PersonalDesktop/delos.less
+
+
+ne@lassalle MINGW64 /c/www/developer/studon-lab (studon51)

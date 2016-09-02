@@ -24,6 +24,11 @@ class ilStartUpGUI
 
 		$this->ctrl =& $ilCtrl;
 
+// fau: ssoCheck - set the global template as a class variable for use in other functions
+		global $tpl;
+		$this->tpl = $tpl;
+// fau.
+
 		$ilCtrl->saveParameter($this, array("rep_ref_id", "lang", "target", "client_id"));
 	}
 
@@ -76,6 +81,18 @@ class ilStartUpGUI
 	}
 
 	/**
+	* fim: [portal] jump to username assistance
+	*/
+	function jumpToUsernameAssistance()
+	{
+		$this->ctrl->setCmdClass("ilpasswordassistancegui");
+		$this->ctrl->setCmd("showUsernameAssistanceForm");
+		$this->executeCommand();
+	}
+	/* fim. */
+
+
+	/**
 	 * show login
 	 *
 	 * @global ilLanguage $lng
@@ -122,7 +139,7 @@ class ilStartUpGUI
 						$additional_params .= '&login_to_purchase_object=1&forceShoppingCartRedirect=1';
 					}
 				}
-				
+
 				ilUtil::setCookie("iltest","cookie",false);
 				ilUtil::redirect("login.php?target=".$_GET["target"]."&soap_pw=".$_GET["soap_pw"].
 					"&ext_uid=".$_GET["ext_uid"]."&cookies=nocookies&client_id=".
@@ -274,8 +291,12 @@ class ilStartUpGUI
 					}
 
 					session_destroy();				
-
-					$failure = $lng->txt("time_limit_reached");		
+					
+// fau: loginFailed - get a better message for inactive users
+					global $ilUser;
+					$failure = $lng->txt($ilUser->getInactiveMessageVar())
+							 . $lng->txt("err_inactive_contact");	
+// fau.
 					break;	
 					
 				case AUTH_USER_INACTIVE:
@@ -283,7 +304,11 @@ class ilStartUpGUI
 					$ilAuth->logout();
 					session_destroy();
 					
-					$failure = $lng->txt("err_inactive");
+// fau: loginFailed - get a better message for inactive users
+					global $ilUser;
+					$failure = $lng->txt($ilUser->getInactiveMessageVar())	
+							 . $lng->txt("err_inactive_contact");	
+// fau.
 					break;
 					
 				// special cases end
@@ -291,6 +316,23 @@ class ilStartUpGUI
 				
 				case AUTH_WRONG_LOGIN:					
 				default:
+//fau: loginFailed - get the inactive message also for wrong logins
+// This prevents guessing passwords by checking the failure message.
+// After X failed logins the deactivation message will always come,
+// independent from the correctness of the password.
+//
+// This requires an initialized user account also for wrong passwords
+// see: ilInitialisation::authenticate()
+// see: ilInitialisation::initUserAccount()
+// see: ilObjUser::getLoginFromAuth()
+					global $ilUser;
+					if ($var = $ilUser->getInactiveMessageVar())
+					{
+						$failure = $lng->txt($var) . $lng->txt("err_inactive_contact");	
+						break;
+					}
+// fau.
+										
 					$add = "";
 					$auth_error = $ilias->getAuthError();
 					if (is_object($auth_error))
@@ -307,6 +349,26 @@ class ilStartUpGUI
 			$lng->loadLanguageModule("auth");
 		    $success = $lng->txt("auth_account_code_used");
 		}
+		
+
+		// fim: [portal] show root page instead of login page
+		global $ilCust, $ilCtrl;
+		if ($ilCust->getSetting("ilias_root_as_login"))
+		{	
+			if ($failure)
+			{					
+				ilInitialisation::goToPublicSection($status, $failure, "failure");
+			}
+			elseif ($success)
+			{
+				ilInitialisation::goToPublicSection($status, $success, "success");
+			}
+			else
+			{
+				ilInitialisation::goToPublicSection($status, $lng->txt("login_required_for_object"), "failure");
+			}
+		}
+		// fim.
 		
 		
 		// --- render
@@ -1101,6 +1163,14 @@ class ilStartUpGUI
 	{
 		global $tpl, $ilSetting, $ilAuth, $lng, $ilIliasIniFile;
 
+        // fim: [portal] jump to root as login page
+		global $ilCust;
+		if ($ilCust->getSetting("ilias_root_as_login"))
+		{			
+			ilInitialisation::goToPublicSection(AUTH_USER_MANUAL_LOGOUT, $lng->txt("logout_text"), "success");
+		}
+		// fim.
+
 		ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);		
 		$ilAuth->logout();
 		session_destroy();
@@ -1350,6 +1420,11 @@ class ilStartUpGUI
 	 */
 	protected function getAcceptance()
 	{
+		// fim: [layout] use standard main menu, but don't show links
+		global $ilMainMenu;
+		$ilMainMenu->showLogoOnly(true);
+		// fim.
+
 		$this->showTermsOfService();
 	}
 
@@ -1399,6 +1474,12 @@ class ilStartUpGUI
 				$tpl->setVariable('ACCEPT_CHECKBOX', ilUtil::formCheckbox(0, 'status', 'accepted'));
 				$tpl->setVariable('ACCEPT_TERMS_OF_SERVICE', $lng->txt('accept_usr_agreement'));
 				$tpl->setVariable('TXT_SUBMIT', $lng->txt('submit'));
+
+				// fim: [layout] added cancel button for terms of service
+				require_once "Services/User/classes/class.ilUserUtil.php";
+				$tpl->setVariable('URL_CANCEL', ilUserUtil::_getLogoutLink());
+				$tpl->setVariable('TXT_CANCEL', $lng->txt('cancel'));
+				// fim.
 			}
 
 			$tpl->setVariable('TERMS_OF_SERVICE_CONTENT', $document->getContent());
@@ -1411,6 +1492,224 @@ class ilStartUpGUI
 
 		$tpl->show();
 	}
+
+// fau: ssoCheck - new function shibConversion
+	/**
+	* Show the confirmation screen for conversion to SSO
+	*/
+	function shibConversion()
+	{
+		global $ilUser, $ilCtrl, $ilErr,$lng;
+
+		if (empty($_SESSION['saml_session_id']))
+		{
+			$ilErr->raiseError($lng->txt("shib_convert_denied"), $ilErr->MESSAGE);
+		}
+
+		
+		$tpl = new ilTemplate("tpl.shib_conversion.html", true, true, "Services/Init");
+		
+		$lng->loadLanguageModule('auth');
+		$login = $ilUser->getLogin();
+		$identity = $ilUser->getExternalAccount();
+
+		if ($login != $identity)
+		{
+			$tpl->setCurrentBlock("shib_bullet");
+			if (strpos($login,'immat.') === 0 or strpos($login,'user.') === 0 or strpos($login,".") === false)
+			{
+	            $tpl->setVariable("SHIB_CONVERT_BULLET", sprintf($lng->txt('shib_convert_change_login'), $login, $identity));
+			}
+			else
+			{
+	            $tpl->setVariable("SHIB_CONVERT_BULLET", sprintf($lng->txt('shib_convert_keep_login'), $login, $identity));
+			}
+			$tpl->parseCurrentBlock();
+		}
+
+		$tpl->setCurrentBlock("shib_bullet");
+		$tpl->setVariable("SHIB_CONVERT_BULLET", $lng->txt("shib_convert_name"));
+		$tpl->parseCurrentBlock();
+		$tpl->setCurrentBlock("shib_bullet");
+		$tpl->setVariable("SHIB_CONVERT_BULLET", $lng->txt("shib_convert_password"));
+		$tpl->parseCurrentBlock();
+
+		$tpl->setVariable("SHIB_CONVERT_INTRO", $lng->txt("shib_convert_intro"));
+		$tpl->setVariable("SHIB_CONVERT_OUTRO", $lng->txt("shib_convert_outro"));
+		$tpl->setVariable("SHIB_ACCEPT", $lng->txt("shib_convert_accept"));
+
+		$tpl->setVariable("LINK_CONVERT", $ilCtrl->getLinkTarget($this, "shibConvert"));
+		$tpl->setVariable("LINK_CONTINUE", $ilCtrl->getLinkTarget($this, "processStartingPage"));
+		$tpl->setVariable("TXT_CONVERT", $lng->txt("shib_convert_submit"));
+		$tpl->setVariable("TXT_CONTINUE", $lng->txt("shib_convert_cancel"));
+
+		$tpl->setVariable("SHIB_INFO", $lng->txt("shib_reminder_text"));
+
+		$this->tpl->getStandardTemplate();
+		$this->tpl->setTitle($lng->txt("shib_convert_head"));
+		$this->tpl->setContent($tpl->get());
+		$this->tpl->show();
+	}
+// fau.
+
+// fau: ssoCheck - new function shibConvert
+	/**
+	* Start the conversion to SSO (will be done in ilSimpleSamlAuthStudOn::getUpdatedUser()
+	*/
+	function shibConvert()
+	{
+	    global $ilUser, $ilErr, $lng;
+
+		$lng->loadLanguageModule('auth');
+
+		// check if conversion is allowed
+		if (empty($_SESSION['saml_session_id']))
+		{
+			$ilErr->raiseError($lng->txt("shib_convert_denied"), $ilErr->MESSAGE);
+		}
+
+		// check if username can be converted
+		$login = $ilUser->getLogin();
+		$identity = $ilUser->getExternalAccount();
+		if ($login != $identity and strpos($login,".") === false)
+		{
+			if (ilObjUser::_loginExists($identity))
+			{
+				ilUtil::sendFailure(sprintf($lng->txt("shib_login_used"), $identity));
+				$this->shibConversion();
+				return;
+ 			}
+       	}
+
+		// indicate a conversion of the account
+		// this will be done in ilShibboleth::login()
+		$_SESSION["SHIBBOLETH_CONVERSION"] = true;
+
+		// redirect to shibboleth without logout
+		// to prevent a second typing of username and password
+		$this->shibRedirect(false);
+	}
+// fau.
+
+// fau: ssoCheck - new function shibReminder
+	/**
+	* Remind about the SSO for local logins of SSO accounts
+	*/
+	function shibReminder()
+	{
+		global $ilCtrl, $lng;
+
+		$lng->loadLanguageModule('auth');
+
+	 	$tpl = new ilTemplate("tpl.shib_info.html", true, true, "Services/Init");
+		$tpl->setVariable("SHIB_INFO", $lng->txt("shib_reminder_text"));
+		$tpl->setVariable("LINK_SSO", $ilCtrl->getLinkTarget($this, "shibRedirect"));
+		$tpl->setVariable("TXT_SSO", $lng->txt("shib_to_sso"));
+		$tpl->setVariable("LINK_CONTINUE", $ilCtrl->getLinkTarget($this, "processStartingPage"));
+		$tpl->setVariable("TXT_CONTINUE", $lng->txt("shib_continue"));
+
+		$this->tpl->getStandardTemplate();
+		$this->tpl->setTitle($lng->txt("shib_reminder_head"));
+		$this->tpl->setContent($tpl->get());
+		$this->tpl->show();
+	}
+// fau.
+
+// fau: ssoCheck - new function shibRecommendation
+	/**
+	* Recommend the SSO conversion to users
+	*/
+	function shibRecommendation()
+	{
+		global $ilCtrl, $lng;
+
+		$lng->loadLanguageModule('auth');
+	 	
+	 	$tpl = new ilTemplate("tpl.shib_info.html", true, true, "Services/Init");
+		$tpl->setVariable("SHIB_INFO", $lng->txt("shib_recommendation_text"));
+		$tpl->setVariable("LINK_SSO", $ilCtrl->getLinkTarget($this, "shibRedirect"));
+		$tpl->setVariable("TXT_SSO", $lng->txt("shib_to_sso"));
+		$tpl->setVariable("LINK_CONTINUE", $ilCtrl->getLinkTarget($this, "processStartingPage"));
+		$tpl->setVariable("TXT_CONTINUE", $lng->txt("shib_continue_local"));
+
+		$this->tpl->getStandardTemplate();
+		$this->tpl->setTitle($lng->txt("shib_recommendation_head"));
+		$this->tpl->setContent($tpl->get());
+		$this->tpl->show();
+	}
+// fau.
+
+// fau: ssoCheck - new function shibNotCreatable
+	/**
+	* Show a message that the account can't be created by SSO
+	*/
+	function shibNotCreatable()
+	{
+		global $ilCust, $ilCtrl, $tpl, $lng;
+
+		$lng->loadLanguageModule('auth');
+		
+		$this->tpl->getStandardTemplate();
+		$this->tpl->setTitle($lng->txt("shib_not_creatable_head"));
+		$this->tpl->setContent($lng->txt("shib_not_creatable_text"));
+		$this->tpl->show();
+	}
+// fau.
+
+// fau: ssoCheck - new function shibInactiveMessage
+	/**
+	* Show a message that the account can be re-activated by SSO
+	*/
+	function shibInactiveMessage()
+	{
+		global $ilCtrl, $lng;
+
+		$lng->loadLanguageModule('auth');
+
+		// get the failure message
+		$msg = ilUtil::stripSlashes($_GET['msg']);
+		ilUtil::sendFailure($lng->txt($msg), false);
+		
+		$tpl = new ilTemplate("tpl.shib_info.html", true, true, "Services/Init");
+		$tpl->setVariable("SHIB_INFO", $lng->txt("shib_inactive_text"));
+		$tpl->setVariable("LINK_SSO", $ilCtrl->getLinkTarget($this, "shibRedirect"));
+		$tpl->setVariable("TXT_SSO", $lng->txt("shib_to_sso"));
+		$tpl->setVariable("LINK_CONTINUE", ilUtil::_getRootLoginLink());
+		$tpl->setVariable("TXT_CONTINUE", $lng->txt("cancel"));
+		
+		$this->tpl->getStandardTemplate();
+		//$this->tpl->setTitle($lng->txt("shib_inactive_head"));
+		$this->tpl->setContent($tpl->get());
+		$this->tpl->show();
+	} 
+// fau.
+
+// fau: ssoCheck - new function shibRedirect
+	/**
+	* Redirect to SSO to start a conversion
+	*
+	* @param: boolean	logout the current user before the redirect (default: true)
+	*/
+	function shibRedirect($a_logout = true)
+	{
+	    global $ilAuth;
+
+        $link = 'saml_login.php';
+		if ($_GET["target"])
+		{
+	        $link .= "?target=" . $_GET["target"];
+		}
+
+		if ($a_logout)
+		{
+			$ilAuth->logout();
+			session_destroy();
+		}
+
+		ilUtil::redirect($link);
+	}
+// fau.
+
 
 	/**
 	* process index.php
@@ -1527,6 +1826,14 @@ class ilStartUpGUI
 
 		$t_arr = explode("_", $a_target);
 		$type = $t_arr[0];
+
+		// fim: [cust] don't check goto for studon targets
+		// fim: [univis] don't check goto for univis targets
+		if ($type == "studon" or $type == "univis")
+		{
+			return true;
+		}
+		// fim.
 
 		if ($type == "git")
 		{
@@ -1709,12 +2016,15 @@ class ilStartUpGUI
 
 		try
 		{
-			require_once 'Services/Registration/classes/class.ilRegistrationSettings.php';
-			$oRegSettings = new ilRegistrationSettings();
-			
+// fau: regCodes - get settings instance after hash verification (code my be injected)
 			$usr_id = ilObjUser::_verifyRegistrationHash(trim($_GET['rh']));
 			$oUser = ilObjectFactory::getInstanceByObjId($usr_id);
 			$oUser->setActive(true);
+
+			require_once 'Services/Registration/classes/class.ilRegistrationSettings.php';
+			$oRegSettings = ilRegistrationSettings::getInstance();
+// fau.
+
 			if($oRegSettings->passwordGenerationEnabled())
             {
             	$passwd = ilUtil::generatePasswords(1);
@@ -1882,15 +2192,22 @@ class ilStartUpGUI
 		// framework is needed for language selection
 		include_once("./Services/UICore/classes/class.ilUIFramework.php");
 		ilUIFramework::init();
-		
-		$tpl->addBlockfile('CONTENT', 'content', 'tpl.startup_screen.html', 'Services/Init');
-		$tpl->setVariable('HEADER_ICON', ilUtil::getImagePath('HeaderIcon.svg'));
 
+		// fim: [layout] use customized startup template with added standard main menu
+		global $ilMainMenu;
+		$tpl->addBlockfile('CONTENT', 'content', 'tpl.startup_screen.html', 'Services/Init');
+		$tpl->setCurrentBlock('menu_block');
+		$tpl->setVariable("MAINMENU", $ilMainMenu->getHTML());
+		$tpl->setVariable("MAINMENU_SPACER", $ilMainMenu->getSpacerClass());
+		$tpl->parseCurrentBlock();
+		// fim.
+
+		/* fim: [layout] don't show back or logout link (main menu is presented)
 		if($a_show_back)
 		{
 			// #13400
 			$param = 'client_id=' . $_COOKIE['ilClientId'] . '&lang=' . $lng->getLangKey();
-			
+
 			$tpl->setCurrentBlock('link_item_bl');
 			$tpl->setVariable('LINK_TXT', $lng->txt('login_to_ilias'));
 			$tpl->setVariable('LINK_URL', 'login.php?cmd=force_login&'.$param);
@@ -1911,6 +2228,7 @@ class ilStartUpGUI
 			$tpl->setVariable('LINK_URL', ILIAS_HTTP_PATH . '/logout.php');
 			$tpl->parseCurrentBlock();
 		}
+		fim. */
 
 		if(is_array($a_tmpl))
 		{
@@ -1923,6 +2241,7 @@ class ilStartUpGUI
 			$template_dir  = 'Services/Init';
 		}
 
+		/* fim: [layout] header title and language selection is set by standard main menu
 		//Header Title
 
 		include_once("./Modules/SystemFolder/classes/class.ilObjSystemFolder.php");
@@ -1943,6 +2262,7 @@ class ilStartUpGUI
 			$tpl->setVariable("LANG_SELECT", $selection);
 			$tpl->parseCurrentBlock();
 		}
+		fim. */
 
 		$tpl->addBlockFile('STARTUP_CONTENT', 'startup_content', $template_file, $template_dir);
 	}

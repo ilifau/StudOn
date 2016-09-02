@@ -443,25 +443,28 @@ class ilTree
 		return true;
 	}
 
+	// fim: [trash] added parameter for tree join type
 	/**
 	* build join depending on table settings
 	* @access	private
+	* @param	string	join type ('LEFT', 'INNER', default: '')
 	* @return	string
 	*/
-	function buildJoin()
+	function buildJoin($a_type = '')
 	{
 		if ($this->table_obj_reference)
 		{
 			// Use inner join instead of left join to improve performance
-			return "JOIN ".$this->table_obj_reference." ON ".$this->table_tree.".child=".$this->table_obj_reference.".".$this->ref_pk." ".
-				   "JOIN ".$this->table_obj_data." ON ".$this->table_obj_reference.".".$this->obj_pk."=".$this->table_obj_data.".".$this->obj_pk." ";
+			return $a_type. " JOIN ".$this->table_obj_reference." ON ".$this->table_tree.".child=".$this->table_obj_reference.".".$this->ref_pk." ".
+			$a_type. " JOIN ".$this->table_obj_data." ON ".$this->table_obj_reference.".".$this->obj_pk."=".$this->table_obj_data.".".$this->obj_pk." ";
 		}
 		else
 		{
 			// Use inner join instead of left join to improve performance
-			return "JOIN ".$this->table_obj_data." ON ".$this->table_tree.".child=".$this->table_obj_data.".".$this->obj_pk." ";
+			return $a_type. " JOIN ".$this->table_obj_data." ON ".$this->table_tree.".child=".$this->table_obj_data.".".$this->obj_pk." ";
 		}
 	}
+	// fim.
 	
 	/**
 	 * Get relation of two nodes
@@ -970,8 +973,10 @@ class ilTree
 		}
 		
 		$GLOBALS['ilLog']->write(__METHOD__.': '. $this->tree_pk);
-		
-		if($this->__isMainTree() )
+
+		// fim: [trash] don't check materialized path trees that are already in trash when being deleted
+		if ($this->__isMainTree() and ($this->getTreeId() >= 0 or is_a($this->getTreeImplementation(), 'ilNestedSetTree')))
+		// fim.
 		{
 			// @todo normally this part is not executed, since the subtree is first 
 			// moved to trash and then deleted.
@@ -985,7 +990,7 @@ class ilTree
 		$this->getTreeImplementation()->deleteTree($a_node['child']);
 		
 		$this->resetInTreeCache();
-		
+
 	}
 	
 	/**
@@ -1474,17 +1479,19 @@ class ilTree
 		return array();
 	}
 
-
+	// fim: [trash] added parameter for tree join type
 	/**
 	* get all information of a node.
 	* get data of a specific node from tree and object_data
 	* @access	public
 	* @param	integer		node id
+	* @param	string		tree pk
+	* @param	string		join type ('INNER', 'LEFT', default: '')
 	* @return	array		2-dim (int/str) node_data
 	*/
 	// BEGIN WebDAV: Pass tree id to this method
 	//function getNodeData($a_node_id)
-	function getNodeData($a_node_id, $a_tree_pk = null)
+	function getNodeData($a_node_id, $a_tree_pk = null, $a_join_type = '')
 	// END PATCH WebDAV: Pass tree id to this method
 	{
 		global $ilDB;
@@ -1509,7 +1516,7 @@ class ilTree
 
 		// BEGIN WebDAV: Pass tree id to this method
 		$query = 'SELECT * FROM '.$this->table_tree.' '.
-			$this->buildJoin().
+			$this->buildJoin($a_join_type).
 			'WHERE '.$this->table_tree.'.child = %s '.
 			'AND '.$this->table_tree.'.'.$this->tree_pk.' = %s ';
 		$res = $ilDB->queryF($query,array('integer','integer'),array(
@@ -1521,6 +1528,7 @@ class ilTree
 
 		return $this->fetchNodeData($row);
 	}
+	// fim.
 	
 	/**
 	* get data of parent node from tree and object_data
@@ -2826,5 +2834,23 @@ class ilTree
 	}
 	
 	
+
+
+    /**
+     * fim: [tree] new function to get an SQL condition for selecting grand childs of a node
+     * this is used by ilUtil::_getObjectsByOperations()
+     * @param int		node id
+     * @param string	alias for the tree table
+     * @return string	sql condition
+     */
+    public function getGrandChildCondition($a_node_id, $a_alias = "tree")
+    {
+        $node = $this->getNodeData($a_node_id);
+
+        return $this->getTreeImplementation()->getGrandChildCondition($node, $a_alias);
+    }
+    // fim.
+
+
 } // END class.tree
 ?>

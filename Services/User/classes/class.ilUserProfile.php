@@ -253,6 +253,13 @@ class ilUserProfile
 						"size" => 40,
 						"method" => "getMatriculation",
 						"group" => "other"),
+		// fim: [studydata] add studydata to profile fields
+		"studydata" => array (
+						"input" => "studydata",
+						"lists_hide" => false,
+						"group" => "other"),
+		// fim.
+
 		"delicious" => array(
 						"input" => "text",
 						"maxlength" => 40,
@@ -353,7 +360,38 @@ class ilUserProfile
 		$lng->loadLanguageModule("awrn");
 		$lng->loadLanguageModule("buddysystem");
 	}
-	
+
+
+    /**
+     * fim: [privacy] get standard fields that are allowed to be viewed for other users
+	 * - Users with extended access can see all standard fields
+	 * - Other users can see only username, firstname ans lastname
+     */
+    function getAllowedStandardFields()
+    {
+        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+        if (ilPrivacySettings::_checkExtendedAccess())
+        {
+            return $this->getStandardFields();
+        }
+        else
+        {
+        	$fields = array();
+			if (!in_array("personal_data", $this->skip_groups))
+			{
+				foreach (array('username','firstname','lastname') as $f)
+				{
+					if (!in_array($f, $this->skip_fields))
+					{
+						$fields[$f] = self::$user_field[$f];
+					}
+				}
+			}
+			return $fields;
+        }
+    }
+	// fim.
+
 	/**
 	 * Get standard user fields array
 	 */
@@ -425,8 +463,10 @@ class ilUserProfile
 		// custom registration settings
 		if(self::$mode == self::MODE_REGISTRATION)
 		{
+// fau: regCodes - get registration settings instance that may have a code injected
 			include_once 'Services/Registration/classes/class.ilRegistrationSettings.php';
-			$registration_settings = new ilRegistrationSettings();
+			$registration_settings = ilRegistrationSettings::getInstance();
+// fau.
 
 			self::$user_field["username"]["group"] = "login_data";
 			self::$user_field["password"]["group"] = "login_data";
@@ -486,8 +526,31 @@ class ilUserProfile
 			
 			switch ($p["input"])
 			{
+				// fim: [studydata] add studydata to standard fields
+				case "studydata":
+					if (self::$mode != self::MODE_REGISTRATION)
+					{
+						$stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
+						if($a_user)
+						{
+							include_once './Services/StudyData/classes/class.ilStudyData.php';
+							$stu->setHTML(nl2br(ilStudyData::_getStudyDataText($a_user->getId())));
+						}
+						$a_form->addItem($stu);
+					}
+					break;
+				// fim.
+
 				case "login":
-					if ((int)$ilSetting->get('allow_change_loginname') || self::$mode == self::MODE_REGISTRATION)
+// fau: regCodes - show message for generated username at registration form
+					if (self::$mode == self::MODE_REGISTRATION
+						&& $registration_settings->loginGenerationType() != ilRegistrationSettings::LOGIN_GEN_MANUAL)
+					{
+						$val = new ilNonEditableValueGUI($lng->txt('username'),'username');
+						$val->setValue($lng->txt('reg_login_is_generated'));
+					}
+					elseif ((int)$ilSetting->get('allow_change_loginname') || self::$mode == self::MODE_REGISTRATION)
+// fau.
 					{
 						$val = new ilTextInputGUI($lng->txt('username'),'username');
 						if($a_user)
@@ -525,6 +588,18 @@ class ilUserProfile
 						{
 							$ti->setDisabled($ilSetting->get("usr_settings_disable_".$f));
 						}
+						
+// fau: samlAuth - disable changing firstname and lastname if sso is standard
+						if ($f == 'firstname' or $f == 'lastname')
+						{
+							if ($a_user and $a_user->getAuthMode(true) == AUTH_SHIBBOLETH)
+							{
+								$ti->setDisabled(true);
+								$ti->setInfo($lng->txt('shib_updated_field'));
+							}
+						}
+// fau.
+						
 						$a_form->addItem($ti);
 					}
 					break;
@@ -742,6 +817,7 @@ class ilUserProfile
 						{
 							$ta = new ilPasswordInputGUI($lng->txt($lv), "usr_".$f);							
 							$ta->setRequired(true);
+							$ta->setInfo($lng->txt('reg_choose_password'));
 							// $ta->setDisabled($ilSetting->get("usr_settings_disable_".$f));
 						}
 						else
@@ -859,7 +935,7 @@ class ilUserProfile
 		}
 		return false;
 	}
-		
+
 	/**
 	 * Check if all required personal data fields are set
 	 * 

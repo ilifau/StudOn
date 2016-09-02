@@ -33,9 +33,15 @@
 abstract class ilWaitingList
 {
 	private $db = null;
-	private $obj_id = 0;
+	// fim: [bugfix] cnange to protexted
+	protected $obj_id = 0;
+	// fim.
 	private $user_ids = array();
 	private $users = array();
+	
+	// fim: [memcond] count users to confirm separately
+	private $to_confirm_ids = array();
+	// fim.
 	
 	static $is_on_list = array();
 
@@ -55,6 +61,27 @@ abstract class ilWaitingList
 
 		$this->read();
 	}
+
+	/**
+	* fim: [meminf] count unique subscribers for several objects
+	*
+	* @param    array   object ids
+	* @return   array   user ids
+	*/
+	static function _countSubscribers($a_obj_ids = array())
+	{
+	    global $ilDB;
+
+		$query = "SELECT COUNT(DISTINCT usr_id) users FROM crs_waiting_list WHERE "
+		. $ilDB->in('obj_id', $a_obj_ids, false, 'integer');
+
+		$result = $ilDB->query($query);
+		$row = $ilDB->fetchAssoc($result);
+
+		return $row['users'];
+	}
+	// fim.
+	
 	
 	/**
 	 * delete all
@@ -119,13 +146,15 @@ abstract class ilWaitingList
 		return $this->obj_id;
 	}
 
+	// fim: [memcond] add subject and to_confirm as parameter
 	/**
 	 * add to list
 	 *
-	 * @access public
-	 * @param int usr_id
+	 * @access 	public
+	 * @param 	int usr_id
+	 * @param	boolean 	confirmation needed
 	 */
-	public function addToList($a_usr_id)
+	public function addToList($a_usr_id, $a_subject = '', $a_to_confirm = 0)
 	{
 		global $ilDB;
 		
@@ -133,17 +162,68 @@ abstract class ilWaitingList
 		{
 			return false;
 		}
-		$query = "INSERT INTO crs_waiting_list (obj_id,usr_id,sub_time) ".
+				
+		$query = "INSERT INTO crs_waiting_list (obj_id,usr_id,sub_time, subject, to_confirm) ".
 			"VALUES (".
 			$ilDB->quote($this->getObjId() ,'integer').", ".
 			$ilDB->quote($a_usr_id ,'integer').", ".
-			$ilDB->quote(time() ,'integer')." ".
+			$ilDB->quote(time() ,'integer').", ".
+			$ilDB->quote($a_subject ,'text').", ".
+			$ilDB->quote($a_to_confirm ,'integer')." ".
 			")";
 		$res = $ilDB->manipulate($query);
+		
 		$this->read();
 
 		return true;
 	}
+	// fim.
+	
+	
+	/**
+	 * fim: [memad] adds a user to the waiting list with check for membership
+	 *
+	 * @access public
+	 * @param 	int 	usr_id
+	 * @param 	string	subject
+	 * @param	boolean confirmation needed
+	 */
+	public function addWithChecks($a_usr_id, $a_rol_id, $a_subject = '', $a_to_confirm = 0)
+	{
+		global $ilDB;
+		
+		if($this->isOnList($a_usr_id))
+		{
+			return false;
+		}
+
+		// insert user only on the waiting list if not in member role and not on list
+		$query = "INSERT INTO crs_waiting_list (obj_id, usr_id, sub_time, subject, to_confirm) "
+				." SELECT %s obj_id, %s usr_id, %s sub_time, %s subject, %s to_confirm FROM DUAL "
+				." WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s AND rol_id = %s) "
+				." AND NOT EXISTS (SELECT 1 FROM crs_waiting_list WHERE obj_id = %s AND usr_id = %s)";
+		
+		$res = $ilDB->manipulateF($query,
+						array(	'integer', 'integer', 'integer', 'text', 'integer',
+								'integer', 'integer',
+								'integer', 'integer'),
+						array(	$this->getObjId(), $a_usr_id, time(), $a_subject, $a_to_confirm,
+								$a_usr_id, $a_rol_id,
+								$this->getObjId(), $a_usr_id)
+					);
+																
+		if ($res == 0)
+		{
+            return false;
+		}
+		else
+		{
+			$this->read();
+			return true;
+		}
+	}
+	// fim.
+	
 
 	/**
 	 * update subscription time
@@ -163,6 +243,26 @@ abstract class ilWaitingList
 		$res = $ilDB->manipulate($query);
 		return true;
 	}
+
+	/**
+	 * fim: [memad] update ubject
+	 *
+	 * @access public
+	 * @param int usr_id
+	 * @param int subsctription time
+	 */
+	public function updateSubject($a_usr_id,$a_subject)
+	{
+		global $ilDB;
+
+		$query = "UPDATE crs_waiting_list ".
+			"SET subject = ".$ilDB->quote($a_subject ,'text')." ".
+			"WHERE usr_id = ".$ilDB->quote($a_usr_id ,'integer')." ".
+			"AND obj_id = ".$ilDB->quote($this->getObjId() ,'integer')." ";
+		$res = $ilDB->manipulate($query);
+		return true;
+	}
+	// fim.
 
 	/**
 	 * remove usr from list
@@ -272,6 +372,18 @@ abstract class ilWaitingList
 	{
 		return count($this->users);
 	}
+
+	/**
+	 * fim: [memcond] get number of users that need a confirmation
+	 *
+	 * @access public
+	 * @return int number of users
+	 */
+	public function getCountToConfirm()
+	{
+		return count($this->to_confirm_ids);
+	}
+	// fim.
 	
 	/**
 	 * get position
@@ -284,6 +396,28 @@ abstract class ilWaitingList
 	{
 		return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['position'] : -1;
 	}
+
+	/**
+	 * fim: [memad] get the message of the entry
+	 * @param int usr_id
+	 * @return	string	subject
+	 */
+	public function getSubject($a_usr_id)
+	{
+		return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['subject'] : '';
+	}
+	// fim.
+
+	/**
+	 * fim: [memad] get info if user neeeds a confirmation
+	 * @param int usr_id
+	 * @return	boolean
+	 */
+	public function isToConfirm($a_usr_id)
+	{
+		return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['to_confirm'] : false;
+	}
+	//fim.
 
 	/**
 	 * get all users on waiting list
@@ -343,6 +477,18 @@ abstract class ilWaitingList
 			$this->users[$row->usr_id]['position']	= $counter;
 			$this->users[$row->usr_id]['time']		= $row->sub_time;
 			$this->users[$row->usr_id]['usr_id']	= $row->usr_id;
+			// fim: [meminf] get subject
+			$this->users[$row->usr_id]['subject']	= $row->subject;
+			// fim.
+			// fim: [meminf] get to_confirm
+			$this->users[$row->usr_id]['to_confirm']	= $row->to_confirm;
+			// fim.
+			// fim: [memcond] count the users that neeed a confirmation 
+			if ($row->to_confirm)
+			{
+				$this->to_confirm_ids[] = $row->usr_id;
+			}
+			// fim.
 			
 			$this->user_ids[] = $row->usr_id;
 		}

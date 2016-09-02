@@ -65,7 +65,9 @@ class ilTermsOfServiceFileSystemDocument implements ilTermsOfServiceSignableDocu
 					$lines         = file($file);
 					foreach($lines as $line)
 					{
-						$this->content .= nl2br(trim($line));
+						// fim: [agreement] don't replace newlines
+						$this->content .= trim($line);
+						// fim.
 					}
 				}
 				else

@@ -322,26 +322,58 @@ class ilContainer extends ilObject
 			$a_xml->xmlEndTag("ContainerSettings");
 		}		
 	}
-	
+
+// fau: legacyIcons - support existing png and gif icons for containers
 	/**
 	* lookup icon path
 	*
 	* @param	int		$a_id		container object id
-	* @param	string	$a_size		"big" | "small"
+	* @param	string	$a_size		"big" | "small" | "tiny"
 	*/
 	function _lookupIconPath($a_id, $a_size = "big")
 	{
-		if ($a_size == "")
-		{
-			$a_size = "big";
-		}
-		$size = $a_size;
-		
-		if (ilContainer::_lookupContainerSetting($a_id, "icon_custom"))
-		{
-			$cont_dir = ilContainer::_getContainerDirectory($a_id);
+		global $ilDB;
 
-			$file_name = $cont_dir."/icon_custom.svg";
+		// first get the available sizes
+		$icons = array();
+		$q = "SELECT * FROM container_settings WHERE ".
+			" id = ".$ilDB->quote($a_id ,'integer').
+			" AND ".$ilDB->like("keyword", "text", "icon%").
+			" AND value = 1";
+
+		$set = $ilDB->query($q);
+		while ($row = $set->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+			$icons[] = $row['keyword'];
+		}
+
+		// always use custom icon (svg) if existing
+		if (in_array('icon_custom', $icons))
+		{
+			$icon = "icon_custom";
+		}
+		// use former big icon (32px) for new big (45px) or small (35px) size
+		elseif (in_array('icon_big', $icons) and in_array($a_size, array('big','small')))
+		{
+			$icon = 'icon_big';
+		}
+		// use former small icon (22px) for new small (35px) or tiny size
+		elseif (in_array('icon_small', $icons) and in_array($a_size, array('small','tiny')))
+		{
+			$icon = 'icon_small';
+		}
+		// use former tiny icon (16px) for new tiny size
+		elseif (in_array('icon_tiny', $icons) and in_array($a_size, array('tiny')))
+		{
+			$icon = "icon_tiny";
+		}
+
+		// get the image file according to the existing format
+		$cont_dir = ilContainer::_getContainerDirectory($a_id);
+		foreach (array('svg','png','gif','jpg') as $suffix)
+		{
+
+			$file_name = $cont_dir.'/'.$icon.'.'.$suffix;
 			if (is_file($file_name))
 			{
 				return $file_name;
@@ -350,6 +382,36 @@ class ilContainer extends ilObject
 		
 		return "";
 	}
+// fau.
+
+// fau: copyContainerIcon - new function to copy the container icon and its settings
+	/**
+	 * Copy the container icon to the clone
+	 * @param ilContainer $a_new_obj
+	 */
+	function copyIcon(ilContainer $a_new_obj)
+	{
+		/* @var ilDB */
+		global $ilDB;
+
+		$q = "
+			REPLACE INTO container_settings (id, keyword, value)
+			SELECT ".$ilDB->quote($a_new_obj->getId(),'integer'). ", keyword, value
+			FROM container_settings
+			WHERE id = ".$ilDB->quote($this->getId() ,'integer') ."
+			AND ".$ilDB->like("keyword", "text", "icon%");
+
+		$num_rows = $ilDB->manipulate($q);
+
+		if ($num_rows > 0)
+		{
+			$source_dir = $this->getContainerDirectory();
+			$a_new_obj->createContainerDirectory();
+			$target_dir = $a_new_obj->getContainerDirectory();
+			ilUtil::rCopy($source_dir, $target_dir);
+		}
+	}
+// fau.
 
 	/**
 	* save container icons
@@ -404,9 +466,45 @@ class ilContainer extends ilObject
 		$new_obj = parent::cloneObject($a_target_id,$a_copy_id);
 	
 		include_once('./Services/Container/classes/class.ilContainerSortingSettings.php');
-		#18624 - copy all sorting settings
 		ilContainerSortingSettings::_cloneSettings($this->getId(), $new_obj->getId());
-		
+
+// fau: copyContainerSettings - copy object service settings for a container
+		require_once('./Services/Object/classes/class.ilObjectServiceSettingsGUI.php');
+		$services = array(
+			ilObjectServiceSettingsGUI::CALENDAR_VISIBILITY,
+			ilObjectServiceSettingsGUI::NEWS_VISIBILITY,
+			ilObjectServiceSettingsGUI::AUTO_RATING_NEW_OBJECTS,
+			ilObjectServiceSettingsGUI::INFO_TAB_VISIBILITY,
+			ilObjectServiceSettingsGUI::TAXONOMIES,
+			ilObjectServiceSettingsGUI::TAG_CLOUD
+		);
+		$settings = self::_getContainerSettings($this->getId());
+		foreach ($services as $service)
+		{
+			if (isset($settings[$service]))
+			{
+				self::_writeContainerSetting($new_obj->getId(), $service, $settings[$service]);
+			}
+		}
+// fau.
+
+//fau: copyContainerStyle - copy stylesheet
+		global $ilias;
+		include_once("./Services/Style/classes/class.ilObjStyleSheet.php");
+		$style_id = $this->getStyleSheetId();
+		if ($style_id > 0 && !ilObjStyleSheet::_lookupStandard($style_id))
+		{
+			$style_obj = $ilias->obj_factory->getInstanceByObjId($style_id);
+			$new_id = $style_obj->ilClone();
+			$new_obj->setStyleSheetId($new_id);
+			$new_obj->update();
+		}
+//fau.
+
+// fau: copyContainerIcon - copy icon when container is copied
+		$this->copyIcon($new_obj);
+// fau.
+
 		// copy content page
 		include_once("./Services/Container/classes/class.ilContainerPage.php");
 		if (ilContainerPage::_exists("cont",
@@ -425,9 +523,9 @@ class ilContainer extends ilObject
 			$orig_page->copy($new_obj->getId(), "cstr", $new_obj->getId());
 		}
 		
-		// #10271 
+		// #10271
 		foreach(self::_getContainerSettings($this->getId()) as $keyword => $value)
-		{						
+		{
 			self::_writeContainerSetting($new_obj->getId(), $keyword, $value);
 			
 			// copy custom icons
@@ -531,7 +629,7 @@ class ilContainer extends ilObject
 			$wizard_options->appendMapping($clone_source,$ref_id);
 		}
 		
-		
+
 		#print_r($options);
 		// Duplicate session to avoid logout problems with backgrounded SOAP calls
 		$new_session_id = ilSession::_duplicate($session_id);
@@ -543,7 +641,10 @@ class ilContainer extends ilObject
 		$soap_client->enableWSDL(true);
 
 		$ilLog->write(__METHOD__.': Trying to call Soap client...');
-		if($soap_client->init())
+// fau: copyBySoap - customize use of SOAP for copying containers
+		global $ilCust;
+		if($ilCust->getSetting('ilias_copy_by_soap') and $soap_client->init())
+// fau.
 		{
 			ilLoggerFactory::getLogger('obj')->info('Calling soap clone method');
 			$res = $soap_client->call('ilClone',array($new_session_id.'::'.$client_id, $copy_id));

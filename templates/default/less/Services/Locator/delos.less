@@ -1,18 +1,20 @@
 /* Services/Locator */
 
 ol.breadcrumb {
-	margin: 0;
-	font-weight: 600;
+	margin-top: 5px;
+	font-family: 'roboto';		// fim: use fau font.
 	padding-left: 15px;
-	font-size: 0.8em;
+	font-size: 0.9em;           // fim: resized.
 }
 
 [dir="rtl"] ol.breadcrumb {
 	padding-right: 15px;
 }
 
-.breadcrumb a {
-/*	color: #A0A0A0; */
+.breadcrumb a,
+.breadcrumb a:active,           // fim: use variable.
+.breadcrumb a:visited {
+  color: @breadcrumb-color;
 }
 
 .breadcrumb > li + li:before {

@@ -85,6 +85,12 @@ class ilObjSurveyGUI extends ilObjectGUI
 		$next_class = $this->ctrl->getNextClass($this);
 		$this->ctrl->setReturn($this, "properties");
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation("output", "survey.css", "Modules/Survey"), "screen");
+		// fim: [form] activate a special css for the form mode
+		if ($this->object->getMetaIdentifier('FormMode'))
+		{
+			$this->tpl->addCustomCss(ilUtil::getStyleSheetLocation("output", "survey_form.css", "Modules/Survey"), "screen");
+		}
+		// fim.
 		$this->prepareOutput();
 
 		switch($next_class)
@@ -109,9 +115,9 @@ class ilObjSurveyGUI extends ilObjectGUI
 			case 'ilobjectmetadatagui':
 				$this->handleWriteAccess();			
 				$ilTabs->activateTab("meta_data");
-				$this->addHeaderAction();				
+				$this->addHeaderAction();
 				include_once 'Services/Object/classes/class.ilObjectMetaDataGUI.php';
-				$md_gui = new ilObjectMetaDataGUI($this->object);				
+				$md_gui = new ilObjectMetaDataGUI($this->object);
 				$this->ctrl->forwardCommand($md_gui);
 				break;
 			
@@ -195,19 +201,19 @@ class ilObjSurveyGUI extends ilObjectGUI
 				$gui = new ilSurveyParticipantsGUI($this);
 				$this->ctrl->forwardCommand($gui);
 				break;
-				
+
 			case "illearningprogressgui":
 				$ilTabs->activateTab("learning_progress");
 				include_once("./Services/Tracking/classes/class.ilLearningProgressGUI.php");
 				$new_gui = new ilLearningProgressGUI(ilLearningProgressBaseGUI::LP_CONTEXT_REPOSITORY,
 					$this->object->getRefId());
-				$this->ctrl->forwardCommand($new_gui);				
+				$this->ctrl->forwardCommand($new_gui);
 				break;
-			
-			case 'ilexportgui':				
+
+			case 'ilexportgui':
 				$ilTabs->activateTab("export");
 				include_once("./Services/Export/classes/class.ilExportGUI.php");
-				$exp_gui = new ilExportGUI($this); 
+				$exp_gui = new ilExportGUI($this);
 				$exp_gui->addFormat("xml");
 				$this->ctrl->forwardCommand($exp_gui);
 				break;
@@ -267,7 +273,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 	{		
 		// #16446
 		$a_new_object->loadFromDb();
-		
+
 		$tpl = $this->getDidacticTemplateVar("svytpl");
 		if($tpl)
 		{
@@ -398,7 +404,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 				$this->lng->txt("svy_results"),
 				$this->ctrl->getLinkTargetByClass("ilsurveyevaluationgui", "evaluation"));
 		}
-		
+
 		// learning progress
 		include_once "./Services/Tracking/classes/class.ilLearningProgressAccess.php";
 		if(ilLearningProgressAccess::checkAccess($this->object->getRefId()))
@@ -407,18 +413,18 @@ class ilObjSurveyGUI extends ilObjectGUI
 				$this->ctrl->getLinkTargetByClass(array("ilobjsurveygui", "illearningprogressgui"), ""),
 				"",
 				array("illplistofobjectsgui", "illplistofsettingsgui", "illearningprogressgui", "illplistofprogressgui"));
-		}		
+		}
 
 		if ($ilAccess->checkAccess("write", "", $this->ref_id))
 		{
 			if(!in_array("meta_data", $hidden_tabs))
 			{
-				// meta data			
+				// meta data
 				include_once "Services/Object/classes/class.ilObjectMetaDataGUI.php";
-				$mdgui = new ilObjectMetaDataGUI($this->object);					
+				$mdgui = new ilObjectMetaDataGUI($this->object);
 				$mdtab = $mdgui->getTab();
 				if($mdtab)
-				{								
+				{
 					$tabs_gui->addTab("meta_data",
 						$this->lng->txt("meta_data"),
 						$mdtab);
@@ -430,7 +436,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 				// export
 				$tabs_gui->addTab("export",
 					$this->lng->txt("export"),
-					$this->ctrl->getLinkTargetByClass("ilexportgui", ""));				
+					$this->ctrl->getLinkTargetByClass("ilexportgui", ""));
 			}
 		}
 
@@ -674,13 +680,15 @@ class ilObjSurveyGUI extends ilObjectGUI
 
 					$hasDatasets = $this->object->_hasDatasets($this->object->getSurveyId());
 					if (!$hasDatasets)
-					{						
+					{
 						$hide_codes = $template_settings["acc_codes"]["hide"];
-						$hide_anon = $template_settings["anonymization_options"]["hide"];						
+						$hide_anon = $template_settings["anonymization_options"]["hide"];
 						if(!$hide_codes || !$hide_anon)
-						{					
+						{
 							$current = $this->object->getAnonymize();
-							
+							// fim: [form] save the captcha option for anonymization
+							$captcha = (bool)$_POST["captcha"];
+
 							// get current setting if property is hidden
 							if(!$hide_codes)
 							{
@@ -693,18 +701,22 @@ class ilObjSurveyGUI extends ilObjectGUI
 							}
 							if(!$hide_anon)
 							{
-								$anon = ((string)$_POST["anonymization_options"] == "statanon");	
+								$anon = ((string)$_POST["anonymization_options"] == "statanon");
 							}
 							else
 							{
 								$anon = ($current == ilObjSurvey::ANONYMIZE_FREEACCESS ||
 									$current == ilObjSurvey::ANONYMIZE_ON);
 							}
-							
+
 							// parse incoming values
 							if (!$anon)
-							{			
-								if (!$codes)
+							{
+								if ($captcha)
+								{
+									$this->object->setAnonymize(ilObjSurvey::ANONYMIZE_CAPTCHA);
+								}
+								elseif (!$codes)
 								{
 									$this->object->setAnonymize(ilObjSurvey::ANONYMIZE_OFF);
 								}
@@ -715,7 +727,11 @@ class ilObjSurveyGUI extends ilObjectGUI
 							}
 							else
 							{
-								if ($codes)
+								if ($captcha)
+								{
+									$this->object->setAnonymize(ilObjSurvey::ANONYMIZE_CAPTCHA);
+								}
+								elseif ($codes)
 								{
 									$this->object->setAnonymize(ilObjSurvey::ANONYMIZE_ON);
 								}
@@ -723,7 +739,8 @@ class ilObjSurveyGUI extends ilObjectGUI
 								{
 									$this->object->setAnonymize(ilObjSurvey::ANONYMIZE_FREEACCESS);
 								}
-							}	
+							}
+						// fim.
 
 							// if settings were changed get rid of existing code
 							unset($_SESSION["anonymous_id"][$this->object->getId()]);
@@ -955,7 +972,13 @@ class ilObjSurveyGUI extends ilObjectGUI
 			if ($this->object->_hasDatasets($this->object->getSurveyId()))
 			{
 				$codes->setDisabled(true);				
-			}			
+			}
+
+			// fim: [form] add captcha option to anonymizations
+			$captcha = new ilCheckboxInputGUI($this->lng->txt("anonymize_with_captcha"), "catpcha");
+			$captcha->setChecked($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA);
+			$form->addItem($captcha);
+			// fim.
 		}
 		
 		
@@ -1458,13 +1481,17 @@ class ilObjSurveyGUI extends ilObjectGUI
 				$this->tpl->setVariable("TXT_TEMPLATE", $this->lng->txt("svy_settings_template"));
 				$this->tpl->parseCurrentBlock();
 			}
+
+			// fim: [help] add create info
+			$this->showTypeHelptext();
+			// fim.
 		}
 		
 		// display form to correct errors
 		$form->setValuesByPost();
 		$tpl->setContent($form->getHtml());
 	}
-	
+
 	
 	// 
 	// INFOSCREEN
@@ -1679,8 +1706,17 @@ class ilObjSurveyGUI extends ilObjectGUI
 								$ilToolbar->addButtonInstance($button);																				
 							}						
 						}
-						
-						ilUtil::sendInfo($this->lng->txt("already_completed_survey"));
+
+						// fim: [form] allow to send multiple forms
+						if ($this->object->isAllowedToTakeMultipleSurveys())
+						{
+							$big_button = array("start", $this->lng->txt("start_survey"));
+						}
+						else
+						{
+							ilUtil::sendInfo($this->lng->txt("already_completed_survey"));
+						}
+						// fim.
 					}
 					elseif ($survey_started === 0)
 					{
@@ -1800,18 +1836,57 @@ class ilObjSurveyGUI extends ilObjectGUI
 		}
 		
 		if($big_button)
-		{			
-			$ilToolbar->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
-			
-			include_once "Services/UIComponent/Button/classes/class.ilSubmitButton.php";
-			$button = ilSubmitButton::getInstance();
-			$button->setCaption($big_button[1], false);
-			$button->setCommand($big_button[0]);
-			$button->setPrimary(true);
-			$ilToolbar->addButtonInstance($button);		
-			
-			$ilToolbar->setCloseFormTag(false);
-			$info->setOpenFormTag(false);
+		{
+			// fim: [form] rename the start button
+			if ($big_button[0] == 'start' and $this->object->getMetaIdentifier('StartButton'))
+			{
+				$big_button[1] =  $this->object->getMetaIdentifier('StartButton');
+			}
+			//fim.
+
+			// fim: [form] generate captcha
+			if ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA and $ilUser->getId() == ANONYMOUS_USER_ID)
+			{
+				global $lng;
+				$lng->loadLanguageModule('cptch');
+
+				include_once("./Services/Captcha/classes/class.ilSecurImageUtil.php");
+				$tpl = new ilTemplate("tpl.prop_captchainput.html", true, true, "Services/Captcha");
+				$tpl->setVariable("IMAGE_SCRIPT", ilSecurImageUtil::getImageScript());
+				$tpl->setVariable("POST_VAR", "captcha");
+				$tpl->setVariable('CAPTCHA_ID', "captcha");
+				$tpl->setVariable('AUDIO_SCRIPT', ilSecurImageUtil::getAudioScript());
+				$tpl->setVariable('SRC_RELOAD', ilSecurImageUtil::getDirectory() . '/images/refresh.png');
+
+				$tpl->setVariable('TXT_CAPTCHA_ALT', $lng->txt('captcha_alt_txt'));
+				$tpl->setVariable('TXT_RELOAD', $lng->txt('captcha_code_reload'));
+				$tpl->setVariable('TXT_CAPTCHA_AUDIO_TITLE', $lng->txt('captcha_audio_title'));
+				$tpl->setVariable('TXT_CONSTR_PROP', $lng->txt('cont_constrain_proportions'));
+				$tpl->setVariable('TXT_CAPTCHA_INFO', $lng->txt('captcha_code_info'));
+
+
+				$info->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
+				$captcha_submit =
+					$tpl->get()
+					.'<div class="il_ButtonGroup il_BigButton">'
+					.'<input type="submit" class="submit il_BigButton" name="cmd['.$big_button[0].']" value="'
+					.$big_button[1].'" /></div>';
+			}
+			else
+			{
+				$ilToolbar->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
+
+				include_once "Services/UIComponent/Button/classes/class.ilSubmitButton.php";
+				$button = ilSubmitButton::getInstance();
+				$button->setCaption($big_button[1], false);
+				$button->setCommand($big_button[0]);
+				$button->setPrimary(true);
+				$ilToolbar->addButtonInstance($button);
+
+				$ilToolbar->setCloseFormTag(false);
+				$info->setOpenFormTag(false);
+			}
+			// fim.
 		}
 		/* #12016
 		else
@@ -1820,18 +1895,20 @@ class ilObjSurveyGUI extends ilObjectGUI
 		}
 		*/
 		
+		// fim: [form] include captcha
 		if (strlen($this->object->getIntroduction()))
 		{
 			$introduction = $this->object->getIntroduction();
 			$info->addSection($this->lng->txt("introduction"));
 			$info->addProperty("", $this->object->prepareTextareaOutput($introduction).
-				"<br />".$info->getHiddenToggleButton());
+				$captcha_submit."<br />".$info->getHiddenToggleButton());
 		}
 		else
 		{
 			$info->addSection("");
-			$info->addProperty("", $info->getHiddenToggleButton());
+			$info->addProperty("", $captcha_submit.$info->getHiddenToggleButton());
 		}
+		// fim.
 
 		$info->hideFurtherSections(false);
 						

@@ -1,0 +1,74 @@
+/**
+* fim: [webform] new language file.
+*
+* ILIAS language file
+*
+* @module		language file English
+* @modulegroup	language
+* @author 		Matthias Kunkel <m.kunkel@uni-koeln.de>
+* @version		$Id: ilias_en.lang 17146 2008-08-13 20:40:11Z akill $
+*/
+
+	+-----------------------------------------------------------------------------+
+	| ILIAS open source                                                           |
+	+-----------------------------------------------------------------------------+
+	| Copyright (c) 1998-2001 ILIAS open source, University of Cologne            |
+	|                                                                             |
+	| This program is free software; you can redistribute it and/or               |
+	| modify it under the terms of the GNU General Public License                 |
+	| as published by the Free Software Foundation; either version 2              |
+	| of the License, or (at your option) any later version.                      |
+	|                                                                             |
+	| This program is distributed in the hope that it will be useful,             |
+	| but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+	| MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+	| GNU General Public License for more details.                                |
+	|                                                                             |
+	| You should have received a copy of the GNU General Public License           |
+	| along with this program; if not, write to the Free Software                 |
+	| Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
+	+-----------------------------------------------------------------------------+
+
+// The language file starts beyond the HTML-comment below. DO NOT modify this line!
+// To edit your language file with a spreadsheet (i.e. Excel or StarCalc) remove all lines
+// from the first line to the HTML-comment. After editing paste the lines in place again.
+// NOTICE: Character coding of all ILIAS 3 lang files is UTF-8! Please set your editor
+// to the corresponding mode!
+// Language file names refer to ISO 639, see: http://www.oasis-open.org/cover/iso639a.html
+<!-- language file start -->
+webform#:#webform_no_solution#:#This form has no solution defined.
+webform#:#webform_solution_after_date#:#The solution isavailable after %s.
+webform#:#webform_solution_after_sent#:#The solution is available when you send the form.
+webform#:#webform_solution_after_checked#:#The solution is available after checking by the tutor.
+webform#:#webform_savings#:#Sendings
+webform#:#webform_definitions#:#Form definitions
+webform#:#webform_definition#:#Form definition
+webform#:#webform_corrected_entries#:#The sending is marked as corrected.
+webform#:#webform_uncorrected_entries#:#The sending is marked as uncorrected.
+webform#:#webform_send_date#:#Sending date
+webform#:#webform_check_date#:#Correcting date
+webform#:#webform_corrected#:#Corrected
+webform#:#webform_all_courses#:#All courses
+webform#:#webform_all_corrected#:#all corrected
+webform#:#webform_all_not_corrected#:#all not corrected
+webform#:#webform_correct#:#Mark as corrected
+webform#:#webform_uncorrect#:#Mark as uncorrected
+webform#:#webform_solution#:#Solution
+webform#:#webform_goto_solution#:#To the solution
+webform#:#webform_edit_definition#:#Form defintion
+webform#:#webform_field_form_name#:#Name
+webform#:#webform_field_title#:#Title
+webform#:#webform_field_path#:#Path
+webform#:#webform_field_dataset_id#:#Dataset
+webform#:#webform_field_send_maxdate#:#Latest Send Date
+webform#:#webform_field_solution_ref#:#Path of the solution
+webform#:#webform_field_solution_mode#:#Release of the solution
+webform#:#webform_field_solution_date#:#Release Date
+webform#:#webform_field_forum#:#Target Forum (name)
+webform#:#webform_field_forum_parent#:#Parent posting (name)
+webform#:#webform_field_forum_subject#:#Posting title
+webform#:#webform_solution_mode_send#:#At sending
+webform#:#webform_solution_mode_checked#:#After correction
+webform#:#webform_solution_mode_date#:#After a date
+webform#:#webform_tutor#:#Tutor
+webform#:#webform_read_definitions#:#Formulardefinitionen einlesen

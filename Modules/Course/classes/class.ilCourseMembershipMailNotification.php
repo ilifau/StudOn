@@ -32,6 +32,11 @@ class ilCourseMembershipMailNotification extends ilMailNotification
 	const TYPE_NOTIFICATION_REGISTRATION_REQUEST = 31;
 	const TYPE_NOTIFICATION_UNSUBSCRIBE = 32;
 
+
+	// fim: [meminf] add new notification type
+	const TYPE_NOTIFICATION_WAITING_SUBSCRIBE = 41;
+	// fim.
+
 	/**
 	 * @var array $permanent_enabled_notifications
 	 * Notifications which are not affected by "mail_crs_member_notification" setting
@@ -51,6 +56,18 @@ class ilCourseMembershipMailNotification extends ilMailNotification
 		parent::__construct();
 	}
 	
+	/**
+	* fim: [memsess] set reminder about subscription to events
+	*
+	* @param    boolean     reminder (true / false)
+	*/
+	public function setSubscribeToEvents($a_subscribe)
+	{
+		$this->subscribe_to_events = $a_subscribe;
+	}
+	// fim.
+
+
 	/**
 	 * Send notifications
 	 * @return 
@@ -96,6 +113,13 @@ class ilCourseMembershipMailNotification extends ilMailNotification
 					$this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
 					$this->appendBody("\n\n");
 					$this->appendBody($this->createPermanentLink());
+					// fim: [memsess] add event reminder
+					if ($this->subscribe_to_events)
+					{
+						$this->appendBody("\n\n");
+						$this->appendBody($this->getLanguageText('crs_mail_subscribe_to_events'));
+					}
+					// fim.
 					$this->getMail()->appendInstallationSignature(true);
 										
 					$this->sendMail(array($rcp),array('system'));
@@ -121,6 +145,13 @@ class ilCourseMembershipMailNotification extends ilMailNotification
 					$this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
 					$this->appendBody("\n\n");
 					$this->appendBody($this->createPermanentLink());
+					// fim: [memsess] add event reminder
+					if ($this->subscribe_to_events)
+					{
+						$this->appendBody("\n\n");
+						$this->appendBody($this->getLanguageText('crs_mail_subscribe_to_events'));
+					}
+					// fim.
 					$this->getMail()->appendInstallationSignature(true);
 										
 					$this->sendMail(array($rcp),array('system'));
@@ -405,6 +436,40 @@ class ilCourseMembershipMailNotification extends ilMailNotification
 					$this->sendMail(array($rcp),array('system'));
 				}
 				break;
+
+			// fim: [meminf] separate notification about waiting list requests
+			case self::TYPE_NOTIFICATION_WAITING_SUBSCRIBE:
+
+				foreach($this->getRecipients() as $rcp)
+				{
+					$this->initLanguage($rcp);
+					$this->initMail();
+					$this->setSubject(
+						sprintf($this->getLanguageText('crs_new_subscription_waiting'),$this->getObjectTitle(true))
+					);
+					$this->setBody(ilMail::getSalutation($rcp,$this->getLanguage()));
+					$this->appendBody("\n\n");
+
+					$info = $this->getAdditionalInformation();
+					$this->appendBody(
+						sprintf($this->getLanguageText('crs_new_subscription_waiting_body'),
+							$this->userToString($info['usr_id']),
+							$this->getObjectTitle()
+						)
+					);
+					$this->appendBody("\n\n");
+					$this->appendBody($this->getLanguageText('crs_new_subscription_waiting_body2'));
+					$this->appendBody("\n");
+					$this->appendBody($this->createPermanentLink(array(),'_mem'));
+
+					$this->appendBody("\n\n");
+					$this->appendBody($this->getLanguageText('crs_notification_explanation_admin'));
+
+					$this->getMail()->appendInstallationSignature(true);
+					$this->sendMail(array($rcp),array('system'));
+				}
+				break;
+			// fim.
 		}
 		return true;
 	}

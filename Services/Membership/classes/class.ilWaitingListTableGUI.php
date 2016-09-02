@@ -23,7 +23,6 @@
 
 include_once('./Services/Table/classes/class.ilTable2GUI.php');
 
-
 /**
 * GUI class for course/group waiting list
 * 
@@ -76,6 +75,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		}
 		
 	 	$this->addColumn($this->lng->txt('application_date'),'sub_time',"10%");
+		// fim: [meminf] add column for subject
+		$this->addColumn($this->lng->txt('subject'),'subject','20%');
+		// fim.
 	 	$this->addColumn('','mail','10%');
 		
 		$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('assign'));
@@ -85,7 +87,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		$this->setPrefix('waiting');
 		$this->setSelectAllCheckbox('waiting');
 		$this->setRowTemplate("tpl.show_waiting_list_row.html","Services/Membership");
-		
+
 		if($show_content)
 		{
 			$this->enable('sort');
@@ -196,6 +198,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
 					break;
 				
 
+                // fim: [studydata] format table output of studydata
+                case 'studydata':
+                    $a_set['studydata'] = nl2br($a_set['studydata']);
+                // fim.
 				default:
 					$this->tpl->setCurrentBlock('custom_fields');
 					$this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -209,6 +215,17 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		#$this->tpl->setVariable('VAL_LOGIN',$a_set['login']);
 		
 		$this->showActionLinks($a_set);
+		// fim: [meminf] add subject to waiting list
+		$this->tpl->setVariable('VAL_SUBJECT','"'.$a_set['subject'].'"');
+		// fim.
+		// fim: [memcond] show info about needed confirmation
+		if ($a_set['to_confirm'])
+		{
+			global $lng;
+			$prefix = $this->getParentObject()->object->getType();
+			$this->tpl->setVariable('TXT_TO_CONFIRM',$lng->txt($prefix .'_subscriber'));
+		}
+		// fim.
 	}
 	
 	/**
@@ -222,7 +239,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
 	{
 		global $rbacreview;
 
-		$this->determineOffsetAndOrder();
+        // fim: [bugfix] set external segmentation for waiting list table
+        $this->setExternalSegmentation(true);
+        // fim.
+ 		$this->determineOffsetAndOrder();
 
 		include_once './Services/User/classes/class.ilUserQuery.php';
 
@@ -363,11 +383,29 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		}
 		
 		// Waiting list subscription
-		foreach($this->wait as $usr_id => $usr_data)
+        // fim: [bugfix] avoid overwriting user array
+        foreach($this->wait as $usr_id => $w_data)
 		{
-			$a_user_data[$usr_id]['sub_time'] = $usr_data['time'];
+            // fim: [bugfix] omit waiting list records that are not in user paging limit or offset
+            if (!in_array($usr_id, $usr_ids))
+            {
+                continue;
+            }
+            // fim.
+
+			$a_user_data[$usr_id]['sub_time'] = $w_data['time'];
+
+			// fim: [meminf] add subject to waiting list
+			$a_user_data[$usr_id]['subject'] = $w_data['subject'];
+			// fim.
+
+			// fim: [memcond] add information abount needed confirmation
+			$a_user_data[$usr_id]['to_confirm'] = $w_data['to_confirm'];
+			// fim.
+
 		}
-		
+        // fim.
+
 		$this->setMaxCount($usr_data['cnt'] ? $usr_data['cnt'] : 0);
 		return $this->setData($a_user_data);		
 	}

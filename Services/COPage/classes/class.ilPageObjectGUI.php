@@ -821,7 +821,7 @@ return;
 	*/
 	function activateMetaDataEditor($a_rep_obj, $a_type, $a_sub_obj_id,
 		$a_observer_obj = NULL, $a_observer_func = "")
-	{		
+	{
 		$this->use_meta_data = true;
 		$this->meta_data_rep_obj = $a_rep_obj;
 		$this->meta_data_sub_obj_id = $a_sub_obj_id;
@@ -934,14 +934,14 @@ return;
 		{
 			case 'ilobjectmetadatagui':
 				//$this->setTabs();
-				$ilTabs->setTabActive("meta_data");				
+				$ilTabs->setTabActive("meta_data");
 				include_once 'Services/Object/classes/class.ilObjectMetaDataGUI.php';
-				$md_gui = new ilObjectMetaDataGUI($this->meta_data_rep_obj, $this->meta_data_type, $this->meta_data_sub_obj_id);				
+				$md_gui = new ilObjectMetaDataGUI($this->meta_data_rep_obj, $this->meta_data_type, $this->meta_data_sub_obj_id);
 				if (is_object($this->meta_data_observer_obj))
 				{
 					$md_gui->addMDObserver($this->meta_data_observer_obj,
 						$this->meta_data_observer_func, "General");
-				}							
+				}
 				$this->ctrl->forwardCommand($md_gui);
 				break;
 			
@@ -1743,6 +1743,19 @@ return;
 		// ensure no cache hit, if included files/media objects have been changed
 		$params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
+		// fim: [exam] init colorbox and add parameter to open fullscreen in box
+		global $ilCust;
+		if ($ilCust->getSetting('fullscreen_in_colorbox')
+			or $this instanceof ilAssQuestionPageGUI)
+		{
+			iljQueryUtil::initColorbox();
+			$params["fullscreen_in_colorbox"] = true;
+		}
+		else
+		{
+			$params["fullscreen_in_colorbox"] = false;
+		}
+		// fim.
 
 		// should be modularized
 		include_once("./Services/COPage/classes/class.ilPCSection.php");
@@ -1750,7 +1763,7 @@ return;
 
 		// run xslt
 		$md5 = md5(serialize($params).$link_xml.$template_xml.$md5_adds);
-		
+
 //$a = microtime();
 		
 		// check cache (same parameters, non-edit mode and rendered time
@@ -1768,6 +1781,10 @@ return;
 		}
 		else
 		{
+// fau: linkInSameWindow - include link class before xsl transformation
+			require_once ('./Services/Link/classes/class.ilLink.php');
+// fau.
+
 			$xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
 
 			$args = array( '/_xml' => $content, '/_xsl' => $xsl );
@@ -1814,14 +1831,23 @@ return;
 		{
 			$output = $this->insertPageToc($output);
 		}
-		
-		// insert advanced output trigger
-		$output = $this->insertAdvTrigger($output);
 
-		// workaround for preventing template engine
-		// from hiding paragraph text that is enclosed
-		// in curly brackets (e.g. "{a}", see ilLMEditorGUI::executeCommand())
-		$output = $this->replaceCurlyBrackets($output);
+// fau: shortRssLink - don't add special elements to abstract
+		if ($this->getAbstractOnly())
+		{
+			$output = $this->removeAdvTrigger($output);
+		}
+		else
+		{
+			// insert advanced output trigger
+			$output = $this->insertAdvTrigger($output);
+		}
+// fau.
+
+			// workaround for preventing template engine
+			// from hiding paragraph text that is enclosed
+			// in curly brackets (e.g. "{a}", see ilLMEditorGUI::executeCommand())
+			$output = $this->replaceCurlyBrackets($output);
 
 		// remove all newlines (important for code / pre output)
 		$output = str_replace("\n", "", $output);
@@ -2857,7 +2883,26 @@ return;
 		
 		return $a_output;
 	}
-	
+
+// fau: shortRssLink - new function RemoveAdvTrigger
+	/**
+	 * Remove adv content trigger
+	 *
+	 * @param string $a_output output
+	 * @return string modified output
+	 */
+	function RemoveAdvTrigger($a_output)
+	{
+		global $lng;
+
+		$a_output = str_replace("{{{{{LV_show_adv}}}}}",
+			'', $a_output);
+		$a_output = str_replace("{{{{{LV_hide_adv}}}}}",
+			'', $a_output);
+
+		return $a_output;
+	}
+// fau.
 	
 	/**
 	 * Finalizing output processing. Maybe overwritten in derived
@@ -3288,14 +3333,14 @@ return;
 		//	, "properties", get_class($this));
 
 		if ($this->use_meta_data)
-		{			
+		{
 			include_once "Services/Object/classes/class.ilObjectMetaDataGUI.php";
-			$mdgui = new ilObjectMetaDataGUI($this->meta_data_rep_obj, 
-				$this->meta_data_type, $this->meta_data_sub_obj_id);					
+			$mdgui = new ilObjectMetaDataGUI($this->meta_data_rep_obj,
+				$this->meta_data_type, $this->meta_data_sub_obj_id);
 			$mdtab = $mdgui->getTab();
 			if($mdtab)
 			{
-				$ilTabs->addTarget("meta_data",			
+				$ilTabs->addTarget("meta_data",
 					$mdtab, "", "ilobjectmetadatagui");
 			}
 		}

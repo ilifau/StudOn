@@ -459,7 +459,7 @@ class ilForum
 		$objNewPost->setUserAlias($alias);
 		$objNewPost->setPosAuthorId($author_id);
 		
-		self::_isModerator($this->getForumRefId(), $author_id) ? $is_moderator = true : $is_moderator = false; 
+		self::_isModerator($this->getForumRefId(), $author_id) ? $is_moderator = true : $is_moderator = false;
 		$objNewPost->setIsAuthorModerator($is_moderator);
 		
 		if ($date == "")
@@ -492,7 +492,7 @@ class ilForum
 		{
 			$this->insertPostNode($objNewPost->getId(), $parent_pos, $objNewPost->getThreadId(), $objNewPost->getCreateDate());
 		}
-		
+
 		// string last post
 		$lastPost = $objNewPost->getForumId()."#".$objNewPost->getThreadId()."#".$objNewPost->getId();
 			
@@ -550,8 +550,10 @@ class ilForum
 	* @return	integer	new post ID
 	* @access public
 	*/
-	public function generateThread($forum_id, $author_id, $display_user_id, $subject, $message, $notify, $notify_posts, $alias = '', $date = '', $status = 1)
-	{	
+// fau: copyForumSticy - add parameters for stickyness and sorting of a forum thread
+	public function generateThread($forum_id, $author_id, $display_user_id, $subject, $message, $notify, $notify_posts, $alias = '', $date = '', $status = 1, $is_sticky = 0, $thread_sorting = 0)
+// fau.
+	{
 		global $ilDB;
 
 		$objNewThread = new ilForumTopic();
@@ -577,8 +579,17 @@ class ilForum
 		}
 		$objNewThread->setImportName($this->getImportName());
 		$objNewThread->setUserAlias($alias);
+// fau: copyForumSticy - set stickyness of the copied forum thread
+		$objNewThread->setSticky((int) $is_sticky);
+// fau.
 		$objNewThread->insert();
-		
+
+// fau: copyForumSticy - set sticky sorting of the copied forum thread
+		$ilDB->update('frm_threads',
+			array('thread_sorting' => array('integer',(int) $thread_sorting)),
+			array('thr_pk' => array('integer', $objNewThread->getId())));
+// fau.
+
 		if ($notify_posts == 1)
 		{
 			$objNewThread->enableNotification($author_id);
@@ -2115,7 +2126,7 @@ class ilForum
 		
 		return false;
 	}
-	
+
 	/**
 	 * Get thread infos of object
 	 *

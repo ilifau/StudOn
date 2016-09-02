@@ -1,0 +1,40 @@
+<!-- fim: [webform] new template -->
+<!-- BEGIN row -->
+<tr class="ilWebformSending {CSS_ROW}" valign="top">
+	<td>
+		<a href="{LOGIN_LINK}" target="_blank">{USERNAME}</a>
+	</td>
+	<td>
+		<a href="{FORM_LINK}" target="_blank">{TITLE}{TXT_DISCUSSION}</a>
+		<!-- BEGIN forum -->
+		<a href="{FORUM_LINK}" target="_blank"><span class="small">({TXT_FORUM} {FORUM_TITLE})</span></a>
+		<!-- END forum -->
+		<br /><span class="small">{MODULE}</span>
+	</td>
+	<td>
+		{SENDDATE}
+		<!-- BEGIN send_link -->
+		<a href="{SEND_LINK}">{SEND_LABEL}</a>
+		<!-- END send_link -->	
+	</td>
+	<td>
+		<!-- BEGIN check_date -->
+		{CHECKDATE}
+		<!-- END check_date -->	
+		<!-- BEGIN check_link -->
+		<a href="{CHECK_LINK}">{CHECK_LABEL}</a>
+		<!-- END check_link -->	
+		<!-- BEGIN uncheck_link -->
+		<a href="{CHECK_LINK}"><span class="small">{CHECK_LABEL}</span></a>
+		<!-- END uncheck_link -->	
+	</td>
+	<td>
+		<!-- BEGIN solution -->
+		<a href="{SOLUTION_LINK}" target="_blank">{SOLUTION}</a>
+		<!-- END solution -->
+		<!-- BEGIN no_solution -->
+		<span class="small">{TXT_SOLUTION_INFO}</span>
+		<!-- END no_solution -->
+	</td>
+</tr>
+<!-- END row -->

@@ -58,6 +58,19 @@ class ilObjectGUI
 	*/
 	var $data;
 
+
+	/**
+	* fim: [portal] flag for reduced view mode
+	*
+	* This flag is set by the child classes
+	* - to prevent appearance of content list in view mode
+	* - to prevent administration panel for users without write access
+	* - to show the locator below the headline
+	*/
+	var $reduced_view_mode = false;
+	// fim.
+
+
 	/**
 	* object
 	* @var          object
@@ -164,6 +177,37 @@ class ilObjectGUI
 		}
 	}
 	
+	// fim: [help] show a helptext box for the new type
+	function showTypeHelptext()
+	{
+		if ($this->getCreationMode())
+		{
+			$type = $_POST["new_type"] ? $_POST["new_type"] : $_GET["new_type"];
+		}
+		else
+		{
+			$type = $this->object->getType();
+		}
+		
+		$langvar = $type . '_helptext';
+		
+		$helptext = $this->lng->txt($langvar);
+
+		if ($helptext == '-' . $langvar . "-")
+		{
+   			return;
+		}
+		
+		$tpl = new ilTemplate("tpl.helptext_create.html", true, true);
+
+		$tpl->setVariable("HELPTEXT", $helptext);
+		$tpl->setVariable("TYPE_TXT", $this->lng->txt("obj_".$type));
+		$tpl->setVariable("TYPE_IMG", ilUtil::getImagePath("icon_".$type.".svg"));
+		$tpl->setVariable("ALT_IMG", $this->lng->txt("obj_".$type));
+
+		$this->tpl->setRightContent($tpl->get());
+	}
+	// fim.
 	
 	/**
 	* execute command
@@ -261,8 +305,18 @@ class ilObjectGUI
 			
 			return false;
 		}
-		// set locator
-		$this->setLocator();
+
+		// fim: [portal] only show the locator with write access on info pages
+		global $ilAccess;
+		if (!$this->reduced_view_mode
+			or $this->getCreationMode()
+			or $ilAccess->checkAccess("write", "", $this->object->getRefId()))
+		{
+			// set locator
+			$this->setLocator();
+		}
+		// fim.
+
 		// catch feedback message
 //		ilUtil::sendInfo();
 		ilUtil::infoPanel();
@@ -348,8 +402,76 @@ class ilObjectGUI
 		include_once './Services/Object/classes/class.ilObjectListGUIFactory.php';
 		$lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
 		$lgui->initItem($this->object->getRefId(), $this->object->getId());
-		$this->tpl->setAlertProperties($lgui->getAlertProperties());		
+		
+		// fim: [privacy] add an alert about the public vissibility of the object
+		$this->tpl->setAlertProperties(
+			$this->addPublicVisibilityAlert($lgui->getAlertProperties())
+		);
+		// fim.
 	}
+	
+	/**
+	 * fim: [privacy] add an alert about the public visibility of the object
+	 * 
+	 * @param	array	existing alerts
+	 * @return  array	alerts with additional message
+	 */
+	protected function addPublicVisibilityAlert($a_alerts = array())
+	{
+		global $lng;
+		
+		if ($message = $this->getPublicVisibilityMessage())
+		{
+			$alert = array();
+			$alert['property'] = $lng->txt('privacy_note_for_authors');
+			$alert['value'] = $message;
+			$alert['alert'] = true;
+			
+			$a_alerts[] = $alert;
+		}
+		
+		return $a_alerts;
+	}
+	// fim.
+	
+	/** fim: [privacy] get the message about public visibility of the object
+	 * 
+	 * Default implementation for repository objects (using ilAccess)
+	 * see ilObject2GUI::getPublicVisibilityMessage() for workspace related implementation
+	 * 
+	 * @return string	message about public visibility
+	 */
+	protected function getPublicVisibilityMessage()
+	{
+		global $ilAccess, $lng;
+		
+		$type = $this->object->getType();
+				
+		if ($this->checkPermissionBool("write")
+			or ($type = "blog" and $this->checkPermissionBool("contribute"))
+			or ($type = "chtr" and $this->checkPermissionBool("moderate"))
+			or ($type = "dcl" and $this->checkPermissionBool("add_entry"))
+			or ($type = "frm" and $this->checkPermissionBool("add_reply"))
+			or ($type = "frm" and $this->checkPermissionBool("add_thread"))
+			or ($type = "frm" and $this->checkPermissionBool("moderate_frm"))
+			or ($type = "wiki" and $this->checkPermissionBool("edit_content"))
+		)
+		{
+			// categories
+			if ($type == "cat")
+			{
+				// TODO: don't show message for categories without text editor content
+				return "";
+			}
+			
+			if ($ilAccess->checkAccessOfUser(ANONYMOUS_USER_ID, "read", "", 
+				$this->object->getRefId(), $type, $this->object->getId()))
+			{
+				return $lng->txt('privacy_object_visible_to_public');
+			}
+		}
+	}
+	// fim.
 	
 	/**
 	 * Add header action menu
@@ -739,6 +861,10 @@ class ilObjectGUI
 				$forms = array(self::CFORM_CLONE => $forms[self::CFORM_CLONE]);
 			}
 			$tpl->setContent($this->getCreationFormsHTML($forms));
+
+			// fim: [help] add create info
+			$this->showTypeHelptext();
+			// fim.
 		}
 	}
 
@@ -1014,6 +1140,10 @@ class ilObjectGUI
 		// display only this form to correct input
 		$form->setValuesByPost();
 		$tpl->setContent($form->getHtml());
+		
+		// fim: [help] add create info
+		$this->showTypeHelptext();
+		// fim.
 	}
 	
 	/**
@@ -1127,6 +1257,10 @@ class ilObjectGUI
 		$this->addExternalEditFormCustom($form);
 		
 		$tpl->setContent($form->getHTML());
+
+		// fim: [help] add create info
+		$this->showTypeHelptext();
+		// fim.
 	}
 
 	public function addExternalEditFormCustom(ilPropertyFormGUI $a_form)
@@ -1233,6 +1367,10 @@ class ilObjectGUI
 		$ilTabs->activateTab("settings");
 		$form->setValuesByPost();
 		$tpl->setContent($form->getHtml());
+		
+		// fim: [help] add create info
+		$this->showTypeHelptext();
+		// fim.
 	}
 	
 	/**

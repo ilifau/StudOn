@@ -23,6 +23,17 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
 * @ilCtrl_Calls ilObjCourseGUI: ilMailMemberSearchGUI
 * @ilCtrl_Calls ilObjCourseGUI: ilLOPageGUI, ilObjectMetaDataGUI
 *
+* fim: [webform] added ilWebFormSendingsGUI to call structure
+* @ilCtrl_Calls ilObjCourseGUI: ilWebFormSendingsGUI
+* fim.
+* fim: [memcond] added ilSubscribersStudyCondGUI to call structure
+* @ilCtrl_Calls ilObjCourseGUI: ilSubscribersStudyCondGUI
+* fim.
+* fim: [memcond] added ilUnivisImportLecturesGUI to call structure
+* @ilCtrl_Calls ilObjCourseGUI: ilUnivisImportLecturesGUI
+* fim.
+
+*
 * @extends ilContainerGUI
 */
 class ilObjCourseGUI extends ilContainerGUI
@@ -107,22 +118,25 @@ class ilObjCourseGUI extends ilContainerGUI
 		}
 		else
 		{
+			// fim: [memlot] allow sending mail to users on lot list
 			$_POST['member'] = array_unique(array_merge((array) $_POST['members'],
 				(array) $_POST['tutors'],
 				(array) $_POST['admins'],
 				(array) $_POST['waiting'],
 				(array) $_POST['subscribers'],
-				(array) $_POST['roles']
-			));
+				(array) $_POST['roles'],
+				(array) $_POST['subscribers_lot']));
+			// fim.
+
 		}
-		
+
 		if (!count($_POST["member"]))
 		{
 			ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
 			$this->cancelMemberObject();
 			return false;
 		}
-		
+
 		foreach($_POST["member"] as $usr_id)
 		{
 			$rcps[] = ilObjUser::_lookupLogin($usr_id);
@@ -134,7 +148,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		ilMailFormCall::setRecipients($rcps);
 		ilUtil::redirect(
 			ilMailFormCall::getRedirectTarget(
-				$this, 
+				$this,
 				'members',
 				array(),
 				array(
@@ -147,9 +161,44 @@ class ilObjCourseGUI extends ilContainerGUI
 					'ts'     => time()
 				)
 			)
-		);		
+		);
 	}
 	
+	/**
+	* fim: [memad] set selected members to "passed'
+	*/
+	function setMembersPassedObject()
+	{
+		if(isset($_GET['member_id']))
+		{
+			$_POST['member'] = array($_GET['member_id']);
+		}
+		else
+		{
+			$_POST['member'] = array_unique(array_merge(
+				(array) $_POST['members'],
+				(array) $_POST['tutors'],
+				(array) $_POST['admins']));
+		}
+
+
+		if (!count($_POST["member"]))
+		{
+			ilUtil::sendFailure($this->lng->txt("no_checkbox"));
+			$this->membersObject();
+			return false;
+		}
+		foreach($_POST["member"] as $usr_id)
+		{
+			$this->object->getMembersObject()->updatePassed($usr_id, true);
+		}
+		ilUtil::sendSuccess($this->lng->txt("crs_mem_set_passed_success"));
+		$this->membersObject();
+		return true;
+	}
+	// fim.
+
+
 	/**
 	* canceledObject is called when operation is canceled, method links back
 	* @access	public
@@ -331,23 +380,71 @@ class ilObjCourseGUI extends ilContainerGUI
 			$info->enableNewsEditing();
 		}
 
+		// fim: [univis] add link to univis
+		if ($import_id = $this->object->getImportId())
+		{
+			require_once ('./Services/UnivIS/classes/class.ilUnivisLecture.php');
+			if (ilUnivisLecture::_isIliasImportId($import_id))
+			{
+				$univis_link = '<a href="'
+					.ilUnivisLecture::_getLinkForIliasImportId($import_id)
+					.'" target="_blank">'
+					.$this->lng->txt('univis_lecture_link')
+					.'</a>';
+
+				$info->addProperty($this->lng->txt('univis')."xxx", $link);
+	        }
+		}
+
 		if(strlen($this->object->getImportantInformation()) or
 		   strlen($this->object->getSyllabus()) or
-		   count($files))
+		   strlen($univis_link) or
+		   count($files)
+		   )
 		{
 			$info->addSection($this->lng->txt('crs_general_informations'));
 		}
 
+		if ((strlen($univis_link)))
+		{
+			$info->addProperty($this->lng->txt('univis'), $univis_link);
+		}
+		// fim.
+
 		if(strlen($this->object->getImportantInformation()))
 		{
-			$info->addProperty($this->lng->txt('crs_important_info'),
+			// fim: [univis] don't modify string if html is contained
+			if ($this->object->getImportantInformation() !=
+				ilUtil::secureString($this->object->getImportantInformation())
+			)
+			{
+				$info->addProperty($this->lng->txt('crs_important_info'),
+							   ilUtil::makeClickable($this->object->getImportantInformation(), true));
+	        }
+			else
+			{
+				$info->addProperty($this->lng->txt('crs_important_info'),
 							   "<strong>".nl2br(
 							   ilUtil::makeClickable($this->object->getImportantInformation(), true)."</strong>"));
+			}
+			// fim.
 		}
 		if(strlen($this->object->getSyllabus()))
 		{
-			$info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
+			// fim: [univis] don't modify string if html is contained
+			if ($this->object->getSyllabus() !=
+				ilUtil::secureString($this->object->getSyllabus())
+			)
+			{
+				$info->addProperty($this->lng->txt('crs_syllabus'),
+							   ilUtil::makeClickable($this->object->getSyllabus(), true));
+	        }
+			else
+			{
+				$info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
 								ilUtil::makeClickable ($this->object->getSyllabus(), true)));
+		}
+			// fim.
 		}
 		// files
 		if(count($files))
@@ -401,7 +498,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		{
 			include_once './Modules/Course/classes/class.ilCourseMailTemplateMemberContext.php';
             require_once 'Services/Mail/classes/class.ilMailFormCall.php';
-			
+
 			$emails = split(",",$this->object->getContactEmail());
 			foreach ($emails as $email) {
 				$email = trim($email);
@@ -421,7 +518,7 @@ class ilObjCourseGUI extends ilContainerGUI
 							'ts'     => time()
 						)
 					)
-				);              
+				);
 				$etpl->setVariable("CONTACT_EMAIL", $email);				
 				$mailString .= $etpl->get()."<br />";
 			}
@@ -481,24 +578,80 @@ class ilObjCourseGUI extends ilContainerGUI
 				$txt = $this->lng->txt("crs_info_reg_deactivated");
 				break;
 
+			// fim: [campus] show subscription type mycampus
+			case IL_CRS_SUBSCRIPTION_MYCAMPUS:
+				$txt = $this->lng->txt("crs_subscription_mycampus");
+				break;
+			// fim.
+
+			// fim: [medikurs] show subscription type medikurs
+			case IL_CRS_SUBSCRIPTION_MEDIKURS:
+				$txt = $this->lng->txt("crs_subscription_medikurs");
+				break;
+			// fim.
+
 			default:
+
+				// fim: [memcond] generate text for suscription with condition
+				include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+				if (ilSubscribersStudyCond::_hasConditions($this->object->getId()))
+				{
+					$ctext = ilSubscribersStudyCond::_getConditionsText($this->object->getId());
 				switch($this->object->getSubscriptionType())
 				{
+						case IL_CRS_SUBSCRIPTION_DIRECT:
+							$subscription_text = sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $ctext);
+							break;
+						case IL_CRS_SUBSCRIPTION_PASSWORD:
+							$subscription_text = sprintf($this->lng->txt('crs_subscription_options_password_studycond'), $ctext);
+							break;
+
 					case IL_CRS_SUBSCRIPTION_CONFIRMATION:
-						$txt = $this->lng->txt("crs_info_reg_confirmation");
+							$subscription_text = "";
+							break;
+					}
+					global $ilUser;
+					if (ilSubscribersStudyCond::_checkConditions($this->object->getId(), $ilUser->getId()))
+					{
+						$subscription_type = $this->object->getSubscriptionType();
+					}
+					else
+					{
+						$subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
+					}
+				}
+				else
+				{
+					$subscription_text = "";
+					$subscription_type = $this->object->getSubscriptionType();
+				}
+				// fim.
+
+			    // fim: [memlot] show different subscription information for lot list
+			    if ($this->object->isSubscriptionMembershipLimited()
+			    and $this->object->enabledLotList())
+			    {
+			    	$lot_suffix = "_lot";
+			    }
+				switch($subscription_type)
+				{
+					case IL_CRS_SUBSCRIPTION_CONFIRMATION:
+						$txt = $this->lng->txt("crs_info_reg_confirmation".$lot_suffix);
 						break;
 					case IL_CRS_SUBSCRIPTION_DIRECT:
-						$txt = $this->lng->txt("crs_info_reg_direct");
+						$txt = $this->lng->txt("crs_info_reg_direct".$lot_suffix);
 						break;
 					case IL_CRS_SUBSCRIPTION_PASSWORD:
-						$txt = $this->lng->txt("crs_info_reg_password");
+						$txt = $this->lng->txt("crs_info_reg_password".$lot_suffix);
 						break;
 				}
+			    // fim.
 		}
 		
 		// subscription
-		$info->addProperty($this->lng->txt("crs_info_reg"),$txt);
-
+		// fim: [memcond] add text for subscription with condition
+		$info->addProperty($this->lng->txt("crs_info_reg"),$subscription_text.$txt);
+		// fim.
 
 		if($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
 		{
@@ -507,27 +660,24 @@ class ilObjCourseGUI extends ilContainerGUI
 				$info->addProperty($this->lng->txt("crs_reg_until"),
 								   $this->lng->txt('crs_unlimited'));
 			}
-			elseif($this->object->getSubscriptionStart() < time())
+// fau: fixRegPeriodInfo - always show the full registration period
+			else
 			{
-				$info->addProperty($this->lng->txt("crs_reg_until"),
-								   $this->lng->txt('crs_to').' '.
-								   ilDatePresentation::formatDate(new ilDateTime($this->object->getSubscriptionEnd(),IL_CAL_UNIX)));
+				$info->addProperty($this->lng->txt('crs_reg_until'),
+					ilDatePresentation::formatPeriod(
+						new ilDateTime($this->object->getSubscriptionStart(),IL_CAL_UNIX),
+						new ilDateTime($this->object->getSubscriptionEnd(),IL_CAL_UNIX)));
 			}
-			elseif($this->object->getSubscriptionStart() > time())
-			{
-				$info->addProperty($this->lng->txt("crs_reg_until"),
-								   $this->lng->txt('crs_from').' '.
-								   ilDatePresentation::formatDate(new ilDateTime($this->object->getSubscriptionStart(),IL_CAL_UNIX)));
-			}
+// fau.
 			if ($this->object->isSubscriptionMembershipLimited()) 
 			{
 				if($this->object->getSubscriptionMinMembers())
-				{				
+				{
 					$info->addProperty(
 						$this->lng->txt("mem_min_users"),
 						$this->object->getSubscriptionMinMembers()
 					);
-				}		
+				}
 				if($this->object->getSubscriptionMaxMembers())
 				{
 					include_once './Services/Membership/classes/class.ilParticipants.php';
@@ -538,24 +688,32 @@ class ilObjCourseGUI extends ilContainerGUI
 							$this->object->getSubscriptionMaxMembers() - ilParticipants::lookupNumberOfMembers($this->object->getRefId()))
 					);
 				}
+				// fim: [memlot] show information about lot
+				if ($this->object->enabledLotList())
+				{
+					include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+					$candidates = ilSubscribersLot::_getCountUsers($this->object->getId());
+					$info->addProperty($this->lng->txt("mem_lot_candidates"),(int) $candidates);
+				}
+				// fim.
 			}
 		}
-		
+
 		if($this->object->getCancellationEnd())
-		{		
+		{
 			$info->addProperty($this->lng->txt('crs_cancellation_end'),
 				ilDatePresentation::formatDate( $this->object->getCancellationEnd()));
 		}
-				
+
 		if($this->object->getCourseStart())
-		{	
+		{
 			$info->addProperty($this->lng->txt('crs_period'),
 				ilDatePresentation::formatPeriod(
 					$this->object->getCourseStart(),
 					$this->object->getCourseEnd()
 			));
 		}
-		
+
 		// archive
 		if($this->object->getViewMode() == IL_CRS_VIEW_ARCHIVE)
 		{		
@@ -761,13 +919,41 @@ class ilObjCourseGUI extends ilContainerGUI
 		$form->addCommandButton('cancel',$this->lng->txt('cancel'));
 		
 		$area = new ilTextAreaInputGUI($this->lng->txt('crs_important_info'),'important');
-		$area->setValue($this->object->getImportantInformation());
+
+		// fim: [univis] use RTE / HTML for important information
+		$area->setUseRTE(true);
+		$area->setRTETagSet('extended');
+		if ($this->object->getImportantInformation() ==
+			ilUtil::secureString($this->object->getImportantInformation())
+		)
+		{
+			$area->setValue("<strong>".nl2br(
+				ilUtil::makeClickable($this->object->getImportantInformation(), true)."</strong>"));
+		}
+		else
+		{
+			$area->setValue($this->object->getImportantInformation());
+		}
+		// fim.
 		$area->setRows(6);
 		$area->setCols(80);
 		$form->addItem($area);
 		
 		$area = new ilTextAreaInputGUI($this->lng->txt('crs_syllabus'),'syllabus');
-		$area->setValue($this->object->getSyllabus());
+		// fim: [univis] use RTE / HTML for syllabus
+		$area->setUseRTE(true);
+		$area->setRTETagSet('extended');
+		if ($this->object->getSyllabus() ==
+			ilUtil::secureString($this->object->getSyllabus())
+		)
+		{
+			$area->setValue(nl2br(ilUtil::makeClickable($this->object->getSyllabus(), true)));
+		}
+		else
+		{
+			$area->setValue($this->object->getSyllabus());
+	    }
+		// fim.
 		$area->setRows(6);
 		$area->setCols(80);
 		$form->addItem($area);
@@ -840,8 +1026,10 @@ class ilObjCourseGUI extends ilContainerGUI
 		$file_obj->setTemporaryName($_FILES['file']['tmp_name']);
 		$file_obj->setErrorCode($_FILES['file']['error']);
 
-		$this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important']));
-		$this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus']));
+		// fim: [univis] allow HTML in course info
+		$this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important'],false));
+		$this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus'], false));
+		// fim.
 		$this->object->setContactName(ilUtil::stripSlashes($_POST['contact_name']));
 		$this->object->setContactResponsibility(ilUtil::stripSlashes($_POST['contact_responsibility']));
 		$this->object->setContactPhone(ilUtil::stripSlashes($_POST['contact_phone']));
@@ -900,8 +1088,16 @@ class ilObjCourseGUI extends ilContainerGUI
 		$form->checkInput();
 		
 		$this->object->setTitle(ilUtil::stripSlashes($_POST['title']));
-		$this->object->setDescription(ilUtil::stripSlashes($_POST['desc']));		
-					
+		$this->object->setDescription(ilUtil::stripSlashes($_POST['desc']));
+
+		// fim: [univis] save univis_id if edited by global admin
+		global $rbacsystem;
+		if($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID))
+		{
+			$this->object->setImportId(ilUtil::stripSlashes($_POST['import_id']));
+		}
+		// fim.
+
 		/*
 		$archive_start = $this->loadDate('archive_start');
 		$archive_end = $this->loadDate('archive_end');				 
@@ -923,7 +1119,14 @@ class ilObjCourseGUI extends ilContainerGUI
 		$this->object->setActivationVisibility((int)$_POST['activation_visibility']);
 		
 		$sub_type = (int)$_POST['subscription_type'];
-		if($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED)
+		// fim: [campus] set subscription by my campus
+		if ($sub_type == IL_CRS_SUBSCRIPTION_MYCAMPUS)
+		{
+			$this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_MYCAMPUS);  // see ilObjCourse::__createDefaultSettings()
+			$this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_MYCAMPUS);
+		}
+		elseif($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED)
+		// fim.
 		{		
 			$this->object->setSubscriptionType($sub_type);
 						
@@ -946,7 +1149,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$this->object->setSubscriptionPassword(ilUtil::stripSlashes($_POST['subscription_password']));
 		$this->object->setSubscriptionStart($sub_period->getStart()->get(IL_CAL_UNIX));
 		$this->object->setSubscriptionEnd($sub_period->getEnd()->get(IL_CAL_UNIX));
-		
+
 		$this->object->enableRegistrationAccessCode((int) $_POST['reg_code_enabled']);
 		$this->object->setRegistrationAccessCode(ilUtil::stripSlashes($_POST['reg_code']));
 		
@@ -960,45 +1163,64 @@ class ilObjCourseGUI extends ilContainerGUI
 		{
 			$this->object->setCancellationEnd(null);
 		}
-				
-		$this->object->enableSubscriptionMembershipLimitation((int) $_POST['subscription_membership_limitation']);		
-		$this->object->setSubscriptionMaxMembers((int) $_POST['subscription_max']);		
+
+		$this->object->enableSubscriptionMembershipLimitation((int) $_POST['subscription_membership_limitation']);
+		$this->object->setSubscriptionMaxMembers((int) $_POST['subscription_max']);
 		$this->object->setSubscriptionMinMembers((int)$_POST['subscription_min']);
-		
+
 		$old_autofill = $this->object->hasWaitingListAutoFill();
-		
-		switch((int) $_POST['waiting_list'])
+
+		// fim: [memlot] set max members mode
+		switch ($_POST['crs_max_members_mode'])
 		{
-			case 2:
+			case 'waiting_list_auto_fill':
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(true);
+				$this->object->enableLotList(false);
 				break;
-			
-			case 1:
+
+			case 'waiting_list':
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(false);
+				$this->object->enableLotList(false);
 				break;
-			
+
+			case 'lot_list':
+				$this->object->enableWaitingList(false);
+				$this->object->setWaitingListAutoFill(false);
+				$this->object->enableLotList(true);
+				break;
+
 			default:
 				$this->object->enableWaitingList(false);
 				$this->object->setWaitingListAutoFill(false);
+				$this->object->enableLotList(false);
 				break;
 		}
-				
+		// fim.
+
+		// fim: [meminf] set show_mem_limit
+		$this->object->setShowMemLimit((int) $_POST['crs_show_mem_limit']);
+		// fim.
+
 		#$this->object->setSubscriptionNotify((int) $_POST['subscription_notification']);
-				
+
 		if((bool)$_POST["period_tgl"])
 		{
-			$crs_period = $form->getItemByPostVar("period");				
+			$crs_period = $form->getItemByPostVar("period");
 			$this->object->setCourseStart($crs_period->getStart());
 			$this->object->setCourseEnd($crs_period->getEnd());
-		}		
+		}
 		else
 		{
 			$this->object->setCourseStart(null);
 			$this->object->setCourseEnd(null);
 		}
-				
+
+		// fim: [memsess] set subscription_with_events
+		$this->object->setSubscriptionWithEvents((int) $_POST['subscription_with_events']);
+		// fim.
+
 		$this->object->setViewMode((int) $_POST['view_mode']);
 
 		if($this->object->getViewMode() == IL_CRS_VIEW_TIMING)
@@ -1053,7 +1275,39 @@ class ilObjCourseGUI extends ilContainerGUI
 			{
 				$this->object->handleAutoFill();
 			}
-			
+
+			// fim: [rpl] check the status of the registration for this period
+			global $ilCust;
+			if($ilCust->getSetting('rpl_warning_on') and $this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED)
+			{
+				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
+				$warning_cat = ilRegistrationPeriodLimiter::_isValidByNumberOfPlaces((int)$this->object->getSubscriptionStart());
+				if($warning_cat != '')
+				{
+					$message = sprintf($this->lng->txt('rpl_warning'),$ilCust->getSetting($warning_cat));
+					$message.= '<br />'.ilRegistrationPeriodLimiter::_getOverviewLink((int)$this->object->getSubscriptionStart());
+					ilUtil::sendFailure($message, true);
+				}
+			}
+			// fim.
+
+			// fim: [evasys] add item for evaluation
+			require_once ("Services/Evaluation/classes/class.ilEvaluationData.php");
+			if (ilEvaluationData::_isEvaluationActivated($this->object->getRefId())
+			and ilEvaluationData::_isObjEvaluable($this->object))
+			{
+				if ($_POST['mark_for_evaluation'])
+				{
+					ilEvaluationData::_setObjMarkedForEvaluation($this->object, true);
+				}
+				else
+				{
+					ilEvaluationData::_setObjMarkedForEvaluation($this->object, false);
+				}
+			}
+			// fim.
+
+
 			// BEGIN ChangeEvent: Record write event
 			require_once('Services/Tracking/classes/class.ilChangeEvent.php');
 			global $ilUser;
@@ -1084,12 +1338,21 @@ class ilObjCourseGUI extends ilContainerGUI
 				return false;
 			}			
 			
-			if($show_lp_sync_confirmation)
+			// fim: [memcond] eventually redirect to condition settings after update
+			if ($this->update_for_memcond)
+			{
+				ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"),true);
+				$this->ctrl->redirectByClass('ilsubscribersstudycondgui');
+	        }
+			elseif($show_lp_sync_confirmation)
 			{
 				return $this->confirmLPSync();
 			}
-			
-			return $this->afterUpdate();
+	        else
+			{
+				return $this->afterUpdate();
+			}
+			// fim.
 		}
 		else
 		{
@@ -1098,7 +1361,18 @@ class ilObjCourseGUI extends ilContainerGUI
 			return false;
 		}
 	}
-	
+
+	/**
+	 * fim: [memcond] new function updateForMemcond
+	 *
+	 */
+	function updateForMemcondObject()
+	{
+	    $this->update_for_memcond = true;
+		$this->updateObject();
+	}
+	// fim.
+
 	protected function confirmLPSync()
 	{
 		global $tpl;
@@ -1173,31 +1447,44 @@ class ilObjCourseGUI extends ilContainerGUI
 		$desc->setRows(2);
 		$desc->setCols(40);
 		$form->addItem($desc);
-		
+
 		// Show didactic template type
 		$this->initDidacticTemplate($form);
 		
+		// fim: [univis] make univis id editable for global admins
+		global $rbacsystem;
+		if($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID))
+		{
+			$import = new ilTextInputGUI($this->lng->txt('univis_id'),'import_id');
+			$import->setValue($this->object->getImportId());
+			$import->setInfo($this->lng->txt('univis_id_info'));
+			$import->setSize(50);
+			$import->setMaxLength(50);
+			$form->addItem($import);
+		}
+		// fim.
+
 		// period
 		$cdur_tgl = new ilCheckboxInputGUI($this->lng->txt('crs_period'),'period_tgl');
 		$cdur_tgl->setInfo($this->lng->txt('crs_period_info'));
 		$cdur_tgl->setChecked($this->object->getCourseStart());
 		$form->addItem($cdur_tgl);
-		
+
 			include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";
-			$cdur = new ilDateDurationInputGUI('', 'period');			
-			$cdur->setStartText($this->lng->txt('crs_start'));			
-			$cdur->setEndText($this->lng->txt('crs_end'));				
+			$cdur = new ilDateDurationInputGUI('', 'period');
+			$cdur->setStartText($this->lng->txt('crs_start'));
+			$cdur->setEndText($this->lng->txt('crs_end'));
 			if($this->object->getCourseStart())
 			{
 				$cdur->setStart($this->object->getCourseStart());
-			}		
+			}
 			if($this->object->getCourseStart())
 			{
 				$cdur->setEnd($this->object->getCourseEnd());
-			}	
-			$cdur_tgl->addSubItem($cdur);			
-		
-			
+			}
+			$cdur_tgl->addSubItem($cdur);
+
+
 		// activation/availability
 		
 		$this->lng->loadLanguageModule('rep');
@@ -1239,13 +1526,38 @@ class ilObjCourseGUI extends ilContainerGUI
 		$form->addItem($section);
 		
 		$reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'),'subscription_type');
-		$reg_proc->setValue(
-			($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
-				? $this->object->getSubscriptionType()
-				: IL_CRS_SUBSCRIPTION_DEACTIVATED);
+		// fim: [campus] respect also the subscription limitation type for my campus
+		// this us used in studon versions up to 4.3
+		if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
+		{
+			$reg_proc->setValue(IL_CRS_SUBSCRIPTION_MYCAMPUS);
+		}
+		else
+		{
+			$reg_proc->setValue(
+				($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
+					? $this->object->getSubscriptionType()
+					: IL_CRS_SUBSCRIPTION_DEACTIVATED);
+		}
+		// fim.
 		// $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
-			$opt = new ilRadioOption($this->lng->txt('crs_subscription_options_direct'),IL_CRS_SUBSCRIPTION_DIRECT);
+		// fim: [campus] add option for my campus subscription
+		global $ilCust;
+		if ($ilCust->getSetting('mycampus_enabled'))
+		{
+			$opt = new ilRadioOption($this->lng->txt('crs_subscription_mycampus'),IL_CRS_SUBSCRIPTION_MYCAMPUS);
+			require_once ('./Services/UnivIS/classes/class.ilUnivisLecture.php');
+			if (!ilUnivisLecture::_isIliasImportId($this->object->getImportId()))
+			{
+				$opt->setDisabled(true);
+			}
+			$opt->setInfo($this->lng->txt('crs_subscription_mycampus_info'));
+			$reg_proc->addOption($opt);
+		}
+		// fim.
+
+		$opt = new ilRadioOption($this->lng->txt('crs_subscription_options_direct'),IL_CRS_SUBSCRIPTION_DIRECT);
 			$reg_proc->addOption($opt);
 		
 			$opt = new ilRadioOption($this->lng->txt('crs_subscription_options_password'),IL_CRS_SUBSCRIPTION_PASSWORD);
@@ -1253,8 +1565,10 @@ class ilObjCourseGUI extends ilContainerGUI
 				$pass = new ilTextInputGUI($this->lng->txt("password"),'subscription_password');
 				$pass->setInfo($this->lng->txt('crs_reg_password_info'));
 				$pass->setSubmitFormOnEnter(true);
-				$pass->setSize(12);
-				$pass->setMaxLength(12);
+				// fim: [memfix] increase maxlength of subscription password
+				$pass->setSize(40);
+				$pass->setMaxLength(32);
+				// fim.
 				$pass->setValue($this->object->getSubscriptionPassword());
 			
 			$opt->addSubItem($pass);
@@ -1269,40 +1583,38 @@ class ilObjCourseGUI extends ilContainerGUI
 			$reg_proc->addOption($opt);			
 
 		$form->addItem($reg_proc);
-		
-		
-		// Registration codes
-		$reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'),'reg_code_enabled');
-		$reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
-		$reg_code->setValue(1);
-		$reg_code->setInfo($this->lng->txt('crs_reg_code_enabled_info'));
-		
-		/*
-		$code = new ilNonEditableValueGUI($this->lng->txt('crs_reg_code_value'));
-		$code->setValue($this->object->getRegistrationAccessCode());
-		$reg_code->addSubItem($code);
-		*/
-		
-		#$link = new ilNonEditableValueGUI($this->lng->txt('crs_reg_code_link'));
-		// Create default access code
-		if(!$this->object->getRegistrationAccessCode())
+
+		// fim: [memfix] customize use of registration codes
+		global $ilCust;
+		if ($ilCust->getSetting('crs_enable_reg_codes'))
 		{
-			include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
-			$this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+			// Registration codes
+			$reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'),'reg_code_enabled');
+			$reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
+			$reg_code->setValue(1);
+			$reg_code->setInfo($this->lng->txt('crs_reg_code_enabled_info'));
+
+			#$link = new ilNonEditableValueGUI($this->lng->txt('crs_reg_code_link'));
+			// Create default access code
+			if(!$this->object->getRegistrationAccessCode())
+			{
+				include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
+				$this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+			}
+			$reg_link = new ilHiddenInputGUI('reg_code');
+			$reg_link->setValue($this->object->getRegistrationAccessCode());
+			$form->addItem($reg_link);
+
+			$link = new ilCustomInputGUI($this->lng->txt('crs_reg_code_link'));
+			include_once './Services/Link/classes/class.ilLink.php';
+			$val = ilLink::_getLink($this->object->getRefId(),$this->object->getType(),array(),'_rcode'.$this->object->getRegistrationAccessCode());
+			$link->setHTML('<font class="small">'.$val.'</font>');
+			$reg_code->addSubItem($link);
+
+			$form->addItem($reg_code);
 		}
-		$reg_link = new ilHiddenInputGUI('reg_code');
-		$reg_link->setValue($this->object->getRegistrationAccessCode());
-		$form->addItem($reg_link);
-					
-		$link = new ilCustomInputGUI($this->lng->txt('crs_reg_code_link'));
-		include_once './Services/Link/classes/class.ilLink.php';
-		$val = ilLink::_getLink($this->object->getRefId(),$this->object->getType(),array(),'_rcode'.$this->object->getRegistrationAccessCode()); 
-		$link->setHTML('<font class="small">'.$val.'</font>');
-		$reg_code->addSubItem($link);
-		
-		$form->addItem($reg_code);
-		
-		
+		// fim.
+
 		// time limit
 		$time_limit = new ilCheckboxInputGUI($this->lng->txt('crs_registration_limited'),'subscription_limitation_type');
 		$time_limit->setInfo($this->lng->txt('crs_registration_limited_info'));
@@ -1314,12 +1626,36 @@ class ilObjCourseGUI extends ilContainerGUI
 			$sdur->setStart(new ilDateTime($this->object->getSubscriptionStart(),IL_CAL_UNIX));
 			$sdur->setStartText($this->lng->txt('crs_start'));				
 			$sdur->setEnd(new ilDateTime($this->object->getSubscriptionEnd(),IL_CAL_UNIX));
-			$sdur->setEndText($this->lng->txt('crs_end'));				
-			
+			$sdur->setEndText($this->lng->txt('crs_end'));
+
+			// fim: [memad] show deny time for registration
+			// fim: [rpl] check the status of the registration for this period
+			$info = array();
+			global $ilCust;
+			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
+			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+			if ($deny_regstart_from and $deny_regstart_to)
+			{
+				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
+				$deny_regstart_to = new ilDateTime($deny_regstart_to, IL_CAL_DATETIME);
+				$info[] = sprintf($this->lng->txt('deny_regstart_message'),
+					ilDatePresentation::formatDate($deny_regstart_from),
+					ilDatePresentation::formatDate($deny_regstart_to));
+			}
+			if($ilCust->getSetting('rpl_warning_on'))
+			{
+				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
+				$info[] = $this->lng->txt('rpl_info');
+				$info[] = ilRegistrationPeriodLimiter::_getOverviewLink((int)$this->object->getSubscriptionStart());
+			}
+			$sdur->setInfo(implode('<br />', $info));
+			// fim.
+
+
 		$time_limit->addSubItem($sdur);
 		$form->addItem($time_limit);
 		
-		// cancellation limit		
+		// cancellation limit
 		$cancel = new ilDateTimeInputGUI($this->lng->txt('crs_cancellation_end'), 'cancel_end');
 		$cancel->setInfo($this->lng->txt('crs_cancellation_end_info'));
 		$cancel_end = $this->object->getCancellationEnd();
@@ -1329,7 +1665,22 @@ class ilObjCourseGUI extends ilContainerGUI
 			$cancel->setDate($cancel_end);
 		}
 		$form->addItem($cancel);
-		
+
+
+		// fim: [memcond] add studycond setting
+		include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+		$stpl = new ilTemplate("tpl.show_subscribers_studycond.html", true, true, "Services/Membership");
+		$stpl->setCurrentBlock('condition');
+		$stpl->setVariable("CONDITION_TEXT", nl2br(ilSubscribersStudyCond::_getConditionsText($this->object->getId())));
+		$stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilsubscribersstudycondgui', ''));
+		$stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+		$stpl->parseCurrentBlock();
+		$stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+		$studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+		$studycond->setHtml($stpl->get());
+		$form->addItem($studycond);
+		// fim.
+
 		// Max members
 		$lim = new ilCheckboxInputGUI($this->lng->txt('crs_subscription_max_members_short'),'subscription_membership_limitation');
 		$lim->setInfo($this->lng->txt('crs_subscription_max_members_short_info'));
@@ -1342,9 +1693,9 @@ class ilObjCourseGUI extends ilContainerGUI
 			$min->setMaxLength(4);
 			$min->setValue($this->object->getSubscriptionMinMembers() ? $this->object->getSubscriptionMinMembers() : '');
 			$min->setTitle($this->lng->txt('crs_subscription_min_members'));
-			$min->setInfo($this->lng->txt('crs_subscription_min_members_info'));			
+			$min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
 			$lim->addSubItem($min);
-		
+
 			$max = new ilTextInputGUI('','subscription_max');
 			$max->setSubmitFormOnEnter(true);
 			$max->setSize(4);
@@ -1360,49 +1711,86 @@ class ilObjCourseGUI extends ilContainerGUI
 			$wait->setChecked($this->object->enabledWaitingList());
 			$wait->setInfo($this->lng->txt('crs_wait_info'));
 			$lim->addSubItem($wait);
-			
+
 			$wait = new ilCheckboxInputGUI($this->lng->txt('crs_waiting_list'),'waiting_list');
 			$wait->setChecked($this->object->enabledWaitingList());
 			$wait->setInfo($this->lng->txt('crs_wait_info'));
 			$lim->addSubItem($wait);
-			
+
 			$auto = new ilCheckboxInputGUI($this->lng->txt('crs_waiting_list_autofill'), 'auto_wait');
 			$auto->setChecked($this->object->hasWaitingListAutoFill());
 			$auto->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
 			$wait->addSubItem($auto);
 			*/
-		
-			$wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');
-			
-			$option = new ilRadioOption($this->lng->txt('none'), 0);
-			$wait->addOption($option);
-			
-			$option = new ilRadioOption($this->lng->txt('crs_waiting_list_no_autofill'), 1);
-			$option->setInfo($this->lng->txt('crs_wait_info'));
-			$wait->addOption($option);
-			
-			$option = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'), 2);
-			$option->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
-			$wait->addOption($option);
-			
-			if($this->object->hasWaitingListAutoFill())
-			{
-				$wait->setValue(2);
-			}
-			else if($this->object->enabledWaitingList())
-			{
-				$wait->setValue(1);
-			}
-			
-		$lim->addSubItem($wait);
-		
+
+		// fim: [meminf] add show mem limit checkbox
+		$showlim = new ilCheckboxInputGUI($this->lng->txt('crs_show_mem_limit_label'),'crs_show_mem_limit');
+		$showlim->setValue(1);
+		$showlim->setOptionTitle($this->lng->txt('crs_show_mem_limit_option'));
+		$showlim->setChecked($this->object->getShowMemLimit());
+		$lim->addSubItem($showlim);
+		// fim.
+
+		// fim: [memlot] max members option setting
+		$maxmode = new ilRadioGroupInputGUI($this->lng->txt("crs_max_members_mode"),'crs_max_members_mode');
+		if ($this->object->enabledLotList())
+		{
+			$maxmode->setValue('lot_list');
+		}
+		elseif($this->object->hasWaitingListAutoFill())
+		{
+			$maxmode->setValue('waiting_list_auto_fill');
+		}
+		elseif ($this->object->enabledWaitingList())
+		{
+			$maxmode->setValue('waiting_list');
+		}
+		else
+		{
+			$maxmode->setValue('');
+		}
+		$opt = new ilRadioOption($this->lng->txt('crs_lot_list'),'lot_list');
+		$opt->setInfo($this->lng->txt('crs_lot_info'));
+		$maxmode->addOption($opt);
+
+		$opt = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'),'waiting_list');
+		$opt->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
+		$maxmode->addOption($opt);
+
+		$opt = new ilRadioOption($this->lng->txt('\'crs_waiting_list_no_autofill'),'waiting_list');
+		$opt->setInfo($this->lng->txt('crs_wait_info'));
+		$maxmode->addOption($opt);
+
+		$opt = new ilRadioOption($this->lng->txt('crs_no_list'),'');
+		$opt->setInfo($this->lng->txt('crs_no_list_info'));
+		$maxmode->addOption($opt);
+
+		$lim->addSubItem($maxmode);
+		// fim.
+
 		$form->addItem($lim);
-	
+
+		// fim: [memsess] subscription_with event settings
+		$subev = new ilRadioGroupInputGUI($this->lng->txt("crs_subscription_with_events"),'subscription_with_events');
+		$subev->setValue($this->object->getSubscriptionWithEvents());
+		$subev->setInfo($this->lng->txt('crs_subscription_with_events_info'));
+
+		$opt = new ilRadioOption($this->lng->txt('crs_subscription_with_events_off'),IL_CRS_SUBSCRIPTION_EVENTS_OFF);
+		$subev->addOption($opt);
+
+		$opt = new ilRadioOption($this->lng->txt('crs_subscription_with_events_unique'),IL_CRS_SUBSCRIPTION_EVENTS_UNIQUE);
+		$subev->addOption($opt);
+
+		$opt = new ilRadioOption($this->lng->txt('crs_subscription_with_events_multiple'),IL_CRS_SUBSCRIPTION_EVENTS_MULTIPLE);
+		$subev->addOption($opt);
+		$form->addItem($subev);
+		// fim.
+
 
 		$pres = new ilFormSectionHeaderGUI();
 		$pres->setTitle($this->lng->txt('crs_view_mode'));
 		
-		$form->addItem($pres);		
+		$form->addItem($pres);
 		
 		// presentation type
 		$view_type = new ilRadioGroupInputGUI($this->lng->txt('crs_presentation_type'),'view_mode');
@@ -1559,7 +1947,24 @@ class ilObjCourseGUI extends ilContainerGUI
 		$desk->setChecked($this->object->getAboStatus());
 		$desk->setInfo($this->lng->txt('crs_add_remove_from_desktop_info'));
 		$form->addItem($desk);
-		
+
+		// fim: [evasys] add item for evaluation
+		require_once ("Services/Evaluation/classes/class.ilEvaluationData.php");
+		if (ilEvaluationData::_isEvaluationActivated($this->object->getRefId()))
+		{
+			$eval = new ilCheckboxInputGUI($this->lng->txt('eval_mark_for_evaluation'),'mark_for_evaluation');
+			if (ilEvaluationData::_isObjEvaluable($this->object))
+			{
+				$eval->setChecked(ilEvaluationData::_isObjMarkedForEvaluation($this->object));
+			}
+			else
+			{
+				$eval->setDisabled(true);
+			}
+			$eval->setInfo($this->lng->txt('eval_mark_for_evaluation_info'));
+			$form->addItem($eval);
+		}
+		// fim.
 
 		// Edit ecs export settings
 		include_once 'Modules/Course/classes/class.ilECSCourseSettings.php';
@@ -1766,7 +2171,11 @@ class ilObjCourseGUI extends ilContainerGUI
 				}
 
 				include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
-				if(ilPrivacySettings::_getInstance()->checkExportAccess($this->object->getRefId()))
+
+				// fim: [export] show tab also if export is not granted
+				if($ilAccess->checkAccess('write','',$this->object->getRefId())
+					&& ilPrivacySettings::_getInstance()->enabledCourseExport())
+				// fim.
 				{
 					$this->tabs_gui->addSubTabTarget('export_members',
 													$this->ctrl->getLinkTargetByClass('ilmemberexportgui','show'),
@@ -1918,6 +2327,12 @@ class ilObjCourseGUI extends ilContainerGUI
 		{
 			$ilUser->writePref('crs_subscriber_hide',(int) $_GET['subscriber_hide']);
 		}
+		// fim: [memlot] set showing/hiding of subscribers lot table
+		if(isset($_GET['subscribers_lot_hide']))
+		{
+			$ilUser->writePref('crs_subscribers_lot_hide',(int) $_GET['subscribers_lot_hide']);
+		}
+		// fim.
 		if(isset($_GET['wait_hide']))
 		{
 			$ilUser->writePref('crs_wait_hide',(int) $_GET['wait_hide']);
@@ -1976,7 +2391,7 @@ class ilObjCourseGUI extends ilContainerGUI
 			// cognos-blu-patch: begin
 			$tmp_data['contact'] = $this->object->getMembersObject()->isContact($usr_id) ? 1 : 0;
 			// cognos-blu-patch: end
-			
+
 			$tmp_data['usr_id'] = $usr_id;
 		
 			if($this->show_tracking)
@@ -2101,6 +2516,17 @@ class ilObjCourseGUI extends ilContainerGUI
 		*/
 		$this->addMailToMemberButton($ilToolbar, "members", true);
 
+		// fim: [campus] add button for mycampus import
+		global $ilCust;
+		if ($ilCust->GetSetting('mycampus_soap_url') != ''
+			and $this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
+		{
+			$ilToolbar->addSeparator();
+			$ilToolbar->addButton($this->lng->txt("crs_sync_my_campus"),
+				$this->ctrl->getLinkTarget($this, 'syncMyCampus'), "_self");
+		}
+		// fim.
+
 		$this->setShowHidePrefs();
 		
 		// Waiting list table
@@ -2133,10 +2559,16 @@ class ilObjCourseGUI extends ilContainerGUI
 		// Subscriber table
 		if($subscribers = ilCourseParticipants::lookupSubscribers($this->object->getId()))
 		{
+			// fim: [memlot] set add_to_lot
+			$add_to_lot = ($this->object->isSubscriptionMembershipLimited() and $this->object->enabledLotList());
+			// fim.
+
 			include_once('./Services/Membership/classes/class.ilSubscriberTableGUI.php');
 			if($ilUser->getPref('crs_subscriber_hide'))
 			{
-				$table_gui = new ilSubscriberTableGUI($this,false);
+				// fim: [memlot] use add_to_lot as parameter
+				$table_gui = new ilSubscriberTableGUI($this, false, true, $add_to_lot);
+				// fim.
 				$this->ctrl->setParameter($this,'subscriber_hide',0);
 				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
 					$this->lng->txt('show'));
@@ -2144,7 +2576,9 @@ class ilObjCourseGUI extends ilContainerGUI
 			}
 			else
 			{
-				$table_gui = new ilSubscriberTableGUI($this,true);
+				// fim: [memlot] use add_to_lot as parameter
+				$table_gui = new ilSubscriberTableGUI($this, true, true, $add_to_lot);
+				// fim.
 				$this->ctrl->setParameter($this,'subscriber_hide',1);
 				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
 					$this->lng->txt('hide'));
@@ -2155,8 +2589,37 @@ class ilObjCourseGUI extends ilContainerGUI
 			$this->tpl->setVariable('TABLE_SUB',$table_gui->getHTML());
 		}
 				
-		
-		
+		// fim: [memlot] lot table
+		include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+		if ($this->object->enabledLotList() or ilSubscribersLot::_getCountUsers($this->object->getId()) > 0)
+		{
+			include_once('./Services/Membership/classes/class.ilSubscribersLotTableGUI.php');
+			$part = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
+
+			if($ilUser->getPref('crs_subscribers_lot_hide'))
+			{
+				$table_gui = new ilSubscribersLotTableGUI($this,$part, false);
+				$this->ctrl->setParameter($this,'subscribers_lot_hide',0);
+				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
+					$this->lng->txt('show'),
+					'',
+					ilUtil::getImagePath('edit_add.png'));
+				$this->ctrl->clearParameters($this);
+			}
+			else
+			{
+				$table_gui = new ilSubscribersLotTableGUI($this,$part, true);
+				$this->ctrl->setParameter($this,'subscribers_lot_hide',1);
+				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
+					$this->lng->txt('hide'),
+					'',
+					ilUtil::getImagePath('edit_remove.png'));
+				$this->ctrl->clearParameters($this);
+			}
+			$this->tpl->setVariable('TABLE_LOT', $table_gui->getHTML());
+		}
+		// fim.
+
 		if($rbacreview->getNumberOfAssignedUsers(array($this->object->getDefaultAdminRole())))
 		{
 			// Security: display the list of course administrators read-only, 
@@ -2345,6 +2808,9 @@ class ilObjCourseGUI extends ilContainerGUI
 		$this->tpl->setVariable('TXT_SELECTED_USER',$this->lng->txt('crs_selected_users'));
 		$this->tpl->setVariable('BTN_FOOTER_EDIT',$this->lng->txt('edit'));
 		$this->tpl->setVariable('BTN_FOOTER_VAL',$this->lng->txt('remove'));
+		// fim: [memad] add button to set members passed
+		$this->tpl->setVariable('BTN_FOOTER_PASSED',$this->lng->txt('crs_mem_set_passed'));
+		// fim.
 		$this->tpl->setVariable('BTN_FOOTER_MAIL',$this->lng->txt('crs_mem_send_mail'));
 		$this->tpl->setVariable('ARROW_DOWN',ilUtil::getImagePath('arrow_downright.svg'));
 		
@@ -2368,7 +2834,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$notification = is_array($_POST['notification']) ? $_POST['notification'] : array();
 		// cognos-blu-patch: begin
 		$contact = is_array($_POST['contact']) ? $_POST['contact'] : array();
-		
+
 		$this->updateParticipantsStatus('admins',$visible_members,$passed,$notification,array(),$contact);
 		// cognos-blu-patch: end
 	}
@@ -2410,7 +2876,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$blocked = is_array($_POST['blocked']) ? $_POST['blocked'] : array();
 		// cognos-blu-patch: begin
 		$contact = is_array($_POST['contact']) ? $_POST['contact'] : array();
-		
+
 		$this->updateParticipantsStatus('members',$visible_members,$passed,array(),$blocked, $contact);
 		// cognos-blu-patch: end
 	
@@ -2468,13 +2934,13 @@ class ilObjCourseGUI extends ilContainerGUI
 				{
 					$marks->setCompleted($a_has_passed);
 					$marks->update();
-					
+
 					// as course is origin of LP status change, block syncing
 					include_once("./Modules/Course/classes/class.ilCourseAppEventListener.php");
 					ilCourseAppEventListener::setBlockedForLP(true);
 
 					include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
-					ilLPStatusWrapper::_updateStatus($this->object->getId(), $a_member_id);					
+					ilLPStatusWrapper::_updateStatus($this->object->getId(), $a_member_id);
 				}				
 			}
 		}
@@ -2511,9 +2977,9 @@ class ilObjCourseGUI extends ilContainerGUI
 						$this->object->getMembersObject()->sendNotification($this->object->getMembersObject()->NOTIFY_BLOCK_MEMBER,$member_id);
 					}					
 					$this->object->getMembersObject()->updateNotification($member_id,false);
-					
+
 					// cognos-blu-patch: begin
-					
+
 					// check if member is admin or tutor: otherwise reset contact flag
 					if(!$this->object->getMembersObject()->isAdmin($member_id) and !$this->object->getMembersObject()->isTutor($member_id))
 					{
@@ -2521,7 +2987,7 @@ class ilObjCourseGUI extends ilContainerGUI
 					}
 					// cognos-blu-patch: end
 					$this->object->getMembersObject()->updateBlocked($member_id,in_array($member_id,$blocked));
-					
+
 					break;
 			}
 		}
@@ -2534,6 +3000,9 @@ class ilObjCourseGUI extends ilContainerGUI
 	function __showWaitingList()
 	{
 		include_once './Modules/Course/classes/class.ilObjCourseGrouping.php';
+		// fim: [studydata] include ilStudyData
+		include_once './Services/StudyData/classes/class.ilStudyData.php';
+		// fim.
 
 		$this->object->initWaitingList();
 		if($this->object->waiting_list_obj->getCountUsers())
@@ -2563,6 +3032,10 @@ class ilObjCourseGUI extends ilContainerGUI
 					$f_result[$counter][]	= ilUtil::formCheckbox(0,"waiting_list[]",$waiting_data['usr_id']);
 					$f_result[$counter][]	= $tmp_obj->getLastname().', '.$tmp_obj->getFirstname().$message;
 					$f_result[$counter][]   = $tmp_obj->getLogin();
+					// fim: [studydata] add studydata to waiting list
+					$f_result[$counter][] = $this->__getStudyDataVisibility() ?
+						nl2br(ilStudyData::_getStudyDataText($waiting_data['usr_id'])) : "";
+					// fim.
 					$f_result[$counter][] = ilDatePresentation::formatDate(new ilDateTime($waiting_data['time'],IL_CAL_UNIX));
 					unset($tmp_obj);
 					++$counter;
@@ -2651,7 +3124,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		// cognos-blu-patch: begin
 		$contact = $_POST['contact'] ? $_POST['contact'] : array();
 		// cognos-blu-patch: end
-		
+
 		// Determine whether the user has the 'edit_permission' permission
 		$hasEditPermissionAccess = 
 			(
@@ -2760,8 +3233,8 @@ class ilObjCourseGUI extends ilContainerGUI
 				$this->object->getMembersObject()->updateContact($usr_id,FALSE);
 			}
 			// cognos-blu-patch: end
-			
-			$this->updateLPFromStatus($usr_id,in_array($usr_id,$passed));	
+
+			$this->updateLPFromStatus($usr_id,in_array($usr_id,$passed));
 		}
 		ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"),true);
 		$this->ctrl->redirect($this, "members");
@@ -3000,7 +3473,174 @@ class ilObjCourseGUI extends ilContainerGUI
 		return true;
 	}
 
-		
+	// fim: [campus] new function syncMyCampusObject()
+	public function syncMyCampusObject()
+	{
+		global $lng, $ilSetting;
+
+		require_once('Services/MyCampus/classes/class.ilMyCampusClient.php');
+		require_once('Services/User/classes/class.ilUserUtil.php');
+
+		$univis_id = $this->object->getImportId();
+		$campus = ilMyCampusClient::_getInstance();
+		if ($campus->login() === false)
+		{
+			ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_connect'));
+			return $this->membersObject();
+		}
+		$participants = $campus->getParticipants($univis_id);
+
+		if (!is_array($participants))
+		{
+			ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_participants'));
+			return $this->membersObject();
+		}
+		elseif (!count($participants))
+		{
+			ilUtil::sendInfo($this->lng->txt('crs_sync_my_campus_empty'));
+			return $this->membersObject();
+		}
+
+		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
+		$members_obj = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
+
+		$added = array();
+		$waiting = array();
+		foreach ($participants as $part)
+		{
+			$identity = $part[1];
+
+			if ($part[2] == "SUBSCRIBED")
+			{
+				$user_id = ilObjUser::_findUserIdByAccount($identity);
+				if (!$user_id)
+				{
+	        		$user_id = ilUserUtil::_createDummyAccount(
+	        			$identity,
+	        			$lng->txt('dummy_user_firstname_mycampus'),
+	        			$lng->txt('dummy_user_lastname_mycampus'),
+	        			$ilSetting->get('mail_external_sender_noreply'));
+				}
+				if (!$members_obj->isAssigned($user_id))
+				{
+					$members_obj->add($user_id,IL_CRS_MEMBER);
+					$added[] = $identity;
+				}
+			}
+			elseif ($part[2] == "WAITINGLIST")
+			{
+				$waiting[] = $identity;
+			}
+		}
+		if (count($added))
+		{
+			ilUtil::sendSuccess(sprintf($this->lng->txt('crs_sync_my_campus_added'), implode(', ', $added)));
+		}
+		else
+		{
+			ilUtil::sendSuccess($this->lng->txt('crs_sync_my_campus_ok'));
+		}
+
+		if (count($waiting))
+		{
+			ilUtil::sendInfo(sprintf($this->lng->txt('crs_sync_my_campus_waiting'), implode(', ', $waiting)));
+		}
+		return $this->membersObject();
+	}
+	// fim.
+
+	// fim: [memlot] new function addSubscribersToLotObject
+	public function addSubscribersToLotObject()
+	{
+		$this->checkPermission('write');
+
+		if(!is_array($_POST["subscribers"]))
+		{
+			ilUtil::sendInfo($this->lng->txt("crs_no_subscribers_selected"));
+			$this->membersObject();
+
+			return false;
+		}
+
+		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
+		$members_obj = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($members_obj);
+
+		$added = $lot_obj->addSubscribersToLot($_POST["subscribers"]);
+
+		ilUtil::sendInfo(sprintf($this->lng->txt('mem_subscribers_added_to_lot'), $added));
+		$this->membersObject();
+	}
+	// fim.
+
+	// fim: [memlot] new function removeSubscribersFromLotObject
+	public function removeSubscribersFromLotObject()
+	{
+		$this->checkPermission('write');
+
+		if(!is_array($_POST["subscribers_lot"]))
+		{
+			ilUtil::sendInfo($this->lng->txt("crs_no_subscribers_selected"));
+			$this->membersObject();
+
+			return false;
+		}
+
+		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
+		$members_obj = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($members_obj);
+
+		$removed = $lot_obj->removeSubscribersFromLot($_POST["subscribers_lot"]);
+
+		ilUtil::sendInfo(sprintf($this->lng->txt('mem_subscribers_removed_from_lot'), $removed));
+		$this->membersObject();
+	}
+	// fim.
+
+
+	// fim: [memlot] new function assignMembersByLotObject
+	public function cleanLotListObject()
+	{
+		$this->checkPermission('write');
+		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
+		$members_obj = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($members_obj);
+		$lot_obj->setMaxMembers($this->object->getSubscriptionMaxMembers());
+		$lot_obj->cleanLots();
+
+		ilUtil::sendInfo($lot_obj->getStatusMessage());
+		$this->membersObject();
+	}
+	// fim.
+
+	// fim: [memlot] new function assignMembersByLotObject
+	public function assignMembersByLotObject()
+	{
+		$this->checkPermission('write');
+		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
+		$members_obj = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($members_obj);
+		$lot_obj->setMaxMembers($this->object->getSubscriptionMaxMembers());
+		$lot_obj->drawLots();
+
+		ilUtil::sendInfo($lot_obj->getStatusMessage());
+		$this->membersObject();
+	}
+	// fim.
+
+
 	public function assignSubscribersObject()
 	{
 		global $rbacsystem,$ilErr;
@@ -3475,6 +4115,13 @@ class ilObjCourseGUI extends ilContainerGUI
 		
 		
 		$is_participant = ilCourseParticipants::_isParticipant($this->ref_id, $ilUser->getId());
+
+// fau: mailToMembers - check if the user is a tutor
+		global $rbacreview;
+		$assigned_tutor_roles = $rbacreview->getRolesByFilter(0,$ilUser->getId(), 'il_crs_tutor_'.$this->ref_id);
+		$is_tutor = !empty($assigned_tutor_roles);
+// fau.
+
 		include_once './Services/Mail/classes/class.ilMail.php';
 		$mail = new ilMail($GLOBALS['ilUser']->getId());
 		
@@ -3502,7 +4149,12 @@ class ilObjCourseGUI extends ilContainerGUI
 			$this->object->getMailToMembersType() == ilCourseConstants::MAIL_ALLOWED_ALL and
 			$GLOBALS['rbacsystem']->checkAccess('internal_mail',$mail->getMailObjectReferenceId ()) and
 			$is_participant
+// fau: mailToMembers - show the mailMembersBtn to tutors if gallery is not activated
+			or
+			$GLOBALS['rbacsystem']->checkAccess('internal_mail',$mail->getMailObjectReferenceId ()) and
+			$is_tutor
 		)
+// fau.
 		{
 			$tabs_gui->addTarget("members",
 				$this->ctrl->getLinkTarget($this, "mailMembersBtn"),
@@ -3524,6 +4176,17 @@ class ilObjCourseGUI extends ilContainerGUI
 		
 		
 
+		// fim: [webform] add webform sendings tab
+		require_once("./Services/WebForm/classes/class.ilWebFormAccess.php");
+		if (ilWebFormAccess::_courseHasForms($this->ref_id)
+		and $ilAccess->checkAccess('read','',$this->ref_id))
+		{
+			$this->lng->loadLanguageModule("webform");
+			$tabs_gui->addTarget("webform_sendings",
+			$this->ctrl->getLinkTargetByClass('ilwebformsendingsgui', ''),
+			"", "ilwebformsendingsgui");
+		}
+		// fim.
 		// license overview
 		include_once("Services/License/classes/class.ilLicenseAccess.php");
 		if ($ilAccess->checkAccess('edit_permission', '', $this->ref_id)
@@ -3538,7 +4201,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		if ($ilAccess->checkAccess('write','',$this->ref_id))
 		{
 			include_once "Services/Object/classes/class.ilObjectMetaDataGUI.php";
-			$mdgui = new ilObjectMetaDataGUI($this->object);					
+			$mdgui = new ilObjectMetaDataGUI($this->object);
 			$mdtab = $mdgui->getTab();
 			if($mdtab)
 			{
@@ -3577,29 +4240,27 @@ class ilObjCourseGUI extends ilContainerGUI
 									 $this->ctrl->getLinkTarget($this, "trash"), "trash", get_class($this));
 			}
 		}
-		// Join/Leave
-		if($ilAccess->checkAccess('join','',$this->ref_id)
-			and !$this->object->getMemberObject()->isAssigned())
+
+		// fim: [memad] simlified checks for join / edit request tab
+		if ($ilAccess->checkAccess('join','', $this->ref_id))
 		{
-			include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
-			if(ilCourseWaitingList::_isOnList($ilUser->getId(), $this->object->getId()))
-			{
-				$tabs_gui->addTab(
-					'leave',
-					$this->lng->txt('membership_leave'),
-					$this->ctrl->getLinkTargetByClass('ilcourseregistrationgui','show','')
-				);
-					
-			}
-			else
-			{			
-				
-				$tabs_gui->addTarget("join",
-									 $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show"), 
-									 'show',
-									 "");
-			}
+			// no specific command: initial join
+			$tabs_gui->addTab('join',
+				$this->lng->txt('join'),
+				$this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show")
+			);
 		}
+		elseif ($ilAccess->checkAccess('join','leave', $this->ref_id))
+		{
+			// leave command: edit membership request
+			$tabs_gui->addTab('join',
+				$this->lng->txt('mem_edit_request'),
+				$this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leave")
+			);
+
+		}
+		// fim.
+
 		if($ilAccess->checkAccess('leave','',$this->object->getRefId())
 			and $this->object->getMemberObject()->isMember())
 		{
@@ -4065,13 +4726,16 @@ class ilObjCourseGUI extends ilContainerGUI
 
 
 		$tbl->setTitle($this->lng->txt("crs_waiting_list"),"icon_usr.svg",$this->lng->txt("crs_waiting_list"));
+		// fim: [studydata] add  waiting list column for study data
 		$tbl->setHeaderNames(array('',
 								   $this->lng->txt("name"),
 								   $this->lng->txt("login"),
+								   $this->lng->txt("studydata"),
 								   $this->lng->txt("crs_time")));
 		$tbl->setHeaderVars(array("",
 								  "name",
 								  "login",
+								  "studydata",
 								  "sub_time"),
 							array("ref_id" => $this->object->getRefId(),
 								  "cmd" => "members",
@@ -4079,6 +4743,7 @@ class ilObjCourseGUI extends ilContainerGUI
 								  "cmdClass" => "ilobjcoursegui",
 								  "cmdNode" => $_GET["cmdNode"]));
 		$tbl->setColumnWidth(array('1%'));
+		// fim.
 
 		$this->__setTableGUIBasicData($tbl,$a_result_set,"subscribers");
 		$tbl->render();
@@ -4092,6 +4757,29 @@ class ilObjCourseGUI extends ilContainerGUI
 		return true;
 	}
 
+
+	//fim: [studydata] new function __getStudyDataVisibility()
+	function __getStudyDataVisibility()
+	{
+		global $rbacsystem;
+
+		if (!isset($this->study_data_visible))
+		{
+			include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
+			$privacy = ilPrivacySettings::_getInstance();
+
+			if($privacy->checkExportAccess($this->object->getRefId()))
+			{
+            	$this->study_data_visible = true;
+            }
+            else
+            {
+                $this->study_data_visible = false;
+            }
+        }
+		return $this->study_data_visible;
+	}
+	// fim.
 
 
 	function __getDateSelect($a_type,$a_varname,$a_selected)
@@ -4196,10 +4884,39 @@ class ilObjCourseGUI extends ilContainerGUI
 
 		switch($next_class)
 		{
+	        // fim: [univis] call Univis Import GUI
+			case "ilunivisimportlecturesgui";
+				include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
+				$univis_gui = new ilUnivISImportLecturesGUI($this);
+				$this->ctrl->forwardCommand($univis_gui);
+				break;
+			// fim.
+
+			// fim: [webform] add command class
+			case 'ilwebformsendingsgui':
+				include_once("./Services/WebForm/classes/class.ilWebFormSendingsGUI.php");
+				$wfs_gui = new ilWebFormSendingsGUI($this);
+				$this->ctrl->forwardCommand($wfs_gui);
+				$this->tabs_gui->setTabActive('webform_sendings');
+				break;
+			// fim.
+
+
+			// fim: [memcond] add command class
+			case 'ilsubscribersstudycondgui':
+				include_once("./Services/Membership/classes/class.ilSubscribersStudyCondGUI.php");
+				$cond_gui = new ilSubscribersStudyCondGUI($this, 'edit');
+				$this->ctrl->setReturn($this, 'edit');
+				$this->ctrl->forwardCommand($cond_gui);
+				$this->setSubTabs('properties');
+				$this->tabs_gui->setTabActive('settings');
+				break;
+			// fim.
+
 			case "ilinfoscreengui":
 				$this->infoScreen();	// forwards command
 				break;
-			
+
 			case 'ilobjectmetadatagui';
 				if(!$ilAccess->checkAccess('write','',$this->object->getRefId()))
 				{
@@ -4207,16 +4924,19 @@ class ilObjCourseGUI extends ilContainerGUI
 				}
 				$this->tabs_gui->setTabActive('meta_data');
 				include_once 'Services/Object/classes/class.ilObjectMetaDataGUI.php';
-				$md_gui = new ilObjectMetaDataGUI($this->object);	
+				$md_gui = new ilObjectMetaDataGUI($this->object);
 				$this->ctrl->forwardCommand($md_gui);
 				break;
-				
+
 			case 'ilcourseregistrationgui':
 				$this->ctrl->setReturn($this,'');
 				$this->tabs_gui->setTabActive('join');
 				include_once('./Modules/Course/classes/class.ilCourseRegistrationGUI.php');
 				$registration = new ilCourseRegistrationGUI($this->object, $this);
 				$this->ctrl->forwardCommand($registration);
+				// fim: [bugfix] return here to avoid inclusion of header commands
+				return true;
+				// fim.
 				break;
 				
 			case 'ilobjectcustomuserfieldsgui':
@@ -4324,7 +5044,7 @@ class ilObjCourseGUI extends ilContainerGUI
 				break;
 
 			case 'ilrepositorysearchgui':
-				
+
 				if(!$this->checkPermissionBool('write'))
 				{
 					$GLOBALS['ilErr']->raiseError($GLOBALS['lng']->txt('permission_denied'), $GLOBALS['ilErr']->WARNING);
@@ -4536,8 +5256,8 @@ class ilObjCourseGUI extends ilContainerGUI
 				include_once './Services/Container/classes/class.ilContainerStartObjectsGUI.php';
 				$stgui = new ilContainerStartObjectsGUI($this->object);
 				$this->ctrl->forwardCommand($stgui);
-				break;		
-			
+				break;
+
 			case 'illomembertestresultgui':
 				include_once './Modules/Course/classes/Objectives/class.ilLOMemberTestResultGUI.php';
 				$GLOBALS['ilCtrl']->setReturn($this, 'members');
@@ -4546,7 +5266,7 @@ class ilObjCourseGUI extends ilContainerGUI
 					$GLOBALS['lng']->txt('back'),
 					$GLOBALS['ilCtrl']->getLinkTarget($this,'members')
 				);
-				
+
 				$result_view = new ilLOMemberTestResultGUI($this, $this->object, (int) $_REQUEST['uid']);
 				$this->ctrl->forwardCommand($result_view);
 				break;
@@ -4561,12 +5281,12 @@ class ilObjCourseGUI extends ilContainerGUI
 				{
 					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
 				}
-				
+
 				$this->tabs_gui->setTabActive('members');
 
 				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
 				include_once './Services/Contact/classes/class.ilMailMemberCourseRoles.php';
-				
+
 				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberCourseRoles());
 				$mail_search->setObjParticipants(ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
 				$this->ctrl->forwardCommand($mail_search);
@@ -4582,6 +5302,13 @@ class ilObjCourseGUI extends ilContainerGUI
                     $ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
                 }
                 */
+
+				// fim: [memad] redirect joinAsGuest
+				if ($cmd == 'joinAsGuest')
+				{
+					$this->ctrl->redirectByClass("ilCourseRegistrationGUI", "joinAsGuest");
+				}
+				// fim.
 
                 // #9401 - see also ilStartupGUI::_checkGoto()
                 if($cmd == 'infoScreenGoto')
@@ -4624,7 +5351,11 @@ class ilObjCourseGUI extends ilContainerGUI
                         !ilCourseParticipants::_isParticipant($this->object->getRefId(),$ilUser->getId()))
                     {
                         include_once('./Modules/Course/classes/class.ilCourseRegistrationGUI.php');
-                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI");
+                        // fim: [memfix] provide the original command for registration gui
+						// this is neded to check the permissions correctly there
+						// but always show the registration screen for a join command
+                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI", $cmd == 'join' ? 'show' : $cmd);
+                        // fim.
                     }
                     else
                     {
@@ -4709,6 +5440,11 @@ class ilObjCourseGUI extends ilContainerGUI
 			$GLOBALS['ilLog']->write(__METHOD__.': Missing required fields');
 			return false;
 		}
+
+		// fim: [export] notify first access
+		ilMemberAgreement::_setFirstAccessTime($ilUser->getId(), $this->object->getId());
+		// fim.
+
 		return true;
 	}
 	
@@ -4770,6 +5506,52 @@ class ilObjCourseGUI extends ilContainerGUI
 	{
 		global $ilAccess, $ilErr, $lng,$ilUser;
 		
+		// fim: [univis] handle the join command
+		if ($a_add == 'join')
+		{
+			include_once('Services/User/classes/class.ilUserUtil.php');
+			include_once('Modules/Course/classes/class.ilCourseParticipants.php');
+
+			if (empty($_SESSION["AccountId"]) or $_SESSION["AccountId"] == ANONYMOUS_USER_ID)
+			{
+	           	ilUtil::sendInfo($lng->txt('join_crs_needs_login'), true);
+				ilUtil::redirect(ilUtil::_getRootLoginLink('crs_'.$a_target.'_join'));
+			}
+			elseif (ilCourseParticipants::_isParticipant($a_target,$ilUser->getId()))
+			{
+				$lng->loadLanguageModule('crs');
+				ilUtil::sendInfo($lng->txt('crs_reg_user_already_assigned'), true);
+				ilObjectGUI::_gotoRepositoryNode($a_target, "view");
+			}
+			elseif ($ilAccess->checkAccess("join", "", $a_target))
+			{
+				ilObjectGUI::_gotoRepositoryNode($a_target, "join");
+			}
+			elseif ($ilAccess->checkAccess("join", "leave", $a_target))
+			{
+				ilObjectGUI::_gotoRepositoryNode($a_target, "leave");
+			}
+			elseif (ilUserUtil::_isGuestHearer() and !$ilAccess->checkAccess("read", "", $a_target))
+			{
+				ilObjectGUI::_gotoRepositoryNode($a_target, "joinAsGuest");
+			}
+			else
+			{
+				ilUtil::sendFailure($lng->txt("join_crs_not_permitted"), true);
+
+				if ($ilAccess->checkAccess("visible", "", $a_target)
+				or $ilAccess->checkAccess("read", "", $a_target))
+				{
+					ilObjectGUI::_gotoRepositoryNode($a_target, "infoScreen");
+				}
+				else
+				{
+					ilObjectGUI::_gotoRepositoryRoot();
+				}
+			}
+		}
+		// fim.
+
 		include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
 		if(substr($a_add,0,5) == 'rcode')
 		{
@@ -5178,15 +5960,20 @@ class ilObjCourseGUI extends ilContainerGUI
 	
 	/**
 	 * Create a course mail signature
-	 * @return string 
+	 * @return string
 	 */
 	public function createMailSignature()
 	{
 		$link = chr(13).chr(10).chr(13).chr(10);
 		$link .= $this->lng->txt('crs_mail_permanent_link');
-		$link .= chr(13).chr(10).chr(13).chr(10);
+		// fim: [meminf] add title and use static link for mail signature
+		$link .= chr(13).chr(10);
+		$link .= $this->object->getTitle();
+		$link .= chr(13).chr(10);
 		include_once './Services/Link/classes/class.ilLink.php';
-		$link .= ilLink::_getLink($this->object->getRefId());
+		$link .= ilLink::_getStaticLink($this->object->getRefId());
+		// fim.
+
 		return rawurlencode(base64_encode($link));
 	}
 	
@@ -5218,10 +6005,10 @@ class ilObjCourseGUI extends ilContainerGUI
 			}
 			
 			// notification
-			include_once "Services/Membership/classes/class.ilMembershipNotifications.php";			
+			include_once "Services/Membership/classes/class.ilMembershipNotifications.php";
 			if(ilMembershipNotifications::isActive())
 			{
-				$noti = new ilMembershipNotifications($this->ref_id);				
+				$noti = new ilMembershipNotifications($this->ref_id);
 				if(!$noti->isCurrentUserActive())
 				{
 					$lg->addHeaderIcon("not_icon",
@@ -5339,9 +6126,9 @@ class ilObjCourseGUI extends ilContainerGUI
 		include_once './Services/Link/classes/class.ilLink.php';
 		ilUtil::redirect(ilLink::_getLink((int) $_REQUEST['tid']));
 		return TRUE;
-		
+
 	}
-	
+
 	/**
 	 * Test redirection will be moved lo adapter
 	 */
@@ -5353,8 +6140,8 @@ class ilObjCourseGUI extends ilContainerGUI
 		include_once './Modules/Course/classes/Objectives/class.ilLOUserResults.php';
 		include_once './Modules/Course/classes/Objectives/class.ilLOSettings.php';
 		include_once './Modules/Course/classes/Objectives/class.ilLOTestAssignments.php';
-		
-		
+
+
 		$res = new ilLOUserResults(
 				$this->object->getId(),
 				$GLOBALS['ilUser']->getId());
@@ -5393,7 +6180,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		include_once './Services/Link/classes/class.ilLink.php';
 		ilUtil::redirect(ilLink::_getLink($test_id));
 		return TRUE;
-		
+
 	}
 	
 	/**
@@ -5415,12 +6202,12 @@ class ilObjCourseGUI extends ilContainerGUI
 		{
 			$question = $this->lng->txt('crs_loc_objectives_passed_confirmation');
 		}
-		
+
 		$confirm->addHiddenItem('objective_id', $a_objective_id);
 		$confirm->addHiddenItem('tid', $a_test_id);
 		$confirm->setConfirm($this->lng->txt('crs_loc_tst_start'), 'redirectLocToTestConfirmed');
 		$confirm->setCancel($this->lng->txt('cancel'), 'view');
-		
+
 		ilUtil::sendQuestion($question);
 
 		$GLOBALS['tpl']->setContent($confirm->getHTML());
@@ -5507,6 +6294,9 @@ class ilObjCourseGUI extends ilContainerGUI
 
 		if(
 			($this->object->getMailToMembersType() == ilCourseConstants::MAIL_ALLOWED_ALL or
+// fau: mailToMembers - show mail button for tutors in courses
+				$this->object->getMembersObject()->isTutor($ilUser->getId()) or
+// fau.
 				$ilAccess->checkAccess('write',"",$this->object->getRefId())) and
 			$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
 		{
@@ -5528,7 +6318,7 @@ class ilObjCourseGUI extends ilContainerGUI
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	protected function jump2UsersGalleryObject()
 	{

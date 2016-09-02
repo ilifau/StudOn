@@ -187,7 +187,9 @@ class ilObjFolder extends ilContainer
 			ilUtil::zip($zipbasedir, $tmpzipfile);
 			rename($tmpzipfile,$zipfile = ilUtil::ilTempnam());
 			ilUtil::delDir($tmpdir);
-			ilUtil::deliverFile($zipfile,$deliverFilename,'',false,true);
+			// fim: [file] set mimetype for zip
+			ilUtil::deliverFile($zipfile,$deliverFilename,'application/zip',false,true);
+			// fim.
 		} catch (ilFileException $e) {
 			ilUtil::sendInfo($e->getMessage(), true);
 		}

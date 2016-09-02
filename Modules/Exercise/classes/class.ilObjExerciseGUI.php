@@ -223,6 +223,15 @@ class ilObjExerciseGUI extends ilObjectGUI
 				$this->lng->txt("exc_pass_minimum_nr_info"));
 			$radg->addOption($op2);
 
+			// fim: [exercise] new pass mode "man"
+			$op3 = new ilRadioOption($this->lng->txt("exc_pass_manual"), "man",
+				$this->lng->txt("exc_pass_manual_info"));
+			$instruction= new ilTextAreaInputGUI($this->lng->txt("description"), "instruction");
+			$instruction->setInfo($this->lng->txt("exc_pass_manual_description"));
+			$op3->addSubItem($instruction);
+			$radg->addOption($op3);
+			// fim.
+
 			// minimum number of assignments to pass
 			$ni = new ilNumberInputGUI($this->lng->txt("exc_min_nr"), "pass_nr");
 			$ni->setSize(4);
@@ -283,7 +292,13 @@ class ilObjExerciseGUI extends ilObjectGUI
 		{
 			$a_values["pass_nr"] = $this->object->getPassNr();
 		}
-		
+		// fim: [exercise] get value of instruction
+		elseif ($this->object->getPassMode() == "man")
+		{
+			$a_values["instruction"] = $this->object->getInstruction();
+		}
+		// fim.
+
 		include_once "./Services/Notification/classes/class.ilNotification.php";
 		$a_values["notification"] = ilNotification::hasNotification(
 				ilNotification::TYPE_EXERCISE_SUBMISSION, $ilUser->getId(),
@@ -301,7 +316,13 @@ class ilObjExerciseGUI extends ilObjectGUI
 		{
 			$this->object->setPassNr($a_form->getInput("pass_nr"));
 		}
-		
+		// fim: [exercise] set the instruction for namual mode
+		elseif ($this->object->getPassMode() == "man")
+		{
+			$this->object->setInstruction($a_form->getInput("instruction"));
+		}
+		//fim.
+
 		$this->object->setCompletionBySubmission($a_form->getInput('completion_by_submission') == 1 ? true : false);
 		
 		include_once "./Services/Notification/classes/class.ilNotification.php";
@@ -461,7 +482,14 @@ class ilObjExerciseGUI extends ilObjectGUI
 		}
 		$info->addProperty($lng->txt("exc_assignments"), $cnt);
 		$info->addProperty($lng->txt("exc_mandatory"), $mcnt);
-		if ($this->object->getPassMode() != "nr")
+		// fim: [exercise] add instruction for manual status
+		if ($this->object->getPassMode() == "man")
+		{
+			$info->addProperty($lng->txt("exc_pass_mode"),
+				$this->object->getInstruction());
+		}
+		elseif ($this->object->getPassMode() != "nr")
+		// fim.
 		{
 			$info->addProperty($lng->txt("exc_pass_mode"),
 				$lng->txt("exc_msg_all_mandatory_ass"));

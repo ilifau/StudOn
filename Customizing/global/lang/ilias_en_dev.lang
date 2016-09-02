@@ -1,0 +1,790 @@
+/**
+* StudOn: added English language variables for local customizations
+*
+* @version			$Id: $
+*/
+<!-- language file start -->
+administration#:#adm_activate_db_benchmark_instant#:#Save Instantly###fau: extendBenchmark
+administration#:#adm_activate_db_benchmark_instant_desc#:#the queries will be saved instantly. This allows tracking of long requests that end in a fatal error.###fau: extendBenchmark
+administration#:#adm_db_bench_grouped_by_sql#:#Group by SQL###fau: extendBenchmark
+assessment#:#ass_create_export_mycampus#:#Create resultionfile for my campus
+assessment#:#ass_mycampus_exam_number#:#Exam Number
+assessment#:#ass_mycampus_exam_number_info#:#The exam number is needed for namign the export file. Please imprt the file in <i>mein campus</i> with the created name.<br />If the StudOn-Test is used for more exams, please choose the option "Registered Participants" to export a separate file for each exam.
+assessment#:#ass_mycampus_export#:#Export results for the grades booking in <i>my campus</i>
+assessment#:#ass_mycampus_export_forbidden#:#to export the results for <i>my campus</i>, you have to have the permission to export userdata.<br /><a href="%s">Here you can request the admission</a>.
+assessment#:#ass_mycampus_mark_field#:#Exported Grade
+assessment#:#ass_mycampus_mark_field_official#:#Official Label
+assessment#:#ass_mycampus_mark_field_short#:#Short Label
+assessment#:#ass_mycampus_marked#:#marked
+assessment#:#ass_mycampus_marked_info#:#In marked exams a correct thirds grade has to be registered in <i>my campus </i> in one of the following formats: "1,3", "2.7" or "400".<br />Please declare which label shall be exported from the grade-schema. Their grade-steps have to be in the named format.
+assessment#:#ass_mycampus_not_marked#:#not marked
+assessment#:#ass_mycampus_not_marked_info#:#In not-marked exams a "+" is displayed for "passed" and a "-" for "not passed".
+assessment#:#ass_mycampus_other_fields#:#Other Fields
+assessment#:#ass_mycampus_other_fields_info#:#Leave this selection empty, if there are problems while importing into <i>my campus</i>.<br />At least the matriculation number and evaluation will be exported.
+assessment#:#ass_mycampus_rating_type#:#Evaluation Mode
+assessment#:#ass_mycampus_test_date#:#Individual Exam Date
+assessment#:#ass_mycampus_test_starttime#:#Individual Exam beginning
+assessment#:#ass_mycampus_file_written#:#The results file for <i>my campus</i> was written.
+assessment#:#ass_mycampus_filter_export#:#Limit Export
+assessment#:#ass_mycampus_registrations_file#:#Exam Registrations
+assessment#:#ass_mycampus_registrations_file_info#:#Plase choose the CSV file that you exported from <i>mein campus</i>. The created result file will have the same name.
+assessment#:#ass_mycampus_matcol_not_found#:#The .csv file was not recognized as a list of registrations!<br />It must have the column titles in the first row.<br />One column must be named as <b>mtknr</b> and this column must have the matriculation numbers of the registered students.<br />The column delimiter must be <b>;</b>
+assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
+assessment#:#ass_mycampus_export_scope#:#Participants Selection
+assessment#:#ass_mycampus_export_all#:#All Participants
+assessment#:#ass_mycampus_export_all_info#:#Exports all results. <strong>The import to <i>mein campus</i> will add all non-registered users!</strong>
+assessment#:#ass_mycampus_export_registered#:#Registered Participants
+assessment#:#ass_mycampus_export_registered_info#:#Exports only the participants that were registered in <i>mein campus</i>.
+assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die export file is wrongly named.It must be named like <strong>prf_123.csv</strong> with 123 being the exam number.
+assessment#:#detailed_output_scoring#:#detail statement with solutions and points
+assessment#:#dont_use_questionpool#:#Do not add question in a existing questionpool.
+assessment#:#send_simple_results_body#:#%s\n\nName: %s\nmatriculation number: %s\ndate of the testrun: %s
+assessment#:#send_simple_results_subject#:#result "%s" of the %s
+assessment#:#send_simple_results_to_participants#:#Send simply result as mail (evaluated testrun)
+assessment#:#send_simple_results_to_participants_confirm#:#Send result as mail to the selected participants?<br />The name, the matriculation number, the date of the test and the textual feedback will be send for the evaluated testrun.
+assessment#:#send_simple_results_to_participants_failed#:#The following users could not be wrote to:<br />%s
+assessment#:#send_simple_results_to_participants_success#:#The following users have been wrote to:<br />%s
+assessment#:#sent_simple_results_to_participants#:#The results have been send to the participants
+assessment#:#show_detailed_results_with_correct_solutions#:#Detailed testresults with correct solutions (evaluated testrun)
+assessment#:#tst_mark_tst_failed#:#Resulting Mark "not succeeded"
+assessment#:#tst_mark_tst_failed_details#:#This text replaces the stadnardmessage on the solutionsite of a unsucceeded test. You can use following placeholder:<br /><strong>[mark]</strong> : Official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
+assessment#:#tst_mark_tst_passed#:#Resulting Mark "succeeded"
+assessment#:#tst_mark_tst_passed_details#:#This text replaces the standardmessage on the solutionsite of a succeeded test. You can use following placeholder:<br /><strong>[mark]</strong> : official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
+assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Rule %s requires more questions than available. Each rule must have enough questions that don't fit to another rule.
+assessment#:#tst_msg_rand_quest_set_not_sync#:#The rules for a random selection of questions were newly created or changed. The questions from the pools have to be synchronized in the test before it can be used. This checks also if a random test is possible with the given set of rules.
+assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies all questions matching the rules into the test. This may take several minutes for big pools.
+assessment#:#tst_filter_question_type#:#Question Type
+assessment#:#tst_filter_question_type#:#Use Question Type as Filter
+assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
+assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
+auth#:#shib_continue#:#Continue to StudOn
+auth#:#shib_continue_local#:#Continue to StudOn
+auth#:#shib_convert_accept#:# I agree to the changes.
+auth#:#shib_convert_cancel#:#Continue without conversion
+auth#:#shib_convert_change_login#:#Your <strong>StudOn-username</strong> <em>%s</em> will be changed to <em>%s</em>. This one will prospective be used in forums, memberlists and for StudOn-internal messages.
+auth#:#shib_convert_denied#:#You have to be logged in per Single Sign-On to perform the conversion!
+auth#:#shib_convert_head#:#Conversion to Single Sign-On
+auth#:#shib_convert_intro#:#<p>Dear student, </p><p>you just successful logged in per <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a>. This is in StudOn the standard way to login for students. By that following <strong>changes</strong> were made:</p>
+auth#:#shib_convert_keep_login#:#Your <strong>StudOn-username</strong> <em>%s</em> remains unchanged. But to Login per Single Sign-On please use <em>%s</em>.
+auth#:#shib_convert_name#:#Your <strong>first name</strong> and <strong>last name</strong> will automatically be updated by the data of the student record office and is not changeable for you per StudOn.
+auth#:#shib_convert_not_accepted#:#Please agree to the changes!
+auth#:#shib_convert_outro#:#<p>Since the 1. December 2010 the local Useraccounts of students are <strong>successive closed</strong> and have to be reactivated by Single-Sign-On. Thereby the changes will happen automatically.</p><p>You can <strong>perform the changes already now</strong>, to avoid the request until then. After that you have to accept the terms of use to finish the conversion.</p>
+auth#:#shib_convert_password#:#Your <strong>password</strong> will be synchronized automatically and is not changeable anymore in StudOn. You can change your password by using the <a target="_blank" href="https://www.idm.uni-erlangen.de">Identity Management Self Service</a><span class="ilAccHidden"> (new window)</span>.
+auth#:#shib_convert_submit#:#start Conversion
+auth#:#shib_inactive_head#:#access inactive
+auth#:#shib_inactive_text#:#<p>If you study at the university of Erlangen-Nuremberg, you can login per <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> to activate your StudOn-useraccount. Use your user identification for the central login service and the corresponding password, that you can change by using the <a target="_blank" href="https://www.idm.uni-erlangen.de">Identity Management Self Service</a><span class="ilAccHidden"> (new window)</span>. The central user identification is also your StudOn-username in future.</p><p>If you do not study at the university of Erlangen-Nuremberg, please mail to <a href="mailto:studon@fau.de">studon@fau.de</a>.</p>
+auth#:#shib_not_creatable_head#:#Single Sign-On without student number
+auth#:#shib_not_creatable_text#:#<p>Dear User,</p><p>to your university user identification no matching StudOn-user has been found. A new StudOn-access can be generated automatically only for students by now, whose student number is transfered by Single Sign-On.</p><p>In case you <strong>already have a StudOn-access</strong>, please tell us the access and your university user identification per e-mail to <a href="mailto:studon@fau.de">studon@fau.de</a>. Therewith we can match both, so that Single Sign-On will work for you.</p><p>If you are an registered<strong>student</strong> for the current semester at the university and paid your tuition fee, your student number should have been transferred. Please mail to the <a href="mailto:sso-support@uni-erlangen.de">SSO-Support</a> of the datacenter to solve the problem.</p><p>If you are an <strong>employee</strong> of the university, please use the <a href="http://www.studon.uni-erlangen.de/info/registrierung.html">registration form for employees</a>. Also state your university identification at this point.</p>
+auth#:#shib_recommendation_head#:#Conversion to Single Sign-On
+auth#:#shib_recommendation_text#:#<p>Dear Student,</p><p>Since <strong>1. December 2010</strong> on StudOn the <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> is the standard way for students to log in.</p><p>The <strong>Useraccounts of students</strong> have been <strong>successive closed</strong> for the local login and have to be reactivated by logging in per Singe Sign-On. Thereby the StudOn-Usernames will also be adjusted to the central Useridentification.</p><p>To avoid the Blockage of your account, you can now login per Single Sign-On and then <strong>manually perform the conversion</strong>. For this, use your personal university UserIdentification and the corresponding password, that you may change at <a target="_blank" href="https://www.idm.uni-erlangen.de">Identity Management Self Service</a><span class="ilAccHidden"> (new window)</span>.</p>
+auth#:#shib_reminder_head#:#Single Sign-On
+auth#:#shib_reminder_text#:#<p>Dear User, </p><p>The <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> is set as the standard log-in type for your user account. Please use this log-in type in normal cases.<p><p class="alert">Your study data (subjects, semester, degree) will only be updated when you log in by single sign-on. These data may influence your chance to register for certain courses.</p><p>The <strong>local Login</strong> can be used, if single sign-on does not work. In this case use the password, that you used at the last successful single sign-on.</p>
+auth#:#shib_to_sso#:#To Single Sign-On
+common#:#accept_updated_user_agreement#:#The terms of use have been reformulated. The amount of the offer did not change. Please accept the terms of use at the end of the page to still be able using the system.
+common#:#accept_user_agreement#:#Please accept the terms of use at the end of this page to still be able using the system.
+common#:#archive_structure#:#Archive Structure
+common#:#book_helptext#:#<p>By a bookingpool you can manage Hardware, workplaces or -rooms. Authorized users can then book these.</p><p>In the pool the number of objects and their available time is determined. These can then be recognized by a booking plan. Already booked objects or rooms will not be shown in the overview. So on the first look it will be clear if a object is available for the desired day. The booking dates can then also be transferred to the personal calendar of the user.</p>
+common#:#cat_create_exco#:#Create new external content
+common#:#cat_create_perc#:#Create new Perception-Assessment
+common#:#cat_helptext#:#With categories you can organise the proposals of your professorship or institut more clearly, for example using an archive for the courses of previous semesters or own subcategories for the professors.
+common#:#catr_helptext#:#With a categorie-reference you can refer to a category, which is at another position at StudOn. By Clicking on the reference you go to the category. The accessrights to this category stay unchanged by that reference.
+common#:#chat_helptext#:#A chat in StudOn works like an instant messanger (e.g. ICQ, AIM, Skype). You can make available chats in your courses or e.g. as communicationtool for workgroups too.
+common#:#cont_limit_starts#:#Limited Playbacks
+common#:#cont_limit_starts_count#:#Number of Playbacks
+common#:#cont_limit_starts_context#:#Context for Counting
+common#:#cont_limit_starts_user#:#All times
+common#:#cont_limit_starts_session#:#Login Session
+common#:#cont_limit_starts_testpass#:#Test Pass
+common#:#cont_limit_starts_current_plays_text#:#Started Playbacks: &nbsp;
+common#:#cont_limit_starts_max_plays_text#:#Maximum Playbacks: &nbsp;
+common#:#cont_limit_starts_limit_reached_text#:#The maximum number of playbacks is reached.
+common#:#cont_limit_starts_first_time_text#:#Start the player for the first time.
+common#:#crs_create_exco#:#Create new external content
+common#:#crs_create_perc#:#Create new Perception-Assessment
+common#:#crs_helptext#:#Courses are Container-objects, which can contain any other learnobject and offer different abilities of memberadministration. It is suggested to use courses for organisation of classes in StudOn. <a target="_blank" href="http://www.studon.uni-erlangen.de/lm113424.html">More...</a>
+common#:#crsr_helptext#:#With a Course-reference you can refer to a course, which is at another place in StudOn. By clicking on the reference you go to the course. The accessrights to this course stay unchanged by that reference.
+common#:#deny_regstart_message#:#<p class="alert">The registration must not start between <em>%s</em> and <em>%s</em>!</p>
+common#:#distinct_registrations#:#Different registrations
+common#:#docorder_err_course_not_closed#:#The StudOn-course "%s" is not suitable for the granting of ordered documents. Please consider that the granting can only take place in StudOn-courses in which its membercycle has been limited by a joiningprocess.
+common#:#docorder_err_course_not_found#:#To the course number %s no StudOn-course has been found!
+common#:#docorder_err_no_course_found#:#No suitable target course has been found in StudOn. Please consider that the Granting can only take place in StudOn-courses, in which you have write-permission and which membercycle has been limited by a Joiningprocess.
+common#:#docorder_err_no_user_found#:#For your UB-User number no StudOn-useraccount has been found. To be able to use the essay delivery service for granting on StudOn, please insert your UB-usernumber in "personal profile" in StudOn.
+common#:#docorder_err_no_write_access#:#You do not have write-permission in the StudOn-course "%s"
+common#:#docorder_err_wrong_request#:#This request has not been found!
+common#:#dummy_user_email_mycampus#:#noreply@fim.uni-erlangen.de
+common#:#dummy_user_firstname_mycampus#:#mein campus
+common#:#dummy_user_lastname_mycampus#:#Course registration
+common#:#duration#:#Duration
+common#:#err_inactive_contact#:#<br/>Please contact <a href="mailto:studon@fau.de">studon@fau.de</a> to get your account activated.
+common#:#err_inactive_new#:#Your account is not yet active.
+common#:#err_inactive_set#:#Your account is deactivated.
+common#:#err_inactive_time_limit#:#The time limit of your account is exceeded.
+common#:#err_inactive_too_long#:#Your account hasn't been used for over one year and is deactivated.
+common#:#err_inactive_wrong_logins#:#Your account had too many failed login attempts and was deactivated.
+common#:#eval_mark_for_evaluation#:#Mark for lecture evaluation
+common#:#eval_mark_for_evaluation_info#:#If turned on the members will receive the link for the online-evaluation at the end of the semester per email.<br />Requirement for that is the transfer of the lecture data from UnivIS (can be made on the tab "content").
+common#:#eval_mark_for_evaluation_info_import#:#If turned on the members will receive the link for the online-evaluation at the end of the semester per email.
+common#:#exc_helptext#:#In exercises you can make availabe tasks for the course participants, e.g. in Word-form. The tasks can than be processed and be reuploaded. The process time can be set as desired.
+common#:#feed_helptext#:#You can integrate external informations as RSS-Feeds in StudOn to your courses. So students have immediately access on it. E.g. Messages or exchangedata can be easily tied to a course. Furthermore you can place RSS-Feeds for yourself on your personal desk.
+common#:#file_helptext#:#Provide any Files to download for your courses. You can provide these files with metainformations like keywords or information about the respective license for better findability.
+common#:#fold_create_exco#:#Create new external content
+common#:#fold_create_perc#:#Create new perception-assessment
+common#:#fold_helptext#:#With help of folders you can struct your courses as you wish, you can for example add a folder for scripts or seminar protocols. Folders are the easiest COntainer-elements in StudOn â€“ by creating, you only have to give a name.
+common#:#footer_active_users#:#users online
+common#:#footer_financed_by#:#Financed with state tuition funds
+common#:#footer_realised_with#:#Realised with ILIAS
+common#:#footer_server#:#Server
+common#:#footer_contact#:#Contact
+common#:#footer_imprint#:#Imprint
+common#:#footer_hotline#:#Hotline: +49 9131 85 61133
+common#:#forgot_password#:#Forgot your local password?
+common#:#forgot_username#:#Forgot your local username?
+common#:#frm_helptext#:#By forums you can give ability of communication between professors and students. You can add as many forums as you wish and encourage discussions about questions and themes in the relevant category of the course. To add a new forum you have to write a first contribution about a specific theme.
+common#:#general_info#:#General Informations
+common#:#glo_helptext#:#In a glossary you can set terms or definitions. You can refer on theses contents from e.g. courses and by that organise often required informations.
+common#:#grp_create_exco#:#Create new external content
+common#:#grp_create_perc#:#Create new Perception-Assessment
+common#:#grp_helptext#:#Groups can - compared with folders - not only include files, forums or wikis, but dispose options for member management, so that you can add participants to groups. By that you can realize e.g. separated workgroups in studon or give students the ability to upload files.
+common#:#grp_status_pending#:#Request is pending
+common#:#htlm_helptext#:#If you already have your learning content as HTML-site, you can integrate it as HTML-Learnmodule. Upload your set of sites as zip-archive, unpack it and set a front page.<br />The front page opens by call of the learnmodule in a new window. StudOn assures that your contents can only be called with provided rights.
+common#:#icon_alert_s.gif#:#Warning
+common#:#imprint#:#Imprint
+common#:#ilias_remote_soap_login_failed#:#No link could have been established to the StudOn-platform!
+common#:#info_section_cat_roles_create_crs#:#Section-Lecturers (can create contents)
+common#:#info_section_cat_roles_delete#:#Section Manager (can manage contents)
+common#:#info_section_cat_roles_edit_permission#:#Section Administrators (can manage contents and define permissions)
+common#:#info_section_cat_roles_write#:#Section Manager (can edit)
+common#:#info_section_studon_admins#:#StudOn Administrators (can manage contents and define permissions)
+common#:#info_section_studon_admins_details#:#Users: see the <a href="http://www.studon.fau.de/studon">contact page</a> of StudOn.
+common#:#info_section_crs_parent_roles_read#:#User with access without joining
+common#:#join_as_guest#:#Login as Guest
+common#:#join_as_guest_mail_message#:#Request for guest auditor-access\n\nUsername: {LOGIN}\nFirstname: {FIRSTNAME}\nLastname: {LASTNAME}\nE-Mail: {EMAIL}\n\nPath: {PATH}\nCourse/Group: {OBJECT}\nLink: {LINK}\n\n{LABEL_REG_TYPE}: {REG_TYPE}{MAX_MEMBERS}\n\n
+common#:#join_as_guest_mail_subject#:#guest joining of {LOGIN} in {OBJECT}
+common#:#join_as_guest_question_crs#:#Do you want to join this course as guest auditor?
+common#:#join_as_guest_question_grp#:#Do you want to join this group as guest auditor?
+common#:#join_as_guest_question_info#:#<p>Your request will be sent as e-mail to the StudOn-Team. We check your allocation of lectures and register you as member, if the access is possible.</p>
+common#:#join_as_guest_success#:#Your Request has been sent. You will receive a mail message, as soon as you are accepted.
+common#:#join_crs_needs_login#:#Please log in to StudOn to join the course!
+common#:#join_crs_not_permitted#:#You cannot join the course!
+common#:#join_grp_needs_login#:#Please log in to StudOn to join the group!
+common#:#join_grp_not_permitted#:#You cannot join the group!
+common#:#join_link#:#Link to the joining
+common#:#join_link_description#:#<span class="small">By calling up this link a user has to be logged in to StudOn and will then be forwarded to the joining-page.</span>
+common#:#label_remark#:#References
+common#:#leave_lot_list#:#unsubscribe for the lottery
+common#:#links_password_coded#:#password-code
+common#:#lm_helptext#:#An ILIAS-learnmodule is constructed like an electronical book. With the Online-editor you can create pages with text and media elements, which can be integrated in a chapterstructure or be linked as free pages (digressions). ILIAS-Learnmodule can be exported and be used in different Learn environments or offline. <p class="alert">Advice: with the external tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> you can convert OpenOffice-documents to ILIAS-Learnmodules.</p>
+common#:#local_login_help_title#:#Help for local login
+common#:#local_login_to_ilias#:#Local Login
+common#:#local_login_to_ilias_addition#:#(Lecturers, Guests)
+common#:#logged_in_to_ilias#:#You are logged in to StudOn.
+common#:#logged_in_to_ilias_info#:#Click on logout, if you want to end your session.
+common#:#login_to_ilias#:#Local Login (Professors and Guests)
+common#:#login_to_ilias_info#:#The local login is for professors and guest auditor, who do not have a Single-Sign-On-access.
+common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
+common#:#login_to_ilias_via_shibboleth_addition#:#(Matriculated Students)
+common#:#mcst_helptext#:#A mediacast can include many mediaobjects (e.g. audio files), which can be played or downloaded in the browser. <p class="alert">Enormous video files (e.g. lecture recordings) you best upload to the <a href="http://www.video.uni-erlangen.de" target="_blank">video portal</a> of the university. There you can set protection on them and refer them from StudOn-course as "external content".</p>
+common#:#mem_add_to_lot#:#Add to lot list
+common#:#mem_added_to_lot_list#:#You have been added to the lot list.
+common#:#mem_already_on_lot_list#:#You are already on the lot list.
+common#:#mem_edit_request#:#edit request
+common#:#mem_fill_free_places#:#fill free places
+common#:#mem_lot_button#:#lottery members
+common#:#mem_lot_candidates#:#Drawing candidates
+common#:#mem_lot_clean_button#:#Cleanup list (remove members)
+common#:#mem_lot_cleaned#:#The list is cleaned up:<br />Removed for being already member of this or connected groups/courses): %s Users.
+common#:#mem_lot_drawn#:#The free slots have been filled.<br />Added and informed: %s User.<br />Excluded, because elsewhere member: %s User.
+common#:#mem_lot_form_title#:#Lot´list
+common#:#mem_lot_free_places#:#Free slots
+common#:#mem_lot_list_count#:#candidates for drawing lots:
+common#:#mem_lot_list_info#:#The lots for free places be drawn after end of registration time. Everyone has the same chance, independent of the order of their registration. So you can use the whole registration time!
+common#:#mem_lot_list_possible#:#The lots for free places will be drawn after end of registration time.
+common#:#mem_lot_message_no_candidates#:#There are no candidates on the lot list.
+common#:#mem_lot_message_no_places#:#There are no free slots for drawing lots.
+common#:#mem_lot_message_not_enabled#:#The lot list is not active!
+common#:#mem_lot_message_possible#:#You can draw lots for membership.
+common#:#mem_lot_message_subscribers#:#There are still applications for admission. Please edit these before you draw the lots.
+common#:#mem_lot_message_time#:#Drawing lots is available at %s.
+common#:#mem_lot_status#:#Status
+common#:#mem_lot_table_description#:#Free slots: %s, candidates on lot list: %s, status: %s
+common#:#mem_max_users_hidden#:#Info for admins:
+common#:#mem_on_lot_list#:#added to the lot list
+common#:#mem_registration_access_time#:#Registration/First access
+common#:#mem_remove_from_lot#:#Remove from lot list
+common#:#mem_request_joining#:#Request joining
+common#:#mem_request_lot#:#Request for lot list
+common#:#mem_request_waiting#:#set on waiting list
+common#:#mem_subscribers_added_to_lot#:#%s applicants have been added to lottery.
+common#:#mem_subscribers_removed_from_lot#:#%s candidates have been removed from lot list.
+common#:#mem_user_already_subscribed#:#You have already requested admission. Do you want to update or cancel it?
+common#:#mep_helptext#:#In a mediapool you can "store" multimedia data to use them at different places of your learn offer, e.g. on contentpages of Wikis and Learn modules. <p class="alert">large video-file (e.g. lecture recordings) are best uploaded to <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> of the university. There you can set protection on them and refer them from StudOn-course as "external content".</p>
+common#:#more#:#More...
+common#:#object_copy_with_mail_info#:#Note: The contents will be copied in background. You can get a success message per email.###fau: copyBySoap
+common#:#object_copy_with_mail_suffix#:#(With Email Message)###fau: copyBySoap
+common#:#object_copy_in_progress_with_mail#:#The copy is started in background. You will get a system message, when all contents are copied.###fau: copyBySoap
+common#:#object_copy_mail_subject#:#Copied: %s###fau: copyBySoap
+common#:#object_copy_mail_body#:#Link to the copied object: %s###fau: copyBySoap
+common#:#print_pagebreaks#:#print on single pages
+common#:#privacy_note_for_authors#:#Note for authors
+common#:#privacy_object_visible_to_public#:#This object is visible to all internet users!
+common#:#privacy_object_visible_with_password#:#This object is visible to non-registered users with a password!
+common#:#privacy_portfolio_visible_to_public#:#This portfolio is visible to all internet users!
+common#:#privacy_portfolio_visible_with_password#:#This portfolio is visible to non-registered users with a password!
+common#:#progress_continue#:#Continue
+common#:#progress_done#:#Done
+common#:#progress_failed#:#Failed
+common#:#progress_finished#:#Finished
+common#:#progress_info#:#Information
+common#:#progress_submit_info#:#The Editing will normally continue automatically.<br />If you see this message, click once on "continue", to continue manually. <br />While the request is running (Browser-symbol rotates), do not click again.
+common#:#progress_task#:#Task
+common#:#qpl_helptext#:#In questionpools you can create and collect questions, which you want to use in your tests. By this concept you can - once created questions - repeatingly combine to new tests.
+common#:#relative_link_label#:#Relative Link
+common#:#relative_link_create#:#Create Link
+common#:#relative_link_description#:#This link can be used for internal linking course templates. It will look the same when the object is copied. A user clicking this link will be led to the nearest target. Please note that this function is not available in other ILIAS installations.
+common#:#relative_link_not_found#:#The link target for code %s was not found!
+common#:#repository_public_suffix#:# (public)
+common#:#role_unbreak_permissions#:#delete interruptions
+common#:#role_unbreak_permissions_desc#:#All local permission rules for this role will be deleted. Together with "change created objects" and "protect permissions" you can force the permission settings for all objects.
+common#:#rpl_warning#:#The registration starts at the same time with others for over %s places. This may cause high system load. Please choose a different time, if possible.
+common#:#rpl_info#:#Please choose a time without other registration starts, if possible.
+common#:#rpl_overview#:#Overview of Registration starts
+common#:#rpl_overview_desc#:#This tables shows the registration starts for courses and groups with a limited number of places. Each time slot show the sum of places for which the registration starts. High values may indicate a high system load, but uther factors like the popularity of courses may be relevant, too. Please try to use a free slot for your own registration start. The first two weeks of the lectures period have a high load generally.
+common#:#rpl_previous_week#:#Previous Week
+common#:#rpl_next_week#:#Next Week
+common#:#sahs_helptext#:#Here you can import Learn modules, which have been developed for E-Learning-Standards SCORM or AICC. Such Learn modules enable e.g. a handover of the learnprocess on StudOn for further evaluation.<br />With StudOn you can create own SCORM-2004-Learn modules, which allow control of the learning stream by learn targets and testquestions and which can be exported as SCORM 2004-packages and used in different platforms.
+common#:#select_all_page_only#:#Select all on this page. Show more rows per page to select all!
+common#:#score#:#Points
+common#:#sess_helptext#:#A session represents a presence event on StudOn. You can apply this object for pure presence courses as well as in the frame of Blended Learning-Scenarios. By creating sessions you can indicate framedata of the presence event (time, location, etc.) as well as personal data of the lecturer and adding files to the session like for example the program of the event or work materials.
+common#:#shib_data_missing#:#Your Single Sign-On did work, but too less data has been transferred to be able to create a useraccount for StudOn.<ul>%s</ul>Please contact<a href="sso-support@rrze.uni-erlangen.de"><strong>sso-support@rrze.uni-erlangen.de</strong></a>, to solve the problem and tell your user identification and the missing data.
+common#:#shib_data_missing_email#:#<li>your email-address is missing.</li>
+common#:#shib_data_missing_firstname#:#<li>Your first name is missing.</li>
+common#:#shib_data_missing_gender#:#<li>Your gender is missing.</li>
+common#:#shib_data_missing_lastname#:#<li>Your last name is missing.</li>
+common#:#shib_general_login_instructions#:#Use this login if you have a central user identification of the FAU.<div style="text-align:right;"><a href="http://www.studon.uni-erlangen.de/cat166816.html">What is that?</a></div>
+common#:#shib_help_title#:#Help for single sign-on
+common#:#shib_login_used#:#The username %s is already in use by another user. Please mail to <a href="mailto:studon@fau.de">studon@fau.de</a> to solve the problem!
+common#:#shib_update#:#To update at login of Shibboleth-Users
+common#:#shib_updated_field#:#This field will be transfered by Single Sign-On
+common#:#shib_user_not_found#:#No useraccount has been found for your user identification in this installation. An automatically creating is not possible.
+common#:#spl_helptext#:#In questionspools you can create and collect questions, which you want to use in your polls. By this concept you can - once created questions - repeatingly combine to new polls or use the same questions for different polls.
+common#:#start#:#Start
+common#:#studon_login_exportrequest#:#Please log in to make an export application!
+common#:#studon_ref_id#:#StudOn-ID
+common#:#study_data#:#study data
+common#:#studycond_add_condition#:#add condition
+common#:#studycond_back#:#back to the settings
+common#:#studycond_condition#:#joining condition
+common#:#studycond_condition_combi_info#:#You can add more conditions here, that shall count alternatively, means if one is complied its enough for joining. within a condition all criterias (subject, graduation, semester) have to be complied, thereby the condition is complied.
+common#:#studycond_condition_deleted#:#The condition has been deleted.
+common#:#studycond_condition_delimiter#:#<br />or
+common#:#studycond_condition_headline#:#Conditions for direct Joining and Joining with password
+common#:#studycond_condition_info#:#If you have chosen "direct Joining" or "Joining with password" as Joining procedure, you can here determine study subjects, subjectsemester and graduations with which it should be possible. For the remaining users "application with confirmation" takes effect automatically.
+common#:#studycond_condition_info_create#:#After application you can here determine study path specific conditions for direct joining or joining with password.
+common#:#studycond_condition_saved#:#The conditions have been saved.
+common#:#studycond_condition_updated#:#The condition has been saved..
+common#:#studycond_criteria_delimiter#:#,
+common#:#studycond_edit_condition#:#Edit Condition
+common#:#studycond_edit_conditions#:#Determine Condition
+common#:#studycond_field_degree#:#Expected Graduation
+common#:#studycond_field_degree_info#:#Choose a  graduation or let the choice open, if the expected graduation can be any.
+common#:#studycond_field_max_semester#:#Until Semester
+common#:#studycond_field_max_semester_info#:#Please set the latest subjectsemester. 0 means any.
+common#:#studycond_field_min_semester#:#From Semester
+common#:#studycond_field_min_semester_info#:#Please set the earliest subjectsemester. 0 means any.
+common#:#studycond_field_ref_semester#:#Reference-Semester
+common#:#studycond_field_ref_semester_info#:#Set here on which semester the subjectsemester-conditions refer to. If you let the choice open, the conditions refer to the moment of Joining.
+common#:#studycond_field_subject#:#studysubject
+common#:#studycond_field_subject_info#:#Choose a given studysubject or let the choice open, if the subject can be any.
+common#:#studycond_max_semester#:#until %s. subjectsemester (%s)
+common#:#studycond_min_max_semester#:#%s. until %s. subjectsemester (%s)
+common#:#studycond_min_semester#:#from %s. subjectsemester (%s)
+common#:#studycond_no_condition_defined#:#No conditions determined.
+common#:#studydata#:#Study data
+common#:#studydata_edit#:#Edit study data
+common#:#studydata_study_no#:#Study course %s
+common#:#studydata_degree#:#Expected Graduation
+common#:#studydata_long#:#Study Data (subject, semester, graduation, faculty)
+common#:#studydata_msg_incomplete#:#The study data are not complete! A study course must have a reference semester, a graduation, a faculty and a least one subject. A subject must be specified with a name and the semester number.
+common#:#studydata_ref_semester#:#Reference Semester
+common#:#studydata_ref_semester_any#:#without date:
+common#:#studydata_ref_semester_summer#:#in the summer %s:
+common#:#studydata_ref_semester_winter#:#in the winter %s/%s:
+common#:#studydata_school#:#Faculty
+common#:#studydata_semester#:#Semester
+common#:#studydata_semester_text#:#%s. semester
+common#:#studydata_semester_subject_no#:#Semester subject %s
+common#:#studydata_subject#:#Subject
+common#:#studydata_subject_no#:#Fach %s
+common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
+common#:#svy_helptext#:#You can create polls on StudOn and therewith e.g. votes or realize an evaluation of your course. Once created questions can be repeatedly combined to new polls.
+common#:#to_home#:#Home
+common#:#to_login#:#To the Login
+common#:#tst_helptext#:#For review of the learnsuccess in your courses you can create tests, that can be composed of different questiontypes. Available are e.g. cloze-, multiple choice-, matching-, or free text-questions, but also complex tasks in flash-form can be realized.
+common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
+common#:#univis#:#UnivIS
+common#:#univis_category_course_import#:#import course as courses
+common#:#univis_category_course_update#:#update data of imported courses
+common#:#univis_course_data_delete#:#delete link to the course
+common#:#univis_course_data_import#:#import data of a course
+common#:#univis_course_data_other_import#:#import data of another course
+common#:#univis_course_data_update#:#update course data from UnivIS
+common#:#univis_data_transfer#:#UnivIS Import
+common#:#univis_id#:#UnivIS-ID
+common#:#univis_id_info#:#The direct input of the UnivIS-ID is only for administrators possible. Everyone can import those informations from UnivIS.
+common#:#univis_lecture_link#:#show complete eventdata
+common#:#univis_link_object_not_found#:#To the lecture of UnivIS no course in StudOn has been found. Maybe it is not established or released yet.<br />Please contact the in UnivIS named lecturer.
+common#:#univis_link_to_studon#:#For this lecture an <a href="%s" target="_top">Kurs in StudOn</a> exists.
+common#:#user_menu#:#User Menu
+common#:#view_results#:#show results
+common#:#waiting_list#:#waiting list
+common#:#webr_helptext#:#Apply reference collections and refer them directly from your course offer to external content of that topic. To every link you can enter a description and even deliver dynamic parameters.
+common#:#wiki_helptext#:#Wikis suit especially for internetbased, common work on a topic. In a Wiki all participants can create pages and write and edit texts. Even pictures and different mediadata can be bound to these pages.
+common#:#wizard_finish#:#Finish
+common#:#wizard_next#:#Continue to step %s
+common#:#wizard_previous#:#Back to step %s
+common#:#wizard_step#:#Step %s:
+content#:#cont_layout_help#:#Help
+content#:#cont_layout_help_desc#:#Layout for the StudOn Help Modules
+content#:#cont_layout_website#:#Website
+content#:#cont_layout_website_desc#:#Layout for 'Informations On StudOn'
+crs#:#crs_cancel_lot_list#:#Are you sure that you want to unsubscribe for the lottery of the course "%s"?
+crs#:#crs_choose_one_event#:#Please choose a date!
+crs#:#crs_error_preconditions#:#You could not have been accepted!
+crs#:#crs_event_registration_not_possible#:#The login to the date '%s' is not possible!
+crs#:#crs_event_subscription_after_confirmation#:#You can register to the dates only after acceptance of your application for admission.
+crs#:#crs_info_reg_confirmation_lot#:#You can request the participation in the lottery for this course. You will receive a message, if you have been drawn or your application has been rejected.
+crs#:#crs_info_reg_direct_lot#:#You can register directly for the lottery of this course.
+crs#:#crs_info_reg_password_lot#:#When you received the course-password by an course-administrator, you can register for the lottery of this course.
+crs#:#crs_limit_period_for_lot#:#For the activation of the lottery you have to limit the registration period!
+crs#:#crs_lot_info#:#<span class="alert">Use the lottery, if you expect many interested parties!</span><br />All registrations will be collected by same chance. After the registration period you can define the members by chance.
+crs#:#crs_lot_list#:#Lottery
+crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
+crs#:#crs_max_members_mode#:#Procedure:
+crs#:#crs_max_members_mode_univis#:#Like in UnivIS
+crs#:#crs_max_members_mode_univis_info#:#The setting will be overtaken from UnivIS. The "first come, first served" and the "regular spreading" conform in StudOn the setting "rejection" or "waiting list", depends on if waiting list has been activated in UnivIS. The setting "lottery" will be overtaken directly.
+crs#:#crs_mem_set_passed#:#set passed
+crs#:#crs_mem_set_passed_success#:#These selected participants have been set to "passed".
+crs#:#crs_new_subscription_waiting#:#waiting list entry for the course "%s"
+crs#:#crs_new_subscription_waiting_body#:#%s has been placed on waiting list for the course "%s".
+crs#:#crs_new_subscription_waiting_body2#:#To accept or decline users from the waiting list for the course, you have to go to the member management of the course.\nPlease use following link:
+crs#:#crs_no_list#:#Rejection
+crs#:#crs_no_list_info#:#If the number of members is exceeded, new joinings will instantly be rejected.
+crs#:#crs_reg_limit_reached#:#You could not have been accepted, because the maximum number of participants has been exceeded.
+crs#:#crs_reg_univis#:#like in UnivIS
+crs#:#crs_reg_univis_info#:#The registrationperiod will be overtaken from UnivIS.
+crs#:#crs_reg_user_generic_failure#:#You could not be accepted!
+crs#:#crs_reg_user_on_waiting_list#:#You are already on the waiting list of this course!
+crs#:#crs_removed_from_lot_list#:#You have been unsubscribed for the lottery of the course "%s".
+crs#:#crs_show_mem_limit_label#:#Notifications:
+crs#:#crs_show_mem_limit_option#:#show limitation and free slots by listing of the course
+crs#:#crs_subscribe_events_not_possible#:#The direct sessionlogin is only possible by joining without application of admission or waiting list/lottery!
+crs#:#crs_subscription_event_free#:#free
+crs#:#crs_subscription_event_location#:#location:
+crs#:#crs_subscription_event_referee#:#advisor:
+crs#:#crs_subscription_event_registered#:#signed in
+crs#:#crs_subscription_events_header#:#registration to dates
+crs#:#crs_subscription_mycampus#:#Registration by <em>my campus</em>
+crs#:#crs_subscription_mycampus_info#:#The registration takes place by the system <em>my campus</em>. This requires an iport of the lecture data from UnivIS. This can be made by "Content / UnivIS Import".
+crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>The Joining to this course takes place by the system <em>my campus</em>. The following link leads to the front page of <em>my campus</em>. After the login you get automatically to the registrationsite of the course.</p><p><a target="_blank" href="%s"><strong>Joining by my campus</strong> (new window)</a></p>
+crs#:#crs_subscription_options_direct_studycond#:#Direct joining (otherwise application for admission) for following students:<p class="small">%s</p>
+crs#:#crs_subscription_options_password_studycond#:#Joining with short password (otherwise application for admission) for following students:<p class="small">%s</p>
+crs#:#crs_subscription_with_events#:#Session login
+crs#:#crs_subscription_with_events_info#:#Choose here if the login to the sessions shall already happen by the course login. That is only the joining procedure without application for admission or waiting list/lottery possible.
+crs#:#crs_subscription_with_events_multiple#:#In at least one of the sessions
+crs#:#crs_subscription_with_events_off#:#without sessionlogin
+crs#:#crs_subscription_with_events_unique#:#In exactly one of the sessions
+crs#:#crs_sync_my_campus#:#my campus-logins transferred
+crs#:#crs_sync_my_campus_added#:#The following course members of my campus have been added: %s.
+crs#:#crs_sync_my_campus_empty#:#There are no transferrable Logins in my campus!
+crs#:#crs_sync_my_campus_failure_connect#:#Could not establish connection to my campus!
+crs#:#crs_sync_my_campus_failure_participants#:#The logindata for this course could not been retrieved!
+crs#:#crs_sync_my_campus_ok#:#The logins of my campus are added as members.
+crs#:#crs_sync_my_campus_waiting#:#The following users are on waiting list in my campus and have to be accepted there: %s.
+crs#:#crs_view_info_standard#:#This view presents the course materials similar to the online offers.
+crs#:#event_enabled#:#Activated
+crs#:#event_max_participants#:#maximum number of participants
+crs#:#event_max_participants_info#:#Set here the maximum number of sessionparticipants. If the number exceeds, no more registrations are possible ('0' means unlimited).
+crs#:#event_max_participants_not_numeric#:#The maximum number of participants has to be a number!
+crs#:#event_not_registered#:#Not registered
+crs#:#export_lp_info#:#The determination of the status can be determined in the single contents on the tab "learning process" among "settings".<br />Some contents (Sessions, exercises) have additional overviews for editing the status and grade.<br /><em>The more you select, the longer the export takes.</em>
+crs#:#export_lp_marks#:#Grades/Credits
+crs#:#export_lp_status#:#Status
+exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
+exc#:#exc_calc_calculate#:#Calculate
+exc#:#exc_calc_mark_function#:#Grades/Credits-Calculation
+exc#:#exc_calc_mark_function_average#:#Average
+exc#:#exc_calc_mark_function_average_info#:#An average-grade of the selected exercise units will be calculated.
+exc#:#exc_calc_mark_function_sum#:#Sum
+exc#:#exc_calc_mark_function_sum_info#:#The credits of all selected exercise units will be summed up.
+exc#:#exc_calc_mark_select#:#Selection of the exercise units
+exc#:#exc_calc_mark_select_count#:#Count
+exc#:#exc_calc_mark_select_count_info#:#You have to involve at least the obligatory exercise units. Their values always count.
+exc#:#exc_calc_mark_select_count_message#:#Please choose at least the obligatory exercise units (%s).
+exc#:#exc_calc_mark_select_highest#:#The highest value
+exc#:#exc_calc_mark_select_info#:#At least the obligatory units have to be evaluated.<br /> Thereby only the Grades/credits will be recognized, not if it is passed. Are not enough results available, the overall result will be empty.
+exc#:#exc_calc_mark_select_lowest#:#The lowest value
+exc#:#exc_calc_mark_select_mandatory#:#All affirmative exercise units
+exc#:#exc_calc_mark_select_marked#:#All exercise units with grades/credits
+exc#:#exc_calc_mark_select_number#:#fixed number
+exc#:#exc_calc_mark_select_order#:#Selection
+exc#:#exc_calc_status#:#Status-Calculation
+exc#:#exc_calc_status_compare#:#passed, if
+exc#:#exc_calc_status_compare_higher#:#bigger than the threshold
+exc#:#exc_calc_status_compare_higher_equal#:#bigger than or equal to the threshold
+exc#:#exc_calc_status_compare_info#:#You have to serve the threshold for calculation. It can also be a decimal value - comma or point will be treated as the same.
+exc#:#exc_calc_status_compare_lower#:#smaller that the threshold
+exc#:#exc_calc_status_compare_lower_equal#:#smaller than or equal to the threshold
+exc#:#exc_calc_status_compare_value#:#threshold
+exc#:#exc_calc_status_default#:#Default value
+exc#:#exc_calc_status_default_info#:#Is because of lack of single results the overall result empty, the status will become this value
+exc#:#exc_calc_status_info#:#The "passed"-status will be calculated by the ascertained grades/credits.
+exc#:#exc_calculate_overall_results#:#calculate overall results
+exc#:#exc_mark#:#Grade/Credits
+exc#:#exc_pass_manual#:#Manual
+exc#:#exc_pass_manual_description#:#Description of the requirement on the info-page
+exc#:#exc_pass_manual_info#:#If a exercise is passed, is decided by the tutors. In the grade-view an automatical calculation of the totalresult based on the partgrades/credits can take place.
+exc#:#exc_result_time#:#Result Availability
+exc#:#exc_result_time_info#:#The result and tutor Feedback will be available after this date. No feedback email is automatically sent before this date.
+exc#:#exc_result_time_should_be_after_end_date#:#The result availability must be after the deadline.
+exc#:#exc_result_time_not_for_peer_feedback#:#The result availability is not valid for peer feedback. Please use the feedback deadline there.
+exc#:#exc_result_available_after#:#Result available after
+exc#:#exc_not_attempted#:#Not Submitted
+exc#:#exc_comment_for_learner_info_nosend#:#No Notification is sent. The Feedback will be shown in the units oberview after reaching the result availability.
+exercise#:#exc_mark#:#grade/Points
+grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
+grp#:#crs_grp_info_reg_lot#:#You can only become a member of the following courses, but register for any. So the first assigned membership becomes valid.
+grp#:#group_password_registration_lot#:#When you received the group-password, you can register for the lottery of this group.
+grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
+grp#:#group_req_registration_lot#:#You can request the participation of the lottery for this group. You will receive a message, if you have been drawn or your admission was rejected.
+grp#:#grp_added_member#:#Admission to group "%s"
+grp#:#grp_added_member_body#:#You have been accepted to the group "%s".
+grp#:#grp_cancel_lot_list#:#Are you sure that you want to unsubscribe for the lottery of the group "%s"?
+grp#:#grp_grp_info_reg_lot#:#You can only become a member of the following groups, but join any. So the first assigned membership becomes valid.
+grp#:#grp_limit_period_for_lot#:#For the activation of the lottery you have to limit the admission period!
+grp#:#grp_lot_info#:#<span class="alert">Use the lottery, if you expect many interest parties!</span><br />All Admissions will be collect with the same chance. After the admission period you can determine the members by chance.
+grp#:#grp_lot_list#:#Lottery
+grp#:#grp_max_members_mode#:#Procedure:
+grp#:#grp_no_list#:#Rejection
+grp#:#grp_no_list_info#:#If the number of members has exceeded, new Joinings will instantly be rejected.
+grp#:#grp_pass_request_studycond#:#Joining with group-password (otherwise application for admission) for following students:<p class="small">%s</p>
+grp#:#grp_reg_direct_info_screen_lot#:#You can register for the lottery of this group.
+grp#:#grp_reg_limit_reached#:#You could not have been accepted, because the maximum number of participants has been exceeded.
+grp#:#grp_reg_limit_time_info#:#Joining is only possible during a fixed period.
+grp#:#grp_reg_passwd_info_screen_lot#:#When you receive the group-password, you can register for the lottery of this group.
+grp#:#grp_reg_req_info_screen_lot#:#You can request the participation of the lottery for this group. You will receive a message, if you have been drawn or your admission has been rejected.
+grp#:#grp_reg_user_already_assigned#:#You are already member of this group.
+grp#:#grp_reg_user_generic_failure#:#You could not be accepted!
+grp#:#grp_reg_user_on_waiting_list#:#You are already on the waiting list of this group!
+grp#:#grp_removed_from_lot_list#:#You have been unsbuscribed for the lottery of the group "%s".
+grp#:#grp_show_mem_limit_label#:#Show:
+grp#:#grp_show_mem_limit_option#:#Show limitation and free slots by listing the group
+grp#:#grp_type_info_create#:#<span class="alert">Superior administrators can - independable of that - have access (see Info-page after creating)</span>.
+grp#:#grp_type_info_edit#:#<span class="alert">Superior administrator can - independable of that - have access (see Info-page)</span>.
+grp#:#mem_error_preconditions#:#You could not have been accepted!
+mail#:#mail_only_own_courses_info#:#Please write only to members of your own courses and groups.<br />Use course or group addresses only for important messages.</br >Anything else may be spam for the recipients!
+mail#:#mail_pear_is_automaticly_switched#:#PEAR will automaticly be activated at the mailing to course or group members where local roles exists with non-unique names.
+mail#:#mail_salutation_f#:#Dear Mrs.
+mail#:#mail_salutation_m#:#Dear Mr.
+mail#:#mail_smtp_not_allowed#:#You can only write to users in the system, not to general e-mail-adresses!
+news#:#news_get_feed_info#:#This feed has all news to your selected items that were declared as public by their authos. It is not protected by any authentication.
+news#:#news_get_priv_feed_info#:#This feed has additional news that were declared as private. It is protected by a password defined by you in the <a href=%s">news settings</a>. Please replace the pattern PASSWORD in the URL with your feed password.
+news#:#news_get_priv_feed_passhash_title#:#Personal private Feed-URL (alternative)
+news#:#news_get_priv_feed_passhash_info#:#Use this feed address when your RSS reader doesn't support passwords. When you change your feed password in the <a href=%s">news settings</a> then this link will be changed, too. Please don't send this link to other persons.
+news#:#news_get_priv_feed_disabled_info#:#Your private news feed isn't active. You can activate it in the <a href=%s">"news settings"</a>.
+pdesk#:#pd_description#:#
+ps#:#cleanup_rbac_log#:#Cleanup Permission Log
+ps#:#cleanup_rbac_log_finished#:#Permission log cleaned.
+ps#:#ps_export_lot#:#Lot candidates
+ps#:#ps_perform_export_excel#:#Start Excel Export
+registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
+registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.
+registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.
+registration#:#reg_code_title_info#:#This title replaces the page title of the registration form.
+registration#:#reg_code_description_info#:#The description is shown below the page title.
+registration#:#reg_code_use_limit#:#Usable
+registration#:#reg_code_use_limit_info#:#Number of possible code usages. 0 means unlimited.
+registration#:#reg_code_use_count#:#Used
+registration#:#reg_code_last_used#:#Last Used
+registration#:#reg_login_generation_type#:#Login Generation
+registration#:#reg_login_generation_type_info#:#Definition of the login name for the new user account.
+registration#:#reg_login_gen_manual#:#Manual entry
+registration#:#reg_login_gen_first_lastname#:#Automatic (firstname.lastname)
+registration#:#reg_login_gen_guest_listener#:#Automatic for Guest Listeners (ghs16frneuma)### fau.
+registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration.
+registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
+search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
+style#:#sty_custom_css#:#Special Styles
+style#:#sty_custom_css_edit#:#Edit Special Styles
+style#:#sty_custom_css_description#:#Enter special styles here as CSS code. The code is appended to the generated CSS file. Special styles are only supported in StudOn, not in standard ILIAS.
+style#:#sty_custom_css_color_info#:#Predefined colors are used like in the style forms, e.g. color: !MeineFarbe(20);
+style#:#sty_custom_css_image_info#:#Images are used with ! as prefix, e.g. background-image: url(!MeinHintergrund.png);
+survey#:#freetext_answers#:#Freetext answers
+survey#:#anonymize_survey_description#:#The anonymisation deletes all personal data from the survey statistics.<ul><li>Public surveys with CAPTCHA require the recognition of a short picture text to prevent an automated fill-in.</li><li>Public surveys with access key require a short key to be entered.</li></ul>Registered StudOn users don't need a CAPTCHA or access key.
+survey#:#anonymize_with_captcha#:#Anonymous Survey with CAPTCHA
+trac#:#lp_info_users_to_refresh#:#%s learning progress data were refreshed. There are %s users remaining that need an update. Please reload this page if you need their data.###fau: lpRefreshesLimit
+univis#:#crs_visibility#:#Visibility
+univis#:#crs_visibility_unvisible#:#Not visible
+univis#:#crs_availability_unvisible_info#:#Der Kurs ist set offline
+univis#:#univis_add_title_short#:#add short title
+univis#:#univis_additional_info#:#Additional informations
+univis#:#univis_allfak#:#language course for listeners of all faculties
+univis#:#univis_allfak_short#:#AllFak
+univis#:#univis_bac#:#Bachelor
+univis#:#univis_bac_short#:#BAC
+univis#:#univis_beginners#:#suitable for beginners
+univis#:#univis_beginners_short#:#Beg.
+univis#:#univis_benschein#:#graded credit
+univis#:#univis_benschein_short#:#gr. credit
+univis#:#univis_category_course_update_no_found#:#No courses with data found in this category of UnivIS. You can also deposit the UnivIS data in an existing course afterwards. For that switch to the course and use the data transfer.
+univis#:#univis_comment#:#comment
+univis#:#univis_confirm_course_data_delete#:#This course is bounded to a lecture at UnivIS, which is needed to transfer admissions from <em>my campus</em>. Every lecture in UnivIS can be matched to only one StudOn course.<br />Do you want to delete the bonding to enable it for another course?
+univis#:#univis_contact_data#:#contact data
+univis#:#univis_course_data_delete_succeeded#:#The bonding to the lecture has been deleted. To delete the informations of the syllabus please go to settings / course info.
+univis#:#univis_course_path#:#Studon-Course in:
+univis#:#univis_credits#:#credit:
+univis#:#univis_date_from#:#from
+univis#:#univis_department_title#:#Name
+univis#:#univis_dipl#:#Diplom
+univis#:#univis_dipl_short#:#DIPL
+univis#:#univis_ects#:#ECTS-Study
+univis#:#univis_ects_credits#:#ECTS-Credits:
+univis#:#univis_ects_credits_short#:#ECTS:
+univis#:#univis_ects_info#:#ECTS-Informations
+univis#:#univis_ects_info_credits#:#Credits:
+univis#:#univis_ects_info_literature#:#Literature:
+univis#:#univis_ects_info_name#:#Title:
+univis#:#univis_ects_info_organizational#:#Organizational:
+univis#:#univis_ects_info_prerequisites#:#Prerequisites:
+univis#:#univis_ects_info_summary#:#Contents:
+univis#:#univis_ects_short#:#ECTS
+univis#:#univis_einf#:#introductory event gem. 10. amending law of the FPO
+univis#:#univis_einf_short#:#Intr.
+univis#:#univis_error_connect#:#The UnivIS-Server is temporarily not available!
+univis#:#univis_error_none#:#No error while importing data from UnivIS
+univis#:#univis_error_transfer#:#There was an error while transfering data!
+univis#:#univis_error_validate#:#No evaluable data has been given back!
+univis#:#univis_fachstud#:#only subjectstudy
+univis#:#univis_fachstud_short#:#sub st.
+univis#:#univis_fruehstud#:#early study
+univis#:#univis_fruehstud_short#:#ea. study
+univis#:#univis_gast#:#only guest listeners authorized
+univis#:#univis_gast_short#:#guest listeners
+univis#:#univis_header_settings#:#selected settings
+univis#:#univis_header_settings_desc#:#You can also edit these settings afterwards.
+univis#:#univis_header_show_on_info_screen#:#Data for view on front page
+univis#:#univis_header_show_on_list#:#Data view on listing
+univis#:#univis_info#:#information
+univis#:#univis_info_set_activation#:#Set or update the availability settings
+univis#:#univis_info_set_description#:#The description will be shown under the title by listing on StudOn. The informations can be taken over from UnivIS, which are shown there by the listing.
+univis#:#univis_info_set_membership_limitation#:#<span class="alert">This setting will be ignored, if the login was per <em>my campus</em></span>
+univis#:#univis_info_set_registration#:#<span class="alert">This setting will be ignored, if the login was per <em>my campus</em></span><br />Without selection the admission period from UnivIS will be taken over and the joining procedure will be set to "direct Joining".
+univis#:#univis_info_set_syllabus#:#In the field "syllabus" the data from the UnivIS-Detail view can be transferred. The Selections correspond to the part-heading there. The field "important informations" stays unchanged for additional informations in StudOn.
+univis#:#univis_info_set_title#:#Doing a new-import, the title will always be taken over. If possible the short title will be set behind in square brackets.
+univis#:#univis_institution#:#Institution
+univis#:#univis_keywords#:#Keywords:
+univis#:#univis_ladidf#:#LADIDF
+univis#:#univis_ladidf_short#:#LADIDF
+univis#:#univis_ladidg#:#LADIDG
+univis#:#univis_ladidg_short#:#LADIDG
+univis#:#univis_ladidh#:#LADIDH
+univis#:#univis_ladidh_short#:#LADIDH
+univis#:#univis_laew#:#LAEW
+univis#:#univis_laew_short#:#LAEW
+univis#:#univis_lafb#:#LAFB
+univis#:#univis_lafb_short#:#LAFB
+univis#:#univis_lafn#:#LAFN
+univis#:#univis_lafn_short#:#LAFN
+univis#:#univis_lafv#:#LAFV
+univis#:#univis_lafv_short#:#LAFV
+univis#:#univis_lecture_conditions_desc#:#Please determine how the lecture data shall be taken over.
+univis#:#univis_lecture_conditions_title#:#Settings for Data-overtake
+univis#:#univis_lecture_message_course_blocked#:#This StudOn-course is not changeable for you. Owner: %s.
+univis#:#univis_lecture_message_course_exists#:#On this a course already exists in StudOn. Owner: %s.
+univis#:#univis_lecture_message_course_hidden#:#On this a course in StudOn exists, which is not visible to you. Owner: %s.
+univis#:#univis_lecture_message_course_parent#:#The lecture is already linked to this course.
+univis#:#univis_lecture_search_import_desc#:#Please insert a search criteria for the lecture, which data you want to enter to this course.
+univis#:#univis_lecture_search_title#:#Search for a lecture
+univis#:#univis_lecture_selection_import_desc#:#Please choose the lecture, which data you want to take over.
+univis#:#univis_lecture_selection_title#:#choose lecture
+univis#:#univis_lecture_title#:#Title
+univis#:#univis_lecture_type_ag#:#Association
+univis#:#univis_lecture_type_ak#:#Advanced Course
+univis#:#univis_lecture_type_awa#:#Instruction for scientific work
+univis#:#univis_lecture_type_ek#:#Introduction course
+univis#:#univis_lecture_type_ex#:#Excursion
+univis#:#univis_lecture_type_gk#:#Basic course
+univis#:#univis_lecture_type_gsz#:#Committees session
+univis#:#univis_lecture_type_hs#:#Advanced Seminar
+univis#:#univis_lecture_type_hvl#:#Main lecture
+univis#:#univis_lecture_type_kk#:#exam paper course
+univis#:#univis_lecture_type_klv#:#clinical visit
+univis#:#univis_lecture_type_ko#:#Colloquium
+univis#:#univis_lecture_type_ku#:#Course
+univis#:#univis_lecture_type_ms#:#Medial seminar
+univis#:#univis_lecture_type_os#:#Upper seminar
+univis#:#univis_lecture_type_pf#:#Examination
+univis#:#univis_lecture_type_pjs#:#Project seminar
+univis#:#univis_lecture_type_ppu#:#Propaedeutic exercise
+univis#:#univis_lecture_type_pr#:#Traineeship
+univis#:#univis_lecture_type_prs#:#Practical seminar
+univis#:#univis_lecture_type_ps#:#Introductory seminar course
+univis#:#univis_lecture_type_re#:#Review course
+univis#:#univis_lecture_type_sem#:#Seminar
+univis#:#univis_lecture_type_sl#:#Miscellaneous lectures
+univis#:#univis_lecture_type_ts#:#Theoretical seminar
+univis#:#univis_lecture_type_tut#:#Seminar conducted by a postgraduate
+univis#:#univis_lecture_type_ue#:#Exercise
+univis#:#univis_lecture_type_v-ue#:#lecture with exercise
+univis#:#univis_lecture_type_vorl#:#lecture
+univis#:#univis_lecturer#:#lecturer
+univis#:#univis_lecturer_name#:#Name
+univis#:#univis_lectures_search_import_desc#:#Please insert a search criteria for the lecture, which you want to apply to StudOn.
+univis#:#univis_lectures_search_title#:#Search for lectures
+univis#:#univis_lectures_selection_import_desc#:#Please choose the lectures, which you want to import.
+univis#:#univis_lectures_selection_title#:#Choose lectures
+univis#:#univis_lectures_selection_update_desc#:#Please choose the lectures, which course data you want to update.
+univis#:#univis_literature#:#recommended literature
+univis#:#univis_mag#:#Master's degree
+univis#:#univis_mag_short#:#MAG
+univis#:#univis_mast#:#Master
+univis#:#univis_mast_short#:#MAST
+univis#:#univis_maxturnout#:#Maximum number of participants:
+univis#:#univis_medabschn1#:#1. Study stage
+univis#:#univis_medabschn1_short#:#1. stage
+univis#:#univis_medabschn2#:#2. Study stage
+univis#:#univis_medabschn2_short#:#2. stage
+univis#:#univis_message_course_updated#:#1 StudOn-course has been updated.
+univis#:#univis_message_courses_updated#:#%s StudOn-course has been updated.
+univis#:#univis_message_lecture_ignored#:#1 lecture has been ignored.
+univis#:#univis_message_lecture_imported#:#1 lecture has been added as StudOn-course.
+univis#:#univis_message_lectures_ignored#:#%s lecture has been ignored.
+univis#:#univis_message_lectures_imported#:#%s lecture has been added as StudOn-course.
+univis#:#univis_message_this_course_updated#:#The course data has been updated.
+univis#:#univis_mycampus_registration#:#For the lecture a login is required. The login takes place per <a href="https://www.campus.uni-erlangen.de/qisserver/rds?univisid=%s" target="_blank"><em>my campus</em></a>.
+univis#:#univis_no_department_found#:#No matching facilities have been found. Please check your search input!
+univis#:#univis_no_lecturer_found#:#No matching persons have been found. Please check your search input!
+univis#:#univis_no_lectures_found#:#No matching lectures have been found. Please check your search input!
+univis#:#univis_no_lectures_selected#:#Please choose a lecture!
+univis#:#univis_no_title_selected#:#Please choose a title!
+univis#:#univis_pattern_too_short#:#Please type at least %s signs as search criteria!
+univis#:#univis_praktjahr#:#Practical year
+univis#:#univis_praktjahr_short#:#Prk. Jahr
+univis#:#univis_prerequisites#:#Requirements / Organizational matters
+univis#:#univis_refine_department#:#There are several departments, which match your search input. Please choose one or refine your search input!
+univis#:#univis_refine_lecturer#:#There are several persons, who match your search input. Please choose one or refine your search input!
+univis#:#univis_schein#:#Credit
+univis#:#univis_schluessel#:#Suitable as key skill
+univis#:#univis_schluessel_short#:#Key
+univis#:#univis_schwerp#:#Study focus areas Phil.I/Phil.II
+univis#:#univis_schwerp_short#:#focus
+univis#:#univis_search_by_department#:#Department
+univis#:#univis_search_by_department_info#:#It will be searched for lectures of a department, whose name matches your search input.
+univis#:#univis_search_by_imported_courses#:#Already imported courses in this categories
+univis#:#univis_search_by_lecturer#:#Lecturer
+univis#:#univis_search_by_lecturer_info#:#It will be searched for lectures of lecturers, whose name matches your searchinput
+univis#:#univis_search_by_title#:#Lecture
+univis#:#univis_search_by_title_info#:#It will be searched for lectures, whose title matches the search input
+univis#:#univis_search_info_retry#:#<br />Advice: maybe search using a different criteria (lectures, departments, lecturers).
+univis#:#univis_search_mode#:#Search per:
+univis#:#univis_select_department#:#Selection
+univis#:#univis_select_department_info#:#These departments have been found by search. Choose one to list its lectures.
+univis#:#univis_select_lecturer#:#Selection
+univis#:#univis_select_lecturer_info#:#These persons have been found by search. Choose one to list his/her lectures.
+univis#:#univis_semester#:#Semester
+univis#:#univis_semester_from#:#from
+univis#:#univis_senior#:#seniors study
+univis#:#univis_senior_short#:#Seniors
+univis#:#univis_set_activation#:#Set availability
+univis#:#univis_set_contact_first#:#Takeover from first lecturer
+univis#:#univis_set_contact_not#:#Do not over take
+univis#:#univis_set_contact_own#:#new contact data:
+univis#:#univis_set_description#:#Takeover description
+univis#:#univis_set_membership_limitation#:#Take over maximum number of participants from UnivIS
+univis#:#univis_set_registration#:#Set registration options
+univis#:#univis_set_syllabus#:#Takeover "syllabus"
+univis#:#univis_set_title#:#Takeover title
+univis#:#univis_short_info#:#short info
+univis#:#univis_ss#:#SS %s
+univis#:#univis_studies#:#subject of study / branch of study
+univis#:#univis_summary#:#Summary
+univis#:#univis_sws#:#SWS
+univis#:#univis_term_bd#:#block lecture
+univis#:#univis_term_d1#:#daily
+univis#:#univis_term_s1#:#single date at
+univis#:#univis_term_w2#:#every 2. week
+univis#:#univis_terms#:#Dates
+univis#:#univis_turnout#:#Expected number of participants:
+univis#:#univis_women#:#women research
+univis#:#univis_women_short#:#women
+univis#:#univis_ws#:#WS %s/%s
+user#:#usr_public_profile_global_alert#:#Your profile is visible to all internet users!<br /><a href="%s">Change Setting</a>
+user#:#usr_public_profile_logged_in_alert#:#Your profile is visible to registered users!<br /><a href="%s">Change Setting</a>
+webform#:#webform_all_categories#:#All Categories
+webform#:#webform_all_corrected#:#corrected
+webform#:#webform_all_courses#:#All courses
+webform#:#webform_all_modules#:#All learning modules
+webform#:#webform_all_not_corrected#:#not corrected
+webform#:#webform_check_date#:#Check date
+webform#:#webform_correct#:#mark as corrected
+webform#:#webform_corrected#:#corrected
+webform#:#webform_corrected_entries#:#The entries have been marked as corrected.
+webform#:#webform_corrected_entry#:#the entry has been marked as corrected.
+webform#:#webform_create#:#create Formdefinitions
+webform#:#webform_create_definition#:#create formdefinitions
+webform#:#webform_definition#:#Formdefinitions
+webform#:#webform_definition_delete_failed#:#The Formdefinition was not able to be deleted.
+webform#:#webform_definition_deleted#:#The Formdefinition has been deleted.
+webform#:#webform_definition_saved#:#The Formdefinition has been saved.
+webform#:#webform_definition_updated#:#The Formdefinition has been updated.
+webform#:#webform_definitions#:#Formdefinitions
+webform#:#webform_definitions_not_found#:#The file with the formdefinitions "%s" has not been found.
+webform#:#webform_definitions_read#:#Read formdefinitions
+webform#:#webform_definitions_read_count#:#%s Formdefinitions have been read.
+webform#:#webform_definitions_read_finished#:#The following formdefinitions have been read:<br />%s
+webform#:#webform_edit_definition#:#Formdefinition
+webform#:#webform_field_dataset_id#:#Dataset
+webform#:#webform_field_dataset_id_info#:#Label of the dataset, in which the contents of the form will be saved.<br />Several forms can use the same dataset. If there is no dataset-label, the formname will be used.
+webform#:#webform_field_form_name#:#Name
+webform#:#webform_field_form_name_info#:#Unique name of the form in the learnmodule.<br />Will be used by re-reading of the formdefinitions to overwrite an existing.
+webform#:#webform_field_forum#:#targetforum (Name)
+webform#:#webform_field_forum_info#:#Title of the forum, in which the entry will be posted additionally.<br />If there are several identically named forums with write-permission of the user, the one which is closest to the learnmodule will be used.
+webform#:#webform_field_forum_parent#:#upper entry (Name)
+webform#:#webform_field_forum_parent_info#:#Title of an existing upper entry in the forum, which the entry will be assigned.
+webform#:#webform_field_forum_subject#:#Entry-title
+webform#:#webform_field_forum_subject_info#:#Title of the forums entry, which will be created by submitting.
+webform#:#webform_field_path#:#Path
+webform#:#webform_field_path_info#:#relative path to the html-page of the form, based on the basic directory of the learnmodule.
+webform#:#webform_field_send_maxdate#:#Max. transmission date
+webform#:#webform_field_send_maxdate_info#:#date, until which the form can be submitted.
+webform#:#webform_field_solution_date#:#Date of release
+webform#:#webform_field_solution_date_info#:#date, from which the solutionpage is available.
+webform#:#webform_field_solution_mode#:#Release of the solution
+webform#:#webform_field_solution_mode_info#:#Determines when the solutionpage is available.
+webform#:#webform_field_solution_ref#:#path to the solution
+webform#:#webform_field_solution_ref_info#:#relative path to the solutionpage, based on the basicdirectory of the learnmodule.
+webform#:#webform_field_title#:#Title
+webform#:#webform_field_title_info#:#Title, which will be shown in the list of forms and submissions.
+webform#:#webform_filter#:#Filter
+webform#:#webform_filter_all#:#All
+webform#:#webform_filter_checked#:#Correction
+webform#:#webform_filter_form_id#:#Submissionform
+webform#:#webform_filter_user_id#:#User
+webform#:#webform_goto_solution#:#To the solution
+webform#:#webform_no_solution#:#For this form no solution is defined.
+webform#:#webform_read_definitions#:#read Formdefinitions
+webform#:#webform_read_definitions_failed#:#The Formdefinitions couldn't been read
+webform#:#webform_read_definitions_successful#:#Formdefinitions have been read
+webform#:#webform_savings#:#Savings
+webform#:#webform_send_date#:#Submissiondate
+webform#:#webform_sendings#:#Submissions
+webform#:#webform_solution#:#Solution
+webform#:#webform_solution_after_checked#:#The solution will only be shown after correction by the tutor.
+webform#:#webform_solution_after_date#:#The solution will be shown after the date %s.
+webform#:#webform_solution_after_sent#:#The solution will be shown after submission.
+webform#:#webform_solution_mode_checked#:#After the correction
+webform#:#webform_solution_mode_date#:#After the date
+webform#:#webform_solution_mode_send#:#By Submitting
+webform#:#webform_tutor#:#Tutor
+webform#:#webform_uncorrect#:#mark as not-corrected
+webform#:#webform_uncorrected_entries#:#The submissions have been marked as not-corrected.
+webform#:#webform_uncorrected_entry#:#The submission has been marked as not-corrected.

@@ -96,6 +96,10 @@ class ilContainerReferenceGUI extends ilObjectGUI
 			$ilErr->raiseError($this->lng->txt("permission_denied"),$ilErr->MESSAGE);
 		}
 
+		// fim: [help] add create info
+		$this->showTypeHelptext();
+		// fim.
+
 		$this->initTargetSelection(self::MODE_CREATE);
 		ilUtil::sendInfo($this->lng->txt($this->getReferenceType().'_edit_info'));
 	}

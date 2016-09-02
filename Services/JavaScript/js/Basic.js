@@ -521,6 +521,10 @@ il.UICore = {
 			}
 		}
 
+// fau: ownFooter - adjust the height of the footer spacer
+        $('#minheight').height($('.ilFooter').outerHeight());
+// fau.
+
 		// fit width of right top/bottom regions into mainspacekeeper area
 		if (rtop && sm) {
 			sm_reg = il.Util.getRegion(sm);
@@ -640,6 +644,12 @@ il.UICore = {
 	loadWrapperToRightPanel: function (wrapper_id) {
 		this.right_panel_wrapper = wrapper_id;
 		$("#" + wrapper_id).children().appendTo('#ilRightPanel');
+
+// fau: taxDesc - enable tooltips for nodes in taxonomy selector
+        if (il.Tooltip) {
+            il.Tooltip.init();
+        }
+// fau.
 	},
 	
 	// move the right panel content back to wrapper
@@ -956,4 +966,3 @@ function startSAHS(SAHSurl, SAHStarget, SAHSopenMode, SAHSwidth, SAHSheight)
 		window.open(SAHSurl,SAHStarget,'top=0,width='+SAHSwidth+',height='+SAHSheight+',location=no,menubar=no,resizable=yes,scrollbars=yes,status=no');
 	}
 }
-

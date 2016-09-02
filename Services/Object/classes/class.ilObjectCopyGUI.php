@@ -20,27 +20,27 @@ class ilObjectCopyGUI
 	
 	const SUBMODE_COMPLETE = 1;
 	const SUBMODE_CONTENT_ONLY = 2;
-	
+
 	// tabs
 	const TAB_SELECTION_TARGET_TREE = 1;
 	const TAB_SELECTION_SOURCE_TREE = 2;
 	const TAB_SELECTION_MEMBERSHIP = 3;
-	
+
 	// group selection of source or target
 	const TAB_GROUP_SC_SELECTION = 1;
-	
-	
+
+
 	private $mode = 0;
 	private $sub_mode = self::SUBMODE_COMPLETE;
-	
+
 	private $lng;
 	
 	private $parent_obj = null;
 	
 	private $type = '';
-	
+
 	private $sources = array();
-	
+
 	// begin-patch multi copy
 	private $targets = array();
 	private $targets_copy_id = array();
@@ -119,7 +119,7 @@ class ilObjectCopyGUI
 					ilObject::_lookupType(ilObject::_lookupObjId($this->getFirstSource()))
 			);
 		}
-		
+
 		// creation screen: copy section
 		if($_REQUEST['new_type'])
 		{
@@ -131,7 +131,7 @@ class ilObjectCopyGUI
 			$GLOBALS['ilCtrl']->setParameterByClass(get_class($this->getParentObject()),'new_type', $this->getType());
 			$GLOBALS['ilCtrl']->setParameterByClass(get_class($this->getParentObject()),'cpfl', 1);
 			$GLOBALS['ilCtrl']->setReturnByClass(get_class($this->getParentObject()),'create');
-			
+
 			ilLoggerFactory::getLogger('obj')->debug('Copy from object creation for type: '. $this->getType());
 			return TRUE;
 		}
@@ -143,7 +143,7 @@ class ilObjectCopyGUI
 			$ilCtrl->setParameterByClass(get_class($this->parent_obj), 'selectMode', self::SOURCE_SELECTION);
 			$this->setTarget((int) $_GET['ref_id']);
 			$ilCtrl->setReturnByClass(get_class($this->parent_obj), '');
-			
+
 			ilLoggerFactory::getLogger('obj')->debug('Source selection mode. Target is: '. $this->getFirstTarget());
 		}
 		elseif($_REQUEST['selectMode'] == self::TARGET_SELECTION)
@@ -152,20 +152,20 @@ class ilObjectCopyGUI
 			$ilCtrl->setReturnByClass(get_class($this->parent_obj),'');
 			ilLoggerFactory::getLogger('obj')->debug('Target selection mode.');
 		}
-		
-		
+
+
 		// save targets
 		if($_REQUEST['target_ids'])
 		{
 			$this->setTargets(explode('_',$_REQUEST['target_ids']));
 			ilLoggerFactory::getLogger('obj')->debug('targets are: '. print_r($this->getTargets(),TRUE));
 		}
-		
+
 	}
-	
+
 	/**
 	 * Init tabs
-	 * General 
+	 * General
 	 */
 	protected function initTabs()
 	{
@@ -176,7 +176,7 @@ class ilObjectCopyGUI
 				$GLOBALS['ilCtrl']->getParentReturn($this->parent_obj)
 		);
 	}
-	
+
 	/**
 	 * Set tabs
 	 * @param type $a_tab_group
@@ -205,8 +205,8 @@ class ilObjectCopyGUI
 		}
 		$GLOBALS['ilTabs']->activateTab($a_active_tab);
 	}
-	
-	
+
+
 	/**
 	 * Adopt content (crs in crs, grp in grp, crs in grp or grp in crs)
 	 * @return type
@@ -215,13 +215,13 @@ class ilObjectCopyGUI
 	{
 		$GLOBALS['ilCtrl']->setParameter($this,'smode',self::SUBMODE_CONTENT_ONLY);
 		$GLOBALS['ilCtrl']->setParameter($this,'selectMode',self::SOURCE_SELECTION);
-		
-		
+
+
 		$this->setSubMode(self::SUBMODE_CONTENT_ONLY);
 		$this->setMode(self::SOURCE_SELECTION);
 		$this->setTarget((int) $_GET['ref_id']);
-		
-		
+
+
 		return $this->initSourceSelection();
 	}
 	
@@ -244,7 +244,7 @@ class ilObjectCopyGUI
 		// cognos-blu-patch: end
 
 		// open current position
-		
+
 		foreach($this->getSource() as $source_id)
 		{
 			if($source_id)
@@ -257,7 +257,7 @@ class ilObjectCopyGUI
 						$_SESSION['paste_copy_repexpand'][] = $node_id;
 					}
 				}
-				
+
 			}
 		}
 
@@ -281,7 +281,7 @@ class ilObjectCopyGUI
 
 		$this->setTabs(self::TAB_GROUP_SC_SELECTION, self::TAB_SELECTION_SOURCE_TREE);
 
-		
+
 		// open current position
 		// begin-patch mc
 		foreach($this->getTargets() as $target_ref_id)
@@ -300,7 +300,7 @@ class ilObjectCopyGUI
 		$this->showSourceSelectionTree();	
 	}
 	
-	
+
 	/**
 	 * show target selection membership
 	 */
@@ -308,7 +308,7 @@ class ilObjectCopyGUI
 	{
 		ilUtil::sendInfo($this->lng->txt('msg_copy_clipboard_source'));
 		$this->setTabs(self::TAB_GROUP_SC_SELECTION, self::TAB_SELECTION_MEMBERSHIP);
-		
+
 		include_once './Services/Object/classes/class.ilObjectCopyCourseGroupSelectionTableGUI.php';
 		$cgs = new ilObjectCopyCourseGroupSelectionTableGUI($this, 'showSourceSelectionMembership','copy_selection_membership');
 		$cgs->init();
@@ -319,11 +319,11 @@ class ilObjectCopyGUI
 				)
 		);
 		$cgs->parse();
-		
+
 		$GLOBALS['tpl']->setContent($cgs->getHTML());
 	}
-	
-	
+
+
 	/**
 	 * Show target selection
 	 */
@@ -332,7 +332,7 @@ class ilObjectCopyGUI
 		global $ilTabs, $ilToolbar, $ilCtrl, $tree, $tpl, $objDefinition, $lng;
 	
 		$this->tpl = $tpl;
-		
+
 		if($objDefinition->isContainer($this->getType()))
 		{
 			ilUtil::sendInfo($this->lng->txt('msg_copy_clipboard_container'));
@@ -467,7 +467,7 @@ class ilObjectCopyGUI
 			$this->showTargetSelectionTree();
 			return false;	
 		}
-		
+
 		// validate allowed subtypes
 		foreach($this->getSources() as $source_ref_id)
 		{
@@ -493,7 +493,7 @@ class ilObjectCopyGUI
 				}
 			}
 		}
-		
+
 		if(count($this->getSource() == 1) && $objDefinition->isContainer($this->getType()))
 		{
 			// check, if object should be copied into itself
@@ -556,12 +556,12 @@ class ilObjectCopyGUI
 	{
 		$this->sub_mode = $a_mode;
 	}
-	
+
 	public function getSubMode()
 	{
 		return $this->sub_mode;
 	}
-	
+
 	/**
 	 * Get parent gui object
 	 * @return object	parent gui
@@ -611,7 +611,7 @@ class ilObjectCopyGUI
 	{
 		return $this->getSources();
 	}
-	
+
 	/**
 	 * Get sources
 	 * @return type
@@ -620,7 +620,7 @@ class ilObjectCopyGUI
 	{
 		return (array) $this->sources;
 	}
-	
+
 	public function getFirstSource()
 	{
 		if(count($this->sources))
@@ -629,9 +629,9 @@ class ilObjectCopyGUI
 		}
 		return 0;
 	}
-	
+
 	// begin-patch mc
-	
+
 	/**
 	 * Set single object target
 	 * @param type $a_ref_id
@@ -640,8 +640,8 @@ class ilObjectCopyGUI
 	{
 		$this->setTargets(array($a_ref_id));
 	}
-	
-	
+
+
 	/**
 	 * Set target id
 	 * @param int $a_target
@@ -660,7 +660,7 @@ class ilObjectCopyGUI
 	{
 		return (array) $this->targets;
 	}
-	
+
 	/**
 	 * Get first target
 	 * @return int
@@ -675,7 +675,7 @@ class ilObjectCopyGUI
 		return 0;
 	}
 	// end-patch multi copy
-	
+
 	/**
 	 * Cancel workflow
 	 */
@@ -715,7 +715,7 @@ class ilObjectCopyGUI
 		{
 			$_POST['tit'] = $_SESSION['source_query'];
 		}
-		
+
 		$this->initFormSearch();
 		$this->form->setValuesByPost();		
 		
@@ -750,9 +750,9 @@ class ilObjectCopyGUI
 			ilUtil::sendFailure($this->lng->txt('search_no_match'),true);
 			$ilCtrl->returnToParent($this);
 		}
-		
-		
-	
+
+
+
 		include_once './Services/Object/classes/class.ilObjectCopySearchResultTableGUI.php';
 		$table = new ilObjectCopySearchResultTableGUI($this,'searchSource',$this->getType());
 		$table->setFormAction($GLOBALS['ilCtrl']->getFormAction($this));
@@ -793,19 +793,19 @@ class ilObjectCopyGUI
 				$possible_subtypes = $target_object->getPossibleSubObjects();
 
 				$source_type = ilObject::_lookupType($source_ref_id, TRUE);
-				
+
 				if(!array_key_exists($source_type, $possible_subtypes))
 				{
 					#ilLoggerFactory::getLogger('obj')->debug('Source type: '.  $source_type);
 					#ilLoggerFactory::getLogger('obj')->debug('Target type: '.  $target_type);
 					#ilLoggerFactory::getLogger('obj')->debug('Submode: '.  $this->getSubMode());
-					
+
 					// adopt content mode
 					if(
 						$this->getSubMode() != self::SUBMODE_CONTENT_ONLY and
 						($source_type != 'crs' or $target_type != 'crs')
 					)
-					{	
+					{
 						ilUtil::sendFailure(
 								sprintf(
 									$this->lng->txt('msg_obj_may_not_contain_objects_of_type'),
@@ -814,13 +814,13 @@ class ilObjectCopyGUI
 						);
 						$this->searchSource();
 						return FALSE;
-						
+
 					}
 				}
 			}
 		}
-		
-		
+
+
 		if($objDefinition->isContainer($this->getType()))
 		{
 			$this->showItemSelection();
@@ -837,18 +837,18 @@ class ilObjectCopyGUI
 	protected function saveSourceMembership()
 	{
 		global $objDefinition;
-		
+
 		if(!isset($_REQUEST['source']))
 		{
 			ilUtil::sendFailure($this->lng->txt('select_one'));
 			$GLOBALS['ilCtrl']->redirect($this,'showSourceSelectionMembership');
 			return FALSE;
 		}
-		
+
 		$this->setSource(array((int) $_REQUEST['source']));
 		$this->setType(ilObject::_lookupType((int) $this->getFirstSource(), TRUE));
 		$GLOBALS['ilCtrl']->setParameter($this,'source_id',(int) $_REQUEST['source']);
-		
+
 		if($objDefinition->isContainer($this->getType()))
 		{
 			$this->showItemSelection();
@@ -877,7 +877,16 @@ class ilObjectCopyGUI
 		ilLoggerFactory::getLogger('obj')->debug('Source(s): '. print_r($this->getSources(),TRUE));
 		ilLoggerFactory::getLogger('obj')->debug('Target(s): '. print_r($this->getTargets(),TRUE));
 
-		ilUtil::sendInfo($this->lng->txt($this->getType().'_copy_threads_info'));
+// fau: copyBySoap - show info about sending an email when copying is finished
+		$info = $this->lng->txt($this->getType().'_copy_threads_info');
+		global $ilCust;
+		if($ilCust->getSetting('ilias_copy_by_soap'))
+		{
+			$info.= '<br /><span class="small">'.$this->lng->txt('object_copy_with_mail_info').'</span>';
+		}
+		ilUtil::sendInfo($info);
+// fau.
+
 		include_once './Services/Object/classes/class.ilObjectCopySelectionTableGUI.php';
 		
 		$tpl->addJavaScript('./Services/CopyWizard/js/ilContainer.js');
@@ -979,15 +988,15 @@ class ilObjectCopyGUI
 		}
 
 		reset($a_sources);
-		
-		
+
+
 		ilLoggerFactory::getLogger('obj')->debug('Copy multiple non containers. Sources: ' . print_r($a_sources,TRUE));
 
 		// clone
 		foreach ($a_sources as $source_ref_id)
 		{
 			ilLoggerFactory::getLogger('obj')->debug('Copying source ref_id : ' . $source_ref_id);
-			
+
 			// begin-patch mc
 			foreach($this->getTargets() as $target_ref_id)
 			{
@@ -1032,19 +1041,19 @@ class ilObjectCopyGUI
 		}
 
 	}
-	
+
 	/**
 	 * Copy to multiple targets
 	 */
 	protected function copyContainerToTargets()
 	{
 		global $ilCtrl;
-		
+
 		ilLoggerFactory::getLogger('obj')->debug('Copy container to targets: '. print_r($_REQUEST,TRUE));
 		ilLoggerFactory::getLogger('obj')->debug('Source(s): '. print_r($this->getSources(),TRUE));
 		ilLoggerFactory::getLogger('obj')->debug('Target(s): '. print_r($this->getTargets(),TRUE));
-		
-		
+
+
 		$last_target = 0;
 		$result = 1;
 		foreach($this->getTargets() as $target_ref_id)
@@ -1052,17 +1061,17 @@ class ilObjectCopyGUI
 			$result = $this->copyContainer($target_ref_id);
 			$last_target = $target_ref_id;
 		}
-		
+
 		unset($_SESSION["clipboard"]["ref_ids"]);
 		unset($_SESSION["clipboard"]["cmd"]);
-		
+
 		include_once './Services/CopyWizard/classes/class.ilCopyWizardOptions.php';
 		if(ilCopyWizardOptions::_isFinished($result['copy_id']))
 		{
 			ilLoggerFactory::getLogger('obj')->info('Object copy completed.');
 			ilUtil::sendSuccess($this->lng->txt("object_duplicated"),true);
 			$ilCtrl->setParameterByClass(
-					"ilrepositorygui", 
+					"ilrepositorygui",
 					"ref_id",
 					$result['ref_id']
 			);
@@ -1075,7 +1084,7 @@ class ilObjectCopyGUI
 			return $this->showCopyProgress();
 		}
 	}
-	
+
 	/**
 	 * Show progress for copying
 	 */
@@ -1090,7 +1099,19 @@ class ilObjectCopyGUI
 		$progress->setObjectInfo($this->targets_copy_id);
 		$progress->parse();
 		$progress->init();
-		
+
+// fau: copyBySoap - show in message if mail will be sent
+		global $ilCtrl;
+		if ($ilCtrl->getCmd() == 'copyContainerWithMail')
+		{
+			ilUtil::sendInfo($this->lng->txt("object_copy_in_progress_with_mail"));
+		}
+		else
+		{
+			ilUtil::sendInfo($this->lng->txt("object_copy_in_progress"));
+		}
+// fau.
+
 		$GLOBALS['tpl']->setContent($progress->getHTML());
 	}
 
@@ -1102,19 +1123,25 @@ class ilObjectCopyGUI
 		$json = new stdClass();
 		$json->percentage = null;
 		$json->performed_steps = null;
-		
+
 		include_once './Services/CopyWizard/classes/class.ilCopyWizardOptions.php';
 		$options = ilCopyWizardOptions::_getInstance((int) $_REQUEST['copy_id']);
 		$json->required_steps = $options->getRequiredSteps();
 		$json->id = (int) $_REQUEST['copy_id'];
-		
+
 		ilLoggerFactory::getLogger('obj')->debug('Update copy progress: '. json_encode($json));
-		
+
 		echo json_encode($json);
 		exit;
 	}
-	
-	
+
+// fau: copyBySoap - wrapper function for command with mail
+	protected function copyContainerWithMail()
+	{
+		$this->copyContainerToTargets();
+	}
+// fau.
+
 	/**
 	 * Copy a container
 	 * @return 
@@ -1149,22 +1176,28 @@ class ilObjectCopyGUI
 		}
 
 		$options = $_POST['cp_options'] ? $_POST['cp_options'] : array();
-		
-		
+
+// fau: copyBySoap - add wizard option if mail should be sent
+		if ($ilCtrl->getCmd() == 'copyContainerWithMail')
+		{
+			$options[ilCopyWizardOptions::SEND_MAIL] = array('send');
+		}
+// fau.
+
 		ilLoggerFactory::getLogger('obj')->debug('Copy container (sources): '. print_r($this->getSources(),TRUE));
-		
+
 		$orig = ilObjectFactory::getInstanceByRefId($this->getFirstSource());
 		$result = $orig->cloneAllObject(
-				$_COOKIE['PHPSESSID'], 
-				$_COOKIE['ilClientId'], 
-				$this->getType(), 
+				$_COOKIE['PHPSESSID'],
+				$_COOKIE['ilClientId'],
+				$this->getType(),
 				$a_target,
-				$this->getFirstSource(), 
+				$this->getFirstSource(),
 				$options,
 				FALSE,
 				$this->getSubMode()
 		);
-		
+
 		$this->targets_copy_id[$a_target] = $result['copy_id'];
 
 		return $result;
@@ -1227,14 +1260,14 @@ class ilObjectCopyGUI
 		$this->form->setTableWidth('600px');
 
 		$ilCtrl->setParameter($this,'new_type',$this->getType());
-		
+
 		#$ilCtrl->setParameter($this, 'cp_mode', self::SOURCE_SELECTION);
 		$this->form->setFormAction($ilCtrl->getFormAction($this));
 		$this->form->setTitle($lng->txt($this->getType().'_copy'));
 		
 		$this->form->addCommandButton('searchSource', $lng->txt('btn_next'));
 		$this->form->addCommandButton('cancel',$this->lng->txt('cancel'));
-		
+
 		$tit = new ilTextInputGUI($lng->txt('title'),'tit');
 		$tit->setSize(40);
 		$tit->setMaxLength(70);

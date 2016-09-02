@@ -200,6 +200,178 @@ class ilUserUtil
 	}
 	
 	
+	/**
+	 * fim: [memad] check if user is a guest hearer
+	 * 
+	 * @param	int			user id	(or empty for current user
+	 * @return	boolean		user is guest hearer
+	 */
+	static function _isGuestHearer($a_user_id = '')
+	{
+		
+		global $ilUser, $ilCust, $rbacreview;
+		
+		static $checked = array();
+
+		// take the current user as default
+		if (!$a_user_id)
+		{
+			$a_user_id = $ilUser->getId();
+			$login = $ilUser->getLogin();	
+		}
+		
+		// checked the cached status
+		if (isset($checked[$a_user_id]))
+		{
+			return $checked[$a_user_id];				
+		} 
+		
+		// get the login of user is not the current user
+		if (!$login)
+		{
+			$login = ilObjUser::_lookupLogin($a_user_id);
+		}
+		
+		// check the guest status
+		// 1. has guest role
+		// 2. login begins with 'gh'
+		if ($rbacreview->isAssigned($a_user_id, $ilCust->getSetting('ilias_guest_role_id'))
+		and substr($login,0,2) == 'gh')
+		{
+			$checked[$a_user_id] = true;
+		}
+		else
+		{
+			$checked[$a_user_id] = false;
+		}
+		
+		return $checked[$a_user_id];
+	}
+	// fim.
+	
+	
+	
+	/**
+	* fim: [campus] create a dummy account for course registration
+	* 
+	* Account is created as inactive user user role
+	* Final user data will be set when user logs in by SSO
+	*/
+	static function _createDummyAccount($a_identity, $a_firstname = '', $a_lastname = '', $a_email = '', $a_matriculation = '', 
+										$a_passwd = '', $a_passwd_encoding = IL_PASSWD_PLAIN, 
+										$a_auth_mode = 'shibboleth', $a_external_account = '')
+	{
+	    global $ilias, $rbacadmin;
+	
+		$userObj = new ilObjUser();
+
+		// set arguments (may differ)
+		$userObj->setLogin($a_identity);
+		$userObj->setExternalAccount($a_external_account);
+
+		$userObj->setFirstname($a_firstname);
+		$userObj->setLastname($a_lastname);
+		$userObj->setEmail($a_email);
+		$userObj->setMatriculation($a_matriculation);
+
+		// set authentication
+		$userObj->setPasswd($a_passwd ? $a_passwd : rand(10000,99999), $a_passwd_encoding);
+		$userObj->setAuthMode($a_auth_mode);
+		
+		// set dependent data
+		$userObj->setFullname();
+		$userObj->setTitle($userObj->getFullname());
+		$userObj->setDescription($userObj->getEmail());
+
+		// set time limit
+		$userObj->setTimeLimitOwner(7);
+		$userObj->setTimeLimitUnlimited(1);     // TODO: may be different for external users
+		$userObj->setTimeLimitFrom(time());		// ""
+		$userObj->setTimeLimitUntil(time());    // ""
+
+		// create the user object
+		$userObj->create();
+		$userObj->setActive(0);                 // inactive user
+		$userObj->updateOwner();
+		$userObj->saveAsNew();
+
+		//set personal preferences
+		$userObj->setLanguage("de");
+		$userObj->setPref("hits_per_page", max($ilias->getSetting("hits_per_page"),100));
+		$userObj->setPref("show_users_online", "y");
+		$userObj->writePrefs();
+
+		// assign the user role
+		// todo: role id 4 is hard-coded
+        $rbacadmin->assignUser(4, $userObj->getId(), true);
+
+		// return the user id
+		return $userObj->getId();
+	}
+	// fim.
+
+	
+	/**
+	 * fim: [campus] set a new login for a user
+	 * 
+	 * @param	integer		usr_id
+	 * @param	string		new login
+	 * @param	string		new external account
+	 */ 
+	static function _setNewLogin($a_usr_id, $a_new_login, $a_new_external_account = null)
+	{
+		global $ilDB;
+
+		$query = "SELECT usr_id FROM usr_data"
+			. " WHERE login = " . $ilDB->quote($a_new_login, 'text')
+			. " AND usr_id <> " . $ilDB->quote($a_usr_id, 'integer');
+		$res = $ilDB->query($query);
+
+		if ($row = $res->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+		    return false;
+		}
+
+		if (isset($a_new_external_account))
+		{
+			$update_external_account = ", external_account =" . $ilDB->quote($a_new_external_account, 'text');
+		}
+		
+		$query = "UPDATE usr_data "
+				. " SET login = " . $ilDB->quote($a_new_login, 'text')
+				. $update_external_account
+				. " WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer');
+        $ilDB->manipulate($query);
+        
+        return true;
+	}
+	// fim.
+
+
+// fau: samlAuth - get the logout link dependent from authentication
+
+	/**
+	 * Get the logout link
+	 * for simpleSAML authentified users this will return a single log out link
+	 * @param 	string	$a_mode		'auto' (default) or 'local'
+	 * @return	string
+	 */
+	public static function _getLogoutLink($a_mode = 'auto')
+	{
+		global $ilUser;
+
+		// the saml_logout_url is stored by ilSimpleSamlAuthStudOn::login()
+		if ($_SESSION['saml_logout_url'] and $a_mode != 'local')
+		{
+			return $_SESSION['saml_logout_url'];
+		}
+		else
+		{
+			return ILIAS_HTTP_PATH."/logout.php?lang=".$ilUser->getCurrentLanguage();
+		}
+	}
+// fau.
+
 	//
 	// Personal starting point
 	//
@@ -325,7 +497,15 @@ class ilUserUtil
 		global $tree, $ilUser;
 		
 		$ref_id = 1;
-		if(self::hasPersonalStartingPoint())
+		// fim: [layout] use personal startingPoint only for logged in users
+		// needed, because studon logo is linked with starting point
+		if (!$ilUser->getId() or $ilUser->getId() == ANONYMOUS_USER_ID)
+		{
+			$current = self::START_REPOSITORY;
+
+		}
+		else if(self::hasPersonalStartingPoint())
+		// fim.
 		{
 			$current = self::getPersonalStartingPoint();	
 			if($current == self::START_REPOSITORY_OBJ)

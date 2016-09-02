@@ -320,10 +320,23 @@
 	{		
 		ilias.questions.shuffle(questions[{VAL_ID}]);
 		jQuery('div#container{VAL_ID}').autoRender(questions[{VAL_ID}]);
-		jQuery("#order{VAL_ID}").sortable({axis: 'x', containment: '#container{VAL_ID}'});
-		jQuery("#order{VAL_ID}").css('font-size', questions[{VAL_ID}].textsize+'%');		
+// fau: fixMultilineOrdering - allow horizontal ordering questions with multi-line texts
+        jQuery('div#container{VAL_ID} li').each(function() {
+            var $this = jQuery(this);
+            // adjust size only if question is not hidden in an accordeon
+            if ($this.is(":visible")) {
+                $this.css('width', ($this.outerWidth()+2)+'px');
+                $this.css('height', ($this.outerHeight()+2)+'px');
+            }
+         });
+		jQuery("#order{VAL_ID}").sortable({axis: false, containment: '#container{VAL_ID}'});
+
+		jQuery("#order{VAL_ID}").css('font-size', questions[{VAL_ID}].textsize+'%');
 	}
-	renderILQuestion{VAL_ID}();
+    jQuery(document).ready(function () {
+        renderILQuestion{VAL_ID}();
+    });
+// fau.
 </script>
 <!-- END orderinghorizontal -->
 <!-- BEGIN errortext -->

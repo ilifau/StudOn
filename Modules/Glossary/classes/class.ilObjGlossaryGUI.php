@@ -315,6 +315,10 @@ class ilObjGlossaryGUI extends ilObjectGUI
 		$form->addCommandButton("cancel", $this->lng->txt("cancel"));
 
 		return $form;
+
+		// fim: [help] add create info
+		$this->showTypeHelptext();
+		// fim.
 	}
 	
 	function importObject()

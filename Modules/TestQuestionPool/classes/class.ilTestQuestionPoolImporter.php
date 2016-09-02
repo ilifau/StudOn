@@ -17,7 +17,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 	 * @var ilObjQuestionPool
 	 */
 	private $poolOBJ;
-	
+
 	/**
 	 * Import XML
 	 *
@@ -28,7 +28,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 	{
 		include_once "./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php";
 		ilObjQuestionPool::_setImportDirectory($this->getImportDirectoryContainer());
-		
+
 		// Container import => pool object already created
 		if($new_id = $a_mapping->getMapping('Services/Container','objs',$a_id))
 		{
@@ -48,7 +48,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 			return false;
 		}
 
-		
+
 
 		list($xml_file,$qti_file) = $this->parseXmlFileNames();
 
@@ -62,7 +62,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 			$GLOBALS['ilLog']->write(__METHOD__.': Cannot find qti definition: '. $qti_file);
 			return false;
 		}
-		
+
 		$newObj->fromXML($xml_file);
 
 		// set another question pool name (if possible)
@@ -70,7 +70,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 		{
 			$newObj->setTitle($_POST["qpl_new"]);
 		}
-		
+
 		$newObj->update();
 		$newObj->saveToDb();
 
@@ -102,16 +102,16 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 			$contParser = new ilContObjParser($newObj, $xml_file, basename($this->getImportDirectory()));
 			$contParser->setQuestionMapping($qtiParser->getImportMapping());
 			$contParser->startParsing();
-			
+
 			foreach ($qtiParser->getImportMapping() as $k => $v)
 			{
 				$oldQuestionId = substr($k, strpos($k, 'qst_')+strlen('qst_'));
 				$newQuestionId = $v['pool']; // yes, this is the new question id ^^
-				
+
 				$a_mapping->addMapping(
 					"Services/Taxonomy", "tax_item", "qpl:quest:$oldQuestionId", $newQuestionId
 				);
-				
+
 				$a_mapping->addMapping(
 					"Services/Taxonomy", "tax_item_obj_id", "qpl:quest:$oldQuestionId", $newObj->getId()
 				);
@@ -154,7 +154,7 @@ class ilTestQuestionPoolImporter extends ilXmlImporter
 						ilObjTaxonomy::saveUsage($tid, $new);
 					}
 				}
-				
+
 				$taxMappings = $a_mapping->getMappingsOfEntity('Services/Taxonomy', 'tax');
 				foreach($taxMappings as $oldTaxId => $newTaxId)
 				{

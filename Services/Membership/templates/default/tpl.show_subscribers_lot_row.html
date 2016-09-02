@@ -1,0 +1,26 @@
+<!-- fim: [memlot] template for subscribers lot row -->
+<tr class="{CSS_ROW} small">
+	<td class="std">
+		<input type="checkbox" name="subscribers_lot[]" value="{VAL_ID}" />
+	</td>
+	<td class="std">
+		{VAL_NAME}
+		<!-- BEGIN access_warning -->
+		<br />
+		<font class="smallred">
+			{ALERT_MSG}
+		</font>
+		<!-- END access_warning -->
+	</td>
+	<td class="std">
+		{VAL_LOGIN}
+	</td>
+	<td class="std">
+		<span class="small">{STUDYDATA}</span>
+	</td>
+	<td class="std">
+		<div style="float:right;">
+			<a class="il_ContainerItemCommand2" href="{MAIL_LINK}">{MAIL_TITLE}</a>&nbsp;&nbsp;
+		</div>
+	</td>
+</tr>

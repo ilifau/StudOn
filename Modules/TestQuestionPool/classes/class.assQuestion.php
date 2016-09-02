@@ -245,7 +245,7 @@ abstract class assQuestion
 	 * @var bool
 	 */
 	private $obligationsToBeConsidered = false;
-	
+
 	/**
 	* assQuestion constructor
 	*
@@ -1153,6 +1153,26 @@ abstract class assQuestion
 	 */
 	//abstract protected function reworkWorkingData($active_id, $pass, $obligationsAnswered, $intermediate);
 
+// fau: testImportResults new function _mapWorkingData
+	/**
+	 * Map imported working data
+	 *
+	 * This function is called from the ilTestResultImportParser.
+	 * It changes nothing in general but can be overwritten in child clases
+	 * to do a type specific mapping (e.g. of term_ids) at import.
+	 *
+	 * The assoc array corresponds to a row in tst_solutions.
+	 * 'question_id' and 'active_id' are already mapped to their new values.
+	 *
+	 * @param   array   assoc array of tst_solutions row
+	 * @return  array   assoc array of tst_solutions row
+	 */
+	public static function _mapWorkingData($a_data)
+	{
+		return $a_data;
+	}
+// fau.
+
 	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
 	{
 		$previewSession->setParticipantsSolution($this->getSolutionSubmit());
@@ -1570,15 +1590,15 @@ abstract class assQuestion
 	public function getUserSolutionPreferingIntermediate($active_id, $pass = NULL)
 	{
 		$solution = $this->getSolutionValues($active_id, $pass, false);
-		
+
 		if( !count($solution) )
 		{
 			$solution = $this->getSolutionValues($active_id, $pass, true);
 		}
-		
+
 		return $solution;
 	}
-	
+
 	/**
 	* Loads solutions of a given user from the database an returns it
 	*/
@@ -1602,7 +1622,7 @@ abstract class assQuestion
 				AND step = %s
 				AND authorized = %s
 				ORDER BY solution_id";
-			
+
 			$result = $ilDB->queryF($query, array('integer', 'integer', 'integer', 'integer', 'integer'),
 				array($active_id, $this->getId(), $pass, $this->getStep(), (int)$authorized)
 			);	
@@ -1613,12 +1633,12 @@ abstract class assQuestion
 				SELECT *
 				FROM tst_solutions
 				WHERE active_fi = %s
-				AND question_fi = %s 
+				AND question_fi = %s
 		  		AND pass = %s
 				AND authorized = %s
 				ORDER BY solution_id
 			";
-			
+
 			$result = $ilDB->queryF($query, array('integer', 'integer', 'integer', 'integer'),
 				array($active_id, $this->getId(), $pass, (int)$authorized)
 			);
@@ -1947,7 +1967,7 @@ abstract class assQuestion
 		}
 
 		$this->deleteTaxonomyAssignments();
-		
+
 		try
 		{
 			// update question count of question pool
@@ -1964,13 +1984,13 @@ abstract class assQuestion
 		
 		return true;
 	}
-	
+
 	private function deleteTaxonomyAssignments()
 	{
 		require_once 'Services/Taxonomy/classes/class.ilObjTaxonomy.php';
 		require_once 'Services/Taxonomy/classes/class.ilTaxNodeAssignment.php';
 		$taxIds = ilObjTaxonomy::getUsageOfObject($this->getObjId());
-		
+
 		foreach($taxIds as $taxId)
 		{
 			$taxNodeAssignment = new ilTaxNodeAssignment('qpl', $this->getObjId(), 'quest', $taxId);
@@ -2446,7 +2466,7 @@ abstract class assQuestion
 		
 		// duplicate question hints
 		$this->duplicateQuestionHints($originalQuestionId, $duplicateQuestionId);
-		
+
 		// duplicate skill assignments
 		$this->duplicateSkillAssignments($originalParentId, $originalQuestionId, $duplicateParentId, $duplicateQuestionId);
 	}
@@ -2941,9 +2961,9 @@ abstract class assQuestion
 		$this->setId($original);
 		$this->setOriginalId(NULL);
 		$this->setObjId($originalObjId);
-		
+
 		$this->saveToDb();
-		
+
 		$this->deletePageOfQuestion($original);
 		$this->createPageObject();
 		$this->copyPageOfQuestion($id);
@@ -2951,7 +2971,7 @@ abstract class assQuestion
 		$this->setId($id);
 		$this->setOriginalId($original);
 		$this->setObjId($objId);
-		
+
 		$this->updateSuggestedSolutions($original);
 		$this->syncXHTMLMediaObjectsOfQuestion();
 
@@ -3258,7 +3278,7 @@ abstract class assQuestion
 	public static function _isWorkedThrough($active_id, $question_id, $pass = NULL)
 	{
 		return self::lookupResultRecordExist($active_id, $question_id, $pass);
-		
+
 		// oldschool "workedthru"
 
 		global $ilDB;
@@ -3497,9 +3517,12 @@ abstract class assQuestion
 					$username = ilObjTestAccess::_getParticipantData($active_id);
 					assQuestion::_logAction(sprintf($lng->txtlng("assessment", "log_answer_changed_points", ilObjAssessmentFolder::_getLogLanguage()), $username, $old_points, $points, $ilUser->getFullname() . " (" . $ilUser->getLogin() . ")"), $active_id, $question_id);
 				}
+// fau: fixManScoringSuccessMessage - return TRUE for _setReachedPoints only if points are changed
+				return TRUE;
 			}
 
-			return TRUE;
+			return FALSE;
+// fau.
 		}
 		else
 		{
@@ -4097,7 +4120,11 @@ abstract class assQuestion
 		$a_q = nl2br((string) ilRTE::_replaceMediaObjectImageSrc($a_q, 0));
 		$a_q = str_replace("</li><br />", "</li>", $a_q);
 		$a_q = str_replace("</li><br>", "</li>", $a_q);
-		
+// fau: lmGapFormat - remove line breaks coming from the RTE editor in tables
+		$a_q = preg_replace("/(<td[^>]*>)<br \/>/","$1", $a_q);
+		$a_q = str_replace("<br />\n</td>", "</td>", $a_q);
+		$a_q = str_replace("</td><br />", "</td>", $a_q);
+// fau.
 		$a_q = ilUtil::insertLatexImages($a_q, "\[tex\]", "\[\/tex\]");
 		$a_q = ilUtil::insertLatexImages($a_q, "\<span class\=\"latex\">", "\<\/span>");
 
@@ -4229,17 +4256,17 @@ abstract class assQuestion
 	protected function duplicateSkillAssignments($srcParentId, $srcQuestionId, $trgParentId, $trgQuestionId)
 	{
 		global $ilDB;
-		
+
 		require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionSkillAssignmentList.php';
 		$assignmentList = new ilAssQuestionSkillAssignmentList($ilDB);
 		$assignmentList->setParentObjId($srcParentId);
 		$assignmentList->setQuestionIdFilter($srcQuestionId);
 		$assignmentList->loadFromDb();
-		
+
 		foreach($assignmentList->getAssignmentsByQuestionId($srcQuestionId) as $assignment)
 		{
 			/* @var ilAssQuestionSkillAssignment $assignment */
-			
+
 			$assignment->setParentObjId($trgParentId);
 			$assignment->setQuestionId($trgQuestionId);
 			$assignment->saveToDb();
@@ -4255,17 +4282,17 @@ abstract class assQuestion
 		$assignmentList->setParentObjId($trgParentId);
 		$assignmentList->setQuestionIdFilter($trgQuestionId);
 		$assignmentList->loadFromDb();
-		
+
 		foreach($assignmentList->getAssignmentsByQuestionId($trgQuestionId) as $assignment)
 		{
 			/* @var ilAssQuestionSkillAssignment $assignment */
 
 			$assignment->deleteFromDb();
 		}
-		
+
 		$this->duplicateSkillAssignments($srcParentId, $srcQuestionId, $trgParentId, $trgQuestionId);
 	}
-	
+
 	/**
 	 * returns boolean wether the question
 	 * is answered during test pass or not
@@ -4299,7 +4326,7 @@ abstract class assQuestion
 	{
 		return false;
 	}
-	
+
 	public function isAutosaveable()
 	{
 		return TRUE;
@@ -4675,7 +4702,7 @@ abstract class assQuestion
 			'solution_id' => array('integer', $solutionId)
 		));
 	}
-	
+
 	public function updateCurrentSolutionsAuthorization($activeId, $pass, $authorized)
 	{
 		global $ilDB;
@@ -4690,7 +4717,7 @@ abstract class assQuestion
 			'active_fi' => array('integer', $activeId),
 			'pass' => array('integer', $pass)
 		);
-		
+
 		return $ilDB->update('tst_solutions', $fieldData, $whereData);
 	}
 
@@ -4784,7 +4811,7 @@ abstract class assQuestion
 
 		return $maxStep;
 	}
-		
+
 	public function removeExistingSolutions($activeId, $pass)
 	{
 		global $ilDB;
@@ -4814,25 +4841,25 @@ abstract class assQuestion
 	public function removeResultRecord($activeId, $pass)
 	{
 		global $ilDB;
-		
+
 		$query = "
 			DELETE FROM tst_test_result
 			WHERE active_fi = %s
 			AND question_fi = %s
 			AND pass = %s
 		";
-		
+
 		return $ilDB->manipulateF($query, array('integer', 'integer', 'integer'),
 			array($activeId, $this->getId(), $pass)
 		);
 	}
-	
+
 	public static function missingResultRecordExists($activeId, $pass, $questionIds)
 	{
 		global $ilDB;
-		
+
 		$IN_questionIds = $ilDB->in('question_fi', $questionIds, false, 'integer');
-		
+
 		$query = "
 			SELECT COUNT(*) cnt
 			FROM tst_test_result

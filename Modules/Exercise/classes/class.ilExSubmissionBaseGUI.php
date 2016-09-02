@@ -75,6 +75,19 @@ abstract class ilExSubmissionBaseGUI
 			include_once "./Services/Notification/classes/class.ilNotification.php";
 			$users = ilNotification::getNotificationsForObject(ilNotification::TYPE_EXERCISE_SUBMISSION, $this->exercise->getId());
 
+			// fim: [bugfix] send notifications about exercise submission only to users with read access
+			global $ilAccess;
+			$allowed_users = array();
+			foreach ($users as $user_id)
+			{
+				if ($ilAccess->checkAccessOfUser($user_id, 'read', '', $this->exercise->getRefId()))
+				{
+					$allowed_users[] = $user_id;
+				}
+			}
+			$users = $allowed_users;
+			// fim.
+
 			include_once "./Modules/Exercise/classes/class.ilExerciseMailNotification.php";
 			$not = new ilExerciseMailNotification();
 			$not->setType(ilExerciseMailNotification::TYPE_SUBMISSION_UPLOAD);

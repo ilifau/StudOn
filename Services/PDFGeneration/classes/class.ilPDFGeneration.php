@@ -20,7 +20,21 @@ class ilPDFGeneration
 		 * This place currently supports online the TCPDF-Generator. In future versions/iterations, this place
 		 * may serve to initialize other mechanisms and route jobs to them.
 		 */
-		require_once 'class.ilTCPDFGenerator.php';
-		ilTCPDFGenerator::generatePDF($job);
+		// fim: [pdf] added support for PhantomJS as pdf engine
+		global $ilCust;
+		switch ($ilCust->getSetting('pdf_engine'))
+		{
+			case 'phantomjs':
+				require_once 'class.ilPhantomJsPdfGenerator.php';
+				ilPhantomJsPdfGenerator::generatePDF($job);
+				break;
+
+			case 'tcpdf':
+			default:
+				require_once 'class.ilTCPDFGenerator.php';
+				ilTCPDFGenerator::generatePDF($job);
+				break;
+		}
+		// fim.
 	}
 }

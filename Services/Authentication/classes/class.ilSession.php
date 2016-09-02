@@ -365,6 +365,31 @@ class ilSession
 		}
 		return $users;
 	}
+
+	/*
+	* fim: [cust] new function to periodically count the users online
+	*/
+	static function _getUsersOnline()
+	{
+	    global $ilDB, $ilSetting;
+
+		if (time() < $ilSetting->get('session_count_users_online_expire'))
+		{
+	        return $ilSetting->get('session_count_users_online');
+		}
+		else
+		{
+			$query = "SELECT COUNT(DISTINCT user_id) users FROM usr_session u WHERE expires > UNIX_TIMESTAMP() AND ctime + 600 > UNIX_TIMESTAMP();";
+			$result = $ilDB->query($query);
+			$row = $ilDB->fetchAssoc($result);
+
+			$ilSetting->set('session_count_users_online', $row['users']);
+			$ilSetting->set('session_count_users_online_expire', time() + 60);
+
+			return $row['users'];
+		}
+	}
+	// fim.
 	
 	/**
 	 * Set a value

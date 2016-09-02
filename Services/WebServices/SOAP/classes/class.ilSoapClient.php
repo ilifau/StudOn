@@ -70,8 +70,10 @@ class ilSoapClient
 		}
 
 		$this->setTimeout($ilSetting->get('soap_connect_timeout', self::DEFAULT_CONNECT_TIMEOUT));
-		
-		$this->server = ilUtil::_getHttpPath().'/webservice/soap/server.php?wsdl';
+
+// fau: copyBySoap - use http instead of https, omit wsdl
+		$this->server = str_replace('https://','http://',ilUtil::_getHttpPath()).'/webservice/soap/server.php';
+// fau.
 	}
 
 	function getServer()
@@ -106,10 +108,13 @@ class ilSoapClient
 		return (bool) $this->use_wsdl;
 	}
 
+// fau: copyBySoap - extended logging, omit wsdl
 	function init()
 	{
+		$this->log->write('SOAP: Server='. $this->getServer(). ' ConnectTimeout='. $this->getTimeout().' ResponseTimeout='.$this->getResponseTimeout());
+
 		$this->client = new nusoap_client($this->getServer(),
-										$this->enabledWSDL(),
+										false, //$this->enabledWSDL(),
 										false, // no proxy support in the moment
 										false,
 										false,
@@ -121,7 +126,7 @@ class ilSoapClient
 		{
 			if(stristr($error, 'socket read of headers') === FALSE)
 			{
-				$this->log->write('Error calling soap server: '.$this->getServer().' Error: '.$error);
+				$this->log->write('Error calling soap server at init: '.$this->getServer().' Error: '.$error);
 			}
 			return false;
 		}
@@ -139,9 +144,10 @@ class ilSoapClient
 		{
 			if(stristr($error, 'socket read of headers') === FALSE)
 			{
-				$this->log->write('Error calling soap server: '.$this->getServer().' Error: '.$error);
+				$this->log->write('Error calling soap server at call: '.$this->getServer().' Error: '.$error);
 			}
 		}
+// fau.
 
 		return $res;
 		// Todo cannot check errors here since it's not possible to distinguish between 'timeout' and other errors.

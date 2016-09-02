@@ -313,6 +313,7 @@ class ilExerciseMembers
 		return false;
 	}
 
+
 	/**
 	 * Write user status
 	 *
@@ -330,6 +331,9 @@ class ilExerciseMembers
 		
 		$ilDB->manipulate("UPDATE exc_members SET ".
 			" status = ".$ilDB->quote($a_status, "text").
+			// fim: update the status time
+			", status_time = ".$ilDB->quote(ilUtil::now(), "timestamp").
+			// fim.
 			" WHERE obj_id = ".$ilDB->quote($a_obj_id, "integer").
 			" AND usr_id = ".$ilDB->quote($a_user_id, "integer")
 			);
@@ -363,12 +367,12 @@ class ilExerciseMembers
 		include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
 		ilLPStatusWrapper::_updateStatus($a_obj_id, $a_user_id);
 	}
-	
-	
-	// 
+
+
+	//
 	// LP
 	//
-	
+
 	/**
 	 * Get returned status for all members (if they have anything returned for
 	 * any assignment)
@@ -400,7 +404,7 @@ class ilExerciseMembers
 	function _hasReturned($a_obj_id, $a_user_id)
 	{
 		global $ilDB;
-	
+
 		$set = $ilDB->query("SELECT DISTINCT(usr_id) FROM exc_members WHERE ".
 			" obj_id = ".$ilDB->quote($a_obj_id, "integer")." AND ".
 			" returned = ".$ilDB->quote(1, "integer")." AND ".

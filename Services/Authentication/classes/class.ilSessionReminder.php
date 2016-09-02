@@ -85,7 +85,12 @@ class ilSessionReminder
 		global $ilAuth;
 
 		$this->setLeadTime(max(self::MIN_LEAD_TIME, (float)$this->getUser()->getPref('session_reminder_lead_time')) * 60);
-		$this->setExpirationTime($ilAuth->sessionValidThru());
+		// fim: [bugfix] ilAuth is not available in LiveVoting vote script
+		if (isset($ilAuth))
+		{
+			$this->setExpirationTime($ilAuth->sessionValidThru());
+		}
+		// fim.
 		$this->setCurrentTime(time());
 
 		$this->calculateSecondsUntilExpiration();

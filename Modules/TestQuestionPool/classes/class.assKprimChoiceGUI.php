@@ -305,7 +305,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 		$answers = $form->getItemByPostVar('kprim_answers')->getValues();
 		$answers = $this->handleAnswerTextsSubmit($answers);
 		$files = $form->getItemByPostVar('kprim_answers')->getFiles();
-		
+
 		$this->object->handleFileUploads($answers, $files);
 		$this->object->setAnswers($answers);
 	}
@@ -316,15 +316,15 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 		{
 			return $answers;
 		}
-		
+
 		foreach($answers as $key => $answer)
 		{
 			$answer->setAnswerText(ilUtil::secureString($answer->getAnswerText()));
 		}
-		
+
 		return $answers;
 	}
-	
+
 	/**
 	 * @param integer $active_id
 	 * @param integer $pass
@@ -686,7 +686,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 				$template->setVariable('SOL_QID', $this->object->getId());
 				$template->setVariable('SOL_SUFFIX', $show_correct_solution ? 'bestsolution' : 'usersolution');
 				$template->setVariable('SOL_POSITION', $answer->getPosition());
-				
+
 				$template->setVariable('SOL_TRUE_VALUE', 1);
 				$template->setVariable('SOL_FALSE_VALUE', 0);
 
@@ -702,7 +702,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 					}
 				}
 			}
-			
+
 			$template->parseCurrentBlock();
 		}
 		

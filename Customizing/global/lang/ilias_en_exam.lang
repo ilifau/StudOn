@@ -1,0 +1,14 @@
+/**
+* StudOn: special English language variables for the exam platform
+* 
+* Import these variables after an update of languages in the exam platform
+*
+* @version			$Id: $
+*/
+<!-- language file start -->
+common#:#logged_in_to_ilias#:#You are logged in to the exam platform.
+common#:#logged_in_to_ilias_info#:#Please click logout to close your session.
+common#:#local_login_to_ilias#:#Login to the Exam Platform
+common#:#local_login_to_ilias_addition#:#(Students and Lecturers)
+common#:#login_to_ilias_info#:#Please use the provided login data.
+pdesk#:#pd_description#:#If your Test ist not listed here, please open the menu "Exams".

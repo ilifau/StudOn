@@ -422,13 +422,13 @@ class ilObjContentObject extends ilObject
 	/**
 	 * Set for translation
 	 *
-	 * @param bool $a_val lm has been imported for translation purposes	
+	 * @param bool $a_val lm has been imported for translation purposes
 	 */
 	function setForTranslation($a_val)
 	{
 		$this->for_translation = $a_val;
 	}
-	
+
 	/**
 	 * Get for translation
 	 *
@@ -1302,13 +1302,19 @@ class ilObjContentObject extends ilObject
 			'fullscreen' => 'fullscreen'
 			);
 		
-		foreach ($layouts as $l)
+// fau: lmLayout - make special layouts only avbailable to admins
+		global $rbacsystem;
+		if ($rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID))
 		{
-			if (!in_array($l, $ret))
+			foreach ($layouts as $l)
 			{
-				$ret[$l] = $l;
+				if (!in_array($l, $ret))
+				{
+					$ret[$l] = $l;
+				}
 			}
 		}
+// fau.
 
 		return $ret;
 	}
@@ -2756,7 +2762,7 @@ class ilObjContentObject extends ilObject
 		{
 			$lang_suffix = "_".$a_lang;
 		}
-		
+
 //echo "<br>B: export Page HTML ($a_lm_page_id)"; flush();
 		// template workaround: reset of template 
 		$tpl = new ilTemplate("tpl.main.html", true, true);
@@ -3232,7 +3238,7 @@ class ilObjContentObject extends ilObject
 		global $lng;
 
 		$this->log->debug("import from directory ".$a_directory);
-		
+
 		// determine filename of xml file
 		$subdir = basename($a_directory);
 		$xml_file = $a_directory."/".$subdir.".xml";
@@ -3581,18 +3587,18 @@ class ilObjContentObject extends ilObject
 	public function MDUpdateListener($a_element)
 	{
 		parent::MDUpdateListener($a_element);
-		
+
 		include_once 'Services/MetaData/classes/class.ilMD.php';
 
 		switch($a_element)
-		{			
+		{
 			case 'Educational':
-				include_once("./Services/Object/classes/class.ilObjectLP.php");				
+				include_once("./Services/Object/classes/class.ilObjectLP.php");
 				$obj_lp = ilObjectLP::getInstance($this->getId());
-				if(in_array($obj_lp->getCurrentMode(), 
+				if(in_array($obj_lp->getCurrentMode(),
 					array(ilLPObjSettings::LP_MODE_TLT, ilLPObjSettings::LP_MODE_COLLECTION_TLT)))
-				{								 
-					include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");				
+				{
+					include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
 					ilLPStatusWrapper::_refreshStatus($this->getId());
 				}
 				break;
@@ -3625,7 +3631,7 @@ class ilObjContentObject extends ilObject
 		}
 		return true;
 	}
-	
-	
+
+
 }
 ?>

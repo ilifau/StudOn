@@ -12,13 +12,30 @@
 class ilPlayerUtil
 {
 	private static $mejs_ver = "2_14_2";
-	
+
+    // fim: [media] adapt media player version
+    public static function getVersion()
+    {
+        global $ilCust;
+        if ($ilCust->getSetting('media_player_version'))
+        {
+            return $ilCust->getSetting('media_player_version');
+        }
+        else
+        {
+            return self::$mejs_ver;
+        }
+    }
+    // fim.
+
 	/**
 	 * Get local path of jQuery file
 	 */
 	function getLocalMediaElementJsPath()
 	{
-		return "./Services/MediaObjects/media_element_".self::$mejs_ver."/mediaelement-and-player.js";
+        // fim: [media] use adapted player version
+		return "./Services/MediaObjects/media_element_".self::getVersion()."/mediaelement-and-player.js";
+        // fim.
  	}
 
 	/**
@@ -26,7 +43,9 @@ class ilPlayerUtil
 	 */
 	function getLocalMediaElementCssPath()
 	{
-		return "./Services/MediaObjects/media_element_".self::$mejs_ver."/mediaelementplayer.min.css";
+        // fim: [media] use adapted player version
+		return "./Services/MediaObjects/media_element_".self::getVersion()."/mediaelementplayer.min.css";
+        // fim.
  	}
 
  	/**
@@ -34,6 +53,14 @@ class ilPlayerUtil
 	 */
 	static function initMediaElementJs($a_tpl = null)
 	{
+		// fim: [exam] prevent the embedding of media_element
+		global $ilCust;
+		if ($ilCust->getSetting('tst_prevent_media_player')) 
+		{
+			return;
+		}
+		// fim.
+		
 		global $tpl;
 		
 		if ($a_tpl == null)
@@ -81,7 +108,9 @@ class ilPlayerUtil
 	 */
 	static function getFlashVideoPlayerDirectory()
 	{
-		return "Services/MediaObjects/media_element_2_14_2";
+        // fim: [media] use adapted player version
+		return "Services/MediaObjects/media_element_".self::getVersion();
+        // fim.
 	}
 	
 	
@@ -108,8 +137,10 @@ class ilPlayerUtil
 	 */
 	function copyPlayerFilesToTargetDirectory($a_target_dir)
 	{
-		ilUtil::rCopy("./Services/MediaObjects/media_element_".self::$mejs_ver,
+        // fim: [media] use adapted player version
+		ilUtil::rCopy("./Services/MediaObjects/media_element_".self::getVersion(),
 			$a_target_dir);
+        // fim.
 	}
 	
 }

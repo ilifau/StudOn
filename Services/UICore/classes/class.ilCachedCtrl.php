@@ -93,23 +93,25 @@ class ilCachedCtrl {
 		/**
 		 * @var $ilDB ilDB
 		 */
-		$set = $ilDB->query('SELECT module_class.*, LOWER(module_class.class) lower_class FROM module_class');
+// fau: sqlCache - use sql cache
+		$set = $ilDB->query('SELECT SQL_CACHE module_class.*, LOWER(module_class.class) lower_class FROM module_class');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->module_classes[$rec['lower_class']] = $rec;
 		}
-		$set = $ilDB->query('SELECT service_class.*, LOWER(service_class.class) lower_class FROM service_class');
+		$set = $ilDB->query('SELECT SQL_CACHE service_class.*, LOWER(service_class.class) lower_class FROM service_class');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->service_classes[$rec['lower_class']] = $rec;
 		}
-		$set = $ilDB->query('SELECT * FROM ctrl_calls');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM ctrl_calls');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->ctrl_calls[$rec['parent']][] = $rec;
 		}
-		$set = $ilDB->query('SELECT * FROM ctrl_classfile');
+		$set = $ilDB->query('SELECT SQL_CACHE * FROM ctrl_classfile');
 		while ($rec = $ilDB->fetchAssoc($set)) {
 			$this->ctrl_classfile[$rec['cid']] = $rec;
 			$this->ctrl_classfile_parent[$rec['class']] = $rec;
 		}
+// fau.
 	}
 
 

@@ -102,7 +102,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		{
 			$_GET['q_id'] = '';
 		}
-		
+
 		$this->prepareOutput();
 		
 		$this->ctrl->setReturn($this, "questions");
@@ -140,9 +140,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 				if(!$ilAccess->checkAccess('write','',$this->object->getRefId()))
 				{
 					$ilErr->raiseError($this->lng->txt('permission_denied'),$ilErr->WARNING);
-				}				
+				}
 				include_once 'Services/Object/classes/class.ilObjectMetaDataGUI.php';
-				$md_gui = new ilObjectMetaDataGUI($this->object);	
+				$md_gui = new ilObjectMetaDataGUI($this->object);
 				$this->ctrl->forwardCommand($md_gui);
 				break;
 			
@@ -321,11 +321,11 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 				$gui = new ilQuestionPoolSkillAdministrationGUI(
 					$ilias, $ilCtrl, $ilAccess, $ilTabs, $tpl, $lng, $ilDB, $ilPluginAdmin, $this->object, $this->ref_id
 				);
-				
+
 				$this->ctrl->forwardCommand($gui);
-				
+
 				break;
-				
+
 			case 'ilquestionbrowsertablegui':
 				$this->ctrl->forwardCommand($this->buildQuestionBrowserTableGUI($taxIds = array())); // no tax ids required
 				break;
@@ -664,10 +664,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		if (is_file($_SESSION["qpl_import_dir"].'/'.$_SESSION["qpl_import_subdir"]."/manifest.xml"))
 		{
 			$_SESSION["qpl_import_idents"] = $_POST["ident"];
-			
+
 			$fileName = $_SESSION["qpl_import_subdir"].'.zip';
 			$fullPath = $_SESSION["qpl_import_dir"].'/'.$fileName;
-			
+
 			include_once("./Services/Export/classes/class.ilImport.php");
 			$imp = new ilImport((int) $_GET["ref_id"]);
 			$map = $imp->getMapping();
@@ -703,6 +703,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		}
 		
 		// delete import directory
+		// fim: [bugfix] cleanup import sub directoy
+		unset($_SESSION["qpl_import_subdir"]);
+		// fim.
 		include_once "./Services/Utilities/classes/class.ilUtil.php";
 		ilUtil::delDir(dirname(ilObjQuestionPool::_getImportDirectory()));
 
@@ -720,6 +723,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 	
 	function cancelImportObject()
 	{
+		// fim: [bugfix] cleanup import sub directoy
+		unset($_SESSION["qpl_import_subdir"]);
+		// fim.
+
 		if ($_POST["questions_only"] == 1)
 		{
 			$this->ctrl->redirect($this, "questions");
@@ -1049,7 +1056,14 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 				$taxExp = new ilTaxonomyExplorerGUI(
 						$this, 'showNavTaxonomy', $taxId, 'ilobjquestionpoolgui', 'questions'
 				);
-				
+
+// fau: taxDesc - open the current taxonomy path
+				if ($_GET["tax_node"])
+				{
+					$taxExp->setPathOpen($_GET["tax_node"]);
+				}
+// fau.
+
 				if( !$taxExp->handleCommand() )
 				{
 					$this->tpl->setLeftContent($taxExp->getHTML()."&nbsp;");
@@ -1144,13 +1158,24 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		$mode->setOptions(array(
 			'overview'           => $this->lng->txt('overview'),
 			'detailed'           => $this->lng->txt('detailed_output_solutions'),
+            // fim: [exam] add option for detailed view with scoring
+            'detailed_scoring'   => $this->lng->txt('detailed_output_scoring'),
+            // fim.
 			'detailed_printview' => $this->lng->txt('detailed_output_printview')
 		));
 		$mode->setValue(ilUtil::stripSlashes($_POST['output']));
 		
 		$ilToolbar->setFormName('printviewOptions');
 		$ilToolbar->addInputItem($mode, true);
-		$ilToolbar->addFormButton($this->lng->txt('submit'), 'print');
+
+        // fim: [exam] add pagebreak option
+        require_once 'Services/Form/classes/class.ilCheckboxInputGUI.php';
+        $break = new ilCheckboxInputGUI( $this->lng->txt("print_pagebreaks"), 'pagebreak');
+        $break->setChecked($_POST['pagebreak']);
+        $ilToolbar->addInputItem($break, true);
+        // fim.
+
+        $ilToolbar->addFormButton($this->lng->txt('submit'), 'print');
 
 		include_once "./Modules/TestQuestionPool/classes/tables/class.ilQuestionPoolPrintViewTableGUI.php";
 		$table_gui = new ilQuestionPoolPrintViewTableGUI($this, 'print', $_POST['output']);
@@ -1494,10 +1519,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		{
 			// meta data
 			include_once "Services/Object/classes/class.ilObjectMetaDataGUI.php";
-			$mdgui = new ilObjectMetaDataGUI($this->object);					
+			$mdgui = new ilObjectMetaDataGUI($this->object);
 			$mdtab = $mdgui->getTab();
 			if($mdtab)
-			{			
+			{
 				$tabs_gui->addTarget("meta_data",
 					$mdtab,
 					"", "ilmdeditorgui");
@@ -1529,20 +1554,20 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 		{
 			return false;
 		}
-		
+
 		if( !$this->object->isSkillServiceEnabled() )
 		{
 			return false;
 		}
-		
+
 		if( !ilObjQuestionPool::isSkillManagementGloballyActivated() )
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	private function addSettingsSubTabs(ilTabsGUI $tabs)
 	{
 		$tabs->addSubTabTarget(

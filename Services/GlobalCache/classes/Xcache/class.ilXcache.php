@@ -58,8 +58,20 @@ class ilXcache extends ilGlobalCacheService {
 	 * @return bool
 	 */
 	public function flush() {
-		$_SERVER["PHP_AUTH_USER"] = "xcache";
-		$_SERVER["PHP_AUTH_PW"] = "xcache";
+
+// fau: globalCache: read xcache auth from client.ini
+		global $ilClientIniFile;
+		if (is_object($ilClientIniFile))
+		{
+			$_SERVER["PHP_AUTH_USER"] = $ilClientIniFile->readVariable('cache', 'xcache_user');
+			$_SERVER["PHP_AUTH_PW"] = $ilClientIniFile->readVariable('cache', 'xcache_pw');
+		}
+		else
+		{
+			$_SERVER["PHP_AUTH_USER"] = "xcache";
+			$_SERVER["PHP_AUTH_PW"] = "xcache";
+		}
+// fau.
 
 		xcache_clear_cache(XC_TYPE_VAR, 0);
 

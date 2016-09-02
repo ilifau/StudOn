@@ -464,8 +464,25 @@ class ilTabsGUI
 
 		$i=0;
 		
-        // do not display one tab only
-        if ((count($targets) > 1) || ($this->back_title != "" && !$a_get_sub_tabs)
+ 		// fim: [bugfix] add scrren id for hidden single tab
+		if (count($targets) == 1 and !$this->getSetupMode())
+		{
+			$target = current($targets);
+			if ($a_get_sub_tabs)
+			{
+				$part = ilHelpGUI::ID_PART_SUB_SCREEN;
+			}
+			else
+			{
+				$part = ilHelpGUI::ID_PART_SCREEN;
+			}
+			$ilHelp->setDefaultScreenId($part, $target["id"]);
+
+		}
+		// fim.
+
+		// do not display one tab only
+		if ((count($targets) > 1) || ($this->back_title != "" && !$a_get_sub_tabs)
         	|| (count($this->non_tabbed_link) > 0 && !$a_get_sub_tabs))
 		{
 			foreach ($targets as $target)

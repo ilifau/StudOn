@@ -58,7 +58,7 @@ class ilObjUserFolderGUI extends ilObjectGUI
 		$this->prepareOutput();
 
 		switch($next_class)
-		{
+		{	
 			case 'ilusertablegui':
 				include_once("./Services/User/classes/class.ilUserTableGUI.php");
 				$u_table = new ilUserTableGUI($this, "view");
@@ -1262,7 +1262,9 @@ class ilObjUserFolderGUI extends ilObjectGUI
 				$this->tpl->setVariable("TXT_ACCOUNT_MAIL", $lng->txt("mail_account_mail"));
 				if (true)
 				{
-					$this->tpl->setVariable("SEND_MAIL", " checked=\"checked\"");
+				// fim: [admin] don't check sending of notification by default
+				// $this->tpl->setVariable("SEND_MAIL", " checked=\"checked\"");
+				// fim.
 				}
 				$this->tpl->setVariable("TXT_INFORM_USER_MAIL",
 					$this->lng->txt("user_send_new_account_mail"));

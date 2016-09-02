@@ -126,7 +126,26 @@ class ilSurveyExecutionGUI
 		// check existing code 
 		// see ilObjSurveyGUI::infoScreen()
 		$anonymous_id = $anonymous_code = null;
-		if ($this->object->getAnonymize() || !$this->object->isAccessibleWithoutCode())
+		// fim: [form] check captcha for anonymous survey
+		if ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA and $ilUser->getId() == ANONYMOUS_USER_ID)
+		{
+ 			if (isset($_POST["captcha"]))
+            {
+                include_once("./Services/Captcha/classes/class.ilSecurImage.php");
+                $si = new ilSecurImage();
+
+                if (!$si->check(ilUtil::stripSlashes($_POST["captcha"])))
+			    {
+                    $this->lng->loadLanguageModule("cptch");
+                    ilUtil::sendFailure($this->lng->txt("cptch_wrong_input"), true);
+                    $this->ctrl->redirectByClass("ilobjsurveygui", "infoScreen");
+                }
+			}
+
+            $anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
+        }
+		elseif ($this->object->getAnonymize() || !$this->object->isAccessibleWithoutCode())
+		// fim.
 		{
 			$anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];		
 			$anonymous_id = $this->object->getAnonymousIdByCode($anonymous_code);			
@@ -165,7 +184,18 @@ class ilSurveyExecutionGUI
 					
 		if(!$a_ignore_status)
 		{
-			$status = $this->object->isSurveyStarted($user_id, $anonymous_code, $appr_id);		
+			$status = $this->object->isSurveyStarted($user_id, $anonymous_code, $appr_id);
+
+			// fim: [form] allow to use a form multiple times
+			if ($status === 1 and $this->object->isAllowedToTakeMultipleSurveys())
+			{
+				$anonymous_code = $this->object->createNewAccessCode();
+				$this->object->saveUserAccessCode($user_id, $anonymous_code);
+				$_SESSION["anonymous_id"][$this->object->getId()] = $anonymous_code;
+				$status = false;
+			}
+			// fim.
+
 			// completed
 			if($status === 1)
 			{
@@ -859,7 +889,16 @@ class ilSurveyExecutionGUI
 		$this->tpl->setCurrentBlock($navigationblock . "_next");
 		if ($nextpage === 1)
 		{
-			$this->tpl->setVariable("BTN_NEXT", $this->lng->txt("survey_finish"));
+			// fim: [form] rename the end button
+			if ($this->object->getMetaIdentifier('EndButton'))
+			{
+				$this->tpl->setVariable("BTN_NEXT", $this->object->getMetaIdentifier('EndButton'));
+			}
+			else
+			{
+				$this->tpl->setVariable("BTN_NEXT", $this->lng->txt("survey_finish"));
+			}
+			// fim.
 		}
 		else
 		{

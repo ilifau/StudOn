@@ -412,8 +412,17 @@ abstract class ilMailNotification
 		if($this->getRefId())
 		{
 			if(!$this->is_in_wsp)
-			{			
-				return ilLink::_getLink($this->ref_id,$this->getObjType(),$a_params,$a_append);
+			{
+				// fim: [meminf] use short perma link if possible
+				if (!count($a_params))
+				{
+					return ilLink::_getStaticLink($this->ref_id,$this->getObjType(), true, $a_append);
+				}
+				else
+				{
+					return ilLink::_getLink($this->ref_id,$this->getObjType(),$a_params,$a_append);
+				}
+				// fim.
 			}
 			else
 			{

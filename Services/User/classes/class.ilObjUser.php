@@ -4,6 +4,10 @@
 define ("IL_PASSWD_PLAIN", "plain");
 define ("IL_PASSWD_CRYPTED", "crypted");
 
+// fau: idmPass - support for ssha passwords
+include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
+define ("IL_PASSWD_SSHA", "ssha");          // SSHA generated password
+// fau.
 
 require_once "./Services/Object/classes/class.ilObject.php";
 require_once './Services/User/exceptions/class.ilUserException.php';
@@ -16,7 +20,7 @@ require_once './Services/User/exceptions/class.ilUserException.php';
 * @author	Sascha Hofmann <saschahofmann@gmx.de>
 * @author	Stefan Meyer <meyer@leifos.com>
 * @author	Peter Gabriel <pgabriel@databay.de>
-* @version	$Id$
+* @version	$Id: class.ilObjUser.php 61281 2015-11-03 12:10:11Z fneumann $
 *
 * @ingroup ServicesUser
 */
@@ -53,6 +57,14 @@ class ilObjUser extends ilObject
 					// in the methods that perform SQL statements. All other
 					// methods work exclusively with the $passwd and $passwd_type
 					// variables.
+
+// fau: idmPass - an SSHA encoded password is stored in passwd column with prefix "{SSHA}
+// fau.
+
+// fau: idmPass - add field for external password (always SSHA encrypted)
+    var $ext_passwd;
+// fau.
+
 
 	/**
 	 * The encoding algorithm of the user's password stored in the database
@@ -234,7 +246,16 @@ class ilObjUser extends ilObject
 		{
 			// convert password storage layout used by table usr_data into
 			// storage layout used by class ilObjUser
-			$data["passwd_type"] = IL_PASSWD_CRYPTED;
+// fau: idmPass - recognize password type ssha
+			if (ilAuthUtils::_isSSHAPassword($data["passwd"]))
+			{
+				$data["passwd_type"] = IL_PASSWD_SSHA;
+			}
+			else
+			{
+				$data["passwd_type"] = IL_PASSWD_CRYPTED;				
+			}
+// fau.
 
 			// this assign must not be set via $this->assignData($data)
 			// because this method will be called on profile updates and
@@ -345,6 +366,10 @@ class ilObjUser extends ilObject
 		{
 			$this->setPasswd($a_data["passwd"], $a_data["passwd_type"]);
 		}
+
+// fau: idmPass - assign external passwd
+		$this->setExternalPasswd($a_data["ext_passwd"]);
+// fau.
 
 		$this->setGender($a_data["gender"]);
 		$this->setUTitle($a_data["title"]);
@@ -457,6 +482,12 @@ class ilObjUser extends ilObject
 				$pw_value = $this->passwd;
 				break;
 
+// fau: idmPass - sql insert for passwd type ssha
+			case IL_PASSWD_SSHA:
+				$pw_value = $this->passwd;
+				break;
+// fau.
+			
 			default :
 				 $ilErr->raiseError("<b>Error: passwd_type missing in function saveAsNew. ".
 									$this->id."!</b><br />class: ".get_class($this)."<br />Script: ".__FILE__.
@@ -525,6 +556,9 @@ class ilObjUser extends ilObject
 			"im_jabber" => array("text", $this->im_jabber),
 			"im_voip" => array("text", $this->im_voip),
 			'inactivation_date' => array('timestamp', $this->inactivation_date),
+// fau: idmPass - add external password
+			"ext_passwd" => array("text", $this->getExternalPasswd()),
+// fau.
 			'is_self_registered' => array('integer', (int)$this->is_self_registered)
 			);
 		$ilDB->insert("usr_data", $insert_array);
@@ -623,13 +657,17 @@ class ilObjUser extends ilObject
 			"im_jabber" => array("text", $this->im_jabber),
 			"im_voip" => array("text", $this->im_voip),
 			"last_update" => array("timestamp", ilUtil::now()),
-			'inactivation_date' => array('timestamp', $this->inactivation_date)
+// fau: idmPass - add external password
+			"ext_passwd" => array("text", $this->getExternalPasswd()),
+// fau.
 			);
 			
-        if (isset($this->agree_date) && (strtotime($this->agree_date) !== false || $this->agree_date == null))
+// fau: samlAuth - allow null as agree date
+        if (strtotime($this->agree_date) !== false || $this->agree_date == null)
         {
             $update_array["agree_date"] = array("timestamp", $this->agree_date);
 		}
+// fau.
 		switch ($this->passwd_type)
 		{
 			case IL_PASSWD_PLAIN:
@@ -649,6 +687,12 @@ class ilObjUser extends ilObject
 				$update_array["passwd"] = array("text", (string) $this->passwd);
 				break;
 
+// fau: idmPass - sql update for new passwd type ssha
+			case IL_PASSWD_SSHA:
+				$update_array["passwd"] = array("text", (string) $this->passwd);
+				break;
+// fau.
+			
 			default :
 				$ilErr->raiseError("<b>Error: passwd_type missing in function update()".$this->id."!</b><br />class: ".
 								   get_class($this)."<br />Script: ".__FILE__."<br />Line: ".__LINE__, $ilErr->FATAL);
@@ -687,6 +731,58 @@ class ilObjUser extends ilObject
 		$ilDB->manipulateF("UPDATE usr_data SET agree_date = ".$ilDB->now().
 			 " WHERE usr_id = %s", array("integer"), array($this->getId()));
 	}
+
+// fau: samlAuth - new function _findLoginByField
+	function _findLoginByField($fieldname, $value)
+	{
+		global $ilDB;
+
+		$query = "SELECT login FROM usr_data ".
+		"WHERE ". $fieldname . " = ". $ilDB->quote($value, 'text');
+		$result = $ilDB->query($query);
+
+		// take the first found
+		if ($row = $result->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+			return $row['login'];
+		}
+	}
+// fau.
+
+
+	/**
+	* fim: [soap] new function _findUserIdByAccount
+	*
+	* This will first search for the external account and then for the login
+	*
+	* @param  	string  account name
+	* @return   int     user id
+	*/
+	function _findUserIdByAccount($account)
+	{
+		global $ilDB;
+
+		// first try the external account
+		$query = "SELECT usr_id FROM usr_data ".
+		"WHERE ext_account = ". $ilDB->quote($account, 'text');
+		$result = $ilDB->query($query);
+		if ($row = $result->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+			return $row['usr_id'];
+		}
+
+		// then try the login
+		$query = "SELECT usr_id FROM usr_data ".
+		"WHERE login = ". $ilDB->quote($account, 'text');
+		$result = $ilDB->query($query);
+
+		if ($row = $result->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+			return $row['usr_id'];
+		}
+	}
+	// fim.
+
 
 	/**
 	* Private function for lookup methods
@@ -870,20 +966,31 @@ class ilObjUser extends ilObject
 			 array("integer"), array($this->id));
 	}
 
+// fau: idmPass - recognize ssha passwd type for replace function
 	/**
-	 * Replaces the user password with a new md5 hash. This method is currently used by the ILIAS webservice.
-	 * @param   string $md5_encoded_password Password as md5
-	 * @return  boolean true on success, otherwise false
+	 * Replaces the user password with a new hash. This method is currently used by the ILIAS webservice.
+	 * @param	string	new password as md5 or ssha hash
+	 * @return	boolean	true on success; otherwise false
+	 * @access	public
 	 */
-	public function replacePassword($md5_encoded_password)
+	function replacePassword($new_hash)
 	{
 		/**
 		 * @var $ilDB ilDB
 		 */
 		global $ilDB;
 
-		$this->setPasswd($md5_encoded_password, IL_PASSWD_CRYPTED);
-		$this->setPasswordEncodingType('md5');
+		if (ilAuthUtils::_isSSHAPassword($new_hash))
+		{
+			$this->setPasswd($new_hash, IL_PASSWD_SSHA);
+			$this->setPasswordEncodingType('ssha');
+		}
+		else
+		{
+			$this->setPasswd($new_hash, IL_PASSWD_CRYPTED);
+			$this->setPasswordEncodingType('md5');
+		}
+
 
 		$ilDB->manipulateF(
 			'UPDATE usr_data
@@ -895,6 +1002,7 @@ class ilObjUser extends ilObject
 
 		return true;
 	}
+// fau.
 
 	/**
 	 * Resets the user password
@@ -2590,13 +2698,22 @@ class ilObjUser extends ilObject
 			require_once ('Services/Database/classes/class.ilAuthContainerMDB2.php');
 			$login = ilAuthContainerMDB2::toUsernameWithoutDomain($ilAuth->getUsername());
 		}
-		else
+		elseif ($ilAuth->getUsername())
 		{
-			$login =$ilAuth->getUsername();
+			$login = $ilAuth->getUsername();
 		}
+		
+// fau: loginFailed - get also the username of users with wrong password
+// this allows to check the activation status of accounts with wrong password
+// and show a message if their trial limit is exceeded
+		if ($login == '' and $_REQUEST["username"] !== '')
+		{
+			$login = $_REQUEST["username"];
+		}
+// fau.
                 
 		return $login;
-        }
+    }
 
     /*
      * check to see if current user has been made active
@@ -3669,6 +3786,29 @@ class ilObjUser extends ilObject
 		return $this->ext_account;
 	}
 
+// fau: idmPass - set/get external password
+	/**
+	* set external password
+	* @access	public
+	* @param	string	passwd
+	*/
+	function setExternalPasswd($a_str)
+	{
+		$this->ext_passwd = $a_str;
+	}
+
+	/**
+	* get external password
+	* @return 	password
+	* @access	public
+	*/
+	function getExternalPasswd()
+	{
+		return $this->ext_passwd;
+	}
+// fau.
+
+	
 	/**
 	 * Get list of external account by authentication method
 	 * Note: If login == ext_account for two user with auth_mode 'default' and auth_mode 'ldap'
@@ -5086,7 +5226,7 @@ class ilObjUser extends ilObject
 	public static function _verifyRegistrationHash($a_hash)
 	{
 		global $ilDB;
-		
+
 		$res = $ilDB->queryf('
 			SELECT usr_id, create_date FROM usr_data 
 			WHERE reg_hash = %s',
@@ -5094,9 +5234,16 @@ class ilObjUser extends ilObject
 	        array($a_hash));		         
 		while($row = $ilDB->fetchAssoc($res))
 		{
+// fau: regCodes - inject code into registration settings
 			require_once 'Services/Registration/classes/class.ilRegistrationSettings.php';
-			$oRegSettigs = new ilRegistrationSettings();
-			
+			require_once 'Services/Registration/classes/class.ilRegistrationCode.php';
+			$oRegSettigs = ilRegistrationSettings::getInstance();
+			$oRegCode = new ilRegistrationCode(self::_lookupPref($row['usr_id'],'registration_code'));
+			if (isset($oRegCode->code_id))
+			{
+				$oRegSettigs->setCodeObject($oRegCode);
+			}
+// fau.
 			if((int)$oRegSettigs->getRegistrationHashLifetime() != 0 &&
 			   time() - (int)$oRegSettigs->getRegistrationHashLifetime() > strtotime($row['create_date']))
 			{
@@ -5111,7 +5258,10 @@ class ilObjUser extends ilObject
 				array('text', 'integer'),
 				array('', (int)$row['usr_id'])
 			);
-			
+
+// fau: regCodes - delete registration code from preferences when it is not longer needed
+			self::_deletePref($row['usr_id'],'registration_code');
+// fau.
 			return (int)$row['usr_id'];
 		}		
 		
@@ -5580,6 +5730,66 @@ class ilObjUser extends ilObject
 	{
 		return (bool)$this->getPref("delete_flag");
 	}
+	
+// fau: loginFailed - new function getInactiveMessageVar
+	/**
+	 *  Get the language var for showing an inactive failure message
+	 *  
+	 *  @return string	language variable or empty string, is user is active
+	 */  
+	public function getInactiveMessageVar()
+	{	
+		// user account not found
+		// should not create an inactive message
+		// instead ilStartupGUI::showLogin() will create an err_wrong_login message
+		if (!$this->getId())
+		{
+			return "";
+		}
+		
+		// time limit reached (independent from activation status)
+		if (!$this->checkTimeLimit())
+		{
+			return "err_inactive_time_limit";
+		}
+
+		// user is active => no message
+		if ($this->getActive())
+		{
+			return "";	
+		}		
+		
+		// too many wrong logins
+		require_once 'Services/PrivacySecurity/classes/class.ilSecuritySettings.php';
+		$security = ilSecuritySettings::_getInstance();
+		
+		if ($security->getLoginMaxAttempts() > 0 and $security->getLoginMaxAttempts() <= $this->getLoginAttempts())
+		{
+			return "err_inactive_wrong_logins"; 
+		}
+
+		// user has not yet been logged
+		if (!$this->getLastLogin())
+		{
+			return "err_inactive_new";
+		}
+		
+		// last login before one year
+		include_once('./Services/Calendar/classes/class.ilDateTime.php');	
+		$check = new ilDateTime(time(),IL_CAL_UNIX);
+		$check->increment(IL_CAL_YEAR, -1);
+		$last = new ilDateTime($this->getLastLogin(),IL_CAL_DATETIME);
+		
+		if (ilDate::_before($last, $check))
+		{
+			return "err_inactive_too_long"; 
+		}
+
+		// user has been set to inactive for any other reason
+		return "err_inactive_set";	
+	}
+// fau.
+		
 
 	/**
 	 * @param bool $status

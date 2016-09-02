@@ -380,8 +380,18 @@ abstract class assQuestionGUI
 		include_once("./Modules/TestQuestionPool/classes/class.ilAssQuestionPageGUI.php");
 		$page_gui = new ilAssQuestionPageGUI($this->object->getId());
 		$page_gui->setQuestionHTML(array($this->object->getId() => $html));
-		$page_gui->setOutputMode("presentation");
-		$presentation = $page_gui->presentation();
+		// fim: [media] use preview mode for page content in solution output
+		// this sets the mode for the limited media player
+		if (strtolower($_GET['cmdClass']) == 'iltestevaluationgui')
+		{
+			$page_gui->setOutputMode("preview");
+		}
+		else
+		{
+			$page_gui->setOutputMode("presentation");
+		}
+		// fim.
+		$presentation = $page_gui->presentation($page_gui->getOutputMode());
 		$presentation = preg_replace("/src=\"\\.\\//ims", "src=\"" . ILIAS_HTTP_PATH . "/", $presentation);
 		return $presentation;
 	}
@@ -1135,6 +1145,10 @@ abstract class assQuestionGUI
 				$tags[] = $s;
 			}
 		}
+// fau: fixHtmlInGapText - allow line breaks in question text of cloze question on lm pages
+		$tags[] = 'br';
+		$tags[] = 'p';
+// fau.
 
 		return $tags;
 	}

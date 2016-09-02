@@ -29,7 +29,12 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 	protected $has_edit; // bool
 	protected $has_collection; // bool
 	protected $has_multi; // bool
-	
+
+
+// fau: lpRefreshesLimit - class variables for remaining users and refreshes count
+	protected $users_to_refresh = array();
+	protected $refreshes_done = 0;
+// fau.
 	/**
 	* Constructor
 	*/
@@ -64,18 +69,18 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 		{
 			$this->setPrintMode(true);
 		}
-		
+
 		if(!$this->getPrintMode())
 		{
 			// see ilObjCourseGUI::addMailToMemberButton()
 			include_once "Services/Mail/classes/class.ilMail.php";
 			$mail = new ilMail($ilUser->getId());
 			if($rbacsystem->checkAccess("internal_mail", $mail->getMailObjectReferenceId()))
-			{							
+			{
 				$this->addMultiCommand("mailselectedusers", $this->lng->txt("send_mail"));
 				$this->addColumn("", "", 1);
 				$this->has_multi = true;
-			}			
+			}
 		}
 
 		$labels = $this->getSelectableColumns();
@@ -116,12 +121,12 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 		
 		// #13807
 		$this->has_edit = $rbacsystem->checkAccess('edit_learning_progress',$this->ref_id);
-		
+
 		/* currently not active, needs to be revised
 		include_once "Services/Object/classes/class.ilObjectLP.php";
 		include_once "Services/Tracking/classes/collection/class.ilLPCollection.php";
 		$objlp = ilObjectLP::getInstance($this->obj_id);
-		$this->has_collection = in_array($objlp->getCurrentMode(), ilLPCollection::getCollectionModes());				 
+		$this->has_collection = in_array($objlp->getCurrentMode(), ilLPCollection::getCollectionModes());
 		*/
 	}
 	
@@ -209,6 +214,16 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 				);
 		}
 
+// fau: lpRefreshesLimit - get the status update result and show an info if users are remaining
+		require_once('Services/Tracking/classes/class.ilLPStatus.php');
+		$this->users_to_refresh = ilLPStatus::_getUsersToRefresh();
+		$this->refreshes_done = ilLPStatus::_getRefreshesDone();
+		if (!empty($this->users_to_refresh))
+		{
+			global $lng;
+			ilUtil::sendInfo(sprintf($lng->txt('lp_info_users_to_refresh'), $this->refreshes_done, count($this->users_to_refresh)));
+		}
+// fau.
 		$this->setMaxCount($tr_data["cnt"]);
 		$this->setData($tr_data["set"]);
 	}
@@ -326,7 +341,7 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 	protected function fillRow($data)
 	{
 		global $ilCtrl, $lng, $objDefinition;
-		
+
 		if($this->has_multi)
 		{
 			$this->tpl->setVariable("USER_ID", $data["usr_id"]);
@@ -363,8 +378,16 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 					$this->tpl->setVariable('TXT_INACTIVE', $lng->txt("inactive"));				
 					$this->tpl->parseCurrentBlock();
 				}
-				
-				$val = $this->parseValue($c, $data[$c], $this->type);
+// fau: lpRefreshesLimit - show '?' as status if user is not yet refreshed
+				if ($c == 'status' and in_array($data["usr_id"], $this->users_to_refresh))
+				{
+					$val = '?';
+				}
+				else
+				{
+					$val = $this->parseValue($c, $data[$c], $this->type);
+				}
+// fau.
 			}
 			else
 			{
@@ -429,6 +452,12 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 			{
 				$val = $this->parseValue($c, $a_set[$c], $this->type);
 			}
+// fau: lpRefreshesLimit - show '?' as status if user is not yet refreshed
+			elseif (in_array($a_set["usr_id"], $this->users_to_refresh))
+			{
+				$val = '?';
+			}
+// fau.
 			else
 			{
 				$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set[$c]);
@@ -457,6 +486,12 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 			{
 				$val = $this->parseValue($c, $a_set[$c], $this->type);
 			}
+// fau: lpRefreshesLimit - show '?' as status if user is not yet refreshed
+			elseif (in_array($a_set["usr_id"], $this->users_to_refresh))
+			{
+				$val = '?';
+			}
+// fau.
 			else
 			{
 				$val = ilLearningProgressBaseGUI::_getStatusText((int)$a_set[$c]);

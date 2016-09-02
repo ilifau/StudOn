@@ -65,7 +65,7 @@ class ilTestPassesSelector
 	public function getReportablePasses()
 	{
 		$existingPasses = $this->loadExistingPasses();
-			
+
 		$reportablePasses = $this->fetchReportablePasses($existingPasses);
 
 		return $reportablePasses;
@@ -112,11 +112,11 @@ class ilTestPassesSelector
 		
 		return $reportablePasses;
 	}
-	
+
 	private function fetchClosedPasses($existingPasses)
 	{
 		$closedPasses = array();
-		
+
 		foreach($existingPasses as $pass)
 		{
 			if( $this->isClosedPass($pass) )
@@ -124,10 +124,10 @@ class ilTestPassesSelector
 				$closedPasses[] = $pass;
 			}
 		}
-		
+
 		return $closedPasses;
 	}
-	
+
 	private function fetchLastPass($existingPasses)
 	{
 		$lastPass = null;

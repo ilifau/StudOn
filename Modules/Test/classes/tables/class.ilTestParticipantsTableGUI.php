@@ -74,7 +74,16 @@ class ilTestParticipantsTableGUI extends ilTable2GUI
 			$this->addMultiCommand('showPassOverview', $this->lng->txt('show_pass_overview'));
 			$this->addMultiCommand('showUserAnswers', $this->lng->txt('show_user_answers'));
 			$this->addMultiCommand('showDetailedResults', $this->lng->txt('show_detailed_results'));
+
+			// fim: [exam] add command to show detailed results with solutions
+			$this->addMultiCommand('showDetailedResultsWithCorrectSolutions', $this->lng->txt('show_detailed_results_with_correct_solutions'));
+			// fim.
+
+			// fim: [exam] add command to send simple results to participants
+			$this->addMultiCommand('sendSimpleResultsToParticipants', $this->lng->txt('send_simple_results_to_participants'));
+			// fim.
 		}
+
 		$this->addMultiCommand('deleteSingleUserResults', $this->lng->txt('delete_user_data'));
 
 		$this->setFormAction($this->ctrl->getFormAction($a_parent_obj, $a_parent_cmd));
@@ -116,7 +125,9 @@ class ilTestParticipantsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("FIRSTNAME", $data['firstname']);
 		$this->tpl->setVariable("LASTNAME", $data['lastname']);
 		*/
-		$this->tpl->setVariable("STARTED", ($data['started']) ? $started : '');
+		// fim: [exam] show actual starting time instead of flag in particilants list
+		$this->tpl->setVariable("STARTED", ($data['started']) ? ilDatePresentation::formatDate(new ilDateTime($data['started'], IL_CAL_DATETIME)) : '');
+		// fim.
 		$this->tpl->setVariable("PASSES", $passes);
 		$this->tpl->setVariable("FINISHED", ($data['finished']) ? $finished : '');
 		$this->tpl->setVariable("ACCESS", ilDatePresentation::formatDate(new ilDateTime($data['access'],IL_CAL_DATETIME)));

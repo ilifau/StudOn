@@ -304,7 +304,7 @@ class ilLanguage
 		self::$used_modules[$a_module] = $a_module;
 
 		$lang_key = $this->lang_key;
-
+		
 		if (empty($this->lang_key))
 		{
 			$lang_key = $this->lang_user;
@@ -327,13 +327,14 @@ class ilLanguage
 			$this->text[$row->identifier] = $row->value;
 		}
 */
-
-		$q = "SELECT * FROM lng_modules " .
+// fau: sqlCache - use sql cache
+		$q = "SELECT SQL_CACHE * FROM lng_modules " .
 				"WHERE lang_key = ".$ilDB->quote($lang_key, "text")." AND module = ".
 				$ilDB->quote($a_module, "text");
+// fau.
 		$r = $ilDB->query($q);
 		$row = $r->fetchRow(DB_FETCHMODE_ASSOC);
-		
+
 		$new_text = unserialize($row["lang_array"]);
 		if (is_array($new_text))
 		{

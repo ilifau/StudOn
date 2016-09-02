@@ -20,6 +20,11 @@ include_once 'Modules/Test/classes/class.ilTestExpressPage.php';
  * @ilCtrl_IsCalledBy ilTestExpressPageObjectGUI: assTextSubsetGUI
  * @ilCtrl_IsCalledBy ilTestExpressPageObjectGUI: assSingleChoiceGUI
  * @ilCtrl_IsCalledBy ilTestExpressPageObjectGUI: assTextQuestionGUI, assFormulaQuestionGUI
+
+ * // fim: [exam] add control flow for root selector
+ * @ilCtrl_Calls ilTestExpressPageObjectGUI: ilTestQuestionBrowserTableGUI
+ * // fim.
+
  */
 class ilTestExpressPageObjectGUI extends ilAssQuestionPageGUI
 {
@@ -119,7 +124,16 @@ class ilTestExpressPageObjectGUI extends ilAssQuestionPageGUI
 				
                 break;
 
-            case '':
+			// fim: [exam] handle root select in filter of the question browser
+			case 'iltestquestionbrowsertablegui':
+				global $ilAccess;
+				include_once "./Modules/Test/classes/tables/class.ilTestQuestionBrowserTableGUI.php";
+				$gui = new ilTestQuestionBrowserTableGUI($this, 'browseForQuestions', (($ilAccess->checkAccess("write", "", $_REQUEST['ref_id']) ? true : false)));
+				$this->ctrl->forwardCommand($gui);
+				break;
+			// fim.
+
+			case '':
             case 'iltestexpresspageobjectgui':
                 
 				include_once 'Modules/TestQuestionPool/classes/class.assQuestionGUI.php';

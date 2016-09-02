@@ -16,6 +16,43 @@
 */
 class ilUtil
 {
+	// fim: [portal] new function getRootLoginLink()
+	static function _getRootLoginLink($a_target = "")
+	{
+		//TODO: return login link if 'ilias_root_as_login' is not set
+
+		global $ilUser, $tree, $lng, $https;
+
+		if ($ilUser->getId() and $ilUser->getId() != ANONYMOUS_USER_ID)
+		{
+			require_once "Services/Link/classes/class.ilLink.php";
+			return ilLink::_getStaticLink(1, "root");
+		}
+
+		$target = $a_target ? $a_target : $_GET["target"];
+
+		if ($target == "" and $_GET["ref_id"] != "")
+		{
+			if ($tree->isInTree($_GET["ref_id"]) && $_GET["ref_id"] != $tree->getRootId())
+			{
+				$obj_id = ilObject::_lookupObjId($_GET["ref_id"]);
+				$type = ilObject::_lookupType($obj_id);
+				$target = $type."_".$_GET["ref_id"];
+			}
+		}
+
+		$url = "ilias.php"
+			. "?baseClass=ilrepositorygui"
+			. "&cmd=frameset"
+			. "&ref_id=1"
+			. "&lang=".$lng->getLangKey()
+			. "&client_id=".rawurlencode(CLIENT_ID)
+			. ($target ? "&login_target=" . $target : "");
+		
+		return $url;
+	}
+	// fim.
+	
 	/**
 	* Builds an html image tag
 	* TODO: function still in use, but in future use getImagePath and move HTML-Code to your template file
@@ -202,7 +239,9 @@ class ilUtil
 		$vers = "";
 		if ($mode != "filesystem")
 		{
-			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version"));
+// fau: versionSuffix - use the version number with own suffix
+			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version_suffix"));
+// fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
 		}
 		return $filename . $vers;
@@ -240,7 +279,9 @@ class ilUtil
 		$vers = "";
 		if ($add_version)
 		{
-			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version"));
+// fau: versionSuffix - use the version number with own suffix
+			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version_suffix"));
+// fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
 		}
 		return $filename . $vers;
@@ -294,7 +335,9 @@ class ilUtil
 		// add version as parameter to force reload for new releases
 		if ($mode != "filesystem")
 		{
-			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version"));
+// fau: versionSuffix - use the version number with own suffix
+			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version_suffix"));
+// fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
 		}
 
@@ -815,12 +858,20 @@ class ilUtil
 		// mask existing image tags
 		$ret = str_replace('src="http://', '"***masked_im_start***', $ret);
 		
+		// fim: [univis] mask existing href tags
+		$ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
+		// fim.
+
 		include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
 		$parser = new ilMWParserAdapter();
 		$ret = $parser->replaceFreeExternalLinks($ret);
 
 		// unmask existing image tags
 		$ret = str_replace('"***masked_im_start***', 'src="http://', $ret);
+
+		// fim: [univis] unmask existing href tags
+		$ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/','href="$1',$ret);
+		// fim.
 
 		// Should be Safe
 
@@ -1861,7 +1912,13 @@ class ilUtil
 		{
 			$a_dir .="/*";
 			$pathinfo = pathinfo($a_dir);
-			chdir($pathinfo["dirname"]);
+// fau: fixZip - prevent zipping if source dir can't be set
+// otherwise the whole ilias directory would be zipped
+			if (!chdir($pathinfo["dirname"]))
+			{
+				return false;
+			}
+// fau.
 		}
 		
 		$pathinfo = pathinfo($a_file);
@@ -1870,7 +1927,13 @@ class ilUtil
 
 		if(!$compress_content)
 		{
-			chdir($dir);
+// fau: fixZip - prevent zipping f source dir can't be set
+// otherwise the whole ilias directory would be zipped
+			if (!chdir($dir))
+			{
+				return false;
+			}
+// fau.
 		}
 
 		$zip = PATH_TO_ZIP;
@@ -3123,6 +3186,20 @@ class ilUtil
 		return $a_str;
 	}
 
+	/**
+	 * fim: [bugfix] revert the replacements done in ilUtil::prepareFormOutput
+	 * @param	string
+	 * @return	string
+	 */
+	public static function revertFormOutput($a_str)
+	{
+		$a_str = str_replace("&#123;", "{", $a_str);
+		$a_str = str_replace("&#125;", "}", $a_str);
+		$a_str = str_replace("&#92;", "\\", $a_str);
+		return $a_str;
+	}
+	// fim.
+	
 
 	/**
 	* prepare a string for db writing (insert/update)
@@ -3301,12 +3378,16 @@ class ilUtil
 		// locale is provided and mb string functions are supported
 		if ($array_sortorder == "asc")
 		{
-			return ilStr::strCmp($a[$array_sortby], $b[$array_sortby]);
+			// fim: [sort] use case sensitive string compare
+			return ilStr::strCmpCaseSensitive($a[$array_sortby], $b[$array_sortby]);
+			// fim.
 		}
 
 		if ($array_sortorder == "desc")
 		{
-			return !ilStr::strCmp($a[$array_sortby], $b[$array_sortby]);
+			// fim: [sort] use case sensitive string compare
+			return !ilStr::strCmpCaseSensitive($a[$array_sortby], $b[$array_sortby]);
+			// fim.
 			return strcoll(ilStr::strToUpper($b[$array_sortby]), ilStr::strToUpper($a[$array_sortby]));
 		}
 	}
@@ -3582,11 +3663,16 @@ class ilUtil
 	/**
 	* http redirect to other script
 	*
+	* fim: [bugfix] add parameter to redirect by html page istead http header
+	*		this is needed for the join links of courses and groups
+	*		if they are not called from the browser  
 	* @param	string		$a_script		target script
+	* @param	string		$a_html_redirect generate a redirecting page instead of a header
 	* @static
 	* 
 	*/
-	public static function redirect($a_script)
+	public static function redirect($a_script, $a_html_redirect = false)
+	// fim.
 	{
 		global $log, $PHP_SELF;
 		
@@ -3603,8 +3689,9 @@ class ilUtil
 			}
 		}
 //echo "<br>".$a_script; exit;
-
-  		// include the user interface hook
+//
+//
+ 		// include the user interface hook
 		global $ilPluginAdmin;
 		if (is_object($ilPluginAdmin))
 		{
@@ -3620,10 +3707,58 @@ class ilUtil
 				}
 			}
 		}
+		
+		// fim: [debug] show redirect link instead of redirecting
+		global $ilCust;
+		if (is_object($ilCust) and $ilCust->getSetting('ilias_trace_redirects'))
+  		{
+			echo '<br/><pre>Redirect: <a href="'.htmlspecialchars($a_script).'">'.htmlspecialchars($a_script).'</a><br /><br />';
+			echo self::backtrace();
+			echo '<br/>$_GET:</br/>';
+			var_dump($_GET);
+			echo '<br/>$_POST:</br/>';
+			var_dump($_POST);
+			echo '<br/>$_COOKIE:</br/>';
+			var_dump($_COOKIE);
+			echo '</pre>';
+			exit;
+  		}
+		// fim.
 		  		
+		// fim: [bugfix] use html redirect
+		if ($a_html_redirect)
+		{
+			echo '<html><head>';
+			echo '<meta http-equiv="refresh" content="0; URL='.htmlspecialchars($a_script).'" />';
+			echo '</head></html>';
+			exit;
+		}
+		// fim.
+		
 		header("Location: ".$a_script);
 		exit();
 	}
+
+	/**
+	 * fim: [debug] new function to get a short backtrace
+	 * @return string
+	 */
+	public static function backtrace()
+	{
+		$backtrace = '';
+		$i = 0;
+		foreach (debug_backtrace() as $step)
+		{
+			if ($i > 0)
+			{
+				$backtrace .= '['.$i.'] '.$step['file'].' '.$step['line'].': '.$step['function']."()\n";
+			}
+			$i++;
+		}
+		$backtrace .=  '['.$i.'] '.$_SERVER['REQUEST_URI'];
+		return $backtrace;
+	}
+	// fim.
 
 	/**
 	* inserts installation id into ILIAS id
@@ -4292,17 +4427,21 @@ class ilUtil
 	* for the user. Therefore course A won't appear in the result list although
 	* the queried operations 'read' would actually permit the user
 	* to access course A.
+	* fim: [tree] add root as parameter to allow selection in sub tree
+	* this is used by ilObjQuestionPool::_getAvailableQuestionpools()
 	*
 	* @access	public
 	* @param	string/array	object type 'lm' or array('lm','sahs')
 	* @param	string	permission to check e.g. 'visible' or 'read'
 	* @param	int id of user in question
 	* @param    int limit of results. if not given it defaults to search max hits.If limit is -1 limit is unlimited
+	* @param	int ref_id of the sub tree node to search in
 	* @return	array of ref_ids
 	* @static
 	* 
 	*/
-	public static function _getObjectsByOperations($a_obj_type,$a_operation,$a_usr_id = 0,$limit = 0)
+	public static function _getObjectsByOperations($a_obj_type,$a_operation,$a_usr_id = 0,$limit = 0, $a_root_id = 0)
+	//fim.
 	{
 		global $ilDB,$rbacreview,$ilAccess,$ilUser,$ilias,$tree;
 
@@ -4314,6 +4453,21 @@ class ilUtil
 		{
 			$where = "WHERE ".$ilDB->in("type", $a_obj_type, false, "text")." ";
 		}
+
+		// fim: [tree] respect the root id parameter
+		if ($a_root_id)
+		{
+			$where .= ' AND '. $tree->getGrandChildCondition((int) $a_root_id) . "  ";
+
+			$tree_join = " LEFT JOIN tree ON obr.ref_id = tree.child ";
+			$tree_cond = " AND tree = 1 ";
+		}
+		else
+		{
+			$tree_join = "";
+			$tree_cond = "";
+		}
+		// fim.
 
 		// limit number of results default is search result limit
 		if(!$limit)
@@ -4373,14 +4527,18 @@ class ilUtil
 
 		$and = "AND ((".$ilDB->in("rol_id", $a_roles, false, "integer")." ";
 
+		// fim: [tree] respect the root conditions
 		$query = "SELECT DISTINCT(obr.ref_id),obr.obj_id,type FROM object_reference obr ".
 			"JOIN object_data obd ON obd.obj_id = obr.obj_id ".
 			"LEFT JOIN rbac_pa  ON obr.ref_id = rbac_pa.ref_id ".
+			$tree_join.
 			$where.
+			$tree_cond.
 			$and.
 			"AND (".$ilDB->like("ops_id", "text","%i:".$ops_id."%"). " ".
 			"OR ".$ilDB->like("ops_id", "text", "%:\"".$ops_id."\";%").")) ".
 			$check_owner;
+		// fim.
 
 		$res = $ilDB->query($query);
 		$counter = 0;
@@ -4443,85 +4601,109 @@ class ilUtil
 	* @static
 	* 
 	*/
-	public static function insertLatexImages($a_text, $a_start = "\[tex\]", $a_end = "\[\/tex\]")
+	// fim: [tex] allow a server-side mathjax processing, simplified the parsing
+	// fim: [pdf] allow a second call of already processed code at pdf generation
+	public static function insertLatexImages($a_text, $a_start = '[tex]', $a_end = '[/tex]', $processed = false)
 	{
-		global $tpl, $lng, $ilUser;
-
-		$cgi = URL_TO_LATEX;
-
-		// - take care of html exports (-> see buildLatexImages)
+		// get the matjhax settings
+		// enable: 	mathjax should be rendered in the browser
+		// limiter: integer code of the configured mathjax delimiters
 		include_once "./Services/Administration/classes/class.ilSetting.php";
-		$mathJaxSetting = new ilSetting("MathJax");
-		$use_mathjax = $mathJaxSetting->get("enable");
-		if ($use_mathjax)
+		$setting = new ilSetting("MathJax");
+		$in_browser = (bool) $setting->get("enable");
+		switch ((int) $setting->get("limiter"))
 		{
-			$a_text = preg_replace("/\\\\([RZN])([^a-zA-Z]|<\/span>)/", "\\mathbb{"."$1"."}"."$2", $a_text);
-			$tpl->addJavaScript($mathJaxSetting->get("path_to_mathjax"));
-		}
-		
-		// this is a fix for bug5362
-		$cpos = 0;
-		$o_start = $a_start;
-		$o_end = $a_end;
-		$a_start = str_replace("\\", "", $a_start);
-		$a_end = str_replace("\\", "", $a_end);
+			case 1:
+				$mj_start = '[tex]';
+				$mj_end = '[/tex]';
+				break;
 
+			case 2:
+				$mj_start = '<span class="math">';
+				$mj_end = '</span>';
+				break;
+
+			default:
+				$mj_start = '\(';
+				$mj_end = '\)';
+				break;
+		}
+
+		// add mathjax library the browser page
+		if ($in_browser)
+		{
+			global $tpl;
+			$tpl->addJavaScript($setting->get("path_to_mathjax"));
+		}
+
+		// use the mathjax delimiters if text has already been processed for mathjax
+		// this is the case when the function is called a second time for pdf generation
+		if ($processed)
+		{
+			$a_start = $mj_start;
+			$a_end = $mj_end;
+
+			// assQuestion::prepareTextareaOutput converts "\\" to "&#92;"
+			// so this has to be undone for a postprocessing
+			// (tex in ilias page is converted to standard delimiters)
+			$a_text = str_replace('&#92;(','\(', $a_text);
+			$a_text = str_replace('&#92;)','\)', $a_text);
+		}
+		else
+		{
+			// this is a fix for bug5362
+			$a_start = str_replace("\\", "", $a_start);
+			$a_end = str_replace("\\", "", $a_end);
+		}
+
+
+		// is this replacement still needed?
+		$a_text = preg_replace("/\\\\([RZN])([^a-zA-Z]|<\/span>)/", "\\mathbb{"."$1"."}"."$2", $a_text);
+
+		$cpos = 0;
 		while (is_int($spos = stripos($a_text, $a_start, $cpos)))	// find next start
 		{
-			if (is_int ($epos = stripos($a_text, $a_end, $spos + 1)))
+			if (is_int ($epos = stripos($a_text, $a_end, $spos + strlen($a_start))))
 			{
+				// extract the tex code inside the delimiters
+				// omit the html newlines added by the ilias page editor
+				// handle custom newlines in JSMath (still needed?)
 				$tex = substr($a_text, $spos + strlen($a_start), $epos - $spos - strlen($a_start));
+				$tex = str_replace('<br>', '', $tex);
+				$tex = str_replace('<br/>', '', $tex);
+				$tex = str_replace('<br />', '', $tex);
+				$tex = str_replace('\\\\' , '\\cr', $tex);
 
 				// replace, if tags do not go across div borders
-				if (!is_int(strpos($tex, "</div>")))
+				if (!is_int(strpos($tex, '</div>')))
 				{
-					if (!$use_mathjax)
+					if ($in_browser)
 					{
-						$a_text = substr($a_text, 0, $spos).
-							"<img alt=\"".htmlentities($tex)."\" src=\"".$cgi."?".
-							rawurlencode(str_replace('&amp;', '&', str_replace('&gt;', '>', str_replace('&lt;', '<', $tex))))."\" ".
-							" />".
-							substr($a_text, $epos + strlen($a_end));
+						// prepare code for processing in the browser
+						// add neccessary html encodings
+						// use the configured mathjax delimiters
+						$tex = str_replace('<', '&lt;', $tex);
+						$replacement = $mj_start . $tex . $mj_end;
 					}
 					else
 					{
-						$tex = $a_start.$tex.$a_end;
-						
-						switch ((int) $mathJaxSetting->get("limiter"))
-						{
-							case 1:
-								$mj_start = "[tex]";
-								$mj_end = "[/tex]";
-								break;
-
-							case 2:
-								$mj_start = '<span class="math">';
-								$mj_end = '</span>';
-								break;
-								
-							default:
-								$mj_start = "\(";
-								$mj_end = "\)";
-								break;
-						}
-						
-						$replacement = 
-							preg_replace('/' . $o_start . '(.*?)' . $o_end . '/ie',
-							"'".$mj_start."' . preg_replace('/[\\\\\\\\\\]{2}/', '\\cr', str_replace('<', '&lt;', str_replace('<br/>', '', str_replace('<br />', '', str_replace('<br>', '', '$1'))))) . '".$mj_end."'", $tex);
-						// added special handling for \\ -> \cr, < -> $lt; and removal of <br/> tags in jsMath expressions, H. Schottmüller, 2007-09-09
-						$a_text = substr($a_text, 0, $spos).
-							$replacement.
-							substr($a_text, $epos + strlen($a_end));
+						// apply server-side processing
+						// mathjax-node expects pure tex code
+						// so revert any applied html encoding
+						$tex = html_entity_decode($tex, ENT_QUOTES, 'UTF-8');
+						require_once ("./Services/Utilities/classes/class.ilLatex.php");
+						$replacement = ilLatex::getInstance()->renderTex($tex);
 					}
+
+					// replace tex code with prepared code or generated image
+					$a_text = substr($a_text, 0, $spos) . $replacement . substr($a_text, $epos + strlen($a_end));
 				}
 			}
 			$cpos = $spos + 1;
 		}
-		
-		$result_text = $a_text;
-
-		return $result_text;
+		return $a_text;
 	}
+	// fim.
 
 	/**
 	* replace [text]...[/tex] tags with formula image code
@@ -4534,6 +4716,12 @@ class ilUtil
 	*/
 	public static function buildLatexImages($a_text, $a_dir)
 	{
+		// fim: [tex] disable browser mathjax and use standard function
+		$mathJaxSetting = new ilSetting("MathJax");
+		$mathJaxSetting->set('enable','0', false);
+		return self::insertLatexImages($a_text);
+		// fim.
+
 		$result_text = $a_text;
 		
 		$start = "\[tex\]";

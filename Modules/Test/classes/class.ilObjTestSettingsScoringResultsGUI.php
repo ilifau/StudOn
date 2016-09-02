@@ -477,6 +477,24 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 		$chb_resulting_mark_only->setValue(1);
 		$chb_resulting_mark_only->setChecked($this->testOBJ->isShowGradingMarkEnabled());
 		$form->addItem($chb_resulting_mark_only);
+
+		// fim: [exam] add fields for passed / failed messages
+		$mark = new ilTextAreaInputGUI($this->lng->txt("tst_mark_tst_passed"), "mark_tst_passed");
+		$mark->setRows(3);
+		$mark->setUseRte(true);
+		$mark->setRteTagSet('extended');
+		$mark->setValue($this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstPassed()));
+		$mark->setInfo($this->lng->txt("tst_mark_tst_passed_details"));
+		$form->addItem($mark);
+
+		$mark = new ilTextAreaInputGUI($this->lng->txt("tst_mark_tst_failed"), "mark_tst_failed");
+		$mark->setRows(3);
+		$mark->setUseRte(true);
+		$mark->setRteTagSet('extended');
+		$mark->setValue($this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstFailed()));
+		$mark->setInfo($this->lng->txt("tst_mark_tst_failed_details"));
+		$form->addItem($mark);
+		// fim.
 	}
 
 	/**
@@ -524,6 +542,12 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 				(int)$form->getItemByPostVar('grading_mark')->getChecked()
 			);
 		}
+
+		// fim: [exam] save mark messages
+		$this->testOBJ->setMarkTstPassed($form->getItemByPostVar('mark_tst_passed')->getValue());
+		$this->testOBJ->setMarkTstFailed($form->getItemByPostVar('mark_tst_failed')->getValue());
+		// fim.
+
 	}
 
 	private function addResultDetailsSettingsFormSection(ilPropertyFormGUI $form)
@@ -782,7 +806,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 			if( !$this->isHiddenFormItem('results_tax_filters') && count($this->getAvailableTaxonomyIds()) )
 			{
 				$taxFilters = array();
-				
+
 				if( is_array($form->getItemByPostVar('results_tax_filters')->getValue()) )
 				{
 					$taxFilters = array_intersect(

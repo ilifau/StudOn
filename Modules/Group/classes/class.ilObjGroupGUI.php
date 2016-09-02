@@ -19,7 +19,10 @@ include_once('./Modules/Group/classes/class.ilObjGroup.php');
 * @ilCtrl_Calls ilObjGroupGUI: ilObjectCustomUserFieldsGUI, ilMemberAgreementGUI, ilExportGUI, ilMemberExportGUI
 * @ilCtrl_Calls ilObjGroupGUI: ilCommonActionDispatcherGUI, ilObjectServiceSettingsGUI, ilSessionOverviewGUI
 * @ilCtrl_Calls ilObjGroupGUI: ilMailMemberSearchGUI
-* 
+*
+* fim: [memcond] added ilSubscribersStudyCondGUI to call structure
+* @ilCtrl_Calls ilObjGroupGUI: ilSubscribersStudyCondGUI
+* fim.
 *
 * @extends ilObjectGUI
 */
@@ -59,12 +62,26 @@ class ilObjGroupGUI extends ilContainerGUI
 
 		switch($next_class)
 		{			
+			// fim: [memcond] add command class
+			case 'ilsubscribersstudycondgui':
+				include_once("./Services/Membership/classes/class.ilSubscribersStudyCondGUI.php");
+				$cond_gui = new ilSubscribersStudyCondGUI($this, 'edit');
+				$this->ctrl->setReturn($this, 'edit');
+				$this->ctrl->forwardCommand($cond_gui);
+				$this->setSubTabs('settings');
+				$this->tabs_gui->setTabActive('settings');
+				break;
+			// fim.
+
 			case 'ilgroupregistrationgui':
 				$this->ctrl->setReturn($this,'');
 				$this->tabs_gui->setTabActive('join');
 				include_once('./Modules/Group/classes/class.ilGroupRegistrationGUI.php');
 				$registration = new ilGroupRegistrationGUI($this->object);
 				$this->ctrl->forwardCommand($registration);
+				// fim: [bugfix] return here to avoid inclusion of header commands
+				return true;
+				// fim.
 				break;
 
 			case 'ilusersgallerygui':
@@ -272,7 +289,7 @@ class ilObjGroupGUI extends ilContainerGUI
 				}
 
 				$this->tabs_gui->setTabActive('members');
-				
+
 				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
 				include_once './Services/Contact/classes/class.ilMailMemberGroupRoles.php';
 
@@ -289,7 +306,14 @@ class ilObjGroupGUI extends ilContainerGUI
 				{
 					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
 				}
-				
+
+				// fim: [memad] redirect joinAsGuest
+				if ($cmd == 'joinAsGuest')
+				{
+					$this->ctrl->redirectByClass("ilGroupRegistrationGUI", "joinAsGuest");
+				}
+				// fim.
+
 				// #9401 - see also ilStartupGUI::_checkGoto()
 				if($cmd == 'infoScreenGoto')
 				{										
@@ -482,7 +506,7 @@ class ilObjGroupGUI extends ilContainerGUI
 	 * Edit object
 	 *
 	 * @access public
-	 * @param ilPropertyFormGUI 
+	 * @param ilPropertyFormGUI
 	 * @return
 	 */
 	public function editObject(ilPropertyFormGUI $a_form = null)
@@ -546,7 +570,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		
 		$old_type = $this->object->getGroupType();
 		$old_autofill = $this->object->hasWaitingListAutoFill();
-		
+
 		$this->load($form);
 		$ilErr->setMessage('');
 		
@@ -556,13 +580,13 @@ class ilObjGroupGUI extends ilContainerGUI
 			$err = $this->lng->txt('err_check_input');
 			ilUtil::sendFailure($err);
 			$err = $ilErr->getMessage();
-			ilUtil::sendInfo($err);			
+			ilUtil::sendInfo($err);
 			*/
 			ilUtil::sendFailure($ilErr->getMessage()); // #16975
-			
+
 			// #17144
 			$form->setValuesByPost();
-			$this->editObject($form); 
+			$this->editObject($form);
 			return true;
 		}
 
@@ -575,7 +599,21 @@ class ilObjGroupGUI extends ilContainerGUI
 		
 		$this->object->update();
 		
-		
+			//fim: [rpl] check the status of the registration for this period
+			global $ilCust;
+			if($ilCust->getSetting('rpl_warning_on') and !$this->object->isRegistrationUnlimited())
+			{
+				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
+				$warning_cat = ilRegistrationPeriodLimiter::_isValidByNumberOfPlaces($this->object->getRegistrationStart());
+				if($warning_cat != '')
+				{
+					$message = sprintf($this->lng->txt('rpl_warning'),$ilCust->getSetting($warning_cat));
+					$message.= '<br />'.ilRegistrationPeriodLimiter::_getOverviewLink($this->object->getRegistrationStart());
+					ilUtil::sendFailure($message, true);
+				}
+			}
+			//fim.
+
 		include_once './Services/Object/classes/class.ilObjectServiceSettingsGUI.php';
 		ilObjectServiceSettingsGUI::updateServiceSettingsForm(
 			$this->object->getId(),
@@ -590,7 +628,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			
 		// Save sorting
 		$this->saveSortingSettings($form);
-		
+
 		// if autofill has been activated trigger process
 		if(!$old_autofill &&
 			$this->object->hasWaitingListAutoFill())
@@ -630,11 +668,30 @@ class ilObjGroupGUI extends ilContainerGUI
 		else
 		{
 			ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"),true);
-			$this->ctrl->redirect($this,'edit');
+
+			// fim: [memcond] eventually redirect to condition settings after update
+			if ($this->update_for_memcond)
+			{
+				$this->ctrl->redirectByClass('ilsubscribersstudycondgui');
+	        }
+	        else
+			{
+				$this->ctrl->redirect($this,'edit');
+			}
+			// fim.
+
 			return true;
 		}
 	}
 	
+	// fim: [memcond] new function updateForMemcond
+	function updateForMemcondObject()
+	{
+	    $this->update_for_memcond = true;
+		$this->updateObject();
+	}
+	// fim.
+
 	/**
 	* edit container icons
 	*/
@@ -842,7 +899,7 @@ class ilObjGroupGUI extends ilContainerGUI
 	 * @return
 	 */
 	protected function initInfoEditor()
-	{		
+	{
 		include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this,'updateInfo'));
@@ -856,7 +913,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		$area->setRows(8);
 		$area->setCols(80);
 		$form->addItem($area);
-		
+
 		return $form;
 	}
 	
@@ -1058,10 +1115,16 @@ class ilObjGroupGUI extends ilContainerGUI
 		// Subscriber table
 		if($part->getSubscribers())
 		{
+			// fim: [memlot] set add_to_lot
+			$add_to_lot = ($this->object->isMembershipLimited() and $this->object->enabledLotList());
+			// fim.
+
 			include_once('./Services/Membership/classes/class.ilSubscriberTableGUI.php');
 			if($ilUser->getPref('grp_subscriber_hide'))
 			{
-				$table_gui = new ilSubscriberTableGUI($this,false);
+				// fim: [memlot] use add_to_lot as parameter
+				$table_gui = new ilSubscriberTableGUI($this, false, true, $add_to_lot);
+				// fim.
 				$this->ctrl->setParameter($this,'subscriber_hide',0);
 				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
 					$this->lng->txt('show'));
@@ -1069,7 +1132,9 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 			else
 			{
-				$table_gui = new ilSubscriberTableGUI($this,true);
+				// fim: [memlot] use add_to_lot as parameter
+				$table_gui = new ilSubscriberTableGUI($this, true, true, $add_to_lot);
+				// fim.
 				$this->ctrl->setParameter($this,'subscriber_hide',1);
 				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
 					$this->lng->txt('hide'));
@@ -1079,6 +1144,33 @@ class ilObjGroupGUI extends ilContainerGUI
 			$table_gui->setTitle($this->lng->txt('group_new_registrations'),'icon_usr.svg',$this->lng->txt('group_new_registrations'));
 			$this->tpl->setVariable('TABLE_SUB',$table_gui->getHTML());
 		}
+
+		// fim: [memlot] lot form
+		include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+		if ($this->object->enabledLotList()  or ilSubscribersLot::_getCountUsers($this->object->getId()) > 0)
+		{
+			include_once('./Services/Membership/classes/class.ilSubscribersLotTableGUI.php');
+
+			if($ilUser->getPref('grp_subscribers_lot_hide'))
+			{
+				$table_gui = new ilSubscribersLotTableGUI($this,$part, false);
+				$this->ctrl->setParameter($this,'subscribers_lot_hide',0);
+				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
+					$this->lng->txt('show'));
+				$this->ctrl->clearParameters($this);
+			}
+			else
+			{
+				$table_gui = new ilSubscribersLotTableGUI($this,$part, true);
+				$this->ctrl->setParameter($this,'subscribers_lot_hide',1);
+				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
+					$this->lng->txt('hide'));
+				$this->ctrl->clearParameters($this);
+			}
+			$this->tpl->setVariable('TABLE_LOT', $table_gui->getHTML());
+		}
+		// fim.
+
 
 		if(count($part->getAdmins()))
 		{
@@ -1166,9 +1258,103 @@ class ilObjGroupGUI extends ilContainerGUI
 		$this->tpl->setVariable('BTN_FOOTER_VAL',$this->lng->txt('remove'));
 		$this->tpl->setVariable('BTN_FOOTER_MAIL',$this->lng->txt('grp_mem_send_mail'));
 		$this->tpl->setVariable('ARROW_DOWN',ilUtil::getImagePath('arrow_downright.svg'));
-		
 	}
-	
+
+	// fim: [memlot] new function addSubscribersToLotObject
+	public function addSubscribersToLotObject()
+	{
+		$this->checkPermission('write');
+
+		if(!is_array($_POST["subscribers"]))
+		{
+			ilUtil::sendFailure($this->lng->txt("no_checkbox"));
+			$this->membersObject();
+
+			return false;
+		}
+
+		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($part);
+
+		$added = $lot_obj->addSubscribersToLot($_POST["subscribers"]);
+
+		ilUtil::sendInfo(sprintf($this->lng->txt('mem_subscribers_added_to_lot'), $added));
+		$this->membersObject();
+	}
+	// fim.
+
+
+	// fim: [memlot] new function removeSubscribersFromLotObject
+	public function removeSubscribersFromLotObject()
+	{
+		$this->checkPermission('write');
+
+		if(!is_array($_POST["subscribers_lot"]))
+		{
+			ilUtil::sendInfo($this->lng->txt("no_checkbox"));
+			$this->membersObject();
+
+			return false;
+		}
+
+		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($part);
+
+		$removed = $lot_obj->removeSubscribersFromLot($_POST["subscribers_lot"]);
+
+		ilUtil::sendInfo(sprintf($this->lng->txt('mem_subscribers_removed_from_lot'), $removed));
+		$this->membersObject();
+	}
+	// fim.
+
+	// fim: [memlot] new function cleanLotListObject
+	public function cleanLotListObject()
+	{
+		$this->checkPermission('write');
+
+		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($part);
+		$lot_obj->setMaxMembers($this->object->getMaxMembers());
+		$lot_obj->cleanLots();
+
+		ilUtil::sendInfo($lot_obj->getStatusMessage());
+		$this->membersObject();
+	}
+	// fim.
+
+
+	// fim: [memlot] new function assignMembersByLotObject
+	public function assignMembersByLotObject()
+	{
+		$this->checkPermission('write');
+
+		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
+
+		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
+		$lot_obj = new ilSubscribersLot($this->object->getId());
+		$lot_obj->setParticipantsObject($part);
+		$lot_obj->setMaxMembers($this->object->getMaxMembers());
+		$lot_obj->drawLots();
+
+		ilUtil::sendInfo($lot_obj->getStatusMessage());
+		$this->membersObject();
+	}
+	// fim.
+
+
 	/**
 	 * assign subscribers
 	 *
@@ -1435,11 +1621,14 @@ class ilObjGroupGUI extends ilContainerGUI
 		}
 		else
 		{
+			// fim: [memlot] allow mails to members of lot list
 			$_POST['participants'] = array_unique(array_merge((array) $_POST['admins'],
 				(array) $_POST['members'],
 				(array) $_POST['roles'],
 				(array) $_POST['waiting'],
-				(array) $_POST['subscribers']));
+				(array) $_POST['subscribers'],
+				(array) $_POST['subscribers_lot']));
+			// fim.
 		}
 		if (!count($_POST['participants']))
 		{
@@ -1484,6 +1673,12 @@ class ilObjGroupGUI extends ilContainerGUI
 		{
 			$ilUser->writePref('grp_subscriber_hide',(int) $_GET['subscriber_hide']);
 		}
+		// fim: [memlot] show/hide subscribers lot table
+		if(isset($_GET['subscribers_lot_hide']))
+		{
+			$ilUser->writePref('grp_subscribers_lot_hide',(int) $_GET['subscribers_lot_hide']);
+		}
+		// fim.
 		if(isset($_GET['wait_hide']))
 		{
 			$ilUser->writePref('grp_wait_hide',(int) $_GET['wait_hide']);
@@ -1775,7 +1970,7 @@ class ilObjGroupGUI extends ilContainerGUI
 					$part->add($new_member, IL_GRP_ADMIN);
 					include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
 					$part->sendNotification(
-						ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER, 
+						ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER,
 						$new_member
 					);
 					$assigned = TRUE;
@@ -1785,7 +1980,7 @@ class ilObjGroupGUI extends ilContainerGUI
 					$part->add($new_member, IL_GRP_MEMBER);
 					include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
 					$part->sendNotification(
-						ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER, 
+						ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER,
 						$new_member
 					);
 					$assigned = TRUE;
@@ -1868,7 +2063,9 @@ class ilObjGroupGUI extends ilContainerGUI
 		{
 			$tabs_gui->addTarget('members', $this->ctrl->getLinkTarget($this, 'members'), array(), get_class($this));
 		}
-		else if($is_participant)
+// fau: mailToMembers: allow of upper group admins that are not participants to view the gallery
+		else if($is_participant || ilParticipants::_isLocalOrUpperAdmin($this->ref_id, $ilUser->getId()))
+// fau.
 		{
 			$this->tabs_gui->addTarget(
 				'members',
@@ -1912,28 +2109,26 @@ class ilObjGroupGUI extends ilContainerGUI
 		// parent tabs (all container: edit_permission, clipboard, trash
 		parent::getTabs($tabs_gui);
 
-		if($ilAccess->checkAccess('join','',$this->object->getRefId()) and
-			!$this->object->members_obj->isAssigned($ilUser->getId()))
+		// fim: [memad] simlified checks for join / edit request tab
+		if ($ilAccess->checkAccess('join','join', $this->object->getRefId()))
 		{
-			include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-			if(ilGroupWaitingList::_isOnList($ilUser->getId(), $this->object->getId()))
-			{
-				$tabs_gui->addTab(
-					'leave',
-					$this->lng->txt('membership_leave'),
-					$this->ctrl->getLinkTargetByClass('ilgroupregistrationgui','show','')
-				);
-					
-			}
-			else
-			{			
-				
-				$tabs_gui->addTarget("join",
-									 $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show"), 
-									 'show',
-									 "");
-			}
+			// no specific command: initial join
+			$tabs_gui->addTab('join',
+				$this->lng->txt('join'),
+				$this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+			);
 		}
+		elseif ($ilAccess->checkAccess('join','leave', $this->object->getRefId()))
+		{
+			// leave command: edit membership request
+			$tabs_gui->addTab('join',
+				$this->lng->txt('mem_edit_request'),
+				$this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+			);
+
+		}
+		// fim.
+
 		if($ilAccess->checkAccess('leave','',$this->object->getRefId()) and
 			$this->object->members_obj->isMember($ilUser->getId()))
 		{
@@ -2196,25 +2391,72 @@ class ilObjGroupGUI extends ilContainerGUI
 		}
 		else
 		{
+			// fim: [memcond] generate text for suscription with condition
+			include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+			if (ilSubscribersStudyCond::_hasConditions($this->object->getId()))
+			{
+				$ctext = ilSubscribersStudyCond::_getConditionsText($this->object->getId());
 			switch($this->object->getRegistrationType())
 			{
 				case GRP_REGISTRATION_DIRECT:
+						$registration_text = sprintf($this->lng->txt('group_req_direct_studycond'), $ctext);
+						break;
+					case GRP_REGISTRATION_PASSWORD:
+						$registration_text = sprintf($this->lng->txt('grp_pass_request_studycond'), $ctext);
+						break;
+
+					default:
+						$registration_text = "";
+						break;
+				}
+				global $ilUser;
+				if (ilSubscribersStudyCond::_checkConditions($this->object->getId(), $ilUser->getId()))
+				{
+					$registration_type = $this->object->getRegistrationType();
+				}
+				else
+				{
+					$registration_type = GRP_REGISTRATION_REQUEST;
+				}
+			}
+			else
+			{
+				$registration_text = "";
+				$registration_type = $this->object->getRegistrationType();
+			}
+			// fim.
+
+
+			// fim: [memlot] show different subscription information for lot list
+		    if ($this->object->isMembershipLimited()
+		    and $this->object->enabledLotList())
+		    {
+		    	$lot_suffix = "_lot";
+		    }
+			// fim.
+
+			// fim: [memcond] use registration type and text from above
+			// fim: [memlot] use lot suffix from abvove
+			switch($registration_type)
+			{
+				case GRP_REGISTRATION_DIRECT:
 					$info->addProperty($this->lng->txt('group_registration_mode'),
-									   $this->lng->txt('grp_reg_direct_info_screen'));
+						   $registration_text.$this->lng->txt('grp_reg_direct_info_screen'.$lot_suffix));
 					break;
 													   
 				case GRP_REGISTRATION_REQUEST:
 					$info->addProperty($this->lng->txt('group_registration_mode'),
-									   $this->lng->txt('grp_reg_req_info_screen'));
+						   $registration_text.$this->lng->txt('grp_reg_req_info_screen'.$lot_suffix));
 					break;
 	
 				case GRP_REGISTRATION_PASSWORD:
 					$info->addProperty($this->lng->txt('group_registration_mode'),
-									   $this->lng->txt('grp_reg_passwd_info_screen'));
+						   $registration_text.$this->lng->txt('grp_reg_passwd_info_screen'.$lot_suffix));
 					break;
 					
 			}
-			/*			
+			// fim.
+			/*
 			$info->addProperty($this->lng->txt('group_registration_time'),
 				ilDatePresentation::formatPeriod(
 					$this->object->getRegistrationStart(),
@@ -2225,34 +2467,39 @@ class ilObjGroupGUI extends ilContainerGUI
 				$info->addProperty($this->lng->txt('group_registration_time'),
 					$this->lng->txt('grp_registration_unlimited'));
 			}
-			elseif($this->object->getRegistrationStart()->getUnixTime() < time())
+// fau: fixRegPeriodInfo - always show the full registration period
+			else
 			{
-				$info->addProperty($this->lng->txt("group_registration_time"),
-								   $this->lng->txt('cal_until').' '.
-								   ilDatePresentation::formatDate($this->object->getRegistrationEnd()));
+				$info->addProperty($this->lng->txt('group_registration_time'),
+					ilDatePresentation::formatPeriod(
+						$this->object->getRegistrationStart(),
+						$this->object->getRegistrationEnd()));
 			}
-			elseif($this->object->getRegistrationStart()->getUnixTime() >= time())
-			{
-				$info->addProperty($this->lng->txt("group_registration_time"),
-								   $this->lng->txt('cal_from').' '.
-								   ilDatePresentation::formatDate($this->object->getRegistrationStart()));
-			}
-			if ($this->object->isMembershipLimited()) 
+// fau.
+			if ($this->object->isMembershipLimited())
 			{
 				if($this->object->getMinMembers())
 				{
-					$info->addProperty($this->lng->txt("mem_min_users"), 
+					$info->addProperty($this->lng->txt("mem_min_users"),
 						$this->object->getMinMembers());
 				}
 				if($this->object->getMaxMembers())
 				{
 					$info->addProperty($this->lng->txt("mem_free_places"),
 									   max(0,$this->object->getMaxMembers() - $this->object->members_obj->getCountMembers()));
-				}				
+				}
+				// fim: [memlot] show information about lot
+				if ($this->object->enabledLotList())
+				{
+					include_once './Services/Membership/classes/class.ilSubscribersLot.php';
+					$candidates = ilSubscribersLot::_getCountUsers($this->object->getId());
+					$info->addProperty($this->lng->txt("mem_lot_candidates"),(int) $candidates);
+				}
+				// fim.
 			}
-			
+
 			if($this->object->getCancellationEnd())
-			{			
+			{
 				$info->addProperty($this->lng->txt('grp_cancellation_end'),
 					ilDatePresentation::formatDate( $this->object->getCancellationEnd()));
 			}
@@ -2312,6 +2559,48 @@ class ilObjGroupGUI extends ilContainerGUI
 	public static function _goto($a_target, $a_add = "")
 	{
 		global $ilAccess, $ilErr, $lng,$ilUser;
+
+		// fim: [univis] handle the join command
+		if ($a_add == 'join')
+		{
+			include_once('Services/User/classes/class.ilUserUtil.php');
+			include_once('Modules/Group/classes/class.ilGroupParticipants.php');
+
+			if (empty($_SESSION["AccountId"]) or $_SESSION["AccountId"] == ANONYMOUS_USER_ID)
+			{
+	           	ilUtil::sendInfo($lng->txt('join_grp_needs_login'), true);
+				ilUtil::redirect(ilUtil::_getRootLoginLink('crs_'.$a_target.'_join'));
+			}
+			elseif (ilGroupParticipants::_isParticipant($a_target,$ilUser->getId()))
+			{
+				$lng->loadLanguageModule('grp');
+				ilUtil::sendInfo($lng->txt('grp_reg_user_already_assigned'), true);
+				ilObjectGUI::_gotoRepositoryNode($a_target, "view");
+			}
+			elseif ($ilAccess->checkAccess("join", "", $a_target))
+			{
+				ilObjectGUI::_gotoRepositoryNode($a_target, "join");
+			}
+			elseif (ilUserUtil::_isGuestHearer() and !$ilAccess->checkAccess("read", "", $a_target))
+			{
+				ilObjectGUI::_gotoRepositoryNode($a_target, "joinAsGuest");
+			}
+			else
+			{
+				ilUtil::sendFailure($lng->txt("join_grp_not_permitted"), true);
+
+				if ($ilAccess->checkAccess("visible", "", $a_target)
+				or $ilAccess->checkAccess("read", "", $a_target))
+				{
+					ilObjectGUI::_gotoRepositoryNode($a_target, "infoScreen");
+				}
+				else
+				{
+					ilObjectGUI::_gotoRepositoryRoot();
+				}
+			}
+		}
+		// fim.
 
 		include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
 		if(substr($a_add,0,5) == 'rcode')
@@ -2373,7 +2662,7 @@ class ilObjGroupGUI extends ilContainerGUI
 	protected function initForm($a_mode = 'edit')
 	{
 		global $ilUser,$tpl,$tree;
-		
+
 		include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		
 		$form = new ilPropertyFormGUI();
@@ -2405,6 +2694,19 @@ class ilObjGroupGUI extends ilContainerGUI
 		$desc->setCols(40);
 		$form->addItem($desc);
 		
+		// fim: [univis] make univis id editable for global admins
+		global $rbacsystem;
+		if($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID))
+		{
+			$import = new ilTextInputGUI($this->lng->txt('univis_id'),'import_id');
+			$import->setValue($this->object->getImportId());
+			$import->setInfo($this->lng->txt('univis_id_info'));
+			$import->setSize(50);
+			$import->setMaxLength(50);
+			$this->form->addItem($import);
+		}
+		// fim.
+
 		// Group type
 		$grp_type = new ilRadioGroupInputGUI($this->lng->txt('grp_typ'),'grp_type');
 		
@@ -2420,7 +2722,10 @@ class ilObjGroupGUI extends ilContainerGUI
 		$grp_type->setValue($type);
 		$grp_type->setRequired(true);
 
-		
+		// fim: [rights] show info about rights of group admins
+		$grp_type->setInfo($this->lng->txt('grp_type_info_'.$a_mode));
+		// fim.
+
 		// PUBLIC GROUP
 		$opt_public = new ilRadioOption($this->lng->txt('grp_public'),GRP_TYPE_PUBLIC,$this->lng->txt('grp_public_info'));
 		$grp_type->addOption($opt_public);
@@ -2461,35 +2766,49 @@ class ilObjGroupGUI extends ilContainerGUI
 			$opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'),GRP_REGISTRATION_DEACTIVATED,$this->lng->txt('grp_reg_disabled_info'));
 			$reg_type->addOption($opt_deact);
 
-			// Registration codes
-			$reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'),'reg_code_enabled');
-			$reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
-			$reg_code->setValue(1);
-			$reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
+	       // fim: [memfix] customize use of registration codes
+	        global $ilCust;
+	        if ($ilCust->getSetting('grp_enable_reg_codes'))
+	        {
+				// Registration codes
+				$reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'),'reg_code_enabled');
+				$reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
+				$reg_code->setValue(1);
+				$reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
+			}
+			// fim.
 			$form->addItem($reg_type);
 
-			// Registration codes
-			if(!$this->object->getRegistrationAccessCode())
+			// fim: [memfix] customize use of registration codes
+			global $ilCust;
+			if ($ilCust->getSetting('grp_enable_reg_codes'))
 			{
-				include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
-				$this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+				// Registration codes
+				if(!$this->object->getRegistrationAccessCode())
+				{
+					include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
+					$this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+				}
+				$reg_link = new ilHiddenInputGUI('reg_code');
+				$reg_link->setValue($this->object->getRegistrationAccessCode());
+				$form->addItem($reg_link);
+
+				$link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
+				include_once './Services/Link/classes/class.ilLink.php';
+				$val = ilLink::_getLink($this->object->getRefId(),$this->object->getType(),array(),'_rcode'.$this->object->getRegistrationAccessCode());
+				$link->setHTML('<font class="small">'.$val.'</font>');
+				$reg_code->addSubItem($link);
+				$form->addItem($reg_code);
 			}
-			$reg_link = new ilHiddenInputGUI('reg_code');
-			$reg_link->setValue($this->object->getRegistrationAccessCode());
-			$form->addItem($reg_link);
-
-			$link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
-			include_once './Services/Link/classes/class.ilLink.php';
-			$val = ilLink::_getLink($this->object->getRefId(),$this->object->getType(),array(),'_rcode'.$this->object->getRegistrationAccessCode());
-			$link->setHTML('<font class="small">'.$val.'</font>');
-			$reg_code->addSubItem($link);
-			$form->addItem($reg_code);
-
+			// fim.
 
 			// time limit
 			$time_limit = new ilCheckboxInputGUI($this->lng->txt('grp_reg_limited'),'reg_limit_time');
 //			$time_limit->setOptionTitle($this->lng->txt('grp_reg_limit_time'));
 			$time_limit->setChecked($this->object->isRegistrationUnlimited() ? false : true);
+			// fim: [meminf] add info for group registration
+			$time_limit->setInfo($this->lng->txt('grp_reg_limit_time_info'));
+			// fim.
 
 			$this->lng->loadLanguageModule('dateplaner');
 			include_once './Services/Form/classes/class.ilDateDurationInputGUI.php';
@@ -2500,11 +2819,34 @@ class ilObjGroupGUI extends ilContainerGUI
 			$dur->setShowTime(true);
 			$dur->setStart($this->object->getRegistrationStart());
 			$dur->setEnd($this->object->getRegistrationEnd());
+			// fim: [memad] show deny time for registration
+			// fim: [rpl] check the status of the registration for this period
+			$info = array();
+			global $ilCust;
+			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
+			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+			if ($deny_regstart_from and $deny_regstart_to)
+			{
+				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
+				$deny_regstart_to = new ilDateTime($deny_regstart_to, IL_CAL_DATETIME);
+				$info[] = sprintf($this->lng->txt('deny_regstart_message'),
+					ilDatePresentation::formatDate($deny_regstart_from),
+					ilDatePresentation::formatDate($deny_regstart_to));
+
+			}
+			if($ilCust->getSetting('rpl_warning_on'))
+			{
+				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
+				$info[] = $this->lng->txt('rpl_info');
+				$info[] = ilRegistrationPeriodLimiter::_getOverviewLink($this->object->getRegistrationStart());
+			}
+			$dur->setInfo(implode('<br />', $info));
+			// fim.
 
 			$time_limit->addSubItem($dur);
 			$form->addItem($time_limit);
-			
-			// cancellation limit		
+
+			// cancellation limit
 			$cancel = new ilDateTimeInputGUI($this->lng->txt('grp_cancellation_end'), 'cancel_end');
 			$cancel->setInfo($this->lng->txt('grp_cancellation_end_info'));
 			$cancel_end = $this->object->getCancellationEnd();
@@ -2525,7 +2867,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			$min->setSize(3);
 			$min->setMaxLength(4);
 			$min->setValue($this->object->getMinMembers() ? $this->object->getMinMembers() : '');
-			$min->setInfo($this->lng->txt('grp_subscription_min_members_info'));			
+			$min->setInfo($this->lng->txt('grp_subscription_min_members_info'));
 			$lim->addSubItem($min);
 
 			$max = new ilTextInputGUI($this->lng->txt('reg_grp_max_members'),'registration_max_members');
@@ -2536,42 +2878,80 @@ class ilObjGroupGUI extends ilContainerGUI
 			$max->setInfo($this->lng->txt('grp_reg_max_members_info'));
 			$lim->addSubItem($max);
 
-			/*
-			$wait = new ilCheckboxInputGUI($this->lng->txt('grp_waiting_list'),'waiting_list');
-			$wait->setValue(1);
-			//$wait->setOptionTitle($this->lng->txt('grp_waiting_list'));
-			$wait->setInfo($this->lng->txt('grp_waiting_list_info'));
-			$wait->setChecked($this->object->isWaitingListEnabled() ? true : false);
-			$lim->addSubItem($wait);
-			$form->addItem($lim);
-			*/
-			 
-			$wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
-			
-			$option = new ilRadioOption($this->lng->txt('none'), 0);
-			$wait->addOption($option);
-			
-			$option = new ilRadioOption($this->lng->txt('grp_waiting_list_no_autofill'), 1);
-			$option->setInfo($this->lng->txt('grp_waiting_list_info'));
-			$wait->addOption($option);
-			
-			$option = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'), 2);
-			$option->setInfo($this->lng->txt('grp_waiting_list_autofill_info'));
-			$wait->addOption($option);
-			
-			if($this->object->hasWaitingListAutoFill())
+			// fim: [meminf] add show mem limit checkbox
+			$showlim = new ilCheckboxInputGUI($this->lng->txt('grp_show_mem_limit_label'),'grp_show_mem_limit');
+			$showlim->setValue(1);
+			$showlim->setOptionTitle($this->lng->txt('grp_show_mem_limit_option'));
+			$showlim->setChecked($this->object->getShowMemLimit());
+			$lim->addSubItem($showlim);
+			// fim.
+
+			// fim: [memlot] max members option setting
+			$maxmode = new ilRadioGroupInputGUI($this->lng->txt("grp_max_members_mode"),'grp_max_members_mode');
+			if ($a_mode == 'create')
 			{
-				$wait->setValue(2);
+				$maxmode->setValue('waiting_list');
 			}
-			else if($this->object->isWaitingListEnabled())
+			elseif ($this->object->enabledLotList())
 			{
-				$wait->setValue(1);
+				$maxmode->setValue('lot_list');
 			}
-			
-			$lim->addSubItem($wait);
-			
-			$form->addItem($lim);			
-			
+			elseif ($this->object->isWaitingListEnabled())
+			{
+				if($this->object->hasWaitingListAutoFill())
+				{
+					$maxmode->setValue('waiting_list_auto_fill');
+				}
+				else
+				{
+					$maxmode->setValue('waiting_list');
+				}
+			}
+			else
+			{
+				$maxmode->setValue('');
+			}
+			$opt = new ilRadioOption($this->lng->txt('grp_lot_list'),'lot_list');
+			$opt->setInfo($this->lng->txt('grp_lot_info'));
+			$maxmode->addOption($opt);
+
+			$opt = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'),'waiting_list_auto_fill');
+			$opt->setInfo($this->lng->txt('grp_waiting_list_autofill_info'));
+			$maxmode->addOption($opt);
+
+			$opt = new ilRadioOption($this->lng->txt('grp_waiting_list'),'waiting_list');
+			$opt->setInfo($this->lng->txt('grp_waiting_list_info'));
+			$maxmode->addOption($opt);
+
+			$opt = new ilRadioOption($this->lng->txt('grp_no_list'),'');
+			$opt->setInfo($this->lng->txt('grp_no_list_info'));
+			$maxmode->addOption($opt);
+
+			$lim->addSubItem($maxmode);
+			// fim.
+
+			$this->form->addItem($lim);
+
+			// fim: [memcond] add studycond setting
+			include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+			$stpl = new ilTemplate("tpl.show_subscribers_studycond.html", true, true, "Services/Membership");
+			if ($a_mode == 'edit')
+			{
+				$stpl->setCurrentBlock('condition');
+				$stpl->setVariable("CONDITION_TEXT", nl2br(ilSubscribersStudyCond::_getConditionsText($this->object->getId())));
+				$stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilsubscribersstudycondgui', ''));
+				$stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+				$stpl->parseCurrentBlock();
+				$stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+			}
+			else
+			{
+				$stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info_create"));
+			}
+			$studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+			$studycond->setHtml($stpl->get());
+			$this->form->addItem($studycond);
+			// fim.
 
 			// Group presentation
 			$hasParentMembership = 
@@ -2711,6 +3091,15 @@ class ilObjGroupGUI extends ilContainerGUI
 	{
 		$this->object->setTitle(ilUtil::stripSlashes($_POST['title']));
 		$this->object->setDescription(ilUtil::stripSlashes($_POST['desc']));
+
+		// fim: [univis] save univis_id if edited by global admin
+		global $rbacsystem;
+		if($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID))
+		{
+			$this->object->setImportId(ilUtil::stripSlashes($_POST['import_id']));
+		}
+		// fim.
+
 		$this->object->setGroupType(ilUtil::stripSlashes($_POST['grp_type']));
 		$this->object->setRegistrationType(ilUtil::stripSlashes($_POST['registration_type']));
 		$this->object->setPassword(ilUtil::stripSlashes($_POST['password']));
@@ -2719,12 +3108,15 @@ class ilObjGroupGUI extends ilContainerGUI
 		$this->object->setRegistrationEnd($this->loadDate('end'));
 		$this->object->enableMembershipLimitation((bool) $_POST['registration_membership_limited']);
 		$this->object->setMinMembers((int) $_POST['registration_min_members']);
-		$this->object->setMaxMembers((int) $_POST['registration_max_members']);		
+		$this->object->setMaxMembers((int) $_POST['registration_max_members']);
+		// fim: [meminf] set show_mem_limit
+		$this->object->setShowMemLimit((int) $_POST['grp_show_mem_limit']);
+		// fim.
 		$this->object->enableRegistrationAccessCode((bool) $_POST['reg_code_enabled']);
 		$this->object->setRegistrationAccessCode(ilUtil::stripSlashes($_POST['reg_code']));
 		$this->object->setViewMode(ilUtil::stripSlashes($_POST['view_mode']));
 		$this->object->setMailToMembersType((int) $_POST['mail_type']);
-		
+
 		$cancel_end = $a_form->getItemByPostVar('cancel_end');
 		if($_POST[$cancel_end->getActivationPostVar()])
 		{
@@ -2735,25 +3127,33 @@ class ilObjGroupGUI extends ilContainerGUI
 		{
 			$this->object->setCancellationEnd(null);
 		}
-		
-		switch((int)$_POST['waiting_list'])
+
+		// fim: [memlot] set max members mode
+		switch ($_POST['grp_max_members_mode'])
 		{
-			case 2:
+			case 'waiting_list_auto_fill':
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(true);
+				$this->object->enableLotList(false);
 				break;
-			
-			case 1:
+			case 'waiting_list':
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(false);
+				$this->object->enableLotList(false);
 				break;
-			
+			case 'lot_list':
+				$this->object->enableWaitingList(false);
+				$this->object->setWaitingListAutoFill(false);
+				$this->object->enableLotList(true);
+				break;
 			default:
 				$this->object->enableWaitingList(false);
 				$this->object->setWaitingListAutoFill(false);
+				$this->object->enableLotList(false);
 				break;
 		}
-		
+		// fim.
+
 		return true;
 	}
 	
@@ -2829,7 +3229,10 @@ class ilObjGroupGUI extends ilContainerGUI
 				}
 				
 				include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
-				if(ilPrivacySettings::_getInstance()->checkExportAccess($this->object->getRefId()))
+				// fim: [export] show tab also if export is not granted
+				if($ilAccess->checkAccess('write','',$this->object->getRefId())
+					&& ilPrivacySettings::_getInstance()->enabledGroupExport())
+				// fim.
 				{
 					$this->tabs_gui->addSubTabTarget('grp_export_members',
 													$this->ctrl->getLinkTargetByClass('ilmemberexportgui','show'),
@@ -2930,6 +3333,11 @@ class ilObjGroupGUI extends ilContainerGUI
 		{
 			return false;
 		}
+
+		// fim: [export] notify first access
+		ilMemberAgreement::_setFirstAccessTime($ilUser->getId(), $this->object->getId());
+		// fim.
+
 		return true;
 	}
 	
@@ -2958,15 +3366,19 @@ class ilObjGroupGUI extends ilContainerGUI
 	
 	/**
 	 * Create a course mail signature
-	 * @return string 
+	 * @return string
 	 */
 	public function createMailSignature()
 	{
 		$link = chr(13).chr(10).chr(13).chr(10);
 		$link .= $this->lng->txt('grp_mail_permanent_link');
-		$link .= chr(13).chr(10).chr(13).chr(10);
+		// fim: [meminf] add title and use static link for mail signature
+		$link .= chr(13).chr(10);
+		$link .= $this->object->getTitle();
+		$link .= chr(13).chr(10);
 		include_once 'Services/Link/classes/class.ilLink.php';
-		$link .= ilLink::_getLink($this->object->getRefId());
+		$link .= ilLink::_getStaticLink($this->object->getRefId());
+		// fim.
 		return rawurlencode(base64_encode($link));
 	}
 	
@@ -2978,11 +3390,11 @@ class ilObjGroupGUI extends ilContainerGUI
 				
 		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
 		if(ilGroupParticipants::_isParticipant($this->ref_id, $ilUser->getId()))
-		{				
-			include_once "Services/Membership/classes/class.ilMembershipNotifications.php";			
+		{
+			include_once "Services/Membership/classes/class.ilMembershipNotifications.php";
 			if(ilMembershipNotifications::isActive())
 			{
-				$noti = new ilMembershipNotifications($this->ref_id);					
+				$noti = new ilMembershipNotifications($this->ref_id);
 				if(!$noti->isCurrentUserActive())
 				{
 					$lg->addHeaderIcon("not_icon",
@@ -2993,7 +3405,7 @@ class ilObjGroupGUI extends ilContainerGUI
 					$caption = "grp_activate_notification";
 				}
 				else
-				{				
+				{
 					$lg->addHeaderIcon("not_icon",
 						ilUtil::getImagePath("notification_on.svg"),
 						$this->lng->txt("grp_notification_activated"));
@@ -3136,10 +3548,15 @@ class ilObjGroupGUI extends ilContainerGUI
 		include_once 'Services/Mail/classes/class.ilMail.php';
 		$mail = new ilMail($ilUser->getId());
 
+// fau: mailToMembers - allow mail for local or upper group admins without write access
+		require_once ('./Services/Membership/classes/class.ilParticipants.php');
 		if(
-		($ilAccess->checkAccess('write','',$this->object->getRefId()) or
-			$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL) and
+			(	$ilAccess->checkAccess('write','',$this->object->getRefId()) or
+				$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL or
+				ilParticipants::_isLocalOrUpperAdmin($this->object->getRefId(), $ilUser->getId())
+			) and
 			$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
+// fau.
 		{
 
 			if($a_separator)

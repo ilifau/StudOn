@@ -31,6 +31,13 @@ define('IL_CRS_SUBSCRIPTION_DEACTIVATED',0);
 define('IL_CRS_SUBSCRIPTION_UNLIMITED',1);
 define('IL_CRS_SUBSCRIPTION_LIMITED',2);
 
+// fim: [campus] add constant for mycampus subscription
+define('IL_CRS_SUBSCRIPTION_MYCAMPUS',9);
+// fim.
+// fim: [univis] add constant for taking subscription type from univis
+define('IL_CRS_SUBSCRIPTION_UNIVIS',10);
+// fim.
+
 define('IL_CRS_SUBSCRIPTION_CONFIRMATION',2);
 define('IL_CRS_SUBSCRIPTION_DIRECT',3);
 define('IL_CRS_SUBSCRIPTION_PASSWORD',4);
@@ -45,6 +52,11 @@ define('IL_CRS_VIEW_BY_TYPE', 5);
 define('IL_CRS_ARCHIVE_DOWNLOAD',3);
 define('IL_CRS_ARCHIVE_NONE',0);
 
+// fim: [memsess] constants for event registration
+define('IL_CRS_SUBSCRIPTION_EVENTS_OFF',0);
+define('IL_CRS_SUBSCRIPTION_EVENTS_UNIQUE',1);
+define('IL_CRS_SUBSCRIPTION_EVENTS_MULTIPLE',2);
+// fim.
 
 class ilCourseConstants
 {

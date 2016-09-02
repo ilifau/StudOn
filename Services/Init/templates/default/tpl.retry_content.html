@@ -1,0 +1,24 @@
+<!-- fau: retryPage - template for page content. -->
+<h1>System ausgelastet</h1>
+<p>Ihre Anfrage wird in Kürze noch einmal gesendet.<br />Bitte haben Sie ein wenig Geduld.</p>
+<p>Neuer Versuch in <span id="SessionTimeCount1"></span> Sekunden.</p>
+
+<p><img src="./templates/default/images/loader.svg" /></p>
+
+<h1>System Busy</h1>
+<p>Your request will be sent again shortly.<br />Please have a little patience.</p>
+<p>New trial in <span id="SessionTimeCount2"></span> seconds.</p>
+
+<form action="{ACTION}" method="{METHOD}" name="form1">
+    {FIELDS}
+</form>
+
+<p>
+    <a class="btn btn-primary" onclick="showDetails()">Details</a>
+    {RETRY_BUTTON}
+</p>
+
+<pre id="details" style="display:none;">
+{REASON}{DEBUG_URL}{DEBUG_POST}{DEBUG_BACKTRACE}
+</pre>
+
