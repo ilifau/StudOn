@@ -94,8 +94,6 @@ class ilUnivisImportActionsGUI
 			$selection = new ilAdvancedSelectionListGUI();
 			$selection->setLinksMode();
 			$selection->setListTitle($this->lng->txt("univis_data_transfer"));
-			//$selection->setHeaderIcon(ilUtil::getImagePath("studon/univis_transp.png"));
-			//$selection->setItemLinkClass("xsmall");
 			$selection->setSelectionHeaderClass("submit");
 			foreach ($this->actions as $action)
 			{
