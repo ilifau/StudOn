@@ -1132,11 +1132,11 @@ class ilMainMenuGUI
 
 		$help_active = false;
 
-		/* fim: [help] help menu is moved to main menu plugin
+/* fau: MainMenuHelp - help menu is moved to main menu plugin
 		include_once("./Services/UIComponent/GroupedList/classes/class.ilGroupedListGUI.php");
 		$helpl = new ilGroupedListGUI();
 		$helpl->setAsDropDown(true, true);
-		fim. */
+fau. */
 
 		if ($ilHelp->hasSections())
 		{
@@ -1155,9 +1155,9 @@ class ilMainMenuGUI
 			include_once("./Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 			ilTooltipGUI::addTooltip("help_tr", $lng->txt("help_open_online_help"), "",
 				"bottom center", "top center", false);
-			/* fim: [help] help menu is moved to main menu plugin
+/* fau: MainMenuHelp - help menu is moved to main menu plugin
 			$helpl->addEntry("<span>&nbsp;</span> ".$lng->txt("help_topcis"), "#", "", "il.Help.listHelp(event, false);");
-			fim. */
+fau. */
 		}
 
 		$module_id = (int) $ilSetting->get("help_module");
@@ -1172,19 +1172,19 @@ class ilMainMenuGUI
 			include_once("./Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
 			ilTooltipGUI::addTooltip("help_tt", $lng->txt("help_toggle_tooltips"), "",
 				"bottom center", "top center", false);
-			/* fim: [help] help menu is moved to main menu plugin
+/* fau: MainMenuHelp - help menu is moved to main menu plugin
 			$helpl->addEntry('<span id="help_tt_switch_on" class="glyphicon glyphicon-ok"></span> '.$lng->txt("help_tooltips"), "#", "", "return il.Help.switchTooltips(event);");
-			fim. */
+fau. */
 		}
 
 		if($help_active)
 		{
-			/* fim: [help] help menu is moved to main menu plugin
+/* fau: MainMenuHelp - help menu is moved to main menu plugin
 			$this->tpl->setCurrentBlock("help");
 			$this->tpl->setVariable("TXT_HELP", $lng->txt("help"));
 			$this->tpl->setVariable("HELP_SELECT", $helpl->getHTML());
 			$this->tpl->parseCurrentBlock();
-			fim. */
+fau. */
 
 			// always set ajax url
 			$ts = $ilCtrl->getTargetScript();
