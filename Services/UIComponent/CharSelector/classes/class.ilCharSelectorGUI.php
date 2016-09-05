@@ -227,6 +227,10 @@ class ilCharSelectorGUI
 		// provide texts to be dynamically rendered in the js script
 		$this->jstexts = new stdClass();
 		$this->jstexts->page = $lng->txt('page');
+		// fau: testNav - add texts for open/close char selector actions in the question menu
+		$this->jstexts->open= $lng->txt('char_selector_menu_open');
+		$this->jstexts->close= $lng->txt('char_selector_menu_close');
+		// fau.
 		
 		// add everything neded to the page
 		// addLightbox() is just used to add the panel template outside the body

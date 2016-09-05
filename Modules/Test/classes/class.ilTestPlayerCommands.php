@@ -17,7 +17,7 @@ class ilTestPlayerCommands
 	
 	const DISPLAY_ACCESS_CODE = 'displayAccessCode';
 	const ACCESS_CODE_CONFIRMED = 'accessCodeConfirmed';
-	
+
 	const SHOW_QUESTION = 'showQuestion';
 	
 	const PREVIOUS_QUESTION = 'previousQuestion';
@@ -32,6 +32,10 @@ class ilTestPlayerCommands
 	const SUBMIT_INTERMEDIATE_SOLUTION = 'submitIntermediateSolution';
 	const SUBMIT_SOLUTION = 'submitSolution';
 	const SUBMIT_SOLUTION_AND_NEXT = 'submitSolutionAndNext';
+// fau: testNav - define new commands
+	const REVERT_CHANGES = 'revertChanges';
+	const DETECT_CHANGES = 'detectChanges';
+// fau.
 	const DISCARD_SOLUTION = 'discardSolution';
 	const SKIP_QUESTION = 'skipQuestion';
 	const SHOW_INSTANT_RESPONSE = 'showInstantResponse';
@@ -46,7 +50,7 @@ class ilTestPlayerCommands
 	
 	const SHOW_QUESTION_SELECTION = 'showQuestionSelection';
 	const UNFREEZE_ANSWERS = 'unfreezeCheckedQuestionsAnswers';
-	
+
 	const AUTO_SAVE = 'autosave';
 	const REDIRECT_ON_TIME_LIMIT = 'redirectAfterAutosave';
 
@@ -54,7 +58,7 @@ class ilTestPlayerCommands
 	const FINISH_TEST = 'finishTest';
 	const AFTER_TEST_PASS_FINISHED = 'afterTestPassFinished';
 	const SHOW_FINAL_STATMENT = 'showFinalStatement';
-	
+
 	const BACK_TO_INFO_SCREEN = 'backToInfoScreen';
 	const BACK_FROM_FINISHING = 'backFromFinishing';
 
@@ -62,6 +66,9 @@ class ilTestPlayerCommands
 	 * @var array
 	 */
 	private static $nonExecutionCommands = array(
+// fau: testNav - declare DETECT_CHANGES as non execution command
+		self::DETECT_CHANGES,
+// fau.
 		self::AUTO_SAVE, self::REDIRECT_ON_TIME_LIMIT,
 		self::AFTER_TEST_PASS_FINISHED, self::SHOW_FINAL_STATMENT
 	);
