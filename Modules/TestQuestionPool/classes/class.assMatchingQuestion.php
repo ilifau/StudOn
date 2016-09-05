@@ -450,21 +450,6 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		return $clone->id;
 	}
 
-// fau: fixImageSync - sync images into original question
-	protected function afterSyncWithOriginal($origQuestionId, $dupQuestionId, $origParentObjId, $dupParentObjId)
-	{
-		$origImagePath = $this->buildImagePath($origQuestionId, $origParentObjId);
-		$dupImagePath = $this->buildImagePath($dupQuestionId, $dupParentObjId);
-
-		ilUtil::delDir($origImagePath);
-		if (is_dir($dupImagePath))
-		{
-			ilUtil::makeDirParents($origImagePath);
-			ilUtil::rCopy($dupImagePath, $origImagePath);
-		}
-	}
-//fau.
-
 	public function duplicateImages($question_id, $objectId = null)
 	{
 		global $ilLog;
