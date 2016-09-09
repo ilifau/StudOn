@@ -373,9 +373,9 @@ class ilObjAdvancedEditing extends ilObject
 			"hr",
 			"img",
 			"li",
-			// fim: [exam] enable nobr tag for advanced editing
+// fau: nobrElement - enable nobr tag for advanced editing
 			"nobr",
-			// fim.
+// fau.
 			"object",
 			"ol",
 			"p",
@@ -462,9 +462,9 @@ class ilObjAdvancedEditing extends ilObject
 			"link",
 			"map",
 			"menu",
-			// fim: [exam] enable nobr tag for advanced editing
+// fau: nobrElement - enable nobr tag for advanced editing
 			"nobr",
-			// fim.
+// fau.
 			"object",
 			"ol",
 			"optgroup",
