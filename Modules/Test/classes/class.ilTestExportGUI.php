@@ -140,7 +140,7 @@ class ilTestExportGUI extends ilExportGUI
 // fau: manualTestArchiving - new implementation
 	function createTestArchiveExport()
 	{
-		global $ilAccess, $ilCtrl, $ilDB, $lng, $rbacsystem;
+		global $ilAccess, $ilCtrl, $ilDB, $lng, $rbacsystem,  $ilObjDataCache;
 
 		if($rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID))
 		{
@@ -157,6 +157,11 @@ class ilTestExportGUI extends ilExportGUI
 			$archive_exp->handInTestBestSolution($best_solution_html, $best_solution_pdf);
 			unlink($best_solution_pdf);
 
+			require_once 'Modules/Test/classes/class.ilTestResultHeaderLabelBuilder.php';
+			$testResultHeaderLabelBuilder = new ilTestResultHeaderLabelBuilder($lng, $ilObjDataCache);
+			$testResultHeaderLabelBuilder->setTestObjId($this->obj->getId());
+			$testResultHeaderLabelBuilder->setTestRefId($this->obj->getRefId());
+
 			// create PDFs for all participants (copied from ilTestScoring and adapted)
 			require_once './Modules/Test/classes/class.ilTestEvaluationGUI.php';
 			$test_evaluation_gui = new ilTestEvaluationGUI($this->obj);
@@ -168,6 +173,8 @@ class ilTestExportGUI extends ilExportGUI
 				{
 					if (is_object($userdata) && is_array($userdata->getPasses()))
 					{
+						$testResultHeaderLabelBuilder->setUserId($userdata->getUserID());
+
 						$passes = $userdata->getPasses();
 						foreach ($passes as $pass => $passdata)
 						{
@@ -175,7 +182,7 @@ class ilTestExportGUI extends ilExportGUI
 							{
 								$result_array = $this->obj->getTestResult($active_id, $pass);
 
-								$user_solution_html = $test_evaluation_gui->getPassListOfAnswers($result_array, $active_id, $pass, true, false, false, true);
+								$user_solution_html = $test_evaluation_gui->getPassListOfAnswers($result_array, $active_id, $pass, true, false, false, true, false, null, $testResultHeaderLabelBuilder);
 								$user_solution_pdf = ilUtil::ilTempnam().'.pdf';
 								ilTestPDFGenerator::generatePDF($user_solution_html, ilTestPDFGenerator::PDF_OUTPUT_FILE, $user_solution_pdf);
 
