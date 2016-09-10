@@ -235,6 +235,8 @@ common#:#progress_info#:#Information
 common#:#progress_submit_info#:#Die Bearbeitung wird normalerweise automatisch fortgesetzt.<br />Sollten sie diese Meldung sehen, klicken Sie einmal auf "Weiter", um sie von Hand fortzusetzen. <br />Während die Anfrage läuft (Browser-Symbol rotiert), klicken Sie bitte nicht erneut.
 common#:#progress_task#:#Aufgabe
 common#:#qpl_helptext#:#In Fragenpools können Sie die Fragen anlegen und sammeln, die Sie in Ihren Tests verwenden möchten. Durch dieses Prinzip können Sie einmal erstellte Fragen immer wieder zu neuen Tests kombinieren.
+common#:#reg_account_confirmation_successful#:#Sie haben Ihr StudOn-Benutzerkonto erfolgreich aktiviert und erhalten eine E-Mail mit Ihren Zugangsdaten. Bitte sehen Sie dazu auch im Spam-Ordner Ihres Postfaches nach. Verwenden Sie diese Zugangsdaten für die „Lokale Anmeldung“ auf dieser Seite.###fau: regCodes
+common#:#reg_mail_body_2_confirmation#:#Ihre Bestätigung muss innerhalb von 30 Minuten erfolgen, andernfalls müssen Sie sich erneut registrieren. Bei erfolgreicher Bestätigung erhalten Sie eine weitere E-Mail mit Ihren Zugangsdaten. Bitte sehen Sie dazu auch im Spam-Ordner Ihres Postfaches nach.###fau: regCodes
 common#:#relative_link_label#:#Relativer Link
 common#:#relative_link_create#:#Link erzeugen
 common#:#relative_link_description#:#Dieser Link eignet sich für die interne Verlinkung in Kursvorlagen. Er ist beim Kopieren in der Kopie identisch. Beim Klicken wird ein Nutzer zum nächstgelegenen Ziel geleitet. Bitte beachten Sie, dass diese Funktion beim Export in andere ILIAS-Plattformen nicht verfügbar ist.
@@ -507,6 +509,8 @@ registration#:#reg_login_gen_first_lastname#:#Automatisch (vorname.nachname)
 registration#:#reg_login_gen_guest_listener#:#Automatisch für Gasthörer (ghs16frneuma)### fau.
 registration#:#reg_login_is_generated#:#Ihr Benutzername wir automatisch erzeugt und Ihnen nach der Registrierung angezeigt.
 registration#:#reg_choose_password#:#Wählen Sie hier selbst ein Passwort für Ihr neues Benutzerkonto. Es muss mindestens 6 Zeichen lang sein und mindesten einen Groß- und Kleinbuchstaben, eine Ziffer und ein Sonderzeichen (_.+?#-*@!$%~/:;) enthalten. Bitte merken Sie sich dieses Passwort!
+registration#:#reg_confirmation_link_successful#:#<br />Sie haben sich erfolgreich bei StudOn registriert. Jetzt müssen Sie noch Ihr Benutzerkonto aktivieren. Dazu wurde Ihnen soeben eine E-Mail mit einem Bestätigungslink geschickt. Bitte sehen Sie auch im Spam-Ordner Ihres Postfaches nach. ob die E-Mail dort gelandet ist.<br />Klicken Sie innerhalb der nächsten Minuten auf den Bestätigungslink in der E-Mail, um Ihr Benutzerkonto zu aktivieren. Sie erhalten danach eine weitere E-Mail mit Ihren Zugangsdaten. Melden Sie sich damit auf der <a href="%s">Startseite von StudOn</a> unter „Lokale Anmeldung“ an.###fau: regCodes
+registration#:#reg_mail_body_confirmation#:#Um Ihr neues Benutzerkonto zu aktivieren, müssen Sie es zunächst freischalten. Klicken sie dazu auf den folgenden Link oder kopieren Sie ihn in die Adresszeile Ihres Browsers (achten Sie dabei darauf, dass er keinen Zeilenumbruch enthält):###fau: regCodes
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Spezielle Styles
 style#:#sty_custom_css_edit#:#Spezielle Styles bearbeiten

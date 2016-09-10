@@ -1704,6 +1704,7 @@ class ilStartUpGUI
 		{
 			$ilAuth->logout();
 			session_destroy();
+			session_start();
 		}
 
 		ilUtil::redirect($link);

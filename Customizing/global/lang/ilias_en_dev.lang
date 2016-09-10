@@ -238,6 +238,8 @@ common#:#progress_info#:#Information
 common#:#progress_submit_info#:#The Editing will normally continue automatically.<br />If you see this message, click once on "continue", to continue manually. <br />While the request is running (Browser-symbol rotates), do not click again.
 common#:#progress_task#:#Task
 common#:#qpl_helptext#:#In questionpools you can create and collect questions, which you want to use in your tests. By this concept you can - once created questions - repeatingly combine to new tests.
+common#:#reg_account_confirmation_successful#:#Your user account has been activated and will receive a new e-mail with your account date. Please look also in the spam folder of your post box. Use the account data to log in with the ‘Local Login’ on this page.###fau: regCodes
+common#:#reg_mail_body_2_confirmation#:#The link will only be good for %s, then you will have to try again from the beginning. After a successful confirmation you will receive a new e-mail with your account date. Please look also in the spam folder of your post box.###fau: regCodes
 common#:#relative_link_label#:#Relative Link
 common#:#relative_link_create#:#Create Link
 common#:#relative_link_description#:#This link can be used for internal linking course templates. It will look the same when the object is copied. A user clicking this link will be led to the nearest target. Please note that this function is not available in other ILIAS installations.
@@ -512,6 +514,8 @@ registration#:#reg_login_gen_first_lastname#:#Automatic (firstname.lastname)
 registration#:#reg_login_gen_guest_listener#:#Automatic for Guest Listeners (ghs16frneuma)### fau.
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration.
 registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
+registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to StudOn. You will receive a confirmation e-mail in the next minutes. Please look also in the spam folder of your post box. Confirm your registration by clicking the confirmation link in this mail.<br />After that you will receive a second e-mail with your account data. Please use the ‘Local Login’ on the StudOn start page to log in.###fau: regCodes
+registration#:#reg_mail_body_confirmation#:#To confirm this registration you have to activate it. Click the link below or copy it to the address field of your browser (ensure that it has no line break):###fau: regCodes
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Special Styles
 style#:#sty_custom_css_edit#:#Edit Special Styles
