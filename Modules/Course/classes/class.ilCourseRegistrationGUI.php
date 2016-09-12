@@ -929,7 +929,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 		// the sequence and nesting of checks is important!
 		// TODO: allow concurrency with event registration
 		//////
-		if ($this->participants->isAssigned($a_usr_id))
+		if ($this->participants->isAssigned($ilUser->getId()))
 		{
 	        // user is already a participant
 	        $action = 'showAlreadyMember';
@@ -1090,11 +1090,14 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 				$this->setAccepted(true);
 				// subscribe to events
 				require_once("./Modules/Session/classes/class.ilEventParticipants.php");
-				foreach ($_POST["events"] as $event_id)
+				if (is_array(($_POST["events"])))
 				{
-					if ($event_id)
+					foreach ($_POST["events"] as $event_id)
 					{
-						ilEventParticipants::_register($ilUser->getId(), $event_id);
+						if ($event_id)
+						{
+							ilEventParticipants::_register($ilUser->getId(), $event_id);
+						}
 					}
 				}
 				$this->participants->sendNotification($this->participants->NOTIFY_ADMINS,$ilUser->getId());
