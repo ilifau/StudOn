@@ -166,6 +166,9 @@ class ilExerciseDataSet extends ilDataSet
 						,"FeedbackCron" => "integer"
 						,"FeedbackDate" => "integer"
 						,"FeedbackDir" => "directory"
+// fau: exResTime - add result time to export structure
+						,"ResultTime" => "integer"
+// fau.
 					);
 			}
 		}
@@ -275,6 +278,9 @@ class ilExerciseDataSet extends ilDataSet
 						" instruction, title, start_time, mandatory, order_nr, team_tutor, max_file, peer, peer_min,".
 						" peer_dl peer_deadline, peer_file, peer_prsl peer_personal, peer_char, peer_unlock, peer_valid,".
 						" peer_text, peer_rating, peer_crit_cat, fb_file feedback_file, fb_cron feedback_cron, fb_date feedback_date".
+// fau: exResTime - query for result time at export
+						",res_time result_time".
+// fau.
 						" FROM exc_assignment".
 						" WHERE ".$ilDB->in("exc_id", $a_ids, false, "integer"));
 					break;

@@ -1618,6 +1618,9 @@ class ilObjCourseGUI extends ilContainerGUI
 		// time limit
 		$time_limit = new ilCheckboxInputGUI($this->lng->txt('crs_registration_limited'),'subscription_limitation_type');
 		$time_limit->setInfo($this->lng->txt('crs_registration_limited_info'));
+		// fim: [memlot] set value for limited registration period
+		$time_limit->setValue(2);
+		// fim.
 		$time_limit->setChecked(($this->object->getSubscriptionLimitationType() ==  IL_CRS_SUBSCRIPTION_LIMITED) ? true : false);
 
 			include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";
@@ -1757,7 +1760,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$opt->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
 		$maxmode->addOption($opt);
 
-		$opt = new ilRadioOption($this->lng->txt('\'crs_waiting_list_no_autofill'),'waiting_list');
+		$opt = new ilRadioOption($this->lng->txt('crs_waiting_list_no_autofill'),'waiting_list');
 		$opt->setInfo($this->lng->txt('crs_wait_info'));
 		$maxmode->addOption($opt);
 

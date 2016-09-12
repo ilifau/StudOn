@@ -658,7 +658,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 		// first decide what to do
 		// the sequence and nesting of checks is important!
 		/////
-		if ($this->participants->isAssigned($a_usr_id))
+		if ($this->participants->isAssigned($ilUser->getId()))
 		{
 	        // user is already a participant
 	        $action = 'showAlreadyMember';

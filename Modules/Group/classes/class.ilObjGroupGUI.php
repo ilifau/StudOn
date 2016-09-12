@@ -2928,9 +2928,9 @@ class ilObjGroupGUI extends ilContainerGUI
 			$maxmode->addOption($opt);
 
 			$lim->addSubItem($maxmode);
+			$form->addItem($lim);
 			// fim.
 
-			$this->form->addItem($lim);
 
 			// fim: [memcond] add studycond setting
 			include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
@@ -2950,7 +2950,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 			$studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
 			$studycond->setHtml($stpl->get());
-			$this->form->addItem($studycond);
+			$form->addItem($studycond);
 			// fim.
 
 			// Group presentation

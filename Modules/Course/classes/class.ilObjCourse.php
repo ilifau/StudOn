@@ -1345,8 +1345,10 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			"contact_phone = ".$ilDB->quote($this->getContactPhone() ,'text').", ".
 			"contact_email = ".$ilDB->quote($this->getContactEmail() ,'text').", ".
 			"contact_consultation = ".$ilDB->quote($this->getContactConsultation() ,'text').", ".
-			"activation_type = ".$ilDB->quote(!$this->getOfflineStatus() ,'integer').", ".			
-			"sub_limitation_type = ".$ilDB->quote($this->getSubscriptionLimitationType() ,'integer').", ".
+			"activation_type = ".$ilDB->quote(!$this->getOfflineStatus() ,'integer').", ".
+			// fim: [memlot] cast time limit activation
+			"sub_limitation_type = ".$ilDB->quote((int) $this->getSubscriptionLimitationType() ,'integer').", ".
+			// fim.
 			"sub_start = ".$ilDB->quote($this->getSubscriptionStart() ,'integer').", ".
 			"sub_end = ".$ilDB->quote($this->getSubscriptionEnd() ,'integer').", ".
 			"sub_type = ".$ilDB->quote($this->getSubscriptionType() ,'integer').", ".

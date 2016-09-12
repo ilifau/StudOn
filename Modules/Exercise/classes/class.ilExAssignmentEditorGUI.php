@@ -450,7 +450,7 @@ class ilExAssignmentEditorGUI
 
 				if ($a_form->getInput("peer"))
 				{
-					$this->form->getItemByPostVar("result_time_cb")
+					$a_form->getItemByPostVar("result_time_cb")
 						->setAlert($lng->txt("exc_result_time_not_for_peer_feedback"));
 					$valid = false;
 				}
@@ -475,7 +475,7 @@ class ilExAssignmentEditorGUI
 					,"deadline" => $time_deadline
 					,"deadline_ext" => $time_deadline_ext
 // fau: exResTime - add result date to form result
-					,"result_date" =>  $result_date->get(IL_CAL_UNIX)
+					,"result_time" =>  $result_date
 // fau.
 					,"max_file" => $a_form->getInput("max_file_tgl")
 						? $a_form->getInput("max_file")
