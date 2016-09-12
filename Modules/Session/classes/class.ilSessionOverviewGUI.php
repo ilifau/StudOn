@@ -104,7 +104,40 @@ class ilSessionOverviewGUI
 
 		include_once 'Modules/Session/classes/class.ilSessionOverviewTableGUI.php';
 		$tbl = new ilSessionOverviewTableGUI($this, 'listSessions', $this->course_ref_id, $this->members_obj->getParticipants());
-		$this->tpl->setContent($tbl->getHTML());
+
+// fau: sessionOverview - add legend and event list
+		$tpl = new ilTemplate('tpl.sess_list_legend.html',true, true, 'Modules/Session');
+
+		$tpl->setVariable("HEAD_TXT_LEGEND", $this->lng->txt("legend"));
+		$tpl->setVariable("HEAD_TXT_DIGIT", $this->lng->txt("event_digit"));
+		$tpl->setVariable("HEAD_TXT_EVENT", $this->lng->txt("event"));
+		$tpl->setVariable("HEAD_TXT_LOCATION", $this->lng->txt("event_location"));
+		$tpl->setVariable("HEAD_TXT_DATE_TIME",$this->lng->txt("event_date_time"));
+
+		$counter = 1;
+		$events = $tbl->getEvents();
+		foreach($events as $event_obj)
+		{
+			$tpl->setCurrentBlock("legend_loop");
+			$tpl->setVariable("LEGEND_DIGIT", $counter++);
+			$tpl->setVariable("LEGEND_EVENT_TITLE", $event_obj->getTitle());
+			$tpl->setVariable("LEGEND_EVENT_DESCRIPTION", $event_obj->getDescription());
+			$tpl->setVariable("LEGEND_EVENT_LOCATION", $event_obj->getLocation());
+			$tpl->setVariable("LEGEND_EVENT_APPOINTMENT", $event_obj->getFirstAppointment()->appointmentToString());
+			$tpl->parseCurrentBlock();
+		}
+		$tpl->setCurrentBlock("symbol_legend");
+		$tpl->setVariable("IMAGE_NOT_REGISTERED", ilUtil::getImagePath('scorm/not_attempted.svg'));
+		$tpl->setVariable("IMAGE_NOT_PARTICIPATED", ilUtil::getImagePath('scorm/failed.svg'));
+		$tpl->setVariable("IMAGE_PARTICIPATED", ilUtil::getImagePath('scorm/passed.svg'));
+
+		$tpl->setVariable("NOT_REGISTERED", $this->lng->txt('event_not_registered'));
+		$tpl->setVariable("NOT_PARTICIPATED", $this->lng->txt('event_not_participated'));
+		$tpl->setVariable("PARTICIPATED", $this->lng->txt('event_participated'));
+		$tpl->parseCurrentBlock();
+
+		$this->tpl->setContent($tbl->getHTML() .$tpl->get());
+// fau.
 	}
 
 	/**
@@ -132,24 +165,25 @@ class ilSessionOverviewGUI
 			{
 				continue;
 			}
-			// fim: [memsess] prepare sort key for events
+// fau: sessionOverview - prepare sort key for events
 			$sort = $tmp_event->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
 			$sort.= $tmp_event->getTitle();
+			$sort.= $tmp_event->getId();
 			$events[$sort] = $tmp_event;
-			// fim.
+// fau.
 		}
 		
-		// fim: [memsess] sort events by start date and title
+// fau: sessionOverview - sort events by start date and title
 		ksort($events);
 		$events = array_values($events);
-		// fim.
+// fau.
 
 		$this->csv = new ilCSVWriter();
 		$this->csv->addColumn($this->lng->txt("lastname"));
 		$this->csv->addColumn($this->lng->txt("firstname"));
 		$this->csv->addColumn($this->lng->txt("login"));
 		
-		// fim: [memsess] temporary deactivate relative date presentation
+// fau: sessionOverview temporary deactivate relative date presentation
 		$relative = ilDatePresentation::useRelativeDates();
 		ilDatePresentation::setUseRelativeDates(false);
 		foreach($events as $event_obj)
@@ -158,7 +192,7 @@ class ilSessionOverviewGUI
 			$this->csv->addColumn($event_obj->getTitle().' ('.$event_obj->getFirstAppointment()->appointmentToString().')');
 		}
 		ilDatePresentation::setUseRelativeDates($relative);
-		// fim.
+// fau.
 
 
 		$this->csv->addRow();
@@ -175,7 +209,7 @@ class ilSessionOverviewGUI
 			{			
 				$event_part = new ilEventParticipants((int) $event_obj->getId());
 				
-				// fim: [memsess] add registration info to CSV
+// fau: sessionOverview - add registration info to CSV
 				if ($event_obj->enabledRegistration()
 				and (!$event_part->isRegistered($user_id))
 				and (!$event_part->hasParticipated($user_id)))
@@ -188,7 +222,7 @@ class ilSessionOverviewGUI
 										$this->lng->txt('event_participated') :
 										$this->lng->txt('event_not_participated'));
 			}
-				// fim.
+// fau.
 			}
 
 			$this->csv->addRow();
