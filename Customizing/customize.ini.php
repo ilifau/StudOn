@@ -58,8 +58,6 @@ ilias_deny_regstart_from = ""			;start time of denial period for registration st
 ilias_deny_regstart_to = ""				;end time of denial period for registration starts
 
 ilias_login_help_url = ""				;link for local login help button
-ilias_header_link_url = ""				;url for a link in the header
-ilias_header_link_text = ""				;text for a link in the header
 
 ilias_footer_type = "studon"            ;possible values: "", "studon", "exam"
 ilias_footer_contact_url = ""			;contact URL un footer
