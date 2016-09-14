@@ -2703,7 +2703,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			$import->setInfo($this->lng->txt('univis_id_info'));
 			$import->setSize(50);
 			$import->setMaxLength(50);
-			$this->form->addItem($import);
+			$form->addItem($import);
 		}
 		// fim.
 
