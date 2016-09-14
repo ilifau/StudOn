@@ -100,7 +100,7 @@ class ilExerciseMemberTableGUI extends ilTable2GUI
 		}
 
 // fau: exResTime - set flag for sending result
-		$this->send_result =  (int) $ass_obj->getResultTime() <= time();
+		$this->send_result =  (int) $this->ass->getResultTime() <= time();
 // fau.
 
 		$this->setData($data);
