@@ -1286,10 +1286,13 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 					}
 
 					$list = $person->getOfficehours();
-					foreach ($list as $officehour)
+					if (is_array($list))
 					{
-	                    $consultations[] = $officehour->getDisplay();
-	                }
+						foreach ($list as $officehour)
+						{
+							$consultations[] = $officehour->getDisplay();
+						}
+					}
 				}
 
 				$crs->setContactName($contact_name);
