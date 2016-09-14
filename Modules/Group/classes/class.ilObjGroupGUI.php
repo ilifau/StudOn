@@ -294,7 +294,9 @@ class ilObjGroupGUI extends ilContainerGUI
 				include_once './Services/Contact/classes/class.ilMailMemberGroupRoles.php';
 
 				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberGroupRoles());
-				$mail_search->setObjParticipants(ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
+// fau: mailToMembers - include correct class
+				$mail_search->setObjParticipants(ilGroupParticipants::_getInstanceByObjId($this->object->getId()));
+// fau.
 				$this->ctrl->forwardCommand($mail_search);
 				break;
 			default:
