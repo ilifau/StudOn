@@ -229,7 +229,7 @@ class ilMyCampusSynchronisation
 		{
 			$send = true;
 		}
-		elseif ($last_mail = $ilUser->getPref("medikurs_last_mail"))
+		elseif ($last_mail = $ilUser->getPref("mycampus_last_mail"))
 		{	
 			// last login before mail interval
 			$check = new ilDateTime(time(),IL_CAL_UNIX);
@@ -252,7 +252,7 @@ class ilMyCampusSynchronisation
 							array(), array("system"), false);
 							
 			$last = new ilDateTime(time(),IL_CAL_UNIX);
-			$ilUser->writePref("medikurs_last_mail", $last->get(IL_CAL_DATETIME));
+			$ilUser->writePref("mycampus_last_mail", $last->get(IL_CAL_DATETIME));
 		}	
 	}
 }
