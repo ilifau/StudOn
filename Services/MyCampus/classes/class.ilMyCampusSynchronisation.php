@@ -20,6 +20,7 @@ class ilMyCampusSynchronisation
 		
 		if ($this->logfile = $ilCust->getSetting('mycampus_sync_logfile'))
 		{
+			require_once('Services/Logging/classes/class.ilLog.php');
 			$this->log = new ilLog(ILIAS_LOG_DIR, $this->logfile, CLIENT_ID);
 			$this->log->setLogLevel('message');
 		}
