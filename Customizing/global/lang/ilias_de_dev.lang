@@ -37,6 +37,7 @@ assessment#:#ass_mycampus_export_registered#:#Angemeldete Teilnehmer
 assessment#:#ass_mycampus_export_registered_info#:#Exportiert nur die für eine Prüfung in <i>mein campus</i> angemeldeten Teilnehmer.
 assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die Anmeldedatei ist falsch benannt. Sie muss wie <strong>prf_123.csv</strong> heißen, wobei 123 die Prüfungsnummer ist.
 assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
+assessment#:#save_on_navigation_prevent_confirmation#:#Diese Meldung nicht mehr anzeigen###fau: testNav
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nMatrikelnummer: %s\nDatum des Durchlaufs: %s
 assessment#:#send_simple_results_subject#:#Ergebnis "%s" vom %s
 assessment#:#send_simple_results_to_participants#:#Einfaches Ergebnis als Mail senden (bewerteter Testdurchlauf)
@@ -45,6 +46,7 @@ assessment#:#send_simple_results_to_participants_failed#:#Die folgenden Nutzer k
 assessment#:#send_simple_results_to_participants_success#:#Die folgenden Nutzer wurden angeschrieben:<br />%s
 assessment#:#sent_simple_results_to_participants#:#Die Ergebnisse wurden an die Teilnehmer gesendet
 assessment#:#show_detailed_results_with_correct_solutions#:#Detaillierte Testergebnisse mit korrekten Lösungen (bewerteter Testdurchlauf)
+assessment#:#tst_answer_status_editing#:#(in Bearbeitung)###fau: testNav
 assessment#:#tst_mark_tst_failed#:#Resultierende Note "nicht bestanden"
 assessment#:#tst_mark_tst_failed_details#:#Dieser Text ersetzt die Standardmeldung auf der Ergebnisseite eines nicht bestandenen Tests. Sie können darin die folgenden Platzhalter verwenden:<br /><strong>[mark]</strong> : Offizielle Bezeichnung der Notenstufe,<br /><strong>[markshort]</strong> : Kurzbezeichnung der Notenstufe,<br /><strong>[percentage]</strong> : Prozent gelöst,<br /><strong>[reached]</strong> : erreichte Punktzahl,<br /><strong>[max]</strong> : maximale Punktzahl.
 assessment#:#tst_mark_tst_passed#:#Resultierende Note "bestanden"
