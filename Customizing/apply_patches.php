@@ -67,7 +67,12 @@ $p = new ilPatchUtils();
  * New Permissions in ILIAS 5.0
  ******************************/
 
-//$p->applyPatch('ilPermissionPatches50.initAdobeConnect');
-//$p->applyPatch('ilPermissionPatches50.initInteractiveVideo');
 //$p->applyPatch('ilPermissionPatches50.initLiveVoting');
 //$p->applyPatch('ilPermissionPatches50.initFlashcardsCopyPermission');
+
+/*******************************
+ * New Permissions in ILIAS 5.1
+ ******************************/
+
+//$p->applyPatch('ilPermissionPatches51.initInteractiveVideo');
+//$p->applyPatch('ilPermissionPatches51.initAdobeConnect');
