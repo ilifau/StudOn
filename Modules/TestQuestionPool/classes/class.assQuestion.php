@@ -1051,31 +1051,37 @@ abstract class assQuestion
 
 		$affectedRows = $ilDB->manipulateF($query, $types, $values);
 
-		$next_id = $ilDB->nextId("tst_test_result");
-
-		$fieldData = array(
-			'test_result_id'	=> array('integer', $next_id),
-			'active_fi'			=> array('integer', $active_id),
-			'question_fi'		=> array('integer', $this->getId()),
-			'pass'				=> array('integer', $pass),
-			'points'			=> array('float', $reached_points),
-			'tstamp'			=> array('integer', time()),
-			'hint_count'		=> array('integer', $requestsStatisticData->getRequestsCount()),
-			'hint_points'		=> array('float', $requestsStatisticData->getRequestsPoints()),
-			'answered'			=> array('integer', $isAnswered)
-		);
-
-		if( $this->getStep() !== NULL )
+// fau: testNav - write result record only, if a minimum user solution exists
+		$existingSolutions = $this->lookupForExistingSolutions($active_id, $pass);
+		if ($existingSolutions['authorized'])
 		{
-			$fieldData['step'] = array('integer', $this->getStep());
-		}
+			$next_id = $ilDB->nextId("tst_test_result");
 
-		$ilDB->insert('tst_test_result', $fieldData);
+			$fieldData = array(
+				'test_result_id'	=> array('integer', $next_id),
+				'active_fi'			=> array('integer', $active_id),
+				'question_fi'		=> array('integer', $this->getId()),
+				'pass'				=> array('integer', $pass),
+				'points'			=> array('float', $reached_points),
+				'tstamp'			=> array('integer', time()),
+				'hint_count'		=> array('integer', $requestsStatisticData->getRequestsCount()),
+				'hint_points'		=> array('float', $requestsStatisticData->getRequestsPoints()),
+				'answered'			=> array('integer', $isAnswered)
+			);
+
+			if( $this->getStep() !== NULL )
+			{
+				$fieldData['step'] = array('integer', $this->getStep());
+			}
+
+			$ilDB->insert('tst_test_result', $fieldData);
+		}
+// fau.
 
 		$this->getProcessLocker()->releaseUserQuestionResultUpdateLock();
 		
 		include_once ("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
-		
+
 		if( ilObjAssessmentFolder::_enabledAssessmentLogging() )
 		{
 			$this->logAction(
