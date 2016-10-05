@@ -460,20 +460,24 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 			}
 
 			$this->ctrl->setParameter($this, 'pmode', ilTestPlayerAbstractGUI::PRESENTATION_MODE_VIEW);
-		}
 
 // fau: testNav - remember to prevent the navigation confirmation
-		$this->saveNavigationPreventConfirmation();
+			$this->saveNavigationPreventConfirmation();
 // fau.
 
 // fau: testNav - handle navigation after saving
-		if ($this->getNavigationUrlParameter())
-		{
-			ilUtil::redirect($this->getNavigationUrlParameter());
+			if ($this->getNavigationUrlParameter())
+			{
+				ilUtil::redirect($this->getNavigationUrlParameter());
+			}
+// fau.
 		}
+// fau: testNav - handle failed submission
 		else
 		{
-			$this->ctrl->saveParameter($this, 'sequence');
+			// set the answer to changed for a failed submission
+			// this forces a new submission at the next try
+			$this->setAnswerChangedParameter(true);
 		}
 // fau.
 		$this->ctrl->redirect($this, ilTestPlayerCommands::SHOW_QUESTION);
@@ -653,21 +657,22 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		{
 // fau: testNav - handle answer fixation and intermediate submit
 			// always save the question when feedback is requested
-			// if( $this->object->isInstantFeedbackAnswerFixationEnabled() )
-			if (true)
+			// show intermediate solution with validation error if the question couldn't be saved
+			if ($this->saveQuestionSolution(true))
 			{
-				$this->saveQuestionSolution(true);
-				$this->removeIntermediateSolution();
 				$this->setAnswerChangedParameter(false);
+
+				$this->testSequence->setQuestionChecked($questionId);
+				$this->testSequence->saveToDb();
 			}
 			else
 			{
-				$this->handleIntermediateSubmit();
+				$this->setAnswerChangedParameter(true);
+				$this->ctrl->redirect($this, ilTestPlayerCommands::SHOW_QUESTION);
 			}
 // fau.
-			$this->testSequence->setQuestionChecked($questionId);
-			$this->testSequence->saveToDb();
 		}
+
 
 		$this->ctrl->setParameter($this, 'instresp', 1);
 

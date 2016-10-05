@@ -530,7 +530,7 @@ assessment#:#ending_time_reached#:#Sie haben das Ende der möglichen Bearbeitung
 assessment#:#enlarge#:#vergrößern
 assessment#:#enter_anonymous_code#:#Zugangsschlüssel für anonymen Zugang
 assessment#:#enter_enough_positive_points#:#Die maximale Punktezahl für die Frage muss größer als Null sein! Bitte geben Sie ausreichend viele nicht-negative Punkte für die Antworten ein.
-assessment#:#err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert ein
+assessment#:#err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert ein.
 assessment#:#error_cloze_not_numeric#:#Bitte geben Sie einen numerischen Wert ein.
 assessment#:#error_duplicate_term#:#Sie haben einen Term mehrfach einem Zuordnungspaar zugewiesen
 assessment#:#error_image_upload_copy_file#:#Beim Verschieben einer hochgeladenen Grafik in ihren Zielordner ist ein Fehler aufgetreten!
@@ -16214,6 +16214,7 @@ assessment#:#ass_imap_hint#:#Hinweis (angezeigt als Tooltip)
 blog#:#blog_show_latest#:#Neueste Beiträge/Entwürfe anzeigen
 assessment#:#ass_competence_respect_level_ordering#:#Bitte beachten Sie, dass die Kompetenz-Schwellenwerte gemäß der Reihenfolge der Kompetenz-Ausprägungen in aufsteigender Reihenfolge definiert werden müssen.
 assessment#:#tst_revert_changes#:#Bearbeitung zurücknehmen###fau: testNav
+assessment#:#tst_revert_changes_hint#:#Sie können Ihre Eingabe über das Aktionen-Menü der Frage rückgängig machen. ###fau: testNav
 assessment#:#save_on_navigation#:#Navigation mit Speichern###fau: testNav
 assessment#:#save_on_navigation_confirmation#:#Ihre geänderten Antworten werden bei der Navigation automatisch gespeichert.###fau: testNav
 assessment#:#save_on_navigation_locked_confirmation#:#Ihre geänderten Antworten werden bei der Navigation automatisch gespeichert und festgeschrieben.###fau: testNav

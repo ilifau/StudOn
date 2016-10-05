@@ -421,7 +421,7 @@ assessment#:#ending_time_reached#:#You have reached the finish time
 assessment#:#enlarge#:#Enlarge
 assessment#:#enter_anonymous_code#:#Enter Anonymous Access Code
 assessment#:#enter_enough_positive_points#:#The maximum available points must be greater than 0! Please enter sufficient positive points for your answers.
-assessment#:#err_no_numeric_value#:#Please enter a numeric value
+assessment#:#err_no_numeric_value#:#Please enter a numeric value.
 assessment#:#error_cloze_not_numeric#:#Please enter a numeric value.
 assessment#:#error_duplicate_term#:#You selected a matching term more than once
 assessment#:#error_image_upload_copy_file#:#There was an error moving the uploaded image file to its destination folder!
@@ -16214,6 +16214,7 @@ assessment#:#ass_imap_hint#:#Hint to be shown as Tooltip
 blog#:#blog_show_latest#:#Show latest postings/drafts
 assessment#:#ass_competence_respect_level_ordering#:#Please note that the competence thresholds have to be defined in an ascending order according to the available levels.
 assessment#:#tst_revert_changes#:#Undo Editing###fau: testNav
+assessment#:#tst_revert_changes_hint#:#You can undo your editing in the action menu of the question.###fau: testNav
 assessment#:#save_on_navigation#:#Save on Navigation###fau: testNav
 assessment#:#save_on_navigation_confirmation#:#Your changed answers will be automatically saved when you navigate.###fau: testNav
 assessment#:#save_on_navigation_locked_confirmation#:#Your changed answers will be automatically saved and locked when you navigate.###fau: testNav

@@ -1003,6 +1003,8 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 
 		$tmp            = $solutionSubmit;
 		$solutionSubmit = array();
+
+		$returnvalue = true;
 		foreach($tmp as $key => $val)
 		{
 			if(is_numeric($val) || is_numeric(str_replace(',', '.', $val)) || strlen($val) == 0)
@@ -1011,7 +1013,10 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 			}
 			else
 			{
-				$solutionSubmit[$key] = '';
+				ilUtil::sendFailure($this->lng->txt("err_no_numeric_value"), true);
+				$authorized = false;
+				$returnvalue = false;
+				$solutionSubmit[$key] = $val;;
 			}
 		}
 
@@ -1079,7 +1084,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 			}
 		}
 
-		return true;
+		return $returnvalue;
 	}
 
 // fau: testNav - overridden function lookupForExistingSolutions (specific for formula question: don't lookup variables)

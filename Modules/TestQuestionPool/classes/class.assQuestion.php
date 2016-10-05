@@ -1126,11 +1126,20 @@ abstract class assQuestion
 		
 		if( $authorized )
 		{
-// fau: testNav - remove an intermediate solution if the authorized solution is saved
-//		the intermediate solution would set the displayed question status as "editing ..."
-			$this->removeIntermediateSolution($active_id, $pass);
+// fau: testNav - remove an intermediate solution if the authorized solution is properly saved
+//				- the intermediate solution would set the displayed question status as "editing ..."
+//				- keep an intermediate solution if the question could not be saved (e.g. validation error)
+			if ($saveStatus)
+			{
+				$this->removeIntermediateSolution($active_id, $pass);
+				$this->calculateResultsFromSolution($active_id, $pass, $obligationsEnabled);
+			}
+			else
+			{
+				global $lng;
+				ilUtil::sendInfo($lng->txt('tst_revert_changes_hint'), true);
+			}
 // fau.
-			$this->calculateResultsFromSolution($active_id, $pass, $obligationsEnabled);
 		}
 		
 		$this->reworkWorkingData($active_id, $pass, $obligationsEnabled, $authorized);
