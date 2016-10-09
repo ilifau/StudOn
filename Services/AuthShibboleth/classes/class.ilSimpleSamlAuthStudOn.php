@@ -284,8 +284,8 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             ilStudyData::_saveStudyData($userObj->getId(), $this->data->studies);
         }
 
-        // new role assignment
-        ilShibbolethRoleAssignmentRules::doAssignments($userObj->getId(), $_SERVER);
+        // update role assignments
+        ilShibbolethRoleAssignmentRules::updateAssignments($userObj->getId(), (array) $this->data);
 
         return $userObj;
     }
@@ -296,7 +296,7 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
      */
     protected function getUpdatedUser($uid)
     {
-        global $ilSetting;
+        global $ilSetting, $ilCust;
 
         $userObj = new ilObjUser($uid);
 
@@ -325,12 +325,6 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             // reset agreement to force a new acceptance
             // set user active and unlimited
             $userObj->setAgreeDate(NULL);
-            $userObj->setActive(1, 6);
-            $userObj->setTimeLimitOwner(7);
-            $userObj->setTimeLimitUnlimited(1);
-            $userObj->setTimeLimitFrom(time());
-            $userObj->setTimeLimitUntil(time());
-            $userObj->setLoginAttempts(0);
 
             unset($_SESSION["SHIBBOLETH_CONVERSION"]);
         }
@@ -362,6 +356,24 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             $userObj->setDescription($userObj->getEmail());
         }
 
+        // time limit and activation
+        if ($ilCust->getSetting('shib_create_limited'))
+        {
+            $limit = new ilDateTime($ilCust->getSetting('shib_create_limited'), IL_CAL_DATE);
+            $userObj->setTimeLimitUnlimited(0);
+            $userObj->setTimeLimitFrom(time());
+            $userObj->setTimeLimitUntil($limit->get(IL_CAL_UNIX));
+        }
+        else
+        {
+            $userObj->setTimeLimitUnlimited(1);
+            $userObj->setTimeLimitFrom(time());
+            $userObj->setTimeLimitUntil(time());
+        }
+        $userObj->setActive(1, 6);
+        $userObj->setTimeLimitOwner(7);
+        $userObj->setLoginAttempts(0);
+
         // always update external account and password
         $userObj->setExternalAccount($this->data->identity);
         $userObj->setExternalPasswd($this->data->coded_password);
@@ -377,7 +389,7 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
         $userObj->update();
 
         // update role assignments
-        ilShibbolethRoleAssignmentRules::updateAssignments($userObj->getId(), $_SERVER);
+        ilShibbolethRoleAssignmentRules::updateAssignments($userObj->getId(), (array) $this->data);
 
         return $userObj;
     }
@@ -464,6 +476,9 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             $rawdata['user_password']               = $this->attributes['urn:mace:dir:attribute-def:userPassword'][0];
             $rawdata['schac_personal_unique_code']  = $this->attributes['urn:mace:terena.org:attribute-def:schacPersonalUniqueCode'][0];
             $rawdata['fau_features_of_study']       = '';
+            $rawdata['fau_employee']                = null;
+            $rawdata['fau_student']                 = null;
+            $rawdata['fau_guest']                   = null;
 
             $this->data->setRawData($rawdata, true);
         }

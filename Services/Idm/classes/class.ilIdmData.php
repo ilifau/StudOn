@@ -58,6 +58,23 @@ class ilIdmData
      */
     public $affiliations = array();
 
+    /**
+     * @var string  null | 'auto'   or a specific string
+     */
+    public $fau_employee = null;
+
+
+    /**
+     * @var string  null | 'auto'   or a specific string
+     */
+    public $fau_student = null;
+
+
+    /**
+     * @var string  null | 'auto'   or a specific string
+     */
+    public $fau_guest = null;
+
 
     /**
      * @var array   study data
@@ -139,7 +156,12 @@ class ilIdmData
             $this->matriculation = '';
         }
 
-        // study data
+        // fau specific attributes
+        $this->fau_employee = $raw['fau_employee'];
+        $this->fau_student = $raw['fau_student'];
+        $this->fau_guest = $raw['fau_guest'];
+
+        // fau study data
         $this->studies = array();
         if ($raw['fau_features_of_study'])
         {
