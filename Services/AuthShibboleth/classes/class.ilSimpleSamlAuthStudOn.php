@@ -109,15 +109,15 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
         }
         $ilias->account = $ilUser;
 
-        // set user authentified
+        // set current user
         $this->setAuth($login, $ilUser);
-        $this->writeAuthLog('login', $login);     // table ut_auth
         $_SESSION['AccountId'] = $ilUser->getId();
 
+        // Prepare the Single Log-Out function
         $this->prepareLogout();
 
-        // update the last login
-        ilObjUser::_updateLastLogin($ilUser->getId());
+        // handle successful login
+        $this->loginObserver();
 
         // check the authentication mode
         // this will redirect to the conversion screen for users with local auth mode
@@ -133,6 +133,53 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             ilUtil::redirect("index.php");
         }
 	}
+
+    /**
+     * Called after successful login
+     * TODO: The standard login observer can't be called because ShibAuth has no AuthContainer
+     *
+     * @see ilAuthBase::loginObserver
+     */
+    protected function loginObserver()
+    {
+        global $ilUser, $ilAppEventHandler;
+
+        // check for incomplete profile data
+        include_once "Services/User/classes/class.ilUserProfile.php";
+        if(ilUserProfile::isProfileIncomplete($ilUser))
+        {
+            $ilUser->setProfileIncomplete(true);
+            $ilUser->update();
+        }
+
+        include_once 'Services/Tracking/classes/class.ilOnlineTracking.php';
+        ilOnlineTracking::addUser($ilUser->getId());
+
+        include_once 'Modules/Forum/classes/class.ilObjForum.php';
+        ilObjForum::_updateOldAccess($ilUser->getId());
+
+        // set the last_login
+        $ilUser->refreshLogin();
+
+        // reset counter for failed logins
+        ilObjUser::_resetLoginAttempts($ilUser->getId());
+
+        // fim: [log] write own login log
+        $this->writeAuthLog('login', $ilUser->getLogin());
+        // fim.
+
+        // --- anonymous/registered user
+        ilLoggerFactory::getLogger('auth')->info(
+            'logged in as '.  $ilUser->getLogin() .
+            ', remote:' . $_SERVER['REMOTE_ADDR'] . ':' . $_SERVER['REMOTE_PORT'] .
+            ', server:' . $_SERVER['SERVER_ADDR'] . ':' . $_SERVER['SERVER_PORT']
+        );
+
+        $ilAppEventHandler->raise(
+            'Services/Authentication', 'afterLogin',
+            array('username' => $ilUser->getLogin())
+        );
+    }
 
     /**
      * Prepare the Single Log-Out function
@@ -216,76 +263,23 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             ));
         }
 
-        // check the availability of matriculation
-        //  if (empty($this->data->matriculation))
-        //  {
-        //      $this->handleFailedLogin('','ilias.php?baseClass=ilStartUpGUI&cmd=shibNotCreatable&target='.$_GET["target"]);
-        //  }
-
-        // provided data
+        // create an empty user object (this makes the user id available)
         $userObj = new ilObjUser();
-        $userObj->setLogin($login);
-
-        $userObj->setFirstname($this->data->firstname);
-        $userObj->setLastname($this->data->lastname);
-        $userObj->setGender($this->data->gender);
-        $userObj->setEmail($this->data->email);
-        $userObj->setMatriculation($this->data->matriculation);
-        $userObj->setExternalAccount($this->data->identity);
-        $userObj->setExternalPasswd($this->data->coded_password);
-
-        if (!empty($this->data->coded_password))
-        {
-            $userObj->setPasswd($this->data->coded_password, IL_PASSWD_SSHA);
-        }
-        else
-        {
-            $userObj->setPasswd(md5(end(ilUtil::generatePasswords(1))), IL_PASSWD_MD5);
-        }
-
-        // system data
-        $userObj->setAuthMode('shibboleth');
-        $userObj->setFullname();
-        $userObj->setTitle($userObj->getFullname());
-        $userObj->setDescription($userObj->getEmail());
-        $userObj->setLanguage($lng->getLangKey());
-
-        // time limit
-		if ($ilCust->getSetting('shib_create_limited'))
-		{
-			$limit = new ilDateTime($ilCust->getSetting('shib_create_limited'), IL_CAL_DATE);
-			$userObj->setTimeLimitUnlimited(0);
-			$userObj->setTimeLimitFrom(time());
-			$userObj->setTimeLimitUntil($limit->get(IL_CAL_UNIX));
-		}
-		else
-		{
-			$userObj->setTimeLimitUnlimited(1);
-			$userObj->setTimeLimitFrom(time());
-			$userObj->setTimeLimitUntil(time());
-		}
-		$userObj->setTimeLimitOwner(7);
-        $userObj->setLoginAttempts(0);
-
-        // create
         $userObj->create();
-        $userObj->setActive(1);
-        $userObj->updateOwner();
-        $userObj->saveAsNew();
 
-         // preferences
-        $userObj->setPref('hits_per_page', $ilSetting->get('hits_per_page', 30));
+        // set basic account data
+        $userObj->setLogin($login);
+        $userObj->setPasswd(end(ilUtil::generatePasswords(1)), IL_PASSWD_PLAIN);
+        $userObj->setLanguage($lng->getLangKey());
+        $userObj->setAuthMode('shibboleth');
+
+        // apply the IDM data and save the user data
+        $this->data->applyToUser($userObj, 'create');
+
+         // write the preferences
+        $userObj->setPref('hits_per_page', $ilSetting->get('hits_per_page'));
         $userObj->setPref('show_users_online', $ilSetting->get('show_users_online', 'y'));
         $userObj->writePrefs();
-
-        // study data
-        if (!empty($this->data->studies))
-        {
-            ilStudyData::_saveStudyData($userObj->getId(), $this->data->studies);
-        }
-
-        // update role assignments
-        ilShibbolethRoleAssignmentRules::updateAssignments($userObj->getId(), (array) $this->data);
 
         return $userObj;
     }
@@ -296,8 +290,6 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
      */
     protected function getUpdatedUser($uid)
     {
-        global $ilSetting, $ilCust;
-
         $userObj = new ilObjUser($uid);
 
         // activate a timed out account via shibboleth
@@ -329,67 +321,8 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
             unset($_SESSION["SHIBBOLETH_CONVERSION"]);
         }
 
-        // update the profile fields if auth mode is shibboleth
-        if ($userObj->getAuthMode() == "shibboleth")
-        {
-            if (!empty($this->data->firstname)) {
-                $userObj->setFirstname($this->data->firstname);
-            }
-            if (!empty($this->data->lastname)) {
-                $userObj->setLastname($this->data->lastname);
-            }
-            if (!empty($this->data->gender)) {
-                $userObj->setGender($this->data->gender);
-            }
-            if (!empty($this->data->email)
-                and ($userObj->getEmail() == '' or $userObj->getEmail() == $ilSetting->get('mail_external_sender_noreply')))
-            {
-                $userObj->setEmail($this->data->email);
-            }
-            if (!empty($this->data->coded_password)) {
-                $userObj->setPasswd($this->data->coded_password, IL_PASSWD_SSHA);
-            }
-
-            // dependent system data
-            $userObj->setFullname();
-            $userObj->setTitle($userObj->getFullname());
-            $userObj->setDescription($userObj->getEmail());
-        }
-
-        // time limit and activation
-        if ($ilCust->getSetting('shib_create_limited'))
-        {
-            $limit = new ilDateTime($ilCust->getSetting('shib_create_limited'), IL_CAL_DATE);
-            $userObj->setTimeLimitUnlimited(0);
-            $userObj->setTimeLimitFrom(time());
-            $userObj->setTimeLimitUntil($limit->get(IL_CAL_UNIX));
-        }
-        else
-        {
-            $userObj->setTimeLimitUnlimited(1);
-            $userObj->setTimeLimitFrom(time());
-            $userObj->setTimeLimitUntil(time());
-        }
-        $userObj->setActive(1, 6);
-        $userObj->setTimeLimitOwner(7);
-        $userObj->setLoginAttempts(0);
-
-        // always update external account and password
-        $userObj->setExternalAccount($this->data->identity);
-        $userObj->setExternalPasswd($this->data->coded_password);
-
-        // always update matriculation number and study data
-        if (!empty($this->data->matriculation)) {
-            $userObj->setMatriculation($this->data->matriculation);
-        }
-        if (!empty($this->data->studies)) {
-            ilStudyData::_saveStudyData($userObj->getId(), $this->data->studies);
-        }
-
-        $userObj->update();
-
-        // update role assignments
-        ilShibbolethRoleAssignmentRules::updateAssignments($userObj->getId(), (array) $this->data);
+        // apply the IDM data and update the user
+        $this->data->applyToUser($userObj, 'update');
 
         return $userObj;
     }

@@ -90,18 +90,23 @@ class ilIdmData
     {
         if (isset($identity))
         {
-            $this->identity = $identity;
-            $this->read();
+            $this->read($identity);
         }
     }
 
 
     /**
      * Read the identity data from the idm database
-     * @return boolean
+     * @param   string      $identity
+     * @return  boolean
      */
-    public function read()
+    public function read($identity = null)
     {
+        if (isset($identity))
+        {
+            $this->identity = $identity;
+        }
+
         require_once ('Services/Idm/classes/class.ilDBIdm.php');
         $ilDBIdm = ilDBIdm::getInstance();
 
@@ -111,6 +116,10 @@ class ilIdmData
         {
             $this->setRawData($rawdata);
             return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -211,5 +220,89 @@ class ilIdmData
                 }
             }
         }
+    }
+
+    /**
+     * Apply the basic IDM data to a user account
+     * Note: the id must exist
+     *
+     * @param   ilObjUser   $userObj
+     * @param   string      $mode   'create' or 'update'
+     */
+    public function applyToUser(ilObjUser $userObj, $mode = 'update')
+    {
+        global $ilSetting, $ilCust;
+
+        // update the profile fields if auth mode is shibboleth
+        if ($userObj->getAuthMode() == "shibboleth")
+        {
+            if (!empty($this->firstname)) {
+                $userObj->setFirstname($this->firstname);
+            }
+            if (!empty($this->lastname)) {
+                $userObj->setLastname($this->lastname);
+            }
+            if (!empty($this->gender)) {
+                $userObj->setGender($this->gender);
+            }
+            if (!empty($this->email)
+                and (empty($userObj->getEmail()) or $userObj->getEmail() == $ilSetting->get('mail_external_sender_noreply')))
+            {
+                $userObj->setEmail($this->email);
+            }
+            if (!empty($this->coded_password)) {
+                $userObj->setPasswd($this->coded_password, IL_PASSWD_SSHA);
+            }
+
+            // dependent system data
+            $userObj->setFullname();
+            $userObj->setTitle($userObj->getFullname());
+            $userObj->setDescription($userObj->getEmail());
+        }
+
+        // always update external account and password
+        $userObj->setExternalAccount($this->identity);
+        $userObj->setExternalPasswd($this->coded_password);
+
+        // time limit and activation
+        if ($ilCust->getSetting('shib_create_limited'))
+        {
+            $limit = new ilDateTime($ilCust->getSetting('shib_create_limited'), IL_CAL_DATE);
+            $userObj->setTimeLimitUnlimited(0);
+            $userObj->setTimeLimitFrom(time());
+            $userObj->setTimeLimitUntil($limit->get(IL_CAL_UNIX));
+        }
+        else
+        {
+            $userObj->setTimeLimitUnlimited(1);
+            $userObj->setTimeLimitFrom(time());
+            $userObj->setTimeLimitUntil(time());
+        }
+        $userObj->setActive(1, 6);
+        $userObj->setTimeLimitOwner(7);
+
+        // always update matriculation number
+        if (!empty($this->matriculation)) {
+            $userObj->setMatriculation($this->matriculation);
+        }
+
+        // insert the user data if account is newly created
+        if ($mode == 'create') {
+            $userObj->saveAsNew();
+        }
+
+        // always update the account (this also updates the object title and description)
+        $userObj->update();
+
+
+        if (!empty($this->studies)) {
+
+            require_once('Services/StudyData/classes/class.ilStudyData.php');
+            ilStudyData::_saveStudyData($userObj->getId(), $this->studies);
+        }
+
+        // update role assignments
+        require_once('Services/AuthShibboleth/classes/class.ilShibbolethRoleAssignmentRules.php');
+        ilShibbolethRoleAssignmentRules::updateAssignments($userObj->getId(), (array) $this);
     }
 }

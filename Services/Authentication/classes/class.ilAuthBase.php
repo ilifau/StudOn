@@ -124,6 +124,15 @@ abstract class ilAuthBase
 			if($user_id != ANONYMOUS_USER_ID)
 			{
 				$user = new ilObjUser($user_id);
+
+// fau: ilIdmData - apply IDM data at local login
+				include_once "Services/Idm/classes/class.ilIdmData.php";
+				$idmData = new ilIdmData();
+				if ($idmData->read($a_username))
+				{
+					$idmData->applyToUser($user,'update');
+				}
+// fau.
 					
 			    // check if profile is complete						
 				include_once "Services/User/classes/class.ilUserProfile.php";

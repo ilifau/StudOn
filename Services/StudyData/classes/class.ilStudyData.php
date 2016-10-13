@@ -272,7 +272,7 @@ class ilStudyData
 	* @param    int     	user id
 	* @param    array   	list of assoc study data arrays with nested subjects
 	*/
-	function _saveStudyData($a_user_id, $a_data)
+	static function _saveStudyData($a_user_id, $a_data)
 	{
 		global $ilDB;
 		

@@ -1702,9 +1702,8 @@ class ilStartUpGUI
 
 		if ($a_logout)
 		{
-			$ilAuth->logout();
-			session_destroy();
-			session_start();
+			$ilAuth->setAuth('anonymous');
+			ilSession::set("AccountId", ANONYMOUS_USER_ID);
 		}
 
 		ilUtil::redirect($link);
