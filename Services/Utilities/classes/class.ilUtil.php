@@ -3720,6 +3720,8 @@ class ilUtil
 			var_dump($_POST);
 			echo '<br/>$_COOKIE:</br/>';
 			var_dump($_COOKIE);
+			echo '<br/>$_SESSION:</br/>';
+			var_dump($_SESSION);
 			echo '</pre>';
 			exit;
   		}
