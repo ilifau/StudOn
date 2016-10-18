@@ -392,7 +392,7 @@
 <#19>
 <?php
 	/**
-	 * Add backtrace info to the benchmark data
+	 * fau: extendBenchmark - Add backtrace info to the benchmark data
 	 */
 	if (!$ilDB->tableColumnExists('benchmark', 'backtrace'))
 	{

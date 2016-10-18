@@ -246,7 +246,7 @@ class ilIdmData
                 $userObj->setGender($this->gender);
             }
             if (!empty($this->email)
-                and (empty($userObj->getEmail()) or $userObj->getEmail() == $ilSetting->get('mail_external_sender_noreply')))
+                and (is_null($userObj->getEmail()) || $userObj->getEmail() == '' || $userObj->getEmail() == $ilSetting->get('mail_external_sender_noreply')))
             {
                 $userObj->setEmail($this->email);
             }
