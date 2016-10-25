@@ -166,7 +166,9 @@ abstract class ilMailTemplateContext
 				break;
 			
 			case 'ilias_url' == $placeholder_id:
-				$resolved = ILIAS_HTTP_PATH . '/login.php?client_id=' . CLIENT_ID;
+// fau: shortInstallationSignature - use short link also in template
+				$resolved = ILIAS_HTTP_PATH;
+// fau.
 				break;
 
 			case 'client_name' == $placeholder_id:
