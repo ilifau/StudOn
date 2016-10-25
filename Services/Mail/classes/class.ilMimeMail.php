@@ -343,8 +343,12 @@ class ilMimeMail
 		}
 		else
 		{
+// fau: mailFromVia - generate From header with user name
+			global $lng;
+			$lng->loadLanguageModule('mail');
 			$mail->addReplyTo($this->xheaders['From'], $this->xheaders['FromName']);
-			$mail->setFrom($addr[0], $addr[1]);
+			$mail->setFrom($addr[0], sprintf($lng->txt('mail_from_via'), $this->xheaders['FromName'], $addr[1]));
+// fau.
 		}
 		foreach($this->sendto as $recipients)
 		{
