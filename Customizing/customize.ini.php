@@ -74,6 +74,7 @@ local_auth_matriculation_as_username = "0" 	;allow local login with matriculatio
 
 lp_refreshes_limit = "0"				;fau: lpRefreshesLimit - limit allowed status refreshes when learning progress is shown
 
+mail_by_soap = "1"						;fau: mailBySoap - switch sending of external mails in the background
 media_player_version = ""               ;customized version of the media element player, e.g. 2_9_5
 
 mycampus_enabled = "0"                  ;enable my campus registration

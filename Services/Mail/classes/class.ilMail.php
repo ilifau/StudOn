@@ -369,10 +369,18 @@ class ilMail
 		}
 
 
-		// fim: [mail] don't use soap to  send mime mails
-		// return (bool) $this->soap_enabled;
-		return false;
-		// fim.
+// fau: mailBySoap - use an customizing switch to enable Mails being sent by SOAP
+		global $ilCust;
+
+		if ($ilCust->getSetting('mail_by_soap'))
+		{
+			return (bool) $this->soap_enabled;
+		}
+		else
+		{
+			return false;
+		}
+// fau.
 	}
 
 
@@ -2705,11 +2713,9 @@ class ilMail
 		$http_path = ilUtil::_getHttpPath();
 
 		$lang->loadLanguageModule('mail');
-		// fim: [mail] use StudOn instead of ILIAS as default
 		return sprintf($lang->txt('mail_auto_generated_info'),
-			$ilSetting->get('inst_name','StudOn'),
+			$ilSetting->get('inst_name','ILIAS 5'),
 			$http_path)."\n\n";
-		// fim.
 	}
 
 	/**
@@ -2734,9 +2740,7 @@ class ilMail
 			return $ilSetting->get('short_inst_name');
 		}
 
-		// fim: [mail] use StudOn instead of ILIAS
-		return 'StudOn';
-		// fim.
+		return 'ILIAS';
 	}
 
 	/**
@@ -2772,9 +2776,9 @@ class ilMail
 
 		$signature = "\n\n* * * * *\n";
 
-		// fim: [mail] don't add client name to signature
+// fau: shortInstallationSignature - don't add client name to signature and link
 		// $signature .= $ilClientIniFile->readVariable('client', 'name')."\n";
-		// fim.
+
 		if(strlen($desc = $ilClientIniFile->readVariable('client', 'description')))
 		{
 			$signature .= $desc."\n";
@@ -2782,16 +2786,15 @@ class ilMail
 		
 		$signature .= ilUtil::_getHttpPath();
 
-		/* fim: [mail] don't add client id to link (only one client exists)
-		$clientdirs = glob(ILIAS_WEB_DIR."/*", GLOB_ONLYDIR);
-		if(is_array($clientdirs) && count($clientdirs) > 1)
-		{
-			// #18051
-			$signature .= '/login.php?client_id='.CLIENT_ID;
-		}
-		
-		$signature .= "\n\n";
-		fim. */
+//		$clientdirs = glob(ILIAS_WEB_DIR."/*", GLOB_ONLYDIR);
+//		if(is_array($clientdirs) && count($clientdirs) > 1)
+//		{
+//			// #18051
+//			$signature .= '/login.php?client_id='.CLIENT_ID;
+//		}
+//
+//		$signature .= "\n\n";
+// fau.
 
 		return $signature;
 	}
@@ -2828,7 +2831,7 @@ class ilMail
 		{
 			return $lang->txt('mail_salutation_anonymous').',';
 		}
-		// fim: [mail] use gender specific salutation in German
+// fau: genderSalutation - use gender specific salutation in German
 		elseif ($gender != 'n' and $lang->getLangKey() == 'de')
 		{
 			return $lang->txt('mail_salutation_'.$gender).' '.
@@ -2842,7 +2845,7 @@ class ilMail
 				($name['firstname'] ? $name['firstname'].' ' : '').
 				$name['lastname'].',';
 		}
-		// fim.
+// fau.
 	}
 
 	private function setUsePear($bool)

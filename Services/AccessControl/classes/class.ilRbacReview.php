@@ -472,10 +472,10 @@ class ilRbacReview
 				$use_phrase = false;
 			}
 
-			// fim: [mail] always use unambiguous role addresses without domain
+// fau: mailToRoleAddress - always use unambiguous role addresses without domain
 			$domain = null;
 			$local_part = $unambiguous_role_title;
-			// fim.
+// fau.
 
 			// Add a "#" prefix to the local part
 			$local_part = '#'.$local_part;
