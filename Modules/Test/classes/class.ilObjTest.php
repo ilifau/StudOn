@@ -127,22 +127,21 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 	 */
 	protected $introduction;
 
-	/**
+// fau: testGradingMessage - define class variables
 /**
-* fim: [exam] Message for passed test
+*  Message for passed test
 *
 * @var string
 */
   var $mark_tst_passed;
-// fim.
 
 /**
-* fim: [exam] Message for failed test
+* Message for failed test
 *
 * @var string
 */
   var $mark_tst_failed;
-// fim.
+// fau.
 
 /**
 * Defines the mark schema
@@ -676,10 +675,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 		$this->testSequence = FALSE;
 		$this->mailnotification = 0;
 		$this->poolUsage = 1;
-		// fim: [exam] init mark messages
+// fau: testGradingMessage - init messages
 		$this->mark_tst_passed = "";
 		$this->mark_tst_failed = "";
-		// fim.
+// fau.
 		$this->ects_grades = array(
 			'A' => 90,
 			'B' => 65,
@@ -1261,10 +1260,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 		$result = array();
 		array_push($result, $this->getIntroduction());
 		array_push($result, $this->getFinalStatement());
-		// fim: [exam] push mark messages to RTE content
+// fau: testGradingMessage - push mark messages to RTE content
 		array_push($result, $this->getMarkTstPassed());
 		array_push($result, $this->getMarkTstFailed());
-		// fim.
+// fau.
 		return $result;
 	}
 	
@@ -1316,10 +1315,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 				'intro_enabled'              => array('integer', (int)$this->isIntroductionEnabled()),
 				'introduction'               => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getIntroduction(), 0)),
 				'finalstatement'             => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getFinalStatement(), 0)),
-				// fim: [exam] save mark messages to db
+// fau: testGradingMessage - save mark messages to db
 				'mark_tst_passed' 			 => array('text', $this->getMarkTstPassed()),
 				'mark_tst_failed'			 => array('text', $this->getMarkTstFailed()),
-				// fim.
+// fau.
 				'showinfo'                   => array('integer', $this->getShowInfo()),
 				'forcejs'                    => array('integer', $this->getForceJS()),
 				'customstyle'                => array('text', $this->getCustomStyle()),
@@ -1442,10 +1441,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 						'intro_enabled'              => array('integer', (int)$this->isIntroductionEnabled()),
 						'introduction'               => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getIntroduction(), 0)),
 						'finalstatement'             => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getFinalStatement(), 0)),
-						// fim: [exam] save mark messages to db
+// fau: testGradingMessage - save mark messages to db
 						'mark_tst_passed'			 => array('text', $this->getMarkTstPassed()),
 						'mark_tst_failed'			 => array('text', $this->getMarkTstFailed()),
-						// fim.
+// fau.
 						'showinfo'                   => array('integer', $this->getShowInfo()),
 						'forcejs'                    => array('integer', $this->getForceJS()),
 						'customstyle'                => array('text', $this->getCustomStyle()),
@@ -1938,10 +1937,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 			$this->setIntroduction(ilRTE::_replaceMediaObjectImageSrc($data->introduction, 1));
 			$this->setShowInfo($data->showinfo);
 			$this->setFinalStatement(ilRTE::_replaceMediaObjectImageSrc($data->finalstatement, 1));
-			// fim: [exam] set mark messages from DB
+// fau: testGradingMessage - set mark messages from DB
 			$this->setMarkTstPassed($data->mark_tst_passed);
 			$this->setMarkTstFailed($data->mark_tst_failed);
-			// fim.
+// fau.
 			$this->setForceJS($data->forcejs);
 			$this->setCustomStyle($data->customstyle);
 			$this->setShowFinalStatement($data->showfinalstatement);
@@ -2163,8 +2162,9 @@ function loadQuestions($active_id = "", $pass = NULL)
 		$this->_finalstatement = $a_statement;
 	}
 
+// fau: testGradingMessage - new functions setMarkTstPassed(), setMarkTstFailed
 	/**
-	* fim: [exam] sets the mark message for passed tests
+	* Set the mark message for passed tests
 	*
 	* @param 	string 	mark message (with placeholders)
 	* @see $mark_tst_passed
@@ -2176,7 +2176,7 @@ function loadQuestions($active_id = "", $pass = NULL)
 	// fim.
 
 	/**
-	* fim: [exam] sets the mark message for failed tests
+	* Set the mark message for failed tests
 	*
 	* @param 	string 	mark message (with placeholders)
 	* @see $mark_tst_failed
@@ -2185,7 +2185,7 @@ function loadQuestions($active_id = "", $pass = NULL)
 	{
 		$this->mark_tst_failed = $a_mark;
 	}
-	// fim.
+// fau.
 
 
 	/**
@@ -2320,8 +2320,9 @@ function loadQuestions($active_id = "", $pass = NULL)
 		return (strlen($this->_finalstatement)) ? $this->_finalstatement : NULL;
 	}
 
+// fau: testGradingMessage - getMarkTstPassed() and getMarkTstFailed()
 	/**
-	* fim: [exam] Gets the mark message for passed tests
+	* Gets the mark message for passed tests
 	*
 	* @return 	string 	mark message (with placeholders)
 	* @see $mark_tst_passed
@@ -2330,10 +2331,9 @@ function loadQuestions($active_id = "", $pass = NULL)
 	{
 		return (strlen($this->mark_tst_passed)) ? $this->mark_tst_passed : NULL;
 	}
-	// fim.
 
 	/**
-	* fim: [exam] Gets the mark message for failes tests
+	* Gets the mark message for failes tests
 	*
 	* @return 	string 	mark message (with placeholders)
 	* @see $mark_tst_failed
@@ -2342,7 +2342,7 @@ function loadQuestions($active_id = "", $pass = NULL)
 	{
 		return (strlen($this->mark_tst_failed)) ? $this->mark_tst_failed : NULL;
 	}
-	// fim.
+// fau.
 
 
 	/**
@@ -6052,14 +6052,14 @@ function getAnswerFeedbackPoints()
 					}
 					break;
                 // fim.
-				// fim: [exam] get mark messages from XML
+// fau: testGradingMessage - get mark messages from XML
 				case "mark_tst_passed":
 					$this->setMarkTstPassed($metadata["entry"]);
 					break;
 				case "mark_tst_failed":
 					$this->setMarkTstFailed($metadata["entry"]);
 					break;
-				// fim.
+// fau.
 				case "enable_examview":
 					$this->setEnableExamview($metadata["entry"]);
 					break;
@@ -6668,7 +6668,7 @@ function getAnswerFeedbackPoints()
 		}
 		$a_xml_writer->xmlEndTag("qtimetadata");
 
-		// fim: [exam] write mark messages to XML
+// fau: testGradingMessage - write mark messages to XML
 		$a_xml_writer->xmlStartTag("qtimetadatafield");
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "mark_tst_passed");
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->getMarkTstPassed());
@@ -6678,7 +6678,7 @@ function getAnswerFeedbackPoints()
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "mark_tst_failed");
 		$a_xml_writer->xmlElement("fieldentry", NULL, $this->getMarkTstFailed());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
-		// fim.
+// fau.
 
 		// add qti objectives
 		$a_xml_writer->xmlStartTag("objectives");
@@ -7284,10 +7284,10 @@ function getAnswerFeedbackPoints()
 		$newObj->setIntroductionEnabled($this->isIntroductionEnabled());
 		$newObj->setIntroduction($this->getIntroduction());
 		$newObj->setFinalStatement($this->getFinalStatement());
-		// fim: [exam] clone mark messages
+// fau: testGradingMessage - clone mark messages
 		$newObj->setMarkTstPassed($this->getMarkTstPassed());
 		$newObj->setMarkTstFailed($this->getMarkTstFailed());
-		// fim.
+// fau.
 		$newObj->setShowInfo($this->getShowInfo());
 		$newObj->setForceJS($this->getForceJS());
 		$newObj->setCustomStyle($this->getCustomStyle());

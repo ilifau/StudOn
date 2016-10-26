@@ -35,6 +35,10 @@ class ilTestGradingMessageBuilder
 	 */
 	private $activeId;
 
+// fau: testGradingMessage - initialize the message text
+	private $messageText = array();
+// fau.
+
 	/**
 	 * @param ilLanguage $lng
 	 * @param ilObjTest $testOBJ
@@ -82,12 +86,12 @@ class ilTestGradingMessageBuilder
 
 	private function addMessagePart($msgPart)
 	{
-		// fim: [exam] avoid spaces for empty grading status message
+// fau: testGradingMessage -  avoid spaces for empty grading status message
 		if (!empty($msgPart))
 		{
 			$this->messageText[] = $msgPart;
 		}
-		// fim.
+// fau.
 	}
 
 	private function getFullMessage()
@@ -134,7 +138,7 @@ class ilTestGradingMessageBuilder
 
 	private function buildGradingStatusMsg()
 	{
-		// fim: [exam] build grading status message only if no specific mark message is configured
+// fau: testGradingMessage - build grading status message only if no specific mark message is configured
 		if( $this->isPassed())
 		{
 			$markMsg = $this->testOBJ->getMarkTstPassed();
@@ -143,10 +147,10 @@ class ilTestGradingMessageBuilder
 
 		$markMsg = $this->testOBJ->getMarkTstFailed();
 		return empty($markMsg) ? $this->lng->txt('grading_status_failed_msg') : '';
-		// fim.
+// fau.
 	}
 
-	// fim: [exam] allow public call andd use test specific mark messages
+// fau: testGradingMessage - allow public call and use test specific mark messages
 	public function buildGradingMarkMsg()
 	{
 		if ($this->isPassed())
@@ -171,7 +175,7 @@ class ilTestGradingMessageBuilder
 
 		return $markMsg;
 	}
-	// fim.
+// fau.
 
 	private function getMarkOfficial()
 	{

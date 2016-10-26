@@ -481,7 +481,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 		$chb_resulting_mark_only->setChecked($this->testOBJ->isShowGradingMarkEnabled());
 		$form->addItem($chb_resulting_mark_only);
 
-		// fim: [exam] add fields for passed / failed messages
+// fau: testGradingMessage - add fields for passed / failed messages
 		$mark = new ilTextAreaInputGUI($this->lng->txt("tst_mark_tst_passed"), "mark_tst_passed");
 		$mark->setRows(3);
 		$mark->setUseRte(true);
@@ -497,7 +497,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 		$mark->setValue($this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstFailed()));
 		$mark->setInfo($this->lng->txt("tst_mark_tst_failed_details"));
 		$form->addItem($mark);
-		// fim.
+// fau.
 	}
 
 	/**
@@ -546,10 +546,10 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
 			);
 		}
 
-		// fim: [exam] save mark messages
+// fau: testGradingMessage - save mark messages
 		$this->testOBJ->setMarkTstPassed($form->getItemByPostVar('mark_tst_passed')->getValue());
 		$this->testOBJ->setMarkTstFailed($form->getItemByPostVar('mark_tst_failed')->getValue());
-		// fim.
+// fau.
 
 	}
 
