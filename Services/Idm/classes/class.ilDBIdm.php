@@ -19,28 +19,43 @@ class ilDBIdm extends ilDBInnoDB
 
 	/**
 	 * Get the idm database connection instance
-	 * @return ilDBIdm
+	 * @return ilDBIdm | null
 	 */
 	public static function getInstance()
 	{
 		/** @var ilCustomize $ilCust */
 		global $ilCust;
 
-		if (!isset(self::$instance))
+		try
 		{
-			$instance = new ilDBIdm;
-			$instance->setSubType("mysqli");
+			if (!$ilCust->getSetting('idm_host'))
+			{
+				return null;
+			}
 
-			$instance->setDBHost($ilCust->getSetting('idm_host'));
-			$instance->setDBPort($ilCust->getSetting('idm_port'));
-			$instance->setDBUser($ilCust->getSetting('idm_user'));
-			$instance->setDBPassword($ilCust->getSetting('idm_pass'));
-			$instance->setDBName($ilCust->getSetting('idm_name'));
-			$instance->connect();
-			self::$instance = $instance;
+			if (!isset(self::$instance))
+			{
+				$instance = new ilDBIdm;
+				$instance->setSubType("mysqli");
+
+				$instance->setDBHost($ilCust->getSetting('idm_host'));
+				$instance->setDBPort($ilCust->getSetting('idm_port'));
+				$instance->setDBUser($ilCust->getSetting('idm_user'));
+				$instance->setDBPassword($ilCust->getSetting('idm_pass'));
+				$instance->setDBName($ilCust->getSetting('idm_name'));
+				if (!$instance->connect(true))
+				{
+					return null;
+				}
+				self::$instance = $instance;
+			}
+
+			return self::$instance;
 		}
-
-		return self::$instance;
+		catch (Exception $e)
+		{
+			return null;
+		}
 	}
 
 	/**
