@@ -109,6 +109,10 @@ class ilIdmData
 
         require_once ('Services/Idm/classes/class.ilDBIdm.php');
         $ilDBIdm = ilDBIdm::getInstance();
+        if (!isset($ilDBIdm))
+        {
+            return false;
+        }
 
         $query = "SELECT * FROM identities WHERE pk_persistent_id = ". $ilDBIdm->quote($this->identity,'text');
         $result = $ilDBIdm->query($query);
