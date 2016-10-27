@@ -1756,7 +1756,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$opt->setInfo($this->lng->txt('crs_lot_info'));
 		$maxmode->addOption($opt);
 
-		$opt = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'),'waiting_list');
+		$opt = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'),'waiting_list_auto_fill');
 		$opt->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
 		$maxmode->addOption($opt);
 

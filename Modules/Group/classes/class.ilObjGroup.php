@@ -2205,7 +2205,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 						continue;
 					}
 					$this->getMembersObject()->add($user_id,IL_GRP_MEMBER); // #18213
-					$this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_ACCEPT_USER,$user_id);
+// fau: waitingList - set correct notification
+					include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
+					$this->getMembersObject()->sendNotification(ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER,$user_id);
+// fau.
 					$waiting_list->removeFromList($user_id);
 
 					$now++;
