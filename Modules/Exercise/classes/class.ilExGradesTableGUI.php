@@ -170,7 +170,7 @@ class ilExGradesTableGUI extends ilTable2GUI
 			$this->tpl->setVariable("TXT_PASSED", $lng->txt("exc_passed"));
 			$this->tpl->setVariable("TXT_FAILED", $lng->txt("exc_failed"));
 			$this->tpl->setVariable("VAL_ID", $user_id);
-			if (($sd = ilObjExercise::_lookupStatusTime($this->exc_id, $user_id)) > 0)
+			if (($sd = ilExerciseMembers::_lookupStatusTime($this->exc_id, $user_id)) > 0)
 			{
 				$this->tpl->setVariable("TXT_LAST_CHANGE", $lng->txt("last_change"));
 				$this->tpl->setVariable('VAL_STATUS_DATE',

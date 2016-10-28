@@ -313,6 +313,27 @@ class ilExerciseMembers
 		return false;
 	}
 
+// fim: [exercise] new function lookupStatusTime
+	/**
+	 * Get time when exercise has been set to solved.
+	 */
+	function _lookupStatusTime($exc_id, $member_id)
+	{
+
+		global $ilDB, $lng;
+
+		$q = "SELECT * ".
+			"FROM exc_members ".
+			"WHERE obj_id= ".$ilDB->quote($exc_id, "integer").
+			" AND usr_id= ".$ilDB->quote($member_id, "integer");
+
+		$set = $ilDB->query($q);
+		if ($rec = $ilDB->fetchAssoc($set))
+		{
+			return ilUtil::getMySQLTimestamp($rec["status_time"]);
+		}
+	}
+// fim.
 
 	/**
 	 * Write user status
