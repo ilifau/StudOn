@@ -18,12 +18,11 @@ class ilExCalculateGUI
 	/**
 	 * Constructor
 	 */
-	function __construct($a_parent_gui)
+	function __construct($a_object)
 	{
 		global $tpl;
-		
-		$this->parent_gui = $a_parent_gui;
-		$this->object = $a_parent_gui->object;
+
+		$this->object = $a_object;
 		$this->calc = new ilExCalculate($this->object);
 		
 		$this->tpl = $tpl;

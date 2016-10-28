@@ -57,10 +57,8 @@ class ilExerciseManagementGUI
 		{
 			// fim: [exercise] call calculation GUI
 			case "ilexcalculategui":
-				$this->checkPermission("write");
-
 				include_once("./Modules/Exercise/classes/class.ilExCalculateGUI.php");
-				$calc_gui =& new ilExCalculateGUI($this);
+				$calc_gui = new ilExCalculateGUI($this->exercise);
 				$ilTabs->activateTab("grades");
 				$this->ctrl->setReturn($this,'showGradesOverview');
 				$this->ctrl->forwardCommand($calc_gui);
