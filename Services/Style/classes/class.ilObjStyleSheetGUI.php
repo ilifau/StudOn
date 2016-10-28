@@ -235,7 +235,7 @@ class ilObjStyleSheetGUI extends ilObjectGUI
 		$this->tpl->setContent($ctpl->get());
 	}
 
-	// fim: [content] edit custom css
+// fau: customCss - edit custom css
 
 	function editCustomCssObject()
 	{
@@ -280,7 +280,7 @@ class ilObjStyleSheetGUI extends ilObjectGUI
 		ilUtil::sendInfo($lng->txt("msg_obj_modified"), true);
 		$this->ctrl->redirect($this, "editCustomCss");
 	}
-	// fim.
+// fau.
 
 	/**
 	* Properties
@@ -1239,11 +1239,11 @@ class ilObjStyleSheetGUI extends ilObjectGUI
 				$this->ctrl->getLinkTarget($this, "listTemplates"), "listTemplates",
 				get_class($this));
 
-			// fim: [content] tab for custom css
+// fau: customCss - tab for custom css
 			$tabs_gui->addTarget("sty_custom_css",
 				$this->ctrl->getLinkTarget($this, "editCustomCss"), "editCustomCss",
 				get_class($this));
-			// fim.
+// fau.
 				
 			// settings
 			$tabs_gui->addTarget("settings",

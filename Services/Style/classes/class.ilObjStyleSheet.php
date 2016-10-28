@@ -626,7 +626,7 @@ class ilObjStyleSheet extends ilObject
 		return $this->scope;
 	}
 
-	// fim: [content] set/get custom css
+// fau: customCss - set/get custom css
 	/**
 	 * Set custom css code
 	 */
@@ -642,7 +642,7 @@ class ilObjStyleSheet extends ilObject
 	{
 		return $this->custom_css;
 	}
-	// fim.
+// fau.
 
 	/**
 	* Write up to date
@@ -961,7 +961,7 @@ class ilObjStyleSheet extends ilObject
 			}
 
 
-			// fim: [content] add style_data record with custom css
+// fau: customCss - add style_data record with custom css
 			$q = "SELECT * FROM style_data WHERE id = ".
 				$ilDB->quote($a_from_style, "integer");
 			$data_set = $ilDB->query($q);
@@ -975,7 +975,7 @@ class ilObjStyleSheet extends ilObject
 				"custom_css" => array("clob", $this->getCustomCss())
 				)
 			);
-			// fim.
+// fau.
 			
 			// copy images
 			$this->createImagesDirectory();
@@ -1205,9 +1205,9 @@ class ilObjStyleSheet extends ilObject
 		$new_obj->setTitle($this->getTitle()." (".$lng->txt("sty_acopy").")");
 		$new_obj->setType($this->getType());
 		$new_obj->setDescription($this->getDescription());
-		// fim: [content] clone custom css
+// fau: customCss - clone custom css
 		$new_obj->setCustomCss($this->getCustomCss());
-		// fim.
+// fau.
 		$new_obj->create($this->getId());
 		
 		$new_obj->writeStyleSetting("disable_auto_margins",
@@ -1589,9 +1589,9 @@ class ilObjStyleSheet extends ilObject
 		$sty = $ilDB->fetchAssoc($res);
 		$this->setUpToDate((boolean) $sty["uptodate"]);
 		$this->setScope($sty["category"]);
-		// fim: [content] read custom css from database
+// fau: customCss - read custom css from database
 		$this->setCustomCss($sty["custom_css"]);
-		// fim.
+// fau.
 
 		// get style characteristics records
 		$this->chars = array();
@@ -1784,7 +1784,7 @@ class ilObjStyleSheet extends ilObject
 			}
 		}
 
-		// fim: [content] write custom css
+// fau: customCss - write custom css
 		$custom = $this->getCustomCss();
 
 		foreach ($this->getImages() as $image)
@@ -1796,7 +1796,7 @@ class ilObjStyleSheet extends ilObject
 		{
 			$custom = preg_replace_callback('/!('.$color['name'].')(\(\-?[0-9]+\))?/', array($this,'replaceColorNameCallback'), $custom);
 		}
-		// fim.
+// fau.
 
 		if (!empty($custom))
 		{
@@ -1808,15 +1808,16 @@ class ilObjStyleSheet extends ilObject
 		$this->_writeUpToDate($this->getId(), true);
 	}
 
+// fau: customCss - new function replaceColorNameCallback
 	/**
-	 * fim: [content] callbak function to replace color names
+	 * Callback function to replace color names
 	 * @param $matches
 	 * @return string
 	 */
 	function replaceColorNameCallback($matches) {
 		return $this->getColorCodeForName($matches[1].$matches[2]);
 	}
-	// fim.
+// fau.
 
 	/**
 	* Get effective Style Id
@@ -1945,7 +1946,7 @@ class ilObjStyleSheet extends ilObject
 		global $ilDB;
 
 		parent::update();
-		// fim: [content] update custom css in database
+// fau: customCss - update custom css in database
 		$custom_css = $this->getCustomCss();
 		$this->read();				// this could be done better
 		$this->setCustomCss($custom_css);
@@ -1960,7 +1961,7 @@ class ilObjStyleSheet extends ilObject
 					"id" => array("integer", $this->getId())
 				)
 		);
-		// fim.
+// fau.
 	}
 
 	/**
@@ -2123,12 +2124,12 @@ class ilObjStyleSheet extends ilObject
 			}
 		}
 
-		// fim: [content] write custom css to xml
+// fau: customCss - write custom css to xml
 		if ($this->getCustomCss())
 		{
 			$xml.="<CustomCss><![CDATA[".$this->getCustomCss()."]]></CustomCss>";
 		}
-		// fim.
+// fau.
 		
 		$xml.= "</StyleSheet>";
 //echo "<pre>".htmlentities($xml)."</pre>"; exit;
