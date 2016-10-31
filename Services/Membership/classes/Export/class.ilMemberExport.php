@@ -34,6 +34,7 @@ include_once('Modules/Group/classes/class.ilGroupParticipants.php');
 include_once('Modules/Group/classes/class.ilGroupWaitingList.php');
 include_once('Services/Membership/classes/class.ilSubscribersLot.php');
 include_once('Services/StudyData/classes/class.ilStudyData.php');
+include_once('Services/Tracking/classes/class.ilLPStatus.php');
 include_once('Services/Tracking/classes/class.ilLPMarks.php');
 // fim.
 
@@ -697,21 +698,25 @@ class ilMemberExport
 					case 'status':
 						if (in_array($usr_id, $this->lp_data[$key][LP_STATUS_COMPLETED]))
 						{
-							$status = LP_STATUS_COMPLETED;
+							$status = ilLPStatus::LP_STATUS_COMPLETED;
 						}
 						elseif (in_array($usr_id, $this->lp_data[$key][LP_STATUS_FAILED]))
 						{
-							$status = LP_STATUS_FAILED;
+							$status = ilLPStatus::LP_STATUS_FAILED;
 						}
 						elseif (in_array($usr_id, $this->lp_data[$key][LP_STATUS_IN_PROGRESS]))
 						{
-							$status = LP_STATUS_IN_PROGRESS;
+							$status = ilLPStatus::LP_STATUS_IN_PROGRESS;
 						}
 						else
 						{
-							$status = LP_STATUS_NOT_ATTEMPTED;
+							$status = ilLPStatus::LP_STATUS_NOT_ATTEMPTED;
 						}
 						$this->addCol($this->lng->txt($status), $row, $col++);
+						break;
+
+					case 'comments':
+						$this->addCol($this->lp_data[$key]['comments'][$usr_id]['u_comment'], $row, $col++);
 						break;
 
 					default:
@@ -857,7 +862,8 @@ class ilMemberExport
 		foreach($tree->getSubtree($tree->getNodeData($this->ref_id), true) as $data)
 		{
 			if (!$this->settings->enabled($data['type']. '_status')
-			and !$this->settings->enabled($data['type']. '_marks'))
+				and !$this->settings->enabled($data['type']. '_marks')
+				and !$this->settings->enabled($data['type']. '_comments'))
 			{
 				continue;
 			}
@@ -890,13 +896,18 @@ class ilMemberExport
 			}
 			ilDatePresentation::setUseRelativeDates($relative);
 
+			if ($this->settings->enabled($data['type']. '_marks') || $this->settings->enabled($data['type']. '_comments'))
+			{
+				$markData =  ilLPMarks::_getMarkDataOfObject($data['obj_id']);
+			}
+
 			if ($this->settings->enabled($data['type']. '_marks'))
 			{
 				$key = $basekey . "marks";
 				$this->lp_data[$key]['lp_type'] = 'marks';
 				$this->lp_data[$key]['title'] = $data['title'];
 				$this->lp_data[$key]['type'] = $data['type'];
-				$this->lp_data[$key]['marks'] = ilLPMarks::_getMarkDataOfObject($data['obj_id']);
+				$this->lp_data[$key]['marks'] = $markData;
 			}
 
 			if ($this->settings->enabled($data['type']. '_status'))
@@ -909,6 +920,16 @@ class ilMemberExport
 				$this->lp_data[$key][LP_STATUS_COMPLETED] = ilLPStatusWrapper::_getCompleted($data['obj_id']);
 				$this->lp_data[$key][LP_STATUS_FAILED] = ilLPStatusWrapper::_getFailed($data['obj_id']);
 			}
+
+			if ($this->settings->enabled($data['type']. '_comments'))
+			{
+				$key = $basekey . "comments";
+				$this->lp_data[$key]['lp_type'] = 'comments';
+				$this->lp_data[$key]['title'] = $data['title'];
+				$this->lp_data[$key]['type'] = $data['type'];
+				$this->lp_data[$key]['comments'] = $markData;
+			}
+
 		}
 
 		ksort($this->lp_data);

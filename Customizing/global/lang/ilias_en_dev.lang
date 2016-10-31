@@ -411,6 +411,7 @@ crs#:#event_not_registered#:#Not registered
 crs#:#export_lp_info#:#The determination of the status can be determined in the single contents on the tab "learning process" among "settings".<br />Some contents (Sessions, exercises) have additional overviews for editing the status and grade.<br /><em>The more you select, the longer the export takes.</em>
 crs#:#export_lp_marks#:#Grades/Credits
 crs#:#export_lp_status#:#Status
+crs#:#export_lp_comments#:#Comment
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
 exc#:#exc_calc_mark_function#:#Grades/Credits-Calculation

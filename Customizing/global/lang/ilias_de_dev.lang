@@ -408,6 +408,7 @@ crs#:#event_not_registered#:#Nicht angemeldet
 crs#:#export_lp_info#:#Die Bestimmung des Status können Sie in den einzelnen Inhalten auf dem Reiter "Lernfortschritt" unter "Einstellungen" festlegen.<br />Manche Inhalte (Sitzungen, Übungen) haben zusätzliche Übersichten zur Bearbeitung von Status und Note.<br /><em>Je mehr Sie auswählen, desto länger dauer der Export.</em>
 crs#:#export_lp_marks#:#Noten/Punkte
 crs#:#export_lp_status#:#Status
+crs#:#export_lp_comments#:#Kommentar
 exc#:#exc_calc_all_calculated#:#Alle Gesamtergebnisse wurden neu berechnet.
 exc#:#exc_calc_calculate#:#Berechnen
 exc#:#exc_calc_mark_function#:#Noten/Punkte-Berechnung

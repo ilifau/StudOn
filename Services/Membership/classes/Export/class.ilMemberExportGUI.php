@@ -55,8 +55,9 @@ class ilMemberExportGUI
 	 */
 	private $lp_objects = array
 	(
-		'sess' => array('status', 'marks'),
-		'exc' => array('status', 'marks'),
+		'crs' => array('status', 'marks', 'comments'),
+		'sess' => array('status', 'marks', 'comments'),
+		'exc' => array('status', 'marks', 'comments'),
 		'tst' => array('status'),
 		'grp' => array('status'),
 		'fold' => array('status'),
