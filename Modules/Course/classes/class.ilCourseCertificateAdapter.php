@@ -69,7 +69,18 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 		
 		$vars = $this->getBaseVariablesForPreview(false);
 		$vars["COURSE_TITLE"] = ilUtil::prepareFormOutput($this->object->getTitle());
-		
+
+// fau: courseDataCert - add custom fields for preview
+		require_once ('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+		foreach (ilCourseDefinedFieldDefinition::_getFields($this->object->getId()) as $field)
+		{
+			$name = str_replace('[', '(', $field->getName());
+			$name = str_replace(']', ')', $name);
+
+			$vars[$name] = $name;
+		}
+// fau.
+
 		$insert_tags = array();
 		foreach($vars as $id => $caption)
 		{
@@ -100,6 +111,20 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 		
 		$vars = $this->getBaseVariablesForPresentation($user_data, null, $completion_date);		
 		$vars["COURSE_TITLE"] = ilUtil::prepareFormOutput($this->object->getTitle());
+
+// fau: courseDataCert - add custom fields for presentation
+		require_once ('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+		require_once ('Modules/Course/classes/Export/class.ilCourseUserData.php');
+		foreach (ilCourseDefinedFieldDefinition::_getFields($this->object->getId()) as $field)
+		{
+			$name = str_replace('[', '(', $field->getName());
+			$name = str_replace(']', ')', $name);
+
+			$data = new ilCourseUserData($params["user_id"], $field->getId());
+			$value = $data->getValue();
+			$vars[$name] = empty($value) ? $lng->txt('unknown') : $value;
+		}
+// fau.
 		
 		$insert_tags = array();
 		foreach($vars as $id => $caption)
@@ -121,6 +146,17 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 		
 		$vars = $this->getBaseVariablesDescription(false);
 		$vars["COURSE_TITLE"] = $lng->txt("crs_title");
+
+// fau: courseDataCert - add custom fields as placeholders
+		require_once ('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+		foreach (ilCourseDefinedFieldDefinition::_getFields($this->object->getId()) as $field)
+		{
+			$name = str_replace('[', '(', $field->getName());
+			$name = str_replace(']', ')', $name);
+
+			$vars[$name] = $lng->txt('crs_custom_user_fields');
+		}
+// fau.
 				
 		$template = new ilTemplate("tpl.il_as_tst_certificate_edit.html", TRUE, TRUE, "Modules/Test");	
 		$template->setCurrentBlock("items");
