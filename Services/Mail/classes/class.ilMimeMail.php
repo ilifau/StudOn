@@ -337,13 +337,13 @@ class ilMimeMail
 
 		require_once 'Services/Mail/classes/class.ilMail.php';
 		$addr = ilMail::getIliasMailerAddress();
-		if($this->xheaders['From'] == $addr[0])
+// fau: mailFromVia - generate From header with user name if e-mail is sent from a user
+		if($this->xheaders['From'] == $addr[0] || $this->xheaders['From'] == $ilSetting->get('admin_email'))
 		{
 			$mail->setFrom($this->xheaders['From'], $this->xheaders['FromName']);
 		}
 		else
 		{
-// fau: mailFromVia - generate From header with user name
 			global $lng;
 			$lng->loadLanguageModule('mail');
 			$mail->addReplyTo($this->xheaders['From'], $this->xheaders['FromName']);
