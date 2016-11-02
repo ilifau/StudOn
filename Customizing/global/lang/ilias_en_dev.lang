@@ -503,6 +503,7 @@ ps#:#ps_perform_export_excel#:#Start Excel Export
 registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.
 registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.
+registration#:#registration_codes_info#:#You can link the self registration this way:<br />{URL}studon_register (code will be queried)<br />{URL}studon_register_CODE (code is linked)
 registration#:#reg_code_title_info#:#This title replaces the page title of the registration form.
 registration#:#reg_code_description_info#:#The description is shown below the page title.
 registration#:#reg_code_use_limit#:#Usable
@@ -514,7 +515,8 @@ registration#:#reg_login_generation_type#:#Login Generation
 registration#:#reg_login_generation_type_info#:#Definition of the login name for the new user account.
 registration#:#reg_login_gen_manual#:#Manual entry
 registration#:#reg_login_gen_first_lastname#:#Automatic (firstname.lastname)
-registration#:#reg_login_gen_guest_listener#:#Automatic for Guest Listeners (ghs16frneuma)### fau.
+registration#:#reg_login_gen_guest_listener#:#Automatic for Guest Listeners (ghs16frneuma)
+registration#:#reg_login_gen_guest_selfreg#:#Automatic for Self Registered Guests (gsr12345)### fau.
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration.
 registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
 registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to StudOn. You will receive a confirmation e-mail in the next minutes. Please look also in the spam folder of your post box. Confirm your registration by clicking the confirmation link in this mail.<br />After that you will receive a second e-mail with your account data. Please use the ‘Local Login’ on the StudOn start page to log in.###fau: regCodes

@@ -851,6 +851,9 @@ class ilRegistrationSettingsGUI
 		include_once("./Services/Registration/classes/class.ilRegistrationCodesTableGUI.php");
 		$ctab = new ilRegistrationCodesTableGUI($this, "listCodes");
 		$this->tpl->setContent($ctab->getHTML());
+
+		include_once('Services/Link/classes/class.ilLink.php');
+		ilUtil::sendInfo(str_replace('{URL}', ilLink::_getShortlinkBase(), $this->lng->txt('registration_codes_info')), false);
 	}
 
 // fau: regCodes - change initAddCodesForm to initCodesForm	and extend it

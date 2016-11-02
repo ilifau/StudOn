@@ -53,6 +53,7 @@ class ilRegistrationSettings
 	const LOGIN_GEN_MANUAL = 'manual';
 	const LOGIN_GEN_FIRST_LASTNAME = 'firstlastname';
 	const LOGIN_GEN_GUEST_LISTENER = 'guestlistener';
+	const LOGIN_GEN_GUEST_SELFREG = 'guestselfreg';
 // fau.
 
 // fau: regCodes - variable for code object
@@ -117,6 +118,7 @@ class ilRegistrationSettings
 		return array (
 			self::LOGIN_GEN_MANUAL => $lng->txt('reg_login_gen_manual'),
 			self::LOGIN_GEN_FIRST_LASTNAME => $lng->txt('reg_login_gen_first_lastname'),
+			self::LOGIN_GEN_GUEST_SELFREG => $lng->txt('reg_login_gen_guest_selfreg'),
 			self::LOGIN_GEN_GUEST_LISTENER => $lng->txt('reg_login_gen_guest_listener')
 		);
 	}

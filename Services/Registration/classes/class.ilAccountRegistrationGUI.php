@@ -899,6 +899,9 @@ class ilAccountRegistrationGUI
 					. substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_lastname'))), 0, 4);
 				break;
 
+			case ilRegistrationSettings::LOGIN_GEN_GUEST_SELFREG:
+				$base_login = 'gsr'. rand(10000,99999);
+				break;
 		}
 
 		// append a number to get an unused login

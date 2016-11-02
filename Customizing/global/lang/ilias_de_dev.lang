@@ -500,6 +500,7 @@ ps#:#ps_perform_export_excel#:#Excel-Export starten
 registration#:#registration_code_update_header#:#Code-Einstellungen bearbeiten###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie erhalten haben. Klicken Sie dann auf "Registrieren", um die Registrierung durchzuführen.
 registration#:#registration_code_optional_info#:#Wenn Sie einen Registrierungs-Code erhalten haben, geben Sie diesen bitte hier ein. Der Code legt Ihre Möglichkeiten in StudOn fest. Wenn Sie keinen Code besitzen, lassen sie das Feld leer. Klicken Sie anschließend auf "Registrieren".
+registration#:#registration_codes_info#:#Sie können die Selbstregistrierung wie folgt verlinken:<br />{URL}studon_register (Code wird vorab abgefragt)<br />{URL}studon_register_CODE (Code ist im Link enthalten)
 registration#:#reg_code_title_info#:#Dieser Titel ersetzt den Seitentitel des Registrierungsformulars.
 registration#:#reg_code_description_info#:#Die Beschreibung wird unter dem Seitentitel angezeigt.
 registration#:#reg_code_use_limit#:#Verwendbar
@@ -511,7 +512,8 @@ registration#:#reg_login_generation_type#:#Login-Erzeugung
 registration#:#reg_login_generation_type_info#:#Festlegung des Login-Namens für das neue Benutzerkonto.
 registration#:#reg_login_gen_manual#:#Manuelle Eingabe
 registration#:#reg_login_gen_first_lastname#:#Automatisch (vorname.nachname)
-registration#:#reg_login_gen_guest_listener#:#Automatisch für Gasthörer (ghs16frneuma)### fau.
+registration#:#reg_login_gen_guest_listener#:#Automatisch für Gasthörer (ghs16frneuma)
+registration#:#reg_login_gen_guest_selfreg#:#Automatisch für selbstregistrierte Gäste (gsr12345)### fau.
 registration#:#reg_login_is_generated#:#Ihr Benutzername wir automatisch erzeugt und Ihnen nach der Registrierung angezeigt.
 registration#:#reg_choose_password#:#Wählen Sie hier selbst ein Passwort für Ihr neues Benutzerkonto. Es muss mindestens 6 Zeichen lang sein und mindesten einen Groß- und Kleinbuchstaben, eine Ziffer und ein Sonderzeichen (_.+?#-*@!$%~/:;) enthalten. Bitte merken Sie sich dieses Passwort!
 registration#:#reg_confirmation_link_successful#:#<br />Sie haben sich erfolgreich bei StudOn registriert. Jetzt müssen Sie noch Ihr Benutzerkonto aktivieren. Dazu wurde Ihnen soeben eine E-Mail mit einem Bestätigungslink geschickt. Bitte sehen Sie auch im Spam-Ordner Ihres Postfaches nach. ob die E-Mail dort gelandet ist.<br />Klicken Sie innerhalb der nächsten Minuten auf den Bestätigungslink in der E-Mail, um Ihr Benutzerkonto zu aktivieren. Sie erhalten danach eine weitere E-Mail mit Ihren Zugangsdaten. Melden Sie sich damit auf der <a href="%s">Startseite von StudOn</a> unter „Lokale Anmeldung“ an.###fau: regCodes
