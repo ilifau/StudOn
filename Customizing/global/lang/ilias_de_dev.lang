@@ -503,6 +503,7 @@ registration#:#registration_code_optional_info#:#Wenn Sie einen Registrierungs-C
 registration#:#reg_code_title_info#:#Dieser Titel ersetzt den Seitentitel des Registrierungsformulars.
 registration#:#reg_code_description_info#:#Die Beschreibung wird unter dem Seitentitel angezeigt.
 registration#:#reg_code_use_limit#:#Verwendbar
+registration#:#reg_code_use_unlimited#:#beliebig
 registration#:#reg_code_use_limit_info#:#Anzahl möglicher Verwendungen des Codes. 0 bedeutet beliebig viele.
 registration#:#reg_code_use_count#:#Verwendet
 registration#:#reg_code_last_used#:#Zuletzt verwendet

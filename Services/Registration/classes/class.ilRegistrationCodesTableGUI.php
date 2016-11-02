@@ -134,7 +134,7 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
 			
 			$result[$k]["generated"] = ilDatePresentation::formatDate(new ilDateTime($code["generated"],IL_CAL_UNIX));
 
-			$result[$k]["use_limit"] = empty($code["use_limit"]) ? $this->lng->txt('unlimited') : $code["use_limit"];
+			$result[$k]["use_limit"] = empty($code["use_limit"]) ? $this->lng->txt('reg_code_use_unlimited') : $code["use_limit"];
 			$result[$k]["use_count"] = $code["use_count"];
 
 
@@ -197,19 +197,19 @@ class ilRegistrationCodesTableGUI extends ilTable2GUI
 					
 					case "relative":							
 						$limit_caption = array();
-						$limit = unserialize($code["alimitdt"]);												
-						if((int)$limit["d"])							
+						$limit = unserialize($code["alimitdt"]);
+						if((int)$limit["y"])
 						{
-							$limit_caption[] = (int)$limit["d"]." ".$this->lng->txt("days");
+							$limit_caption[] = (int)$limit["y"]." ".$this->lng->txt("years");
 						}
-						if((int)$limit["m"])							
+						if((int)$limit["m"])
 						{
 							$limit_caption[] = (int)$limit["m"]." ".$this->lng->txt("months");
 						}
-						if((int)$limit["y"])							
+						if((int)$limit["d"])
 						{
-							$limit_caption[] = (int)$limit["y"]." ".$this->lng->txt("years");
-						}										
+							$limit_caption[] = (int)$limit["d"]." ".$this->lng->txt("days");
+						}
 						if(sizeof($limit_caption))
 						{
 							$result[$k]["alimit"] = $this->lng->txt("reg_access_limitation_mode_relative_target").

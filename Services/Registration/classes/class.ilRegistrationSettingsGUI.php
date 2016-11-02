@@ -1055,6 +1055,12 @@ class ilRegistrationSettingsGUI
 		$dur->setShowDays(true);
 		$dur->setShowHours(false);
 		$dur->setShowMinutes(false);
+		if ($codeObj->limit_type == 'relative')
+		{
+			$duration = $codeObj->limit_duration;
+			$dur->setDays($duration['d']);
+			$dur->setMonths((int) $duration['m'] + (int) $duration['y']*12);
+		}
 		$opt->addSubItem($dur);
 
 		if (empty($codeObj->code_id))
@@ -1170,9 +1176,19 @@ class ilRegistrationSettingsGUI
 				break;
 
 			case "relative":
-				$codeObj->limit_type =  "relative";
-				$codeObj->limit_date = new ilDateTime();
-				$codeObj->limit_duration = $this->form_gui->getInput("rel_date");
+				$date = $this->form_gui->getInput("rel_date");
+				if(is_array($date) && array_sum($date) >0)
+				{
+					$date = array(
+						"d" => $date["dd"],
+						"m" => $date["MM"]%12,
+						"y" => floor($date["MM"]/12)
+					);
+
+					$codeObj->limit_type =  "relative";
+					$codeObj->limit_date = new ilDateTime();
+					$codeObj->limit_duration = $date;
+				}
 				break;
 
 			case "unlimited":
