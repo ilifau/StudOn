@@ -7,7 +7,7 @@
 class ilUnivis
 {	
 	/**
-	* fim: [soap] get all untrashed objects for an import id
+	* Get all untrashed objects for an import id
 	*
 	* @param    string   	univis id (e.g 2011s.Lecture.391275)
 	* @return   array   	arrays of object data (ref_id, obj_id, title, ...)
@@ -18,7 +18,7 @@ class ilUnivis
 	}
 	
 	/**
-	* fim: [soap] get all untrashed objects for a semester
+	* Get all untrashed objects for a semester
 	*
 	* @param    string      import id
 	* @return   array   	arrays of object data (ref_id, obj_id, title, ...)
@@ -29,7 +29,7 @@ class ilUnivis
 	}
 	
 	/**
-	* fim: [univis] get import id for object id
+	* Get the main univis id for object id
 	*
 	* @param	int		$a_object_id		object id
 	* @return	string	id                  import_id
@@ -37,6 +37,31 @@ class ilUnivis
 	static function _getUnivisIdForObjectId($a_obj_id)
 	{
 		return ilObject::_getImportIdForObjectId($a_obj_id);
+	}
+
+	/**
+	 * Get additional univis ids for an object id
+	 * These are entered with the catalog 'univis' in the meta data
+	 *
+	 * Additional id's are used to query the members of related univis courses from mycampus
+	 * @param $a_obj_id
+	 * @return array
+	 */
+	static function _getAdditionalUnivisIdsForObjectId($a_obj_id)
+	{
+		global $ilDB;
+
+		$ids = array();
+		$query = "SELECT m.entry FROM il_meta_identifier m ".
+			" WHERE m.obj_id = ". $ilDB->quote($a_obj_id, 'integer').
+			" AND m.catalog = 'univis'";
+		$res = $ilDB->query($query);
+		while ($row = $ilDB->fetchAssoc($res))
+		{
+			$ids[] = $row['entry'];
+		}
+
+		return $ids;
 	}
 	
 	

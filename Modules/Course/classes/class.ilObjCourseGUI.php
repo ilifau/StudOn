@@ -3483,22 +3483,32 @@ class ilObjCourseGUI extends ilContainerGUI
 
 		require_once('Services/MyCampus/classes/class.ilMyCampusClient.php');
 		require_once('Services/User/classes/class.ilUserUtil.php');
+		require_once('Services/UnivIS/classes/class.ilUnivis.php');
 
-		$univis_id = $this->object->getImportId();
+		$ids = array(ilUnivis::_getUnivisIdForObjectId($this->object->getId()));
+		$ids = array_merge($ids, ilUnivis::_getAdditionalUnivisIdsForObjectId($this->object->getId()));
+
 		$campus = ilMyCampusClient::_getInstance();
 		if ($campus->login() === false)
 		{
 			ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_connect'));
 			return $this->membersObject();
 		}
-		$participants = $campus->getParticipants($univis_id);
 
-		if (!is_array($participants))
+		$participants = array();
+		foreach ($ids as $univis_id)
 		{
-			ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_participants'));
-			return $this->membersObject();
+			$result = $campus->getParticipants($univis_id);
+			if (!is_array($result))
+			{
+				ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_participants'));
+				return $this->membersObject();
+			}
+
+			$participants = array_merge($participants, $result);
 		}
-		elseif (!count($participants))
+
+		if (!count($participants))
 		{
 			ilUtil::sendInfo($this->lng->txt('crs_sync_my_campus_empty'));
 			return $this->membersObject();
