@@ -1116,11 +1116,11 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 		//end assMatchingQuestion
 		
 		case 'assClozeTest':
+// fau: lmGapFeedback - show all correct solutions behind the input field
+// this can be treated for all gap types in the same way
 			for (var i=0;i<questions[a_id].gaps.length;i++) {
 				var type = questions[a_id].gaps[i].type;
 
-// fau: lmGapFeedback - show all correct solutions behind the input field
-// this can be treated for all gap types in the same way
                 var cvalue = '';
                 var elem_type = type==1 ? 'select' : 'input';
 
@@ -1157,8 +1157,12 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
                 else {
                     jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar)
                 }
-// fau.
 			}
+
+			if (typeof MathJax != "undefined") {
+				MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+			}
+// fau.
 		break;
 		//end assClozeTest
 
