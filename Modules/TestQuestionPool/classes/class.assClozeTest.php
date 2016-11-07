@@ -1601,6 +1601,13 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 	*/
 	public function toJSON()
 	{
+// fau: lmGapShuffle - set shuffler for gaps in cloze questions
+		include_once('Services/Randomization/classes/class.ilArrayElementShuffler.php');
+		$shuffler = new ilArrayElementShuffler();
+		$shuffler->setSeed($shuffler->buildSeedFromString(session_id()));
+		$this->setShuffler($shuffler);
+// fau.
+
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 		$result = array();
 		$result['id'] = (int) $this->getId();
