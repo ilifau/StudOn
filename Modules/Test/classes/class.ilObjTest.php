@@ -5025,12 +5025,15 @@ function getAnswerFeedbackPoints()
 				if ($result->numRows())
 				{
 					$questionsbysequence = array();
-					
+
+// fau: fixQuestionSequence - (mantis #19124) ignore gaps in sequence (because they are ignored in random sequence by participant)
+					$seq = 1;
 					while ($row = $ilDB->fetchAssoc($result))
 					{
-						$questionsbysequence[$row["sequence"]] = $row;
+						$questionsbysequence[$seq] = $row;
+						$seq++;
 					}
-					
+// fau.
 					$seqresult = $ilDB->queryF("SELECT * FROM tst_sequence WHERE active_fi = %s",
 						array('integer'),
 						array($active_id)
@@ -5088,7 +5091,7 @@ function getAnswerFeedbackPoints()
 			$tstUserData->setFirstVisit($visitingTime["firstvisit"]);
 			$tstUserData->setLastVisit($visitingTime["lastvisit"]);
 		}
-		
+
 		return $data;
 	}
 	
