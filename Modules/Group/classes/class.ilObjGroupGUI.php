@@ -85,12 +85,17 @@ class ilObjGroupGUI extends ilContainerGUI
 				break;
 
 			case 'ilusersgallerygui':
+// fau: mailToMembers - allow gallery for local or upper group admins without write access
+				require_once ('./Services/Membership/classes/class.ilParticipants.php');
 				$is_participant = (bool)ilGroupParticipants::_isParticipant($this->ref_id, $ilUser->getId());
-				if(!$ilAccess->checkAccess('write', '', $this->ref_id) && !$is_participant)
+				$is_admin = (bool) ($ilAccess->checkAccess("write", "", $this->ref_id)
+					|| ilParticipants::_isLocalOrUpperAdmin($this->ref_id, $ilUser->getId()));
+
+				if(!$is_admin && !$is_participant)
 				{
 					$ilErr->raiseError($this->lng->txt('msg_no_perm_read'), $ilErr->MESSAGE);
 				}
-
+// fau.
 				$this->addMailToMemberButton($ilToolbar, 'jump2UsersGallery');
 
 				require_once 'Services/User/classes/class.ilUsersGalleryParticipants.php';
@@ -280,14 +285,17 @@ class ilObjGroupGUI extends ilContainerGUI
 			case 'ilmailmembersearchgui':
 				include_once 'Services/Mail/classes/class.ilMail.php';
 				$mail = new ilMail($ilUser->getId());
+// fau: mailToMembers - allow mail for local or upper group admins without write access
+				require_once ('./Services/Membership/classes/class.ilParticipants.php');
 
 				if(!($ilAccess->checkAccess('write','',$this->object->getRefId()) ||
-					$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL) &&
+					$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL ||
+					ilParticipants::_isLocalOrUpperAdmin($this->object->getRefId(), $ilUser->getId())) &&
 					$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
 				{
 					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
 				}
-
+// fau.
 				$this->tabs_gui->setTabActive('members');
 
 				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
@@ -3553,8 +3561,8 @@ class ilObjGroupGUI extends ilContainerGUI
 // fau: mailToMembers - allow mail for local or upper group admins without write access
 		require_once ('./Services/Membership/classes/class.ilParticipants.php');
 		if(
-			(	$ilAccess->checkAccess('write','',$this->object->getRefId()) or
-				$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL or
+			(	$ilAccess->checkAccess('write','',$this->object->getRefId()) ||
+				$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL ||
 				ilParticipants::_isLocalOrUpperAdmin($this->object->getRefId(), $ilUser->getId())
 			) and
 			$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))

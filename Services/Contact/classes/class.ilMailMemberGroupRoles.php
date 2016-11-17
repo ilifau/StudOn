@@ -39,6 +39,9 @@ class ilMailMemberGroupRoles extends ilAbstractMailMemberRoles
 			switch(substr($role_title, 0, 8))
 			{
 				case 'il_grp_a':
+// fau: mailToMembers - identify admins for mail roles
+					$sorted_role_ids[1]['is_admin'] = true;
+// fau.
 					$sorted_role_ids[1]['role_id'] = $role_id;
 					$sorted_role_ids[1]['mailbox'] = $mailbox;
 					$sorted_role_ids[1]['form_option_title'] = $lng->txt('send_mail_admins');

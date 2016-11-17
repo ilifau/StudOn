@@ -264,7 +264,17 @@ class ilMailMemberSearchGUI
 		
 		$this->storeReferer();
 		$tpl->getStandardTemplate();
-		
+
+// fau: mailToMembers - move mail to selected users into toolbar
+		/** @var ilToolbarGUI $ilToolbar */
+		global $ilToolbar, $ilCtrl;
+		require_once('Services/UIComponent/Button/classes/class.ilLinkButton.php');
+		$mailToSelected = ilLinkButton::getInstance();
+		$mailToSelected->setUrl($ilCtrl->getLinkTarget($this,'showSelectableUsers'));
+		$mailToSelected->setCaption('mail_sel_users');
+		$ilToolbar->addButtonInstance($mailToSelected);
+// fau.
+
 		$form = $this->initMailToMembersForm();
 		$tpl->setContent($form->getHTML());
 	}
@@ -294,13 +304,65 @@ class ilMailMemberSearchGUI
 
 		include_once "Services/Form/classes/class.ilPropertyFormGUI.php";
 		$form = new ilPropertyFormGUI();
-		$form->setTitle($this->lng->txt('mail_members'));
 
+// fau: mailToMembers add role selection for group roles and admins	of upper groups and courses
 		$form->setFormAction($this->ctrl->getFormAction($this, 'nextMailForm'));
 
-		$radio_grp = $this->getMailRadioGroup();
+		$hidden = new ilHiddenInputGUI('mail_member_type');
+		$hidden->setValue('mail_member_roles');
+		$form->addItem($hidden);
 
-		$form->addItem($radio_grp);
+		global $tree;
+		$path_ids  = array_reverse($tree->getPathId($this->ref_id));
+		foreach ($path_ids as $ref_id)
+		{
+			$is_current = ($ref_id == $this->ref_id);
+			switch(ilObject::_lookupType($ref_id, true))
+			{
+				case 'grp':
+					require_once('Services/Contact/classes/class.ilMailMemberGroupRoles.php');
+					$roles = new ilMailMemberGroupRoles();
+					break;
+
+				case 'crs':
+					require_once('Services/Contact/classes/class.ilMailMemberCourseRoles.php');
+					$roles = new ilMailMemberCourseRoles();
+					break;
+
+				default:
+					continue 2;
+			}
+
+			// add header for the object
+			$header = new ilFormSectionHeaderGUI();
+			if ($is_current)
+			{
+				$header->setTitle($roles->getRadioOptionTitle());
+			}
+			else
+			{
+				$header->setTitle(ilObject::_lookupTitle(ilObject::_lookupObjId($ref_id)));
+			}
+			$form->addItem($header);
+
+			// add roles for the object
+			foreach ($roles->getMailRoles($ref_id) as $role)
+			{
+				// use only admin roles of upper objects
+				if ($is_current || $role['is_admin'])
+				{
+					$chk_role = new ilCheckboxInputGUI($role['form_option_title'], 'roles[]');
+					$chk_role->setValue($role['role_id']);
+					$chk_role->setInfo($role['mailbox']);
+					$chk_role->setChecked($is_current);
+					$form->addItem($chk_role);
+				}
+
+
+			}
+		}
+// fau.
+
 		$form->addCommandButton('nextMailForm', $this->lng->txt('continue'));
 		$form->addCommandButton('cancel', $this->lng->txt('cancel'));
 
