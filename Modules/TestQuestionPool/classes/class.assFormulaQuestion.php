@@ -1111,6 +1111,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 			AND pass = " .$ilDB->quote($pass, 'integer') ."
 			AND value1 like '\$r%'
 			AND value2 is not null
+			AND value2 <> ''
 			GROUP BY authorized
 		";
 		$result = $ilDB->query($query);
