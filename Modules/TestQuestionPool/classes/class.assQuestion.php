@@ -4663,17 +4663,19 @@ abstract class assQuestion
 		}
 	}
 
+// fau: testNav - add timestamp as parameter to saveCurrentSolution
 	/**
 	 * @param int $active_id
 	 * @param int $pass
 	 * @param mixed $value1
 	 * @param mixed $value2
 	 * @param bool|true $authorized
+	 * @param int|null	$tstamp
 	 * @global ilDB $ilDB
 	 *
 	 * @return int
 	 */
-	public function saveCurrentSolution($active_id, $pass, $value1, $value2, $authorized = true)
+	public function saveCurrentSolution($active_id, $pass, $value1, $value2, $authorized = true, $tstamp = null)
 	{
 		global $ilDB;
 
@@ -4686,7 +4688,7 @@ abstract class assQuestion
 			"value1" => array("clob", $value1),
 			"value2" => array("clob", $value2),
 			"pass" => array("integer", $pass),
-			"tstamp" => array("integer", time()),
+			"tstamp" => array("integer", isset($tstamp) ? $tstamp : time()),
 			'authorized' => array('integer', (int)$authorized)
 		);
 
@@ -4697,6 +4699,7 @@ abstract class assQuestion
 
 		return $ilDB->insert("tst_solutions", $fieldData);
 	}
+// fau.
 
 	/**
 	 * @param int $active_id
@@ -4729,15 +4732,20 @@ abstract class assQuestion
 		));
 	}
 
-	public function updateCurrentSolutionsAuthorization($activeId, $pass, $authorized)
+// fau: testNav - added parameter to keep the timestamp (default: false)
+	public function updateCurrentSolutionsAuthorization($activeId, $pass, $authorized, $keepTime = false)
 	{
 		global $ilDB;
 
 		$fieldData = array(
-			'tstamp' => array('integer', time()),
 			'authorized' => array('integer', (int)$authorized)
 		);
-		
+
+		if (!$keepTime)
+		{
+			$fieldData['tstamp'] = array('integer', time());
+		}
+
 		$whereData = array(
 			'question_fi' => array('integer', $this->getId()),
 			'active_fi' => array('integer', $activeId),
@@ -4746,6 +4754,7 @@ abstract class assQuestion
 
 		return $ilDB->update('tst_solutions', $fieldData, $whereData);
 	}
+// fau.
 
 
 	/**
