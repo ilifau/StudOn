@@ -634,6 +634,14 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 			}
 		}
 
+// fau: testNav - write a dummy entry for the evil mc questions with "None of the above" checked
+		if (!empty($_POST['mc_none_above']))
+		{
+			$this->saveCurrentSolution($active_id, $pass, 'mc_none_above', null, $authorized);
+			$entered_values++;
+		}
+// fau.
+
 		$this->getProcessLocker()->releaseUserSolutionUpdateLock();
 		
 		if ($entered_values)
