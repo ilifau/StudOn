@@ -449,26 +449,7 @@ class ilInitialisation
 		require_once("./Services/Database/classes/class.ilDBWrapperFactory.php");				
 		$ilDB = ilDBWrapperFactory::getWrapper(IL_DB_TYPE);
 		$ilDB->initFromIniFile();
-
-// fau: retryPage - optionally force the retry page after each request
-		global $ilClientIniFile;
-		if ($ilClientIniFile->readVariable("db","retry_forced") and empty($_GET['retry_forced']))
-		{
-			require_once("Services/Init/classes/class.ilRetryGUI.php");
-			$gui = new ilRetryGUI('retry_forced');
-			$gui->handleRequest();
-		}
-// fau.
-
-// fau: retryPage - handle error for database connection
-		$result = $ilDB->connect();
-		if (gettype($result) == 'string')
-		{
-			require_once("Services/Init/classes/class.ilRetryGUI.php");
-			$gui = new ilRetryGUI($result);
-			$gui->handleRequest();
-		}
-// fau.
+		$ilDB->connect();
 		
 		self::initGlobal("ilDB", $ilDB);		
 	}
@@ -767,14 +748,6 @@ class ilInitialisation
 		
 		if (!$ilAuth->getAuth())
 		{
-// fau: retryPage - handle error due to system overload
-// this condition may occur if the database connection could be established
-// but the user table couldn't be read
-			require_once("Services/Init/classes/class.ilRetryGUI.php");
-			$gui = new ilRetryGUI("anonymous_not_found");
-			$gui->handleRequest();
-// fau.
-
 			self::abortAndDie("ANONYMOUS user with the object_id ".ANONYMOUS_USER_ID." not found!");
 		}
 		
