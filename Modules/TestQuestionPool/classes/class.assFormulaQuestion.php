@@ -1004,6 +1004,8 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 		$tmp            = $solutionSubmit;
 		$solutionSubmit = array();
 
+// fau: testNav -   save an invalid solution as intermediate and show the validation error
+//					return false to keep the user at the question
 		$returnvalue = true;
 		foreach($tmp as $key => $val)
 		{
@@ -1019,6 +1021,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 				$solutionSubmit[$key] = $val;;
 			}
 		}
+// fau.
 
 		$entered_values = FALSE;
 		foreach($solutionSubmit as $key => $value)
@@ -1084,7 +1087,9 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 			}
 		}
 
+// fau: testNav - return the validation success
 		return $returnvalue;
+// fau.
 	}
 
 // fau: testNav - overridden function lookupForExistingSolutions (specific for formula question: don't lookup variables)
