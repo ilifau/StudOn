@@ -430,6 +430,10 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 
 	protected function submitSolutionCmd()
 	{
+// fau: testNav - remember to prevent the navigation confirmation
+		$this->saveNavigationPreventConfirmation();
+// fau.
+
 		if( $this->saveQuestionSolution(true, false) )
 		{
 			$questionId = $this->testSequence->getQuestionForSequence(
@@ -460,10 +464,6 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 			}
 
 			$this->ctrl->setParameter($this, 'pmode', ilTestPlayerAbstractGUI::PRESENTATION_MODE_VIEW);
-
-// fau: testNav - remember to prevent the navigation confirmation
-			$this->saveNavigationPreventConfirmation();
-// fau.
 
 // fau: testNav - handle navigation after saving
 			if ($this->getNavigationUrlParameter())
@@ -652,12 +652,10 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 		$questionId = $this->testSequence->getQuestionForSequence(
 			$this->getCurrentSequenceElement()
 		);
-		
-		if( !$this->isParticipantsAnswerFixed($questionId) )
+
+// fau: testNav - try to save a changed question when feedback is requested and handle validation errors
+		if( !$this->isParticipantsAnswerFixed($questionId) && $this->getAnswerChangedParameter())
 		{
-// fau: testNav - handle answer fixation and intermediate submit
-			// always save the question when feedback is requested
-			// show intermediate solution with validation error if the question couldn't be saved
 			if ($this->saveQuestionSolution(true))
 			{
 				$this->setAnswerChangedParameter(false);
@@ -670,13 +668,12 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 				$this->setAnswerChangedParameter(true);
 				$this->ctrl->redirect($this, ilTestPlayerCommands::SHOW_QUESTION);
 			}
-// fau.
 		}
-
+// fau.
 
 		$this->ctrl->setParameter($this, 'instresp', 1);
 
-// fau: testNav - handle navigation after feedback
+// fau: testNav - handle navigation after forced feedback
 		if ($this->getNavigationUrlParameter())
 		{
 			$this->saveNavigationPreventConfirmation();
