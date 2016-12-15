@@ -3013,15 +3013,17 @@ function getAnswerFeedbackPoints()
 		return 0;
 	}
 
+// fau: testNav - correct the function description
 /**
-* Returns if the previous results should be hidden for a learner
+* Returns if the previous results should be shown for a learner
 *
 * @param integer $test_id The test id
 * @param boolean $use_active_user_setting If true, the tst_use_previous_answers- of the active user should be used as well
-* @return integer 1 if the previous results should be hidden, 0 otherwise
+* @return integer 1 if the previous results should be shown, 0 otherwise
 * @access public
 * @see $use_previous_answers
 */
+// fau.
 	function _getUsePreviousAnswers($active_id, $user_active_user_setting = false)
 	{
 		global $ilDB;

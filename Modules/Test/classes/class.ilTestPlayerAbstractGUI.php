@@ -1272,12 +1272,19 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 		}
 // fau.
 
+// fau: testNav - check for existing intermediate or authorized solution
+		$state = $questionGui->object->lookupForExistingSolutions($this->testSession->getActiveId(), $this->testSession->getPass());
+		$pass = ($state['authorized'] || $state['intermediate']) ? $this->testSession->getPass() : NULL;
+// fau.
+
 		// Answer specific feedback is rendered into the display of the test question with in the concrete question types outQuestionForTest-method.
 		// Notation of the params prior to getting rid of this crap in favor of a class
 		$questionGui->outQuestionForTest(
 			$formAction, 							#form_action
 			$this->testSession->getActiveId(),		#active_id
-			NULL, 									#pass
+// fau: testNav - set the pass to current session to prevent the display of a previous solution if an intermediate solution exists
+			$pass, 									#pass
+// fau.
 			$isPostponed, 							#is_postponed
 			$userPostSolution, 						#user_post_solution
 			$answerFeedbackEnabled					#answer_feedback == inline_specific_feedback
@@ -1291,7 +1298,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 		$this->populateModals();
 
 // fau: testNav - pouplate the new question edit control instead of the deprecated intermediate solution saver
-		$this->populateQuestionEditControl($questionGui);
+		$this->populateQuestionEditControl($questionGui, $state);
 // fau.
 	}
 
@@ -2720,14 +2727,15 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 	 * Populate the navigation and saving control for editable questions
 	 *
 	 * @param assQuestionGUI 	$questionGUI
+	 * @param array				$state			['authorized' => bool, 'intermediate' => bool]
+	 * @see assQuestion::lookupForExistingSolutions
 	 */
-	protected function populateQuestionEditControl($questionGUI)
+	protected function populateQuestionEditControl($questionGUI, $state)
 	{
 		// configuration for ilTestPlayerQuestionEditControl.js
 		$config = array();
 
 		// set the initial state of the question
-		$state = $questionGUI->object->lookupForExistingSolutions($this->testSession->getActiveId(), $this->testSession->getPass());
 		$config['isAnswered'] = $state['authorized'];
 		$config['isAnswerChanged'] = $state['intermediate'] || $this->getAnswerChangedParameter();
 

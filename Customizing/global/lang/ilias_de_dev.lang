@@ -58,6 +58,8 @@ assessment#:#tst_filter_question_type#:#Fragentyp
 assessment#:#tst_filter_question_type_enabled#:#Verwende Fragentyp als Filter
 assessment#:#tst_recalculate_solutions#:#Ergebnisse neu berechnen
 assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
+assessment#:#tst_use_previous_answer#:#Die angezeigte Lösung aus dem vorherigen Durchgang übernehmen
+assessment#:#tst_use_previous_answer_imagemap#:#Bitte klicken Sie erneut auf das Bild, um die Lösung aus dem vorherigen Durchgang zu übernehmen.
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.

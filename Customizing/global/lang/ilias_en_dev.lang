@@ -57,6 +57,8 @@ assessment#:#tst_filter_question_type#:#Question Type
 assessment#:#tst_filter_question_type#:#Use Question Type as Filter
 assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
 assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
+assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
+assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.
