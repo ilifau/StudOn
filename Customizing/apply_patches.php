@@ -32,16 +32,15 @@ $p = new ilPatchUtils();
 /***********
  * Cleanups
  **********/
-
 //$p->applyPatch('ilCleanupPatches.checkDoublePermissionTemplates', array('cleanup' => false, 'min'=> 2));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,chtr,crsr,dcl,exc,feed,frm,glo,htlm,itgr,lm,mcst,mep,poll,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xflc,xlvo,xpdl,xxco', 'deleted_before' => '2016-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2016-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2016-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2016-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2016-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2016-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2016-01-01 00:00:00'));
-//$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2016-01-01 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,crsr,dcl,exc,feed,frm,glo,htlm,itgr,lm,mcst,mep,poll,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xflc,xlvo,xpdl,xxco', 'deleted_before' => '2016-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2016-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2016-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2016-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2016-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2016-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2016-10-01 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2016-10-01 00:00:00'));
 
 
 /*******************
