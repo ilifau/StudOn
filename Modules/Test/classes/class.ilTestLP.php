@@ -12,6 +12,15 @@ include_once "Services/Object/classes/class.ilObjectLP.php";
  */
 class ilTestLP extends ilObjectLP
 {
+// fim: [trash] inject a test object
+	/* @var ilObjTest $testOBJ */
+	protected $testOBJ;
+	public function setTestObject($testOBJ)
+	{
+		$this->testOBJ = $testOBJ;
+	}
+// fim.
+
 	public function getDefaultMode()
 	{		
 		return ilLPObjSettings::LP_MODE_TEST_PASSED;
@@ -34,13 +43,21 @@ class ilTestLP extends ilObjectLP
 
 	protected function resetCustomLPDataForUserIds(array $a_user_ids, $a_recursive = true)
 	{
+// fim: [trash] use an injected test object that is provided by ilObjTest::removeTestResults()
+//		getInstanceByObjId() will otherwise raise a warning if the test data is already deleted
+
 		/* @var ilObjTest $testOBJ */
-		require_once 'Services/Object/classes/class.ilObjectFactory.php';
-		$testOBJ = ilObjectFactory::getInstanceByObjId($this->obj_id);
-		$testOBJ->removeTestResultsByUserIds($a_user_ids);
+		if (!isset($this->testOBJ))
+		{
+			require_once 'Services/Object/classes/class.ilObjectFactory.php';
+			$this->testOBJ = ilObjectFactory::getInstanceByObjId($this->obj_id);
+		}
+		$this->testOBJ->removeTestResultsByUserIds($a_user_ids);
 		
 		// :TODO: there has to be a better way
-		$test_ref_id = (int)$_REQUEST["ref_id"];		
+		$test_ref_id = $this->testOBJ->getRefId() ? $this->testOBJ->getRefId() : (int)$_REQUEST["ref_id"];
+// fim.
+
 		if($test_ref_id)
 		{
 			require_once "Modules/Course/classes/Objectives/class.ilLOSettings.php";

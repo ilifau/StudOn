@@ -3503,6 +3503,9 @@ function getAnswerFeedbackPoints()
 			/* @var ilTestLP $testLP */
 			require_once 'Services/Object/classes/class.ilObjectLP.php';
 			$testLP = ilObjectLP::getInstance($this->getId());
+// fim: [trash] inject the current test object to prevent the lookup for a deleted test
+			$testLP->setTestObject($this);
+// fim.
 			$testLP->resetLPDataForUserIds($participantData->getUserIds(), false);
 		}
 
