@@ -13,12 +13,19 @@ class iljQueryUtil
 	private static $ui_ver = "1_11_4";
 	private static $maphilight_ver = "14_03_20";
 	private static $min = "-min";
-	
+
 	/**
 	 * Init jQuery
 	 */
 	static function initjQuery($a_tpl = null)
 	{
+// fim: [trash] ignore missing template (cron job line)
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+// fim.
+
 		global $tpl;
 		
 		if ($a_tpl == null)
@@ -50,6 +57,12 @@ class iljQueryUtil
 	 */
 	static function initjQueryUI()
 	{
+// fim: [trash] ignore missing template (cron job line)
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+// fim.
 		global $tpl;
 		
 		 $tpl->addJavaScript(self::getLocaljQueryUIPath(), true, 1);
@@ -80,6 +93,12 @@ class iljQueryUtil
 	 */
 	static function initMaphilight()
 	{
+// fim: [trash] ignore missing template (cron job line)
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+// fim.
 		global $tpl;
 		
 		 $tpl->addJavaScript(self::getLocalMaphilightPath(), true, 1);
@@ -94,8 +113,14 @@ class iljQueryUtil
  	}
 
  	// fim: [exam] init the colorbox functionality
+	// fim: [trash] ignore missing template (cron job line)
  	static function initColorbox()
  	{
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+
 		global $tpl;
 		
 		 $tpl->addJavaScript("./Services/jQuery/js/colorbox/jquery.colorbox-min.js", true, 1);	
