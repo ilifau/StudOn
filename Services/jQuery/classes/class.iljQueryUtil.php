@@ -20,6 +20,7 @@ class iljQueryUtil
 	static function initjQuery($a_tpl = null)
 	{
 // fim: [trash] ignore missing template (cron job line)
+		require_once('Services/Context/classes/class.ilContext.php');
 		if (!ilContext::usesTemplate())
 		{
 			return;
@@ -58,6 +59,7 @@ class iljQueryUtil
 	static function initjQueryUI()
 	{
 // fim: [trash] ignore missing template (cron job line)
+		require_once('Services/Context/classes/class.ilContext.php');
 		if (!ilContext::usesTemplate())
 		{
 			return;
@@ -94,6 +96,7 @@ class iljQueryUtil
 	static function initMaphilight()
 	{
 // fim: [trash] ignore missing template (cron job line)
+		require_once('Services/Context/classes/class.ilContext.php');
 		if (!ilContext::usesTemplate())
 		{
 			return;
@@ -116,6 +119,7 @@ class iljQueryUtil
 	// fim: [trash] ignore missing template (cron job line)
  	static function initColorbox()
  	{
+		require_once('Services/Context/classes/class.ilContext.php');
 		if (!ilContext::usesTemplate())
 		{
 			return;
