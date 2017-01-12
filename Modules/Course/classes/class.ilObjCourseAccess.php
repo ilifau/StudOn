@@ -567,8 +567,10 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 		if($show_mem_limit)
 		{
 			$max_members = $info['reg_info_max_members'];
-			$members = $partObj->getNumberOfMembers();
+			$members = (int) $partObj->getNumberOfMembers();
 			$free_places = max($max_members - $members, 0);
+			$info['reg_info_free_places'] = $free_places;
+
 			$subscribers = $partObj->getNumberOfSubscribers();
 			$waiting = ilCourseWaitingList::lookupListSize($a_obj_id);
 			$lotlist = ilSubscribersLot::_getCountUsers($a_obj_id);

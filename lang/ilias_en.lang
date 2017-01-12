@@ -16224,7 +16224,6 @@ crs#:#crs_loc_err_stat_tst_offline#:#Not all tests are online.
 itgr#:#itgr_desc_info#:#The description will not be a part of the item group's presentation in its container.
 rbac#:#edit_members#:#Manage members
 rbac#:#prg_manage_members#:#Manage members of Study Programme
-
 assessment#:#tst_revert_changes#:#Undo Editing###fau: testNav
 assessment#:#tst_revert_changes_hint#:#You can undo your editing in the action menu of the question.###fau: testNav
 assessment#:#save_on_navigation#:#Save on Navigation###fau: testNav

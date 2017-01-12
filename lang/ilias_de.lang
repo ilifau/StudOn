@@ -16224,7 +16224,6 @@ itgr#:#itgr_desc_info#:#Die Beschreibung wird bei der Anzeige des Objekteblocks 
 survey#:#msg_input_only_positive_numbers#:#Bitte geben Sie natürliche Zahlen als Skalenwerte ein.
 rbac#:#prg_manage_members#:#Teilnehmer eines Studienprogramms bearbeiten
 rbac#:#edit_members#:#Teilnehmer bearbeiten
-
 assessment#:#tst_revert_changes#:#Bearbeitung zurücknehmen###fau: testNav
 assessment#:#tst_revert_changes_hint#:#Sie können Ihre Eingabe über das Aktionen-Menü der Frage rückgängig machen. ###fau: testNav
 assessment#:#save_on_navigation#:#Navigation mit Speichern###fau: testNav

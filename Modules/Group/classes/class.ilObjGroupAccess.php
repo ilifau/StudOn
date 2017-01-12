@@ -419,6 +419,8 @@ class ilObjGroupAccess extends ilObjectAccess
 			$max_members = $info['reg_info_max_members'];
 			$members = $partObj->getNumberOfMembers();
 			$free_places = max($max_members - $members, 0);
+			$info['reg_info_free_places'] = $free_places;
+
 			$subscribers = $partObj->getNumberOfSubscribers();
 			$waiting = ilGroupWaitingList::_countSubscribers(array($a_obj_id));
 			$lotlist = ilSubscribersLot::_getCountUsers($a_obj_id);

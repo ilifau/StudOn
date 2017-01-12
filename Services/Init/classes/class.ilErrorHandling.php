@@ -159,6 +159,15 @@ class ilErrorHandling extends PEAR
 	{
 		global $log;
 
+// fau: fixErrorHandlingDirectory  - set standard directory for includes
+// The constant is set in ilInitialisation::initCore()
+// The chdir() for other handlers is done in 	ilDelegatingHandler::handle()
+		if (defined("IL_INITIAL_WD"))
+		{
+			chdir(IL_INITIAL_WD);
+		}
+// fau.
+
 		// see bug 18499 (some calls to raiseError do not pass a code, which leads to security issues, if these calls
 		// are done due to permission checks)
 		if ($a_error_obj->getCode() == null)
@@ -454,6 +463,14 @@ class ilErrorHandling extends PEAR
 		// TODO: remove this, when PHP 5.3 support is dropped. Make logMessageFor protected then as well.
 		$self = $this;
 		return new CallbackHandler(function(Exception $exception, Inspector $inspector, Run $run) use ($self) {
+// fau: fixErrorHandlingDirectory  - set standard directory for includes
+// The constant is set in ilInitialisation::initCore()
+// The chdir() for other handlers is done in ilDelegatingHandler::handle()
+			if (defined("IL_INITIAL_WD"))
+			{
+				chdir(IL_INITIAL_WD);
+			}
+// fau.
 			/**
 			 * Don't move this out of this callable
 			 * @var ilLog $ilLog;
