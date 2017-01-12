@@ -1116,6 +1116,10 @@ class ilMail
 		{
 			$rcp_ids = $this->getUserIds(trim($a_rcp_to).','.trim($a_rcp_cc).','.trim($a_rcp_bcc));
 
+			ilLoggerFactory::getLogger('mail')->debug(sprintf(
+				"Parsed TO/CC/BCC user ids from given recipients: " . implode(', ', $rcp_ids)
+			));
+
 			$as_email = array();
 
 			foreach($rcp_ids as $id)
@@ -1192,6 +1196,13 @@ class ilMail
 
 			// cc / bcc
 			$rcp_ids_no_replace = $this->getUserIds(trim($a_rcp_cc).','.trim($a_rcp_bcc));
+
+			ilLoggerFactory::getLogger('mail')->debug(sprintf(
+				"Parsed TO user ids from given recipients for serial letter notification: " . implode(', ', $rcp_ids_replace)
+			));
+			ilLoggerFactory::getLogger('mail')->debug(sprintf(
+				"Parsed CC/BCC user ids from given recipients for serial letter notification: " . implode(', ', $rcp_ids_no_replace)
+			));
 
 			$as_email = array();
 
@@ -1328,19 +1339,34 @@ class ilMail
 					if (substr($tmp_names[$i]->mailbox,0,1) == '#' || substr($tmp_names[$i]->mailbox,0,2) == '"#')
 					{
 						$role_ids = $rbacreview->searchRolesByMailboxAddressList($tmp_names[$i]->mailbox.'@'.$tmp_names[$i]->host);
+						$foundUserIds = array();
 						foreach($role_ids as $role_id)
 						{
 							foreach($rbacreview->assignedUsers($role_id) as $usr_id)
 							{
 								$ids[] = $usr_id;
+								$foundUserIds[] = $usr_id;
 							}
 						}
+
+						ilLoggerFactory::getLogger('mail')->debug(sprintf(
+							"Found the following user ids by role assignments for address '%s': %s", $tmp_names[$i]->mailbox.'@'.$tmp_names[$i]->host, implode(', ', $foundUserIds)
+						));
 					}
 					else if (strtolower($tmp_names[$i]->host) == self::ILIAS_HOST)
 					{
 						if($id = ilObjUser::getUserIdByLogin(addslashes($tmp_names[$i]->mailbox)))
 						{
 							$ids[] = $id;
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Found the following user ids for address '%s': %s", addslashes($tmp_names[$i]->mailbox), $id
+							));
+						}
+						else if(strlen($tmp_names[$i]->mailbox) > 0)
+						{
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Did not find any user account for address '%s'", addslashes($tmp_names[$i]->mailbox)
+							));
 						}
 					}
 					else
@@ -1349,6 +1375,15 @@ class ilMail
 						if($id = ilObjUser::_lookupId($tmp_names[$i]->mailbox.'@'.$tmp_names[$i]->host))
 						{
 							$ids[] = $id;
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Found the following user ids for address '%s': %s", $tmp_names[$i]->mailbox.'@'.$tmp_names[$i]->host, $id
+							));
+						}
+						else
+						{
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Did not find any user account for address '%s'", $tmp_names[$i]->mailbox.'@'.$tmp_names[$i]->host
+							));
 						}
 					}
 				}
@@ -1371,11 +1406,17 @@ class ilMail
 							$grp_object = ilObjectFactory::getInstanceByRefId($ref_id);
 							break;
 						}
+						$foundUserIds = array();
 						// STORE MEMBER IDS IN $ids
 						foreach ($grp_object->getGroupMemberIds() as $id)
 						{
 							$ids[] = $id;
+							$foundUserIds = $id;
 						}
+
+						ilLoggerFactory::getLogger('mail')->debug(sprintf(
+							"Found the following user ids by group member assignment for address '%s': %s", addslashes(substr($tmp_names[$i],1)), implode(', ', $foundUserIds)
+						));
 					}
 					// is role: get role ids
 					else
@@ -1384,10 +1425,16 @@ class ilMail
 						$role_id          = $rbacreview->roleExists($possible_role_id);
 						if($role_id)
 						{
+							$foundUserIds = array();
 							foreach($rbacreview->assignedUsers($role_id) as $usr_id)
 							{
 								$ids[] = $usr_id;
+								$foundUserIds[] = $usr_id;
 							}
+
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Found the following user ids by role assignments for address '%s': %s", addslashes(substr($tmp_names[$i], 1)), implode(', ', $foundUserIds)
+							));
 							continue;
 						}
 
@@ -1397,13 +1444,22 @@ class ilMail
 							$roles_object_id = $rbacreview->getObjectOfRole($role_id);
 							if($roles_object_id > 0)
 							{
-								foreach($rbacreview->assignedUsers($possible_role_id) as $usr_id)
+								$foundUserIds = array();
+								foreach($rbacreview->assignedUsers($role_id) as $usr_id)
 								{
 									$ids[] = $usr_id;
+									$foundUserIds[] = $usr_id;
 								}
+								ilLoggerFactory::getLogger('mail')->debug(sprintf(
+									"Found the following user ids by role assignments for address '%s': %s", $possible_role_id, implode(', ', $foundUserIds)
+								));
 							}
 							continue;
 						}
+
+						ilLoggerFactory::getLogger('mail')->debug(sprintf(
+							"Found no user ids for address '%s'", $possible_role_id
+						));
 					}
 				}
 				else if (!empty($tmp_names[$i]))
@@ -1411,6 +1467,15 @@ class ilMail
 					if ($id = ilObjUser::getUserIdByLogin(addslashes($tmp_names[$i])))
 					{
 						$ids[] = $id;
+						ilLoggerFactory::getLogger('mail')->debug(sprintf(
+							"Found the following user ids for address '%s': %s", addslashes($tmp_names[$i]), $id
+						));
+					}
+					else if(strlen(addslashes($tmp_names[$i])) > 0)
+					{
+						ilLoggerFactory::getLogger('mail')->debug(sprintf(
+							"Did not find any user account for address '%s'", addslashes($tmp_names[$i])
+						));
 					}
 				}
 			}
@@ -1826,6 +1891,14 @@ class ilMail
 	{
 		global $lng,$rbacsystem;
 
+		ilLoggerFactory::getLogger('mail')->debug(sprintf(
+			"New mail system task:" .
+			" To: " . $a_rcp_to .
+			" | CC: " . $a_rcp_cc .
+			" | BCC: " . $a_rcp_bc .
+			" | Subject: " . $a_m_subject
+		));
+
 		$this->mail_to_global_roles = true;
 		if($this->user_id != ANONYMOUS_USER_ID)
 		{
@@ -1837,7 +1910,6 @@ class ilMail
 
 		if (in_array("system",$a_type))
 		{
-			$this->__checkSystemRecipients($a_rcp_to);
 			$a_type = array('system');
 		}
 
@@ -1987,15 +2059,33 @@ class ilMail
 		// IF EMAIL RECIPIENT
 		if($c_emails)
 		{
+			$externalMailRecipientsTo = $this->__getEmailRecipients($rcp_to);
+			$externalMailRecipientsCc = $this->__getEmailRecipients($rcp_cc);
+			$externalMailRecipientsBcc = $this->__getEmailRecipients($rcp_bc);
+
+			ilLoggerFactory::getLogger('mail')->debug(sprintf(
+				"Parsed external mail addresses from given recipients:" .
+				" To: " . $externalMailRecipientsTo .
+				" | CC: " . $externalMailRecipientsCc .
+				" | BCC: " . $externalMailRecipientsBcc .
+				" | Subject: " . $a_m_subject
+			));
+
 			$this->sendMimeMail(
-				$this->__getEmailRecipients($rcp_to),
-				$this->__getEmailRecipients($rcp_cc),
-				$this->__getEmailRecipients($rcp_bc),
+				$externalMailRecipientsTo,
+				$externalMailRecipientsCc,
+				$externalMailRecipientsBcc,
 				$a_m_subject,
 				$a_use_placeholders ? $this->replacePlaceholders($a_m_message) : $a_m_message,
 				$a_attachment,
 				0
 			);
+		}
+		else
+		{
+			ilLoggerFactory::getLogger('mail')->debug(sprintf(
+				"No external mail addresses given in recipient string"
+			));
 		}
 
 		if (in_array('system',$a_type))
@@ -2283,7 +2373,7 @@ class ilMail
 			include_once 'Services/WebServices/SOAP/classes/class.ilSoapClient.php';
 
 			$soap_client = new ilSoapClient();
-			$soap_client->setResponseTimeout(1);
+			$soap_client->setResponseTimeout(5);
 			$soap_client->enableWSDL(true);
 			$soap_client->init();
 
@@ -2423,21 +2513,49 @@ class ilMail
 		{
 			if (strlen(trim($a_recipients)) > 0)
 			{
+				ilLoggerFactory::getLogger('mail')->debug(sprintf(
+					"Started Mail_RFC822 parsing of recipient string: %s", $a_recipients
+				));
+
 				require_once './Services/PEAR/lib/Mail/RFC822.php';
 				$parser = new Mail_RFC822();
-				return $parser->parseAddressList($a_recipients, self::ILIAS_HOST, false, true);
+				$addresses = $parser->parseAddressList($a_recipients, self::ILIAS_HOST, false, true);
+
+				if(!is_a($a_recipients, 'PEAR_Error'))
+				{
+					ilLoggerFactory::getLogger('mail')->debug(sprintf(
+						"Parsed addresses: %s", implode(',', array_map(function($address) {
+							return $address->mailbox . '@' . $address->host;
+						}, $addresses))
+					));
+				}
+				else
+				{
+					ilLoggerFactory::getLogger('mail')->debug(sprintf(
+						"Parsing with Mail_RFC822 failed  ..."
+					));
+				}
+
+				return $addresses;
 			} else {
 				return array();
 			}
 		}
 		else
 		{
+			$rcps = array();
 			foreach(explode(',',$a_recipients) as $tmp_rec)
 			{
 				if($tmp_rec)
 				{
 					$rcps[] = trim($tmp_rec);
 				}
+			}
+			if(strlen($a_recipients) > 0)
+			{
+				ilLoggerFactory::getLogger('mail')->debug(sprintf(
+					"Parsed recipient string %s with result: %s", $a_recipients, implode(',', $rcps)
+				));
 			}
 			return is_array($rcps) ? $rcps : array();
 		}
@@ -2572,18 +2690,6 @@ class ilMail
 		$message .= $a_m_message;
 
 		return $message;
-	}
-
-	function __checkSystemRecipients(&$a_rcp_to)
-	{
-		if (preg_match("/@all/",$a_rcp_to))
-		{
-			// GET ALL LOGINS
-			$all = ilObjUser::_getAllUserLogins($this->ilias);
-			$a_rcp_to = preg_replace("/@all/",implode(',',$all),$a_rcp_to);
-		}
-
-		return;
 	}
 
 	/**

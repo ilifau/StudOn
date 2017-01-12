@@ -430,7 +430,7 @@ class ilObjGroupAccess extends ilObjectAccess
 			}
 			$limits[] =  $lng->txt("mem_max_users"). $max_members;
 			$limits[] =  $lng->txt("mem_free_places"). ': '. $free_places;
-			if ($subscriber + $waiting > 0)
+			if ($subscribers + $waiting > 0)
 			{
 				$limits[] =  $lng->txt("subscribers_or_waiting_list"). ': '. (string) ($subscribers + $waiting);
 			}

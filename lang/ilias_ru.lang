@@ -1119,7 +1119,6 @@ assessment#:#tst_availability_until_info#:#Выберите данный реж�
 assessment#:#tst_back_dyn_test_with_cur_quest_sel#:#Вернуться к тесту с текущим набором вопросов
 assessment#:#tst_beginning_ending_information#:#Информация в начале и в конце теста
 assessment#:#tst_best_solution_is#:#Лучшее решение
-assessment#:#tst_browse_for_questions#:#Добавить из пула
 assessment#:#tst_btn_rebuild_random_question_stage#:#Синхронизировать вопросы из пула
 assessment#:#tst_cannot_online_due_to_switched_quest_set_type_setting#:#The test cannot be set to online, because the test mode setting has been changed. You have to set a test mode relating question config before the test can be set to online.
 assessment#:#tst_change_dyn_test_question_selection#:#Изменить текущий выбор вопросов
@@ -2165,7 +2164,6 @@ certificate#:#certificate_text#:#Certificate Text
 certificate#:#certificate_top#:#Top
 certificate#:#certificate_unit_description#:#Enter units of measure as VALUE[cm|mm|in|pt|pc|px|em], e.g. 10mm or 3in
 certificate#:#certificate_usage#:#Помните, что использование сертификатов доступно только при запущенном ILIAS Java-Server. Конфигурация Java-Server доступна на основной странице администрирования в разделе Веб-сервисы.
-certificate#:#certificate_var_matriculation#:#12345
 certificate#:#certificate_var_max_points#:#46
 certificate#:#certificate_var_result_mark_long#:#Good
 certificate#:#certificate_var_result_mark_short#:#B
@@ -4815,7 +4813,6 @@ common#:#reg_account_confirmation_successful#:#Your user account has been activa
 common#:#reg_goto_parent_membership_info#:#Only members can access the target object.
 common#:#reg_mail_body_2_confirmation#:#The link will only be good for %s, after that you will have to try again from the beginning.
 common#:#reg_mail_body_3_confirmation#:#If this email means nothing to you, then it is possible that somebody else has entered your email address either deliberately or accidentally, so please ignore this email
-common#:#reg_mail_body_confirmation#:#to activate your account and confirm ownership of this email address, click the link below:
 common#:#reg_mail_body_forgot_password_info#:#To get your password, please use the function « Forgot password? » at the login screen to request a new password for this account.
 common#:#reg_mail_body_salutation#:#Привет
 common#:#reg_mail_body_text1#:#Добро пожаловать в ILIAS eLearning!
@@ -6100,7 +6097,6 @@ content#:#cont_lm_comments_desc#:#Allow users to share comments on every page of
 content#:#cont_lm_default_layout#:#Default Layout of Learning Module
 content#:#cont_lm_menu#:#Меню
 content#:#cont_lm_properties#:#свойства Обучающего Модуля
-content#:#cont_LocalFile#:#Local File
 content#:#cont_localization#:#Localization
 content#:#cont_localization_info#:#Language used for predifined texts, e.g. "Previous" and "Next".
 content#:#cont_location#:#Location
@@ -16210,3 +16206,20 @@ auth#:#auth_ldap_server_ds#:#LDAP-Server###03 08 2016 new variable
 assessment#:#ass_location#:#Location###03 08 2016 new variable
 assessment#:#ass_imap_hint#:#Hint to be shown as Tooltip###03 08 2016 new variable
 blog#:#blog_show_latest#:#Show latest postings/drafts###03 08 2016 new variable
+assessment#:#min_auto_complete#:#Autocomplete###12 10 2016 new variable
+assessment#:#autocomplete_error#:#Your autocomplete number is to large, you have answers which have less characters, so they would never be displayed.###12 10 2016 new variable
+assessment#:#tst_browse_for_qpl_questions#:#Add from Pool###12 10 2016 new variable
+assessment#:#tst_browse_for_tst_questions#:#Add from Other Test###12 10 2016 new variable
+assessment#:#ass_competence_respect_level_ordering#:#Please note that the competence thresholds have to be defined in an ascending order according to the available levels.###12 10 2016 new variable
+registration#:#reg_mail_body_activation#:#to activate your account and confirm ownership of this email address, click the link below:###12 10 2016 new variable
+form#:#err_invalid_input#:#An invalid value has been submited. Please check your input.###12 10 2016 new variable
+prg#:#prg_points_reachable#:#Points Obtainable###12 10 2016 new variable
+mail#:#mail_members_search_continue#:#Continue###12 10 2016 new variable
+copg#:#copg_confirm_el_deletion#:#Do you really want to delete the selected elements?###12 10 2016 new variable
+survey#:#msg_input_only_positive_numbers#:#Please enter positive numbers in scale values.###12 10 2016 new variable
+crs#:#crs_loc_err_stat_tst_offline#:#Not all tests are online.###12 10 2016 new variable
+itgr#:#itgr_desc_info#:#The description will not be a part of the item group's presentation in its container.###12 10 2016 new variable
+dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.###25 10 2016 new variable
+certificate#:#certificate_var_user_matriculation#:#12345###25 10 2016 new variable
+rbac#:#edit_members#:#Manage members###22 12 2016 new variable
+rbac#:#prg_manage_members#:#Manage members of Study Programme###22 12 2016 new variable

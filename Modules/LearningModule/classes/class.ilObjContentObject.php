@@ -2231,6 +2231,11 @@ class ilObjContentObject extends ilObject
 			}
 		}
 
+		// init collector arrays
+		$this->offline_mobs = array();
+		$this->offline_int_links = array();
+		$this->offline_files = array();
+
 		// iterate all languages
 		foreach ($langs as $lang)
 		{
@@ -2509,7 +2514,25 @@ class ilObjContentObject extends ilObject
 				"target" => $mathJaxSetting->get("path_to_mathjax"),
 				"type" => "js");
 		}
-		
+
+		// auto linking js
+		include_once("./Services/Link/classes/class.ilLinkifyUtil.php");
+		foreach (ilLinkifyUtil::getLocalJsPaths() as $p)
+		{
+			if (is_int(strpos($p, "ExtLink")))
+			{
+				$scripts[] = array("source" => $p,
+					"target" => $a_target_dir.'/js/ilExtLink.js',
+					"type" => "js");
+			}
+			if (is_int(strpos($p, "linkify")))
+			{
+				$scripts[] = array("source" => $p,
+					"target" => $a_target_dir.'/js/linkify.js',
+					"type" => "js");
+			}
+		}
+
 		return $scripts;
 
 	}
@@ -2743,8 +2766,14 @@ class ilObjContentObject extends ilObject
 				$ilBench->stop("ExportHTML", "exportHTMLPage");
 			}
 		}
-		$this->offline_mobs = $mobs;
-		$this->offline_int_links = $int_links;
+		foreach ($mobs as $m)
+		{
+			$this->offline_mobs[$m] = $m;
+		}
+		foreach ($int_links as $k => $v)
+		{
+			$this->offline_int_links[$k] = $v;
+		}
 	}
 
 

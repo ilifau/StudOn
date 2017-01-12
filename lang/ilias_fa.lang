@@ -861,7 +861,6 @@ assessment#:#tst_answered_questions#:#سوالهای پاسخ داده شده
 assessment#:#tst_answered_questions_test#:#سوالهایی که در این تست پاسخ داده شده اند
 assessment#:#tst_beginning_ending_information#:#اطلاعات در ابتدا و انتهای تست
 assessment#:#tst_best_solution_is#:#The best solution is
-assessment#:#tst_browse_for_questions#:#Browse for Questions
 assessment#:#tst_change_points_for_question#:#Change the Points for the Answer
 assessment#:#tst_confirm_delete_results#:#You are about to delete all your previous entered question results of this test. This will reset all questions to its default values. Please note, that you cannot reset the number of passes, you already needed for this test. Do you really want to reset all your previous entered results?
 assessment#:#tst_confirm_delete_results_info#:#Your previous entered question results were deleted. You have successfully reset the test!
@@ -3933,7 +3932,6 @@ common#:#refuse#:#Refuse
 common#:#reg_account_confirmation_successful#:#Your user account has been activated.
 common#:#reg_mail_body_2_confirmation#:#The link will only be good for %s, after that you will have to try again from the beginning.
 common#:#reg_mail_body_3_confirmation#:#If this email means nothing to you, then it is possible that somebody else has entered your email address either deliberately or accidentally, so please ignore this email.
-common#:#reg_mail_body_confirmation#:#to activate your account and confirm ownership of this email address, click the link below:
 common#:#reg_mail_body_forgot_password_info#:#To get your password, please use the function « Forgot password? » at the login screen to request a new password for this account.
 common#:#reg_mail_body_salutation#:#سلام
 common#:#reg_mail_body_text1#:#Welcome to ILIAS eLearning!
@@ -5133,7 +5131,6 @@ content#:#cont_lm_comments_desc#:#اجازه به کاربران برای به �
 content#:#cont_lm_default_layout#:#Default Layout of Learning Module
 content#:#cont_lm_menu#:#منو
 content#:#cont_lm_properties#:#مشخصات ماژول یادگیری
-content#:#cont_LocalFile#:#فایل محلی
 content#:#cont_localization#:#Localization
 content#:#cont_localization_info#:#Language used for predifined texts, e.g. "Previous" and "Next".
 content#:#cont_location#:#Location
@@ -14098,7 +14095,6 @@ content#:#cont_edit_definitions#:#Edit Definitions###10 02 2014 new variable
 content#:#cont_edit_definition#:#Edit Definition###10 02 2014 new variable
 payment#:#pay_unpayed_bill#:#Please wire the open balance to the given bank account.###14 02 2014 new variable
 meta#:#meta_c_XK#:#Kosovo###11 03 2014 new variable
-certificate#:#certificate_var_matriculation#:#12345###11 03 2014 new variable
 certificate#:#certificate_ph_matriculation#:#Matriculation number of the user###11 03 2014 new variable
 survey#:#mailparticipantdata_placeholder#:#The following placeholders will be replaced with real user data in personalized surveys:###11 03 2014 new variable
 exc#:#exc_create_portfolio_no_template#:#Do not use template###11 03 2014 new variable
@@ -16210,3 +16206,20 @@ auth#:#auth_ldap_server_ds#:#LDAP-Server###03 08 2016 new variable
 assessment#:#ass_location#:#Location###03 08 2016 new variable
 assessment#:#ass_imap_hint#:#Hint to be shown as Tooltip###03 08 2016 new variable
 blog#:#blog_show_latest#:#Show latest postings/drafts###03 08 2016 new variable
+assessment#:#min_auto_complete#:#Autocomplete###12 10 2016 new variable
+assessment#:#autocomplete_error#:#Your autocomplete number is to large, you have answers which have less characters, so they would never be displayed.###12 10 2016 new variable
+assessment#:#tst_browse_for_qpl_questions#:#Add from Pool###12 10 2016 new variable
+assessment#:#tst_browse_for_tst_questions#:#Add from Other Test###12 10 2016 new variable
+assessment#:#ass_competence_respect_level_ordering#:#Please note that the competence thresholds have to be defined in an ascending order according to the available levels.###12 10 2016 new variable
+registration#:#reg_mail_body_activation#:#to activate your account and confirm ownership of this email address, click the link below:###12 10 2016 new variable
+form#:#err_invalid_input#:#An invalid value has been submited. Please check your input.###12 10 2016 new variable
+prg#:#prg_points_reachable#:#Points Obtainable###12 10 2016 new variable
+mail#:#mail_members_search_continue#:#Continue###12 10 2016 new variable
+copg#:#copg_confirm_el_deletion#:#Do you really want to delete the selected elements?###12 10 2016 new variable
+survey#:#msg_input_only_positive_numbers#:#Please enter positive numbers in scale values.###12 10 2016 new variable
+crs#:#crs_loc_err_stat_tst_offline#:#Not all tests are online.###12 10 2016 new variable
+itgr#:#itgr_desc_info#:#The description will not be a part of the item group's presentation in its container.###12 10 2016 new variable
+dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.###25 10 2016 new variable
+certificate#:#certificate_var_user_matriculation#:#12345###25 10 2016 new variable
+rbac#:#edit_members#:#Manage members###22 12 2016 new variable
+rbac#:#prg_manage_members#:#Manage members of Study Programme###22 12 2016 new variable

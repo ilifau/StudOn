@@ -1292,9 +1292,8 @@ class ilStartUpGUI
 		$tpl = new ilTemplate("tpl.main.html", true, true);
 		$tpl->setAddFooter(false); // no client yet
 
-		// to do: get standard style
 		$tpl->setVariable("PAGETITLE", $lng->txt("clientlist_clientlist"));
-		$tpl->setVariable("LOCATION_STYLESHEET","./templates/default/delos.css");
+        $tpl->setVariable("LOCATION_STYLESHEET", ilUtil::getStyleSheetLocation());
 
 		// load client list template
 		self::initStartUpTemplate("tpl.client_list.html");	
@@ -2040,7 +2039,13 @@ class ilStartUpGUI
 			{
 				$lng = new ilLanguage($usr_lang);
 			}
-			
+
+			$target = $oUser->getPref('reg_target');
+			if(strlen($target) > 0)
+			{
+				$_GET['target'] = $target;
+			}
+
 			// send email
 			// try individual account mail in user administration
 			include_once("Services/Mail/classes/class.ilAccountMail.php");

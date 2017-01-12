@@ -1031,7 +1031,8 @@ assessment#:#tst_answer_sheet#:#Test Answer Sheet
 assessment#:#tst_answered_questions_test#:#Questions answered in this test
 assessment#:#tst_answered_questions#:#Answered Questions
 assessment#:#tst_best_solution_is#:#The best solution is
-assessment#:#tst_browse_for_questions#:#Add from Pool
+assessment#:#tst_browse_for_qpl_questions#:#Add from Pool
+assessment#:#tst_browse_for_tst_questions#:#Add from Other Test
 assessment#:#tst_change_points_for_question#:#Points for the Answer
 assessment#:#tst_confirm_delete_results_info#:#Your previous entered question results were removed. You have successfully reset the test!
 assessment#:#tst_confirm_delete_results#:#You are about to remove all your previous entered question results of this test. This will reset all questions to its default values. Please note, that you cannot reset the number of passes, you already needed for this test. Do you really want to reset all your previous entered results?
@@ -2376,7 +2377,7 @@ common#:#create#:#Create
 common#:#created#:#Creation Date
 common#:#cron_forum_notification_cron#:#regularly per cron job
 common#:#cron_forum_notification_desc#:#If enabled, all users, who want to be informed about new posts in specified forum threads, will get notifications by mail.
-common#:#cron_forum_notification_crob_desc#:#If enabled, all users who have enabled forum notifications will get a daily mail about all new posts but no immediate notification for each submitted posting.
+common#:#cron_forum_notification_crob_desc#:#If enabled, all users who have enabled notifications for certain forums or forum threads will daily receive a notification mail about all new  or changed posts but no immediate notification for each submitted posting.
 common#:#cron_forum_notification_directly#:#directly on new entries
 common#:#cron_forum_notification_never#:#never
 common#:#cron_forum_notification#:#Send Forum Notifications
@@ -5231,7 +5232,6 @@ content#:#cont_lm_default_layout#:#Default Layout of Learning Module
 content#:#cont_lm_menu#:#Menu
 content#:#cont_lm_properties#:#Learning Module Settings
 content#:#cont_localfile#:#Local File
-content#:#cont_LocalFile#:#Local File
 content#:#cont_location#:#Location
 content#:#cont_lrs_settings#:#Settings
 content#:#cont_lvalue#:#Data element
@@ -13412,6 +13412,7 @@ dcl#:#dcl_file_not_readable#:#The file could not be read. Please make sure to up
 dcl#:#dcl_import_terminated#:#The import terminated. Entries added
 dcl#:#dcl_max_import#:#The maximum amount of imported entries is reached.
 dcl#:#dcl_row_not_found#:# - This field couldn't be found in the table.
+dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.
 dcl#:#dcl_import_records .xls#:#Import .xls
 dcl#:#dcl_file_format_description#:#The file needs to be an excel .XLS file with the data you want to import on the first sheet. In the first row there have to be exactly the names of the fields (case sensitive) you want to import and in the following rows you can add the values. It is strongly recommended to simulate your import first.
 dcl#:#dcl_simulate_import#:#Simulate Import
@@ -14691,7 +14692,7 @@ poll#:#poll_result_answers#:#Votes
 poll#:#poll_result_users#:#Participants
 user#:#usr_id#:#User ID
 meta#:#meta_c_XK#:#Kosovo
-certificate#:#certificate_var_matriculation#:#12345
+certificate#:#certificate_var_user_matriculation#:#12345
 certificate#:#certificate_ph_matriculation#:#Matriculation number of the user
 survey#:#mailparticipantdata_placeholder#:#These placeholders are replaced by actual user data if ‘Privacy’ is ‘With Names’:
 poll#:#poll_notification_subscribe#:#Activate Notification
@@ -16213,6 +16214,17 @@ assessment#:#ass_location#:#Location
 assessment#:#ass_imap_hint#:#Hint to be shown as Tooltip
 blog#:#blog_show_latest#:#Show latest postings/drafts
 assessment#:#ass_competence_respect_level_ordering#:#Please note that the competence thresholds have to be defined in an ascending order according to the available levels.
+registration#:#reg_mail_body_activation#:#to activate your account and confirm ownership of this email address, click the link below:
+form#:#err_invalid_input#:#An invalid value has been submited. Please check your input.
+prg#:#prg_points_reachable#:#Points Obtainable
+mail#:#mail_members_search_continue#:#Continue
+copg#:#copg_confirm_el_deletion#:#Do you really want to delete the selected elements?
+survey#:#msg_input_only_positive_numbers#:#Please enter positive numbers in scale values.
+crs#:#crs_loc_err_stat_tst_offline#:#Not all tests are online.
+itgr#:#itgr_desc_info#:#The description will not be a part of the item group's presentation in its container.
+rbac#:#edit_members#:#Manage members
+rbac#:#prg_manage_members#:#Manage members of Study Programme
+
 assessment#:#tst_revert_changes#:#Undo Editing###fau: testNav
 assessment#:#tst_revert_changes_hint#:#You can undo your editing in the action menu of the question.###fau: testNav
 assessment#:#save_on_navigation#:#Save on Navigation###fau: testNav

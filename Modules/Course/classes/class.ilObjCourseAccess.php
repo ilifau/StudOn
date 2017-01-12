@@ -570,7 +570,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 			$members = $partObj->getNumberOfMembers();
 			$free_places = max($max_members - $members, 0);
 			$subscribers = $partObj->getNumberOfSubscribers();
-			$waiting = ilCourseWaitingList::_countSubscribers(array($a_obj_id));
+			$waiting = ilCourseWaitingList::lookupListSize($a_obj_id);
 			$lotlist = ilSubscribersLot::_getCountUsers($a_obj_id);
 
 			$limits = array();
@@ -580,7 +580,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 			}
 			$limits[] =  $lng->txt("mem_max_users"). $max_members;
 			$limits[] =  $lng->txt("mem_free_places"). ': '. $free_places;
-			if ($subscriber + $waiting > 0)
+			if ($subscribers + $waiting > 0)
 			{
 				$limits[] =  $lng->txt("subscribers_or_waiting_list"). ': '. (string) ($subscribers + $waiting);
 			}
@@ -638,7 +638,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 	function _preloadData($a_obj_ids, $a_ref_ids)
 	{
 		global $ilUser, $lng;
-
+		
 		$lng->loadLanguageModule("crs");
 		
 		include_once("./Modules/Course/classes/class.ilCourseWaitingList.php");
@@ -660,33 +660,33 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
 	/**
 	 * Lookup course period info
-	 *
+	 * 
 	 * @param int $a_obj_id
 	 * @return array
 	 */
 	public static function lookupPeriodInfo($a_obj_id)
 	{
 		global $ilDB, $lng;
-
+		
 		$start = $end = null;
-
+		
 		$query = 'SELECT crs_start, crs_end FROM crs_settings'.
 			' WHERE obj_id = '.$ilDB->quote($a_obj_id);
-		$set = $ilDB->query($query);
+		$set = $ilDB->query($query);		
 		while($row = $ilDB->fetchAssoc($set))
-		{
-			$start = $row['crs_start']
+		{			
+			$start = $row['crs_start'] 
 				? new ilDate($row['crs_start'], IL_CAL_UNIX)
 				: null;
-			$end = $row['crs_end']
+			$end = $row['crs_end'] 
 				? new ilDate($row['crs_end'], IL_CAL_UNIX)
 				: null;
 		}
-
+		
 		if($start && $end)
 		{
 			$lng->loadLanguageModule('crs');
-
+			
 			return array(
 				'property' => $lng->txt('crs_period'),
 				'value' => ilDatePresentation::formatPeriod($start, $end)

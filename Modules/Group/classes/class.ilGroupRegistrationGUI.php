@@ -213,8 +213,8 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 		{
 			return true;
 		}
-
-		$tpl = new ilTemplate('tpl.max_members_form.html',true,true,'Services/Membership');
+		
+		$tpl = new ilTemplate('tpl.max_members_form.html',true,true,'Services/Membership');		
 
 		if($this->container->getMinMembers())
 		{
@@ -227,13 +227,21 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 			$tpl->setVariable('TXT_MAX',$this->lng->txt('mem_max_users'));
 			$tpl->setVariable('NUM_MAX',$this->container->getMaxMembers());
 
-			$tpl->setVariable('TXT_FREE',$this->lng->txt('mem_free_places').":");
-			$free = max(0,$this->container->getMaxMembers() - $this->participants->getCountMembers());
+			include_once './Modules/Group/classes/class.ilObjGroupAccess.php';
+			$reg_info = ilObjGroupAccess::lookupRegistrationInfo($this->getContainer()->getId());
+			$free = $reg_info['reg_info_free_places'];
 
+// fim: [meminf] show label for free places
+			$tpl->setVariable('TXT_FREE',$this->lng->txt('mem_free_places'));
+// fim.
 			if($free)
+			{
 				$tpl->setVariable('NUM_FREE',$free);
+			}
 			else
+			{
 				$tpl->setVariable('WARN_FREE',$free);
+			}
 
 			// fim: [memlot] give info for lot list
 			if ($this->container->enabledLotList())

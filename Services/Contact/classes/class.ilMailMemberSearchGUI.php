@@ -248,8 +248,10 @@ class ilMailMemberSearchGUI
 		ilUtil::redirect(ilMailFormCall::getRedirectTarget(
 			$this, 'members', 
 			array(),
-			array('type' => 'new', 
-			      'sig'  => ''),
+			array(
+				'type' => 'new',
+				'sig'  =>  $this->gui->createMailSignature()
+			),
 			$this->generateContextArray()
 		));
 		return true;
@@ -363,7 +365,7 @@ class ilMailMemberSearchGUI
 		}
 // fau.
 
-		$form->addCommandButton('nextMailForm', $this->lng->txt('continue'));
+		$form->addCommandButton('nextMailForm', $this->lng->txt('mail_members_search_continue'));
 		$form->addCommandButton('cancel', $this->lng->txt('cancel'));
 
 		return $form;

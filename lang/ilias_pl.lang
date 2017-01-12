@@ -1380,7 +1380,6 @@ assessment#:#tst_back_to_top#:#Back to Top
 assessment#:#tst_back_to_virtual_pass#:#Back to Questionoverview
 assessment#:#tst_beginning_ending_information#:#Informacja na Początku i na Końcu Testu
 assessment#:#tst_best_solution_is#:#Najlepsze rozwiązanie to
-assessment#:#tst_browse_for_questions#:#Przegląd pytań
 assessment#:#tst_btn_hide_best_solutions#:#Hide Best Solutions
 assessment#:#tst_btn_rebuild_random_question_stage#:#Synchronize Quesitons from Pool
 assessment#:#tst_btn_show_best_solutions#:#Show Best Solutions
@@ -2716,7 +2715,6 @@ certificate#:#certificate_text#:#Tekst Certyfikatu
 certificate#:#certificate_top#:#Góra
 certificate#:#certificate_unit_description#:#Wprowadź jednostki miar jako wartość[cm|mm|in|pt|pc|px|em], np. 10mm or 3in
 certificate#:#certificate_usage#:#Please note that the usage of certificates is only available if the ILIAS Java-Server is running. The configuration for Java-Server is available on the main page of the ILIAS administration in section Webservices.
-certificate#:#certificate_var_matriculation#:#12345
 certificate#:#certificate_var_max_points#:#46
 certificate#:#certificate_var_result_mark_long#:#Dobrze
 certificate#:#certificate_var_result_mark_short#:#B
@@ -5437,7 +5435,6 @@ common#:#reg_account_confirmation_successful#:#Twoje konto w systemie LMS ILIAS 
 common#:#reg_goto_parent_membership_info#:#Only members can access the target object.
 common#:#reg_mail_body_2_confirmation#:#Link będzie ważny przez %s, po tym czasie procedurę rejestracji będziesz musiał rozpocząć od nowa.
 common#:#reg_mail_body_3_confirmation#:#Jeżeli treść tego e-maila nic Ci nie mówi, oznacza to, iż ktoś inny celowo lub przypadkowo podał Twój adres e-mail. Prosimy o zignorowanie tej wiadomości.
-common#:#reg_mail_body_confirmation#:#to activate your account and confirm ownership of this email address, click the link below:
 common#:#reg_mail_body_forgot_password_info#:#Aby zresetować hasło, możesz skorzystać z funkcjonalności « Zapomniałeś hasła? », która jest umieszczona pod panelem logowania do ILIAS.
 common#:#reg_mail_body_salutation#:#Witaj
 common#:#reg_mail_body_text1#:#Witamy w systemie elektronicznego nauczania ILIAS!
@@ -6778,7 +6775,6 @@ content#:#cont_lm_default_layout#:#Default Layout of Learning Module
 content#:#cont_lm_mail_permanent_link#:#Click on the following link to access the learning module:
 content#:#cont_lm_menu#:#Menu
 content#:#cont_lm_properties#:#Właściwości modułu nauczania
-content#:#cont_LocalFile#:#Local File
 content#:#cont_localization#:#Localization
 content#:#cont_localization_info#:#Language used for predifined texts, e.g. "Previous" and "Next".
 content#:#cont_location#:#Location
@@ -16210,3 +16206,20 @@ auth#:#auth_ldap_server_ds#:#LDAP-Server###03 08 2016 new variable
 assessment#:#ass_location#:#Location###03 08 2016 new variable
 assessment#:#ass_imap_hint#:#Hint to be shown as Tooltip###03 08 2016 new variable
 blog#:#blog_show_latest#:#Show latest postings/drafts###03 08 2016 new variable
+assessment#:#min_auto_complete#:#Autocomplete###12 10 2016 new variable
+assessment#:#autocomplete_error#:#Your autocomplete number is to large, you have answers which have less characters, so they would never be displayed.###12 10 2016 new variable
+assessment#:#tst_browse_for_qpl_questions#:#Add from Pool###12 10 2016 new variable
+assessment#:#tst_browse_for_tst_questions#:#Add from Other Test###12 10 2016 new variable
+assessment#:#ass_competence_respect_level_ordering#:#Please note that the competence thresholds have to be defined in an ascending order according to the available levels.###12 10 2016 new variable
+registration#:#reg_mail_body_activation#:#to activate your account and confirm ownership of this email address, click the link below:###12 10 2016 new variable
+form#:#err_invalid_input#:#An invalid value has been submited. Please check your input.###12 10 2016 new variable
+prg#:#prg_points_reachable#:#Points Obtainable###12 10 2016 new variable
+mail#:#mail_members_search_continue#:#Continue###12 10 2016 new variable
+copg#:#copg_confirm_el_deletion#:#Do you really want to delete the selected elements?###12 10 2016 new variable
+survey#:#msg_input_only_positive_numbers#:#Please enter positive numbers in scale values.###12 10 2016 new variable
+crs#:#crs_loc_err_stat_tst_offline#:#Not all tests are online.###12 10 2016 new variable
+itgr#:#itgr_desc_info#:#The description will not be a part of the item group's presentation in its container.###12 10 2016 new variable
+dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.###25 10 2016 new variable
+certificate#:#certificate_var_user_matriculation#:#12345###25 10 2016 new variable
+rbac#:#edit_members#:#Manage members###22 12 2016 new variable
+rbac#:#prg_manage_members#:#Manage members of Study Programme###22 12 2016 new variable
