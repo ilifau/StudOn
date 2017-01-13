@@ -80,7 +80,7 @@ class ilAuthContainerMDB2 extends Auth_Container_MDB2
 		}
 		return $username;
 	}
-	
+
 	/**
 	 * Check for local password in case of auth modes, which allow local authentication
 	 * @param type $username
@@ -98,15 +98,13 @@ class ilAuthContainerMDB2 extends Auth_Container_MDB2
 		$local_passwords_allowed = false;
 		switch($auth_id)
 		{
+// fau: samlAuth - allow a validation of shibboleth passwords in local login
+			case AUTH_SHIBBOLETH:
+// fau.
 			case AUTH_APACHE:
 			case AUTH_LOCAL:
 				$local_passwords_allowed = true;
-				
-// fau: samlAuth - allow a validation of shibboleth passwords in local login
-			case AUTH_SHIBBOLETH:
-				return true;
-// fau.
-				
+
 			default:
 				if(ilAuthUtils::isPasswordModificationEnabled($auth_id))
 				{
