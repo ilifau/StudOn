@@ -723,8 +723,10 @@ class ilInitialisation
 			ilSession::setClosingContext(ilSession::SESSION_CLOSE_PUBLIC);
 		}
 		$ilAuth->logout();
-		session_unset();
-		session_destroy();
+		// fim: [portal] fault tolerance for destroying uninitialized session
+		@session_unset();
+		@session_destroy();
+		// fim.
 		
 		// new session and login as anonymous
 		self::setSessionHandler();
