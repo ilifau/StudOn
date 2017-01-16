@@ -216,7 +216,12 @@ class ilAssFileUploadUploadsExporter
 						
 					ilUtil::makeDirParents($destinationDir);
 
-					copy($uploadedFileDir.$file['value1'], $destinationDir.$file['value2']);
+// fau: testNav - ignore a dummy entry of the intermediate solution
+					if (!empty($file['value1']))
+					{
+						copy($uploadedFileDir.$file['value1'], $destinationDir.$file['value2']);
+					}
+// fau.
 				}
 			}
 		}
