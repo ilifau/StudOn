@@ -446,9 +446,18 @@ class ilContainer extends ilObject
 	function removeCustomIcon()
 	{
 		$cont_dir = $this->getContainerDirectory();
-		$small_file_name = $cont_dir."/icon_custom.svg";
-		@unlink($small_file_name);
-		ilContainer::_writeContainerSetting($this->getId(), "icon_custom", 0);
+
+// fau: legacyIcons - delete all sizes if custom icon is removed
+		foreach (array('custom','big','small','tiny') as $size)
+		{
+			foreach (array('svg','png','gif','jpg') as $suffix)
+			{
+				$file_name = $cont_dir."/icon_$size.$suffix";
+				@unlink($file_name);
+				ilContainer::_deleteContainerSettings($this->getId(), "icon_$size");
+			}
+		}
+// fau.
 	}
 	
 	/**
