@@ -241,6 +241,10 @@ class ilWorkspaceAccessGUI
 		
 		$password = new ilPasswordInputGUI($this->lng->txt("password"), "password");
 		$password->setRequired(true);
+// fau: showSharePaswordRequirements - show requirements info for sharing password
+		include_once "Services/Utilities/classes/class.ilUtil.php";
+		$password->setInfo(ilUtil::getPasswordRequirementsInfo());
+// fau.
 		$form->addItem($password);
 		
 		$form->addCommandButton('savepasswordform', $this->lng->txt("save"));
