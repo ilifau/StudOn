@@ -140,16 +140,21 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
 			$template->setVariable("PDF_TEXT", $this->lng->txt("pdf_export"));
 			global $ilSetting;
 			$inst_id = $ilSetting->get('inst_id', null);
+// fau: fixExamSubmissionReviewPdf - create a working url for the submission review
 			$path =  ilUtil::getWebspaceDir() . '/assessment/'. $this->testOutputGUI->object->getId() . '/exam_pdf';
+			$location_path = ilUtil::getWebspaceDir() . '/assessment/'. $this->testOutputGUI->object->getId() . '/exam_pdf';
 			if (!is_dir($path))
 			{
 				ilUtil::makeDirParents($path);
 			}
 			$filename = realpath($path) . '/exam_N' . $inst_id . '-' . $this->testOutputGUI->object->getId() . '-' . $active . '-' . $this->testSession->getPass() . '.pdf';
+			$location = $location_path . '/exam_N' . $inst_id . '-' . $this->testOutputGUI->object->getId() . '-' . $active . '-' . $this->testSession->getPass() . '.pdf';
 			require_once 'class.ilTestPDFGenerator.php';
 			ilTestPDFGenerator::generatePDF($results_output, ilTestPDFGenerator::PDF_OUTPUT_FILE, $filename);
 			require_once 'Services/WebAccessChecker/classes/class.ilWACSignedPath.php';
-			$template->setVariable("PDF_FILE_LOCATION", ilWACSignedPath::signFile($filename));
+			//$template->setVariable("PDF_FILE_LOCATION", ilWACSignedPath::signFile($filename));
+			$template->setVariable("PDF_FILE_LOCATION", $location);
+// fau.
 		}
 		else
 		{
