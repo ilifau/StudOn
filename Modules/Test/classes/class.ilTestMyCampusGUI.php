@@ -221,7 +221,7 @@ class ilTestMyCampusGUI extends ilTestServiceGUI
 		$this->tools->setOption('exam_number', $exam_number);
 		$this->tools->setOption('rating_type', $form->getInput('rating_type'));
 		$this->tools->setOption('mark_field', $form->getInput('mark_field'));
-		$this->tools->setOption('other_fields', implode(',', $form->getInput('other_fields')));
+		$this->tools->setOption('other_fields', implode(',', (array) $form->getInput('other_fields')));
 		$this->tools->writeOptions();
 		$mess = $this->tools->createExportFiles();
 		if ($mess)
