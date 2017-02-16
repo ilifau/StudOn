@@ -90,6 +90,9 @@ class ilTestScoring
 			{
 				$this->recalculatePass( $passdata, $active_id, $pass );
 				$this->addRecalculatedPassByActive($active_id, $pass);
+// fau: provideRecalc - always update the test pass result (manual scoring may be refreshed)
+				assQuestion::_updateTestPassResults($active_id, $pass, true);
+// fau.
 			}
 		}
 	}

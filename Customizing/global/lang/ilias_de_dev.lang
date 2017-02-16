@@ -57,6 +57,7 @@ assessment#:#tst_msg_rand_quest_set_sync_duration#:#Bei der Synchronisation werd
 assessment#:#tst_filter_question_type#:#Fragentyp
 assessment#:#tst_filter_question_type_enabled#:#Verwende Fragentyp als Filter
 assessment#:#tst_recalculate_solutions#:#Ergebnisse neu berechnen
+assessment#:#tst_recalculate_solutions_confirm#:#Die Ergebnisse aller Teilnehmer werden neu berechnet. Manuelle Bewertungen bleiben dabei erhalten. Die Berechnung kann lange dauern!
 assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
 assessment#:#tst_use_previous_answer#:#Die angezeigte Lösung aus dem vorherigen Durchgang übernehmen
 assessment#:#tst_use_previous_answer_imagemap#:#Bitte klicken Sie erneut auf das Bild, um die Lösung aus dem vorherigen Durchgang zu übernehmen.

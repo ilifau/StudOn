@@ -56,6 +56,7 @@ assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies a
 assessment#:#tst_filter_question_type#:#Question Type
 assessment#:#tst_filter_question_type#:#Use Question Type as Filter
 assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
+assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of all participants. Manual scorings will be kept. The calculation may took a long time!
 assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
 assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
 assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.

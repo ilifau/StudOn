@@ -305,6 +305,19 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 			$button->setCaption('export');
 			$button->getOmitPreventDoubleSubmission();
 			$ilToolbar->addButtonInstance($button);
+
+// fau: provideRecalc - add button for administrators to recalculate the scoring
+			global $ilCust;
+			if ($ilCust->getSetting('administration_is_visible'))
+			{
+				$ilToolbar->addSeparator();
+				$button = ilSubmitButton::getInstance();
+				$button->setCommand('confirmRecalcScoring');
+				$button->setCaption('tst_recalculate_solutions');
+				$button->getOmitPreventDoubleSubmission();
+				$ilToolbar->addButtonInstance($button);
+			}
+// fau.
 		}
 
 		$this->tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css", "Modules/Test"), "print");
@@ -315,7 +328,40 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
 		$this->tpl->setContent($table_gui->getHTML());
 	}
-	
+
+// fau: provideRecalc - new function to confirm a recalculation of the scorings
+	/**
+	 * Confirm the scoring recalculation of all participants
+	 */
+	function confirmRecalcScoring()
+	{
+		require_once('Services/Utilities/classes/class.ilConfirmationGUI.php');
+		$gui = new ilConfirmationGUI();
+		$gui->setFormAction($this->ctrl->getFormAction($this));
+		$gui->setHeaderText($this->lng->txt('tst_recalculate_solutions_confirm'));
+		$gui->setConfirm($this->lng->txt('tst_recalculate_solutions'), 'recalcScoring');
+		$gui->setCancel($this->lng->txt('cancel'), 'outEvaluation');
+		$this->tpl->setContent($gui->getHTML());
+	}
+// fau.
+
+// fau: provideRecalc - new function to recalculate the scoring of all participants
+	/**
+	 * Recalculate the scoring of all participants
+	 */
+	function recalcScoring()
+	{
+		require_once './Modules/Test/classes/class.ilTestScoring.php';
+		$scorer = new ilTestScoring($this->object);
+		$scorer->setPreserveManualScores(true);
+		$scorer->recalculateSolutions();
+
+		require_once('Services/Utilities/classes/class.ilUtil.php');
+		ilUtil::sendSuccess($this->lng->txt('tst_recalculated_solutions'), true);
+		$this->ctrl->redirect($this, 'outEvaluation');
+	}
+// fau.
+
 	/**
 	* Creates the detailed evaluation output for a selected participant
 	*
