@@ -336,7 +336,10 @@ abstract class ilContainerContentGUI
 		$item_list_gui->enableNotes(true);
 		$item_list_gui->enableTags(true);
 		$item_list_gui->enableRating(true);
-
+// fau: fix51 - 0020005: Verfügbarkeit einer Sitzung verhindert einen Ordnerzugriff auch ausserhalb dieser Sitzung
+		// reset
+		$item_list_gui->forceVisibleOnly(false);
+// fau.
 		// container specific modifications
 		$this->getContainerGUI()->modifyItemGUI($item_list_gui, $item_data, $a_show_path);
 

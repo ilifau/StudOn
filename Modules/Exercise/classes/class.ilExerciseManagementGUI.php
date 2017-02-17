@@ -510,7 +510,12 @@ class ilExerciseManagementGUI
 			{
 				include_once("./Services/User/classes/class.ilObjUser.php");
 				$name = ilObjUser::_lookupName($mem_id);
-				$mems[$mem_id] = $name;
+// fau: fix51 - 0020073: Exercise broken (redirection loops) in Participant View
+				if (trim($name["login"]) != "")		// #20073
+				{
+					$mems[$mem_id] = $name;
+				}
+// fau.
 			}
 		}
 		

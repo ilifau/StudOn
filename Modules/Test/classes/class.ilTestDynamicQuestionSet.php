@@ -117,7 +117,11 @@ class ilTestDynamicQuestionSet
 			
 			foreach($filterSelection->getTaxonomySelection() as $taxId => $taxNodes)
 			{
-				$questionList->addTaxonomyFilter($taxId, $taxNodes);
+// fau: fix51 - 0020119 CTM-Test crashes nach Start mit Taxonomiefilter eines Fragenthemas
+				$questionList->addTaxonomyFilter(
+					$taxId, $taxNodes, $this->testOBJ->getId(), $this->testOBJ->getType()
+				);
+// fau.
 			}
 		}
 		elseif( $dynamicQuestionSetConfig->getOrderingTaxonomyId() )

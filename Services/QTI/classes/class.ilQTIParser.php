@@ -49,6 +49,11 @@ class ilQTIParser extends ilSaxParser
 	var $render_type;
 	var $response_label;
 	var $material;
+// fau: fix51 - qti image security
+	/**
+	 * @var ilQTIMatimage
+	 */
+// fau.
 	var $matimage;
 	var $response;
 	var $resprocessing;
@@ -680,6 +685,12 @@ class ilQTIParser extends ilSaxParser
 								break;
 						}
 					}
+// fau: fixQtiImageCheck - set the content from referenced file
+					if (!$this->matimage->getEmbedded() && strlen($this->matimage->getUri()))
+					{
+						$this->matimage->setContent(file_get_contents(dirname($this->xml_file) . '/'. $this->matimage->getUri()));
+					}
+// fau.
 				}
 				break;
 			case "material":
@@ -1370,16 +1381,31 @@ class ilQTIParser extends ilSaxParser
 				}
 				$this->material = NULL;
 				break;
+// fau: fix51 - qti image security
 			case "matimage";
-				if ($this->material != NULL)
+				if( !$this->isMatImageAvailable() )
 				{
-					if ($this->matimage != NULL)
-					{
-						$this->material->addMatimage($this->matimage);
-					}
+					break;
 				}
+
+				if( $this->virusDetected($this->matimage->getRawContent()) )
+				{
+					break;
+				}
+
+				require_once 'Services/QTI/classes/class.ilQtiMatImageSecurity.php';
+				$matImageSecurity = new ilQtiMatImageSecurity($this->matimage);
+				$matImageSecurity->sanitizeLabel();
+
+				if( !$matImageSecurity->validate() )
+				{
+					break;
+				}
+
+				$this->material->addMatimage($this->matimage);
 				$this->matimage = NULL;
 				break;
+// fau.
 			// add support for matbreak element
 			case "matbreak":
 				$this->mattext = new ilQTIMattext();
@@ -1825,5 +1851,34 @@ class ilQTIParser extends ilSaxParser
 		
 		return $xmlContent;
 	}
+
+// fau: fix51 - qti image security
+	protected function isMatImageAvailable()
+	{
+		if( !$this->material )
+		{
+			return false;
 }
-?>
+
+		if( !$this->matimage )
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	protected function virusDetected($buffer)
+	{
+		require_once 'Services/VirusScanner/classes/class.ilVirusScannerFactory.php';
+		$vs = ilVirusScannerFactory::_getInstance();
+
+		if( $vs === null )
+		{
+			return false; // no virus scan, no virus detected
+		}
+
+		return (bool)$vs->scanBuffer($buffer);
+	}
+// fau.
+}

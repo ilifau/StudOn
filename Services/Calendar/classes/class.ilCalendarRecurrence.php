@@ -112,9 +112,17 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 		
 		ilCalendarRecurrenceExclusions::delete($a_cal_id);
 	}
-	
+// fau: fix51 - 0020118: Kalenderserie in Google-Kalender/Outlook mit falschem Enddatum
+	/**
+	 * Get ical presentation for calendar recurrence
+	 * @param type $a_user_id
+	 * @return string
+	 */
 	public function toICal($a_user_id)
 	{
+		include_once './Services/Calendar/classes/class.ilCalendarEntry.php';
+		$entry = new ilCalendarEntry($this->getEntryId());
+
 		$ical = 'RRULE:';
 		$ical .= ('FREQ='.$this->getFrequenceType());
 		
@@ -128,7 +136,15 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 		}
 		elseif($this->getFrequenceUntilDate())
 		{
+			if($entry->isFullday())
+			{
 			$ical .= (';UNTIL='.$this->getFrequenceUntilDate()->get(IL_CAL_FKT_DATE,'Ymd'));
+		}
+			else
+			{
+				$his = $entry->getStart()->get(IL_CAL_FKT_DATE, 'His');
+				$ical .= (';UNTIL='.$this->getFrequenceUntilDate()->get(IL_CAL_FKT_DATE,'Ymd').'T'.$his);
+			}
 		}
 		if($this->getBYMONTH())
 		{
@@ -173,7 +189,7 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 
 		return $ical;
 	}
-	
+// fau.
 	
 	/**
 	 * reset all settings
@@ -219,7 +235,16 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 	{
 	 	$this->cal_id = $a_id;
 	}
-	
+// fau: fix51 - 0020118: Kalenderserie in Google-Kalender/Outlook mit falschem Enddatum
+	/**
+	 * Get calendar entry id
+	 * @return int
+	 */
+	public function getEntryId()
+	{
+		return $this->entry_id;
+	}
+// fau.
 	/**
 	 * set type of recurrence
 	 *

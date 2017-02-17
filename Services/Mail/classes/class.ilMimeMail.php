@@ -452,8 +452,8 @@ class ilMimeMail
 			$mail->AddAttachment($attachment, $name);
 			++$i;
 		}
-
-		ilLoggerFactory::getLogger('mail')->debug(sprintf(
+// fau: fix51 - mail logging
+		ilLoggerFactory::getLogger('mail')->debug(
 			"Trying to delegate external email delivery:" .
 			" Initiated by: " . $ilUser->getLogin() . " (" . $ilUser->getId() . ")" .
 			" | From: " . $this->xheaders['From'] .
@@ -461,8 +461,8 @@ class ilMimeMail
 			" | CC: " . implode(', ', $this->acc) .
 			" | BCC: " . implode(', ', $this->abcc) .
 			" | Subject: " .$mail->Subject
-		));
-
+		);
+// fau.
 		if(!(int)$ilSetting->get('prevent_smtp_globally'))
 		{
 			$result = $mail->Send();

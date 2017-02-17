@@ -410,20 +410,22 @@ class ilRbacSystem
 	{
 		include_once './Services/Container/classes/class.ilMemberViewSettings.php';
 		$settings = ilMemberViewSettings::getInstance();
-		
-		if(!isset($_GET['mv']))
-		{
-			// nothing to do
-			return true;
-		}
-		
+
+// fau: fix51 - 0019927: Member View is broken
 		// disable member view
-		if(!$_GET['mv'])
+		if(
+			isset($_GET['mv']) &&
+			$_GET['mv'] == 0
+		)
 		{
 			// force deactivation
 			$settings->toggleActivation((int) $_GET['ref_id'], false);
 		}
-		else
+		if(
+			isset($_GET['mv']) &&
+			$_GET['mv'] == 1
+		)
+// fau.
 		{
 			if($this->checkAccess('write', (int) $_GET['ref_id']))
 			{

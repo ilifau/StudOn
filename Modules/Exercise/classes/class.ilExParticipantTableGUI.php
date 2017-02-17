@@ -47,6 +47,9 @@ class ilExParticipantTableGUI extends ilTable2GUI
 			else
 			{
 				$ilCtrl->setParameter($a_parent_obj, "member_id", "");
+// fau: fix51 - 0020073: Exercise broken (redirection loops) in Participant View
+				$ilCtrl->setParameter($a_parent_obj, "part_id", "");	// #0020073
+// fau.
 				$ilCtrl->redirect($a_parent_obj, $a_parent_cmd);
 			}
 		}

@@ -156,6 +156,9 @@ class ilInternalLink
 	 */
 	function _getIdForImportId($a_type, $a_target)
 	{
+// fau: fix51 - #20048 Import of learning module does not work
+		include_once("./Modules/LearningModule/classes/class.ilLMObject.php");
+// fau.
 		switch($a_type)
 		{
 			case "PageObject":

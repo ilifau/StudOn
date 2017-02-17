@@ -186,13 +186,22 @@ abstract class ilParticipants
 			$a_type = array($a_type);
 		}
 
+// fau: fix51 - 0020172: \ilParticipants::_getMembershipByType: Wrong SQL query when "true" is passed as argument for $a_only_member_role
 		// this will also dismiss local roles!
 		if ($a_only_member_role)
 		{
 			$j2 = "JOIN object_data obd2 ON (ua.rol_id = obd2.obj_id) ";
-			$a2 = "AND obd2.title LIKE 'il_".$a_type."_mem%' ";
+			$a2 = 'AND obd2.title = '.$ilDB->concat(
+				array(
+					array($ilDB->quote('il_','text')),
+					array('obd.type'),
+					array($ilDB->quote('_member_','text')),
+					array('obr.ref_id'),
+				),
+				false
+			);
 		}
-
+// fau.
 		// #14290 - no role folder anymore
 		$query = "SELECT DISTINCT obd.obj_id,obr.ref_id FROM rbac_ua ua ".
 			"JOIN rbac_fa fa ON ua.rol_id = fa.rol_id ".			

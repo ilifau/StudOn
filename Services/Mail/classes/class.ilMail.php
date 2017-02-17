@@ -1115,11 +1115,11 @@ class ilMail
 		if (!$a_use_placeholders) # No Placeholders
 		{
 			$rcp_ids = $this->getUserIds(trim($a_rcp_to).','.trim($a_rcp_cc).','.trim($a_rcp_bcc));
-
+// fau: fix51 - mail logging
 			ilLoggerFactory::getLogger('mail')->debug(sprintf(
-				"Parsed TO/CC/BCC user ids from given recipients: " . implode(', ', $rcp_ids)
+				"Parsed TO/CC/BCC user ids from given recipients: %s", implode(', ', $rcp_ids)
 			));
-
+// fau.
 			$as_email = array();
 
 			foreach($rcp_ids as $id)
@@ -1197,13 +1197,14 @@ class ilMail
 			// cc / bcc
 			$rcp_ids_no_replace = $this->getUserIds(trim($a_rcp_cc).','.trim($a_rcp_bcc));
 
+// fau: fix51 - mail logging
 			ilLoggerFactory::getLogger('mail')->debug(sprintf(
-				"Parsed TO user ids from given recipients for serial letter notification: " . implode(', ', $rcp_ids_replace)
+				"Parsed TO user ids from given recipients for serial letter notification: %s", implode(', ', $rcp_ids_replace)
 			));
 			ilLoggerFactory::getLogger('mail')->debug(sprintf(
-				"Parsed CC/BCC user ids from given recipients for serial letter notification: " . implode(', ', $rcp_ids_no_replace)
+				"Parsed CC/BCC user ids from given recipients for serial letter notification: %s", implode(', ', $rcp_ids_no_replace)
 			));
-
+// fau.
 			$as_email = array();
 
 			// to
@@ -1411,7 +1412,9 @@ class ilMail
 						foreach ($grp_object->getGroupMemberIds() as $id)
 						{
 							$ids[] = $id;
-							$foundUserIds = $id;
+// fau: fix51 - 0020142: PHP error when sending email to a group
+							$foundUserIds[] = $id;
+// fau.
 						}
 
 						ilLoggerFactory::getLogger('mail')->debug(sprintf(
@@ -1890,15 +1893,15 @@ class ilMail
 	function sendMail($a_rcp_to,$a_rcp_cc,$a_rcp_bc,$a_m_subject,$a_m_message,$a_attachment,$a_type, $a_use_placeholders = 0)
 	{
 		global $lng,$rbacsystem;
-
-		ilLoggerFactory::getLogger('mail')->debug(sprintf(
+// fau: fix51 - mail logging
+		ilLoggerFactory::getLogger('mail')->debug(
 			"New mail system task:" .
 			" To: " . $a_rcp_to .
 			" | CC: " . $a_rcp_cc .
 			" | BCC: " . $a_rcp_bc .
 			" | Subject: " . $a_m_subject
-		));
-
+		);
+// fau.
 		$this->mail_to_global_roles = true;
 		if($this->user_id != ANONYMOUS_USER_ID)
 		{
@@ -2062,15 +2065,15 @@ class ilMail
 			$externalMailRecipientsTo = $this->__getEmailRecipients($rcp_to);
 			$externalMailRecipientsCc = $this->__getEmailRecipients($rcp_cc);
 			$externalMailRecipientsBcc = $this->__getEmailRecipients($rcp_bc);
-
-			ilLoggerFactory::getLogger('mail')->debug(sprintf(
+// fau: fix51 - mail logging
+			ilLoggerFactory::getLogger('mail')->debug(
 				"Parsed external mail addresses from given recipients:" .
 				" To: " . $externalMailRecipientsTo .
 				" | CC: " . $externalMailRecipientsCc .
 				" | BCC: " . $externalMailRecipientsBcc .
 				" | Subject: " . $a_m_subject
-			));
-
+			);
+// fau.
 			$this->sendMimeMail(
 				$externalMailRecipientsTo,
 				$externalMailRecipientsCc,
@@ -2083,9 +2086,9 @@ class ilMail
 		}
 		else
 		{
-			ilLoggerFactory::getLogger('mail')->debug(sprintf(
-				"No external mail addresses given in recipient string"
-			));
+// fau: fix51 - mail logging
+			ilLoggerFactory::getLogger('mail')->debug("No external mail addresses given in recipient string");
+// fau.
 		}
 
 		if (in_array('system',$a_type))

@@ -847,6 +847,8 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 
 	function duplicateImages($question_id, $objectId = null)
 	{
+// fau: fix51 - fixed logging *choice question types to prevent mass logging (thousands of lines)
+		/** @var $ilLog ilLogger */
 		global $ilLog;
 		$imagepath = $this->getImagePath();
 		$imagepath_original = str_replace("/$this->id/images", "/$question_id/images", $imagepath);
@@ -867,19 +869,26 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 				}
 				if (!@copy($imagepath_original . $filename, $imagepath . $filename))
 				{
-					$ilLog->write("image could not be duplicated!!!!", $ilLog->ERROR);
-					$ilLog->write("object: " . print_r($this, TRUE), $ilLog->ERROR);
+					$ilLog->warning(sprintf(
+						"Could not clone source image '%s' to '%s' (srcQuestionId: %s|tgtQuestionId: %s|srcParentObjId: %s|tgtParentObjId: %s)",
+						$imagepath_original . $filename, $imagepath . $filename,
+						$question_id, $this->id, $objectId, $this->obj_id
+					));
 				}
 				if (@file_exists($imagepath_original. $this->getThumbPrefix(). $filename))
 				{
 					if (!@copy($imagepath_original . $this->getThumbPrefix() . $filename, $imagepath . $this->getThumbPrefix() . $filename))
 					{
-						$ilLog->write("image thumbnail could not be duplicated!!!!", $ilLog->ERROR);
-						$ilLog->write("object: " . print_r($this, TRUE), $ilLog->ERROR);
+						$ilLog->warning(sprintf(
+							"Could not clone thumbnail source image '%s' to '%s' (srcQuestionId: %s|tgtQuestionId: %s|srcParentObjId: %s|tgtParentObjId: %s)",
+							$imagepath_original . $this->getThumbPrefix() . $filename, $imagepath . $this->getThumbPrefix() . $filename,
+							$question_id, $this->id, $objectId, $this->obj_id
+						));
 					}
 				}
 			}
 		}
+// fau.
 	}
 
 	function copyImages($question_id, $source_questionpool)

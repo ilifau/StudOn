@@ -27,7 +27,9 @@ class ilImageWizardInputGUI extends ilTextInputGUI
 	function __construct($a_title = "", $a_postvar = "")
 	{
 		parent::__construct($a_title, $a_postvar);
-		$this->setSuffixes(array("jpg", "jpeg", "png", "gif"));
+// fau: fix51 - qti image security
+		$this->setSuffixes(assQuestion::getAllowedImageMaterialFileExtensions());
+// fau.
 		$this->setSize('25');
 		$this->validationRegexp = "";
 	}

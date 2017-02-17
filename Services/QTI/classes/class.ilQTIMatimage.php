@@ -31,6 +31,10 @@
 */
 class ilQTIMatimage
 {
+// fau: fix51 - qti image security
+	const EMBEDDED_BASE64 = 'base64';
+// fau.
+
 	var $imagetype;
 	var $label;
 	var $height;
@@ -145,5 +149,19 @@ class ilQTIMatimage
 	{
 		return $this->content;
 	}
+
+// fau: fix51 - qti image security
+	public function getRawContent()
+	{
+		switch( $this->getEmbedded() )
+		{
+			case self::EMBEDDED_BASE64:
+
+				return base64_decode($this->getContent());
+		}
+
+		return $this->getContent();
+	}
+// fau.
 }
 ?>

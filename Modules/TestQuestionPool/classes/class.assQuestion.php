@@ -19,6 +19,24 @@ include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
  */
 abstract class assQuestion
 {
+// fau: fix51 - qti image security
+	const IMG_MIME_TYPE_JPG = 'image/jpeg';
+	const IMG_MIME_TYPE_PNG = 'image/png';
+	const IMG_MIME_TYPE_GIF = 'image/gif';
+
+	protected static $allowedFileExtensionsByMimeType = array(
+		self::IMG_MIME_TYPE_JPG => array('jpg', 'jpeg'),
+		self::IMG_MIME_TYPE_PNG => array('png'),
+		self::IMG_MIME_TYPE_GIF => array('gif')
+	);
+
+	protected static $allowedCharsetsByMimeType = array(
+		self::IMG_MIME_TYPE_JPG => array('binary'),
+		self::IMG_MIME_TYPE_PNG => array('binary'),
+		self::IMG_MIME_TYPE_GIF => array('binary')
+	);
+// fau.
+
 	/**
 	* Question id
 	*
@@ -310,6 +328,45 @@ abstract class assQuestion
 		require_once 'Services/Randomization/classes/class.ilArrayElementOrderKeeper.php';
 		$this->shuffler = new ilArrayElementOrderKeeper();
 	}
+
+// fau: fix51 - qti image security
+	public static function isAllowedImageMimeType($mimeType)
+	{
+		return (bool)count(self::getAllowedFileExtensionsForMimeType($mimeType));
+	}
+
+	public static function fetchMimeTypeIdentifier($contentTypeString)
+	{
+		return current(explode(';', $contentTypeString));
+	}
+
+	public static function getAllowedFileExtensionsForMimeType($mimeType)
+	{
+		foreach(self::$allowedFileExtensionsByMimeType as $allowedMimeType => $extensions)
+		{
+			$rexCharsets = implode('|', self::$allowedCharsetsByMimeType[$allowedMimeType]);
+			$rexMimeType = preg_quote($allowedMimeType, '/');
+
+			$rex = '/^'.$rexMimeType.'(;(\s)*charset=('.$rexCharsets.'))*$/';
+
+			if( !preg_match($rex, $mimeType) )
+			{
+				continue;
+			}
+
+			return $extensions;
+		}
+
+		return array();
+	}
+
+	public static function isAllowedImageFileExtension($mimeType, $fileExtension)
+	{
+		return in_array(
+			strtolower($fileExtension), self::getAllowedFileExtensionsForMimeType($mimeType)
+		);
+	}
+// fau.
 
 	/**
 	 * @return ilArrayElementShuffler
