@@ -3177,7 +3177,8 @@ class ilObjTestGUI extends ilObjectGUI
 			$soap_client = ilRemoteIliasClient::_getInstance();
 			if (!$soap_sid = $soap_client->login())
 			{
-				ilUtil::sendInfo($this->lng->txt("ilias_remote_soap_login_failed"), TRUE);
+				$error = $soap_client->client->getError();
+				ilUtil::sendInfo($this->lng->txt("ilias_remote_soap_login_failed").'<br />'.$error, TRUE);
 				$this->ctrl->redirect($this, "participants");
 			}
 	    }
@@ -3197,7 +3198,7 @@ class ilObjTestGUI extends ilObjectGUI
 			require_once 'Modules/Test/classes/class.ilTestGradingMessageBuilder.php';
 			$gradingMessageBuilder = new ilTestGradingMessageBuilder($lng, $this->object);
 			$gradingMessageBuilder->setActiveId($active_id);
-			$gradingMessageBuilder->build();
+			$gradingMessageBuilder->buildMessage();
 			$message = $gradingMessageBuilder->buildGradingMarkMsg();
 
             include_once "./Modules/Test/classes/class.ilTestSessionFactory.php";
