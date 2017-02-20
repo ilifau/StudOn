@@ -77,7 +77,8 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 			return ($_POST['types'] == 0) ? true : false;
 		}
 
-		if (empty($this->object->getLastChange()) && !isset($_POST['types']))
+		$lastChange = $this->object->getLastChange();
+		if (empty($lastChange) && !isset($_POST['types']))
 		{
 			// a new question is edited
 			return $this->object->getMultilineAnswerSetting() ? false : true;
