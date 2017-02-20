@@ -756,11 +756,13 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 	{
 		// Delete all existing answers and create new answers from the form data
 		$this->object->flushAnswers();
+// fau: fixScMcAnswerLatex - keep latex code when switching answer types
 		if ($this->object->isSingleline)
 		{
 			foreach ($_POST['choice']['answer'] as $index => $answertext)
 			{
-				$answertext = ilUtil::secureString($answertext);
+				$answertext = preg_replace('/<span class="latex">(.*)<\/span>/','[tex]$1[/tex]', $answertext);
+				$answertext = ilUtil::secureString($answertext, true, '<span>');
 
 				$picturefile    = $_POST['choice']['imagename'][$index];
 				$file_org_name  = $_FILES['choice']['name']['image'][$index];
@@ -789,9 +791,11 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 			foreach ($_POST['choice']['answer'] as $index => $answer)
 			{
 				$answertext = $answer;
+				$answertext = preg_replace('/\[tex\](.*)\[\/tex\]/','<span class="latex">$1</span>', $answertext);
 				$this->object->addAnswer( $answertext, $_POST['choice']['points'][$index], $index );
 			}
 		}
+// fau.
 	}
 
 	public function populateAnswerSpecificFormPart(\ilPropertyFormGUI $form)
