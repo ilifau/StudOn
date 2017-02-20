@@ -916,6 +916,19 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 			$testResultHeaderLabelBuilder->initObjectiveOrientedMode();
 		}
 
+// fau: testGradingMessage - show grading message for graded pass to the test admin
+		if( $this->isGradingMessageRequired())
+		{
+			$scoredPass = $this->object->_getResultPass($testSession->getActiveId());
+			if ($pass == $scoredPass)
+			{
+				$gradingMessageBuilder = $this->getGradingMessageBuilder($active_id);
+				$gradingMessageBuilder->buildMessage();
+				$gradingMessageBuilder->sendMessage();
+			}
+		}
+// fau.
+
 		$result_array = $this->object->getTestResult(
 			$active_id, $pass, false, !$this->getObjectiveOrientedContainer()->isObjectiveOrientedPresentationRequired()
 		);
@@ -1066,6 +1079,15 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 			$testResultHeaderLabelBuilder->setTestRefId($this->object->getRefId());
 			$testResultHeaderLabelBuilder->initObjectiveOrientedMode();
 		}
+
+// fau: testGradingMessage -  show grading message in results overview to the test admin
+		if ($this->isGradingMessageRequired() )
+		{
+			$gradingMessageBuilder = $this->getGradingMessageBuilder($active_id);
+			$gradingMessageBuilder->buildMessage();
+			$gradingMessageBuilder->sendMessage();
+		}
+// fau.
 
 		require_once 'Modules/Test/classes/class.ilTestPassesSelector.php';
 		$testPassesSelector = new ilTestPassesSelector($GLOBALS['ilDB'], $this->object);
