@@ -531,6 +531,13 @@ class ilLinkChecker
 					$options = array();
 				}
 
+// fau: linkInSameWindow - don't use proxy when checking links to the same platform
+				require_once './Services/Link/classes/class.ilLink.php';
+				if (ilLink::_isLocalLink($link['complete']))
+				{
+					$options = array();
+				}
+// fau.
 				$req = new HTTP_Request($link['complete'], $options);
 				$req->sendRequest();
 
