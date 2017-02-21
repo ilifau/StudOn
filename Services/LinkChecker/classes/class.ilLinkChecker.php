@@ -26,6 +26,9 @@ class ilLinkChecker
 
 		define('DEBUG',1);
 		define('SOCKET_TIMEOUT',5);
+// fau: fixLinkChecker - partially take implementation from ILIAS 5.2
+		define('MAX_REDIRECTS',5);
+// fau.
 
 		$this->db =& $db;
 
@@ -96,9 +99,12 @@ class ilLinkChecker
 		$res = $this->db->query($query);
 		while($row = $res->fetchRow(DB_FETCHMODE_OBJECT))
 		{
+// fau: fixLinkChecker - add status to table data
 			$invalid[] = array('page_id' => $row->page_id,
-							   'url'	 => $row->url);
+							   'url'	 => $row->url,
+							   'status' => $row->http_status_code);
 		}
+// fau.
 
 		return $invalid ? $invalid : array();
 	}
@@ -484,13 +490,15 @@ class ilLinkChecker
 	function __validateLinks($a_links)
 	{
 		global $tree;
-		
-		if(!@include_once('HTTP/Request.php'))
-		{
-			$this->__appendLogMessage('LinkChecker: Pear HTTP_Request is not installed. Aborting');
 
+// fau: fixLinkChecker - partially take implementation from ILIAS 5.2
+		include_once('./Services/WebServices/Curl/classes/class.ilCurlConnection.php');
+		if(!ilCurlConnection::_isCurlExtensionLoaded())
+		{
+			$this->__appendLogMessage('LinkChecker: Curl extension is not loeaded. Aborting');
 			return array();
 		}
+// fau.
 
 		foreach($a_links as $link)
 		{
@@ -519,29 +527,41 @@ class ilLinkChecker
 					continue;
 				}
 
+// fau: fixLinkChecker - partially take implementation from ILIAS 5.2
 				require_once './Services/Http/classes/class.ilProxySettings.php';
-
-				if(ilProxySettings::_getInstance()->isActive())
+				$http_code = 0;
+				$c_error_no = 0;
+				try
 				{
-					$options = array('proxy_host' => ilProxySettings::_getInstance()->getHost(), 
-									 'proxy_port' => ilProxySettings::_getInstance()->getPort());
-				}
-				else
-				{
-					$options = array();
-				}
+					$curl = new ilCurlConnection($link['complete']);
+					$curl->init();
 
 // fau: linkInSameWindow - don't use proxy when checking links to the same platform
-				require_once './Services/Link/classes/class.ilLink.php';
-				if (ilLink::_isLocalLink($link['complete']))
-				{
-					$options = array();
-				}
+					require_once './Services/Link/classes/class.ilLink.php';
+					if(ilProxySettings::_getInstance()->isActive() && !ilLink::_isLocalLink($link['complete']))
 // fau.
-				$req = new HTTP_Request($link['complete'], $options);
-				$req->sendRequest();
+					{
+						$curl->setOpt(CURLOPT_HTTPPROXYTUNNEL,true );
+						$curl->setOpt(CURLOPT_PROXY, ilProxySettings::_getInstance()->getHost());
+						$curl->setOpt(CURLOPT_PROXYPORT, ilProxySettings::_getInstance()->getPort());
+					}
 
-				switch($req->getResponseCode())
+					$curl->setOpt( CURLOPT_HEADER, 1);
+					$curl->setOpt(CURLOPT_RETURNTRANSFER, 1);
+					$curl->setOpt(CURLOPT_CONNECTTIMEOUT ,SOCKET_TIMEOUT);
+					$curl->setOpt(CURLOPT_FOLLOWLOCATION, 1);
+					$curl->setOpt(CURLOPT_MAXREDIRS ,MAX_REDIRECTS);
+					$curl->exec();
+					$headers = $curl->getInfo();
+					$http_code  = $headers['http_code'];
+				}
+				catch(ilCurlConnectionException $e)
+				{
+					$c_error_no = $e->getCode();
+				}
+
+
+				switch($http_code)
 				{
 					// EVERYTHING OK
 					case '200':
@@ -551,10 +571,15 @@ class ilLinkChecker
 						break;
 
 					default:
-						$link['http_status_code'] = $req->getResponseCode();
+						$link['http_status_code'] = $http_code;
+						if($http_code == 0 && $c_error_no != 0)
+						{
+							$link['http_status_code'] = $c_error_no;
+						}
 						$invalid[] = $link;
 						break;
 				}
+// fau.
 			}
 		}
 		return $invalid ? $invalid : array();
