@@ -319,7 +319,10 @@ class ilRelativeLink
 		global $ilAccess, $ilNavigationHistory, $ilLog;
 
 		// get the user's current (or last) position in the repository
-		$items = $ilNavigationHistory->getItems();
+		if (isset($ilNavigationHistory))
+		{
+			$items = $ilNavigationHistory->getItems();
+		}
 		if(empty($items))
 		{
 			$current_ref_id = 1;	// root as default start
@@ -345,7 +348,6 @@ class ilRelativeLink
 				$checked[$distance] = $linkObj;
 			}
 		}
-
 		// get the goto target for the nearest link
 		if (!empty($checked))
 		{

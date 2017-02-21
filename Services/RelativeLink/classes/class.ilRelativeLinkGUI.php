@@ -137,7 +137,8 @@ class ilRelativeLinkGUI
 			include_once './Services/User/classes/class.ilUserUtil.php';
 			$url = ilUserUtil::getStartingPointAsUrl();
 
-			ilUtil::sendFailure(sprintf($lng->txt('relative_link_not_found', $code)), true);
+			include_once './Services/Utilities/classes/class.ilUtil.php';
+			ilUtil::sendFailure(sprintf($lng->txt('relative_link_not_found'), $code), true);
 			ilUtil::redirect($url);
 		}
 		else
