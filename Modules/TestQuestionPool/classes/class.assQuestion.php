@@ -264,6 +264,12 @@ abstract class assQuestion
 	 */
 	private $obligationsToBeConsidered = false;
 
+// fau: fix51 - qti image security
+	protected static $allowedImageMaterialFileExtensionsByMimeType = array(
+		'image/jpeg' => array('jpg', 'jpeg'), 'image/png' => array('png'), 'image/gif' => array('gif')
+	);
+// fau.
+
 // fau: testNav - new variable $testQuestionConfig
 	/**
 	 * @var ilTestQuestionConfig
@@ -365,6 +371,22 @@ abstract class assQuestion
 		return in_array(
 			strtolower($fileExtension), self::getAllowedFileExtensionsForMimeType($mimeType)
 		);
+	}
+// fau.
+
+// fau: fixVerticalOrderingImages - add missing function
+	/**
+	 * @return array	all allowed file extensions for image material
+	 */
+	public static function getAllowedImageMaterialFileExtensions()
+	{
+		$extensions = array();
+
+		foreach (self::$allowedImageMaterialFileExtensionsByMimeType as $mimeType => $mimeExtensions)
+		{
+			$extensions = array_merge($extensions, $mimeExtensions);
+		}
+		return array_unique($extensions);
 	}
 // fau.
 
