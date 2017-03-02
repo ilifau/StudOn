@@ -130,7 +130,10 @@ class assFormulaQuestionResult
 		$math                  = new EvalMath();
 		$math->suppress_errors = TRUE;
 
+// fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
 		$formula = str_replace(",", ".", $formula);
+		$formula = str_replace(";", ",", $formula);
+// fau.
 		$result                = $math->evaluate($formula);
 		if(is_object($this->getUnit()))
 		{
@@ -176,6 +179,11 @@ class assFormulaQuestionResult
 			}
 			$math                  = new EvalMath();
 			$math->suppress_errors = TRUE;
+
+// fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
+			$formula = str_replace(",", ".", $formula);
+			$formula = str_replace(";", ",", $formula);
+// fau.
 			$result                = $math->evaluate($formula);
 			$inRange               = (is_numeric($result)) ? TRUE : FALSE;
 			if($inRange)
@@ -222,6 +230,10 @@ class assFormulaQuestionResult
 					$formula = preg_replace("/\\\$" . substr($variable, 1) . "(?![0-9]+)/", "(".$varObj->getBaseValue().")" . "\\1", $formula);
 				}
 			}
+// fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
+			$formula = str_replace(",", ".", $formula);
+			$formula = str_replace(";", ",", $formula);
+// fau.
 			$math                  = new EvalMath();
 			$math->suppress_errors = TRUE;
 			$result                = $math->evaluate($formula);
@@ -293,6 +305,10 @@ class assFormulaQuestionResult
 
 		$math                  = new EvalMath();
 		$math->suppress_errors = false;
+// fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
+		$formula = str_replace(",", ".", $formula);
+		$formula = str_replace(";", ",", $formula);
+// fau.
 		$result                = $math->evaluate($formula); // baseunit-result!!
 
 		$result = ilMath::_round($result, $this->getPrecision());
@@ -536,6 +552,10 @@ class assFormulaQuestionResult
 				}
 			}
 
+// fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
+			$formula = str_replace(",", ".", $formula);
+			$formula = str_replace(";", ",", $formula);
+// fau.
 			$math                  = new EvalMath();
 			$math->suppress_errors = TRUE;
 			$result                = $math->evaluate($formula);
@@ -673,6 +693,10 @@ class assFormulaQuestionResult
 			}
 			$math                  = new EvalMath();
 			$math->suppress_errors = TRUE;
+// fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
+			$formula = str_replace(",", ".", $formula);
+			$formula = str_replace(";", ",", $formula);
+// fau.
 			$result                = $math->evaluate($formula);
 			if(is_object($this->getUnit()))
 			{

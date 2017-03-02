@@ -36,6 +36,7 @@ assessment#:#ass_mycampus_export_all_info#:#Exports all results. <strong>The imp
 assessment#:#ass_mycampus_export_registered#:#Registered Participants
 assessment#:#ass_mycampus_export_registered_info#:#Exports only the participants that were registered in <i>mein campus</i>.
 assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die export file is wrongly named.It must be named like <strong>prf_123.csv</strong> with 123 being the exam number.
+assessment#:#fq_formula_desc_additional#:#StudOn also supports 'atan2(y;x)''. Please separate parameters by semicolon.
 assessment#:#detailed_output_scoring#:#detail statement with solutions and points
 assessment#:#dont_use_questionpool#:#Do not add question in a existing questionpool.
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nmatriculation number: %s\ndate of the testrun: %s

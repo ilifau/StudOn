@@ -37,6 +37,7 @@ assessment#:#ass_mycampus_export_registered#:#Angemeldete Teilnehmer
 assessment#:#ass_mycampus_export_registered_info#:#Exportiert nur die für eine Prüfung in <i>mein campus</i> angemeldeten Teilnehmer.
 assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die Anmeldedatei ist falsch benannt. Sie muss wie <strong>prf_123.csv</strong> heißen, wobei 123 die Prüfungsnummer ist.
 assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
+assessment#:#fq_formula_desc_additional#:#In StudOn wird auch 'atan2(y;x)' unterstützt (bitte Parameter per Semikolon trennen).
 assessment#:#save_on_navigation_prevent_confirmation#:#Diese Meldung nicht mehr anzeigen###fau: testNav
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nMatrikelnummer: %s\nDatum des Durchlaufs: %s
 assessment#:#send_simple_results_subject#:#Ergebnis "%s" vom %s

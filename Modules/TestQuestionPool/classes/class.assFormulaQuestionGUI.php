@@ -459,7 +459,9 @@ class assFormulaQuestionGUI extends assQuestionGUI
 				$result_header->setTitle(sprintf($this->lng->txt('result_x'), $result->getResult()));
 				
 				$formula = new ilTextInputGUI($this->lng->txt('formula'), 'formula_' . $result->getResult());
-				$formula->setInfo($this->lng->txt('fq_formula_desc'));
+// fau: formulaQuestionAtan2 - add description for additional functions
+				$formula->setInfo($this->lng->txt('fq_formula_desc').' '.$this->lng->txt('fq_formula_desc_additional'));
+// fau.
 				$formula->setRequired(true);
 				$formula->setSize(50);
 				$formula->setValue($result->getFormula());
