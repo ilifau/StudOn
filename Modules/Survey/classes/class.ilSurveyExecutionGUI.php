@@ -126,7 +126,7 @@ class ilSurveyExecutionGUI
 		// check existing code 
 		// see ilObjSurveyGUI::infoScreen()
 		$anonymous_id = $anonymous_code = null;
-		// fim: [form] check captcha for anonymous survey
+// fau: surveyCaptcha - check captcha for anonymous survey
 		if ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA and $ilUser->getId() == ANONYMOUS_USER_ID)
 		{
  			if (isset($_POST["captcha"]))
@@ -145,7 +145,7 @@ class ilSurveyExecutionGUI
             $anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
         }
 		elseif ($this->object->getAnonymize() || !$this->object->isAccessibleWithoutCode())
-		// fim.
+// fau.
 		{
 			$anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];		
 			$anonymous_id = $this->object->getAnonymousIdByCode($anonymous_code);			
@@ -186,7 +186,7 @@ class ilSurveyExecutionGUI
 		{
 			$status = $this->object->isSurveyStarted($user_id, $anonymous_code, $appr_id);
 
-			// fim: [form] allow to use a form multiple times
+// fau: surveyAsForm - allow to use a form multiple times
 			if ($status === 1 and $this->object->isAllowedToTakeMultipleSurveys())
 			{
 				$anonymous_code = $this->object->createNewAccessCode();
@@ -194,7 +194,7 @@ class ilSurveyExecutionGUI
 				$_SESSION["anonymous_id"][$this->object->getId()] = $anonymous_code;
 				$status = false;
 			}
-			// fim.
+// fau.
 
 			// completed
 			if($status === 1)
@@ -889,7 +889,7 @@ class ilSurveyExecutionGUI
 		$this->tpl->setCurrentBlock($navigationblock . "_next");
 		if ($nextpage === 1)
 		{
-			// fim: [form] rename the end button
+// fau: surveyAsForm - rename the end button
 			if ($this->object->getMetaIdentifier('EndButton'))
 			{
 				$this->tpl->setVariable("BTN_NEXT", $this->object->getMetaIdentifier('EndButton'));
@@ -898,7 +898,7 @@ class ilSurveyExecutionGUI
 			{
 				$this->tpl->setVariable("BTN_NEXT", $this->lng->txt("survey_finish"));
 			}
-			// fim.
+// fau.
 		}
 		else
 		{
