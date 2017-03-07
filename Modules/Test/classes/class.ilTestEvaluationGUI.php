@@ -306,17 +306,13 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 			$button->getOmitPreventDoubleSubmission();
 			$ilToolbar->addButtonInstance($button);
 
-// fau: provideRecalc - add button for administrators to recalculate the scoring
-			global $ilCust;
-			if ($ilCust->getSetting('administration_is_visible'))
-			{
-				$ilToolbar->addSeparator();
-				$button = ilSubmitButton::getInstance();
-				$button->setCommand('confirmRecalcScoring');
-				$button->setCaption('tst_recalculate_solutions');
-				$button->getOmitPreventDoubleSubmission();
-				$ilToolbar->addButtonInstance($button);
-			}
+// fau: provideRecalc - add button to recalculate the scoring
+			$ilToolbar->addSeparator();
+			$button = ilSubmitButton::getInstance();
+			$button->setCommand('confirmRecalcScoring');
+			$button->setCaption('tst_recalculate_solutions');
+			$button->getOmitPreventDoubleSubmission();
+			$ilToolbar->addButtonInstance($button);
 // fau.
 		}
 

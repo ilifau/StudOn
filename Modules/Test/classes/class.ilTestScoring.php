@@ -73,6 +73,12 @@ class ilTestScoring
 					$this->recalculatePasses( $userdata, $active_id );
 				}
 				assQuestion::_updateTestResultCache($active_id);
+
+// fau: provideRecalc - also update the learning progress
+				/** @var  ilTestEvaluationUserData $userdata */
+				include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
+				ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
+// fau.
 			}
 		}
 	}
