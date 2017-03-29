@@ -2666,11 +2666,13 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 // fau: testNav - new function populateNavWhenChangedModal
 	protected function populateNavWhenChangedModal()
 	{
-		if (!empty($_SESSION['save_on_navigation_prevent_confirmation']))
+// fau: testPreventNavModal - prevent modal by custom setting
+		global $ilCust;
+		if ($ilCust->getSetting('tst_prevent_nav_modal') || !empty($_SESSION['save_on_navigation_prevent_confirmation']))
 		{
 			return;
 		}
-
+// fau.
 		$tpl = new ilTemplate('tpl.tst_player_confirmation_modal.html', true, true, 'Modules/Test');
 
 		if ($this->object->isInstantFeedbackAnswerFixationEnabled() && $this->object->isForceInstantFeedbackEnabled())
