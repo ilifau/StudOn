@@ -72,7 +72,8 @@ class ilMyCampusSynchronisation
 		$this->campus = ilMyCampusClient::_getInstance();
 		if ($this->campus->login() === false)
 		{
-			throw new ilException('Could not connect: to my campus');
+			throw new ilException ($this->campus->getClientError());
+			//throw new ilException('Could not connect: to my campus');
 		}
 	}
 

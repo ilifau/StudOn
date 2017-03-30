@@ -89,6 +89,21 @@ class ilMyCampusClient extends ilSoapClient
 		}
 	}
 
+	/**
+	 * Get an eror message from the nuSoap client
+	 * @return string
+	 */
+	function getClientError()
+	{
+		if (isset($this->client))
+		{
+			return $this->client->getError();
+		}
+		else
+		{
+			return "";
+		}
+	}
 
 	/** 
 	 * get the participants of a lecture
