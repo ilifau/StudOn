@@ -128,6 +128,7 @@ studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are
 tst_notify_remote = "0"                 ;send mails to users at remote installation (for exam)
 tst_export_mycampus = "0"               ;enable the export of test results for my campus
 tst_prevent_image_drag = "0"			;prevent the dragging of images an links to texts fields in tests
+tst_prevent_image_validate = "0"        ;fau: preventQtiImageValidate - prevent validation of images at test/pool import
 tst_prevent_media_player = "0"			;prevent the embedding of the media element player
 tst_prevent_nav_modal = "0"             ;prevent the navigation modal
 

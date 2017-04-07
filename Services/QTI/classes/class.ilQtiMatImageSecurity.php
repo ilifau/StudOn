@@ -71,6 +71,14 @@ class ilQtiMatImageSecurity
 	
 	public function validate()
 	{
+// fau: preventQtiImageValidate - optionally prevent validation of images
+		global $ilCust;
+		if ($ilCust->getSetting('tst_prevent_image_validate'))
+		{
+			return true;
+		}
+// fau.
+
 		if( !$this->validateLabel() )
 		{
 			return false;
