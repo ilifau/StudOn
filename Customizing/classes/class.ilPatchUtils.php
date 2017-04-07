@@ -7,7 +7,7 @@ class ilPatchUtils
 	public function __construct()
 	{
 		// set error reporting
-		error_reporting (E_ALL ^ E_NOTICE);
+		error_reporting (E_ALL ^E_STRICT ^E_NOTICE);
 		ini_set("display_errors","on");
 
 
