@@ -1138,7 +1138,8 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
                 jQuery('#ilAnswerCheck_'+a_id+'_'+i).remove();
 
                 // check if gap is correctly answered
-                if (given_answers[a_id].answer[i]) {
+				// note that when the page is refreshed, all choices get lost
+                if (given_answers[a_id].answer[i] || given_answers[a_id].passed) {
                     var is_correct = true;
                     var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:green;">&#10004;</span>'; // or: 10003
                 }
@@ -1147,14 +1148,18 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
                     var checkchar = '<span id="ilAnswerCheck_'+a_id+'_'+i+'" style="color:red;">&#10008;</span>'; // or: 10007
                 }
 
-                // add inline feedback
+                // disable final or already correct gaps
                 if (is_final || is_correct) {
                     jQuery(elem_type+'#'+a_id+"_"+i).prop("disabled", true);
                 }
-                if (is_final && !is_correct) {
+
+                // add inline feedback
+                if (is_final) {
+                	// show solution when final
                     jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar + ' <em> ['+ cvalue+ '] </em>');
                 }
                 else {
+                	// sho only symbol when not final
                     jQuery(elem_type+'#'+a_id+"_"+i).after(checkchar)
                 }
 			}
