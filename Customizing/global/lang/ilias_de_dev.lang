@@ -380,7 +380,7 @@ crs#:#crs_reg_user_on_waiting_list#:#Sie sind bereits auf der Warteliste dieses 
 crs#:#crs_removed_from_lot_list#:#Sie wurden von der Auslosung zum Kurs "%s" abgemeldet.
 crs#:#crs_show_mem_limit_label#:#Anzeigen:
 crs#:#crs_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung des Kurses zeigen
-crs#:#crs_subscribe_events_not_possible#:#Die direkte Sitzungsanmeldung ist nur beim Beitritt ohne Aufnahmeantrag oder Warteliste/Losverfahren möglich!
+crs#:#crs_subscribe_events_not_possible#:#Die direkte Sitzungsanmeldung ist nur beim direkten Beitritt oder Beitritt mit Passwort ohne begrenzte Teilnehmerzahl im Kurs möglich.
 crs#:#crs_subscription_event_free#:#Frei
 crs#:#crs_subscription_event_location#:#Ort:
 crs#:#crs_subscription_event_referee#:#Referent/in:
@@ -392,7 +392,7 @@ crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus lo
 crs#:#crs_subscription_options_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 crs#:#crs_subscription_options_password_studycond#:#Beitritt mit Kurspasswort (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 crs#:#crs_subscription_with_events#:#Sitzungsanmeldung
-crs#:#crs_subscription_with_events_info#:#Wählen Sie hier, ob die Anmeldung zu den Sitzungen bereits bei der Kursanmeldung stattfinden soll. Das ist nur bei den Beitrittsverfahren ohne Aufnahmeantrag oder Warteliste/Losverfahren möglich.
+crs#:#crs_subscription_with_events_info#:#Wählen Sie hier, ob die Anmeldung zu den Sitzungen bereits bei der Kursanmeldung stattfinden soll. Das ist nur beim direkten Beitritt oder Beitritt mit Passwort ohne begrenzte Teilnehmerzahl im Kurs möglich.
 crs#:#crs_subscription_with_events_multiple#:#In mindestens einer der Sitzungen
 crs#:#crs_subscription_with_events_off#:#Ohne Sitzungsanmeldung
 crs#:#crs_subscription_with_events_unique#:#In genau einer der Sitzungen

@@ -1197,12 +1197,17 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		// fim.
 
 		// fim: [memsess] check event registration
-		if ($this->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF
-			and ($this->getSubscriptionType() == IL_CRS_SUBSCRIPTION_CONFIRMATION
-				or ($this->enabledWaitingList() and $this->isSubscriptionMembershipLimited())
-				or ($this->enabledLotList() and $this->isSubscriptionMembershipLimited())))
+		if ($this->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF &&
+			( 	$this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_DEACTIVATED ||
+				(	$this->getSubscriptionType() != IL_CRS_SUBSCRIPTION_DIRECT &&
+					$this->getSubscriptionType() != IL_CRS_SUBSCRIPTION_PASSWORD
+				) ||
+				(	$this->isSubscriptionMembershipLimited() &&
+					$this->getSubscriptionMaxMembers() > 0
+				)
+			)
+		)
 		{
-			    $this->setSubscriptionWithEvents(IL_CRS_SUBSCRIPTION_EVENTS_OFF);
 				$this->appendMessage($this->lng->txt('crs_subscribe_events_not_possible'));
 		}
 		// fim.

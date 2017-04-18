@@ -383,7 +383,7 @@ crs#:#crs_reg_user_on_waiting_list#:#You are already on the waiting list of this
 crs#:#crs_removed_from_lot_list#:#You have been unsubscribed for the lottery of the course "%s".
 crs#:#crs_show_mem_limit_label#:#Notifications:
 crs#:#crs_show_mem_limit_option#:#show limitation and free slots by listing of the course
-crs#:#crs_subscribe_events_not_possible#:#The direct sessionlogin is only possible by joining without application of admission or waiting list/lottery!
+crs#:#crs_subscribe_events_not_possible#:#A direct registration to sessions is only possible for joining directly or with course password.
 crs#:#crs_subscription_event_free#:#free
 crs#:#crs_subscription_event_location#:#location:
 crs#:#crs_subscription_event_referee#:#advisor:
@@ -394,10 +394,10 @@ crs#:#crs_subscription_mycampus_info#:#The registration takes place by the syste
 crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>The Joining to this course takes place by the system <em>my campus</em>. The following link leads to the front page of <em>my campus</em>. After the login you get automatically to the registrationsite of the course.</p><p><a target="_blank" href="%s"><strong>Joining by my campus</strong> (new window)</a></p>
 crs#:#crs_subscription_options_direct_studycond#:#Direct joining (otherwise application for admission) for following students:<p class="small">%s</p>
 crs#:#crs_subscription_options_password_studycond#:#Joining with short password (otherwise application for admission) for following students:<p class="small">%s</p>
-crs#:#crs_subscription_with_events#:#Session login
-crs#:#crs_subscription_with_events_info#:#Choose here if the login to the sessions shall already happen by the course login. That is only the joining procedure without application for admission or waiting list/lottery possible.
+crs#:#crs_subscription_with_events#:#Session Registration
+crs#:#crs_subscription_with_events_info#:#Choose here if the registration for sessions should be on the join page of the course. This is only possible for joining directly or with course password.
 crs#:#crs_subscription_with_events_multiple#:#In at least one of the sessions
-crs#:#crs_subscription_with_events_off#:#without sessionlogin
+crs#:#crs_subscription_with_events_off#:#without session registration
 crs#:#crs_subscription_with_events_unique#:#In exactly one of the sessions
 crs#:#crs_sync_my_campus#:#my campus-logins transferred
 crs#:#crs_sync_my_campus_added#:#The following course members of my campus have been added: %s.
