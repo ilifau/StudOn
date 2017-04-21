@@ -413,6 +413,8 @@ crs#:#export_lp_info#:#Die Bestimmung des Status können Sie in den einzelnen In
 crs#:#export_lp_marks#:#Noten/Punkte
 crs#:#export_lp_status#:#Status
 crs#:#export_lp_comments#:#Kommentar
+dcl#:#dcl_max_import_simulate#:#Die Datei enthält %s Datensätze, aber es können nur %s auf einmal importiert werden. Wenn Sie mehr Datensätze importieren möchten, teilen Sie Ihre Datei bitte auf.###fau: dcImportLimit
+dcl#:#dcl_max_import_done#:#Die Datei enthält %s Datensätze, aber es wurden nur die ersten %s importiert. Wenn Sie mehr Datensätze importieren möchten, teilen Sie Ihre Datei bitte auf.###fau: dcImportLimit
 exc#:#exc_calc_all_calculated#:#Alle Gesamtergebnisse wurden neu berechnet.
 exc#:#exc_calc_calculate#:#Berechnen
 exc#:#exc_calc_mark_function#:#Noten/Punkte-Berechnung

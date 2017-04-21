@@ -416,6 +416,8 @@ crs#:#export_lp_info#:#The determination of the status can be determined in the 
 crs#:#export_lp_marks#:#Grades/Credits
 crs#:#export_lp_status#:#Status
 crs#:#export_lp_comments#:#Comment
+dcl#:#dcl_max_import_simulate#:#The file has %s records, but only %s can be imported in one upload. Please split your file if you need to import more records.###fau: dcImportLimit
+dcl#:#dcl_max_import_done#:#The file has %s records, but only the first %s were imported. Please split your file if you need to import more records.###fau: dcImportLimit
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
 exc#:#exc_calc_mark_function#:#Grades/Credits-Calculation

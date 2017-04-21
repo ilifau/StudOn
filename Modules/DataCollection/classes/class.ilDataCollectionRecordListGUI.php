@@ -32,7 +32,9 @@ class ilDataCollectionRecordListGUI {
 	/**
 	 * @var int
 	 */
-	protected $max_imports = 100;
+// fau: dcImportLimit - raise limit to 1000
+	protected $max_imports = 1000;
+// fau.
 	/**
 	 * @var array
 	 */
@@ -353,8 +355,10 @@ class ilDataCollectionRecordListGUI {
 			if (!$simulate) {
 				$record->doUpdate();
 			}
-			if ($i - 1 > $this->max_imports) {
-				$warnings[] = $lng->txt("dcl_max_import") . ($excel->rowcount() - 1) . " > " . $this->max_imports;
+// fau: dcImportLimit - correct max check and merge numbers in message
+			if ($i - 1 >= $this->max_imports) {
+				$warnings[] = sprintf($lng->txt($simulate? "dcl_max_import_simulate" : "dcl_max_import_done"), $excel->rowcount() - 1, $this->max_imports);
+// fau.
 				break;
 			}
 		}
