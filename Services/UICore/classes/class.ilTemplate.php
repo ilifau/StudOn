@@ -962,7 +962,7 @@ class ilTemplate extends ilTemplateX
 		}
 
 		$ftpl->setVariable("SERVER_ADDR", $_SERVER['SERVER_ADDR']);
-		$ftpl->setVariable("SERVER_NAME", gethostbyaddr($_SERVER['SERVER_ADDR']));
+		$ftpl->setVariable("SERVER_NAME", current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR']))));
 		$ftpl->setVariable("USERS_ONLINE", ilSession::_getUsersOnline());
 		$ftpl->setVariable("TXT_SERVER", $lng->txt('footer_server'));
 		$ftpl->setVariable("TXT_ACTIVE_USERS", $lng->txt('footer_active_users'));
