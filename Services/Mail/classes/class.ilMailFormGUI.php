@@ -123,8 +123,12 @@ class ilMailFormGUI
 				}
 			}
 		}
-		
-		$message = strip_tags(ilUtil::stripSlashes($_POST['m_message'], false));
+// fau: fixTagsInMail - avoid replacement of accidental tags in mail text
+		$message = $_POST['m_message'];
+		$message = preg_replace('/< */', '< ', $message);
+		$message = preg_replace('/ *>/', ' >', $message);
+		$message = strip_tags(ilUtil::stripSlashes($message, false));
+// fau.
 		$message = str_replace("\r", '', $message);
 		// Note: For security reasons, ILIAS only allows Plain text strings in E-Mails.		
 		$message = $this->umail->formatLinebreakMessage($message);
