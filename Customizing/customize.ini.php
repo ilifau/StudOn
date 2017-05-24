@@ -1,6 +1,6 @@
 ; <?php exit; ?>
 
-; fim: [cust] Local customizations of the ILIAS user interface
+; fau: customSettings - local customizations of the ILIAS user interface
 ;
 ; This file is read by class.ilCustomize.php
 ; Settings can be used with ilCust->getSetting("setting")

@@ -105,12 +105,6 @@ class ilTemplate extends ilTemplateX
 		//$this->loadTemplatefile(basename($fname), $flag1, $flag2);
 		$this->loadTemplatefile($fname, $flag1, $flag2);
 
-		// fim: [cust] add template history entry
-		global $il_template_history;
-		$il_template_history .= "load ". $fname . "\n";
-		// fim.
-
-
 		//add tplPath to replacevars
 		$this->vars["TPLPATH"] = $this->tplPath;
 		
@@ -307,11 +301,6 @@ class ilTemplate extends ilTemplateX
 		{
 			$this->handleReferer();
 		}
-
-		// fim: [cust] add template history entry
-		global $il_template_history;
-		$il_template_history .= "get  ". $this->tplPath . "/" . $this->tplName . "\n";
-		// fim.
 
 		if ($part == "DEFAULT")
 		{
@@ -568,10 +557,6 @@ class ilTemplate extends ilTemplateX
 			}
 		}
 
-		// fim: [cust] add template history entry
-		global $il_template_history;
-		$il_template_history .= "show ". $this->tplPath . "/" . $this->tplName . "\n";
-		// fim.
 		if ($part == "DEFAULT" or is_bool($part))
 		{
 			$html = parent::get();
@@ -606,24 +591,6 @@ class ilTemplate extends ilTemplateX
 
 		print $html;
 		
-		// fim: [cust] output template history
-		global $ilCust, $il_template_history;
-		switch ($ilCust->getSetting("ilias_show_template_history"))
-		{
-			case "page":
-				echo "<pre style='font-size:10px; text-align:left;'>\n";
-				echo $il_template_history;
-				echo "</pre>";
-				break;
-
-			case "source":
-				echo "<!--\n";
-				echo $il_template_history;
-				echo "-->\n";
-				break;
-		}
-		//fim.
-
 		$this->handleReferer();
 	}
 	
@@ -1494,11 +1461,6 @@ class ilTemplate extends ilTemplateX
 			echo "<br/>Template '".$tplfile."' doesn't exist! aborting...";
 			return false;
 		}
-
-		// fim: [cust] add template history entry
-		global $il_template_history;
-		$il_template_history .= "add  ". $tplfile . "\n";
-		// fim.
 
 		$id = $this->getTemplateIdentifier($tplname, $in_module);
 		$template = $this->getFile($tplfile);

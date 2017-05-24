@@ -631,7 +631,7 @@ class ilInitialisation
 	}
 // fau.
 
-	// fim: [cust] new function initCust()
+// fau: customSettings - new function initCust()
 	/**
 	 * initialize customizations
 	 * must be after the user is authenticated (skin is known)
@@ -643,8 +643,7 @@ class ilInitialisation
 		$ilCust = new ilCustomize();
 		$GLOBALS['ilCust'] = $ilCust;
 	}
-	// fim.
-
+// fau.
 
 	/**
 	 * Init Locale
@@ -998,12 +997,6 @@ class ilInitialisation
 				}				
 			}
 
-			// fim: [cust] init skin related customizations
-			// StudOn has no skin related customizations
-			// So there is no need to re-initialize then
-			// self::initCust()
-			// fim.
-
 			// init after Auth otherwise breaks CAS
 			self::includePhp5Compliance();
 			
@@ -1094,11 +1087,11 @@ class ilInitialisation
 
 		self::initClientIniFile();
 
-        // fim: [cust] init client related customizations
+// fau: customSettings - init client related customizations
         // StudOn defines them in client.ini.php
         // They should be available for authentication
         self::initCust();
-        // fim.
+// fau.
 
 
 		// --- needs client ini

@@ -59,9 +59,9 @@ class ilClientList
 				continue;
 			}
 
-			// fim: [cust] use the client ini file name defined in ilias.ini
+// fau: customClientIni - use the client ini file name defined in ilias.ini
 			if (is_file($this->path."/".$entry."/".ILIAS_CLIENT_INI_FILE))
-			// fim.
+// fau.
 			{
 				$client = new ilClient($entry, $this->db_connections);
 				$client->init();

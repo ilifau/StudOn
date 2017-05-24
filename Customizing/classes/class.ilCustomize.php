@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [cust] Class for looking up customization settings
+* fau: customSettings - class for looking up customization settings
 *
 * Some settings are based on dynamic criteria (e.g. role dependent).
 * All other settings are looked up in the following ini files:
