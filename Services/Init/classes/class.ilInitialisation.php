@@ -315,18 +315,10 @@ class ilInitialisation
 			self::abortAndDie("Fatal Error: ilInitialisation::initClientIniFile called without CLIENT_ID.");
 		}
 
-		// fim: [cust] optionally use a different client ini file
-		global $ilIliasIniFile;
+// fau: customClientIni - read naming of the client.ini.php from the ilias.ini.php
 		$ini_file = $ilIliasIniFile->readVariable("clients","inifile");
-		if ($ini_file != '')
-		{
-			$ini_file = "./".ILIAS_WEB_DIR."/".CLIENT_ID."/".$ini_file;
-		}
-		else
-		{
-			$ini_file = "./".ILIAS_WEB_DIR."/".CLIENT_ID."/client.ini.php";
-		}
-		// fim.
+		$ini_file = "./".ILIAS_WEB_DIR."/".CLIENT_ID."/". (empty($ini_file) ? 'client.ini.php' : $ini_file);
+// fau.
 
 		// get settings from ini file
 		require_once("./Services/Init/classes/class.ilIniFile.php");
