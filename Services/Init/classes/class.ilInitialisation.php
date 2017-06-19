@@ -1386,7 +1386,7 @@ class ilInitialisation
 	 			ilUtil::redirect($link."&cmd=shibInactiveMessage&msg=".$msg);
 			}
 	    }
-	    else
+	    elseif (ilContext::getType() == ilContext::CONTEXT_WEB)
 	    {
 			// local login of shibboleth users
 			if ($a_auth_mode == AUTH_LOCAL
