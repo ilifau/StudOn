@@ -975,7 +975,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 			}
 
 // fau: surveyCaptcha - add captcha option to anonymizations
-			$captcha = new ilCheckboxInputGUI($this->lng->txt("anonymize_with_captcha"), "catpcha");
+			$captcha = new ilCheckboxInputGUI($this->lng->txt("anonymize_with_captcha"), "captcha");
 			$captcha->setChecked($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA);
 			$form->addItem($captcha);
 // fau.
