@@ -80,8 +80,9 @@ class ilStartUpGUI
 		$this->executeCommand();
 	}
 
+// fau: rootAsLogin - new function jumpToUsernameAssistance()
 	/**
-	* fim: [portal] jump to username assistance
+	* jump to username assistance
 	*/
 	function jumpToUsernameAssistance()
 	{
@@ -89,7 +90,7 @@ class ilStartUpGUI
 		$this->ctrl->setCmd("showUsernameAssistanceForm");
 		$this->executeCommand();
 	}
-	/* fim. */
+// fau.
 
 
 	/**
@@ -351,7 +352,7 @@ class ilStartUpGUI
 		}
 		
 
-		// fim: [portal] show root page instead of login page
+// fau: rootAsLogin - show root page instead of login page
 		global $ilCust, $ilCtrl;
 		if ($ilCust->getSetting("ilias_root_as_login"))
 		{	
@@ -368,7 +369,7 @@ class ilStartUpGUI
 				ilInitialisation::goToPublicSection($status, $lng->txt("login_required_for_object"), "failure");
 			}
 		}
-		// fim.
+// fau.
 		
 		
 		// --- render
@@ -1163,13 +1164,13 @@ class ilStartUpGUI
 	{
 		global $tpl, $ilSetting, $ilAuth, $lng, $ilIliasIniFile;
 
-        // fim: [portal] jump to root as login page
+// fau: rootAsLogin - jump to root as login page when being logged out
 		global $ilCust;
 		if ($ilCust->getSetting("ilias_root_as_login"))
 		{			
 			ilInitialisation::goToPublicSection(AUTH_USER_MANUAL_LOGOUT, $lng->txt("logout_text"), "success");
 		}
-		// fim.
+// fau.
 
 		ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);		
 		$ilAuth->logout();

@@ -187,7 +187,7 @@ class ilObjSystemFolder extends ilObject
 		 */
 		global $ilDB;
 		
-		// fim: [portal] use ilUser here to allow a static call from login screen
+// fau: rootAsLogin - use ilUser here to allow a static call from login screen
 		global $ilUser;
 		
 		$id = ilObjSystemFolder::_getId();
@@ -213,7 +213,7 @@ class ilObjSystemFolder extends ilObject
 		}
 
 		return $description;
-		// fim.
+// fau.
 	}
 
 } // END class.ilObjSystemFolder

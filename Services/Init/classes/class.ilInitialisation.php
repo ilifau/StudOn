@@ -678,17 +678,17 @@ class ilInitialisation
 			}
 		}
 	}
-	
+
+// fau: rootAsLogin - added parameters to show a message on starting page
 	/**
 	 * go to public section
 	 * 
 	 * @param int $a_auth_stat
-	 * fim: [portal] new parameter to show a failure message
 	 * @param string $a_message
 	 * @param string $a_message_type
 	 */
 	public static function goToPublicSection($a_auth_stat = "", $a_message = "", $a_message_type = "info")
-	// fim.
+// fau.
 	{
 		global $ilAuth;
 				
@@ -703,21 +703,21 @@ class ilInitialisation
 		{
 			ilSession::setClosingContext(ilSession::SESSION_CLOSE_EXPIRE);
 		}
-		// fim: [portal] process a manual logout by the user
+// fau: rootAsLogin - process a manual logout by the user
 		elseif($a_auth_stat == AUTH_USER_MANUAL_LOGOUT)
 		{
 			ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);
 		}
-		// fim.
+// fau.
 		else
 		{
 			ilSession::setClosingContext(ilSession::SESSION_CLOSE_PUBLIC);
 		}
 		$ilAuth->logout();
-		// fim: [portal] fault tolerance for destroying uninitialized session
+// fau: rootAsLogin - fault tolerance for destroying uninitialized session
 		@session_unset();
 		@session_destroy();
-		// fim.
+// fau.
 		
 		// new session and login as anonymous
 		self::setSessionHandler();
@@ -750,8 +750,7 @@ class ilInitialisation
 		$mess = array("en" => "Authentication failed.",
 			"de" => "Authentifizierung fehlgeschlagen.");
 		
-		// fim: [portal] optionally show a failure message
-		// then don't go to the target directly
+// fau: rootAsLogin - optionally show a failure message, then don't go to the target directly
 		if ($a_message)
 		{
 			switch ($a_message_type)
@@ -782,16 +781,16 @@ class ilInitialisation
 			// goto will check if target is accessible or redirect to login
 			self::redirect("goto.php?target=".$_GET["target"], $mess_id, $mess);			
 		}
-		// fim.
+// fau.
 
 		// we do not know if ref_id of request is accesible, so redirecting to root
 		$_GET["ref_id"] = ROOT_FOLDER_ID;
 		$_GET["cmd"] = "frameset";
 
-		// fim: [portal] add the target to the link
+// fau: rootAsLogin - redirect to the root page if message should be shown or no target is given
 		self::redirect("ilias.php?baseClass=ilrepositorygui&reloadpublic=1&cmd=".
 			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]."&login_target=".$_GET["target"], $mess_id, $mess);
-		// fim.
+// fau.
 	}
 
 	/**
@@ -1217,14 +1216,14 @@ class ilInitialisation
 				
 		self::initAccessHandling();
 
-		// fim: [portal] new login is sent from the login form on the root screen
+// fau: rootAsLogin - new login is sent from the login form on the root screen
 		if ((isset($_POST["sendLogin"])))
 		{
 			$ilAuth->logout();
 			ilSession::_destroy(session_id(), ilSession::SESSION_CLOSE_LOGIN);
 			ilSession::set("AccountId", "");
 		}
-		// fim.
+// fau.
 
 		// force login
 		if ((isset($_GET["cmd"]) && $_GET["cmd"] == "force_login"))
@@ -1238,10 +1237,10 @@ class ilInitialisation
 
 			// :TODO: keep session because of cart content?
 
-			// fim: [portal] keep session if login is coming from root page
-			// in this case the anonymous user is authenticated
-			// and must be logged out to force a new authentication by username/password
-			// but the authsession must be kept for a later redirect
+// fau: rootAsLogin - keep session if login is coming from root page
+// 						in this case the anonymous user is authenticated
+// 						and must be logged out to force a new authentication by username/password
+// 						but the authsession must be kept for a later redirect
 			if(!isset($_GET['forceShoppingCartRedirect'])
 			and !isset($_POST['keepSession']))
 			{
@@ -1251,7 +1250,7 @@ class ilInitialisation
 			{
 				ilSession::set("AccountId", "");	
 			}
-            // fim.
+// fau.
 		}
 		
 	}
@@ -1630,15 +1629,12 @@ class ilInitialisation
 			return true;					
 		}
 		
-		// fim: [portal] indicate thet root folder is showing login form
-		if(strtolower($_REQUEST["baseClass"]) == "ilrepositorygui" &&
-			$_get["ref_id"] == 1)
+// fau: rootAsLogin - indicate that root folder is showing login form
+		if(strtolower($_REQUEST["baseClass"]) == "ilrepositorygui" && $_GET["ref_id"] == 1)
 		{
 			return true;
 		}
-		// fim.
-
-
+// fau.
 
 		return false;
 	}

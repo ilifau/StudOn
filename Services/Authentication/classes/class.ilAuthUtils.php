@@ -48,9 +48,9 @@ define('AUTH_USER_TIME_LIMIT_EXCEEDED', -602);
 define('AUTH_USER_SIMULTANEOUS_LOGIN', -603);
 define('AUTH_CAPTCHA_INVALID', -604);
 
-// fim: [portal] new value for manual logout
+// fau: rootAsLogin - new value for manual logout
 define('AUTH_USER_MANUAL_LOGOUT', -900);
-// fim.
+// fau.
 
 include_once './Services/Authentication/classes/class.ilAuthFactory.php';
 require_once('Services/Authentication/classes/class.ilSessionControl.php');

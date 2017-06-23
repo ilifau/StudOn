@@ -58,17 +58,15 @@ class ilObjectGUI
 	*/
 	var $data;
 
-
+// fau: rootIsReduced - flag for reduced view mode
 	/**
-	* fim: [portal] flag for reduced view mode
-	*
 	* This flag is set by the child classes
 	* - to prevent appearance of content list in view mode
 	* - to prevent administration panel for users without write access
 	* - to show the locator below the headline
 	*/
 	var $reduced_view_mode = false;
-	// fim.
+// fau.
 
 
 	/**
@@ -306,7 +304,7 @@ class ilObjectGUI
 			return false;
 		}
 
-		// fim: [portal] only show the locator with write access on info pages
+// fau: rootIsReduced - only show the locator when in reduced view
 		global $ilAccess;
 		if (!$this->reduced_view_mode
 			or $this->getCreationMode()
@@ -315,7 +313,7 @@ class ilObjectGUI
 			// set locator
 			$this->setLocator();
 		}
-		// fim.
+// fau.
 
 		// catch feedback message
 //		ilUtil::sendInfo();

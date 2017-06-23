@@ -1430,7 +1430,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 			case self::VIEW_SELECTED_ITEMS:
 			default:
 				// get repository link
-				// fim: [portal] get customized repository entry for desktop message
+// fau: rootIsReduced - get customized repository entry for desktop message
 				global $ilCust;
 				require_once('Services/Link/classes/class.ilLink.php');
 				if ($rep_id = $ilCust->getSetting('ilias_repository_cat_id'))
@@ -1443,7 +1443,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 				$nd = $tree->getNodeData(ROOT_FOLDER_ID);
 					$link = ilLink::_getStaticLink(1,'root',true);
 				}
-				// fim.
+// fau.
 				$title = $nd["title"];
 				if ($title == "ILIAS")
 				{
@@ -1454,10 +1454,10 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 				$tpl->setVariable('IMG_PD_LARGE', ilObject::_getIcon("", "big", "pd"));
 				$tpl->setVariable("TXT_WELCOME", $lng->txt("pdesk_intro"));
 				$tpl->setVariable("TXT_INTRO_1", sprintf($lng->txt("pdesk_intro2"), $lng->txt("to_desktop")));
-				// fim: [portal] use customized repository entry for desktop message
+// fau: rootIsReduced - use customized repository entry for desktop message
 				$tpl->setVariable("TXT_INTRO_2", sprintf($lng->txt("pdesk_intro3"),
 					'<a href="'.$link.'">'.$title.'</a>'));
-				// fim.
+// fau.
 				$tpl->setVariable("TXT_INTRO_3", $lng->txt("pdesk_intro4"));
 				break;
 		}

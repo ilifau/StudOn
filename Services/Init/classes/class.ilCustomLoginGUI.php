@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [portal] new class ilContainerLoginGUI
+* fau: rootAsLogin - new class ilCustomLoginGUI
 *
 * This class creates login forms to be added to container pages
 *

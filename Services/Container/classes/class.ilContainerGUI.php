@@ -513,7 +513,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 		// we will create nested forms in case, e.g. a news/calendar item is added
 		if ($ilCtrl->getNextClass() != "ilcolumngui")
 		{
-			// fim: [portal] don't show admin panel in reduced view mode
+// fau: rootIsReduced - don't show admin panel in reduced view mode
 			global $ilAccess;
 			if (!$this->reduced_view_mode
 				|| $ilAccess->checkAccess("write", "", $this->object->getRefId()))
@@ -524,7 +524,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 					$this->showPossibleSubObjects();
 				}
 			}
-			// fim.
+// fau.
 		
 			// fim: [univis] show link to import univis
 			global $ilCust;

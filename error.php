@@ -9,13 +9,13 @@ try
 	$lng->loadLanguageModule("error");
 	// #13515 - link back to "system" [see ilWebAccessChecker::sendError()]
 	$nd  = $tree->getNodeData(ROOT_FOLDER_ID);
-	// fim: [portal] changed button text to home, removed blocks
+// fau: rootAsLogin - changed button text to home, removed blocks
 	$txt = $lng->txt('to_home');
 	$tpl->SetVariable("TXT_LINK", $txt);
 	$tpl->SetVariable("LINK", ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilRepositoryGUI&amp;client_id=' . CLIENT_ID);
 	$tpl->setVariable("ERROR_MESSAGE", ($_SESSION["failure"]));
 	$tpl->setVariable("MESSAGE_HEADING", $lng->txt('error_sry_error'));
-	// fim.
+// fau.
 
 	//$tpl->parseCurrentBlock();
 

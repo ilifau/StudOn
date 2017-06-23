@@ -16,7 +16,7 @@
 */
 class ilUtil
 {
-	// fim: [portal] new function getRootLoginLink()
+// fau: rootAsLogin - new function getRootLoginLink()
 	static function _getRootLoginLink($a_target = "")
 	{
 		//TODO: return login link if 'ilias_root_as_login' is not set
@@ -51,7 +51,7 @@ class ilUtil
 		
 		return $url;
 	}
-	// fim.
+// fau.
 	
 	/**
 	* Builds an html image tag

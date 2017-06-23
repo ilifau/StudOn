@@ -35,23 +35,30 @@ class ilObjRootFolderGUI extends ilContainerGUI
 		$lng->loadLanguageModule("cntr");
 		$lng->loadLanguageModule("obj");
 		
-		// fim: [portal] init root folder for login purposes and reduced view mode
-		global $ilCust, $ilMainMenu;
+// fau: rootAsLogin - init root folder for login purposes and reduced view mode
+		global $ilCust;
 		if ($ilCust->getSetting("ilias_root_as_login"))
 		{
 			// flag to enable login forms;
             $this->enable_login_forms = true;
-            // flag for ilContainerGUI and info tab
-            $this->reduced_view_mode = true;
 
 			// to check if session cookies are enabled
 			// this is normaly done by ilStartupGUI::showLogin()
 			ilUtil::setCookie("iltest","cookie",false);
+// fau.
 
-			// don't set the repository menu entry active
-			$ilMainMenu->setActive("root");
+// fau: rootIsReduced - init root folder for login purposes and reduced view mode
+			global $ilCust, $ilMainMenu;
+			if ($ilCust->getSetting("ilias_repository_cat_id"))
+			{
+				// flag for ilContainerGUI and info tab
+				$this->reduced_view_mode = true;
+
+				// don't set the repository menu entry active
+				$ilMainMenu->setActive("root");
+			}
 		}
-		// fim.
+// fau.
 	}
 
 	/**

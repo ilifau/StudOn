@@ -97,13 +97,13 @@ class ilLocatorGUI
 				{
 					continue;
 				}
-				// fim: [portal] don't show the root folder in the locator
+// fau: rootIsReduced - don't show the root folder in the locator
 				global $ilCust;
-				if ($row["type"] == "root" and $ilCust->getSetting("ilias_root_as_login"))
+				if ($row["type"] == "root" && $ilCust->getSetting("ilias_repository_cat_id"))
 				{
 					continue;
 				}
-				// fim.
+// fau.
 
 				if ($row["title"] == "ILIAS" && $row["type"] == "root")
 				{

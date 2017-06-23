@@ -177,7 +177,6 @@ class ilMainMenuGUI
 	*/
 	function setTemplateVars()
 	{
-
 		global $rbacsystem, $lng, $ilias, $tree, $ilUser, $ilSetting, $ilPluginAdmin;
 
 		if($this->logo_only)
@@ -264,7 +263,7 @@ class ilMainMenuGUI
 			// login stuff
 			if ($_SESSION["AccountId"] == ANONYMOUS_USER_ID)
 			{
-				// fim: [portal] don't show standard registration link for rootAsLogin
+// fau: rootAsLogin - don't show standard registration link, if the root is the login page
 				global $ilCust;
 				if (!$ilCust->getSetting('ilias_root_as_login'))
 				{
@@ -277,7 +276,7 @@ class ilMainMenuGUI
 						$this->tpl->parseCurrentBlock();
 					}
 				}
-				// fim.
+// fau.
 
 				// language selection
 				$selection = self::getLanguageSelection();
@@ -291,7 +290,7 @@ class ilMainMenuGUI
 				}
 
 
-				// fim: [portal] don't show standard login link for rootAsLogin
+// fau: rootAsLogin - don't show standard login link if the root is the login page
 				global $ilCust;
 				if (!$ilCust->getSetting('ilias_root_as_login')
 					or (!empty($_GET['ref_id']) and $_GET['ref_id'] != 1)
@@ -311,11 +310,9 @@ class ilMainMenuGUI
 						$link_dir."login.php?target=".$target_str."&client_id=".rawurlencode(CLIENT_ID)."&cmd=force_login&lang=".$ilias->account->getCurrentLanguage());
 					$this->tpl->parseCurrentBlock();
 				}
-				// fim.
+// fau.
 			}
-			// fim: [layout] show user related entries only to authentified users
-			elseif ($ilUser->getId())
-			// fim.
+			else
 			{
 				if($this->getMode() != self::MODE_TOPBAR_REDUCED && !$ilUser->isAnonymous())
 				{
@@ -493,32 +490,27 @@ class ilMainMenuGUI
 	{
 		global $rbacsystem, $lng, $ilias, $tree, $ilUser, $ilSetting, $ilAccess;
 
-		// fim: [portal] added needed globals
+// fau: rootAsLogin - show root login link on specific pages (if not logged in)
 		global $ilCust;
-		// fim.
-
-		// fim: [portal] show root login link on specific pages (if not logged in)
-		if ($ilCust->getSetting('ilias_root_as_login') and (!$ilUser->getId() or $ilUser->getId() == ANONYMOUS_USER_ID))
+		if ($ilCust->getSetting('ilias_root_as_login') and ($ilUser->isAnonymous()))
 		{
 			$this->renderEntry($a_tpl, "login",
 				$lng->txt("to_home"),
 				ilUtil::_getRootLoginLink(),
 				$this->target);
 		}
-		// fim.
+// fau.
 
 		// personal desktop
-		// fim: [layout] show desktop menu if user is initialized, but not for getting acceptance
-		if ($ilUser->getId() and $ilUser->getId() != ANONYMOUS_USER_ID)
-		// fim.
+		if ($_SESSION["AccountId"] != ANONYMOUS_USER_ID)
 		{
 			$this->renderEntry($a_tpl, "desktop",
 				$lng->txt("personal_desktop"), "#");
 		}
 
 		// repository
-		// fim: [portal] show repository link always if readable
-		// fim: [portal] use different link for repository category
+// fau: rootIsReduced - use different link for repository category, show always if readable
+		global $ilCust;
 		include_once './Services/Link/classes/class.ilLink.php';
 		if ($rep_id = $ilCust->getSetting("ilias_repository_cat_id"))
 		{
@@ -545,8 +537,7 @@ class ilMainMenuGUI
 				$this->renderEntry($a_tpl, "repository", $title, $nd_link);
 			}
 		}
-
-		// fim.
+// fau.
 
 		// webshop
 		if(IS_PAYMENT_ENABLED)
@@ -594,13 +585,13 @@ class ilMainMenuGUI
 			include_once("./Services/Link/classes/class.ilLink.php");
 			$icon = ilUtil::img(ilObject::_getIcon(ilObject::_lookupObjId(1), "tiny"));
 			
-			// fim: [portal] respect the script parameter (may be cat instead of root)
+// fau: rootIsReduced - respect the script parameter (may be cat instead of root)
 			// shorten the script
 			global $ilCust;
 			$rep_id = $ilCust->getSetting("ilias_repository_cat_id");
 			$icon = ilUtil::img(ilObject::_getIcon(ilObject::_lookupObjId($rep_id ? $rep_id : 1), "tiny"));
 			$gl->addEntry($icon." ".$a_txt." - ".$lng->txt("rep_main_page"), $a_script, "_top", "", "ilLVNavEnt");
-			// fim.
+// fau.
 			
 			$items = $ilNavigationHistory->getItems();
 			reset($items);
@@ -610,13 +601,13 @@ class ilMainMenuGUI
 			foreach($items as $k => $item)
 			{
 				if ($cnt >= 10) break;
-				
-				// fim: [portal] don't show root category in history
+
+// fau: rootIsReduced - don't show the entry point in the history
 				if ( $item["ref_id"] != $rep_id and
 					(!isset($item["ref_id"]) || !isset($_GET["ref_id"]) ||
 					($item["ref_id"] != $_GET["ref_id"] || !$first))			// do not list current item
 				)
-				// fim.
+// fau.
 				{
 					if ($cnt == 0)
 					{

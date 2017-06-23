@@ -54,11 +54,9 @@ class ilObjCategoryGUI extends ilContainerGUI
 					true);
 		}
 
-        // fim: [portal] set container appearance for reduced view mode
-		global $ilCust, $ilMainMenu, $tree;
-		if ($ilCust->getSetting("ilias_root_as_login")
-			and	$ilCust->getSetting("ilias_repository_cat_id")
-			and $this->ref_id)
+// fau: rootIsReduced - set container appearance for reduced view mode
+		global $ilCust, $tree;
+		if ($ilCust->getSetting("ilias_repository_cat_id"))
 		{
 			if ($ilCust->getSetting("ilias_repository_cat_id") != $this->ref_id
 				and
@@ -70,7 +68,7 @@ class ilObjCategoryGUI extends ilContainerGUI
 				$this->reduced_view_mode = true;
 			}
 		}
-		// fim.
+// fau.
 	}
 
 	function &executeCommand()
