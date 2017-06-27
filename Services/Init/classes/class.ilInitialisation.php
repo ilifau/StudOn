@@ -788,8 +788,10 @@ class ilInitialisation
 		$_GET["cmd"] = "frameset";
 
 // fau: rootAsLogin - redirect to the root page if message should be shown or no target is given
+		global $lng;
+
 		self::redirect("ilias.php?baseClass=ilrepositorygui&reloadpublic=1&cmd=".
-			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]."&login_target=".$_GET["target"], $mess_id, $mess);
+			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]."&lang=".$lng->getLangKey()."&login_target=".$_GET["target"], $mess_id, $mess);
 // fau.
 	}
 
@@ -1476,15 +1478,23 @@ class ilInitialisation
 		self::initGlobal("tpl", $tpl);
 		if(ilContext::hasUser() && ilContext::doAuthentication())
 		{
-			/**
-			 * @var $ilUser ilObjUser
-			 * @var $ilCtrl ilCtrl
-			 */
-			global $ilUser, $ilCtrl;
 
-			require_once 'Services/User/classes/class.ilUserRequestTargetAdjustment.php';
-			$request_adjuster = new ilUserRequestTargetAdjustment($ilUser, $ilCtrl);
-			$request_adjuster->adjust();
+// fau: rootAsLogin - adjust target only if user is authentified
+//					(start page may also be shown if authentication has failed)
+			global $ilAuth;
+			if ($ilAuth->getAuth())
+			{
+				/**
+				 * @var $ilUser ilObjUser
+				 * @var $ilCtrl ilCtrl
+				 */
+				global $ilUser, $ilCtrl;
+
+				require_once 'Services/User/classes/class.ilUserRequestTargetAdjustment.php';
+				$request_adjuster = new ilUserRequestTargetAdjustment($ilUser, $ilCtrl);
+				$request_adjuster->adjust();
+			}
+// fau.
 		}
 		
 		// load style sheet depending on user's settings

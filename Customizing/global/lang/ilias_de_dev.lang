@@ -182,7 +182,7 @@ common#:#local_login_to_ilias#:#Lokale Anmeldung
 common#:#local_login_to_ilias_addition#:#(Lehrende, Gasthörer, Gäste)
 common#:#logged_in_to_ilias#:#<strong>Sie sind bei StudOn eingeloggt.</strong>
 common#:#logged_in_to_ilias_info#:#Klicken Sie auf Abmelden, wenn Sie Ihre Sitzung schließen möchten.
-common#:#login_required_for_object#:#Bitte melden Sie sich an, um auf das Objekt zuzugreifen!
+common#:#login_required_for_object#:#Bitte melden Sie sich an.
 common#:#login_to_ilias_info#:#Die lokale Anmeldung ist für Lehrende und Gasthörer, die nicht über einen Single Sign-On-Zugang verfügen.
 common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
 common#:#login_to_ilias_via_shibboleth_addition#:#(immatrikulierte Studierende)
