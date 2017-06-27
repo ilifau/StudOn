@@ -790,8 +790,16 @@ class ilInitialisation
 // fau: rootAsLogin - redirect to the root page if message should be shown or no target is given
 		global $lng;
 
+		if ($_GET['lang']) {
+			$lang = $_GET['lang'];
+		}
+		elseif (isset($lng))
+		{
+			$lang = $lng->getLangKey();
+		}
+
 		self::redirect("ilias.php?baseClass=ilrepositorygui&reloadpublic=1&cmd=".
-			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]."&lang=".$lng->getLangKey()."&login_target=".$_GET["target"], $mess_id, $mess);
+			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]."&lang=".$lang."&login_target=".$_GET["target"], $mess_id, $mess);
 // fau.
 	}
 
