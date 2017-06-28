@@ -489,7 +489,7 @@ class ilSoapFunctions {
 		
 	}
 
-	// fim: [soap] new function sendUserMail()
+// fau: sendSimpleResults - new function sendUserMail()
 	public static function  sendUserMail($sid,$to,$cc,$bcc,$sender,$subject,$message,$attach,$type,$use_placeholders)
 	{
 		include_once './webservice/soap/classes/class.ilSoapUtils.php';
@@ -500,7 +500,7 @@ class ilSoapFunctions {
 
 		return $sou->sendUserMail($sid,$to,$cc,$bcc,$sender,$subject,$message,$attach,$type,$use_placeholders);
 	}
-	// fim.
+// fau.
 
 
 	public static function  ilClone($sid,$copy_identifier)

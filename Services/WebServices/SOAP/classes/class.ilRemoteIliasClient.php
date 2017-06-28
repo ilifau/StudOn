@@ -1,12 +1,12 @@
 <?php
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-
+// fau: sendSimpleResults - new SOAP client class to call a remote ILIAS installation.
 
 include_once 'Services/WebServices/SOAP/classes/class.ilSoapClient.php';
 
 /**
-* fim: [soap] Client to call a remote ILIAS installation
+* Client to call a remote ILIAS installation
 *
 * For calling function in StudOn main installation
 * from the StudOn Exam installation (e.g. sending mails)

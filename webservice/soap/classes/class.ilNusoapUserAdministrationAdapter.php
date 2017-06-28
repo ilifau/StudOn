@@ -778,7 +778,7 @@ class ilNusoapUserAdministrationAdapter
 								'ILIAS internal mail or as e-mail.'
 								);
 
-		// fim: [soap] register function to send user mails
+// fau: sendSimpleResults - register function to send user mails
 		$this->server->register('sendUserMail',
 								array('sid' => 'xsd:string',
 									  'rcp_to' => 'xsd:string',
@@ -797,7 +797,7 @@ class ilNusoapUserAdministrationAdapter
 								SERVICE_USE,
 								'ILIAS sendUserMail(): Send internal mails according to xml description. Only for internal usage '.
 								'Syntax, parameters may change in future releases');
-		// fim.
+// fau.
 
 
 		// Clone functions

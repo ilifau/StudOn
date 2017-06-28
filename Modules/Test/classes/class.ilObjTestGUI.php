@@ -3099,11 +3099,14 @@ class ilObjTestGUI extends ilObjectGUI
 		}
 	}
 
+// fau: sendSimpleResults - new function sendSimpleResultsToParticipantsObject()
 	/**
-	* fim: [exam] new function sendSimpleResultsToParticipants()
-	*/
+	* Show confirmation screen to send the results messages to the participants as e-mail
+	 */
 	function sendSimpleResultsToParticipantsObject()
 	{
+		global $ilDB;
+
 		if (count($_POST["chbUser"]) == 0)
 		{
 			ilUtil::sendInfo($this->lng->txt("select_one_user"), TRUE);
@@ -3115,12 +3118,19 @@ class ilObjTestGUI extends ilObjectGUI
         $c_gui->setFormAction($this->ctrl->getFormAction($this));
         $c_gui->setHeaderText($this->lng->txt('send_simple_results_to_participants_confirm'));
         $c_gui->setCancel($this->lng->txt('cancel'), 'participants');
-        $c_gui->setConfirm($this->lng->txt('confirm'), 'confirmSimpleResultsToParticipants');
+        $c_gui->setConfirm($this->lng->txt('confirm'), 'sendSimpleResultsToParticipantsConfirmed');
 
-        foreach ($_POST["chbUser"] as $key => $active_id)
+        include_once('Modules/Test/classes/class.ilTestParticipantData.php');
+        $parData = new ilTestParticipantData($ilDB, $this->lng);
+        $parData->load($this->object->getTestId());
+
+        foreach ($_POST["chbUser"] as $active_id)
 		{
-			$user_id = $this->object->_getUserIdFromActiveId($active_id);
-			$uname = $this->object->userLookupFullName($user_id, TRUE);
+			if ($this->object->getFixedParticipants())
+			{
+				$active_id = $parData->getActiveIdByUserId($active_id);
+			}
+			$uname = $parData->getFormatedFullnameByActiveId($active_id);
 			$c_gui->addItem('chbUser[]', $active_id, $uname);
 	    }
 
@@ -3128,15 +3138,18 @@ class ilObjTestGUI extends ilObjectGUI
 
        	return true;
 	}
-	// fim.
+// fau.
 
-
+// fau: sendSimpleResults - new function confirmSimpleResultsToParticipants()
 	/**
-	* fim: [exam] new function confirmSimpleResultsToParticipants()
+	 * Actually send the result messages to the participants (confirmation is done)
+	 * The e-mails are not sent directly but distributes via SOAP function of a confighred installation
+	 * This allows to send the e-mails from the exam instance and distribute them in the lms instance
+	 * Students will get the e-mail in ilias if haven't configured a forwarding
 	*/
-	function confirmSimpleResultsToParticipantsObject()
+	function sendSimpleResultsToParticipantsConfirmedObject()
 	{
-	    global $ilCust, $lng;
+	    global $ilDB, $ilCust, $lng;
 
 		if (count($_POST["chbUser"]) == 0)
 		{
@@ -3157,16 +3170,16 @@ class ilObjTestGUI extends ilObjectGUI
 			}
 	    }
 
-		include_once "./Modules/Test/classes/class.ilTestServiceGUI.php";
-		$serviceGUI =& new ilTestServiceGUI($this->object);
-
+		include_once('Modules/Test/classes/class.ilTestParticipantData.php');
+		$parData = new ilTestParticipantData($ilDB, $this->lng);
+		$parData->load($this->object->getTestId());
 
 		$sent = array();
 		$failed = array();
         foreach ($_POST["chbUser"] as $key => $active_id)
 		{
-			$user_id = $this->object->_getUserIdFromActiveId($active_id);
-			$uname = $this->object->userLookupFullName($user_id, TRUE);
+			$user_id = $parData->getUserIdByActiveId($active_id);
+			$uname = $parData->getFormatedFullnameByActiveId($active_id);
 			$user = new ilObjUser($user_id);
 
 			require_once 'Modules/Test/classes/class.ilTestGradingMessageBuilder.php';
@@ -3273,7 +3286,7 @@ class ilObjTestGUI extends ilObjectGUI
 
 		$this->ctrl->redirect($this, "participants");
 	}
-	// fim.
+// fau.
 
 
 	function removeParticipantObject()

@@ -212,7 +212,7 @@ class ilSoapUtils extends ilSoapAdministration
 		return true;
 	}
 	
-	// fim: [soap] send mail to ilias users
+// fau: sendSimpleResults - new function sendUserMail()
 	function sendUserMail($sid, $to, $cc, $bcc, $sender, $subject, $message, $attach, $type, $use_placeholders)
 	{
 		$this->initAuth($sid);
@@ -252,7 +252,7 @@ class ilSoapUtils extends ilSoapAdministration
 
 		return true;
 	}
-	// fim.
+// fau.
 
 	
 	function saveTempFileAsMediaObject($sid, $name, $tmp_name)
