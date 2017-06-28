@@ -816,9 +816,7 @@ class ilObjTestGUI extends ilObjectGUI
 	 *
 	 * @return ilTemplate
 	 */
-	// fim: [exam] added parameter $add_correct_solutions
-	public function createUserResults($show_pass_details, $show_answers, $show_reached_points, $show_user_results, $add_correct_solutions = FALSE)
-	// fim.
+	public function createUserResults($show_pass_details, $show_answers, $show_reached_points, $show_user_results)
 	{
 		global $ilTabs, $ilDB;
 
@@ -903,7 +901,6 @@ class ilObjTestGUI extends ilObjectGUI
 			}
 			if ($active_id > 0)
 			{
-				// fim: [exam] added parameter $add_correct_solutions
 				$results = $serviceGUI->getResultsOfUserOutput(
 					$this->testSessionFactory->getSession( $active_id ),
 					$active_id,
@@ -912,10 +909,8 @@ class ilObjTestGUI extends ilObjectGUI
 					$show_pass_details,
 					$show_answers,
 					FALSE,
-					$show_reached_points,
-					$add_correct_solutions
+					$show_reached_points
 				);
-				// fim.
 			}
 			if ($count < count( $show_user_results ))
 			{
@@ -933,8 +928,6 @@ class ilObjTestGUI extends ilObjectGUI
 			ilTestPDFGenerator::generatePDF(
 				$template->get(), ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $this->object->getTitle()
 			);
-
-			exit;
 		}
 		else
 		{
@@ -3050,22 +3043,6 @@ class ilObjTestGUI extends ilObjectGUI
 	}
 
  /**
-	* fim: [exam] new function showDetailedResultsWithCorrectSolutionsObject
-	*
-	* @access	public
-	*/
-	function showDetailedResultsWithCorrectSolutionsObject()
-	{
-		if (count($_POST))
-		{
-			$_SESSION["show_user_results"] = $_POST["chbUser"];
-		}
-		$this->showUserResults($show_pass_details = TRUE, $show_answers = TRUE, $show_reached_points = TRUE, $add_correct_solutions = TRUE);
-	}
-	// fim.
-
-
- /**
 	* Shows the answers of one ore more users for the scored pass
 	*
 	* @access	public
@@ -3092,15 +3069,13 @@ class ilObjTestGUI extends ilObjectGUI
 		}
 		$this->showUserResults($show_pass_details = TRUE, $show_answers = FALSE);
 	}
-	
-	// fim: [exam] added parameter $add_correct_solutions
+
  /**
 	* Shows the pass overview of the scored pass for one ore more users
 	*
 	* @access	public
 	*/
-	function showUserResults($show_pass_details, $show_answers, $show_reached_points = FALSE, $add_correct_solutions = FALSE)
-	// fim.
+	function showUserResults($show_pass_details, $show_answers, $show_reached_points = FALSE)
 	{
 		$show_user_results = $_SESSION["show_user_results"];
 		
@@ -3110,9 +3085,8 @@ class ilObjTestGUI extends ilObjectGUI
 			$this->ctrl->redirect($this, "participants");
 		}
 
-		// fim: [exam] added parameter $add_correct_solutions
-		$template = $this->createUserResults( $show_pass_details, $show_answers, $show_reached_points, $show_user_results, $add_correct_solutions);
-		// fim.
+
+		$template = $this->createUserResults( $show_pass_details, $show_answers, $show_reached_points, $show_user_results);
 
 		if($template instanceof ilTemplate)
 		{
