@@ -74,4 +74,5 @@ $p = new ilPatchUtils();
  ******************************/
 
 //$p->applyPatch('ilPermissionPatches51.initInteractiveVideo');
+//$p->applyPatch('ilPermissionPatches51.initCombiSubscription');
 //$p->applyPatch('ilPermissionPatches51.initAdobeConnect');

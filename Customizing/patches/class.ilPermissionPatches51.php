@@ -52,4 +52,29 @@ class ilPermissionPatches51
 		));
 	}
 
+
+	/**
+	 * Copy from Booking Pool to Combined Subscription
+	 */
+	public function initCombiSubscription()
+	{
+		$pu = new ilPermissionUtils(true);
+
+		$pu->copyDefaultPermission('book','visible',			'xcos','visible');
+		$pu->copyDefaultPermission('book','read',				'xcos','read');
+		$pu->copyDefaultPermission('book','write',				'xcos','write');
+		$pu->copyDefaultPermission('book','delete',				'xcos','delete');
+		$pu->copyDefaultPermission('book','edit_permission',	'xcos','edit_permission');
+
+		$pu->copyDefaultPermissions(
+			array('cat','crs','grp','fold'), array(
+			array('create_book', 'create_xcos')
+		));
+		$pu->copyPermissions(
+			array('cat','crs','grp','fold'), array(
+			array('create_book', 'create_xcos')
+		));
+	}
+
+
 }
