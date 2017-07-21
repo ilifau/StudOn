@@ -11,6 +11,9 @@
 * @version $Id$
 *
 */
+// fim: [debug] optionally include debugging functions
+// require_once("include/inc.debug.php");
+// fim.
 
 require_once("Services/Init/classes/class.ilInitialisation.php");
 ilInitialisation::initILIAS();
