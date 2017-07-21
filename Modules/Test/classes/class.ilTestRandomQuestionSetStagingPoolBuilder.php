@@ -248,6 +248,14 @@ class ilTestRandomQuestionSetStagingPoolBuilder
 
 				$definition->mapTaxonomyFilter($taxonomiesKeysMap);
 // fau.
+
+// fau: taxGroupFilter - map the grouping taxonomy
+				if ($definition->getOriginalGroupTaxId())
+				{
+					$definition->setMappedGroupTaxId(
+						$taxonomiesKeysMap->getMappedTaxonomyId($definition->getOriginalGroupTaxId()));
+				}
+// fau.
 			}
 		}
 	}

@@ -775,3 +775,34 @@
 	}
 
 ?>
+<#45>
+<#46>
+<#47>
+<#48>
+<?php
+    // fau: taxGroupFilter - taxonomy for group filter
+    if( !$ilDB->tableColumnExists('tst_rnd_quest_set_qpls', 'origin_group_tax_fi'))
+    {
+        $ilDB->addTableColumn('tst_rnd_quest_set_qpls', 'origin_group_tax_fi',
+            array('type' => 'integer', 'length' => 4, 'notnull'	=> false, 'default'	=> null)
+        );
+    }
+    if( !$ilDB->tableColumnExists('tst_rnd_quest_set_qpls', 'mapped_group_tax_fi'))
+	{
+		$ilDB->addTableColumn('tst_rnd_quest_set_qpls', 'mapped_group_tax_fi',
+			array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+		);
+	}
+	// fau.
+?>
+<#49>
+<?php
+    // fau: randomSetOrder - order of questions in a random set
+    if( !$ilDB->tableColumnExists('tst_rnd_quest_set_qpls', 'order_by'))
+    {
+        $ilDB->addTableColumn('tst_rnd_quest_set_qpls', 'order_by',
+            array('type' => 'text', 'length' => 20, 'notnull'	=> false, 'default'	=> null)
+        );
+    }
+    // fau.
+?>

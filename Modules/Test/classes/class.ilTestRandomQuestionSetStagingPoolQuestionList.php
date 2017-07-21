@@ -42,11 +42,23 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	 */
 	private $taxFilters = array();
 
+// fau: taxGroupFilter - class variables for question grouping and selection
+	private $groupTaxId = null;
+	/** @var array node_id => question_ids[] */
+	private $groupedQuestions = array();
+
+	private $selectSize = 0;
+// fau.
+
 // fau: typeFilter private variable
 	/**
 	 * @var array
 	 */
 	private $typeFilter = array();
+// fau.
+
+// fau: randomSetOrder -class variable for ordering the selected questions
+	private	$orderBy = null;
 // fau.
 
 	/**
@@ -104,6 +116,28 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 		return $this->taxFilters;
 	}
 
+// fau: taxGroupFilter - getter/setter
+	public function getGroupTaxId()
+	{
+		return $this->groupTaxId;
+	}
+
+	public function setGroupTaxId($groupTaxId)
+	{
+		$this->groupTaxId = $groupTaxId;
+	}
+
+	public function setSelectSize($size)
+	{
+		$this->selectSize = $size;
+	}
+
+	public function getSelectSize()
+	{
+		return $this->selectSize;
+	}
+// fau.
+
 // fau: typeFilter - getter/setter
 	public function getTypeFilter()
 	{
@@ -116,11 +150,24 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	}
 // fau.
 
+// fau: - randomSetOrder - getter/setter
+	public function getOrderBy()
+	{
+		return $this->orderBy;
+	}
 
+	public function setOrderBy($orderBy)
+	{
+		$this->orderBy = $orderBy;
+	}
+// fau.
+
+// fau: - randomSetOrder - sort the loaded questions
 	public function loadQuestions()
 	{		
 		$query = "
-			SELECT		qpl_questions.question_id,
+			SELECT		{$this->getSortKey()}
+						qpl_questions.question_id,
 						qpl_qst_type.type_tag,
 						qpl_qst_type.plugin
 
@@ -137,23 +184,48 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
 			{$this->getConditionalExpression()}
 		";
-		
+
 		$res = $this->db->queryF(
 			$query, array('integer', 'integer'), array($this->getTestId(), $this->getPoolId())
 		);
 
 		//vd($this->db->db->last_query);
-		
+
+		$questions = array();
 		while( $row = $this->db->fetchAssoc($res) )
 		{
 			if( !$this->isActiveQuestionType($row) )
 			{
 				continue;
 			}
+			$questions[$row['question_id']] = $row['sort_key'];
+		}
 
-			$this->questions[] = $row['question_id'];
+		if ($this->getOrderBy())
+		{
+			natsort($questions);
+		}
+
+		$this->questions = array_keys($questions);
+	}
+// fau.
+
+// fau: randomSetOrder - get a sort key field
+	private function getSortKey()
+	{
+		switch ($this->getOrderBy())
+		{
+			case 'title':
+				return 'qpl_questions.title sort_key,';
+			case 'description':
+				return 'qpl_questions.description sort_key,';
+			case 'random':
+				return 'RAND() sort_key,';
+			default:
+				return '1 sort_key';
 		}
 	}
+// fau.
 
 	private function getConditionalExpression()
 	{
@@ -192,6 +264,17 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
 				$taxItems = $taxNodeAssignment->getAssignmentsOfNode($subNodes);
 
+// fau: taxGroupFilter - collect the defined questions per group node
+				if ($taxId == $this->getGroupTaxId())
+				{
+					$group = array();
+					foreach($taxItems as $taxItem)
+					{
+						$group[] = $taxItem['item_id'];
+					}
+					$this->groupedQuestions[$taxNode] = array_unique($group);
+				}
+// fau.
 				foreach($taxItems as $taxItem)
 				{
 					$questionIds[$taxItem['item_id']] = $taxItem['item_id'];
@@ -249,6 +332,54 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	{
 		return array_values($this->questions);
 	}
+
+
+// fau: taxGroupFilter - get selected questions
+	public function getSelectedQuestions()
+	{
+		if (empty($this->getSelectSize()))
+		{
+			return array();
+		}
+
+		if ($this->getGroupTaxId())
+		{
+			$validGroups = array();
+			foreach($this->groupedQuestions	as $taxNode => $nodeQuestions)
+			{
+				// filter the really found questions by the question ids of the group node
+				// this keeps them in the loaded order
+				$filteredQuestions = array_intersect($this->questions, $nodeQuestions);
+
+				// collect groups that have enough questions
+				if (count($filteredQuestions) >= $this->getSelectSize())
+				{
+					$validGroups[] = $filteredQuestions;
+				}
+			}
+
+			if (count($validGroups))
+			{
+				// choose a question group randomly
+				$groupQuestions = $validGroups[array_rand($validGroups)];
+
+				// choose the selected amount of questions and keep their order
+				$selectedKeys = array_rand($groupQuestions, $this->getSelectSize());
+				$selectedQuestions = array_values(array_intersect_key($groupQuestions, array_flip($selectedKeys)));
+				return $selectedQuestions;
+			}
+		}
+		elseif (count($this->questions) >= $this->getSelectSize())
+		{
+			// choose the selected amount of questions and keep their order
+			$selectedKeys = array_rand($this->questions, $this->getSelectSize());
+			$selectedQuestions = array_values(array_intersect_key($this->questions, array_flip($selectedKeys)));
+			return $selectedQuestions;
+		}
+
+		return array();
+	}
+// fau.
 
 	// =================================================================================================================
 

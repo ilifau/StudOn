@@ -32,6 +32,19 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 				$questionsPerDefinition[$definition->getId()][$id]++;
 				$questionsMatchingCount[$id]++;
 			}
+
+// fau: taxGroupFilter - get a sample group and check its size
+			if ($definition->getOriginalGroupTaxId())
+			{
+				$group = $this->getQuestionSetForSourcePoolDefinition($definition);
+				if ($group->isSmallerThan($definition->getQuestionAmount()))
+				{
+					$this->checkMessages[] = sprintf($lng->txt('tst_msg_rand_quest_set_pass_not_buildable_group'),
+						$definition->getSequencePosition());
+					$buildable = false;
+				}
+			}
+// fau.
 		}
 
 		// second round: count the exclusive questions of each definition
@@ -55,7 +68,7 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 			}
 		}
 
-		// return $buildable;
+		//return $buildable;
 
 		// keep old check for a while but messages will be created for the new check
 		$questionStage = $this->getQuestionStageForSourcePoolDefinitionList($this->sourcePoolDefinitionList);
@@ -78,8 +91,17 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 
 			$requiredQuestionAmount = $definition->getQuestionAmount();
 
-			$potentialQuestionStage = $this->getQuestionStageForSourcePoolDefinition($definition);
-
+// fau: taxGroupFilter - draw a question group randomly
+			if (!empty($definition->getMappedGroupTaxId()))
+			{
+				// draw the needed amount of questions from a filternode of the group taxonomy
+				$potentialQuestionStage = $this->getQuestionSetForSourcePoolDefinition($definition);
+			}
+			else
+			{
+				$potentialQuestionStage = $this->getQuestionStageForSourcePoolDefinition($definition);
+			}
+// fau.
 			$actualQuestionStage = $potentialQuestionStage->getRelativeComplementCollection($questionSet);
 
 			if( $actualQuestionStage->isGreaterThan($requiredQuestionAmount) )

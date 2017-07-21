@@ -138,14 +138,27 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 
 		$this->tpl->setVariable('SOURCE_POOL_LABEL', $set['source_pool_label']);
 
-// fau: taxFilter - set taxonomy filter label in a single coulumn
+// fau: taxFilter - set taxonomy filter label in a single column
 		$this->tpl->setVariable('TAXONOMY_FILTER', $this->taxonomyLabelTranslater->getTaxonomyFilterLabel($set['taxonomy_filter'],'<br />'));
 //		$this->tpl->setVariable('FILTER_TAXONOMY', $this->getTaxonomyTreeLabel($set['filter_taxonomy']));
 //		$this->tpl->setVariable('FILTER_TAX_NODE', $this->getTaxonomyNodeLabel($set['filter_tax_node']));
 // fau.
 // fau: typeFilter - set type filter label in a column
+		if ($set['group_tax_id'])
+		{
+			$this->tpl->setVariable('GROUP_TAXONOMY', "<br />". $this->taxonomyLabelTranslater->getGroupTaxonomyLabel($set['group_tax_id']));
+		}
+// fau.
+// fau: typeFilter - set type filter label in a column
 		$this->tpl->setVariable('TYPE_FILTER', $this->taxonomyLabelTranslater->getTypeFilterLabel($set['type_filter']));
 // fau.
+
+// fau: randomSetOrder - get the order criteria
+		if (!empty($set['order_by']))
+		{
+			$this->tpl->setVariable('ORDER_BY', $this->lng->txt('tst_filter_order_'.$set['order_by']));
+		}
+//	fau.
 	}
 
 	private function getSelectionCheckboxHTML($sourcePoolDefinitionId)
@@ -287,7 +300,9 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 // fau: typeFilter - add column for the question types
 		$this->addColumn($this->lng->txt("tst_filter_question_type"),'tst_filter_question_type', '');
 // fau.
-
+// fau: randomSetOrder - add column for order
+		$this->addColumn($this->lng->txt("tst_filter_order_by"),'tst_filter_order_by', '');
+// fau.
 		if( $this->isQuestionAmountColumnEnabled() )
 		{
 			$this->addColumn($this->lng->txt("tst_question_amount"),'tst_question_amount', '');
@@ -313,21 +328,27 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 			$set['sequence_position'] = $sourcePoolDefinition->getSequencePosition();
 			$set['source_pool_label'] = $sourcePoolDefinition->getPoolTitle();
 // fau: taxFilter - get new taxonomy filter for display
+// fau: taxGroupFilter - get group selection info
 			if ($this->showMappedTaxonomyFilter)
 			{
 				// mapped filter will be used after synchronisation
 				$set['taxonomy_filter'] = $sourcePoolDefinition->getMappedTaxonomyFilter();
+				$set['group_tax_id'] = $sourcePoolDefinition->getMappedGroupTaxId();
 			}
 			else
 			{
 				// original filter will be used before synchronisation
 				$set['taxonomy_filter'] = $sourcePoolDefinition->getOriginalTaxonomyFilter();
+				$set['group_tax_id'] = $sourcePoolDefinition->getOriginalGroupTaxId();
 			}
 //			$set['filter_taxonomy'] = $sourcePoolDefinition->getMappedFilterTaxId();
 //			$set['filter_tax_node'] = $sourcePoolDefinition->getMappedFilterTaxNodeId();
 // fau.
 // fau: typeFilter - get the type filter for display
 			$set['type_filter'] = $sourcePoolDefinition->getTypeFilter();
+// fau.
+// fau: randomSetOrder - get the order criteria
+			$set['order_by'] = $sourcePoolDefinition->getOrderBy();
 // fau.
 			$set['question_amount'] = $sourcePoolDefinition->getQuestionAmount();
 

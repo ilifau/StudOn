@@ -53,6 +53,7 @@ assessment#:#tst_mark_tst_failed_details#:#Dieser Text ersetzt die Standardmeldu
 assessment#:#tst_mark_tst_passed#:#Resultierende Note "bestanden"
 assessment#:#tst_mark_tst_passed_details#:#Dieser Text ersetzt die Standardmeldung auf der Ergebnisseite eines bestandenen Tests. Sie können darin die folgenden Platzhalter verwenden:<br /><strong>[mark]</strong> : Offizielle Bezeichnung der Notenstufe,<br /><strong>[markshort]</strong> : Kurzbezeichnung der Notenstufe,<br /><strong>[percentage]</strong> : Prozent gelöst,<br /><strong>[reached]</strong> : erreichte Punktzahl,<br /><strong>[max]</strong> : maximale Punktzahl.
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Zur Regel %s gibt es weniger als die erforderlichen Fragen. Für jede Regel muss es genug Fragen geben, die zu keiner anderen Regel passen.
+assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Zur Regel %s wurde keine Fragengruppe mit der erforderlichen Anzahl an Fragen gefunden!###fau: taxGroupFilter
 assessment#:#tst_msg_rand_quest_set_not_sync#:#Die Regeln für die zufällige Fragenauswahl wurden neu erstellt oder geändert. Bevor der Test verwendet werden kann, müssen die Fragen aus den Pools synchronisiert werden. Dabei wird auch geprüft, ob mit den Regeln ein zufälliger Test möglich ist.
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#Bei der Synchronisation werden alle Fragen die zu den Regeln passen in den Test kopiert. Diese Aktion kann bei großen Pools einige Minuten dauern.
 assessment#:#tst_filter_question_type#:#Fragentyp
@@ -62,6 +63,16 @@ assessment#:#tst_recalculate_solutions_confirm#:#Die Ergebnisse aller Teilnehmer
 assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
 assessment#:#tst_use_previous_answer#:#Die angezeigte Lösung aus dem vorherigen Durchgang übernehmen
 assessment#:#tst_use_previous_answer_imagemap#:#Bitte klicken Sie erneut auf das Bild, um die Lösung aus dem vorherigen Durchgang zu übernehmen.
+assessment#:#tst_group_filter#:#Gruppenauswahl
+assessment#:#tst_group_filter_info#:#Alle Fragen sollen zum selben Taxonomieknoten gehören
+assessment#:#tst_group_filter_tax#:#Gruppen-Taxonomie
+assessment#:#tst_group_filter_tax_info#:#Die Taxonomie muss als Filter aktiviert sein. Aus ihren gewählten Knoten wird zufällig einer bestimmt und aus ihm die Fragen gezogen. Es werden nur Knoten verwendet, die genug Fragen enthalten.
+assessment#:#tst_filter_order_by#:#Reihenfolge der Fragen
+assessment#:#tst_filter_order_title#:#Nach Titel
+assessment#:#tst_filter_order_description#:#Nach Beschreibung
+assessment#:#tst_filter_order_random#:#Zufällig
+assessment#:#tst_filter_order_undefined#:#Unsortiert
+assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell mischt, bleiben die Fragen dieser Auswahlregel hintereinander. Ihre Sortierung kann hier bestimmt werden.
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.

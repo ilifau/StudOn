@@ -52,6 +52,7 @@ assessment#:#tst_mark_tst_failed_details#:#This text replaces the stadnardmessag
 assessment#:#tst_mark_tst_passed#:#Resulting Mark "succeeded"
 assessment#:#tst_mark_tst_passed_details#:#This text replaces the standardmessage on the solutionsite of a succeeded test. You can use following placeholder:<br /><strong>[mark]</strong> : official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Rule %s requires more questions than available. Each rule must have enough questions that don't fit to another rule.
+assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Rule %s provides no question group with the required amount of questions!###fau: taxGroupFilter
 assessment#:#tst_msg_rand_quest_set_not_sync#:#The rules for a random selection of questions were newly created or changed. The questions from the pools have to be synchronized in the test before it can be used. This checks also if a random test is possible with the given set of rules.
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies all questions matching the rules into the test. This may take several minutes for big pools.
 assessment#:#tst_filter_question_type#:#Question Type
@@ -61,6 +62,16 @@ assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of al
 assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
 assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
 assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.
+assessment#:#tst_group_filter#:#Group Selection
+assessment#:#tst_group_filter_info#:#All questions should belong to the same taxonomy node
+assessment#:#tst_group_filter_tax#:#Group Taxonomy
+assessment#:#tst_group_filter_tax_info#:#The taxonomy must be activated as a filter. A node will be chosen from the selected ones and the questions will be drawn from there. Only nodes having enough quetions are considered.
+assessment#:#tst_filter_order_by#:#Questions Order
+assessment#:#tst_filter_order_title#:#By Title
+assessment#:#tst_filter_order_description#:#By Description
+assessment#:#tst_filter_order_random#:#Random
+assessment#:#tst_filter_order_undefined#:#Not Sorted
+assessment#:#tst_filter_order_by_info#:#When the test doesn't shuffle the questions, then the questions of this rule are presented in a sequence. Their order is defined here.
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.
