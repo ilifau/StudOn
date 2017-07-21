@@ -222,7 +222,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 			case 'random':
 				return 'RAND() sort_key,';
 			default:
-				return '1 sort_key';
+				return "'A' AS sort_key,";
 		}
 	}
 // fau.
