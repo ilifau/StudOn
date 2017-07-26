@@ -341,16 +341,20 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
 			$sourcePoolDefinition->setQuestionAmount( $this->getItemByPostVar('question_amount_per_pool')->getValue() );
 
 // fau: taxGroupFilter - submit group setting
-			$groupFilter = $this->getItemByPostVar('tst_group_filter')->getChecked();
-			$groupTaxId = $this->getItemByPostVar('tst_group_filter_tax')->getValue();
+			if ( count($availableTaxonomyIds) )
+			{
 
-			if ($groupFilter && in_array($groupTaxId, array_keys($taxFilter)))
-			{
-				$sourcePoolDefinition->setOriginalGroupTaxId($groupTaxId);
-			}
-			else
-			{
-				$sourcePoolDefinition->setOriginalGroupTaxId(null);
+				$groupFilter = $this->getItemByPostVar('tst_group_filter')->getChecked();
+				$groupTaxId = $this->getItemByPostVar('tst_group_filter_tax')->getValue();
+
+				if ($groupFilter && in_array($groupTaxId, array_keys($taxFilter)))
+				{
+					$sourcePoolDefinition->setOriginalGroupTaxId($groupTaxId);
+				}
+				else
+				{
+					$sourcePoolDefinition->setOriginalGroupTaxId(null);
+				}
 			}
 // fau.
 		}
