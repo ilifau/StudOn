@@ -423,7 +423,14 @@ class ilLPStatus
 	static function writeStatus($a_obj_id, $a_user_id, $a_status, $a_percentage = false, $a_force_per = false)
 	{
 		global $ilDB;
-				
+
+// fau: provideRecalc - prevent status update od deleted users when test is recalculated
+		if (empty($a_obj_id) || empty($a_user_id))
+		{
+			return false;
+		}
+// fau.
+
 		$update_collections = false;
 
 		// get status in DB
