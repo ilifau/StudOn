@@ -27,6 +27,7 @@ $p = new ilPatchUtils();
 //$p->applyPatch('ilSpecificPatches.compareAccountingQuestionResults');
 //$p->applyPatch('ilSpecificPatches.convertAccountingQuestionResults');
 //$p->applyPatch('ilSpecificPatches.changeRemoteMediaUrlPrefix', array('search'=> 'http://', 'replace' => 'https://', 'update' => false));
+//$p->applyPatch('ilSpecificPatches.removeCourseMembersWhenOnWaitingList', array('obj_id' => 2569770));
 
 
 /***********

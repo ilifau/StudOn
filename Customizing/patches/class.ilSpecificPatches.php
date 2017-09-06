@@ -342,5 +342,28 @@ class ilSpecificPatches
 			}
 		}
 	}
+
+
+	/**
+	 * Remove members from a course that are on the waiting list
+	 */
+	function removeCourseMembersWhenOnWaitingList($params=array('obj_id'=> 0))
+	{
+		include_once('./Modules/Course/classes/class.ilObjCourse.php');
+		include_once('./Modules/Course/classes/class.ilCourseParticipants.php');
+		include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
+
+		$list_obj = new ilCourseWaitingList($params['obj_id']);
+		$part_obj = new ilCourseParticipants($params['obj_id']);
+
+		foreach ($part_obj->getMembers() as $user_id)
+		{
+			if ($list_obj->isOnList($user_id))
+			{
+				$part_obj->delete($user_id);
+				echo "deleted: ". $user_id;
+			}
+		}
+	}
 }
 
