@@ -53,7 +53,14 @@ class ilCharSelectorGUI
 	public static function _isAllowed()
 	{
 		global $ilCtrl;
-		
+
+// fau: fixCharSelectorInSetup - prevent error when reloading the control structure
+		if (!isset($ilCtrl))
+		{
+			return false;
+		}
+// fau.
+
 		// get the command class 
 		// with correct case for checking parent classes
 		foreach ($ilCtrl->getCallHistory() as $call)
