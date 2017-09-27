@@ -175,15 +175,10 @@ class ilMemberExportGUI
 		$roles->addOption(new ilCheckboxOption($this->lng->txt('ps_export_member'), 'member'));
 		$roles->addOption(new ilCheckboxOption($this->lng->txt('ps_export_sub'), 'subscribers'));
 		$roles->addOption(new ilCheckboxOption($this->lng->txt('ps_export_wait'), 'waiting_list'));
-		// fim: [export] add option to export members from the lot list
-		$roles->addOption(new ilCheckboxOption($this->lng->txt('ps_export_lot'), 'lot_list'));
-		// fim.
 		$form->addItem($roles);
 		
 		$current_roles = array();
-		// fim: [export] set option to export members from the lot list
-		foreach(array('admin', 'tutor', 'member', 'subscribers', 'waiting_list', 'lot_list') as $role)
-		// fim.
+		foreach(array('admin', 'tutor', 'member', 'subscribers', 'waiting_list') as $role)
 		{
 			if($this->exportSettings->enabled($role))
 			{

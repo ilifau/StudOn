@@ -119,7 +119,7 @@ common#:#crs_create_exco#:#Neuen externen Inhalt anlegen
 common#:#crs_create_perc#:#Neues Perception-Assessment anlegen
 common#:#crs_helptext#:#Kurse sind Container-Objekte, die beliebige andere Lernobjekte enthalten können und verschiedene Möglichkeiten der Mitgliederverwaltung bieten. Es empfiehlt sich, Kurse für die Organisation von Lehrveranstaltungen in StudOn zu verwenden. <a target="_blank" href="http://www.studon.uni-erlangen.de/lm113424.html">Mehr...</a>
 common#:#crsr_helptext#:#Mit einer Kurs-Referenz können Sie auf einen Kurs verweisen, der an einer anderen Stelle in StudOn liegt. Beim Klick auf die Referenz gelangt man dann zum Kurs. Die Zugriffsrechte auf diesen Kurs bleiben durch die Referenz unverändert.
-common#:#deny_regstart_message#:#<p class="alert">Der Anmeldestart darf nicht zwischen <em>%s</em> und <em>%s</em> liegen!</p>
+common#:#deny_regstart_message#:#Der Anmeldestart darf nicht zwischen <em>%s</em> und <em>%s</em> liegen!
 common#:#distinct_registrations#:#Verschiedene Anmeldungen
 common#:#docorder_err_course_not_closed#:#Der StudOn-Kurs "%s" ist nicht zur Bereitstellung von bestellten Dokumenten geeignet. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
 common#:#docorder_err_course_not_found#:#Zur Kursnummer %s wurde kein StudOn-Kurs gefunden!
@@ -160,7 +160,6 @@ common#:#glo_helptext#:#In einem Glossar können Sie Begriffe und Definitionen z
 common#:#grp_create_exco#:#Neuen externen Inhalt anlegen
 common#:#grp_create_perc#:#Neues Perception-Assessment anlegen
 common#:#grp_helptext#:#Gruppen können im Gegensatz zu Ordnern nicht nur Sachobjekte wie Dateien, Foren oder Wikis enthalten, sondern verfügen auch über Optionen der Mitgliederverwaltung, so dass Sie Gruppen Teilnehmer zuweisen können. So können Sie z.B. getrennte Arbeitsgruppen in StudOn realisieren oder Studierenden die Möglichkeit geben, Dateien hochzuladen.
-common#:#grp_status_pending#:#Antrag wird bearbeitet
 common#:#htlm_helptext#:#Wenn Sie Lerninhalte bereits als HTML-Seiten vorliegen haben, können Sie diese als HTML-Lernmodul einbinden. Laden Sie Ihren Satz von Seiten als Zip-Archiv hoch, entpacken Sie es und legen sie eine Startseite fest.<br />Die Startseite öffnet sich beim Aufruf des Lernmoduls in einem neuen Fenster. StudOn stellt sicher, dass die Inhalte nur mit den vorgesehen Rechten aufgerufen werden können.
 common#:#icon_alert_s.gif#:#Warnung
 common#:#ilias_remote_soap_login_failed#:#Es konnte keine Verbindung zur StudOn-Plattform aufgebaut werden!
@@ -185,7 +184,6 @@ common#:#join_grp_not_permitted#:#Sie können der Gruppe nicht beitreten!
 common#:#join_link#:#Link zum Beitritt
 common#:#join_link_description#:#<span class="small">Beim Aufruf dieses Links muss sich ein Nutzer zunächst bei StudOn anmelden und wird dann zur Beitritts-Seite weitergeleitet.</span>
 common#:#label_remark#:#Hinweis
-common#:#leave_lot_list#:#Von der Auslosung abmelden
 common#:#links_password_coded#:#Passwort-Code
 common#:#lm_helptext#:#Ein ILIAS-Lernmodul ist wie ein elektronisches Buch aufgebaut. Mit dem Online-Editor erstellen Sie Seiten mit Text und Medienelementen, die in einer Kapitelstruktur eingegliedert oder als freie Seiten (Exkurse) verlinkt werden. ILIAS-Lernmodule lassen sich exportieren und in anderen Lernumgebungen oder offline weiternutzen. <p class="alert">Tipp: mit dem externen Tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> können Sie OpenOffice-Dokumente in ILIAS-Lernmodule konvertieren.</p>
 common#:#local_login_help_title#:#Hilfe zur lokalen Anmeldung
@@ -198,38 +196,15 @@ common#:#login_to_ilias_info#:#Die lokale Anmeldung ist für Lehrende und Gasth�
 common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
 common#:#login_to_ilias_via_shibboleth_addition#:#(immatrikulierte Studierende)
 common#:#mcst_helptext#:#Ein Mediacast kann mehrere Medienobjekte (z.B. Audio-Dateien) beinhalten, die sich im Browser abspielen oder herunterladen lassen. <p class="alert">Umfangreiche Video-Datei (z.B. Vorlesungsaufzeichnungen) laden Sie am besten im <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> der Universität hoch. Sie können sie dort mit einem Schutz versehen und in Ihrem StudOn-Kurs als "Externer Inhalt" verlinken.</p>
-common#:#mem_add_to_lot#:#Zur Auslosung hinzufügen
-common#:#mem_added_to_lot_list#:#Sie wurden zur Auslosung angemeldet.
-common#:#mem_already_on_lot_list#:#Sie sind bereits zur Auslosung angemeldet.
+common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
+common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
+common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
 common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_fill_free_places#:#Freie Plätze auffüllen
-common#:#mem_lot_button#:#Mitglieder auslosen
-common#:#mem_lot_candidates#:#Loskandidaten
-common#:#mem_lot_clean_button#:#Liste bereinigen (Mitglieder entfernen)
-common#:#mem_lot_cleaned#:#Die Liste wurde bereinigt:<br />Entfernt, da bereits Mitglied (auch in verbundenen Kursen/Gruppen): %s Nutzer.
-common#:#mem_lot_drawn#:#Die freien Plätze wurden ausgelost.<br />Aufgenommen: %s Nutzer.<br />Ausgeschlossen, da anderweitig Mitglied: %s Nutzer.
-common#:#mem_lot_form_title#:#Losverfahren
-common#:#mem_lot_free_places#:#Freie Plätze
-common#:#mem_lot_list_count#:#Kandidaten zur Auslosung:
-common#:#mem_lot_list_info#:#Die Teilnehmer werden nach Anmeldungsende ausgelost. Alle haben dabei die gleiche Chance, unabhängig von der Reihenfolge ihrer Anmeldung. Sie können daher den gesamten Anmeldungszeitraum nutzen!
-common#:#mem_lot_list_possible#:#Die Teilnehmer werden nach Anmeldungsende ausgelost.
-common#:#mem_lot_message_no_candidates#:#Es sind keine Kandidaten zur Auslosung vorhanden.
-common#:#mem_lot_message_no_places#:#Es sind keine freien Plätze zur Auslosung vorhanden.
-common#:#mem_lot_message_not_enabled#:#Das Losverfahren ist nicht aktiviert!
-common#:#mem_lot_message_possible#:#Sie können Mitglieder auslosen.
-common#:#mem_lot_message_subscribers#:#Es sind noch Aufnahmeanträge vorhanden. Bitte bearbeiten Sie diese, bevor Sie die Mitglieder auslosen.
-common#:#mem_lot_message_time#:#Die Auslosung ist ab %s möglich.
-common#:#mem_lot_status#:#Status
-common#:#mem_lot_table_description#:#Freie Plätze: %s, Loskandidaten: %s, Status: %s
 common#:#mem_max_users_hidden#:#Info für Admins:
-common#:#mem_on_lot_list#:#zur Auslosung angemeldet
 common#:#mem_registration_access_time#:#Anmeldung/Erstzugriff
-common#:#mem_remove_from_lot#:#Von der Auslosung entfernen
 common#:#mem_request_joining#:#Aufnahme beantragen
-common#:#mem_request_lot#:#Zur Auslosung anmelden
 common#:#mem_request_waiting#:#Auf Warteliste setzen
-common#:#mem_subscribers_added_to_lot#:#%s Antragsteller wurden zur Auslosung hinzugefügt.
-common#:#mem_subscribers_removed_from_lot#:#%s Loskandidaten wurden von der Auslosung entfernt.
 common#:#mem_user_already_subscribed#:#Sie haben bereits einen Aufnahmeantrag gestellt. Möchten Sie diesen aktualisieren oder zurückziehen?
 common#:#mep_helptext#:#In einem Mediapool können Sie Multimediadateien „lagern“, um Sie an verschiedenen Stellen in Ihrem Lernangebot, z.B. auf Inhaltsseiten von Wikis und Lernmodulen zu verwenden. <p class="alert">Umfangreiche Video-Datei (z.B. Vorlesungsaufzeichnungen) laden Sie am besten im <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> der Universität hoch. Sie können sie dort mit einem Schutz versehen und in Ihrem StudOn-Kurs als "Externer Inhalt" verlinken.</p>
 common#:#more#:#Mehr...
@@ -262,7 +237,7 @@ common#:#repository_public_suffix#:# (öffentlich)
 common#:#role_unbreak_permissions#:#Unterbrechungen löschen
 common#:#role_unbreak_permissions_desc#:#Alle lokalen Zugriffsregelungen für diese Rolle werden gelöscht. Zusammen mit "Vorhandene Objekte ändern" und "Rechte schützen" können damit die Rechteeinstellungen für alle Objekte erzwungen werden.
 common#:#rpl_warning#:#Die Registrierung startet zeitgleich mit anderen für über %s Plätze. Dadurch ist mit erhöhter Systemlast zu rechnen. Bitte wählen Sie, wenn möglich, einen anderen Zeitpunkt.
-common#:#rpl_info#:#Bitte wählen Sie, wenn möglich, einen Zeitpunkt, zu dem keine weiteren Registrierungen starten. 
+common#:#rpl_info#:#Bitte wählen Sie, wenn möglich, einen Start-Zeitpunkt, zu dem keine weiteren Registrierungen starten.
 common#:#rpl_overview#:#Übersicht der Anmeldestarts
 common#:#rpl_overview_desc#:#Diese Tabelle zeigt die vorgesehenen Anmeldestarts für Gruppen und Kurse mit beschränkter Teilnehmerzahl. Pro Zeitraum sind alle Plätze summiert, für die eine Anmeldung startet. Hohe Werte geben einen Hinweis auf erhöhte Zugriffe, allerdings spielen auch andere Faktoren, z.B. die Beliebtheit von Kursen eine Rolle. Bitte wählen Sie für eigene Anmeldestarts möglichst einen freien Zeitraum. In den ersten beiden Wochen des Vorlesungszeitraums ist generell mit hoher Systemlast zu rechnen.
 common#:#rpl_previous_week#:#Vorherige Woche
@@ -329,6 +304,65 @@ common#:#studydata_semester_text#:# %s. Semester
 common#:#studydata_semester_subject_no#:#Semester Fach %s
 common#:#studydata_subject#:#Fach
 common#:#studydata_subject_no#:#Fach %s
+common#:#sub_added_to_waiting_list#:#Sie wurden auf die Warteliste gesetzt. <br />Sie haben Platz %s auf der Warteliste.
+common#:#sub_fair_date#:#Chancengleich bis
+common#:#sub_fair_date_info#:#Bis zu diesem Zeitpunkt werden alle Anmeldungen chancengleich auf der Warteliste gesammelt und die freien Plätze danach automatisch ausgelost. Alle nachfolgenden Anmeldungen erhalten höhere Wartelistenplätze. Beim Aufrücken von der Warteliste wird ebenfalls zwischen chancengleichen Anmeldungen gelost.
+common#:#sub_fair_date_invalid#:#Die chancengleiche Phase muss mindestens eine Stunde dauern und spätestens mit dem Ende des Anmeldezeitraums abgeschlossen sein!
+common#:#sub_fair_autofill_info#:#Wartende Anmeldungen rücken bis zum spätesten Austritt automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
+common#:#sub_fair_waiting_info#:#Nach der chancengleichen Phase werden die freien Plätze einmalig automatisch ausgelost. Nachträglich frei gewordene Plätze müssen in der Teilnehmerverwaltung von Hand aufgefüllt werden.
+common#:#sub_fair_no_list#:#Nur für chancengleiche Anmeldungen
+common#:#sub_fair_no_list_info#:#Die Warteliste wird nur in der chancengleichen Phase befüllt und die freien Plätze im Anschluss automatisch ausgelost. Sind danach keine Plätze mehr frei, werden weitere Anmeldungen abgewiesen.
+common#:#sub_fair_activation_min_minutes#:#Die zeitlich begrenzte Verfügbarkeit muss mindesten %s Minuten betragen!
+common#:#sub_fair_subscription_min_minutes#:#Der zeitlich begrenzte Beitritt muss mindesten %s Minuten betragen!
+common#:#sub_fair_to_sub_start_min#:#Die chancengleiche Phase wurde auf den Mindeszeitraum nach Start der Anmedung gesetzt.
+common#:#sub_fair_to_sub_end#:#Die chancengleiche Phase wurde auf das Ende des Anmeldezeitraums begrenzt.
+common#:#sub_fair_to_act_start_min#:#Die chancengleiche Phase wurde auf den Mindeszeitraum nach Anfang der Verfügbarkeit gesetzt.
+common#:#sub_fair_to_act_end#:#Die chancengleiche Phase wurde auf das Ende der Verfügbarkeit begrenzt.
+common#:#sub_fair_not_changeable#:#Die chancengleiche Phase kann nicht verkürzt werden, da vorhandene Anmeldungen betroffen wären.
+common#:#sub_fair_subscribe_message#:#Bis %s werden alle Anmeldungen chancengleich gesammelt und danach die freien Plätze per Los zugeteilt.
+common#:#sub_fair_added_to_waiting_list#:#Sie wurden auf die Warteliste gesetzt und erfahren nach Ende der changengleichen Phase per E-Mail, ob Sie zugeteilt wurden oder auf der Warteliste verbleiben.
+common#:#sub_fair_subscribe_label#:#Zur Zuteilung anmelden
+common#:#sub_fair_position_with_other#:#%s (mit 1 chancengleichen)
+common#:#sub_fair_position_with_others#:#%s (mit %s chancengleichen)
+common#:#sub_fair_not_on_list#:#Nicht auf der Liste
+common#:#sub_fair_time_before#:#vor %s
+common#:#sub_fair_wait_pos_header#:#Pos.
+common#:#sub_mail_request_crs#:#Ihr Aufnahmeantrag zum Kurs "%s"
+common#:#sub_mail_request_grp#:#Ihr Aufnahmeantrag zur Gruppe "%s"
+common#:#sub_mail_request_added#:#Ihr Aufnahmeantrag wurde registriert und Sie werden benachrichtigt, sobald er angenommen oder abgelehnt wurde.
+common#:#sub_mail_request_accepted#:#Ihr Aufnahmeantrag wurde angenommen, Sie verbleiben allerdings noch auf der Warteliste, bis freie Plätze aufgefüllt werden.
+common#:#sub_mail_request_autofill#:#Die freien Plätze wurden befüllt, über Ihren Aufnahmeantrag muss aber noch entschieden werden (dazu wurde ein Platz frei gehalten).
+common#:#sub_mail_waiting_crs#:#Ihre Anmeldung zum Kurs "%s"
+common#:#sub_mail_waiting_grp#:#Ihre Anmeldung zur Gruppe "%s"
+common#:#sub_mail_waiting_added#:#Sie wurden auf die Warteliste gesetzt und werden benachrichtigt, wenn Sie aufgenommen wurden.
+common#:#sub_mail_waiting_autofill#:#Die freien Plätze wurden befüllt, Sie verbleiben allerdings noch auf der Warteliste.
+common#:#sub_mail_autofill_requests_crs#:#Aufnahmeanträge im Kurs "%s"
+common#:#sub_mail_autofill_requests_grp#:#Aufnahmeanträge in der Gruppe "%s"
+common#:#sub_mail_autofill_requests_body#:#Die freien Plätze wurden von der Warteliste befüllt. Es gibt aber noch Plätze, die für Aufnahmeanträge frei gehalten wurden, über die Sie noch entscheiden müssen.
+common#:#sub_time_not_in_activation_time#:#Der Beitrittszeitraum muss innerhalb der zeitlich begrenzten Verfügbarkeit liegen!
+common#:#sub_remove_waiting#:#Entfernen (mit Benachrichtigung)
+common#:#sub_fill_free_places#:#Freie Plätze auffüllen
+common#:#sub_fill_free_places_question#:#Möchten Sie die freien Plätze aus der Warteliste befüllen?
+common#:#sub_to_fill_message#:#Sie können freie Plätze aus der Warteliste befüllen.
+common#:#sub_to_confirm_message#:#Sie müssen noch über Aufnahmeanträge auf der Warteliste entscheiden.
+common#:#sub_status_request#:#Aufnahmeantrag
+common#:#sub_status_confirmed#:#Antrag angenommen
+common#:#sub_status_pending#:#Antrag gestellt
+common#:#sub_status_normal#:#Anmeldung
+common#:#sub_confirm_request#:#Antrag annehmen
+common#:#sub_confirm_requests#:#Anträge annehmen
+common#:#sub_confirmed_request#:#Ein Aufnahmeantrag wurde angenommen.
+common#:#sub_confirmed_requests#:#%s Aufnahmeanträge wurden angenommen.
+common#:#sub_added_member#:#Ein neues Mitglied wurde aufgenommen.
+common#:#sub_added_members#:#%s neue Mitglieder wurden aufgenommen.
+common#:#sub_no_member_added#:#Es wurde kein neues Mitglied aufgenommen.
+common#:#sub_select_one_request#:#Bitte wählen Sie einen Aufnahmeantrag aus!
+common#:#sub_confirm_request_question#:#Sind Sie sicher, dass Sie die folgenden Aufnahmeanträge annehmen möchten? Die angenommenen Anträge verbleiben auf der Liste, bis sie beim Auffüllen freier Plätze an der Reihe sind.
+common#:#sub_revoke_request#:#Antrag ablehnen
+common#:#sub_separate_object#:#Kombiniere Anmeldung
+common#:#sub_separate_object_info#:#Die Anmeldung erfolgt zusammen mit anderen in einem eigenen StudOn-Objekt. Bitte wählen Sie das Objekt vom Typ "Kombinierte Anmeldung" aus:
+common#:#sub_separate_object_reg_info#:#Die Anmeldung erfolgt zusammen mit anderen in einem eigenen StudOn-Objekt. Klicken Sie auf den Titel, um dorthin zu wechseln.
+common#:#sub_subscription_object#:#Anmeldeobjekt
 common#:#subscribers_or_waiting_list#:#Aufnahmeanträge/Warteliste
 common#:#svy_helptext#:#Sie können in StudOn Umfragen erstellen und damit z.B. Abstimmungen oder eine Evaluation Ihres Kurses realisieren. Einmal erstellte Fragen können beliebig zu neuen Umfragen kombiniert werden.
 common#:#to_home#:#Startseite
@@ -361,36 +395,25 @@ content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
-crs#:#crs_cancel_lot_list#:#Sind Sie sicher, dass Sie sich von der Auslosung zum Kurs "%s" abmelden möchten?
 crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
 crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!
 crs#:#crs_event_subscription_after_confirmation#:#Sie können sich zu den Terminen erst nach der Annahme Ihres Aufnahmeantrags anmelden.
-crs#:#crs_info_reg_confirmation_lot#:#Sie können die Teilnahme am Losverfahren für diesen Kurs beantragen. Sie erhalten eine Nachricht, wenn Sie ausgelost wurden oder ihr Antrag abgelehnt wurde.
-crs#:#crs_info_reg_direct_lot#:#Sie können sich direkt zur Auslosung für diesen Kurs anmelden.
-crs#:#crs_info_reg_password_lot#:#Wenn Sie das Kurs-Passwort von einem Kurs-Administrator erhalten haben, können Sie sich zur Auslosung für diesen Kurs anmelden.
-crs#:#crs_limit_period_for_lot#:#Für die Aktivierung des Losverfahrens müssen Sie den Anmeldezeitraum begrenzen!
-crs#:#crs_lot_info#:#<span class="alert">Verwenden Sie das Losverfahren, wenn Sie viele Interessenten erwarten!</span><br />Alle Anmeldungen werden mit gleicher Chance gesammelt. Nach dem Anmeldezeitraum können Sie die Mitglieder per Zufall bestimmen.
-crs#:#crs_lot_list#:#Losverfahren
+crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
 crs#:#crs_mail_subscribe_to_events#:#Für diesen Kurs ist die Anmeldung zu Terminen (Sitzungen) vorgesehen. Bitte gehen Sie zum Kursinhalt, um sich zu den Terminen anzumelden!
 crs#:#crs_max_members_mode#:#Verfahren:
 crs#:#crs_max_members_mode_univis#:#Wie in UnivIS
-crs#:#crs_max_members_mode_univis_info#:#Die Einstellung wird aus UnivIS übernommen. Das "Windhundverfahren" und die "Gleichmäßige Verteilung" entsprechen in StudOn der Einstellung "Abweisung" oder "Warteliste", je nachdem, ob in UnivIS eine Warteliste aktiviert wurde. Die Einstellung "Losverfahren" wird direkt übernommen.
+crs#:#crs_max_members_mode_univis_info#:#Die Einstellung zur Warteliste wird aus UnivIS übernommen.
 crs#:#crs_mem_set_passed#:#Bestanden setzen
 crs#:#crs_mem_set_passed_success#:#Dies ausgewählten Teilnehmer wurden auf "Bestanden" gesetzt.
-crs#:#crs_new_subscription_waiting#:#Wartelisteneintrag für Kurs "%s"
-crs#:#crs_new_subscription_waiting_body#:#%s hat sich auf die Warteliste zum Kurs "%s" gesetzt.
-crs#:#crs_new_subscription_waiting_body2#:#Um Benutzer von der Warteliste in den Kurs zuzulassen oder abzuweisen, müssen Sie die Mitgliederverwaltung des Kurses aufrufen.\nWählen Sie dazu bitte folgenden Link:
-crs#:#crs_no_list#:#Abweisung
-crs#:#crs_no_list_info#:#Ist die Mitgliederanzahl überschritten, werden neue Beitritte sofort abgewiesen.
+crs#:#crs_no_list#:#Keine Warteliste
 crs#:#crs_reg_limit_reached#:#Sie konnten nicht mehr aufgenommen werden, da die maximale Teilnehmerzahl überschritten würde.
 crs#:#crs_reg_univis#:#Wie in UnivIS
 crs#:#crs_reg_univis_info#:#Der Anmeldezeitraum wird aus Univis übernommen.
 crs#:#crs_reg_user_generic_failure#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_reg_user_on_waiting_list#:#Sie sind bereits auf der Warteliste dieses Kurses eingetragen!
-crs#:#crs_removed_from_lot_list#:#Sie wurden von der Auslosung zum Kurs "%s" abgemeldet.
-crs#:#crs_show_mem_limit_label#:#Anzeigen:
-crs#:#crs_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung des Kurses zeigen
+crs#:#crs_show_mem_limit_label#:#Anzeigen
+crs#:#crs_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung des Kurses anzeigen. Auf der Info- oder Beitreten-Seite werden sie immer angezeigt.
 crs#:#crs_subscribe_events_not_possible#:#Die direkte Sitzungsanmeldung ist nur beim direkten Beitritt oder Beitritt mit Passwort ohne begrenzte Teilnehmerzahl im Kurs möglich.
 crs#:#crs_subscription_event_free#:#Frei
 crs#:#crs_subscription_event_location#:#Ort:
@@ -469,30 +492,18 @@ exc#:#exc_not_attempted#:#Noch nicht eingereicht
 exc#:#exc_comment_for_learner_info_nosend#:#Es wird keine Benachrichtigung gesendet. Nach Erreichen des Ergebnistermins wird das Feedback in der Übungseinheiten-Übersicht angezeigt.
 exercise#:#exc_mark#:#Note/Punkte
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
-grp#:#crs_grp_info_reg_lot#:#Sie können nur Mitglied in einem der folgenden Kurse werden, sich aber jeweils anmelden. Es gilt dann die erste zugewiesene Mitgliedschaft.
-grp#:#group_password_registration_lot#:#Wenn Sie das Gruppen-Passwort erhalten haben, können Sie sich für diese Gruppe zur Auslosung anmelden.
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
-grp#:#group_req_registration_lot#:#Sie können die Teilnahme am Losverfahren für diese Gruppe beantragen. Sie erhalten eine Nachricht, wenn Sie ausgelost wurden oder ihr Antrag abgelehnt wurde.
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"
 grp#:#grp_added_member_body#:#Sie sind in die Gruppe "%s" aufgenommen worden.
-grp#:#grp_cancel_lot_list#:#Sind Sie sicher, dass Sie sich von der Auslosung zur Gruppe "%s" abmelden möchten?
-grp#:#grp_grp_info_reg_lot#:#Sie können nur Mitglied in einer der folgenden Gruppen werden, sich aber jeweils anmelden. Es gilt dann die erste zugewiesene Mitgliedschaft.
-grp#:#grp_limit_period_for_lot#:#Für die Aktivierung des Losverfahrens müssen Sie den Anmeldezeitraum begrenzen!
-grp#:#grp_lot_info#:#<span class="alert">Verwenden Sie das Losverfahren, wenn Sie viele Interessenten erwarten!</span><br />Alle Anmeldungen werden mit gleicher Chance gesammelt. Nach dem Anmeldezeitraum können Sie die Mitglieder per Zufall bestimmen.
-grp#:#grp_lot_list#:#Losverfahren
 grp#:#grp_max_members_mode#:#Verfahren:
 grp#:#grp_no_list#:#Abweisung
 grp#:#grp_no_list_info#:#Ist die Mitgliederanzahl überschritten, werden neue Beitritte sofort abgewiesen.
 grp#:#grp_pass_request_studycond#:#Beitritt mit Gruppenpasswort (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
-grp#:#grp_reg_direct_info_screen_lot#:#Sie können sich zur Auslosung für diese Gruppe anmelden.
 grp#:#grp_reg_limit_reached#:#Sie konnten nicht mehr aufgenommen werden, da die maximale Teilnehmerzahl überschritten würde.
 grp#:#grp_reg_limit_time_info#:#Beitritte sind nur während eines festen Zeitraumes möglich.
-grp#:#grp_reg_passwd_info_screen_lot#:#Wenn Sie das Gruppen-Passwort erhalten haben, können Sie sich für diese Gruppe zur Auslosung anmelden.
-grp#:#grp_reg_req_info_screen_lot#:#Sie können die Teilnahme am Losverfahren für diese Gruppe beantragen. Sie erhalten eine Nachricht, wenn Sie ausgelost wurden oder ihr Antrag abgelehnt wurde.
 grp#:#grp_reg_user_already_assigned#:#Sie sind bereits Mitglied in dieser Gruppe.
 grp#:#grp_reg_user_generic_failure#:#Sie konnten nicht aufgenommen werden!
 grp#:#grp_reg_user_on_waiting_list#:#Sie sind bereits auf der Warteliste dieser Gruppe eingetragen!
-grp#:#grp_removed_from_lot_list#:#Sie wurden von der Auslosung zur Gruppe "%s" abgemeldet.
 grp#:#grp_show_mem_limit_label#:#Anzeigen:
 grp#:#grp_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung der Gruppe zeigen
 grp#:#grp_type_info_create#:#<span class="alert">Übergeordnete Administratoren können unabhängig davon Zugriff haben (siehe Info-Seite nach dem Anlegen)</span>.
@@ -512,7 +523,6 @@ news#:#news_get_priv_feed_disabled_info#:#Ihr privaten Newsfeed ist nicht aktiv.
 pdesk#:#pd_description#:#
 ps#:#cleanup_rbac_log#:#Rechteeinstellungs-Log bereinigen
 ps#:#cleanup_rbac_log_finished#:#Das Rechteeinstellungs-Log wurde bereinigt.
-ps#:#ps_export_lot#:#Loskandidaten
 ps#:#ps_perform_export_excel#:#Excel-Export starten
 registration#:#registration_code_update_header#:#Code-Einstellungen bearbeiten###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie erhalten haben. Klicken Sie dann auf "Registrieren", um die Registrierung durchzuführen.

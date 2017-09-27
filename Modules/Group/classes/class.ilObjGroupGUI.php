@@ -23,7 +23,10 @@ include_once('./Modules/Group/classes/class.ilObjGroup.php');
 * fim: [memcond] added ilSubscribersStudyCondGUI to call structure
 * @ilCtrl_Calls ilObjGroupGUI: ilSubscribersStudyCondGUI
 * fim.
-*
+* fau: objectSub - added ilPropertyFormGUI to call structure
+* @ilCtrl_Calls ilObjGroupGUI: ilPropertyFormGUI
+* fau.
+ *
 * @extends ilObjectGUI
 */
 class ilObjGroupGUI extends ilContainerGUI
@@ -72,6 +75,16 @@ class ilObjGroupGUI extends ilContainerGUI
 				$this->tabs_gui->setTabActive('settings');
 				break;
 			// fim.
+
+// fau: objectSub - object selection in properties form
+			case "ilpropertyformgui":
+				$this->checkPermission("write");
+				$this->tabs_gui->setTabActive('settings');
+				$this->ctrl->setReturn($this, "updateRegistrationRefId");
+				$form = $this->initForm();
+				$this->ctrl->forwardCommand($form);
+				break;
+// fau.
 
 			case 'ilgroupregistrationgui':
 				$this->ctrl->setReturn($this,'');
@@ -580,7 +593,9 @@ class ilObjGroupGUI extends ilContainerGUI
 		
 		$old_type = $this->object->getGroupType();
 		$old_autofill = $this->object->hasWaitingListAutoFill();
-
+// fau: fairSub - remember the old fair period
+		$old_subscription_fair = $this->object->getSubscriptionFair();
+// fau.
 		$this->load($form);
 		$ilErr->setMessage('');
 		
@@ -599,6 +614,50 @@ class ilObjGroupGUI extends ilContainerGUI
 			$this->editObject($form);
 			return true;
 		}
+
+// fau: fairSub - check and correct the fair time
+		if($this->object->isMembershipLimited() && $this->object->getMaxMembers() > 0)
+		{
+			$fair_message = '';
+			if (!$this->object->isRegistrationUnlimited())
+			{
+				$registration_start = $this->object->getRegistrationStart()->get(IL_CAL_UNIX);
+				$registration_end = $this->object->getRegistrationEnd()->get(IL_CAL_UNIX);
+				if ($this->object->getSubscriptionFair() < $registration_start + $this->object->getSubscriptionMinFairSeconds())
+				{
+					$this->object->setSubscriptionFair($registration_start + $this->object->getSubscriptionMinFairSeconds());
+					$fair_message = $this->lng->txt("sub_fair_to_sub_start_min");
+				}
+				elseif ($this->object->getSubscriptionFair() > $registration_end)
+				{
+					$this->object->setSubscriptionFair($registration_end);
+					$fair_message = $this->lng->txt("sub_fair_to_sub_end");
+				}
+			}
+
+			// handle a change of the fair time
+			if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair())
+			{
+				require_once ('Modules/Group/classes/class.ilGroupWaitingList.php');
+				if (!ilGroupWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair()))
+				{
+					ilUtil::sendFailure($this->lng->txt('sub_fair_not_changeable'));
+					$this->editObject($form);
+					return true;
+				}
+				else
+				{
+					ilGroupWaitingList::_changeFairTime($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair());
+					$this->object->saveSubscriptionLastFill(null);
+				}
+			}
+
+			if (!empty($fair_message))
+			{
+				ilUtil::sendInfo($fair_message, true);
+			}
+		}
+// fau.
 
 		$modified = false;		
 		if($this->object->isGroupTypeModified($old_type))
@@ -926,7 +985,32 @@ class ilObjGroupGUI extends ilContainerGUI
 
 		return $form;
 	}
-	
+
+// fau: objectSub - update the ref id for subscriptions
+	/**
+	 * Update the chosen ref id for subscriptions
+	 */
+	function updateRegistrationRefIdObject()
+	{
+		$form = $this->initForm();
+		$input = $form->getItemByPostVar('subscription_object');
+		$input->readFromSession();
+		if ($input->getValue())
+		{
+			$this->object->setRegistrationType(GRP_REGISTRATION_OBJECT);
+			$this->object->setRegistrationRefId((int) $input->getValue());
+		}
+		else
+		{
+			$this->object->setRegistrationType(GRP_REGISTRATION_OBJECT);
+			$this->object->setRegistrationRefId(null);
+		}
+		$this->object->update();
+		ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+		$this->ctrl->redirect($this, "edit");
+	}
+// fau.
+
 	/**
 	 * update info 
 	 *
@@ -1118,6 +1202,29 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 			$table_gui->setUsers($wait);
 			$table_gui->setTitle($this->lng->txt('grp_header_waiting_list'),'icon_usr.svg',$this->lng->txt('group_new_registrations'));
+
+// fau: fairSub - show messages and fill button to group admin
+			$todo_messages = array();
+
+			if ($waiting_list->getCountToConfirm() > 0)
+			{
+				$todo_messages[] = $this->lng->txt('sub_to_confirm_message');
+			}
+
+			// check if places are free and can be filled (fair time is over)
+			if (!$this->object->inSubscriptionFairTime() &&
+				(
+					!$this->object->isMembershipLimited() ||
+					empty($this->object->getMaxMembers()) ||
+					$this->object->getMaxMembers() > ilGroupParticipants::lookupNumberOfMembers($this->object->getRefId())
+				))
+			{
+				$todo_messages[] = $this->lng->txt('sub_to_fill_message');
+				$table_gui->addCommandButton('confirmFillFreePlaces', $this->lng->txt('sub_fill_free_places'));
+			}
+
+			ilUtil::sendInfo(implode('<br />', $todo_messages));
+// fau.
 			$this->tpl->setVariable('TABLE_SUB',$table_gui->getHTML());
 		}		
 
@@ -1125,16 +1232,10 @@ class ilObjGroupGUI extends ilContainerGUI
 		// Subscriber table
 		if($part->getSubscribers())
 		{
-			// fim: [memlot] set add_to_lot
-			$add_to_lot = ($this->object->isMembershipLimited() and $this->object->enabledLotList());
-			// fim.
-
 			include_once('./Services/Membership/classes/class.ilSubscriberTableGUI.php');
 			if($ilUser->getPref('grp_subscriber_hide'))
 			{
-				// fim: [memlot] use add_to_lot as parameter
-				$table_gui = new ilSubscriberTableGUI($this, false, true, $add_to_lot);
-				// fim.
+				$table_gui = new ilSubscriberTableGUI($this,false);
 				$this->ctrl->setParameter($this,'subscriber_hide',0);
 				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
 					$this->lng->txt('show'));
@@ -1142,9 +1243,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 			else
 			{
-				// fim: [memlot] use add_to_lot as parameter
-				$table_gui = new ilSubscriberTableGUI($this, true, true, $add_to_lot);
-				// fim.
+				$table_gui = new ilSubscriberTableGUI($this,true);
 				$this->ctrl->setParameter($this,'subscriber_hide',1);
 				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
 					$this->lng->txt('hide'));
@@ -1154,33 +1253,6 @@ class ilObjGroupGUI extends ilContainerGUI
 			$table_gui->setTitle($this->lng->txt('group_new_registrations'),'icon_usr.svg',$this->lng->txt('group_new_registrations'));
 			$this->tpl->setVariable('TABLE_SUB',$table_gui->getHTML());
 		}
-
-		// fim: [memlot] lot form
-		include_once './Services/Membership/classes/class.ilSubscribersLot.php';
-		if ($this->object->enabledLotList()  or ilSubscribersLot::_getCountUsers($this->object->getId()) > 0)
-		{
-			include_once('./Services/Membership/classes/class.ilSubscribersLotTableGUI.php');
-
-			if($ilUser->getPref('grp_subscribers_lot_hide'))
-			{
-				$table_gui = new ilSubscribersLotTableGUI($this,$part, false);
-				$this->ctrl->setParameter($this,'subscribers_lot_hide',0);
-				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
-					$this->lng->txt('show'));
-				$this->ctrl->clearParameters($this);
-			}
-			else
-			{
-				$table_gui = new ilSubscribersLotTableGUI($this,$part, true);
-				$this->ctrl->setParameter($this,'subscribers_lot_hide',1);
-				$table_gui->addHeaderCommand($this->ctrl->getLinkTarget($this,'members'),
-					$this->lng->txt('hide'));
-				$this->ctrl->clearParameters($this);
-			}
-			$this->tpl->setVariable('TABLE_LOT', $table_gui->getHTML());
-		}
-		// fim.
-
 
 		if(count($part->getAdmins()))
 		{
@@ -1268,102 +1340,8 @@ class ilObjGroupGUI extends ilContainerGUI
 		$this->tpl->setVariable('BTN_FOOTER_VAL',$this->lng->txt('remove'));
 		$this->tpl->setVariable('BTN_FOOTER_MAIL',$this->lng->txt('grp_mem_send_mail'));
 		$this->tpl->setVariable('ARROW_DOWN',ilUtil::getImagePath('arrow_downright.svg'));
-	}
 
-	// fim: [memlot] new function addSubscribersToLotObject
-	public function addSubscribersToLotObject()
-	{
-		$this->checkPermission('write');
-
-		if(!is_array($_POST["subscribers"]))
-		{
-			ilUtil::sendFailure($this->lng->txt("no_checkbox"));
-			$this->membersObject();
-
-			return false;
 		}
-
-		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
-
-		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
-		$lot_obj = new ilSubscribersLot($this->object->getId());
-		$lot_obj->setParticipantsObject($part);
-
-		$added = $lot_obj->addSubscribersToLot($_POST["subscribers"]);
-
-		ilUtil::sendInfo(sprintf($this->lng->txt('mem_subscribers_added_to_lot'), $added));
-		$this->membersObject();
-	}
-	// fim.
-
-
-	// fim: [memlot] new function removeSubscribersFromLotObject
-	public function removeSubscribersFromLotObject()
-	{
-		$this->checkPermission('write');
-
-		if(!is_array($_POST["subscribers_lot"]))
-		{
-			ilUtil::sendInfo($this->lng->txt("no_checkbox"));
-			$this->membersObject();
-
-			return false;
-		}
-
-		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
-
-		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
-		$lot_obj = new ilSubscribersLot($this->object->getId());
-		$lot_obj->setParticipantsObject($part);
-
-		$removed = $lot_obj->removeSubscribersFromLot($_POST["subscribers_lot"]);
-
-		ilUtil::sendInfo(sprintf($this->lng->txt('mem_subscribers_removed_from_lot'), $removed));
-		$this->membersObject();
-	}
-	// fim.
-
-	// fim: [memlot] new function cleanLotListObject
-	public function cleanLotListObject()
-	{
-		$this->checkPermission('write');
-
-		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
-
-		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
-		$lot_obj = new ilSubscribersLot($this->object->getId());
-		$lot_obj->setParticipantsObject($part);
-		$lot_obj->setMaxMembers($this->object->getMaxMembers());
-		$lot_obj->cleanLots();
-
-		ilUtil::sendInfo($lot_obj->getStatusMessage());
-		$this->membersObject();
-	}
-	// fim.
-
-
-	// fim: [memlot] new function assignMembersByLotObject
-	public function assignMembersByLotObject()
-	{
-		$this->checkPermission('write');
-
-		include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-		$part = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
-
-		include_once('./Services/Membership/classes/class.ilSubscribersLot.php');
-		$lot_obj = new ilSubscribersLot($this->object->getId());
-		$lot_obj->setParticipantsObject($part);
-		$lot_obj->setMaxMembers($this->object->getMaxMembers());
-		$lot_obj->drawLots();
-
-		ilUtil::sendInfo($lot_obj->getStatusMessage());
-		$this->membersObject();
-	}
-	// fim.
-
 
 	/**
 	 * assign subscribers
@@ -1493,7 +1471,99 @@ class ilObjGroupGUI extends ilContainerGUI
 			return false;
 		}
 	}
-	
+
+// fau: fairSub - accept subscription request on the waiting list
+	/**
+	 * Accept subscription request(s) on the waiting list
+	 * try to fill free places with these users
+	 *
+	 * @return bool
+	 */
+	public function acceptOnListObject()
+	{
+		global $ilUser;
+
+		$this->checkPermission('write');
+
+		if(!count($_POST['waiting']))
+		{
+			ilUtil::sendFailure($this->lng->txt('no_checkbox'));
+			$this->membersObject();
+			return false;
+		}
+
+		// accept users, but keep them on the waiting list
+		include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
+		$waiting_list = new ilGroupWaitingList($this->object->getId());
+		$accepted = array();
+		foreach($_POST["waiting"] as $user_id)
+		{
+			$waiting_list->acceptOnList($user_id);
+			$accepted[] = $user_id;
+
+		}
+
+		// try to fill free places free places from the waiting list
+		// call it with 'manual' mode to suppress the sending of admin notifications
+		$added = array();
+		if ($this->object->isMembershipLimited() && $this->object->hasWaitingListAutoFill()
+			&& (empty($this->object->getCancellationEnd()) || $this->object->getCancellationEnd()->get(IL_CAL_UNIX) > time()))
+		{
+			$added = $this->object->handleAutoFill(true);
+		}
+
+		// notify all users that were accepted but kept on the waiting list
+		$accepted_waiting = array_diff($accepted, $added);
+		if (!empty($accepted_waiting))
+		{
+			include_once('./Modules/Group/classes/class.ilGroupMembershipMailNotification.php');
+			$mail = new ilGroupMembershipMailNotification();
+			$mail->setType(ilGroupMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
+			$mail->setRefId($this->ref_id);
+			$mail->setWaitingList($waiting_list);
+			$mail->setRecipients($accepted_waiting);
+			$mail->send();
+		}
+
+		// show success about accepted and added users
+		$messages = array();
+		$messages[] = sprintf($this->lng->txt(count($accepted) == 1 ? 'sub_confirmed_request' : 'sub_confirmed_requests'), count($accepted));
+		if (!empty($added))
+		{
+			$messages[] = sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added));
+		}
+		ilUtil::sendSuccess(implode('<br />', $messages), true);
+		$this->ctrl->redirect($this, "members");
+		return true;
+	}
+// fau.
+
+// fau: fairSub - new function fillFreePlacesObject()
+	/**
+	 * Fill free places from the waiting list
+	 *
+	 * @return bool
+	 */
+	public function fillFreePlacesObject()
+	{
+		$this->checkPermission('write');
+
+		$added = $this->object->handleAutoFill(true);
+
+		if (count($added))
+		{
+			ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
+			$this->ctrl->redirect($this, "members");
+		}
+		else
+		{
+			ilUtil::sendFailure($this->lng->txt('sub_no_member_added'));
+			$this->membersObject();
+			return false;
+		}
+	}
+// fau.
+
 	/**
 	 * refuse from waiting list
 	 *
@@ -1631,14 +1701,11 @@ class ilObjGroupGUI extends ilContainerGUI
 		}
 		else
 		{
-			// fim: [memlot] allow mails to members of lot list
 			$_POST['participants'] = array_unique(array_merge((array) $_POST['admins'],
 				(array) $_POST['members'],
 				(array) $_POST['roles'],
 				(array) $_POST['waiting'],
-				(array) $_POST['subscribers'],
-				(array) $_POST['subscribers_lot']));
-			// fim.
+				(array) $_POST['subscribers']));
 		}
 		if (!count($_POST['participants']))
 		{
@@ -1683,12 +1750,6 @@ class ilObjGroupGUI extends ilContainerGUI
 		{
 			$ilUser->writePref('grp_subscriber_hide',(int) $_GET['subscriber_hide']);
 		}
-		// fim: [memlot] show/hide subscribers lot table
-		if(isset($_GET['subscribers_lot_hide']))
-		{
-			$ilUser->writePref('grp_subscribers_lot_hide',(int) $_GET['subscribers_lot_hide']);
-		}
-		// fim.
 		if(isset($_GET['wait_hide']))
 		{
 			$ilUser->writePref('grp_wait_hide',(int) $_GET['wait_hide']);
@@ -2399,6 +2460,13 @@ class ilObjGroupGUI extends ilContainerGUI
 				$this->lng->txt('grp_reg_deac_info_screen'));
 			
 		}
+// fau: objectSub - add info about subscription in separate object
+		elseif ($this->object->getRegistrationType() == GRP_REGISTRATION_OBJECT)
+		{
+			$info->addProperty($this->lng->txt('group_registration_mode'),
+				$this->lng->txt('sub_separate_object'));
+		}
+// fau.
 		else
 		{
 			// fim: [memcond] generate text for suscription with condition
@@ -2406,9 +2474,9 @@ class ilObjGroupGUI extends ilContainerGUI
 			if (ilSubscribersStudyCond::_hasConditions($this->object->getId()))
 			{
 				$ctext = ilSubscribersStudyCond::_getConditionsText($this->object->getId());
-			switch($this->object->getRegistrationType())
-			{
-				case GRP_REGISTRATION_DIRECT:
+				switch($this->object->getRegistrationType())
+				{
+					case GRP_REGISTRATION_DIRECT:
 						$registration_text = sprintf($this->lng->txt('group_req_direct_studycond'), $ctext);
 						break;
 					case GRP_REGISTRATION_PASSWORD:
@@ -2436,32 +2504,22 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 			// fim.
 
-
-			// fim: [memlot] show different subscription information for lot list
-		    if ($this->object->isMembershipLimited()
-		    and $this->object->enabledLotList())
-		    {
-		    	$lot_suffix = "_lot";
-		    }
-			// fim.
-
 			// fim: [memcond] use registration type and text from above
-			// fim: [memlot] use lot suffix from abvove
 			switch($registration_type)
 			{
 				case GRP_REGISTRATION_DIRECT:
 					$info->addProperty($this->lng->txt('group_registration_mode'),
-						   $registration_text.$this->lng->txt('grp_reg_direct_info_screen'.$lot_suffix));
+						   $registration_text.$this->lng->txt('grp_reg_direct_info_screen'));
 					break;
 													   
 				case GRP_REGISTRATION_REQUEST:
 					$info->addProperty($this->lng->txt('group_registration_mode'),
-						   $registration_text.$this->lng->txt('grp_reg_req_info_screen'.$lot_suffix));
+						   $registration_text.$this->lng->txt('grp_reg_req_info_screen'));
 					break;
 	
 				case GRP_REGISTRATION_PASSWORD:
 					$info->addProperty($this->lng->txt('group_registration_mode'),
-						   $registration_text.$this->lng->txt('grp_reg_passwd_info_screen'.$lot_suffix));
+						   $registration_text.$this->lng->txt('grp_reg_passwd_info_screen'));
 					break;
 					
 			}
@@ -2503,14 +2561,6 @@ class ilObjGroupGUI extends ilContainerGUI
 						$reg_info['reg_info_free_places']
 					);
 				}
-				// fim: [memlot] show information about lot
-				if ($this->object->enabledLotList())
-				{
-					include_once './Services/Membership/classes/class.ilSubscribersLot.php';
-					$candidates = ilSubscribersLot::_getCountUsers($this->object->getId());
-					$info->addProperty($this->lng->txt("mem_lot_candidates"),(int) $candidates);
-				}
-				// fim.
 			}
 
 			if($this->object->getCancellationEnd())
@@ -2763,6 +2813,29 @@ class ilObjGroupGUI extends ilContainerGUI
 			$reg_type = new ilRadioGroupInputGUI($this->lng->txt('group_registration_mode'),'registration_type');
 			$reg_type->setValue($this->object->getRegistrationType());
 
+// fau: objectSub - add option for reference to subscription object
+			require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
+			$opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), GRP_REGISTRATION_OBJECT);
+			$opt_obj->setInfo($this->lng->txt('sub_separate_object_info'));
+			$rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'),'subscription_object');
+			$rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+			$rep_sel->setClickableTypes(array('xcos'));
+			$rep_sel->setRequired(true);
+			$rep_sel->setParent($form);
+			$opt_obj->addSubItem($rep_sel);
+			if ($ref_id = $this->object->getRegistrationRefId())
+			{
+				require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+				$locator = new ilLocatorGUI();
+				$locator->setTextOnly(true);
+				$locator->addContextItems($ref_id);
+				$rep_loc = new ilNonEditableValueGUI();
+				$rep_loc->setValue($locator->getHTML());
+				$opt_obj->addSubItem($rep_loc);
+			}
+			$reg_type->addOption($opt_obj);
+// fau.
+
 			$opt_dir = new ilRadioOption($this->lng->txt('grp_reg_direct'),GRP_REGISTRATION_DIRECT);#$this->lng->txt('grp_reg_direct_info'));
 			$reg_type->addOption($opt_dir);
 
@@ -2781,7 +2854,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			$opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'),GRP_REGISTRATION_DEACTIVATED,$this->lng->txt('grp_reg_disabled_info'));
 			$reg_type->addOption($opt_deact);
 
-	       // fim: [memfix] customize use of registration codes
+			// fim: [memfix] customize use of registration codes
 	        global $ilCust;
 	        if ($ilCust->getSetting('grp_enable_reg_codes'))
 	        {
@@ -2901,50 +2974,50 @@ class ilObjGroupGUI extends ilContainerGUI
 			$lim->addSubItem($showlim);
 			// fim.
 
-			// fim: [memlot] max members option setting
-			$maxmode = new ilRadioGroupInputGUI($this->lng->txt("grp_max_members_mode"),'grp_max_members_mode');
-			if ($a_mode == 'create')
+			/*
+			$wait = new ilCheckboxInputGUI($this->lng->txt('grp_waiting_list'),'waiting_list');
+			$wait->setValue(1);
+			//$wait->setOptionTitle($this->lng->txt('grp_waiting_list'));
+			$wait->setInfo($this->lng->txt('grp_waiting_list_info'));
+			$wait->setChecked($this->object->isWaitingListEnabled() ? true : false);
+			$lim->addSubItem($wait);
+			$form->addItem($lim);
+			*/
+
+// fau: fairSub - add fair date and arrange and explain options for waiting list
+			$fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'),'subscription_fair');
+			$fair_date->setShowTime(true);
+			$fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(),IL_CAL_UNIX));
+			$fair_date->setInfo($this->lng->txt('sub_fair_date_info'));
+			$lim->addSubItem($fair_date);
+
+			$wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
+
+			$option = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'), 2);
+			$option->setInfo($this->lng->txt('sub_fair_autofill_info'));
+			$wait->addOption($option);
+
+			$option = new ilRadioOption($this->lng->txt('grp_waiting_list_no_autofill'), 1);
+			$option->setInfo($this->lng->txt('sub_fair_waiting_info'));
+			$wait->addOption($option);
+
+			$option = new ilRadioOption($this->lng->txt('sub_fair_no_list'), 0);
+			$option->setInfo($this->lng->txt('sub_fair_no_list_info'));
+			$wait->addOption($option);
+
+			if($this->object->hasWaitingListAutoFill())
 			{
-				$maxmode->setValue('waiting_list');
-			}
-			elseif ($this->object->enabledLotList())
-			{
-				$maxmode->setValue('lot_list');
+				$wait->setValue(2);
 			}
 			elseif ($this->object->isWaitingListEnabled())
 			{
-				if($this->object->hasWaitingListAutoFill())
-				{
-					$maxmode->setValue('waiting_list_auto_fill');
-				}
-				else
-				{
-					$maxmode->setValue('waiting_list');
-				}
+				$wait->setValue(1);
 			}
-			else
-			{
-				$maxmode->setValue('');
-			}
-			$opt = new ilRadioOption($this->lng->txt('grp_lot_list'),'lot_list');
-			$opt->setInfo($this->lng->txt('grp_lot_info'));
-			$maxmode->addOption($opt);
 
-			$opt = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'),'waiting_list_auto_fill');
-			$opt->setInfo($this->lng->txt('grp_waiting_list_autofill_info'));
-			$maxmode->addOption($opt);
+			$lim->addSubItem($wait);
+// fau.
 
-			$opt = new ilRadioOption($this->lng->txt('grp_waiting_list'),'waiting_list');
-			$opt->setInfo($this->lng->txt('grp_waiting_list_info'));
-			$maxmode->addOption($opt);
-
-			$opt = new ilRadioOption($this->lng->txt('grp_no_list'),'');
-			$opt->setInfo($this->lng->txt('grp_no_list_info'));
-			$maxmode->addOption($opt);
-
-			$lim->addSubItem($maxmode);
 			$form->addItem($lim);
-			// fim.
 
 
 			// fim: [memcond] add studycond setting
@@ -3143,31 +3216,28 @@ class ilObjGroupGUI extends ilContainerGUI
 			$this->object->setCancellationEnd(null);
 		}
 
-		// fim: [memlot] set max members mode
-		switch ($_POST['grp_max_members_mode'])
+		switch((int)$_POST['waiting_list'])
 		{
-			case 'waiting_list_auto_fill':
+			case 2:
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(true);
-				$this->object->enableLotList(false);
 				break;
-			case 'waiting_list':
+
+			case 1:
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(false);
-				$this->object->enableLotList(false);
 				break;
-			case 'lot_list':
-				$this->object->enableWaitingList(false);
-				$this->object->setWaitingListAutoFill(false);
-				$this->object->enableLotList(true);
-				break;
+
 			default:
 				$this->object->enableWaitingList(false);
 				$this->object->setWaitingListAutoFill(false);
-				$this->object->enableLotList(false);
 				break;
 		}
-		// fim.
+
+// fau: fairSub - save the fair period
+		$sub_fair = $a_form->getItemByPostVar("subscription_fair");
+		$this->object->setSubscriptionFair($sub_fair->getDate()->get(IL_CAL_UNIX));
+// fau.
 
 		return true;
 	}
@@ -3676,6 +3746,13 @@ class ilObjGroupGUI extends ilContainerGUI
 
 	public function confirmRefuseFromListObject()
 	{
+// fau: fairSub - allow a single user being refused from the waiting list
+		if (!empty($_GET['member_id']))
+		{
+			$_POST["waiting"] = array($_GET['member_id']);
+		}
+// fau.
+
 		if(!is_array($_POST["waiting"]))
 		{
 			ilUtil::sendFailure($this->lng->txt("no_checkbox"));
@@ -3713,6 +3790,80 @@ class ilObjGroupGUI extends ilContainerGUI
 		$this->tpl->setContent($c_gui->getHTML());
 		return true;
 	}
+
+// fau: fairSub - new function confirmAcceptOnListObject()
+	public function confirmAcceptOnListObject()
+	{
+
+		if (!empty($_GET['member_id']))
+		{
+			$_POST["waiting"] = array($_GET['member_id']);
+		}
+
+		include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
+		$waiting_list = new ilGroupWaitingList($this->object->getId());
+
+		$requests = array();
+		foreach ((array) $_POST["waiting"] as $user_id)
+		{
+			if ($waiting_list->isToConfirm($user_id))
+			{
+				$requests[] = (int) $user_id;
+			}
+		}
+
+		if(empty($requests))
+		{
+			ilUtil::sendFailure($this->lng->txt("sub_select_one_request"));
+			$this->membersObject();
+
+			return false;
+		}
+
+		$this->lng->loadLanguageModule('mmbr');
+
+		$this->checkPermission('write');
+		$this->setSubTabs('members');
+		$this->tabs_gui->setTabActive('members');
+		$this->tabs_gui->setSubTabActive('grp_edit_members');
+
+		include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
+		$c_gui = new ilConfirmationGUI();
+
+		// set confirm/cancel commands
+		$c_gui->setFormAction($this->ctrl->getFormAction($this, "acceptOnList"));
+		$c_gui->setHeaderText($this->lng->txt("sub_confirm_request_question"));
+		$c_gui->setCancel($this->lng->txt("cancel"), "members");
+		$c_gui->setConfirm($this->lng->txt("confirm"), "acceptOnList");
+
+		foreach($requests as $waiting)
+		{
+			$name = ilObjUser::_lookupName($waiting);
+
+			$c_gui->addItem('waiting[]',
+				$name['user_id'],
+				$name['lastname'].', '.$name['firstname'].' ['.$name['login'].']',
+				ilUtil::getImagePath('icon_usr.svg'));
+		}
+
+		$this->tpl->setContent($c_gui->getHTML());
+		return true;
+	}
+// fau.
+
+// fau: fairSub - new function confirmFillFreePlacesObject
+	public function confirmFillFreePlacesObject()
+	{
+		include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
+		$c_gui = new ilConfirmationGUI();
+		$c_gui->setFormAction($this->ctrl->getFormAction($this, "fillFreePlaces"));
+		$c_gui->setHeaderText($this->lng->txt('sub_fill_free_places_question'));
+		$c_gui->setCancel($this->lng->txt("cancel"), "members");
+		$c_gui->setConfirm($this->lng->txt("confirm"), "fillFreePlaces");
+
+		$this->tpl->setContent($c_gui->getHTML());
+	}
+// fau.
 
 	public function confirmAssignFromWaitingListObject()
 	{

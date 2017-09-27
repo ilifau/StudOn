@@ -32,7 +32,6 @@ include_once('Services/Calendar/classes/class.ilDatePresentation.php');
 include_once('Modules/Session/classes/class.ilEventParticipants.php');
 include_once('Modules/Group/classes/class.ilGroupParticipants.php');
 include_once('Modules/Group/classes/class.ilGroupWaitingList.php');
-include_once('Services/Membership/classes/class.ilSubscribersLot.php');
 include_once('Services/StudyData/classes/class.ilStudyData.php');
 include_once('Services/Tracking/classes/class.ilLPStatus.php');
 include_once('Services/Tracking/classes/class.ilLPMarks.php');
@@ -114,7 +113,6 @@ class ilMemberExport
 		$this->groups = array();
 		$this->group_members = array();
 		$this->group_waiting = array();
-		$this->group_lot = array();
 		$this->lp_data = array();
 		$this->lp_keys = array();
 		// fim.
@@ -503,13 +501,9 @@ class ilMemberExport
 								$this->addCol($this->lng->txt($this->getType().'_subscriber'), $row, $col++);
 								break;
 
-							// fim: [export] add waiting list and lot list as specific roles
+							// fim: [export] add waiting list as specific role
 							case 'waiting_list':
 								$this->addCol($this->lng->txt('crs_waiting_list'), $row, $col++);
-								break;
-
-							case 'lot_list':
-								$this->addCol($this->lng->txt('crs_lot_list'), $row, $col++);
 								break;
 
 							default:
@@ -653,7 +647,6 @@ class ilMemberExport
 			{
 				$member = $this->group_members[$group_obj->getId()];
 				$waiting = $this->group_waiting[$group_obj->getId()];
-				$lot = $this->group_lot[$group_obj->getId()];
 
 				if ($member->isAdmin($usr_id))
 				{
@@ -674,10 +667,6 @@ class ilMemberExport
 				elseif ($waiting->isOnList($usr_id))
 				{
 					$this->addCol($this->lng->txt('crs_waiting_list'), $row, $col++);
-				}
-				elseif ($lot->isOnList($usr_id))
-				{
-					$this->addCol($this->lng->txt('crs_lot_list'), $row, $col++);
 				}
 				else
 				{
@@ -769,21 +758,21 @@ class ilMemberExport
 		{
 			include_once('Modules/Course/classes/class.ilCourseWaitingList.php');
 			$waiting_list = new ilCourseWaitingList($this->obj_id);
-			// fim: [export] set course data for waiting list
+// fau: fairSub - set correct user status in export
 			$this->user_ids = array_merge($tmp_ids = $waiting_list->getUserIds(),$this->user_ids);
-			$this->readCourseData($tmp_ids,'waiting_list');
-			// fim.
+			foreach ($tmp_ids as $tmp_id)
+			{
+				if ($waiting_list->isToConfirm($tmp_id))
+				{
+					$this->readCourseData(array($tmp_id),'subscriber');
+				}
+				else
+				{
+					$this->readCourseData(array($tmp_id),'waiting_list');
+				}
+			}
+// fau.
 		}
-			
-		// fim: [export] add members of lot list
-		if($this->settings->enabled('lot_list'))
-		{
-			include_once('Services/Membership/classes/class.ilSubscribersLot.php');
-			$lot_list = new ilSubscribersLot($this->obj_id);
-			$this->user_ids = array_merge($tmp_ids = $lot_list->getUserIds(),$this->user_ids);
-			$this->readCourseData($tmp_ids,'lot_list');
-		}
-		// fim.
 
 		// Sort by lastname
 		$this->user_ids = ilUtil::_sortIds($this->user_ids,'usr_data','lastname','usr_id');
@@ -842,9 +831,6 @@ class ilMemberExport
 
 			$waiting = new ilGroupWaitingList($group->getId());
 			$this->group_waiting[$group->getId()] = $waiting;
-
-			$lot = new ilSubscribersLot($group->getId());
-			$this->group_lot[$group->getId()] = $lot;
 		}
 	}
 	// fim.

@@ -84,30 +84,55 @@ class ilObjCourseGroupingGUI
 		$tpl->setContent($table->getHTML());
 	}
 
-	// fim: [memad] new function to add members on the waiting lists
+// fau: limitSub - new function addWaitingMembers()
+	/**
+	 * Add waiting members to the grouped objects
+	 * this calls their handleAutoFill function()
+	 */
 	function addWaitingMembers()
 	{
-		$obj_ids = array();
+		/** @var ilAccessHandler $ilAccess */
+		global $lng, $ilAccess;
+
+		$sum = 0;
+		$message = "";
 		$grouping = new ilObjCourseGrouping((int) $_GET['obj_id']);
 
-		$assigned_items = $grouping->getAssignedItems();
-		foreach($assigned_items as $condition)
+		foreach($grouping->getAssignedItems() as $condition)
 		{
-	    	$obj_ids[] = $condition['target_obj_id'];
+			if ($ilAccess->checkAccess('write', '', $condition['target_ref_id'], $condition['target_type']))
+			{
+				if ($object = ilObjectFactory::getInstanceByRefId($condition['target_ref_id']))
+				{
+					// call manual auto fill
+					$added = $object->handleAutoFill(true);
+					if (!empty($added))
+					{
+						$list = "";
+						foreach ($added as $user_id)
+						{
+							$list .= ", " .ilObjUser::_lookupLogin($user_id);
+						}
+						$message .= "<br />" . $object->getTitle() . ': ' . $list;
+						$sum += count($added);
+					}
+				}
+			}
 		}
-		
-		// TODO: check if user has write permission on objects
-		if (count($obj_ids))
+
+		if ($sum == 0)
 		{
-			require_once('Services/Membership/classes/class.ilWaitingListAdministration.php');
-			$wait_admin = new ilWaitingListAdministration($obj_ids);
-			
-			$wait_admin->fillMembers();
-			ilUtil::sendInfo($wait_admin->getInfos());
-			$this->listGroupings();
+			ilUtil::sendFailure($this->lng->txt('sub_no_member_added'));
 		}
+		else
+		{
+			ilUtil::sendSuccess(sprintf($lng->txt($sum == 1 ? 'sub_added_member' : 'sub_added_members'), $sum) . $message);
+
+		}
+
+		$this->listGroupings();
 	}
-	// fim.
+// fau.
 	
 	function askDeleteGrouping()
 	{

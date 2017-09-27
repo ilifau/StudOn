@@ -332,6 +332,65 @@ common#:#studydata_semester_text#:#%s. semester
 common#:#studydata_semester_subject_no#:#Semester subject %s
 common#:#studydata_subject#:#Subject
 common#:#studydata_subject_no#:#Fach %s
+common#:#sub_added_to_waiting_list#:#You have been assigned to the waiting list. You are assigned to position %s on the waiting list.
+common#:#sub_fair_date#:#Equal Chances Until
+common#:#sub_fair_date_info#:#All registrations will be equally collected on the waiting list and the free places will automatically be filled by lot afterwards. Later registrations will get higher waiting positions. An auto-fill of the waiting list will also respect the equal chances.
+common#:#sub_fair_date_invalid#:#The period of equal chances must be longer than one hour and must be finished with the end of the whole registration period!
+common#:#sub_fair_autofill_info#:#Waiting registrations will automatically get free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
+common#:#sub_fair_waiting_info#:#Free places will automatically be filled by lot after the end of equal chances. Afterward free places have to be manually filled in the member administration.
+common#:#sub_fair_no_list#:#Only for Equal Cnances
+common#:#sub_fair_no_list_info#:#The waiting list will only be filled in the period of equal chances and free places will be automatically filled by lot afterwards. Later registrations will be rejected if no places are free.
+common#:#sub_fair_activation_min_minutes#:#The availability period must be longer than %s minutes!
+common#:#sub_fair_subscription_min_minutes#:#The registration period must be longer than %s minutes!
+common#:#sub_fair_to_sub_start_min#:#The period of equal chances was set to minimum length after start of the registration period.
+common#:#sub_fair_to_sub_end#:#The period of equal chances was limited to the end of the registration period.
+common#:#sub_fair_to_act_start_min#:#The period of equal chances was set to minimum length after start of the availability period.
+common#:#sub_fair_to_act_end#:#The period of equal chances was limited to the end of the availability period.
+common#:#sub_fair_not_changeable#:#The period of equal chances can't be shortened because existing registrations would be affected.
+common#:#sub_fair_subscribe_message#:#All registration will be collected until %s. Free places will be automatically filled by lot afterwards.
+common#:#sub_fair_added_to_waiting_list#:#Your registrations is added to the waiting list. When the period of equal chances has ended, you will get an e-mail notification whether you are assigned or whether you stay on the waiting list.
+common#:#sub_fair_subscribe_label#:#Register for Assignment
+common#:#sub_fair_position_with_other#:#%s (with 1 other having equal chances)
+common#:#sub_fair_position_with_others#:#%s (with %s others having chances)
+common#:#sub_fair_not_on_list#:#Nit on the list
+common#:#sub_fair_time_before#:#before %s
+common#:#sub_fair_wait_pos_header#:#Pos.
+common#:#sub_mail_request_crs#:#Your membership request for course "%s"
+common#:#sub_mail_request_grp#:#Your membership request for group  "%s"
+common#:#sub_mail_request_added#:#Your membership request is received. You will get a notification when it is accepted or rejected.
+common#:#sub_mail_request_accepted#:#Your membership request was accepted but you stay on the waiting list until free places are filled.
+common#:#sub_mail_request_autofill#:#The free places are filled but your membership request still needs manual acceptance. A place is kept free for this purpose.
+common#:#sub_mail_waiting_crs#:#Your registration for course "%s"
+common#:#sub_mail_waiting_grp#:#Your registration for group "%s"
+common#:#sub_mail_waiting_added#:#You are added to the waiting list will get notified when you are assigned.
+common#:#sub_mail_waiting_autofill#:#All free places are filled but you stay on the waiting list.
+common#:#sub_mail_autofill_requests_crs#:#Membership requests for course "%s"
+common#:#sub_mail_autofill_requests_grp#:#Membership requests for group "%s"
+common#:#sub_mail_autofill_requests_body#:#The free places were filled from the waiting list. But there are places kept free for membership requests on which you have to decide manually.
+common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
+common#:#sub_remove_waiting#:#Remove (with Notification)
+common#:#sub_fill_free_places#:#Fill Free Places
+common#:#sub_fill_free_places_question#:#Would you like to fill the free places from the waiting list?
+common#:#sub_to_fill_message#:#You can fill free places from the waiting list.
+common#:#sub_to_confirm_message#:#You have to decide on membership requests.
+common#:#sub_status_request#:#Membership Request
+common#:#sub_status_confirmed#:#accepted request
+common#:#sub_status_pending#:#pending request
+common#:#sub_status_normal#:#registration
+common#:#sub_confirm_request#:#Accespt Request
+common#:#sub_confirm_requests#:#Accept Requests
+common#:#sub_confirmed_request#:#One membership request was accepted.
+common#:#sub_confirmed_requests#:#%s membership requests were accepted.
+common#:#sub_added_member#:#One new member was added.
+common#:#sub_added_members#:#%s new members were added.
+common#:#sub_no_member_added#:#There was no new member added.
+common#:#sub_select_one_request#:#Please select a membership request!
+common#:#sub_confirm_request_question#:#Do you want to accept the following membership requests? The accepted requests stay on the list until free places are filled.
+common#:#sub_revoke_request#:#Reject request
+common#:#sub_separate_object#:#Combined Subscription
+common#:#sub_separate_object_info#:#The subscription in done with others in a dedicated StudOn object. Please choose the 'Combined Subscription' object.
+common#:#sub_separate_object_reg_info#:#The subscription in done with others in a dedicated StudOn object. Please click the title to open it.
+common#:#sub_subscription_object#:#Subscription Object
 common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
 common#:#svy_helptext#:#You can create polls on StudOn and therewith e.g. votes or realize an evaluation of your course. Once created questions can be repeatedly combined to new polls.
 common#:#to_home#:#Home
@@ -378,7 +437,7 @@ crs#:#crs_lot_list#:#Lottery
 crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
 crs#:#crs_max_members_mode#:#Procedure:
 crs#:#crs_max_members_mode_univis#:#Like in UnivIS
-crs#:#crs_max_members_mode_univis_info#:#The setting will be overtaken from UnivIS. The "first come, first served" and the "regular spreading" conform in StudOn the setting "rejection" or "waiting list", depends on if waiting list has been activated in UnivIS. The setting "lottery" will be overtaken directly.
+crs#:#crs_max_members_mode_univis_info#:#The activation of the waiting list will be taken from UnivIS.
 crs#:#crs_mem_set_passed#:#set passed
 crs#:#crs_mem_set_passed_success#:#These selected participants have been set to "passed".
 crs#:#crs_new_subscription_waiting#:#waiting list entry for the course "%s"

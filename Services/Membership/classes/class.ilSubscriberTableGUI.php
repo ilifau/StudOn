@@ -48,9 +48,7 @@ class ilSubscriberTableGUI extends ilTable2GUI
 	 * @param
 	 * @return
 	 */
-	// fim: [memlot] new parameter add_to_lot
-	public function __construct($a_parent_obj,$show_content = true, $show_subject = true, $a_add_to_lot = false)
-	// fim.
+	public function __construct($a_parent_obj,$show_content = true, $show_subject = true)
 	{
 	 	global $lng,$ilCtrl;
 	 	
@@ -83,13 +81,7 @@ class ilSubscriberTableGUI extends ilTable2GUI
 
 		$this->addColumn('','mail','10%');
 
-		// fim: [memlot] use different command for adding to lot
-		if ($a_add_to_lot)
-		{
-			$this->addMultiCommand('addSubscribersToLot',$this->lng->txt('mem_add_to_lot'));
-		}
-		elseif($a_parent_obj->object->getType() == "sess")
-		// fim.
+		if($a_parent_obj->object->getType() == "sess")
 		{
 			$this->addMultiCommand('confirmAssignSubscribers',$this->lng->txt('sess_accept_request'));
 		}

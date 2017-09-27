@@ -37,6 +37,9 @@ define('IL_CRS_SUBSCRIPTION_MYCAMPUS',9);
 // fim: [univis] add constant for taking subscription type from univis
 define('IL_CRS_SUBSCRIPTION_UNIVIS',10);
 // fim.
+// fau: objectSub - add constant for subscription via object
+define('IL_CRS_SUBSCRIPTION_OBJECT',11);
+// fau.
 
 define('IL_CRS_SUBSCRIPTION_CONFIRMATION',2);
 define('IL_CRS_SUBSCRIPTION_DIRECT',3);

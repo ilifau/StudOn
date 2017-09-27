@@ -945,23 +945,30 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 		$item->setInfo($this->lng->txt('univis_info_set_membership_limitation'));
 		$item->setChecked($this->values->getSessionValue('conditions_form','set_membership_limitation',''));
 
-			$maxmode = new ilRadioGroupInputGUI($this->lng->txt("crs_max_members_mode"),'crs_max_members_mode');
-			$maxmode->setValue($this->values->getSessionValue('conditions_form','crs_max_members_mode','univis'));
+// fau: fairSub - add fair date and arrange and explain options for waiting list
+		$fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'),'subscription_fair');
+		$fair_date->setShowTime(true);
+		$fair_date->setDate($this->values->getSessionDateValue('conditions_form', 'subscription_fair', time()+3600));
+		$fair_date->setInfo($this->lng->txt('sub_fair_date_info'));
+		$item->addSubItem($fair_date);
 
-			$opt = new ilRadioOption($this->lng->txt('crs_max_members_mode_univis'),'univis');
+			$wait = new ilRadioGroupInputGUI($this->lng->txt("crs_waiting_list"),'waiting_list');
+			$wait->setValue($this->values->getSessionValue('conditions_form','waiting_list',-1));
+
+			$opt = new ilRadioOption($this->lng->txt('crs_max_members_mode_univis'),-1);
 			$opt->setInfo($this->lng->txt('crs_max_members_mode_univis_info'));
-			$maxmode->addOption($opt);
-			$opt = new ilRadioOption($this->lng->txt('crs_lot_list'),'lot_list');
-			$opt->setInfo($this->lng->txt('crs_lot_info'));
-			$maxmode->addOption($opt);
-			$opt = new ilRadioOption($this->lng->txt('crs_waiting_list'),'waiting_list');
-			$opt->setInfo($this->lng->txt('crs_wait_info'));
-			$maxmode->addOption($opt);
-			$opt = new ilRadioOption($this->lng->txt('crs_no_list'),'');
-			$opt->setInfo($this->lng->txt('crs_no_list_info'));
-			$maxmode->addOption($opt);
-			$item->addSubItem($maxmode);
-
+			$wait->addOption($opt);
+			$opt = new ilRadioOption($this->lng->txt('crs_waiting_list_autofill'),2);
+			$opt->setInfo($this->lng->txt('sub_fair_autofill_info'));
+			$wait->addOption($opt);
+			$opt = new ilRadioOption($this->lng->txt('crs_waiting_list_no_autofill'),1);
+			$opt->setInfo($this->lng->txt('sub_fair_waiting_info'));
+			$wait->addOption($opt);
+			$opt = new ilRadioOption($this->lng->txt('sub_fair_no_list'),0);
+			$opt->setInfo($this->lng->txt('sub_fair_no_list_info'));
+			$wait->addOption($opt);
+			$item->addSubItem($wait);
+// fau.
        $this->conditions_form->addItem($item);
 
        	// fim: [evasys] add item for evaluation
@@ -1018,7 +1025,8 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 			'subscription_type',
 			'subscription_password',
 			'set_membership_limitation',
-			'crs_max_members_mode',
+			'subscription_fair',
+			'waiting_list',
 	    	'mark_for_evaluation'
 		);
 
@@ -1366,23 +1374,26 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
                 $crs->enableSubscriptionMembershipLimitation($maxturnout > 0 ? 1 : 0);
 				$crs->setSubscriptionMaxMembers((int) $maxturnout);
 
-				switch ($cond['crs_max_members_mode'])
+				$sub_fair = $this->values->getSessionDateValue('conditions_form','subscription_fair');
+				$crs->setSubscriptionFair($sub_fair->get(IL_CAL_UNIX));
+
+				switch ($cond['waiting_list'])
 				{
-					case 'univis':
+					case -1:
 						$crs->enableWaitingList($lecture->hasWaitingList());
-						$crs->enableLotList($lecture->hasLotList());
+						$crs->setWaitingListAutoFill(true);
 						break;
-				    case 'waiting_list':
+				    case 2:
 				    	$crs->enableWaitingList(true);
-				    	$crs->enableLotList(false);
+				    	$crs->setWaitingListAutoFill(true);
 				    	break;
-				    case 'lot_list':
-				    	$crs->enableWaitingList(false);
-				    	$crs->enableLotList(true);
+				    case 1:
+				    	$crs->enableWaitingList(true);
+				    	$crs->setWaitingListAutoFill(false);
 				    	break;
 					default:
 						$crs->enableWaitingList(false);
-				    	$crs->enableLotList(false);
+				    	$crs->setWaitingListAutoFill(false);
 				    	break;
 				}
 			}

@@ -776,8 +776,50 @@
 
 ?>
 <#45>
+<?php
+    // fau: objectSub - add sub_ref_id in database scheme
+    if( !$ilDB->tableColumnExists('crs_settings', 'sub_ref_id'))
+    {
+        $ilDB->addTableColumn('crs_settings', 'sub_ref_id',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    if( !$ilDB->tableColumnExists('grp_settings', 'sub_ref_id'))
+    {
+        $ilDB->addTableColumn('grp_settings', 'sub_ref_id',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    if( !$ilDB->tableColumnExists('event', 'sub_ref_id'))
+    {
+        $ilDB->addTableColumn('event', 'sub_ref_id',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+?>
 <#46>
+<?php
+    // fau: fairSub - add sub_fair in database scheme of courses
+    if( !$ilDB->tableColumnExists('crs_settings', 'sub_fair'))
+    {
+        $ilDB->addTableColumn('crs_settings', 'sub_fair',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+?>
 <#47>
+    <?php
+    // fau: fairSub - add sub_last_fill in database scheme of courses
+    if( !$ilDB->tableColumnExists('crs_settings', 'sub_last_fill'))
+    {
+        $ilDB->addTableColumn('crs_settings', 'sub_last_fill',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+?>
 <#48>
 <?php
     // fau: taxGroupFilter - taxonomy for group filter
@@ -802,6 +844,28 @@
     {
         $ilDB->addTableColumn('tst_rnd_quest_set_qpls', 'order_by',
             array('type' => 'text', 'length' => 20, 'notnull'	=> false, 'default'	=> null)
+        );
+    }
+    // fau.
+?>
+<#50>
+<?php
+    // fau: fairSub - add sub_fair in database scheme of groups
+    if( !$ilDB->tableColumnExists('grp_settings', 'sub_fair'))
+    {
+        $ilDB->addTableColumn('grp_settings', 'sub_fair',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+?>
+<#51>
+<?php
+    // fau: fairSub - add sub_last_fill in database scheme of groups
+    if( !$ilDB->tableColumnExists('grp_settings', 'sub_last_fill'))
+    {
+        $ilDB->addTableColumn('grp_settings', 'sub_last_fill',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
         );
     }
     // fau.

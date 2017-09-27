@@ -117,21 +117,16 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 					}
 				}
 				// Waiting list
-				// fim: [memad] check leaving of waiting list, lot list or subscription
 				if($a_permission == 'join')
 				{
 					include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
-					include_once './Services/Membership/classes/class.ilSubscribersLot.php';
-					if(!$participants->isSubscriber($a_user_id)
-						and !ilCourseWaitingList::_isOnList($a_user_id, $a_obj_id)
-						and !ilSubscribersLot::_isOnList($a_user_id, $a_obj_id))
+					if(!ilCourseWaitingList::_isOnList($a_user_id, $a_obj_id))
 					{
 						return false;
 					}
 					return true;
 				}
 				break;
-				// fim.
 
 			case 'join':
 
@@ -201,28 +196,13 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 					return false;
 				}
 
-                // fim: [memad] add check for waiting list
+// fau: fairSub - add waiting list check for join permission
 				include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
 				if(ilCourseWaitingList::_isOnList($a_user_id, $a_obj_id))
 				{
 					return false;
 				}
-				// fim.
-
-				// fim: [memad] add check for lot list
-				include_once './Services/Membership/classes/class.ilSubscribersLot.php';
-				if(ilSubscribersLot::_isOnList($a_user_id, $a_obj_id))
-				{
-					return false;
-				}
-				// fim.
-
-				// fim: [memad] add check for subscribers
-				if ($participants->isSubscriber($a_user_id))
-				{
-	                return false;
-	            }
-				// fim.
+// fau.
 
 				if($participants->isAssigned($a_user_id))
 				{
@@ -267,10 +247,10 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
 		$commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
-		// fim: [memad] general command for editing requests, waiting list, lot list
+// fau: fairSub - general command for editing requests
 		// on waiting list
 		$commands[]	= array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
-		// fim.
+// fau.
 
 		// fim: [memad] add command for guest accounts to request a join
 		include_once('Services/User/classes/class.ilUserUtil.php');
@@ -548,20 +528,25 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
 		// fim: [meminf] get info about membership limitations and subscription status
 		global $ilAccess;
-		include_once './Modules/Course/classes/class.ilCourseParticipants.php';
+		include_once './Modules/Course/classes/class.ilCourseParticipant.php';
 		include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
-		include_once './Services/Membership/classes/class.ilSubscribersLot.php';
 
 		$partObj = ilCourseParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
 
 		if($info['reg_info_mem_limit'] && $info['reg_info_show_mem_limit'] && $registration_possible)
 		{
 			$show_mem_limit = true;
+			$show_hidden_notice = false;
 		}
 		elseif ($info['reg_info_mem_limit'] && $ilAccess->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id))
 		{
 			$show_mem_limit = true;
 			$show_hidden_notice = true;
+		}
+		else
+		{
+			$show_mem_limit = false;
+			$show_hidden_notice = false;
 		}
 
 		// this must always be calculeted because it is ised for hte info and registration page
@@ -572,9 +557,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
 		if($show_mem_limit)
 		{
-			$subscribers = $partObj->getNumberOfSubscribers();
 			$waiting = ilCourseWaitingList::lookupListSize($a_obj_id);
-			$lotlist = ilSubscribersLot::_getCountUsers($a_obj_id);
 
 			$limits = array();
 			if ($show_hidden_notice)
@@ -583,13 +566,9 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 			}
 			$limits[] =  $lng->txt("mem_max_users"). $max_members;
 			$limits[] =  $lng->txt("mem_free_places"). ': '. $free_places;
-			if ($subscribers + $waiting > 0)
+			if ($waiting > 0)
 			{
-				$limits[] =  $lng->txt("subscribers_or_waiting_list"). ': '. (string) ($subscribers + $waiting);
-			}
-			if ($lotlist > 0)
-			{
-				$limits[] =  $lng->txt("mem_lot_candidates"). ': '. $lotlist;
+				$limits[] =  $lng->txt("subscribers_or_waiting_list"). ': '. (string) ($waiting);
 			}
 
 			$info['reg_info_list_prop_limit']['property'] = '';
@@ -597,17 +576,19 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 		}
 
 		// registration status
-		if ($partObj->isSubscriber($ilUser->getId()))
+		switch(ilCourseWaitingList::_getStatus($ilUser->getId(), $a_obj_id))
 		{
-			$status = $lng->txt("crs_status_pending");
-		}
-		elseif(ilCourseWaitingList::_isOnList($ilUser->getId(), $a_obj_id))
-		{
-			$status = $lng->txt('on_waiting_list');
-		}
-		elseif (ilSubscribersLot::_isOnList($ilUser->getId(), $a_obj_id))
-		{
-			$status = $lng->txt('mem_on_lot_list');
+			case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
+				$status = $lng->txt('on_waiting_list');
+				break;
+			case ilWaitingList::REQUEST_TO_CONFIRM:
+				$status = $lng->txt('sub_status_pending');
+				break;
+			case ilWaitingList::REQUEST_CONFIRMED:
+				$status = $lng->txt('sub_status_confirmed');
+				break;
+			default:
+				$status = '';
 		}
 		if ($status)
 		{

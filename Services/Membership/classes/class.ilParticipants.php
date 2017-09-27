@@ -65,26 +65,6 @@ abstract class ilParticipants
 	 	$this->readParticipantsStatus();
 	}
 
-	/**
-	* fim: [meminf] count unique subscribers for several objects
-	*
-	* @param    array   object ids
-	* @return   array   user ids
-	*/
-	static function _countSubscribers($a_obj_ids = array())
-	{
-	    global $ilDB;
-
-		$query = "SELECT COUNT(DISTINCT usr_id) users FROM il_subscribers WHERE "
-		. $ilDB->in('obj_id', $a_obj_ids, false, 'integer');
-
-		$result = $ilDB->query($query);
-		$row = $ilDB->fetchAssoc($result);
-
-		return $row['users'];
-	}
-	// fim.
-
 	
 	/**
 	 * Get instance by obj type
@@ -402,11 +382,6 @@ abstract class ilParticipants
 		$query = 'DELETE FROM crs_waiting_list '.
 				'WHERE obj_id = '.$ilDB->quote($a_obj_id,'integer');
 		$ilDB->manipulate($query);
-
-		// fim: [memlot] delete lot list when group/course is deleted
-		require_once "./Services/Membership/classes/class.ilSubscribersLot.php";
-		ilSubscribersLot::_deleteAll($a_obj_id);
-		// fim.
 
 		return true;
 	}

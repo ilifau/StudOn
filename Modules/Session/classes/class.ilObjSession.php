@@ -317,6 +317,13 @@ class ilObjSession extends ilObject
 		return (bool)$this->reg_waiting_list_autofill;
 	}
 
+// fau: fairSub - fake getSubscriptionFair()
+	public function getSubscriptionFair()
+	{
+		return 0;
+	}
+// fau.
+
 	/**
 	 * is registration enabled
 	 *
