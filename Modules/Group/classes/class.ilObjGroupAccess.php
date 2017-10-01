@@ -321,8 +321,9 @@ class ilObjGroupAccess extends ilObjectAccess
 		global $ilDB, $ilUser, $lng;
 
 		// fim: [meminf] query for showing memmbership limitation
+// fau: fairSub - query for fair period
 		$query = 'SELECT registration_type, registration_enabled, registration_unlimited,  registration_start, '.
-			'registration_end, registration_mem_limit, registration_max_members, show_mem_limit FROM grp_settings '.
+			'registration_end, registration_mem_limit, registration_max_members, show_mem_limit, sub_fair FROM grp_settings '.
 			'WHERE obj_id = '.$ilDB->quote($a_obj_id);
 		$res = $ilDB->query($query);
 		
@@ -344,7 +345,9 @@ class ilObjGroupAccess extends ilObjectAccess
 			
 			$info['reg_info_enabled'] = $row->registration_enabled;
 			$info['reg_info_show_mem_limit'] = $row->show_mem_limit;
+			$info['reg_info_sub_fair'] = $row->sub_fair;
 		}
+// fau.
 		// fim.
 
 		$registration_possible = $info['reg_info_enabled'];
@@ -352,16 +355,31 @@ class ilObjGroupAccess extends ilObjectAccess
 		// Limited registration (added $registration_possible, see bug 0010157)
 		if(!$info['reg_info_unlimited'] && $registration_possible)
 		{
+// fau: fairSub - add info about fair period
+			$fair_suffix = '';
+			if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0)
+			{
+				if ($info['reg_info_sub_fair'] < 0 )
+				{
+					$fair_suffix = " - <b>".$lng->txt('sub_fair_inactive_short')."</b>";
+				}
+//				elseif (time() < $info['reg_info_sub_fair'])
+//				{
+//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
+//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
+//				}
+			}
+
 			$dt = new ilDateTime(time(),IL_CAL_UNIX);
 			if(ilDateTime::_before($dt, $info['reg_info_start']))
 			{
 				$info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_start');
-				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']);
+				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']) . $fair_suffix;
 			}
 			elseif(ilDateTime::_before($dt, $info['reg_info_end']))
 			{
 				$info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_end');
-				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']);
+				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']) . $fair_suffix;
 			}
 			else
 			{
@@ -369,6 +387,7 @@ class ilObjGroupAccess extends ilObjectAccess
 				$info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_period');
 				$info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
 			}
+// fau.
 		}
 		else
 		{

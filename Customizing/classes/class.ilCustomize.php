@@ -137,6 +137,9 @@ class ilCustomize
 			case "edit_answered_test_questions_is_allowed":
 			    return $this->__editAssessmentSettingsIsAllowed();
 
+			case "deactivate_fair_time_is_allowed":
+				return $this->__deactivateFairTimeIsAllowed();
+
 			default:
 			
 				if (isset($this->admin_settings[$a_setting]))
@@ -304,6 +307,15 @@ class ilCustomize
 			}
 		}
 		return $allowed;
+	}
+
+	/**
+	 * Check if a deactivation of the subscription fair time is allowed in courses and groups
+	 * @return bool
+	 */
+	private function __deactivateFairTimeIsAllowed()
+	{
+		return $this->__administrationIsVisible();
 	}
 }
 ?>

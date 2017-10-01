@@ -2546,6 +2546,13 @@ class ilObjGroupGUI extends ilContainerGUI
 						$this->object->getRegistrationEnd()));
 			}
 // fau.
+// fau: fairSub - show fair period on info screen
+			if ($this->object->isMembershipLimited() && $this->object->getMaxMembers())
+			{
+				$info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
+					$this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
+			}
+// fau.
 			if ($this->object->isMembershipLimited())
 			{
 				if($this->object->getMinMembers())
@@ -2989,39 +2996,43 @@ class ilObjGroupGUI extends ilContainerGUI
 // fau: fairSub - add fair date and arrange and explain options for waiting list
 			if ($this->object->getSubscriptionFair() < 0)
 			{
-				$fair_status = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
-				$fair_status->setValue($this->lng->txt('inactive'));
-				$fair_status->setInfo($this->lng->txt('sub_fair_inactive_message'));
-				$lim->addSubItem($fair_status);
+				$fair_date = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
+				$fair_date_info = $this->lng->txt('sub_fair_inactive_message');
+				$fair_date_link = '<br />» <a href="'.$this->ctrl->getLinkTarget($this, 'activateSubFair').'">'.$this->lng->txt('sub_fair_activate').'</a>';
+				$wait_options = array(
+					'auto' => 'sub_fair_inactive_autofill',
+					'manu' => 'sub_fair_inactive_waiting',
+					'no_list'=> 'sub_fair_inactive_no_list'
+				);
 			}
 			else
 			{
 				$fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'),'subscription_fair');
 				$fair_date->setShowTime(true);
 				$fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(),IL_CAL_UNIX));
-				$fair_date->setInfo($this->lng->txt('sub_fair_date_info'));
-				$lim->addSubItem($fair_date);
+				$fair_date_info = $this->lng->txt('sub_fair_date_info');
+				$fair_date_link = '<br />» <a href="'.$this->ctrl->getLinkTarget($this, 'confirmDeactivateSubFair').'">'.$this->lng->txt('sub_fair_deactivate').'</a>';
+				$wait_options = array(
+					'auto' => 'sub_fair_autofill',
+					'auto_manu' => 'sub_fair_auto_manu',
+					'manu' => 'sub_fair_waiting',
+					'no_list'=> 'sub_fair_no_list'
+				);
 			}
 
+			global $ilCust;
+			$fair_date->setInfo($fair_date_info . ($ilCust->getSetting('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
+			$lim->addSubItem($fair_date);
+
 			$wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
+			foreach ($wait_options as $postvalue => $langvar)
+			{
+				$option = new ilRadioOption($this->lng->txt($langvar), $postvalue);
+				$option->setInfo($this->lng->txt($langvar . '_info'));
+				$wait->addOption($option);
+			}
 
-			$option = new ilRadioOption($this->lng->txt('sub_fair_autofill'), 'auto');
-			$option->setInfo($this->lng->txt('sub_fair_autofill_info'));
-			$wait->addOption($option);
-
-			$option = new ilRadioOption($this->lng->txt('sub_fair_auto_manu'), 'auto_manu');
-			$option->setInfo($this->lng->txt('sub_fair_auto_manu_info'));
-			$wait->addOption($option);
-
-			$option = new ilRadioOption($this->lng->txt('sub_fair_waiting'), 'manu');
-			$option->setInfo($this->lng->txt('sub_fair_waiting_info'));
-			$wait->addOption($option);
-
-			$option = new ilRadioOption($this->lng->txt('sub_fair_no_list'), 'no_list');
-			$option->setInfo($this->lng->txt('sub_fair_no_list_info'));
-			$wait->addOption($option);
-
-			if($this->object->getSubscriptionAutoFill() && $this->object->hasWaitingListAutoFill())
+			if($this->object->hasWaitingListAutoFill())
 			{
 				$wait->setValue('auto');
 			}
@@ -3243,13 +3254,13 @@ class ilObjGroupGUI extends ilContainerGUI
 		switch($_POST['waiting_list'])
 		{
 			case 'auto':
-				$this->object->setSubscriptionAutoFill(true);
+				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(true);
 				break;
 
 			case 'auto_manu':
-				$this->object->setSubscriptionAutoFill(true);
+				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(false);
 				break;
@@ -3261,7 +3272,7 @@ class ilObjGroupGUI extends ilContainerGUI
 				break;
 
 			default:
-				$this->object->setSubscriptionAutoFill(true);
+				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
 				$this->object->enableWaitingList(false);
 				$this->object->setWaitingListAutoFill(false);
 				break;
@@ -3704,6 +3715,70 @@ class ilObjGroupGUI extends ilContainerGUI
 	{
 		$this->ctrl->redirectByClass('ilUsersGalleryGUI');
 	}
+
+	// fau: subFair - activation and deactivation of the fair period
+	public function activateSubFairObject()
+	{
+		global $ilCust;
+		if (!$ilCust->getSetting('deactivate_fair_time_is_allowed'))
+		{
+			ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+		}
+		else
+		{
+			$this->object->setSubscriptionFair($this->object->getRegistrationStart()->get(IL_CAL_UNIX) + $this->object->getSubscriptionMinFairSeconds());
+			$this->object->setSubscriptionAutoFill(true);
+			$this->object->update();
+			ilUtil::sendSuccess($this->lng->txt('sub_fair_activated'), true);
+		}
+		$this->ctrl->redirect($this,'edit');
+	}
+
+	public function deactivateSubFairObject()
+	{
+		global $ilCust;
+		if (!$ilCust->getSetting('deactivate_fair_time_is_allowed'))
+		{
+			ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+		}
+		elseif ($this->object->inSubscriptionFairTime())
+		{
+			ilUtil::sendFailure($this->lng->txt('sub_fair_deactivate_in_phase'), true);
+		}
+		else
+		{
+			$this->object->setSubscriptionFair(-1);
+			$this->object->setSubscriptionAutoFill(false);
+			$this->object->update();
+			ilUtil::sendSuccess($this->lng->txt('sub_fair_deactivated'), true);
+		}
+		$this->ctrl->redirect($this,'edit');
+
+	}
+
+	public function confirmDeactivateSubFairObject()
+	{
+		global $ilCust;
+		if (!$ilCust->getSetting('deactivate_fair_time_is_allowed'))
+		{
+			ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+		}
+		elseif ($this->object->inSubscriptionFairTime())
+		{
+			ilUtil::sendFailure($this->lng->txt('sub_fair_deactivate_in_phase'), true);
+			$this->ctrl->redirect($this,'edit');
+		}
+
+		include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
+		$c_gui = new ilConfirmationGUI();
+		$c_gui->setFormAction($this->ctrl->getFormAction($this, "edit"));
+		$c_gui->setHeaderText($this->lng->txt('sub_fair_deactivate_question'));
+		$c_gui->setCancel($this->lng->txt("cancel"), "edit");
+		$c_gui->setConfirm($this->lng->txt("confirm"), "deactivateSubFair");
+
+		$this->tpl->setContent($c_gui->getHTML());
+	}
+// fau.
 
 	public function confirmRefuseSubscribersObject()
 	{

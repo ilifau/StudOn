@@ -492,7 +492,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 			$info['reg_info_show_mem_limit'] = $row->show_mem_limit;
 			$info['reg_info_sub_fair'] = $row->sub_fair;
 		}
-// fau: fairSub - query for fair period
+// fau.
 		// fim.
 
 		$registration_possible = true;
@@ -506,13 +506,13 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 			{
 				if ($info['reg_info_sub_fair'] < 0 )
 				{
-					$fair_suffix = " | ".$lng->txt('sub_fair_inactive_short');
+					$fair_suffix = " - <b>".$lng->txt('sub_fair_inactive_short')."</b>";
 				}
-				elseif (time() < $info['reg_info_sub_fair'])
-				{
-					$fair_suffix = " | ".$lng->txt('sub_fair_date'). ': '
-						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
-				}
+//				elseif (time() < $info['reg_info_sub_fair'])
+//				{
+//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
+//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
+//				}
 			}
 
 			$dt = new ilDateTime(time(),IL_CAL_UNIX);

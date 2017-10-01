@@ -334,7 +334,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 // fau: fairSub - getter / setter
 	public function getSubscriptionFair()
 	{
-		return $this->subscription_fair ? $this->subscription_fair : $this->getRegistrationStart()->get(IL_CAL_UNIX) + self::getSubscriptionMinFairSeconds();
+		return $this->subscription_fair ? $this->subscription_fair : $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds();
 	}
 	public function setSubscriptionFair($a_value)
 	{

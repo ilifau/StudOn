@@ -51,7 +51,7 @@ class ilRegistrationPeriodLimiterTableGUI extends ilTable2GUI
 			$this->addColumn($lng->txt('title'), "", "30%");
 			$this->addColumn($lng->txt('crs_subscription_type'), "", "15%");
 			$this->addColumn($lng->txt('crs_members'), "", "5%");
-			$this->addColumn(str_replace(':', '', $lng->txt('crs_max_members_mode')), "", "10%");
+			$this->addColumn($lng->txt('sub_fair_date'), "", "10%");
 			$this->addColumn($lng->txt('crs_end'), "", "15%");
 
 			$this->setNoEntriesText($lng->txt("msg_no_search_result"));

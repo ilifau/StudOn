@@ -141,7 +141,7 @@ class ilRegistrationPeriodLimiter
 		$query_courses = "
 		SELECT r.ref_id, o.title, o.type, 
 		s.sub_type, s.sub_start, s.sub_end, 
-		s.sub_max_members, s.waiting_list, s.lot_list
+		s.sub_max_members, s.waiting_list, s.sub_fair
 		FROM crs_settings s
 		INNER JOIN object_data o ON o.obj_id = s.obj_id
 		INNER JOIN object_reference r ON r.obj_id = s.obj_id
@@ -176,17 +176,13 @@ class ilRegistrationPeriodLimiter
 					$data["reg_type"] = $lng->txt('crs_subscription_options_password');
 					break;
 			}
-			if ($result_courses["lot_list"] > 0) 
+			if ($result_courses["sub_fair"] >= 0)
 			{
-				$data["policy"] = $lng->txt('crs_lot_list');
-			}
-			elseif ($result_courses["waiting_list"] > 0)
-			{
-				$data["policy"] = $lng->txt('crs_waiting_list');
+				$data["policy"] = ilDatePresentation::formatDate(new ilDateTime($result_courses["sub_fair"], IL_CAL_UNIX));
 			}
 			else
 			{
-				$data["policy"] = $lng->txt('crs_no_list');
+				$data["policy"] = $lng->txt('sub_fair_inactive_short');
 			}
 		
 			// use start for sorting and add ref_id for unique rows
@@ -235,7 +231,7 @@ class ilRegistrationPeriodLimiter
 		$query_groups = "
 		SELECT r.ref_id, o.title, o.type, 
 		s.registration_type, s.registration_start, s.registration_end, 
-		s.registration_max_members, s.waiting_list, s.lot_list
+		s.registration_max_members, s.waiting_list, s.sub_fair
 		FROM grp_settings s
 		INNER JOIN object_data o ON o.obj_id = s.obj_id
 		INNER JOIN object_reference r ON r.obj_id = s.obj_id
@@ -270,17 +266,13 @@ class ilRegistrationPeriodLimiter
 					$data["reg_type"] = $lng->txt('crs_subscription_options_password');
 					break;
 			}
-			if ($result_groups["lot_list"] > 0) 
+			if ($result_groups["sub_fair"] >= 0)
 			{
-				$data["policy"] = $lng->txt('crs_lot_list');
-			}
-			elseif ($result_groups["waiting_list"] > 0)
-			{
-				$data["policy"] = $lng->txt('crs_waiting_list');
+				$data["policy"] = ilDatePresentation::formatDate(new ilDateTime($result_groups["sub_fair"], IL_CAL_UNIX));
 			}
 			else
 			{
-				$data["policy"] = $lng->txt('crs_no_list');
+				$data["policy"] = $lng->txt('sub_fair_inactive_short');
 			}
 		
 			// use start for sorting and add ref_id for unique rows

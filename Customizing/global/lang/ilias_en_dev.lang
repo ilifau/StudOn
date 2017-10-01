@@ -345,6 +345,12 @@ common#:#sub_fair_waiting#:#Manual Fill and Move Up
 common#:#sub_fair_waiting_info#:#Free places have to be manually filled in the member administration after the end of equal chances. Please use this setting only, if the membership has additional conditions.
 common#:#sub_fair_no_list#:#Automatic Fill, Rejection Afterwards
 common#:#sub_fair_no_list_info#:#The waiting list will only be filled in the period of equal chances and free places will be automatically filled by lot afterwards. Later registrations will be rejected if no places are free.
+common#:#sub_fair_inactive_autofill#:#Automatic Move Up
+common#:#sub_fair_inactive_autofill_info#:#Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
+common#:#sub_fair_inactive_waiting#:#Manual Move Up
+common#:#sub_fair_inactive_waiting_info#:#Free places have to be manually filled from waiting registrations in the member administration.
+common#:#sub_fair_inactive_no_list#:#Rejection
+common#:#sub_fair_inactive_no_list_info#:#Registrations will be rejected if no places are free.
 common#:#sub_fair_waiting_univis#:#Like in UnivIS
 common#:#sub_fair_waiting_univis_info#:#The waiting list setting is taken from UnivIS. A a waiting list is set there then 'Automatic Fill and Move Up' will be set, otherwise "Automatic Fill, Rejection Afterwards".
 common#:#sub_fair_activation_min_minutes#:#The availability period must be longer than %s minutes!
@@ -363,7 +369,13 @@ common#:#sub_fair_not_on_list#:#Nit on the list
 common#:#sub_fair_time_before#:#before %s
 common#:#sub_fair_wait_pos_header#:#Pos.
 common#:#sub_fair_inactive_short#:#First Come-First Served!
-common#:#sub_fair_inactive_message#:#This registration has no period of equal chances! The order of subscriptions counts from the beginning!
+common#:#sub_fair_inactive_message#:#This registration has no period of equal chances. The order of subscriptions counts from the beginning!
+common#:#sub_fair_activate#:#Activate equal chances
+common#:#sub_fair_activated#:#The period of equal chances is activated
+common#:#sub_fair_deactivate#:#Deactivate equal chances
+common#:#sub_fair_deactivate_question#:#Would you like to deactivate the period if equal chances?
+common#:#sub_fair_deactivate_in_phase#:#You can't deactivate the period of equal chances because it is running.
+common#:#sub_fair_deactivated#:#The period of equal chances is deactivated.
 common#:#sub_mail_request_crs#:#Your membership request for course "%s"
 common#:#sub_mail_request_grp#:#Your membership request for group  "%s"
 common#:#sub_mail_request_added#:#Your membership request is received. You will get a notification when it is accepted or rejected.

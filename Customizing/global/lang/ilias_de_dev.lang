@@ -317,6 +317,12 @@ common#:#sub_fair_waiting#:#Manuelles Auslosen und Nachrücken
 common#:#sub_fair_waiting_info#:#Nach der chancengleichen Phase müssen die freien Plätze in der Teilnehmerverwaltung von Hand ausgelost werden. Wählen Sie diese Einstellung nur, wenn die Aufnahme von zusätzlichen Kriterien abhängt.
 common#:#sub_fair_no_list#:#Automatisches Auslosen, danach Abweisung
 common#:#sub_fair_no_list_info#:#Die Warteliste wird nur in der chancengleichen Phase befüllt und die freien Plätze im Anschluss automatisch ausgelost. Sind danach keine Plätze mehr frei, werden weitere Anmeldungen abgewiesen.
+common#:#sub_fair_inactive_autofill#:#Automatisches Nachrücken
+common#:#sub_fair_inactive_autofill_info#:#Wartende Anmeldungen rücken bis zum spätesten Austritt automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
+common#:#sub_fair_inactive_waiting#:#Manuelles Nachrücken
+common#:#sub_fair_inactive_waiting_info#:#Nachträglich frei werdende Plätze müssen in der Teilnehmerverwaltung von Hand aufgefüllt werden.
+common#:#sub_fair_inactive_no_list#:#Abweisung
+common#:#sub_fair_inactive_no_list_info#:#Die Warteliste wird nur für Aufnahmeanträge verwendet. Sind keine Plätze mehr frei, werden die Anmeldungen abgewiesen.
 common#:#sub_fair_waiting_univis#:#Wie in UnivIS
 common#:#sub_fair_waiting_univis_info#:#Die Einstellung zur Warteliste wird aus UnivIS übernommen. Ist dort eine Warteliste eingestellt, wird "Automatisches Auslosen und Nachrücken" gesetzt, andernfalls "Automatisches Auslosen, danach Abweisung".
 common#:#sub_fair_activation_min_minutes#:#Die zeitlich begrenzte Verfügbarkeit muss mindesten %s Minuten betragen!
@@ -335,7 +341,13 @@ common#:#sub_fair_not_on_list#:#Nicht auf der Liste
 common#:#sub_fair_time_before#:#vor %s
 common#:#sub_fair_wait_pos_header#:#Pos.
 common#:#sub_fair_inactive_short#:#Windhundverfahren!
-common#:#sub_fair_inactive_message#:#Für diese Anmeldung gibt es keine chancengleiche Phase! Es zählt von Beginn die Reihenfolge der Anmeldungen!
+common#:#sub_fair_inactive_message#:#Für diese Anmeldung gibt es keine chancengleiche Phase. Es zählt von Beginn die Reihenfolge der Anmeldungen!
+common#:#sub_fair_activate#:#Chancengleiche Phase aktivieren
+common#:#sub_fair_activated#:#Die chancengleiche Phase wurde aktiviert.
+common#:#sub_fair_deactivate#:#Chancengleiche Phase deaktivieren
+common#:#sub_fair_deactivate_question#:#Möchten Sie die chancengleiche Phase deaktivieren?
+common#:#sub_fair_deactivate_in_phase#:#Sie können die chancengleiche Phase nicht deaktivieren, da sie gerade läuft.
+common#:#sub_fair_deactivated#:#Die chancengleiche Phase wurde deaktiviert.
 common#:#sub_mail_request_crs#:#Ihr Aufnahmeantrag zum Kurs "%s"
 common#:#sub_mail_request_grp#:#Ihr Aufnahmeantrag zur Gruppe "%s"
 common#:#sub_mail_request_added#:#Ihr Aufnahmeantrag wurde registriert und Sie werden benachrichtigt, sobald er angenommen oder abgelehnt wurde.
