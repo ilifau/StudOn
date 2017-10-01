@@ -616,7 +616,9 @@ class ilObjGroupGUI extends ilContainerGUI
 		}
 
 // fau: fairSub - check and correct the fair time
-		if($this->object->isMembershipLimited() && $this->object->getMaxMembers() > 0)
+		if($this->object->getSubscriptionFair() >= 0
+			&& $this->object->isMembershipLimited()
+			&& $this->object->getMaxMembers() > 0)
 		{
 			$fair_message = '';
 			if (!$this->object->isRegistrationUnlimited())
@@ -2969,7 +2971,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			// fim: [meminf] add show mem limit checkbox
 			$showlim = new ilCheckboxInputGUI($this->lng->txt('grp_show_mem_limit_label'),'grp_show_mem_limit');
 			$showlim->setValue(1);
-			$showlim->setOptionTitle($this->lng->txt('grp_show_mem_limit_option'));
+			$showlim->setInfo($this->lng->txt('grp_show_mem_limit_option'));
 			$showlim->setChecked($this->object->getShowMemLimit());
 			$lim->addSubItem($showlim);
 			// fim.
@@ -2985,33 +2987,55 @@ class ilObjGroupGUI extends ilContainerGUI
 			*/
 
 // fau: fairSub - add fair date and arrange and explain options for waiting list
-			$fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'),'subscription_fair');
-			$fair_date->setShowTime(true);
-			$fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(),IL_CAL_UNIX));
-			$fair_date->setInfo($this->lng->txt('sub_fair_date_info'));
-			$lim->addSubItem($fair_date);
+			if ($this->object->getSubscriptionFair() < 0)
+			{
+				$fair_status = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
+				$fair_status->setValue($this->lng->txt('inactive'));
+				$fair_status->setInfo($this->lng->txt('sub_fair_inactive_message'));
+				$lim->addSubItem($fair_status);
+			}
+			else
+			{
+				$fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'),'subscription_fair');
+				$fair_date->setShowTime(true);
+				$fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(),IL_CAL_UNIX));
+				$fair_date->setInfo($this->lng->txt('sub_fair_date_info'));
+				$lim->addSubItem($fair_date);
+			}
 
 			$wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
 
-			$option = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'), 2);
+			$option = new ilRadioOption($this->lng->txt('sub_fair_autofill'), 'auto');
 			$option->setInfo($this->lng->txt('sub_fair_autofill_info'));
 			$wait->addOption($option);
 
-			$option = new ilRadioOption($this->lng->txt('grp_waiting_list_no_autofill'), 1);
+			$option = new ilRadioOption($this->lng->txt('sub_fair_auto_manu'), 'auto_manu');
+			$option->setInfo($this->lng->txt('sub_fair_auto_manu_info'));
+			$wait->addOption($option);
+
+			$option = new ilRadioOption($this->lng->txt('sub_fair_waiting'), 'manu');
 			$option->setInfo($this->lng->txt('sub_fair_waiting_info'));
 			$wait->addOption($option);
 
-			$option = new ilRadioOption($this->lng->txt('sub_fair_no_list'), 0);
+			$option = new ilRadioOption($this->lng->txt('sub_fair_no_list'), 'no_list');
 			$option->setInfo($this->lng->txt('sub_fair_no_list_info'));
 			$wait->addOption($option);
 
-			if($this->object->hasWaitingListAutoFill())
+			if($this->object->getSubscriptionAutoFill() && $this->object->hasWaitingListAutoFill())
 			{
-				$wait->setValue(2);
+				$wait->setValue('auto');
+			}
+			else if($this->object->getSubscriptionAutoFill() && $this->object->isWaitingListEnabled())
+			{
+				$wait->setValue('auto_manu');
 			}
 			elseif ($this->object->isWaitingListEnabled())
 			{
-				$wait->setValue(1);
+				$wait->setValue('manu');
+			}
+			else
+			{
+				$wait->setValue('no_list');
 			}
 
 			$lim->addSubItem($wait);
@@ -3216,27 +3240,40 @@ class ilObjGroupGUI extends ilContainerGUI
 			$this->object->setCancellationEnd(null);
 		}
 
-		switch((int)$_POST['waiting_list'])
+		switch($_POST['waiting_list'])
 		{
-			case 2:
+			case 'auto':
+				$this->object->setSubscriptionAutoFill(true);
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(true);
 				break;
 
-			case 1:
+			case 'auto_manu':
+				$this->object->setSubscriptionAutoFill(true);
+				$this->object->enableWaitingList(true);
+				$this->object->setWaitingListAutoFill(false);
+				break;
+
+			case 'manu':
+				$this->object->setSubscriptionAutoFill(false);
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(false);
 				break;
 
 			default:
+				$this->object->setSubscriptionAutoFill(true);
 				$this->object->enableWaitingList(false);
 				$this->object->setWaitingListAutoFill(false);
 				break;
 		}
 
 // fau: fairSub - save the fair period
-		$sub_fair = $a_form->getItemByPostVar("subscription_fair");
-		$this->object->setSubscriptionFair($sub_fair->getDate()->get(IL_CAL_UNIX));
+		// check a deactivation of the fair period done in db
+		if ($this->object->getSubscriptionFair() >= 0)
+		{
+			$sub_fair = $a_form->getItemByPostVar("subscription_fair");
+			$this->object->setSubscriptionFair($sub_fair->getDate()->get(IL_CAL_UNIX));
+		}
 // fau.
 
 		return true;

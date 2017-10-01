@@ -329,6 +329,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
 			$alert = '';
 // fau: fairSub - add message and adjust label for fair subscription
+			if ($this->container->getSubscriptionFair() < 0)
+			{
+				ilUtil::sendInfo($this->lng->txt('sub_fair_inactive_message'));
+			}
+
 			if ($this->container->inSubscriptionFairTime())
 			{
 				ilUtil::sendInfo(sprintf($this->lng->txt('sub_fair_subscribe_message'), $this->container->getSubscriptionFairDisplay(true)));

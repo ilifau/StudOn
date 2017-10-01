@@ -74,6 +74,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 // fau: fairSub - new class variables
 	protected $subscription_fair;
+	protected $subscription_auto_fill = true;
 	protected $subscription_last_fill;
 // fau.
 	/**
@@ -319,6 +320,14 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	public function setSubscriptionFair($a_value)
 	{
 		$this->subscription_fair = $a_value;
+	}
+	public function getSubscriptionAutoFill()
+	{
+		return (bool) $this->subscription_auto_fill;
+	}
+	public function setSubscriptionAutoFill($a_value)
+	{
+		$this->subscription_auto_fill = (bool) $a_value;
 	}
 	public function getSubscriptionLastFill()
 	{
@@ -1442,6 +1451,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			"sub_start = ".$ilDB->quote($this->getSubscriptionStart() ,'integer').", ".
 // fau: fairSub - save sub_fair and sub_last_fill
 			"sub_fair = ".$ilDB->quote($this->getSubscriptionFair() ,'integer').", ".
+			"sub_auto_fill = ".$ilDB->quote((int) $this->getSubscriptionAutoFill() ,'integer').", ".
 			"sub_last_fill = ".$ilDB->quote($this->getSubscriptionLastFill() ,'integer').", ".
 // fau.
 			"sub_end = ".$ilDB->quote($this->getSubscriptionEnd() ,'integer').", ".
@@ -1543,6 +1553,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 // fau.
 // fau: fairSub - clone sub_fair and reset sub_last_fill
 		$new_obj->setSubscriptionFair($this->getSubscriptionFair());
+		$new_obj->setSubscriptionAutoFill($this->getSubscriptionAutoFill());
 		$new_obj->setSubscriptionLastFill(null);
 // fau.
 		$new_obj->setViewMode($this->getViewMode());
@@ -1586,13 +1597,13 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		$this->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
 
 // fau: objectSub - add sub_ref_id
-// fau: fairSub - add sub_fair, sub_last_fill
+// fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
 		// fim: [memsess] add subscription with events
 		// fim: [meminf] add show_mem_limit
 		// fim: [memfix] init subscription type with "confirmation"
 		$query = "INSERT INTO crs_settings (obj_id,syllabus,contact_name,contact_responsibility,".
 			"contact_phone,contact_email,contact_consultation,activation_type,activation_start,".
-			"activation_end,sub_limitation_type,sub_start,sub_end,sub_fair,sub_last_fill,sub_type,sub_ref_id,sub_password,sub_mem_limit,".
+			"activation_end,sub_limitation_type,sub_start,sub_end,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_ref_id,sub_password,sub_mem_limit,".
 			"sub_max_members,sub_notify,subscription_with_events,show_mem_limit,view_mode,archive_start,archive_end,archive_type,abo," .
 			"latitude,longitude,location_zoom,enable_course_map,waiting_list,show_members, ".
 			"session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt,mail_members_type) ".
@@ -1610,8 +1621,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote(IL_CRS_SUBSCRIPTION_DEACTIVATED ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionStart() ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionEnd() ,'integer').", ".
-			$ilDB->quote($this->getSubscriptionFair()).", ".
-			$ilDB->quote($this->getSubscriptionLastFill()).", ".
+			$ilDB->quote($this->getSubscriptionFair(), 'integer').", ".
+			$ilDB->quote((int)$this->getSubscriptionAutoFill(), 'integer').", ".
+			$ilDB->quote($this->getSubscriptionLastFill(), 'integer').", ".
 			$ilDB->quote(IL_CRS_SUBSCRIPTION_CONFIRMATION ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionRefId(), 'integer').", ".
 			$ilDB->quote($this->getSubscriptionPassword() ,'text').", ".
@@ -1676,6 +1688,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->setSubscriptionStart($row->sub_start);
 // fau: fairSub - read sub_fair and sub_last_fill
 			$this->setSubscriptionFair($row->sub_fair);
+			$this->setSubscriptionAutoFill($row->sub_auto_fill);
 			$this->setSubscriptionLastFill($row->sub_last_fill);
 // fau.
 			$this->setSubscriptionEnd($row->sub_end);
@@ -2409,7 +2422,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 // fau: fairSub: new function findFairAutoFill
 	/**
-	 * Find couses that can be auto filled the after the fair subscription time
+	 * Find couses that can be auto filled after the fair subscription time
 	 * @return int[]	object ids
 	 */
 	public static function findFairAutoFill()
@@ -2417,10 +2430,20 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		global $ilDB;
 
 		$query = "
-			SELECT obj_id FROM crs_settings 
-			WHERE sub_mem_limit > 0 
-			AND sub_fair < UNIX_TIMESTAMP()
-			AND sub_last_fill IS NULL
+			SELECT s.obj_id
+			FROM crs_settings s
+			INNER JOIN object_reference r ON r.obj_id = s.obj_id
+			WHERE r.deleted IS NULL
+			AND (s.activation_type = 1 
+				OR (s.activation_type = 2 
+					AND s.activation_start <= UNIX_TIMESTAMP() 
+					AND s.activation_end >= UNIX_TIMESTAMP()))
+			AND s.sub_mem_limit > 0
+			AND s.sub_max_members > 0 
+			AND s.sub_auto_fill > 0
+			AND s.sub_fair > 0
+			AND s.sub_fair < UNIX_TIMESTAMP()
+			AND s.sub_last_fill IS NULL
 		";
 
 		$obj_ids = array();

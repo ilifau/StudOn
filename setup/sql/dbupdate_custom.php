@@ -870,3 +870,25 @@
     }
     // fau.
 ?>
+<#52>
+<?php
+    // fau: fairSub - add sub_auto_fill in database scheme of courses
+    if( !$ilDB->tableColumnExists('crs_settings', 'sub_auto_fill'))
+    {
+        $ilDB->addTableColumn('crs_settings', 'sub_auto_fill',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1)
+        );
+    }
+    // fau.
+?>
+<#53>
+    <?php
+    // fau: fairSub - add sub_auto_fill in database scheme of groups
+    if( !$ilDB->tableColumnExists('grp_settings', 'sub_auto_fill'))
+    {
+        $ilDB->addTableColumn('grp_settings', 'sub_auto_fill',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1)
+        );
+    }
+    // fau.
+?>

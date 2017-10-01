@@ -94,6 +94,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
 // fau: fairSub - new class variables
 	protected $subscription_fair;
+	protected $subscription_auto_fill = true;
 	protected $subscription_last_fill;
 // fau.
 
@@ -338,6 +339,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	public function setSubscriptionFair($a_value)
 	{
 		$this->subscription_fair = $a_value;
+	}
+	public function getSubscriptionAutoFill()
+	{
+		return (bool) $this->subscription_auto_fill;
+	}
+	public function setSubscriptionAutoFill($a_value)
+	{
+		$this->subscription_auto_fill = (bool) $a_value;
 	}
 	public function getSubscriptionLastFill()
 	{
@@ -773,10 +782,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		}
 
 // fau: objectSub - add sub_ref_id
-// fau: fairSub - add sub_fair, sub_last_fill
+// fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
 		// fim: [meminf] add show_mem_limit to create
 		$query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,sub_ref_id,registration_enabled,".
-			"registration_unlimited,registration_start,registration_end,sub_fair,sub_last_fill,registration_password,registration_mem_limit,".
+			"registration_unlimited,registration_start,registration_end,sub_fair,sub_auto_fill,sub_last_fill,registration_password,registration_mem_limit,".
 			"registration_max_members,waiting_list,show_mem_limit,latitude,longitude,location_zoom,enablemap,reg_ac_enabled,reg_ac,view_mode,mail_members_type,".
 			"leave_end,registration_min_members,auto_wait) ".
 			"VALUES(".
@@ -790,6 +799,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote($this->getRegistrationStart()->get(IL_CAL_DATETIME,'') ,'timestamp').", ".
 			$ilDB->quote($this->getRegistrationEnd()->get(IL_CAL_DATETIME,'') ,'timestamp').", ".
 			$ilDB->quote($this->getSubscriptionFair(),'integer').", ".
+			$ilDB->quote((int) $this->getSubscriptionLastFill(),'integer').", ".
 			$ilDB->quote($this->getSubscriptionLastFill(),'integer').", ".
 			$ilDB->quote($this->getPassword() ,'text').", ".
 			$ilDB->quote((int) $this->isMembershipLimited() ,'integer').", ".
@@ -841,8 +851,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 // fau: objectSub - save sub_ref_id
 			"sub_ref_id = ".$ilDB->quote($this->getRegistrationRefId() ,'integer').", ".
 // fau.
-// fau: fairSub - save sub_fair and sub_last_fill
+// fau: fairSub - save sub_fair, sub_auto_fill and sub_last_fill
 			"sub_fair = ".$ilDB->quote($this->getSubscriptionFair() ,'integer').", ".
+			"sub_auto_fill = ".$ilDB->quote((int) $this->getSubscriptionAutoFill() ,'integer').", ".
 			"sub_last_fill = ".$ilDB->quote($this->getSubscriptionLastFill() ,'integer').", ".
 // fau.
 			"registration_enabled = ".$ilDB->quote($this->isRegistrationEnabled() ? 1 : 0 ,'integer').", ".
@@ -942,6 +953,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 // fau.
 // fau: fairSub - read sub_fair and sub_last_fill
 			$this->setSubscriptionFair($row->sub_fair);
+			$this->setSubscriptionAutoFill($row->sub_auto_fill);
 			$this->setSubscriptionLastFill($row->sub_last_fill);
 // fau.
 			$this->enableUnlimitedRegistration($row->registration_unlimited);
@@ -1008,6 +1020,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 // fau.
 // fau: fairSub - clone sub_fair and reset sub_last_fill
 		$new_obj->setSubscriptionFair($this->getSubscriptionFair());
+		$new_obj->setSubscriptionAutoFill($this->getSubscriptionAutoFill());
 		$new_obj->setSubscriptionLastFill(null);
 // fau.
 		// map
@@ -2280,7 +2293,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
 // fau: fairSub - new function findFairAutoFill
 	/**
-	 * Find couses that can be autofilled the after the fair subscription time
+	 * Find groups that can be auto filled after the fair subscription time
 	 * @return int[]	object ids
 	 */
 	public static function findFairAutoFill()
@@ -2288,8 +2301,15 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		global $ilDB;
 
 		$query = "
-			SELECT obj_id FROM grp_settings 
-			WHERE registration_mem_limit > 0 
+			SELECT s.obj_id 
+			FROM grp_settings s
+			INNER JOIN object_reference r ON r.obj_id = s.obj_id
+			WHERE r.deleted IS NULL
+			AND s.grp_type IN (2, 3)
+			AND registration_mem_limit > 0 
+			AND registration_max_members > 0
+			AND s.sub_auto_fill > 0
+			AND sub_fair > 0
 			AND sub_fair < UNIX_TIMESTAMP()
 			AND sub_last_fill IS NULL
 		";

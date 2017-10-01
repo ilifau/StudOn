@@ -306,12 +306,19 @@ common#:#studydata_subject#:#Fach
 common#:#studydata_subject_no#:#Fach %s
 common#:#sub_added_to_waiting_list#:#Sie wurden auf die Warteliste gesetzt. <br />Sie haben Platz %s auf der Warteliste.
 common#:#sub_fair_date#:#Chancengleich bis
-common#:#sub_fair_date_info#:#Bis zu diesem Zeitpunkt werden alle Anmeldungen chancengleich auf der Warteliste gesammelt und die freien Plätze danach automatisch ausgelost. Alle nachfolgenden Anmeldungen erhalten höhere Wartelistenplätze. Beim Aufrücken von der Warteliste wird ebenfalls zwischen chancengleichen Anmeldungen gelost.
+common#:#sub_fair_date_info#:#Bis zu diesem Zeitpunkt werden alle Anmeldungen chancengleich auf der Warteliste gesammelt und die freien Plätze danach ausgelost. Alle nachfolgenden Anmeldungen erhalten höhere Wartelistenplätze. Beim Aufrücken von der Warteliste wird ebenfalls zwischen chancengleichen Anmeldungen gelost.
+common#:#sub_fair_date_default#:#Eine Stunde nach Anmeldebeginn (Standard)
 common#:#sub_fair_date_invalid#:#Die chancengleiche Phase muss mindestens eine Stunde dauern und spätestens mit dem Ende des Anmeldezeitraums abgeschlossen sein!
-common#:#sub_fair_autofill_info#:#Wartende Anmeldungen rücken bis zum spätesten Austritt automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
-common#:#sub_fair_waiting_info#:#Nach der chancengleichen Phase werden die freien Plätze einmalig automatisch ausgelost. Nachträglich frei gewordene Plätze müssen in der Teilnehmerverwaltung von Hand aufgefüllt werden.
-common#:#sub_fair_no_list#:#Nur für chancengleiche Anmeldungen
+common#:#sub_fair_autofill#:#Automatisches Auslosen und Nachrücken
+common#:#sub_fair_autofill_info#:#Nach der chancengleichen Phase werden die freien Plätze automatisch ausgelost. Wartende Anmeldungen rücken bis zum spätesten Austritt automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
+common#:#sub_fair_auto_manu#:#Automatisches Auslosen / manuelles Nachrücken
+common#:#sub_fair_auto_manu_info#:#Nach der chancengleichen Phase werden die freien Plätze einmalig automatisch ausgelost. Nachträglich frei werdende Plätze müssen in der Teilnehmerverwaltung von Hand aufgefüllt werden.
+common#:#sub_fair_waiting#:#Manuelles Auslosen und Nachrücken
+common#:#sub_fair_waiting_info#:#Nach der chancengleichen Phase müssen die freien Plätze in der Teilnehmerverwaltung von Hand ausgelost werden. Wählen Sie diese Einstellung nur, wenn die Aufnahme von zusätzlichen Kriterien abhängt.
+common#:#sub_fair_no_list#:#Automatisches Auslosen, danach Abweisung
 common#:#sub_fair_no_list_info#:#Die Warteliste wird nur in der chancengleichen Phase befüllt und die freien Plätze im Anschluss automatisch ausgelost. Sind danach keine Plätze mehr frei, werden weitere Anmeldungen abgewiesen.
+common#:#sub_fair_waiting_univis#:#Wie in UnivIS
+common#:#sub_fair_waiting_univis_info#:#Die Einstellung zur Warteliste wird aus UnivIS übernommen. Ist dort eine Warteliste eingestellt, wird "Automatisches Auslosen und Nachrücken" gesetzt, andernfalls "Automatisches Auslosen, danach Abweisung".
 common#:#sub_fair_activation_min_minutes#:#Die zeitlich begrenzte Verfügbarkeit muss mindesten %s Minuten betragen!
 common#:#sub_fair_subscription_min_minutes#:#Der zeitlich begrenzte Beitritt muss mindesten %s Minuten betragen!
 common#:#sub_fair_to_sub_start_min#:#Die chancengleiche Phase wurde auf den Mindeszeitraum nach Start der Anmedung gesetzt.
@@ -327,6 +334,7 @@ common#:#sub_fair_position_with_others#:#%s (mit %s chancengleichen)
 common#:#sub_fair_not_on_list#:#Nicht auf der Liste
 common#:#sub_fair_time_before#:#vor %s
 common#:#sub_fair_wait_pos_header#:#Pos.
+common#:#sub_fair_inactive_message#:#Für diese Anmeldung gibt es keine chancengleiche Phase! Es zählt von Beginn die Reihenfolge der Anmeldungen!
 common#:#sub_mail_request_crs#:#Ihr Aufnahmeantrag zum Kurs "%s"
 common#:#sub_mail_request_grp#:#Ihr Aufnahmeantrag zur Gruppe "%s"
 common#:#sub_mail_request_added#:#Ihr Aufnahmeantrag wurde registriert und Sie werden benachrichtigt, sobald er angenommen oder abgelehnt wurde.
@@ -402,8 +410,6 @@ crs#:#crs_event_subscription_after_confirmation#:#Sie können sich zu den Termin
 crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
 crs#:#crs_mail_subscribe_to_events#:#Für diesen Kurs ist die Anmeldung zu Terminen (Sitzungen) vorgesehen. Bitte gehen Sie zum Kursinhalt, um sich zu den Terminen anzumelden!
 crs#:#crs_max_members_mode#:#Verfahren:
-crs#:#crs_max_members_mode_univis#:#Wie in UnivIS
-crs#:#crs_max_members_mode_univis_info#:#Die Einstellung zur Warteliste wird aus UnivIS übernommen.
 crs#:#crs_mem_set_passed#:#Bestanden setzen
 crs#:#crs_mem_set_passed_success#:#Dies ausgewählten Teilnehmer wurden auf "Bestanden" gesetzt.
 crs#:#crs_no_list#:#Keine Warteliste

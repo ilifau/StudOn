@@ -334,12 +334,19 @@ common#:#studydata_subject#:#Subject
 common#:#studydata_subject_no#:#Fach %s
 common#:#sub_added_to_waiting_list#:#You have been assigned to the waiting list. You are assigned to position %s on the waiting list.
 common#:#sub_fair_date#:#Equal Chances Until
-common#:#sub_fair_date_info#:#All registrations will be equally collected on the waiting list and the free places will automatically be filled by lot afterwards. Later registrations will get higher waiting positions. An auto-fill of the waiting list will also respect the equal chances.
+common#:#sub_fair_date_info#:#All registrations will be equally collected on the waiting list and the free places will be filled by lot afterwards. Later registrations will get higher waiting positions. A later filling from the waiting list will also respect the equal chances.
+common#:#sub_fair_date_default#:#One Hour after Subscription Start (Standard)
 common#:#sub_fair_date_invalid#:#The period of equal chances must be longer than one hour and must be finished with the end of the whole registration period!
-common#:#sub_fair_autofill_info#:#Waiting registrations will automatically get free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
-common#:#sub_fair_waiting_info#:#Free places will automatically be filled by lot after the end of equal chances. Afterward free places have to be manually filled in the member administration.
-common#:#sub_fair_no_list#:#Only for Equal Cnances
+common#:#sub_fair_autofill#:#Automatic Fill and Move Up
+common#:#sub_fair_autofill_info#:#Free places will automatically be filled by lot after the end of equal chances. Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
+common#:#sub_fair_auto_manu#:#Automatic Fill and Manual Move Up
+common#:#sub_fair_auto_manu_info#:#Free places will automatically be filled by lot after the end of equal chances. Places getting free afterwards have to be manually filled in the membership administration.
+common#:#sub_fair_waiting#:#Manual Fill and Move Up
+common#:#sub_fair_waiting_info#:#Free places have to be manually filled in the member administration after the end of equal chances. Please use this setting only, if the membership has additional conditions.
+common#:#sub_fair_no_list#:#Automatic Fill, Rejection Afterwards
 common#:#sub_fair_no_list_info#:#The waiting list will only be filled in the period of equal chances and free places will be automatically filled by lot afterwards. Later registrations will be rejected if no places are free.
+common#:#sub_fair_waiting_univis#:#Like in UnivIS
+common#:#sub_fair_waiting_univis_info#:#The waiting list setting is taken from UnivIS. A a waiting list is set there then 'Automatic Fill and Move Up' will be set, otherwise "Automatic Fill, Rejection Afterwards".
 common#:#sub_fair_activation_min_minutes#:#The availability period must be longer than %s minutes!
 common#:#sub_fair_subscription_min_minutes#:#The registration period must be longer than %s minutes!
 common#:#sub_fair_to_sub_start_min#:#The period of equal chances was set to minimum length after start of the registration period.
@@ -436,8 +443,6 @@ crs#:#crs_lot_info#:#<span class="alert">Use the lottery, if you expect many int
 crs#:#crs_lot_list#:#Lottery
 crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
 crs#:#crs_max_members_mode#:#Procedure:
-crs#:#crs_max_members_mode_univis#:#Like in UnivIS
-crs#:#crs_max_members_mode_univis_info#:#The activation of the waiting list will be taken from UnivIS.
 crs#:#crs_mem_set_passed#:#set passed
 crs#:#crs_mem_set_passed_success#:#These selected participants have been set to "passed".
 crs#:#crs_new_subscription_waiting#:#waiting list entry for the course "%s"
