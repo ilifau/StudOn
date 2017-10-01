@@ -334,6 +334,7 @@ common#:#sub_fair_position_with_others#:#%s (mit %s chancengleichen)
 common#:#sub_fair_not_on_list#:#Nicht auf der Liste
 common#:#sub_fair_time_before#:#vor %s
 common#:#sub_fair_wait_pos_header#:#Pos.
+common#:#sub_fair_inactive_short#:#Windhundverfahren!
 common#:#sub_fair_inactive_message#:#Für diese Anmeldung gibt es keine chancengleiche Phase! Es zählt von Beginn die Reihenfolge der Anmeldungen!
 common#:#sub_mail_request_crs#:#Ihr Aufnahmeantrag zum Kurs "%s"
 common#:#sub_mail_request_grp#:#Ihr Aufnahmeantrag zur Gruppe "%s"

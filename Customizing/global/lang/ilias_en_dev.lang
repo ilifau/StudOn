@@ -362,6 +362,8 @@ common#:#sub_fair_position_with_others#:#%s (with %s others having chances)
 common#:#sub_fair_not_on_list#:#Nit on the list
 common#:#sub_fair_time_before#:#before %s
 common#:#sub_fair_wait_pos_header#:#Pos.
+common#:#sub_fair_inactive_short#:#First Come-First Served!
+common#:#sub_fair_inactive_message#:#This registration has no period of equal chances! The order of subscriptions counts from the beginning!
 common#:#sub_mail_request_crs#:#Your membership request for course "%s"
 common#:#sub_mail_request_grp#:#Your membership request for group  "%s"
 common#:#sub_mail_request_added#:#Your membership request is received. You will get a notification when it is accepted or rejected.
