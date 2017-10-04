@@ -1438,6 +1438,10 @@ class ilObjGroupGUI extends ilContainerGUI
 
 		include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
 
+// fau: fairSub - remove user from other waiting list when being added to the course
+		include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
+		$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this->object);
+
 		$added_users = 0;
 		foreach($_POST["waiting"] as $user_id)
 		{
@@ -1455,9 +1459,14 @@ class ilObjGroupGUI extends ilContainerGUI
 				$user_id
 			);
 			$waiting_list->removeFromList($user_id);
+			foreach ($grouping_ref_ids as $ref_id)
+			{
+				ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
+			}
 
 			++$added_users;
 		}
+// fau.
 		if($added_users)
 		{
 			ilUtil::sendSuccess($this->lng->txt("grp_users_added"), true);
@@ -3996,7 +4005,17 @@ class ilObjGroupGUI extends ilContainerGUI
 
 		// set confirm/cancel commands
 		$c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
-		$c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
+// fau: fairSub - add message about fairness for adding members directly from waiting list
+		include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
+		$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this->object);
+		$question = $this->lng->txt("info_assign_sure");
+		$question .= '<br /><span class="small">' .$this->lng->txt('sub_assign_waiting_fair_info') . '</span>';
+		if (!empty($grouping_ref_ids))
+		{
+			$question .= '<br /><span class="small">'. $this->lng->txt('sub_assign_waiting_groupings_info') . '</span>';
+		}
+		$c_gui->setHeaderText($question);
+// fau.
 		$c_gui->setCancel($this->lng->txt("cancel"), "members");
 		$c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 

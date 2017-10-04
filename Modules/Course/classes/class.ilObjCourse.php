@@ -2487,7 +2487,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 			$max = (int) $this->getSubscriptionMaxMembers();
 			$now = ilCourseParticipants::lookupNumberOfMembers($this->getRefId());
-			$groupings = ilObjCourseGrouping::_getGroupingCourseIds($this->getRefId(), $this->getId());
+			$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this);
 
 			if($max == 0 || $max > $now)
 			{
@@ -2520,9 +2520,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 						// delete user from this and grouped waiting lists
 						$waiting_list->removeFromList($user_id);
-						foreach ($groupings as $grouping)
+						foreach ($grouping_ref_ids as $ref_id)
 						{
-							ilWaitingList::deleteUserEntry($user_id, $grouping['id']);
+							ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
 						}
 					}
 					else

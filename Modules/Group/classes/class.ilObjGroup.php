@@ -2360,7 +2360,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 				// see assignFromWaitingListObject()
 				$waiting_list = new ilGroupWaitingList($this->getId());
 				$members_obj = ilGroupParticipants::_getInstanceByObjId($this->getId());
-				$groupings = ilObjCourseGrouping::_getGroupingCourseIds($this->getRefId(), $this->getId());
+				$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this);
 
 				foreach($waiting_list->getAssignableUserIds($max == 0 ? null :  $max - $now) as $user_id)
 				{
@@ -2386,9 +2386,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
 						// delete user from this and grouped waiting lists
 						$waiting_list->removeFromList($user_id);
-						foreach ($groupings as $grouping)
+						foreach ($grouping_ref_ids as $ref_id)
 						{
-							ilWaitingList::deleteUserEntry($user_id, $grouping['id']);
+							ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
 						}
 					}
 					else

@@ -3480,6 +3480,10 @@ class ilObjCourseGUI extends ilContainerGUI
 		include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
 		$waiting_list = new ilCourseWaitingList($this->object->getId());
 
+// fau: fairSub - remove user from other waiting list when being added to the course
+		include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
+		$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this->object);
+
 		$added_users = 0;
 		foreach($_POST["waiting"] as $user_id)
 		{
@@ -3494,16 +3498,23 @@ class ilObjCourseGUI extends ilContainerGUI
 			$this->object->getMembersObject()->add($user_id,IL_CRS_MEMBER);
 			$this->object->getMembersObject()->sendNotification($this->object->getMembersObject()->NOTIFY_ACCEPT_USER,$user_id);
 			$waiting_list->removeFromList($user_id);
+			foreach ($grouping_ref_ids as $ref_id)
+			{
+				ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
+			}
 
 			$this->object->checkLPStatusSync($user_id);
 			
 			++$added_users;
 		}
+// fau.
 
 		if($added_users)
 		{
-			ilUtil::sendSuccess($this->lng->txt("crs_users_added"));
-			$this->membersObject();
+// fau: fairSub - redirect after adding
+			ilUtil::sendSuccess($this->lng->txt("crs_users_added"), true);
+			$this->ctrl->redirect($this, 'members');
+// fau.
 			return true;
 		}
 		else
@@ -6741,7 +6752,17 @@ class ilObjCourseGUI extends ilContainerGUI
 
 		// set confirm/cancel commands
 		$c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
-		$c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
+// fau: fairSub - add message about fairness for adding members directly from waiting list
+		include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
+		$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this->object);
+		$question = $this->lng->txt("info_assign_sure");
+		$question .= '<br /><span class="small">' .$this->lng->txt('sub_assign_waiting_fair_info') . '</span>';
+		if (!empty($grouping_ref_ids))
+		{
+			$question .= '<br /><span class="small">'. $this->lng->txt('sub_assign_waiting_groupings_info') . '</span>';
+		}
+		$c_gui->setHeaderText($question);
+// fau.
 		$c_gui->setCancel($this->lng->txt("cancel"), "members");
 		$c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 

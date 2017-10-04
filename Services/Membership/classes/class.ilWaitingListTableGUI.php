@@ -81,6 +81,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		$this->addColumn($this->lng->txt('message'),'subject','20%');
 
 	 	$this->addColumn('','','10%');
+
+	 	$this->setDefaultOrderField('sub_time');
 // fau.
 
 // fau: fairSub - adjust waiting list commands
@@ -92,8 +94,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		}
 		else
 		{
-			// $this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('assign'));
 			$this->addMultiCommand('confirmAcceptOnList',$this->lng->txt('sub_confirm_requests'));
+			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('sub_assign_waiting'));
 			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
 			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
 		}
