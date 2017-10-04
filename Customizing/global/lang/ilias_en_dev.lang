@@ -389,6 +389,9 @@ common#:#sub_mail_autofill_requests_crs#:#Membership requests for course "%s"
 common#:#sub_mail_autofill_requests_grp#:#Membership requests for group "%s"
 common#:#sub_mail_autofill_requests_body#:#The free places were filled from the waiting list. But there are places kept free for membership requests on which you have to decide manually.
 common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
+common#:#sub_assign_waiting#:#Add Directly
+common#:#sub_assign_waiting_fair_info#:#Adding members directly from the waiting list may not respect the equal chances or the order of subscriptions. Please use this in exceptional cases only!
+common#:#sub_assign_waiting_groupings_info#:#You configured a membership limitation. Added users will be removed from the waiting lists of related courses or groups.
 common#:#sub_remove_waiting#:#Remove (with Notification)
 common#:#sub_fill_free_places#:#Fill Free Places
 common#:#sub_fill_free_places_question#:#Would you like to fill the free places from the waiting list?

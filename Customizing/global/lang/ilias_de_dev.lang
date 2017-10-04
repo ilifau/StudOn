@@ -363,7 +363,7 @@ common#:#sub_mail_autofill_requests_body#:#Die freien Plätze wurden von der War
 common#:#sub_time_not_in_activation_time#:#Der Beitrittszeitraum muss innerhalb der zeitlich begrenzten Verfügbarkeit liegen!
 common#:#sub_assign_waiting#:#Direkt aufnehmen
 common#:#sub_assign_waiting_fair_info#:#Wenn Sie einzelne Mitglieder direkt aus der Warteliste aufnehmen, umgehen Sie die Chancengleichheit früher und die Reihenfolge späterer Anmeldungen. Das sollten Sie nur tun, um Härtefälle zu berücksichtigen!
-common#:#sub_assign_waiting_groupings_info#:#Sie haben eine Mitgliedschaftsbeschränkung eingerichtet. Mit der Aufahme werden die Anmeldungen auch von den Wartelisten der darüber verknüpften Kurse/Gruppen entfernt.
+common#:#sub_assign_waiting_groupings_info#:#Sie haben eine Mitgliedschaftsbeschränkung eingerichtet. Mit der Aufnahme werden die Anmeldungen auch von den Wartelisten der darüber verknüpften Kurse/Gruppen entfernt.
 common#:#sub_remove_waiting#:#Entfernen (mit Benachrichtigung)
 common#:#sub_fill_free_places#:#Freie Plätze auffüllen
 common#:#sub_fill_free_places_question#:#Möchten Sie die freien Plätze aus der Warteliste befüllen?
