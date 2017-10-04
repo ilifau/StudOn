@@ -1440,7 +1440,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
 // fau: fairSub - remove user from other waiting list when being added to the course
 		include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
-		$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this->object);
+		$grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->object);
 
 		$added_users = 0;
 		foreach($_POST["waiting"] as $user_id)
@@ -4007,7 +4007,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		$c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
 // fau: fairSub - add message about fairness for adding members directly from waiting list
 		include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
-		$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this->object);
+		$grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->object);
 		$question = $this->lng->txt("info_assign_sure");
 		$question .= '<br /><span class="small">' .$this->lng->txt('sub_assign_waiting_fair_info') . '</span>';
 		if (!empty($grouping_ref_ids))

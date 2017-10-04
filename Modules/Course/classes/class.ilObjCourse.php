@@ -2487,7 +2487,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 			$max = (int) $this->getSubscriptionMaxMembers();
 			$now = ilCourseParticipants::lookupNumberOfMembers($this->getRefId());
-			$grouping_ref_ids = ilObjCourseGrouping::_getGroupingItems($this);
+			$grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this);
 
 			if($max == 0 || $max > $now)
 			{
