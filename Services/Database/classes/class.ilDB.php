@@ -271,22 +271,6 @@ abstract class ilDB extends PEAR
 			return false;
 		}
 
-		// fim: [retry] return error for reached max connections
-		if (MDB2::isError($this->db))
-		{
-			
-			if (strpos($this->db->getUserInfo(), '[Native code: 1040]')
-			 	or strpos($this->db->getUserInfo(), '[Native code: 1226]'))
-			{
-				return "max_connections_reached";	
-			}
-			else
-			{
-				return $this->db->getUserInfo();
-			}
-		}
-		// fim.		
-				
 		$this->loadMDB2Extensions();
 		
 		// set empty value portability to PEAR::DB behaviour
