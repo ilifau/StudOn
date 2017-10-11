@@ -28,6 +28,9 @@ class ilObjSession extends ilObject
 	protected $event_id;
 	
 	protected $reg_type = ilMembershipRegistrationSettings::TYPE_NONE;
+// fau: objectSub - class variable
+	protected $reg_ref_id = null;
+// fau.
 	protected $reg_limited = 0;
 	protected $reg_min_users = 0;
 	protected $reg_limited_users = 0;
@@ -266,7 +269,18 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_type;
 	}
-	
+
+// fau: objectSub - getter / setter
+	function getRegistrationRefId()
+	{
+		return $this->reg_ref_id;
+	}
+	function setRegistrationRefId($a_ref_id)
+	{
+		$this->reg_ref_id = $a_ref_id;
+	}
+// fau.
+
 	public function isRegistrationUserLimitEnabled()
 	{
 		return $this->reg_limited;
@@ -502,6 +516,9 @@ class ilObjSession extends ilObject
 		$new_obj->setDetails($this->getDetails());
 		
 		$new_obj->setRegistrationType($this->getRegistrationType());
+// fau: objectSub - clone sub_ref_id
+		$new_obj->setRegistrationRefId($this->getRegistrationRefId());
+// fau.
 		$new_obj->enableRegistrationUserLimit($this->isRegistrationUserLimitEnabled());
 		$new_obj->enableRegistrationWaitingList($this->isRegistrationWaitingListEnabled());
 		$new_obj->setWaitingListAutoFill($this->hasWaitingListAutoFill());
@@ -550,8 +567,9 @@ class ilObjSession extends ilObject
 		parent::create();
 		
 		$next_id = $ilDB->nextId('event');
+// fau: objectSub - create sub_ref_id
 		$query = "INSERT INTO event (event_id,obj_id,location,tutor_name,tutor_phone,tutor_email,details,registration, ".
-			'reg_type, reg_limit_users, reg_limited, reg_waiting_list, reg_min_users, reg_auto_wait) '.
+			'reg_type, sub_ref_id, reg_limit_users, reg_limited, reg_waiting_list, reg_min_users, reg_auto_wait) '.
 			"VALUES( ".
 			$ilDB->quote($next_id,'integer').", ".
 			$this->db->quote($this->getId() ,'integer').", ".
@@ -562,12 +580,14 @@ class ilObjSession extends ilObject
 			$this->db->quote($this->getDetails() ,'text').",".
 			$this->db->quote($this->enabledRegistration() ,'integer').", ".
 			$this->db->quote($this->getRegistrationType(),'integer').', '.
+			$this->db->quote($this->getRegistrationRefId(),'integer').', '.
 			$this->db->quote($this->getRegistrationMaxUsers(),'integer').', '.
 			$this->db->quote($this->isRegistrationUserLimitEnabled(),'integer').', '.
 			$this->db->quote($this->isRegistrationWaitingListEnabled(),'integer').', '.
 			$this->db->quote($this->getRegistrationMinUsers(),'integer').', '.
 			$this->db->quote($this->hasWaitingListAutoFill(),'integer').' '.
 			")";
+// fau.
 		$res = $ilDB->manipulate($query);
 		$this->event_id = $next_id;
 		
@@ -604,6 +624,9 @@ class ilObjSession extends ilObject
 			"details = ".$this->db->quote($this->getDetails() ,'text').", ".
 			"registration = ".$this->db->quote($this->enabledRegistration() ,'integer').", ".
 			"reg_type = ".$this->db->quote($this->getRegistrationType() ,'integer').", ".
+// fau: objectSub - update sub_ref_id
+			"sub_ref_id = ".$this->db->quote($this->getRegistrationRefId() ,'integer').", ".
+// fau.
 			"reg_limited = ".$this->db->quote($this->isRegistrationUserLimitEnabled() ,'integer').", ".
 			"reg_limit_users = ".$this->db->quote($this->getRegistrationMaxUsers() ,'integer').", ".
 			"reg_min_users = ".$this->db->quote($this->getRegistrationMinUsers() ,'integer').", ".
@@ -686,6 +709,9 @@ class ilObjSession extends ilObject
 			$this->setEmail($row->tutor_email);
 			$this->setDetails($row->details);
 			$this->setRegistrationType($row->reg_type);
+// fau: objectSub - read sub_ref_id
+			$this->setRegistrationRefId($row->sub_ref_id);
+// fau.
 			$this->enableRegistrationUserLimit($row->reg_limited);
 			$this->enableRegistrationWaitingList($row->reg_waiting_list);
 			$this->setWaitingListAutoFill($row->reg_auto_wait);

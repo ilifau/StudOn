@@ -1004,7 +1004,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		}
 		else
 		{
-			$this->object->setRegistrationType(GRP_REGISTRATION_OBJECT);
+			$this->object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
 			$this->object->setRegistrationRefId(null);
 		}
 		$this->object->update();
