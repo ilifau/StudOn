@@ -102,12 +102,13 @@ class RequestLog
 		$this->write('<pre>'.htmlspecialchars($this->getBacktrace()).'</pre>');
 	}
 
+
 	/**
 	* write a line
 	*/
 	public function writeLine($a_line)
 	{
-		$this->write('<pre>'.htmlspecialchars($a_line).'</pre><br/>');
+		$this->write($a_line.'<br/>');
 	}
 
 
