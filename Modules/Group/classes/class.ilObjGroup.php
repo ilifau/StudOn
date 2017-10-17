@@ -359,7 +359,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	public function saveSubscriptionLastFill($a_value = null)
 	{
 		global $ilDB;
-		$ilDB->update('crs_settings',
+		$ilDB->update('grp_settings',
 			array('sub_last_fill' => array('integer', $a_value)),
 			array('obj_id' => array('integer', $this->getId()))
 		);
