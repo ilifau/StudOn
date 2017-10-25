@@ -112,6 +112,9 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		parent::__construct($this, self::CMD_BROWSE_QUESTIONS);
 		$this->setFilterCommand(self::CMD_APPLY_FILTER);
 		$this->setResetCommand(self::CMD_RESET_FILTER);
+// fau: testQuestionBrowserRoot - always show the filters
+		$this->setDisableFilterHiding(true);
+// fau.
 	
 		$this->setFormName('questionbrowser');
 		$this->setStyle('table', 'fullwidth');
@@ -239,11 +242,13 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 	{
 		// $this->ctrl->saveParameter($this, 'q_id'); // required ?? maybe for page view ?
 
+// fau: fixQuestionBrowseParams - remember the params also when they are posted
 		$this->ctrl->saveParameter($this, self::CONTEXT_PARAMETER);
-		$this->addHiddenInput(self::CONTEXT_PARAMETER, $_GET[self::CONTEXT_PARAMETER]);
+		$this->addHiddenInput(self::CONTEXT_PARAMETER, $this->fetchContextParameter());
 		
 		$this->ctrl->saveParameter($this, self::MODE_PARAMETER);
-		$this->addHiddenInput(self::MODE_PARAMETER, $_GET[self::MODE_PARAMETER]);
+		$this->addHiddenInput(self::MODE_PARAMETER, $this->fetchModeParameter());
+// fau.
 	}
 
 	private function fetchContextParameter()
@@ -413,12 +418,35 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 	
 		// repo root node
 		require_once 'Services/Form/classes/class.ilRepositorySelectorInputGUI.php';
-		$ri = new ilRepositorySelectorInputGUI($this->lng->txt('repository'), 'repository_root_node');
+		$ri = new ilRepositorySelectorInputGUI($this->lng->txt('container'), 'repository_root_node');
 		$ri->setHeaderMessage($this->lng->txt('question_browse_area_info'));
 		$this->addFilterItem($ri);
 		$ri->readFromSession();
+		if (empty($ri->getValue()))
+		{
+// fau: testQuestionBrowserRoot - set the default root and show message if no filter is set
+			ilUtil::sendInfo($this->lng->txt('tst_question_browse_root_message'));
+			$ri->setValue($this->getValidRoot());
+// fau.
+		}
 		$this->filter['repository_root_node'] = $ri->getValue();
 	}
+
+// fau: testQuestionBrowserRoot - use the test object container as default
+	private function getValidRoot($a_value = null)
+	{
+		global $tree;
+
+		if (!empty($a_value))
+		{
+			return $a_value;
+		}
+		else
+		{
+			return $tree->getParentId($this->testOBJ->getRefId());
+		}
+	}
+// fau.
 	
 	private function getParentObjectLabel()
 	{
@@ -497,7 +525,10 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 				}
 			}
 		}
-		
+
+// fau: testQuestionBrowserRoot - use the default root if no filter is set
+		$repositoryRootNode = $this->getValidRoot($repositoryRootNode);
+// fau.
 		$parentObjectIds = $this->getQuestionParentObjIds($repositoryRootNode);
 		
 		if( !count($parentObjectIds) )
@@ -557,6 +588,12 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 				return $access->checkAccess('write', '', $refId);
 			});
 		}
+// fau: fixQuestionBrowseParams - security fix
+		else
+		{
+			$parentIds = array();
+		}
+// fau.
 
 		return $parentIds;
 	}

@@ -73,6 +73,8 @@ assessment#:#tst_filter_order_description#:#Nach Beschreibung
 assessment#:#tst_filter_order_random#:#Zufällig
 assessment#:#tst_filter_order_undefined#:#Unsortiert
 assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell mischt, bleiben die Fragen dieser Auswahlregel hintereinander. Ihre Sortierung kann hier bestimmt werden.
+assessment#:#tst_question_browse_root_message#:#Die Fragen werden standardmäßig im Bereich oder Ordner gesucht, in dem dieser Test liegt. Das können Sie mit den Filtereinstellungen ändern.
+assessment#:#question_browse_area_info#:#Bitte wählen Sie einen Suchbereich für die Fragen:
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.

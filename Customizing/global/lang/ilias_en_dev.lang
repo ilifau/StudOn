@@ -72,6 +72,8 @@ assessment#:#tst_filter_order_description#:#By Description
 assessment#:#tst_filter_order_random#:#Random
 assessment#:#tst_filter_order_undefined#:#Not Sorted
 assessment#:#tst_filter_order_by_info#:#When the test doesn't shuffle the questions, then the questions of this rule are presented in a sequence. Their order is defined here.
+assessment#:#tst_question_browse_root_message#:#The questions are searched in the parent container of the test by default. You can change this with the filter settings.
+assessment#:#question_browse_area_info#:#Please select a search area for the questions:
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.
