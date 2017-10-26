@@ -2832,15 +2832,15 @@ class ilTree
 		}
 		return $types_deleted;
 	}
-	
-	
 
 
+
+// fau: treeQuery - new function getGrandChildCondition()
     /**
-     * fim: [tree] new function to get an SQL condition for selecting grand childs of a node
+     * Get an SQL condition for selecting grand childs of a node
      * this is used by ilUtil::_getObjectsByOperations()
-     * @param int		node id
-     * @param string	alias for the tree table
+     * @param int		$a_node_id
+     * @param string	$a_alias for the tree table
      * @return string	sql condition
      */
     public function getGrandChildCondition($a_node_id, $a_alias = "tree")
@@ -2849,7 +2849,7 @@ class ilTree
 
         return $this->getTreeImplementation()->getGrandChildCondition($node, $a_alias);
     }
-    // fim.
+// fau.
 
 
 } // END class.tree

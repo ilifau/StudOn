@@ -5433,13 +5433,13 @@ function getAnswerFeedbackPoints()
 * @return array The available question pools
 * @access public
 */
-	// fim: [exam] added parameter for root id to get available question pools
+// fau: testQuestionBrowserRoot - added parameter for root id to get available question pools
 	function &getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $show_path = FALSE, $with_questioncount = FALSE, $permission = "read", $root_id = 0)
 	{
 		include_once "./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php";
 		return ilObjQuestionPool::_getAvailableQuestionpools($use_object_id, $equal_points, $could_be_offline, $show_path, $with_questioncount, $permission, "", $root_id);
 	}
-	// fim.
+// fau.
 
 /**
 * Returns the estimated working time for the test calculated from the working time of the contained questions
@@ -5659,10 +5659,7 @@ function getAnswerFeedbackPoints()
 		global $ilDB;
 
 		include_once "./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php";
-
-		// fim: [exam] add root as filter param
-		$available_pools = array_keys(ilObjQuestionPool::_getAvailableQuestionpools($use_object_id = TRUE, $equal_points = FALSE, $could_be_offline = FALSE, $showPath = FALSE, $with_questioncount = FALSE, $permission = "read", $usr_id = "", $root_id = $arrFilter['root']));
-		// fim.
+		$available_pools = array_keys(ilObjQuestionPool::_getAvailableQuestionpools($use_object_id = TRUE, $equal_points = FALSE, $could_be_offline = FALSE, $showPath = FALSE, $with_questioncount = FALSE));
 		$available = "";
 		if (count($available_pools))
 		{
