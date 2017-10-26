@@ -48,7 +48,7 @@ class ilAttendanceList
 		$this->presets['name'] = array($lng->txt('name'), true);
 		$this->presets['login'] = array($lng->txt('login'), true);
 
-		// fim: [export] show email only with extended export rights
+		// fim: [privacy] show email only with extended export rights
 		include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
 		if (ilPrivacySettings::_checkExtendedAccess())
 		{

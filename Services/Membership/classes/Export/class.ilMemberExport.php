@@ -316,7 +316,7 @@ class ilMemberExport
 	 	$fields[] = 'role';
 	 	// Append agreement info
 	 	$privacy = ilPrivacySettings::_getInstance();
-		// fim: [export] add registratio field if agreement is not needed
+		// fim: [export] add registration field if agreement is not needed
 	 	if($this->agreement_needed)
 	 	{
 	 		$fields[] = 'agreement';
@@ -327,7 +327,12 @@ class ilMemberExport
 	 	}
 	 	// fim.
 
-	 	foreach($field_info->getExportableFields() as $field)
+		// fim: [export] add subscription message as field
+		$fields[] = 'submessage';
+		// fim.
+
+
+		foreach($field_info->getExportableFields() as $field)
 	 	{
 	 		if($this->settings->enabled($field))
 	 		{
@@ -343,7 +348,7 @@ class ilMemberExport
 				$fields[] = 'udf_'.$field_id;
 			}
 	 	}
-	 	
+
 	 	// Add course specific fields
 		foreach(ilCourseDefinedFieldDefinition::_getFields($this->obj_id) as $field_obj)
 		{
@@ -384,6 +389,12 @@ class ilMemberExport
 				// fim: [export] add registration header if agreement is not needed
 				case 'registration':
 					$this->addCol($this->lng->txt('mem_registration_access_time'), $row, $col++);
+					break;
+				// fim.
+
+				// fim: [export] add subscription message header
+				case 'submessage':
+					$this->addCol($this->lng->txt('message'), $row, $col++);
 					break;
 				// fim.
 
@@ -545,6 +556,12 @@ class ilMemberExport
 						{
 							$this->addCol('',$row,$col++);
 						}
+						break;
+					// fim.
+
+					// fim: [export] add subscription message column
+					case 'submessage':
+						$this->addCol($this->user_course_data[$usr_id]['submessage'],$row,$col++);
 						break;
 					// fim.
 
@@ -770,6 +787,9 @@ class ilMemberExport
 				{
 					$this->readCourseData(array($tmp_id),'waiting_list');
 				}
+				// fim: [export] get subscription message
+				$this->user_course_data[$tmp_id]['submessage'] = $waiting_list->getSubject($tmp_id);
+				// fim.
 			}
 // fau.
 		}
