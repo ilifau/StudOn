@@ -980,6 +980,23 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 		return $points;
 	}
 
+	protected function isValidSolutionResultValue($submittedValue)
+	{
+		$submittedValue = str_replace(',', '.', $submittedValue);
+
+		if( is_numeric($submittedValue) )
+		{
+			return true;
+		}
+
+		if( preg_match('/^\d+\/\d+$/', $submittedValue) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Saves the learners input of the question to the database
 	 * @param integer $test_id The database id of the test containing this question
@@ -1009,13 +1026,13 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 		$returnvalue = true;
 		foreach($tmp as $key => $val)
 		{
-			if(is_numeric($val) || is_numeric(str_replace(',', '.', $val)) || strlen($val) == 0)
+			if($this->isValidSolutionResultValue($val) || strlen($val) == 0)
 			{
 				$solutionSubmit[$key] = $val;
 			}
 			else
 			{
-				ilUtil::sendFailure($this->lng->txt("err_no_numeric_value"), true);
+				ilUtil::sendFailure($this->lng->txt("fq_err_no_numeric_value"), true);
 				$authorized = false;
 				$returnvalue = false;
 				$solutionSubmit[$key] = $val;;
