@@ -339,6 +339,7 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 		{
 			if ($ilAccess->checkAccess("read", "", $ref_id, $obj_type, $a_obj_id))
 			{
+				require_once('Services/Link/classes/class.ilLink.php');
 				return ilLink::_getLink($ref_id, $obj_type);
 			}
 		}
