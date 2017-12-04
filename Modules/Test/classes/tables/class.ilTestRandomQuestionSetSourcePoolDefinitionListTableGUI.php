@@ -136,7 +136,19 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 			$this->tpl->parseCurrentBlock();
 		}
 
-		$this->tpl->setVariable('SOURCE_POOL_LABEL', $set['source_pool_label']);
+// fau: linkRandomPool - fill the link
+		$this->tpl->setVariable('SOURCE_POOL_ID', $set['source_pool_id']);
+
+		if ($set['source_pool_link'])
+		{
+			$this->tpl->setVariable('SOURCE_POOL_LINK', $set['source_pool_link']);
+			$this->tpl->setVariable('SOURCE_POOL_LABEL_LINKED', $set['source_pool_label']);
+		}
+		else
+		{
+			$this->tpl->setVariable('SOURCE_POOL_LABEL_UNLINKED', $set['source_pool_label']);
+		}
+// fau.
 
 // fau: taxFilter - set taxonomy filter label in a single column
 		$this->tpl->setVariable('TAXONOMY_FILTER', $this->taxonomyLabelTranslater->getTaxonomyFilterLabel($set['taxonomy_filter'],'<br />'));
@@ -314,6 +326,26 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 		}
 	}
 
+// fau: linkRandomPool - get a link to the pool
+	public function getPoolLink($a_obj_id)
+	{
+		/** @var ilAccessHandler $ilAccess */
+		global $ilAccess;
+
+		$obj_type = ilObject::_lookupType($a_obj_id);
+		$ref_ids  = ilObject::_getAllReferences($a_obj_id);
+
+		foreach($ref_ids as $ref_id)
+		{
+			if ($ilAccess->checkAccess("read", "", $ref_id, $obj_type, $a_obj_id))
+			{
+				return ilLink::_getLink($ref_id, $obj_type);
+			}
+		}
+		return '';
+	}
+// fau.
+
 	public function init(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList)
 	{
 		$rows = array();
@@ -327,7 +359,10 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 			$set['def_id'] = $sourcePoolDefinition->getId();
 			$set['sequence_position'] = $sourcePoolDefinition->getSequencePosition();
 			$set['source_pool_label'] = $sourcePoolDefinition->getPoolTitle();
-// fau: taxFilter - get new taxonomy filter for display
+// fau: linkRandomPool - add the link to the set data
+			$set['source_pool_link'] = $this->getPoolLink($sourcePoolDefinition->getPoolId());
+// fau.
+			// fau: taxFilter - get new taxonomy filter for display
 // fau: taxGroupFilter - get group selection info
 			if ($this->showMappedTaxonomyFilter)
 			{
