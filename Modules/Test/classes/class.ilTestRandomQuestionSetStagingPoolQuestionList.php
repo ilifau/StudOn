@@ -150,7 +150,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	}
 // fau.
 
-// fau: - randomSetOrder - getter/setter
+// fau: randomSetOrder - getter/setter
 	public function getOrderBy()
 	{
 		return $this->orderBy;
@@ -162,7 +162,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	}
 // fau.
 
-// fau: - randomSetOrder - sort the loaded questions
+// fau: randomSetOrder - sort the loaded questions
 	public function loadQuestions()
 	{		
 		$query = "
