@@ -242,6 +242,11 @@ class ilObjectCustomUserFieldsGUI
 			$udf->setValues($udf->prepareValues($this->form->getInput('va')));
 			$udf->setValueOptions($this->form->getItemByPostVar('va')->getOpenAnswerIndexes()); // #14720
 			$udf->enableRequired($this->form->getInput('re'));
+// fau: courseUdf - save field definition
+			$udf->setDescription($this->form->getInput('de'));
+			$udf->setEmailAuto($this->form->getInput('ea'));
+			$udf->setEmailText($this->form->getInput('et'));
+// fau.
 			$udf->save();
 	
 			ilUtil::sendSuccess($this->lng->txt('ps_cdf_added_field'));
@@ -278,7 +283,11 @@ class ilObjectCustomUserFieldsGUI
 		$this->form->getItemByPostVar('re')->setChecked($udf->isRequired());
 		$this->form->getItemByPostVar('va')->setValues($udf->getValues());
 		$this->form->getItemByPostVar('va')->setOpenAnswerIndexes($udf->getValueOptions());
-		
+// fau: courseUdf - edit field definition
+		$this->form->getItemByPostVar('de')->setValue($udf->getDescription());
+		$this->form->getItemByPostVar('ea')->setChecked($udf->getEmailAuto());
+		$this->form->getItemByPostVar('et')->setValue($udf->getEmailText());
+// fau.
 		$this->tpl->setContent($this->form->getHTML());
 	}
 	
@@ -301,6 +310,12 @@ class ilObjectCustomUserFieldsGUI
 			$udf->setValues($prepared);
 			$udf->setValueOptions($this->form->getItemByPostVar('va')->getOpenAnswerIndexes());
 			$udf->enableRequired($this->form->getInput('re'));
+// fau: courseUdf - update field definition
+			$udf->setDescription($this->form->getInput('de'));
+			$udf->setEmailAuto($this->form->getInput('ea'));
+			$udf->setEmailText($this->form->getInput('et'));
+// fau.
+
 			$udf->update();
 
 			// Finally reset member agreements
@@ -353,6 +368,13 @@ class ilObjectCustomUserFieldsGUI
 		$na->setMaxLength(255);
 		$na->setRequired(true);
 		$this->form->addItem($na);
+
+// fau: courseUdf - add email in field definition form
+		// description
+		$de = new ilTextAreaInputGUI($this->lng->txt('ps_cdf_desc'),'de');
+		$de->setInfo($this->lng->txt('ps_cdf_desc_info'));
+		$this->form->addItem($de);
+// fau.
 		
 		// Type
 		$ty = new ilRadioGroupInputGUI($this->lng->txt('ps_field_type'),'ty');
@@ -371,7 +393,7 @@ class ilObjectCustomUserFieldsGUI
 		//		Select Type
 		$ty_se = new ilRadioOption($this->lng->txt('ps_type_select_long'),IL_CDF_TYPE_SELECT);
 		$ty->addOption($ty_se);
-		
+
 		// Select Type Values
 		include_once './Services/Form/classes/class.ilSelectBuilderInputGUI.php';
 		$ty_se_mu = new ilSelectBuilderInputGUI($this->lng->txt('ps_cdf_value'),'va');
@@ -379,8 +401,25 @@ class ilObjectCustomUserFieldsGUI
 		$ty_se_mu->setRequired(true);
 		$ty_se_mu->setSize(32);
 		$ty_se_mu->setMaxLength(128);
-		$ty_se->addSubItem($ty_se_mu);				
-		
+		$ty_se->addSubItem($ty_se_mu);
+
+// fau: courseUdf - add email in field definition form
+		//	Email Type
+		$ty_em = new ilRadioOption($this->lng->txt('ps_type_email_long'),IL_CDF_TYPE_EMAIL);
+		$ty->addOption($ty_em);
+
+		// Email Auto
+		$ty_em_auto = new ilCheckboxInputGUI($this->lng->txt('ps_cdf_email_auto'), 'ea');
+		$ty_em_auto->setInfo($this->lng->txt('ps_cdf_email_auto_info'));
+		$ty_em_auto->setValue(1);
+		$ty_em->addSubItem($ty_em_auto);
+
+		// Email Text
+		$ty_em_text = new ilTextAreaInputGUI($this->lng->txt('ps_cdf_email_text'), 'et');
+		$ty_em_text->setInfo($this->lng->txt('ps_cdf_email_text_info'));
+		$ty_em_auto->addSubItem($ty_em_text);
+// fau.
+
 		// Required
 		$re = new ilCheckboxInputGUI($this->lng->txt('ps_cdf_required'),'re');
 		$re->setValue(1);

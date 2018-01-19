@@ -88,6 +88,12 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
 				case IL_CDF_TYPE_TEXT:
 					$rows[$def->getId()]['type'] = $this->lng->txt('ps_type_text');
 					break;
+
+// fau: courseUdf - show email type in field list
+				case IL_CDF_TYPE_EMAIL:
+					$rows[$def->getId()]['type'] = $this->lng->txt('ps_type_email');
+					break;
+// fau.
 			}
 			
 			$rows[$def->getId()]['required'] = (bool) $def->isRequired();

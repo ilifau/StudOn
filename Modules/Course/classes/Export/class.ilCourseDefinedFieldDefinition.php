@@ -26,7 +26,9 @@ define("IL_CDF_SORT_NAME",'field_name');
 
 define('IL_CDF_TYPE_TEXT',1);
 define('IL_CDF_TYPE_SELECT',2);
-
+// fau: courseUdf - add type email
+define('IL_CDF_TYPE_EMAIL',10);
+// fau.
 
 /** 
 * @author Stefan Meyer <meyer@leifos.com>
@@ -46,7 +48,13 @@ class ilCourseDefinedFieldDefinition
 	private $values;
 	private $value_options = array();
 	private $required;
-	
+
+// fau: courseUdf - add properties
+	private $description;
+	private $email_auto;
+	private $email_text;
+// fau.
+
 	/**
 	 * Constructor
 	 *
@@ -299,8 +307,36 @@ class ilCourseDefinedFieldDefinition
 	{
 		return (array) $this->value_options;
 	}
-	
-	
+
+// fau: courseUdf - setters and getters
+	public function setDescription($a_description)
+	{
+		$this->description = $a_description;
+	}
+	public function getDescription()
+	{
+		return (string) $this->description;
+	}
+
+	public function setEmailAuto($a_auto)
+	{
+		$this->email_auto = $a_auto;
+	}
+	public function getEmailAuto()
+	{
+		return (bool) $this->email_auto;
+	}
+
+	public function setEmailText($a_text)
+	{
+		$this->email_text = $a_text;
+	}
+	public function getEmailText()
+	{
+		return (string) $this->email_text;
+	}
+// fau.
+
 	/**
 	 * Prepare an array of options for ilUtil::formSelect()
 	 *
@@ -390,7 +426,8 @@ class ilCourseDefinedFieldDefinition
 		global $ilDB;
 		
 		$next_id = $ilDB->nextId('crs_f_definitions');
-	 	$query = "INSERT INTO crs_f_definitions (field_id,obj_id,field_name,field_type,field_values,field_required,field_values_opt) ".
+// fau: courseUdf - save additional properties
+	 	$query = "INSERT INTO crs_f_definitions (field_id,obj_id,field_name,field_type,field_values,field_required,field_values_opt,field_desc,field_email_auto,field_email_text) ".
 	 		"VALUES ( ".
 	 		$ilDB->quote($next_id,'integer').", ".
 	 		$this->db->quote($this->getObjId(),'integer').", ".
@@ -398,8 +435,12 @@ class ilCourseDefinedFieldDefinition
 	 		$this->db->quote($this->getType(),'integer').", ".
 	 		$this->db->quote(serialize($this->getValues()),'text').", ".
 	 		$ilDB->quote($this->isRequired(),'integer').", ".
-			$ilDB->quote(serialize($this->getValueOptions()),'text').' '.
+			$ilDB->quote(serialize($this->getValueOptions()),'text').', '.
+			$this->db->quote($this->getDescription(), 'text'). ', '.
+			$this->db->quote($this->getEmailAuto(), 'integer').', '.
+			$this->db->quote($this->getEmailText(), 'text').
 	 		") ";
+// fau.
 		$res = $ilDB->manipulate($query);
 	 	$this->id = $next_id;
 			
@@ -414,15 +455,20 @@ class ilCourseDefinedFieldDefinition
 	public function update()
 	{
 		global $ilDB;
-		
+
+// fau: courseUdf - update additional properties
 	 	$query = "UPDATE crs_f_definitions ".
 	 		"SET field_name = ".$this->db->quote($this->getName(),'text').", ".
 	 		"field_type = ".$this->db->quote($this->getType(),'integer').", ".
 	 		"field_values = ".$this->db->quote(serialize($this->getValues()),'text').", ".
 	 		"field_required = ".$ilDB->quote($this->isRequired(),'integer').", ".
-			'field_values_opt = '.$ilDB->quote(serialize($this->getValueOptions()),'text').' '.
+			'field_values_opt = '.$ilDB->quote(serialize($this->getValueOptions()),'text').', '.
+			'field_desc = '.$this->db->quote($this->getDescription(),'text').', '.
+			'field_email_auto = '.$this->db->quote($this->getEmailAuto(),'integer').', '.
+			'field_email_text = '.$this->db->quote($this->getEmailText(),'text').' '.
 	 		"WHERE field_id = ".$this->db->quote($this->getId(),'integer')." ".
 	 		"AND obj_id = ".$this->db->quote($this->getObjId(),'integer');
+// fau.
 		$res = $ilDB->manipulate($query);
 	 	return true;
 	}
@@ -466,6 +512,11 @@ class ilCourseDefinedFieldDefinition
 		$this->setValues(unserialize($row->field_values));
 		$this->setValueOptions(unserialize($row->field_values_opt));
 		$this->enableRequired($row->field_required);
+// fau: courseUdf - read additional properties
+		$this->setDescription($row->field_desc);
+		$this->setEmailAuto($row->field_email_auto);
+		$this->setEmailText($row->field_email_text);
+// fau.
 	}
 }
 ?>

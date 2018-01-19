@@ -892,3 +892,31 @@
     }
     // fau.
 ?>
+<#54>
+    <?php
+    // fau: courseUdf - add description
+    if( !$ilDB->tableColumnExists('crs_f_definitions', 'field_desc'))
+    {
+        $ilDB->addTableColumn('crs_f_definitions', 'field_desc',
+            array('type' => 'clob', 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+	// fau: courseUdf - add email auto-send
+	if( !$ilDB->tableColumnExists('crs_f_definitions', 'field_email_auto'))
+	{
+		$ilDB->addTableColumn('crs_f_definitions', 'field_email_auto',
+			array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0)
+		);
+	}
+	// fau.
+	// fau: courseUdf - add email text
+	if( !$ilDB->tableColumnExists('crs_f_definitions', 'field_email_text'))
+	{
+		$ilDB->addTableColumn('crs_f_definitions', 'field_email_text',
+			array('type' => 'clob', 'notnull' => false, 'default' => null)
+		);
+	}
+	// fau.
+?>
+
