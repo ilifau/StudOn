@@ -374,6 +374,9 @@ abstract class ilRegistrationGUI
 		
 
 		ilMemberAgreementGUI::addCustomFields($this->form, $this->obj_id, $this->type);
+// fau: courseUdf - fill already existing course defined when registration is changed
+		ilMemberAgreementGUI::setCourseDefinedFieldValues($this->form, $this->obj_id);
+// fau.
 
 		// Checkbox agreement		
 		if($this->privacy->confirmationRequired($this->type))
@@ -387,6 +390,9 @@ abstract class ilRegistrationGUI
 	 * Show course defined fields
 	 *
 	 * @access protected
+	 * fau: courseUdf - this method seems to be no longer be used
+	 * @deprecated
+	 * fau.
 	 */
 	protected function showCustomFields()
 	{
@@ -500,6 +506,12 @@ abstract class ilRegistrationGUI
 				case IL_CDF_TYPE_TEXT:
 					$value = $_POST['cdf_'.$field_obj->getId()];
 					break;
+
+// fau: courseUdf - validate email
+				case IL_CDF_TYPE_EMAIL:
+					$value = $_POST['cdf_'.$field_obj->getId()];
+					break;
+// fau.
 			}
 			
 			$GLOBALS['ilLog']->write(__METHOD__.': new value '. $value);
@@ -701,7 +713,7 @@ abstract class ilRegistrationGUI
 	protected function updateSubscriptionRequest()
 	{
 		global $ilUser, $tree, $ilCtrl;
-		
+
 		$this->participants->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
 		ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
 		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
@@ -719,12 +731,23 @@ abstract class ilRegistrationGUI
 	{
 		global $ilUser, $tree, $ilCtrl;
 
-		$this->getWaitingList()->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
-		ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
-		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
-			$tree->getParentId($this->container->getRefId()));
-		$ilCtrl->redirectByClass("ilrepositorygui", "");
+// fau: courseUdf - save the user defined values when waiting list is updated
+		$this->initForm();
+		if ($this->form->checkInput())
+		{
+			include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
+			ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
 
+			$this->getWaitingList()->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
+			ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
+			$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
+				$tree->getParentId($this->container->getRefId()));
+			$ilCtrl->redirectByClass("ilrepositorygui", "");
+		}
+		{
+			$this->form->setValuesByPost();
+			$this->tpl->setContent($this->form->getHTML());
+		}
 	}
 // fau.
 

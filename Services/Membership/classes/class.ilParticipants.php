@@ -1567,6 +1567,93 @@ abstract class ilParticipants
 		return true;
 	}
 
+// fau: courseUdf - new function sendExternalNotification
+
+	/**
+	 * @param ilObjGroup|ilObjCourse $a_object
+	 * @param ilObjUser	$a_user
+	 */
+	public function sendExternalNotifications($a_object, $a_user)
+	{
+		include_once("Modules/Course/classes/Export/class.ilCourseUserData.php");
+
+		$user_data = ilCourseUserData::getFieldsWithData($a_object->getId(), $a_user->getId());
+		$notifications = array();
+
+		/** @var ilCourseDefinedFieldDefinition $field */
+		foreach($user_data as $data)
+		{
+			$field = $data['field'];
+			$value = $data['value'];
+			if ($field->getType() == IL_CDF_TYPE_EMAIL && $field->getEmailAuto() && ilUtil::is_email($value))
+			{
+				$notifications[$value] = $field->getEmailText();
+			}
+		}
+
+		if (empty($notifications))
+		{
+			return;
+		}
+
+		include_once('Services/Mail/classes/class.ilMail.php');
+		include_once "Services/Mail/classes/class.ilMimeMail.php";
+
+		// prepare common data
+
+		$mail = new ilMail($a_user->getId());
+		$sender = $mail->getMimeMailSender();
+		$sender_address = $sender[0];
+		$reply_address = $sender[0];
+		foreach ($this->getNotificationRecipients() as $admin_id)
+		{
+			$address = ilObjUser::_lookupEmail($admin_id);
+			if (!empty($address)) {
+				$reply_address = $address;
+				break;
+			}
+		}
+
+		$subject = sprintf($this->lng->txt('mem_external_notification_subject'), $a_user->getFullname(), $a_object->getTitle());
+
+		$sep = ":\n";
+		$list = array();
+		$list[] = $this->lng->txt('user'). $sep . $a_user->getFullname();
+		$list[] = $this->lng->txt('email'). $sep. $a_user->getEmail();
+		$list[] =  $this->lng->txt('title'). $sep . $a_object->getTitle();
+		$info = ($a_object->getType() == 'crs' ? $a_object->getImportantInformation() : $a_object->getInformation());
+		if (!empty($info))
+		{
+			$list[] = $info;
+		}
+		foreach($user_data as $data)
+		{
+			/** @var ilCourseDefinedFieldDefinition $field */
+			$field = $data['field'];
+			$list[] = $field->getName()	. $sep . $data['value'];
+		}
+
+		$sub_text = implode("\n\n", $list);
+
+
+		// send the notifications
+
+		foreach ($notifications as $to_address => $text)
+		{
+			$body = str_replace('[reply-to]', $reply_address, $text) . "\n\n" . $sub_text;
+
+			$mmail = new ilMimeMail();
+			$mmail->autoCheck(false);
+			$mmail->To($to_address);
+			$mmail->From($sender);
+			$mmail->ReplyTo($reply_address);
+			$mmail->Subject($subject);
+			$mmail->Body($body);
+			$mmail->Send();
+		}
+	}
+// fau.
+
 	/**
 	 * read subscribers
 	 *

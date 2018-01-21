@@ -1000,7 +1000,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
 				$this->participants->sendNotification($this->participants->NOTIFY_ADMINS,$ilUser->getId());
 				$this->participants->sendNotification($this->participants->NOTIFY_REGISTERED,$ilUser->getId());
-
+//fau: courseUdf - send external notifications
+				$this->participants->sendExternalNotifications($this->container, $ilUser);
+// fau.
 				include_once './Modules/Forum/classes/class.ilForumNotification.php';
 				ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
 								
@@ -1030,6 +1032,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 				{
 					$this->participants->sendSubscriptionRequestToAdmins($ilUser->getId());				// mail to admins
 				}
+// fau: courseUdf - send external notifications
+				$this->participants->sendExternalNotifications($this->container, $ilUser);
+// fau.
 
 				$info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($ilUser->getId()));
 				ilUtil::sendSuccess($info,true);
@@ -1048,6 +1053,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
 			case 'showAddedToWaitingListFair':
 				$this->setAccepted(true);
+// fau: courseUdf - send external notifications
+				$this->participants->sendExternalNotifications($this->container, $ilUser);
+// fau.
 
 				ilUtil::sendSuccess($this->lng->txt("sub_fair_added_to_waiting_list"),true);
 				$ilCtrl->redirectByClass("ilrepositorygui");

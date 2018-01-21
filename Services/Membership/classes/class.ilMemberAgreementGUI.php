@@ -227,6 +227,9 @@ class ilMemberAgreementGUI
 					{
 						// Show as radio group
 						$option_radios = new ilRadioGroupInputGUI($field_obj->getName(), 'cdf_'.$field_obj->getId());
+// fau: courseUdf - add description
+						$option_radios->setInfo($field_obj->getDescription());
+// fau.
 						if($field_obj->isRequired())
 						{
 							$option_radios->setRequired(true);
@@ -259,6 +262,9 @@ class ilMemberAgreementGUI
 					else
 					{
 						$select = new ilSelectInputGUI($field_obj->getName(),'cdf_'.$field_obj->getId());
+// fau: courseUdf - add description
+						$select->setInfo($field_obj->getDescription());
+// fau.
 						#$select->setValue(ilUtil::stripSlashes($_POST['cdf'][$field_obj->getId()]));
 						$select->setOptions($field_obj->prepareSelectBox());
 						if($field_obj->isRequired())
@@ -278,6 +284,9 @@ class ilMemberAgreementGUI
 
 				case IL_CDF_TYPE_TEXT:
 					$text = new ilTextInputGUI($field_obj->getName(),'cdf_'.$field_obj->getId());
+// fau: courseUdf - add description
+					$text->setInfo($field_obj->getDescription());
+// fau.
 					#$text->setValue(ilUtil::stripSlashes($_POST['cdf'][$field_obj->getId()]));
 					$text->setSize(32);
 					$text->setMaxLength(255);
@@ -294,6 +303,28 @@ class ilMemberAgreementGUI
 						$form->addItem($text);
 					}
 					break;
+// fau: courseUdf - add email type
+				case IL_CDF_TYPE_EMAIL:
+					$email = new ilEMailInputGUI($field_obj->getName(),'cdf_'.$field_obj->getId());
+					$email->setInfo($field_obj->getDescription());
+					#$text->setValue(ilUtil::stripSlashes($_POST['cdf'][$field_obj->getId()]));
+					$email->setSize(32);
+					$email->setMaxLength(255);
+					if($field_obj->isRequired())
+					{
+						$email->setRequired(true);
+					}
+					if($a_mode == 'user')
+					{
+						$cdf->addSubItem($email);
+					}
+					else
+					{
+						$form->addItem($email);
+					}
+					break;
+// fau.
+
 			}
 		}
 		if($a_mode == 'user')
@@ -402,6 +433,13 @@ class ilMemberAgreementGUI
 					$item = $form->getItemByPostVar('cdf_'.$field_obj->getId());
 					$item->setValue($current_value);
 					break;
+
+// fau: courseUdf - load email value
+				case IL_CDF_TYPE_EMAIL:
+					$item = $form->getItemByPostVar('cdf_'.$field_obj->getId());
+					$item->setValue($current_value);
+					break;
+// fau.
 			}
 		}
 	}
@@ -442,6 +480,12 @@ class ilMemberAgreementGUI
 				case IL_CDF_TYPE_TEXT:
 					$value = $form->getInput('cdf_'.$field_obj->getId());
 					break;
+
+// fau: courseUdf - save email value from agreement
+				case IL_CDF_TYPE_EMAIL:
+					$value = $form->getInput('cdf_'.$field_obj->getId());
+					break;
+// fau.
 			}
 			
 			$course_user_data = new ilCourseUserData($a_usr_id,$field_obj->getId());

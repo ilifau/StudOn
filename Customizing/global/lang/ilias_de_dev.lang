@@ -201,6 +201,7 @@ common#:#mcst_helptext#:#Ein Mediacast kann mehrere Medienobjekte (z.B. Audio-Da
 common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
 common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
+common#:#mem_external_notification_subject#:#Anmeldung von %s zu "%s"###fau: courseUdf
 common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_fill_free_places#:#Freie Plätze auffüllen
 common#:#mem_max_users_hidden#:#Info für Admins:
@@ -548,14 +549,14 @@ pdesk#:#pd_description#:#
 ps#:#cleanup_rbac_log#:#Rechteeinstellungs-Log bereinigen
 ps#:#cleanup_rbac_log_finished#:#Das Rechteeinstellungs-Log wurde bereinigt.
 ps#:#ps_perform_export_excel#:#Excel-Export starten
-ps#:#ps_cdf_desc#:#Beschreibung
-ps#:#ps_cdf_desc_info#:#Die Beschreibung wird auf der Anmeldeseite unter dem Eingabefeld angezeigt
-ps#:#ps_type_email#:#E-Mail-Adresse
-ps#:#ps_type_email_long#:#E-Mail-Adresse
-ps#:#ps_cdf_email_auto#:#Automatische Benachrichtigung
-ps#:#ps_cdf_email_auto_info#:#Es wird eine automatische Benachrichtigung an die bei der Anmeldung eingetragene E-Mail-Adresse gesendet. Absender ist der erste Administrator mit "Benachrichtigung".
-ps#:#ps_cdf_email_text#:#Text in der E-Mail
-ps#:#ps_cdf_email_text_info#:#Mit diesem Text startet die Benachrichtigungs-E-Mail. Im Text können Sie mit [reply-to] die E-Mail-Adresse des Absenders einmischen. Danach folgen die Details der Anmeldung (Kurs/Gruppeninfo, Name und E-Mail der beitretenden Person, kursspezifische Benutzerdaten).
+ps#:#ps_cdf_desc#:#Beschreibung###fau: courseUdf
+ps#:#ps_cdf_desc_info#:#Die Beschreibung wird auf der Anmeldeseite unter dem Eingabefeld angezeigt###fau: courseUdf
+ps#:#ps_type_email#:#E-Mail-Adresse###fau: courseUdf
+ps#:#ps_type_email_long#:#E-Mail-Adresse###fau: courseUdf
+ps#:#ps_cdf_email_auto#:#Automatische Benachrichtigung###fau: courseUdf
+ps#:#ps_cdf_email_auto_info#:#Es wird eine automatische Benachrichtigung an die bei der Anmeldung eingetragene E-Mail-Adresse gesendet. Als Antwortadresse wird der erste gefundene Administrator mit "Benachrichtigung" verwendet.###fau: courseUdf
+ps#:#ps_cdf_email_text#:#Text in der E-Mail###fau: courseUdf
+ps#:#ps_cdf_email_text_info#:#Mit diesem Text startet die Benachrichtigungs-E-Mail. Im Text können Sie mit [reply-to] die Antwortadresse einmischen. Danach folgen die Details der Anmeldung (Kurs/Gruppeninfo, Name und E-Mail der beitretenden Person, kursspezifische Benutzerdaten).###fau: courseUdf
 ps#:#ps_type_select_long#:#Auswahlliste (feste Werte)
 registration#:#registration_code_update_header#:#Code-Einstellungen bearbeiten###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie erhalten haben. Klicken Sie dann auf "Registrieren", um die Registrierung durchzuführen.
