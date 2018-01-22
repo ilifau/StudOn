@@ -555,31 +555,32 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 	
 	private function getQuestionParentObjIds($repositoryRootNode)
 	{
-		$parents = $this->tree->getSubTree(
-			$this->tree->getNodeData($repositoryRootNode), true, $this->getQuestionParentObjectType()
-		);
-
-		$parentIds = array();
-
-		foreach($parents as $nodeData)
-		{
-			if( $nodeData['obj_id'] == $this->testOBJ->getId() )
-			{
-				continue;
-			}
-			
-			$parentIds[ $nodeData['obj_id'] ] = $nodeData['obj_id'];
-		}
-
-		$parentIds = array_map('intval', array_values($parentIds));
-
+// fau: testQuestionBrowserRoot - avoid a duplicate scan for question pools
 		if($this->fetchModeParameter() == self::MODE_BROWSE_POOLS)
 		{
-			$available_pools = array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(true)));
-			$parentIds       = array_intersect($parentIds, $available_pools);
+			$parentIds = array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(
+				TRUE, FALSE, FALSE, FALSE, FALSE, "read", "", $repositoryRootNode)));
 		}
 		else if($this->fetchModeParameter() == self::MODE_BROWSE_TESTS)
 		{
+			$parents = $this->tree->getSubTree(
+				$this->tree->getNodeData($repositoryRootNode), true, $this->getQuestionParentObjectType()
+			);
+
+			$parentIds = array();
+
+			foreach($parents as $nodeData)
+			{
+				if( $nodeData['obj_id'] == $this->testOBJ->getId() )
+				{
+					continue;
+				}
+
+				$parentIds[ $nodeData['obj_id'] ] = $nodeData['obj_id'];
+			}
+
+			$parentIds = array_map('intval', array_values($parentIds));
+
 			$access = $this->access;
 
 			$parentIds = array_filter($parentIds, function($obj_id) use ($access) {
@@ -588,7 +589,8 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 				return $access->checkAccess('write', '', $refId);
 			});
 		}
-// fau: fixQuestionBrowseParams - security fix
+// fau.
+// fau: fixQuestionBrowseParams - security fix: avoid showing all questions if the mode is not clear
 		else
 		{
 			$parentIds = array();

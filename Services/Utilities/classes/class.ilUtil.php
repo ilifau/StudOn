@@ -4429,8 +4429,6 @@ class ilUtil
 	* for the user. Therefore course A won't appear in the result list although
 	* the queried operations 'read' would actually permit the user
 	* to access course A.
-	* fim: [tree] add root as parameter to allow selection in sub tree
-	* this is used by ilObjQuestionPool::_getAvailableQuestionpools()
 	*
 	* @access	public
 	* @param	string/array	object type 'lm' or array('lm','sahs')
@@ -4442,8 +4440,9 @@ class ilUtil
 	* @static
 	* 
 	*/
+// fau: treeQuery - add root as optional parameter to allow selection in sub tree
 	public static function _getObjectsByOperations($a_obj_type,$a_operation,$a_usr_id = 0,$limit = 0, $a_root_id = 0)
-	//fim.
+// fau.
 	{
 		global $ilDB,$rbacreview,$ilAccess,$ilUser,$ilias,$tree;
 
@@ -4456,7 +4455,7 @@ class ilUtil
 			$where = "WHERE ".$ilDB->in("type", $a_obj_type, false, "text")." ";
 		}
 
-		// fim: [tree] respect the root id parameter
+// fau: treeQuery - respect the root id parameter
 		if ($a_root_id)
 		{
 			$where .= ' AND '. $tree->getGrandChildCondition((int) $a_root_id) . "  ";
@@ -4469,7 +4468,7 @@ class ilUtil
 			$tree_join = "";
 			$tree_cond = "";
 		}
-		// fim.
+// fau.
 
 		// limit number of results default is search result limit
 		if(!$limit)
@@ -4529,7 +4528,7 @@ class ilUtil
 
 		$and = "AND ((".$ilDB->in("rol_id", $a_roles, false, "integer")." ";
 
-		// fim: [tree] respect the root conditions
+// fau: treeQuery - respect the root conditions
 		$query = "SELECT DISTINCT(obr.ref_id),obr.obj_id,type FROM object_reference obr ".
 			"JOIN object_data obd ON obd.obj_id = obr.obj_id ".
 			"LEFT JOIN rbac_pa  ON obr.ref_id = rbac_pa.ref_id ".
@@ -4540,7 +4539,7 @@ class ilUtil
 			"AND (".$ilDB->like("ops_id", "text","%i:".$ops_id."%"). " ".
 			"OR ".$ilDB->like("ops_id", "text", "%:\"".$ops_id."\";%").")) ".
 			$check_owner;
-		// fim.
+// fau.
 
 		$res = $ilDB->query($query);
 		$counter = 0;

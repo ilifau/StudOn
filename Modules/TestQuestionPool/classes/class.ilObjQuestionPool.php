@@ -1359,29 +1359,24 @@ class ilObjQuestionPool extends ilObject
 * @return array The available question pools
 * @access public
 */
-	// fim: [exam] add root id as param to find question pools
-	// fim: [exam] add objects(ref_id=>obj_id) that should be included
-	function &_getAvailableQuestionpools($use_object_id = FALSE, $equal_points = FALSE, $could_be_offline = FALSE, $showPath = FALSE, $with_questioncount = FALSE, $permission = "read", $usr_id = "", $root_id = 0, $added_objects = array())
-	// fim.
+// fau: testQuestionBrowserRoot - add root id as param to find question pools
+	function &_getAvailableQuestionpools($use_object_id = FALSE, $equal_points = FALSE, $could_be_offline = FALSE, $showPath = FALSE, $with_questioncount = FALSE, $permission = "read", $usr_id = "", $root_id = 0)
+// fau.
 	{
 		global $ilUser, $ilDB, $lng;
 
 		$result_array = array();
 		$permission = (strlen($permission) == 0) ? "read" : $permission;
-		// fim: [exam] use root id param to find question pools
+// fau: testQuestionBrowserRoot - use root id param to find question pools
 		$qpls = ilUtil::_getObjectsByOperations("qpl", $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1, $root_id);
-		// fim.
-		// fim: [exam] initialize the list of objects with the added objects
-		$obj_ids = $added_objects;
-		// fim.
+// fau.
+		$obj_ids = array();
 		foreach ($qpls as $ref_id)
 		{
 			$obj_id = ilObject::_lookupObjId($ref_id);
 			$obj_ids[$ref_id] = $obj_id;
 		}
-		// fim: [exam] include added objects to the titles selection
-		$titles = ilObject::_prepareCloneSelection(array_keys($obj_ids), "qpl");
-		// fim.
+		$titles = ilObject::_prepareCloneSelection($qpls, "qpl");
 		if (count($obj_ids))
 		{
 			$in = $ilDB->in('object_data.obj_id', $obj_ids, false, 'integer');

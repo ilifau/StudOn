@@ -5,7 +5,16 @@
 	<!-- BEGIN col_order_checkbox -->
 	<td class="std">{ORDER_INPUT_HTML}</td>
 	<!-- END col_order_checkbox -->
-	<td class="std">{SOURCE_POOL_LABEL}</td>
+	<!-- fau: linkRandomPool - template -->
+	<td class="std">
+		<!-- BEGIN pool_linked -->
+		<a href="{SOURCE_POOL_LINK}">{SOURCE_POOL_LABEL_LINKED}</a>
+		<!-- END pool_linked -->
+		<!-- BEGIN pool_unlinked -->
+		{SOURCE_POOL_LABEL_UNLINKED}
+		<!-- END pool_unlinked -->
+	</td>
+	<!-- fau. -->
     <!-- fau: taxFilter - merge columns for taxonomy filter -->
 	<!-- fau: taxGroupFilter - add grouping info -->
 	<td class="std">{TAXONOMY_FILTER}{GROUP_TAXONOMY}</td>

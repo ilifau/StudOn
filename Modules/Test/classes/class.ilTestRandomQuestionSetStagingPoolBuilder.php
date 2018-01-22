@@ -159,7 +159,10 @@ class ilTestRandomQuestionSetStagingPoolBuilder
 					$filterItems = isset($filterItems) ? array_intersect($filterItems, array_unique($taxItems)) : array_unique($taxItems);
 				}
 				// stage only the questions applying to the taxonomy filter
-				$this->stageQuestionsFromSourcePoolCheap($definition->getPoolId(), $questionIdMappingPerPool, array_values($filterItems), $typeFilter);
+				if (!empty($filterItems))
+				{
+					$this->stageQuestionsFromSourcePoolCheap($definition->getPoolId(), $questionIdMappingPerPool, array_values($filterItems), $typeFilter);
+				}
 			}
 			else
 			{

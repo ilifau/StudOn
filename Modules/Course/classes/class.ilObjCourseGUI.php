@@ -2298,7 +2298,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
 				include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
 
-				// fim: [export] show tab also if export is not granted
+				// fim: [privacy] show tab also if export is not granted
 				if($ilAccess->checkAccess('write','',$this->object->getRefId())
 					&& ilPrivacySettings::_getInstance()->enabledCourseExport())
 				// fim.
