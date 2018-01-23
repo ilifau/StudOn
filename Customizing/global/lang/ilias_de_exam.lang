@@ -12,3 +12,4 @@ common#:#local_login_to_ilias#:#Zur Online-Prüfung einloggen
 common#:#local_login_to_ilias_addition#:#(Teilnehmer und Prüfer)
 common#:#login_to_ilias_info#:#Bitte verwenden Sie für die Prüfung Ihre aktuellen Studon-Zugangsdaten.
 pdesk#:#pd_description#:#Falls Ihre Prüfung hier nicht gelistet ist, rufen Sie bitte unter Online-Prüfungen den entsprechenden Bereich auf.
+common#:#err_inactive_contact#:#<br/>Bitte wenden Sie sich an <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>, um das Benutzerkonto aktivieren zu lassen.
