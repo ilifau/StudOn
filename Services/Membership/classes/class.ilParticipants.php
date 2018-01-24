@@ -1570,7 +1570,7 @@ abstract class ilParticipants
 // fau: courseUdf - new function sendExternalNotification
 
 	/**
-	 * @param ilObjGroup|ilObjCourse $a_object
+	 * @param ilObjCourse|ilObjGroup $a_object
 	 * @param ilObjUser	$a_user
 	 */
 	public function sendExternalNotifications($a_object, $a_user)
@@ -1605,14 +1605,24 @@ abstract class ilParticipants
 		$sender = $mail->getMimeMailSender();
 		$sender_address = $sender[0];
 		$reply_address = $sender[0];
+		$cc_address = '';
 		foreach ($this->getNotificationRecipients() as $admin_id)
 		{
 			$address = ilObjUser::_lookupEmail($admin_id);
 			if (!empty($address)) {
-				$reply_address = $address;
+				$cc_address = $address;
+				$reply_address = $sender_address.', '.$address;
 				break;
 			}
 		}
+		if (!empty($cc_address)) {
+			$reply_link = '<a href="mailto:'.$sender_address.'?cc='.$cc_address.'">'.$sender_address.', '. $cc_address.'</a>';
+		}
+		else {
+			$reply_link = '<a href="mailto:'.$sender_address.'">'.$sender_address.'</a>';
+		}
+
+
 
 		$subject = sprintf($this->lng->txt('mem_external_notification_subject'), $a_user->getFullname(), $a_object->getTitle());
 
@@ -1621,11 +1631,11 @@ abstract class ilParticipants
 		$list[] = $this->lng->txt('user'). $sep . $a_user->getFullname();
 		$list[] = $this->lng->txt('email'). $sep. $a_user->getEmail();
 		$list[] =  $this->lng->txt('title'). $sep . $a_object->getTitle();
-		$info = ($a_object->getType() == 'crs' ? $a_object->getImportantInformation() : $a_object->getInformation());
-		if (!empty($info))
+		if ($a_object->getType() == 'crs' && !empty($a_object->getSyllabus()))
 		{
-			$list[] = $info;
+			$list[] = $this->lng->txt('crs_syllabus') . $sep . $a_object->getSyllabus();
 		}
+
 		foreach($user_data as $data)
 		{
 			/** @var ilCourseDefinedFieldDefinition $field */
@@ -1640,7 +1650,7 @@ abstract class ilParticipants
 
 		foreach ($notifications as $to_address => $text)
 		{
-			$body = str_replace('[reply-to]', $reply_address, $text) . "\n\n" . $sub_text;
+			$body = str_replace('[reply-to]', $reply_link, $text) . "\n\n" . $sub_text;
 
 			$mmail = new ilMimeMail();
 			$mmail->autoCheck(false);
@@ -1648,7 +1658,7 @@ abstract class ilParticipants
 			$mmail->From($sender);
 			$mmail->ReplyTo($reply_address);
 			$mmail->Subject($subject);
-			$mmail->Body($body);
+			$mmail->Body(nl2br($body));
 			$mmail->Send();
 		}
 	}
