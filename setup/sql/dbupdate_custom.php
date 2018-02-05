@@ -919,4 +919,25 @@
 	}
 	// fau.
 ?>
-
+<#55>
+<?php
+    // fau: courseUdf - add parent field id
+    if( !$ilDB->tableColumnExists('crs_f_definitions', 'parent_field_id'))
+    {
+        $ilDB->addTableColumn('crs_f_definitions', 'parent_field_id',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+?>
+<#56>
+<?php
+    // fau: courseUdf - add parent value_id
+    if( !$ilDB->tableColumnExists('crs_f_definitions', 'parent_value_id'))
+    {
+        $ilDB->addTableColumn('crs_f_definitions', 'parent_value_id',
+            array('type' => 'integer', 'length' => 4, 'notnull' => false, 'default' => null)
+        );
+    }
+    // fau.
+?>

@@ -559,6 +559,10 @@ ps#:#ps_cdf_email_auto_info#:#Es wird eine automatische Benachrichtigung an die 
 ps#:#ps_cdf_email_text#:#Text in der E-Mail###fau: courseUdf
 ps#:#ps_cdf_email_text_info#:#Mit diesem Text startet die Benachrichtigungs-E-Mail. Im Text können Sie mit [reply-to] die Antwortadresse einmischen. Danach folgen die Details der Anmeldung (Kurs/Gruppeninfo, Name und E-Mail der beitretenden Person, kursspezifische Benutzerdaten).###fau: courseUdf
 ps#:#ps_type_select_long#:#Auswahlliste (feste Werte)
+ps#:#ps_cdf_is_sub_field#:#Untergeordnet
+ps#:#ps_cdf_is_sub_field_info#:#Dieses Feld ist einer Auswahlliste untergeordnet. Falls es als Pflichtfeld markiert ist, gilt das nur bei der gewählten Option.
+ps#:#ps_cdf_parent_field#:#Übergeordnetes Feld
+ps#:#ps_cdf_parent_value#:#Übergeordnete Auswahl
 registration#:#registration_code_update_header#:#Code-Einstellungen bearbeiten###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie erhalten haben. Klicken Sie dann auf "Registrieren", um die Registrierung durchzuführen.
 registration#:#registration_code_optional_info#:#Wenn Sie einen Registrierungs-Code erhalten haben, geben Sie diesen bitte hier ein. Der Code legt Ihre Möglichkeiten in StudOn fest. Wenn Sie keinen Code besitzen, lassen sie das Feld leer. Klicken Sie anschließend auf "Registrieren".

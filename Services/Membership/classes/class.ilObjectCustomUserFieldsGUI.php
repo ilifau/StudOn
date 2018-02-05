@@ -242,10 +242,21 @@ class ilObjectCustomUserFieldsGUI
 			$udf->setValues($udf->prepareValues($this->form->getInput('va')));
 			$udf->setValueOptions($this->form->getItemByPostVar('va')->getOpenAnswerIndexes()); // #14720
 			$udf->enableRequired($this->form->getInput('re'));
-// fau: courseUdf - save field definition
+// fau: courseUdf - save additional properties
 			$udf->setDescription($this->form->getInput('de'));
 			$udf->setEmailAuto($this->form->getInput('ea'));
 			$udf->setEmailText($this->form->getInput('et'));
+			if ($this->form->getInput('sf'))
+			{
+				$parent_field_id = $this->form->getInput('pa');
+				$udf->setParentFieldId($parent_field_id);
+				$udf->setParentValueId($this->form->getInput('pv'.$parent_field_id ));
+			}
+			else
+			{
+				$udf->setParentFieldId(null);
+				$udf->setParentValueId(null);
+			}
 // fau.
 			$udf->save();
 	
@@ -283,10 +294,18 @@ class ilObjectCustomUserFieldsGUI
 		$this->form->getItemByPostVar('re')->setChecked($udf->isRequired());
 		$this->form->getItemByPostVar('va')->setValues($udf->getValues());
 		$this->form->getItemByPostVar('va')->setOpenAnswerIndexes($udf->getValueOptions());
-// fau: courseUdf - edit field definition
+// fau: courseUdf - edit additional properties
 		$this->form->getItemByPostVar('de')->setValue($udf->getDescription());
 		$this->form->getItemByPostVar('ea')->setChecked($udf->getEmailAuto());
 		$this->form->getItemByPostVar('et')->setValue($udf->getEmailText());
+		$parent_field_id = $udf->getParentFieldId();
+		/** @var ilSelectInputGUI $parentValues */
+		$parentValues = $this->form->getItemByPostVar('pv'.$parent_field_id);
+		if (is_object($parentValues)) {
+			$this->form->getItemByPostVar('sf')->setChecked(true);
+			$this->form->getItemByPostVar('pa')->setValue($parent_field_id);
+			$parentValues->setValue($udf->getParentValueId());
+		}
 // fau.
 		$this->tpl->setContent($this->form->getHTML());
 	}
@@ -310,10 +329,21 @@ class ilObjectCustomUserFieldsGUI
 			$udf->setValues($prepared);
 			$udf->setValueOptions($this->form->getItemByPostVar('va')->getOpenAnswerIndexes());
 			$udf->enableRequired($this->form->getInput('re'));
-// fau: courseUdf - update field definition
+// fau: courseUdf - update additional properties
 			$udf->setDescription($this->form->getInput('de'));
 			$udf->setEmailAuto($this->form->getInput('ea'));
 			$udf->setEmailText($this->form->getInput('et'));
+			if ($this->form->getInput('sf'))
+			{
+				$parent_field_id = $this->form->getInput('pa');
+				$udf->setParentFieldId($parent_field_id);
+				$udf->setParentValueId($this->form->getInput('pv'.$parent_field_id ));
+			}
+			else
+			{
+				$udf->setParentFieldId(null);
+				$udf->setParentValueId(null);
+			}
 // fau.
 
 			$udf->update();
@@ -424,6 +454,38 @@ class ilObjectCustomUserFieldsGUI
 		$re = new ilCheckboxInputGUI($this->lng->txt('ps_cdf_required'),'re');
 		$re->setValue(1);
 		$this->form->addItem($re);
+
+// fau: courseUdf - add parent field and value selection
+		$sf = new ilCheckboxInputGUI($this->lng->txt('ps_cdf_is_sub_field'), 'sf');
+		$sf->setDisabled(true);
+		$sf->setInfo($this->lng->txt('ps_cdf_is_sub_field_info'));
+
+		$poss_parents = ilCourseDefinedFieldDefinition::_getPossibleParentFields($this->getObjId(), $_REQUEST['field_id']);
+		if (!empty($poss_parents))
+		{
+			$sf->setDisabled(false);
+			$pa = new ilRadioGroupInputGUI($this->lng->txt('ps_cdf_parent_field'), 'pa');
+			$pa->setRequired(true);
+
+			foreach ($poss_parents as $parent_field)
+			{
+				$pf = new ilRadioOption($parent_field->getName(), $parent_field->getId());
+				if (empty($pa->getValue())) {
+					$pa->setValue($pf->getValue());
+				}
+
+				$pv = new ilSelectInputGUI($this->lng->txt('ps_cdf_parent_value'), 'pv'.$parent_field->getId());
+				$pv->setOptions($parent_field->getValues());
+				$pv->setRequired(true);
+				$pf->addSubItem($pv);
+
+				$pa->addOption($pf);
+			}
+			$sf->addSubItem($pa);
+		}
+		$this->form->addItem($sf);
+
+// fau.
 	}
 	
 	/**

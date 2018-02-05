@@ -53,6 +53,8 @@ class ilCourseDefinedFieldDefinition
 	private $description;
 	private $email_auto;
 	private $email_text;
+	private $parent_field_id;
+	private $parent_value_id;
 // fau.
 
 	/**
@@ -151,7 +153,35 @@ class ilCourseDefinedFieldDefinition
 	 	}
 		return $fields ? $fields : array();	
 	}
-	
+
+// fau: courseUdf - new function _getPossibleParentFields
+
+	/**
+	 * Get the possible parent fields for a field
+	 * The parent field must be of SELECT type and must not have an own parent
+	 *
+	 * @param $a_container_id
+	 * @param $a_field_id
+	 * @param string $a_sort
+	 * @return ilCourseDefinedFieldDefinition[]
+	 */
+	public static function _getPossibleParentFields($a_container_id, $a_field_id = null, $a_sort = IL_CDF_SORT_NAME)
+	{
+		$fields = array();
+		foreach(ilCourseDefinedFieldDefinition::_getFieldIds($a_container_id,$a_sort) as $field_id)
+		{
+			if (empty($a_field_id) || $field_id != $a_field_id)
+			{
+				$field = new ilCourseDefinedFieldDefinition($a_container_id,$field_id);
+				if ($field->getType() == IL_CDF_TYPE_SELECT && empty($field->getParentFieldId() && !empty($field->getValues()))) {
+					$fields[] = $field;
+				}
+			}
+		}
+		return $fields;
+	}
+// fau.
+
 	/**
 	 * Get required filed id's
 	 *
@@ -335,6 +365,23 @@ class ilCourseDefinedFieldDefinition
 	{
 		return (string) $this->email_text;
 	}
+	public function setParentFieldId($a_id)
+	{
+		$this->parent_field_id = $a_id;
+	}
+	public function getParentFieldId()
+	{
+		return (string) $this->parent_field_id;
+	}
+	public function setParentValueId($a_id)
+	{
+		$this->parent_value_id = $a_id;
+	}
+	public function getParentValueId()
+	{
+		return (string) $this->parent_value_id;
+	}
+
 // fau.
 
 	/**
@@ -427,7 +474,7 @@ class ilCourseDefinedFieldDefinition
 		
 		$next_id = $ilDB->nextId('crs_f_definitions');
 // fau: courseUdf - save additional properties
-	 	$query = "INSERT INTO crs_f_definitions (field_id,obj_id,field_name,field_type,field_values,field_required,field_values_opt,field_desc,field_email_auto,field_email_text) ".
+	 	$query = "INSERT INTO crs_f_definitions (field_id,obj_id,field_name,field_type,field_values,field_required,field_values_opt,field_desc,field_email_auto,field_email_text, parent_field_id, parent_value_id) ".
 	 		"VALUES ( ".
 	 		$ilDB->quote($next_id,'integer').", ".
 	 		$this->db->quote($this->getObjId(),'integer').", ".
@@ -438,7 +485,9 @@ class ilCourseDefinedFieldDefinition
 			$ilDB->quote(serialize($this->getValueOptions()),'text').', '.
 			$this->db->quote($this->getDescription(), 'text'). ', '.
 			$this->db->quote($this->getEmailAuto(), 'integer').', '.
-			$this->db->quote($this->getEmailText(), 'text').
+			$this->db->quote($this->getEmailText(), 'text'). ', '.
+			$this->db->quote($this->getParentFieldId(), 'integer'). ', '.
+			$this->db->quote($this->getParentValueId(), 'integer').
 	 		") ";
 // fau.
 		$res = $ilDB->manipulate($query);
@@ -465,7 +514,9 @@ class ilCourseDefinedFieldDefinition
 			'field_values_opt = '.$ilDB->quote(serialize($this->getValueOptions()),'text').', '.
 			'field_desc = '.$this->db->quote($this->getDescription(),'text').', '.
 			'field_email_auto = '.$this->db->quote($this->getEmailAuto(),'integer').', '.
-			'field_email_text = '.$this->db->quote($this->getEmailText(),'text').' '.
+			'field_email_text = '.$this->db->quote($this->getEmailText(),'text').', '.
+			'parent_field_id = '.$this->db->quote($this->getParentFieldId(),'integer').', '.
+			'parent_value_id = '.$this->db->quote($this->getParentValueId(),'integer').' '.
 	 		"WHERE field_id = ".$this->db->quote($this->getId(),'integer')." ".
 	 		"AND obj_id = ".$this->db->quote($this->getObjId(),'integer');
 // fau.
@@ -516,6 +567,8 @@ class ilCourseDefinedFieldDefinition
 		$this->setDescription($row->field_desc);
 		$this->setEmailAuto($row->field_email_auto);
 		$this->setEmailText($row->field_email_text);
+		$this->setParentFieldId($row->parent_field_id);
+		$this->setParentValueId($row->parent_value_id);
 // fau.
 	}
 }
