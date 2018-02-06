@@ -26,8 +26,9 @@ define("IL_CDF_SORT_NAME",'field_name');
 
 define('IL_CDF_TYPE_TEXT',1);
 define('IL_CDF_TYPE_SELECT',2);
-// fau: courseUdf - add type email
+// fau: courseUdf - add type email and checkbox
 define('IL_CDF_TYPE_EMAIL',10);
+define('IL_CDF_TYPE_CHECKBOX',11);
 // fau.
 
 /** 
@@ -193,10 +194,14 @@ class ilCourseDefinedFieldDefinition
 	public static function _getRequiredFieldIds($a_obj_id)
 	{
 		global $ilDB;
-		
+
+// fau: courseUdf - get only the required fields on top level
+//					required sub fields are checked in the input form
 		$query = "SELECT * FROM crs_f_definitions ".
 			"WHERE obj_id = ".$ilDB->quote($a_obj_id,'integer')." ".
-			"AND field_required = 1";
+			"AND field_required = 1 ".
+			"AND parent_field_id IS NULL";
+// fau.
 		$res = $ilDB->query($query);
 		while($row = $ilDB->fetchObject($res))
 		{
@@ -204,7 +209,8 @@ class ilCourseDefinedFieldDefinition
 		}
 		return $req_fields ? $req_fields : array();
 	}
-	
+
+
 	/**
 	 * Fields to info string
 	 *

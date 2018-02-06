@@ -748,11 +748,14 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 				return false;
 			}
 		}
-		if(!$this->validateCustomFields())
-		{
-			$this->join_error = $this->lng->txt('fill_out_all_required_fields');
-			return false;
-		}
+
+// fau: courseUdf - custom fields are validate with the form
+//		if(!$this->validateCustomFields())
+//		{
+//			$this->join_error = $this->lng->txt('fill_out_all_required_fields');
+//			return false;
+//		}
+// fau.
 
 		// fim: [memsess] check event registration
 		if ($this->container->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF

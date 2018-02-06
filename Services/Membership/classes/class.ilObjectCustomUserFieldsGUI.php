@@ -399,7 +399,7 @@ class ilObjectCustomUserFieldsGUI
 		$na->setRequired(true);
 		$this->form->addItem($na);
 
-// fau: courseUdf - add email in field definition form
+// fau: courseUdf - add description in field definition form
 		// description
 		$de = new ilTextAreaInputGUI($this->lng->txt('ps_cdf_desc'),'de');
 		$de->setInfo($this->lng->txt('ps_cdf_desc_info'));
@@ -420,6 +420,10 @@ class ilObjectCustomUserFieldsGUI
 		$ty_te = new ilRadioOption($this->lng->txt('ps_type_txt_long'),IL_CDF_TYPE_TEXT);
 		$ty->addOption($ty_te);
 
+// fau: courseUdf - add checkbox in field definition form
+		$ty_cb = new ilRadioOption($this->lng->txt('ps_type_checkbox'),IL_CDF_TYPE_CHECKBOX);
+		$ty->addOption($ty_cb);
+// fau.
 		//		Select Type
 		$ty_se = new ilRadioOption($this->lng->txt('ps_type_select_long'),IL_CDF_TYPE_SELECT);
 		$ty->addOption($ty_se);
@@ -484,7 +488,6 @@ class ilObjectCustomUserFieldsGUI
 			$sf->addSubItem($pa);
 		}
 		$this->form->addItem($sf);
-
 // fau.
 	}
 	

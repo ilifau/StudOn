@@ -473,6 +473,10 @@ abstract class ilRegistrationGUI
 	 * Check required course fields
 	 *
 	 * @access protected
+	 *
+	 * fau: courseUdf - validateCustomFields() is deprecaded - ide
+	 * @deprecated
+	 * fau.
 	 * 
 	 */
 	protected function validateCustomFields()
@@ -507,11 +511,6 @@ abstract class ilRegistrationGUI
 					$value = $_POST['cdf_'.$field_obj->getId()];
 					break;
 
-// fau: courseUdf - validate email
-				case IL_CDF_TYPE_EMAIL:
-					$value = $_POST['cdf_'.$field_obj->getId()];
-					break;
-// fau.
 			}
 			
 			$GLOBALS['ilLog']->write(__METHOD__.': new value '. $value);
@@ -520,16 +519,10 @@ abstract class ilRegistrationGUI
 			$course_user_data = new ilCourseUserData($ilUser->getId(),$field_obj->getId());
 			$course_user_data->setValue($value);
 			$course_user_data->update();
-			
-			if($field_obj->isRequired() and !$value)
-			{
-				$required_fullfilled = false;
-			}
 		}
-
-		return $required_fullfilled;
 	}
-	
+
+
 	/**
 	 * Set Agreement accepted
 	 *
@@ -597,8 +590,15 @@ abstract class ilRegistrationGUI
 	{
 		$this->initForm();
 
+		if (!$this->form->checkInput()) {
+			$this->form->setValuesByPost();
+			$this->show();
+			return false;
+		}
+
 		if(!$this->validate())
 		{
+			$this->form->setValuesByPost();
 			ilUtil::sendFailure($this->join_error);
 			$this->show();
 			return false;
