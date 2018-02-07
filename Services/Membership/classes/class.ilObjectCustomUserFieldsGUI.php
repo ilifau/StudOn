@@ -435,6 +435,10 @@ class ilObjectCustomUserFieldsGUI
 		$ty_se_mu->setRequired(true);
 		$ty_se_mu->setSize(32);
 		$ty_se_mu->setMaxLength(128);
+		if ($_REQUEST['field_id'] && count(ilCourseDefinedFieldDefinition::_getChildFields($this->getObjId(), $_REQUEST['field_id'])))
+		{
+			$ty_se_mu->setInfo($this->lng->txt('ps_type_select_info'));
+		}
 		$ty_se->addSubItem($ty_se_mu);
 
 // fau: courseUdf - add email in field definition form

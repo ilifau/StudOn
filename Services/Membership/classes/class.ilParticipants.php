@@ -1572,8 +1572,9 @@ abstract class ilParticipants
 	/**
 	 * @param ilObjCourse|ilObjGroup $a_object
 	 * @param ilObjUser	$a_user
+	 * @param bool	$a_changed	registration is changed, not added
 	 */
-	public function sendExternalNotifications($a_object, $a_user)
+	public function sendExternalNotifications($a_object, $a_user, $a_changed = false)
 	{
 		include_once("Modules/Course/classes/Export/class.ilCourseUserData.php");
 
@@ -1623,8 +1624,14 @@ abstract class ilParticipants
 		}
 
 
-
-		$subject = sprintf($this->lng->txt('mem_external_notification_subject'), $a_user->getFullname(), $a_object->getTitle());
+		if ($a_changed)
+		{
+			$subject = sprintf($this->lng->txt('mem_external_notification_subject_changed'), $a_user->getFullname(), $a_object->getTitle());
+		}
+		else
+		{
+			$subject = sprintf($this->lng->txt('mem_external_notification_subject'), $a_user->getFullname(), $a_object->getTitle());
+		}
 
 		$sep = ":\n";
 		$list = array();
@@ -1640,7 +1647,9 @@ abstract class ilParticipants
 		{
 			/** @var ilCourseDefinedFieldDefinition $field */
 			$field = $data['field'];
-			$list[] = $field->getName()	. $sep . $data['value'];
+			if (!empty($data['value'])) {
+				$list[] = $field->getName()	. $sep . $data['value'];
+			}
 		}
 
 		$sub_text = implode("\n\n", $list);

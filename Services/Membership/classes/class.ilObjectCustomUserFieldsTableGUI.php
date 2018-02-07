@@ -68,7 +68,8 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable('VAL_NAME',$row['name']);
 		$this->tpl->setVariable('VAL_TYPE',$row['type']);
 // fau: courseUdf - fill parent name in field row
-		$this->tpl->setVariable('VAL_PARENT',$row['parent_name']);
+		$this->tpl->setVariable('VAL_PARENT_NAME',$row['parent_name']);
+		$this->tpl->setVariable('VAL_PARENT_VALUE',$row['parent_value']);
 // fau.
 		$this->tpl->setVariable('REQUIRED_CHECKED',$row['required'] ? 'checked="checked"' : '');
 		
@@ -123,6 +124,7 @@ class ilObjectCustomUserFieldsTableGUI extends ilTable2GUI
 			/** @var ilCourseDefinedFieldDefinition $parent */
 			$parent = $this->fields[$def->getParentFieldId()];
 			$rows[$def->getId()]['parent_name'] = isset($parent) ? $parent->getName() :'';
+			$rows[$def->getId()]['parent_value'] = isset($parent) ? $parent->getValueById($def->getParentValueId()) : '';
 // fau.
 
 			$rows[$def->getId()]['required'] = (bool) $def->isRequired();

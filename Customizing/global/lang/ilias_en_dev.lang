@@ -203,6 +203,7 @@ common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
 common#:#login_to_ilias_via_shibboleth_addition#:#(Matriculated Students)
 common#:#mcst_helptext#:#A mediacast can include many mediaobjects (e.g. audio files), which can be played or downloaded in the browser. <p class="alert">Enormous video files (e.g. lecture recordings) you best upload to the <a href="http://www.video.uni-erlangen.de" target="_blank">video portal</a> of the university. There you can set protection on them and refer them from StudOn-course as "external content".</p>
 common#:#mem_external_notification_subject#:#Registration of %s for "%s"###fau: courseUdf
+common#:#mem_external_notification_subject_changed#:#Registration of %s for "%s" changed###fau: courseUdf
 common#:#mem_add_to_lot#:#Add to lot list
 common#:#mem_added_to_lot_list#:#You have been added to the lot list.
 common#:#mem_already_on_lot_list#:#You are already on the lot list.
@@ -611,6 +612,12 @@ ps#:#ps_cdf_email_auto_info#:#An automated notification will be sent to the ente
 ps#:#ps_cdf_email_text#:#E-mail Text###fau: courseUdf
 ps#:#ps_cdf_email_text_info#:#The e-mail will start with this text. The placeholder [reply-to] will be replaced by the Reply-To address. The text is followed by a list of data (course/group info, name and e-mail of the registered person, course specific user data).###fau: courseUdf
 ps#:#ps_type_select_long#:#Select List (fixed values)
+ps#:#ps_cdf_is_sub_field#:#Sub Field
+ps#:#ps_cdf_is_sub_field_info#:#This is a sub field if a selection. A 'required' setting will only be checked if the parent option is selected.
+ps#:#ps_cdf_parent_field#:#Parent Field
+ps#:#ps_cdf_parent_value#:#Parent Option
+ps#:#ps_type_checkbox#:#Checkbox
+ps#:#ps_type_select_info#:#ATTENTION: The select positions have sub fields assigned. When you change the order of the fields, please update the assignments in the sub fields!
 registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.
 registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.

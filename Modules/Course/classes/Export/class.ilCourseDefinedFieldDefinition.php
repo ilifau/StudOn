@@ -91,7 +91,18 @@ class ilCourseDefinedFieldDefinition
 	 */
 	public static function _clone($a_source_id,$a_target_id)
 	{
+// fau: courseUdf - clone extended properties
+		$origFields = array();
+		$clonedFields = array();
+		$idMap = array();
+
+		/** @var ilCourseDefinedFieldDefinition $field_obj */
 		foreach(ilCourseDefinedFieldDefinition::_getFields($a_source_id) as $field_obj)
+		{
+			$origFields[$field_obj->getId()] = $field_obj;
+		}
+
+		foreach($origFields as $field_id => $field_obj)
 		{
 			$cdf = new ilCourseDefinedFieldDefinition($a_target_id);
 			$cdf->setName($field_obj->getName());
@@ -99,8 +110,27 @@ class ilCourseDefinedFieldDefinition
 			$cdf->setValues($field_obj->getValues());
 			$cdf->setValueOptions($field_obj->getValueOptions());
 			$cdf->enableRequired($field_obj->isRequired());
+			$cdf->setDescription($field_obj->getDescription());
+			$cdf->setEmailText($field_obj->getEmailText());
+			$cdf->setEmailAuto($field_obj->getEmailAuto());
+			$cdf->setParentFieldId($field_obj->getParentFieldId());
+			$cdf->setParentValueId($field_obj->getParentValueId());
 			$cdf->save();
+
+			$idMap[$field_obj->getId()] = $cdf->getId();
+			$clonedFields[$cdf->getId()] = $cdf;
 		}
+
+		// map the cloned parent ids
+		/** @var ilCourseDefinedFieldDefinition $cdf */
+		foreach ($clonedFields as $field_id => $cdf)
+		{
+			if ($cdf->getParentFieldId()) {
+				$cdf->setParentFieldId($idMap[$cdf->getParentFieldId()]);
+				$cdf->update();
+			}
+		}
+// fau.
 	}
 	
 	/**
@@ -180,6 +210,30 @@ class ilCourseDefinedFieldDefinition
 			}
 		}
 		return $fields;
+	}
+// fau.
+
+// fau: courseUdf - new function _getChildFields()
+	/**
+	 * Count the child fields assiciated with a field
+	 * @param $a_container_id
+	 * @param $a_field_id
+	 * @return ilCourseDefinedFieldDefinition[]
+	 */
+	public static function _getChildFields($a_container_id, $a_field_id)
+	{
+		global $ilDB;
+
+		$query = "SELECT field_id FROM crs_f_definitions ".
+			"WHERE obj_id = ".$ilDB->quote($a_container_id,'integer')." ".
+			"AND parent_field_id = " .$ilDB->quote($a_field_id,'integer');
+
+		$res = $ilDB->query($query);
+		$childs = array();
+		while($row = $ilDB->fetchObject($res)) {
+			$childs[] = new ilCourseDefinedFieldDefinition($a_container_id,$res->field_id);
+		}
+		return $childs;
 	}
 // fau.
 
@@ -547,6 +601,12 @@ class ilCourseDefinedFieldDefinition
 	 	$query = "DELETE FROM crs_f_definitions ".
 	 		"WHERE field_id = ".$this->db->quote($this->getId(),'integer')." ";
 		$res = $ilDB->manipulate($query);
+
+// fau: courseUdf - free the sub fields when parent field is deleted
+		$query = "UPDATE crs_f_definitions ".
+			"SET parent_field_id = NULL, parent_value_id = NULL WHERE parent_field_id = ".$this->db->quote($this->getId(),'integer')." ";
+		$res = $ilDB->manipulate($query);
+// fau.
 	}
 	
 	/**

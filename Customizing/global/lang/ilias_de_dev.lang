@@ -203,6 +203,7 @@ common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
 common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
 common#:#mem_external_notification_subject#:#Anmeldung von %s zu "%s"###fau: courseUdf
+common#:#mem_external_notification_subject_changed#:#Anmeldung von %s zu "%s" geändert###fau: courseUdf
 common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_fill_free_places#:#Freie Plätze auffüllen
 common#:#mem_max_users_hidden#:#Info für Admins:
@@ -564,6 +565,7 @@ ps#:#ps_cdf_is_sub_field_info#:#Dieses Feld ist einer Auswahlliste untergeordnet
 ps#:#ps_cdf_parent_field#:#Übergeordnetes Feld
 ps#:#ps_cdf_parent_value#:#Übergeordnete Auswahl
 ps#:#ps_type_checkbox#:#Checkbox
+ps#:#ps_type_select_info#:#ACHTUNG: Den Auswahlpositionen sind weitere Felder zugeordnet. Wenn Sie die Reihenfolge der Werte ändern, müssen, Sie die untergeordneten Felder anpassen!
 registration#:#registration_code_update_header#:#Code-Einstellungen bearbeiten###fau: regCodes - language vars
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie erhalten haben. Klicken Sie dann auf "Registrieren", um die Registrierung durchzuführen.
 registration#:#registration_code_optional_info#:#Wenn Sie einen Registrierungs-Code erhalten haben, geben Sie diesen bitte hier ein. Der Code legt Ihre Möglichkeiten in StudOn fest. Wenn Sie keinen Code besitzen, lassen sie das Feld leer. Klicken Sie anschließend auf "Registrieren".

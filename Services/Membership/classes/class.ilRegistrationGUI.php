@@ -603,7 +603,10 @@ abstract class ilRegistrationGUI
 			$this->show();
 			return false;
 		}
-		
+
+		include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
+		ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
+
 		$this->add();
 	}
 	
@@ -737,6 +740,8 @@ abstract class ilRegistrationGUI
 		{
 			include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
 			ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
+
+			$this->participants->sendExternalNotifications($this->container, $ilUser, true);
 
 			$this->getWaitingList()->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
 			ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
