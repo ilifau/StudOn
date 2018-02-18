@@ -48,7 +48,6 @@ class ilSubscribersStudyCondTableGUI extends ilTable2GUI
         $this->setDefaultOrderDirection("asc");
         $this->setPrefix("studycond_conditions");
         $this->addCommandButton("create", $lng->txt("studycond_add_condition"));
-       	$this->addCommandButton("back", $lng->txt("back"));
 		$this->readData();
     }
 

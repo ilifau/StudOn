@@ -18,6 +18,13 @@ include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
 
 class ilSubscribersStudyCondGUI
 {
+	/** @var  string page peadline */
+	protected $headline;
+	/** @var  string page info */
+	protected $info;
+	/** @var  bool provide a bacl link */
+	protected $with_backlink;
+
 	/**
 	* Constructor
 	* @access public
@@ -32,6 +39,10 @@ class ilSubscribersStudyCondGUI
 		$this->parent_gui =& $a_parent_gui;
 		$this->parent_obj_id = $this->parent_gui->object->getId();
 		$this->parent_ref_id = $this->parent_gui->object->getRefId();
+
+		$this->headline = $this->lng->txt("studycond_condition_headline");
+		$this->info = $this->lng->txt("studycond_condition_combi_info");
+		$this->with_backlink = true;
 	}
 
 
@@ -59,12 +70,70 @@ class ilSubscribersStudyCondGUI
 		return true;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getHeadline()
+	{
+		return $this->headline;
+	}
+
+	/**
+	 * @param string $headline
+	 */
+	public function setHeadline($headline)
+	{
+		$this->headline = $headline;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getInfo()
+	{
+		return $this->info;
+	}
+
+	/**
+	 * @param string $info
+	 */
+	public function setInfo($info)
+	{
+		$this->info = $info;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isWithBacklink()
+	{
+		return $this->with_backlink;
+	}
+
+	/**
+	 * @param bool $with_backlink
+	 */
+	public function setWithBacklink($with_backlink)
+	{
+		$this->with_backlink = $with_backlink;
+	}
+
 
 	private function show($a_html)
 	{
+		if ($this->isWithBacklink())
+		{
+			/** @var ilToolBarGUI $ilToolbar */
+			global $ilToolbar;
+			$back = ilLinkButton::getInstance();
+			$back->setUrl($this->ctrl->getLinkTarget($this, 'back'));
+			$back->setCaption('back');
+			$ilToolbar->addButtonInstance($back);
+		}
+
 		$tpl = new ilTemplate("tpl.list_subscribers_studycond.html", true, true, "Services/Membership");
- 		$tpl->setVariable("CONDITIONS_HEADLINE", $this->lng->txt("studycond_condition_headline"));
- 		$tpl->setVariable("CONDITIONS_COMBI_INFO", $this->lng->txt("studycond_condition_combi_info"));
+ 		$tpl->setVariable("CONDITIONS_HEADLINE", $this->getHeadline());
+ 		$tpl->setVariable("CONDITIONS_COMBI_INFO",$this->getInfo());
 		$tpl->setVariable("CONDITIONS_CONTENT", $a_html);
 		$tpl->parse();
 		$this->tpl->setContent($tpl->get());

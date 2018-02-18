@@ -269,8 +269,8 @@ class ilSubscribersStudyCond
 	/**
 	 * get the textual version of all conditions for an object
 	 *
-	 * @param 	int 		obj_id
-	 * @param   string   	conditions text
+	 * @param 	int 		$a_obj_id
+	 * @return   string   	conditions text
 	 */
 	public static function _getConditionsText($a_obj_id)
 	{
