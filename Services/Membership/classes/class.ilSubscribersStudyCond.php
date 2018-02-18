@@ -321,7 +321,22 @@ class ilSubscribersStudyCond
 			return $lng->txt('studycond_no_condition_defined');
 		}
 	}
-	
+
+	/**
+	 * Clone the studydata conditions from one object to another
+	 * @param $old_obj_id
+	 * @param $new_obj_id
+	 */
+	public static function _clone($old_obj_id, $new_obj_id)
+	{
+		foreach (self::_getConditionsData($old_obj_id) as $row)
+		{
+			$condition = new ilSubscribersStudyCond();
+			$condition->setRowData($row);
+			$condition->setObjId($new_obj_id);
+			$condition->create();
+		}
+	}
 	
 	/**
 	 * Check the studydata conditions for a user and an object
