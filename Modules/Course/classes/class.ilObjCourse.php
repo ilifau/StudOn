@@ -374,7 +374,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	function getSubscriptionType()
 	{
 		// fim: [memfix] set the default subscription type to confirmation
-		return $this->subscription_type ? $this->subscription_type : IL_CRS_SUBSCRIPTION_CONFIRMATION;
+		return isset($this->subscription_type) ? $this->subscription_type : IL_CRS_SUBSCRIPTION_CONFIRMATION;
 		// fim.
 	}
 	function setSubscriptionType($a_value)
