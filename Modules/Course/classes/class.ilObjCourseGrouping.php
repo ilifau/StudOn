@@ -385,7 +385,9 @@ class ilObjCourseGrouping
 		$condh =& new ilConditionHandler();
 
 		// DELETE also original course if its the last
-		if($this->getCountAssignedCourses() == 2)
+// fau: limitSub - fix deassign
+		if($this->getCountAssignedItems() == 2)
+// fau.
 		{
 			$condh->deleteByObjId($this->getId());
 
