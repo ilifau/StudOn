@@ -5,7 +5,32 @@
 *  fim: [univis] class for mapping univis entities to studon objects
 */
 class ilUnivis
-{	
+{
+	static $start_dates = array(
+		'2016w' => '2016-10-17',
+		'2017s' => '2017-04-24',
+		'2017w' => '2017-10-16',
+		'2018s' => '2018-04-09',
+		'2018w' => '2018-10-15',
+		'2019s' => '2019-04-23',
+		'2019w' => '2019-10-14',
+		'2020s' => '2020-04-20',
+		'2020w' => '2020-10-12'
+	);
+
+	static $end_dates = array(
+		'2016w' => '2017-02-11',
+		'2017s' => '2017-07-30',
+		'2017w' => '2018-02-10',
+		'2018s' => '2018-07-14',
+		'2018w' => '2019-02-09',
+		'2019s' => '2019-07-27',
+		'2019w' => '2020-02-07',
+		'2020s' => '2020-07-24',
+		'2020w' => '2021-02-05'
+	);
+
+
 	/**
 	* Get all untrashed objects for an import id
 	*
@@ -126,5 +151,34 @@ class ilUnivis
 	    return sprintf("%04d%s", $cur_year, $cur_sem);
 	}
 
+
+	/**
+	 * Get the date string of the lectures start
+	 * @param string $a_semester
+	 * @return string					e.g. '2018-04-09'
+	 */
+	public static function _getLecturesStartDate($a_semester)
+	{
+		if (isset(self::$start_dates[$a_semester]))
+		{
+			return self::$start_dates[$a_semester];
+		}
+		return '';
+	}
+
+
+	/**
+	 * Get the date string of the lectures end
+	 * @param string $a_semester
+	 * @return string		e.g. '2018-07-24'
+	 */
+	public static function _getLecturesEndDate($a_semester)
+	{
+		if (isset(self::$end_dates[$a_semester]))
+		{
+			return self::$end_dates[$a_semester];
+		}
+		return '';
+	}
 }
 ?>

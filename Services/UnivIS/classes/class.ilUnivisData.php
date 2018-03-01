@@ -85,6 +85,14 @@ class ilUnivisData
 	    $this->data = $a_row;
 	}
 
+	/**
+	 * Get the data array
+	 */
+	function getData()
+	{
+		return $this->data;
+	}
+
 	//////////////////////////////////////
 	// Mimimum functions to be implemented
 	//////////////////////////////////////

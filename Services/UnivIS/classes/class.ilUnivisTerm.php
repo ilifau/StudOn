@@ -148,6 +148,106 @@ class ilUnivisTerm extends ilUnivisData
 		return $info;
 	}
 
+	/**
+	 * Get the starting date
+	 * @return string	e.g. '2018-05-02'
+	 */
+	function getStartDate()
+	{
+		if (!empty($this->data['startdate']))
+		{
+			return $this->data['startdate'];
+		}
+
+		require_once('Services/UnivIS/classes/class.ilUnivis.php');
+		return ilUnivis::_getLecturesStartDate($this->data['semester']);
+	}
+
+	/**
+	 * Get the starting date
+	 * @return string	e.g. '2018-05-02'
+	 */
+	function getEndDate()
+	{
+		if (!empty($this->data['enddate']))
+		{
+			return $this->data['enddate'];
+		}
+
+		$rep = explode(' ', $this->data['repeat']);
+		switch (substr($rep[0], 1, 1))
+		{
+			case 's': // single
+			case 'b': // block
+				return $this->getStartDate();
+		}
+
+		require_once('Services/UnivIS/classes/class.ilUnivis.php');
+		return ilUnivis::_getLecturesEndDate($this->data['semester']);
+	}
+
+	/**
+	 * Get the start time, e.g. '08:00'
+	 * @return bool|string
+	 */
+	function getStartTime()
+	{
+		if (empty($this->data['starttime']))
+		{
+			return '06:00';
+		}
+		else
+		{
+			return substr('00'.$this->data['starttime'], -5);
+		}
+	}
+
+	/**
+	 * Get the end time, e.g. '10:00'
+	 * @return bool|string
+	 */
+	function getEndTime()
+	{
+		if (empty($this->data['endtime']))
+		{
+			return '22:00';
+		}
+		else
+		{
+			return substr('00'.$this->data['endtime'], -5);
+		}
+	}
+
+
+	/**
+	 * Get the weekdays
+	 * @return int[]	sunday is 0
+	 */
+	function getWeekdays()
+	{
+		$rep = explode(' ', $this->data['repeat']);
+		$days = explode(',', $rep[1]);
+
+		if ($rep[0] == 'd')
+		{
+			return array(0,1,2,3,4,5,6);
+		}
+
+		$return = array();
+		foreach ($days as $day)
+		{
+			if (strlen(trim($day)))
+			{
+				$day = (int) $day;
+				if ($day >= 0 and $day < 6)
+				{
+					$return[] = $day;
+				}
+			}
+		}
+		return $return;
+	}
+
 
     /**
 	* Get all terms of a lecture
