@@ -1272,16 +1272,16 @@ class ilInitialisation
 		{
 			return;
 		}
-// fau: keepSessionOnRoot - prevent destroying
-		if(self::showingLoginForm($current_script))
-		{
-			// login form is shown or user tries to authenticate => destroy old user session
-			$ilAuth->logout();
-			ilSession::_destroy(session_id(), ilSession::SESSION_CLOSE_LOGIN);
-			ilSession::set('AccountId', null);
-
-			ilLoggerFactory::getLogger('auth')->debug('Logout called for old session on login request');
-		}
+// fau: rootAsLogin - prevent logout when root page is shown
+//		if(self::showingLoginForm($current_script))
+//		{
+//			// login form is shown or user tries to authenticate => destroy old user session
+//			$ilAuth->logout();
+//			ilSession::_destroy(session_id(), ilSession::SESSION_CLOSE_LOGIN);
+//			ilSession::set('AccountId', null);
+//
+//			ilLoggerFactory::getLogger('auth')->debug('Logout called for old session on login request');
+//		}
 // fau.
 
 

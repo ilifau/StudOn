@@ -1218,34 +1218,7 @@ abstract class assQuestionGUI
 		}
 	}
 
-	/**
-	 * Get tags allowed in question tags in self assessment mode
-	 * @return array array of tags
-	 */
-	function getSelfAssessmentTags()
-	{
-		// set tags we allow in self assessment mode
-		$st = ilUtil::getSecureTags();
-		
-		// we allow these tags, since they are typically used in the Tiny Assessment editor
-		// and should not be deleted, if questions are copied from pools to learning modules
-		$not_supported = array("img", "p");
-		$tags = array();
-		foreach ($st as $s)
-		{
-			if (!in_array($s, $not_supported))
-			{
-				$tags[] = $s;
-			}
-		}
-// fau: fixHtmlInGapText - allow line breaks in question text of cloze question on lm pages
-		$tags[] = 'br';
-		$tags[] = 'p';
-// fau.
 
-		return $tags;
-	}
-	
 	/**
 	 * fetches solutions from database and prefers intermediate solutions,
 	 * but falls back to authorized solutions. without any solution null is returned.
