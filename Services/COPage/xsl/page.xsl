@@ -92,6 +92,7 @@
 <xsl:param name="enable_my_courses"/>
 <xsl:param name="enable_amd_page_list"/>
 <xsl:param name="current_ts"/>
+<xsl:param name="enable_html_mob"/>
 <!-- fim: [exam] add parameter to show fullscreen media with colorbox -->
 <xsl:param name="fullscreen_in_colorbox"/>
 <!-- fim. -->
@@ -220,31 +221,25 @@
 		<xsl:variable name="corig"><xsl:value-of select="../@Id"/></xsl:variable>
 		<xsl:variable name="corigp"><xsl:value-of select="@Purpose"/></xsl:variable>
 		
-		<xsl:choose>
-			<!-- If we got a alias item map, take this -->
-			<xsl:when test="//MediaAlias[@OriginId = $corig]/../MediaAliasItem[@Purpose = $corigp]/MapArea[1]">
-				<xsl:for-each select="//MediaAlias[@OriginId = $corig]/../MediaAliasItem[@Purpose = $corigp]/MapArea[1]">
-					<map>
-						<xsl:attribute name="name">map_<xsl:value-of select="$corig"/>_<xsl:value-of select="$corigp"/></xsl:attribute>
-						<xsl:if test="name(../..) = 'InteractiveImage'">
-							<xsl:attribute name="class">iim</xsl:attribute>
-						</xsl:if>
-						<xsl:call-template name="outputImageMapAreas" />
-						<xsl:comment>Break</xsl:comment>
-					</map>
-				</xsl:for-each>
-			</xsl:when>
-			<xsl:otherwise>
-				<!-- Otherwose, if we got an object item map, take this -->
-				<xsl:for-each select="./MapArea[1]">
-					<map>
-						<xsl:attribute name="name">map_<xsl:value-of select="$corig"/>_<xsl:value-of select="$corigp"/></xsl:attribute>
-						<xsl:call-template name="outputImageMapAreas" />
-						<xsl:comment>Break</xsl:comment>
-					</map>
-				</xsl:for-each>
-			</xsl:otherwise>
-		</xsl:choose>
+			<!-- Maps for alias items -->
+			<xsl:for-each select="//MediaAlias[@OriginId = $corig]/../MediaAliasItem[@Purpose = $corigp]/MapArea[1]">
+				<map>
+					<xsl:attribute name="name">map_<xsl:value-of select="$corig"/>_<xsl:value-of select="$corigp"/>_<xsl:number count="MediaAliasItem" level="any" /></xsl:attribute>
+					<xsl:if test="name(../..) = 'InteractiveImage'">
+						<xsl:attribute name="class">iim</xsl:attribute>
+					</xsl:if>
+					<xsl:call-template name="outputImageMapAreas" />
+					<xsl:comment>Break</xsl:comment>
+				</map>
+			</xsl:for-each>
+			<!-- Default map -->
+			<xsl:for-each select="./MapArea[1]">
+				<map>
+					<xsl:attribute name="name">map_<xsl:value-of select="$corig"/>_<xsl:value-of select="$corigp"/></xsl:attribute>
+					<xsl:call-template name="outputImageMapAreas" />
+					<xsl:comment>Break</xsl:comment>
+				</map>
+			</xsl:for-each>
 	</xsl:for-each>
 </xsl:template>
 
@@ -2510,7 +2505,6 @@
 	<xsl:param name="curPurpose"/>
 	<xsl:param name="data"/>
 	<xsl:param name="inline"/>
-
 	<img border="0">
 		<xsl:if test = "$map_item = '' or $cmobid != concat('il__mob_',$map_mob_id)">
 			<xsl:attribute name="src"><xsl:value-of select="$data"/></xsl:attribute>
@@ -2528,6 +2522,10 @@
 			or ./MapArea[@Shape != 'WholePicture'][1]">
 			<xsl:if test="name(..) != 'InteractiveImage' or $mode != 'edit'">
 				<xsl:attribute name="usemap">#map_<xsl:value-of select="$cmobid"/>_<xsl:value-of select="$curPurpose"/></xsl:attribute>
+				<!-- If we got an alias item map, add counter for item to the map id -->
+				<xsl:if test="./MapArea[1]">
+					<xsl:attribute name="usemap">#map_<xsl:value-of select="$cmobid"/>_<xsl:value-of select="$curPurpose"/>_<xsl:number count="MediaAliasItem" level="any" /></xsl:attribute>
+				</xsl:if>
 			</xsl:if>
 		</xsl:if>
 		<xsl:if test="name(..) = 'InteractiveImage'">
@@ -2784,17 +2782,19 @@
 
 		<!-- text/html -->
 		<xsl:when test="$type = 'text/html'">
-			<iframe frameborder="0">
-				<xsl:attribute name="src"><xsl:value-of select="$data"/></xsl:attribute>
-				<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
-				<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>
-				<xsl:call-template name="MOBParams">
-					<xsl:with-param name="curPurpose" select="$curPurpose" />
-					<xsl:with-param name="mode">attributes</xsl:with-param>
-					<xsl:with-param name="cmobid" select="$cmobid" />
-				</xsl:call-template>
-				<xsl:comment>Comment to have separate iframe ending tag</xsl:comment>
-			</iframe>
+			<xsl:if test = "$enable_html_mob = 'y'">
+				<iframe frameborder="0">
+					<xsl:attribute name="src"><xsl:value-of select="$data"/></xsl:attribute>
+					<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
+					<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>
+					<xsl:call-template name="MOBParams">
+						<xsl:with-param name="curPurpose" select="$curPurpose" />
+						<xsl:with-param name="mode">attributes</xsl:with-param>
+						<xsl:with-param name="cmobid" select="$cmobid" />
+					</xsl:call-template>
+					<xsl:comment>Comment to have separate iframe ending tag</xsl:comment>
+				</iframe>
+			</xsl:if>
 		</xsl:when>
 		
 		<!-- application/pdf -->
@@ -2816,6 +2816,21 @@
 
 		<!-- YouTube -->
 		<xsl:when test = "substring-after($data,'youtube.com') != ''">
+			<!-- iframe instead of object tag, see bug #21657 -->
+			<iframe frameborder="0" allowfullscreen="1">
+				<xsl:if test="$width != ''">
+					<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
+				</xsl:if>
+				<xsl:if test="$height != ''">
+					<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>
+				</xsl:if>
+				<xsl:attribute name="src">
+					<xsl:value-of select="$httpprefix"/>//www.youtube.com/embed/<xsl:value-of select="//MediaObject[@Id=$cmobid]/MediaItem[@Purpose=$curPurpose]/Parameter[@Name='v']/@Value" />
+				</xsl:attribute>
+				<xsl:comment>Comment to have separate iframe ending tag</xsl:comment>
+			</iframe>
+		</xsl:when>
+		<xsl:when test = "substring-after($data,'xxxyoutube.com') != ''">
 			<object>
 				<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
 				<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>

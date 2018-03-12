@@ -71,14 +71,6 @@ class ilQtiMatImageSecurity
 	
 	public function validate()
 	{
-// fau: preventQtiImageValidate - optionally prevent validation of images
-		global $ilCust;
-		if ($ilCust->getSetting('tst_prevent_image_validate'))
-		{
-			return true;
-		}
-// fau.
-
 		if( !$this->validateLabel() )
 		{
 			return false;
@@ -94,9 +86,7 @@ class ilQtiMatImageSecurity
 	
 	protected function validateContent()
 	{
-// fau: fixQtiImageCheck - allow empty imagetype if image is not embedded
 		if($this->getImageMaterial()->getImagetype() && !assQuestion::isAllowedImageMimeType($this->getImageMaterial()->getImagetype()) )
-// fau.
 		{
 			return false;
 		}
@@ -106,7 +96,6 @@ class ilQtiMatImageSecurity
 			return false;
 		}
 
-// fau: fixQtiImageCheck - allow empty imagetype if image is not embedded
 		if ($this->getImageMaterial()->getImagetype())
 		{
 			$declaredMimeType = assQuestion::fetchMimeTypeIdentifier($this->getImageMaterial()->getImagetype());
@@ -114,17 +103,23 @@ class ilQtiMatImageSecurity
 
 			if( $declaredMimeType != $detectedMimeType )
 			{
-				return false;
+				// since ilias exports jpeg declared pngs itself, we skip this validation ^^
+				// return false;
+				
+				/* @var ilComponentLogger $log */
+				$log = $GLOBALS['DIC'] ? $GLOBALS['DIC']['ilLog'] : $GLOBALS['ilLog'];
+				$log->log(
+					'QPL: imported image with declared mime ('.$declaredMimeType.') '
+					.'and detected mime ('.$detectedMimeType.')'
+				);
 			}
 		}
-// fau.
-		
+
 		return true;
 	}
 	
 	protected function validateLabel()
 	{
-// fau: fixQtiImageCheck - get extension from uri if image is not embedded
 		if ($this->getImageMaterial()->getUri())
 		{
 			$extension = $this->determineFileExtension($this->getImageMaterial()->getUri());
@@ -133,7 +128,7 @@ class ilQtiMatImageSecurity
 		{
 			$extension = $this->determineFileExtension($this->getImageMaterial()->getLabel());
 		}
-// fau.
+
 		return assQuestion::isAllowedImageFileExtension($this->getDetectedMimeType(), $extension);
 	}
 	

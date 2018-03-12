@@ -22,6 +22,7 @@
 */
 
 include_once("./Services/Xml/classes/class.ilSaxParser.php");
+include_once 'Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/class.ilAssQuestionTypeList.php';
 
 define ("IL_MO_PARSE_QTI",  1);
 define ("IL_MO_VERIFY_QTI", 2);
@@ -49,12 +50,12 @@ class ilQTIParser extends ilSaxParser
 	var $render_type;
 	var $response_label;
 	var $material;
-// fau: fix51 - qti image security
+
 	/**
 	 * @var ilQTIMatimage
 	 */
-// fau.
 	var $matimage;
+
 	var $response;
 	var $resprocessing;
 	var $outcomes;
@@ -685,12 +686,10 @@ class ilQTIParser extends ilSaxParser
 								break;
 						}
 					}
-// fau: fixQtiImageCheck - set the content from referenced file
-					if (!$this->matimage->getEmbedded() && strlen($this->matimage->getUri()))
-					{
-						$this->matimage->setContent(file_get_contents(dirname($this->xml_file) . '/'. $this->matimage->getUri()));
-					}
-// fau.
+				}
+				if (!$this->matimage->getEmbedded() && strlen($this->matimage->getUri()))
+				{
+					$this->matimage->setContent(@file_get_contents(dirname($this->xml_file) . '/'. $this->matimage->getUri()));
 				}
 				break;
 			case "material":
@@ -1098,8 +1097,8 @@ class ilQTIParser extends ilSaxParser
 				$this->characterbuffer = "";
 				break;
 			// fim.
-				
-				
+
+
 			case "qtimetadatafield":
 				// handle only specific ILIAS metadata
 				switch ($this->metadata["label"])
@@ -1314,6 +1313,11 @@ class ilQTIParser extends ilSaxParser
 				$qt = $this->item->determineQuestionType();
 				$presentation = $this->item->getPresentation(); 
 				
+				if( !ilAssQuestionTypeList::isImportable($qt) )
+				{
+					return;
+				}
+
 				include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
 				assQuestion::_includeClass($qt);
 				$question = new $qt();
@@ -1381,8 +1385,8 @@ class ilQTIParser extends ilSaxParser
 				}
 				$this->material = NULL;
 				break;
-// fau: fix51 - qti image security
 			case "matimage";
+
 				if( !$this->isMatImageAvailable() )
 				{
 					break;
@@ -1405,7 +1409,7 @@ class ilQTIParser extends ilSaxParser
 				$this->material->addMatimage($this->matimage);
 				$this->matimage = NULL;
 				break;
-// fau.
+
 			// add support for matbreak element
 			case "matbreak":
 				$this->mattext = new ilQTIMattext();
@@ -1432,9 +1436,9 @@ class ilQTIParser extends ilSaxParser
 				$this->mattext = new ilQTIMattext();
 				$this->mattext->setContent('<br />');
 				$this->material->addMattext($this->mattext);
-				$this->mattext = NULL;	
+				$this->mattext = NULL;
 				break;
-			// fim. 
+			// fim.
 			case "matapplet":
 				if ($this->material != NULL)
 				{
@@ -1471,16 +1475,13 @@ class ilQTIParser extends ilSaxParser
 		$this->characterbuffer .= $a_data;
 		$a_data = $this->characterbuffer;
 		switch ($this->qti_element)
-		{	
-			/* fim: [bugfix] allow metadata fields being indended
+		{
 			case "fieldlabel":
 				$this->metadata["label"] = $a_data;
 				break;
 			case "fieldentry":
 				$this->metadata["entry"] = $a_data;
 				break;
-			fim. */
-				
 			case "response_label":
 				if ($this->response_label != NULL)
 				{
@@ -1852,13 +1853,12 @@ class ilQTIParser extends ilSaxParser
 		return $xmlContent;
 	}
 
-// fau: fix51 - qti image security
 	protected function isMatImageAvailable()
 	{
 		if( !$this->material )
 		{
 			return false;
-}
+		}
 
 		if( !$this->matimage )
 		{
@@ -1880,5 +1880,4 @@ class ilQTIParser extends ilSaxParser
 
 		return (bool)$vs->scanBuffer($buffer);
 	}
-// fau.
 }

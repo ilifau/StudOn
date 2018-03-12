@@ -131,8 +131,6 @@
 			<Field store="YES" index="ANALYZED" column="country" type="text" name="uCountry" />
 			<Field store="YES" index="ANALYZED" column="country" type="text" name="uPropertyHigh" />
 		</DataSource>
-		<!-- fau: fix51 - 0020055: duplicate extraction of email for user-accounts -->
-		<!-- fau. -->
 		<DataSource type="JDBC" action="append">
 			<Query>
 				SELECT hobby FROM usr_data u 

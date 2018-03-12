@@ -984,7 +984,7 @@ class ilTemplate extends ilTemplateX
 			}
 			
 			$ftpl->setCurrentBlock("items");
-			$ftpl->setVariable("URL_ITEM", $url);
+			$ftpl->setVariable("URL_ITEM", ilUtil::secureUrl($url));
 			$ftpl->setVariable("TXT_ITEM", $caption[0]);
 			$ftpl->parseCurrentBlock();			
 		}
@@ -2630,7 +2630,7 @@ class ilTemplate extends ilTemplateX
 			}
 		}
 		// personal workspace
-		else if ($_GET["wsp_id"] != "")
+		else if ($_GET["wsp_id"] != "" && $_GET["wsp_id"] > 0)
 		{
 			include_once "Services/PersonalWorkspace/classes/class.ilWorkspaceTree.php";			
 			$tree = new ilWorkspaceTree($ilUser->getId());									

@@ -1,0 +1,557 @@
+On branch studon51-update
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+
+Changes to be committed:
+
+	modified:   Modules/Blog/classes/class.ilObjBlog.php
+	modified:   Modules/BookingManager/classes/class.ilBookingObject.php
+	modified:   Modules/BookingManager/classes/class.ilObjBookingPoolAccess.php
+	modified:   Modules/BookingManager/module.xml
+	modified:   Modules/Category/classes/class.ilCategoryImporter.php
+	modified:   Modules/Category/classes/class.ilObjCategoryGUI.php
+	modified:   Modules/Chatroom/classes/admintasks/class.ilChatroomAdminSmileyTask.php
+	modified:   Modules/Chatroom/classes/class.ilObjChatroomAccess.php
+	modified:   Modules/Chatroom/module.xml
+	modified:   Modules/Cloud/classes/class.ilCloudPluginFileTreeGUI.php
+	modified:   Modules/Cloud/exceptions/class.ilCloudException.php
+	modified:   Modules/Course/classes/Objectives/class.ilLOEditorGUI.php
+	modified:   Modules/Course/classes/Objectives/class.ilLOTestRun.php
+	modified:   Modules/DataCollection/classes/class.ilDataCollectionDatatype.php
+	modified:   Modules/DataCollection/classes/class.ilDataCollectionRecordListGUI.php
+	modified:   Modules/Exercise/classes/class.ilExAssignment.php
+	modified:   Modules/Exercise/classes/class.ilExPeerReview.php
+	modified:   Modules/Exercise/classes/class.ilExSubmission.php
+	modified:   Modules/Exercise/classes/class.ilExerciseMembers.php
+	modified:   Modules/Exercise/classes/class.ilExerciseXMLParser.php
+	modified:   Modules/Exercise/classes/class.ilFSStorageExercise.php
+	modified:   Modules/File/classes/class.ilFileXMLParser.php
+	modified:   Modules/File/classes/class.ilObjFile.php
+	modified:   Modules/File/classes/class.ilObjFileAccess.php
+	modified:   Modules/File/module.xml
+	modified:   Modules/Forum/classes/class.ilForum.php
+	modified:   Modules/Forum/classes/class.ilForumAppEventListener.php
+	modified:   Modules/Forum/classes/class.ilForumCronNotification.php
+	modified:   Modules/Forum/classes/class.ilForumCronNotificationDataProvider.php
+	modified:   Modules/Forum/classes/class.ilForumMailNotification.php
+	modified:   Modules/Forum/classes/class.ilForumPost.php
+	modified:   Modules/Forum/classes/class.ilForumPostsDeleted.php
+	modified:   Modules/Forum/classes/class.ilObjForumGUI.php
+	modified:   Modules/Forum/classes/class.ilObjForumNotificationDataProvider.php
+	modified:   Modules/Forum/interfaces/interface.ilForumNotificationMailData.php
+	modified:   Modules/Forum/templates/default/tpl.frm_activation_post_form.html
+	modified:   Modules/Glossary/classes/class.ilGlossaryTermGUI.php
+	modified:   Modules/Group/classes/class.ilFileDataImportGroup.php
+	modified:   Modules/Group/classes/class.ilObjGroupGUI.php
+	modified:   Modules/ItemGroup/classes/class.ilObjItemGroup.php
+	modified:   Modules/ItemGroup/classes/class.ilObjItemGroupGUI.php
+	modified:   Modules/LearningModule/classes/class.ilContObjParser.php
+	modified:   Modules/LearningModule/classes/class.ilLMPageObjectGUI.php
+	modified:   Modules/LearningModule/classes/class.ilLMPresentationGUI.php
+	modified:   Modules/LearningModule/classes/class.ilLearningModuleDataSet.php
+	modified:   Modules/LearningModule/js/LearningModule.js
+	modified:   Modules/LearningModule/templates/default/tpl.glossary_term_output.html
+	modified:   Modules/LearningModule/templates/default/tpl.page_fullscreen.html
+	modified:   Modules/LearningModule/templates/default/tpl.page_preconditions.html
+	modified:   Modules/MediaCast/classes/class.ilObjMediaCastGUI.php
+	modified:   Modules/MediaPool/classes/class.ilObjMediaPool.php
+	modified:   Modules/OrgUnit/classes/SimpleImport/class.ilOrgUnitSimpleImport.php
+	modified:   Modules/OrgUnit/classes/class.ilObjOrgUnit.php
+	modified:   Modules/OrgUnit/classes/class.ilObjOrgUnitGUI.php
+	modified:   Modules/OrgUnit/classes/class.ilOrgUnitExportGUI.php
+	modified:   Modules/OrgUnit/classes/class.ilOrgUnitExporter.php
+	modified:   Modules/Poll/classes/class.ilObjPoll.php
+	modified:   Modules/Portfolio/classes/class.ilObjPortfolioBase.php
+	modified:   Modules/Portfolio/classes/class.ilObjPortfolioBaseGUI.php
+	modified:   Modules/Portfolio/classes/class.ilObjPortfolioGUI.php
+	modified:   Modules/Portfolio/classes/class.ilPortfolioAccessHandler.php
+	modified:   Modules/Portfolio/classes/class.ilPortfolioDataSet.php
+	modified:   Modules/Portfolio/classes/class.ilPortfolioExporter.php
+	modified:   Modules/Portfolio/classes/class.ilPortfolioHTMLExport.php
+	modified:   Modules/Portfolio/classes/class.ilPortfolioRepositoryGUI.php
+	modified:   Modules/Scorm2004/classes/class.ilObjSCORM2004LearningModuleGUI.php
+	modified:   Modules/Scorm2004/classes/class.ilQuestionExporter.php
+	modified:   Modules/Scorm2004/classes/class.ilSCORM2004Page.php
+	modified:   Modules/Scorm2004/classes/class.ilSCORM2004Sco.php
+	modified:   Modules/Scorm2004/classes/class.ilSCORM2004ScoGUI.php
+	modified:   Modules/Scorm2004/scripts/buildrte/rte-min.js
+	modified:   Modules/Scorm2004/scripts/questions/question_handling.js
+	modified:   Modules/Scorm2004/scripts/rtemain/main.js
+	modified:   Modules/Scorm2004/templates/default/tpl.question_export.html
+	modified:   Modules/Scorm2004/templates/default/tpl.scorm2004.player.html
+	modified:   Modules/ScormAicc/classes/SCORM/class.ilSCORMPackageParser.php
+	modified:   Modules/Session/classes/class.ilObjSessionGUI.php
+	modified:   Modules/StudyProgramme/classes/class.ilObjStudyProgrammeIndividualPlanGUI.php
+	modified:   Modules/StudyProgramme/classes/class.ilStudyProgrammeIndividualPlanTableGUI.php
+	modified:   Modules/StudyProgramme/classes/class.ilStudyProgrammeUserProgress.php
+	modified:   Modules/StudyProgramme/classes/model/class.ilStudyProgrammeProgress.php
+	modified:   Modules/StudyProgramme/test/ilStudyProgrammeProgressCalculationTest.php
+	modified:   Modules/StudyProgramme/test/mocks.php
+	modified:   Modules/Survey/classes/class.ilObjSurvey.php
+	modified:   Modules/Survey/classes/class.ilSurveyEditorGUI.php
+	modified:   Modules/Survey/classes/class.ilSurveyPageGUI.php
+	modified:   Modules/Survey/classes/class.ilSurveyParticipantsGUI.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveyMatrixQuestion.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveyMatrixQuestionGUI.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveyMetricQuestion.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveyMultipleChoiceQuestion.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveySingleChoiceQuestion.php
+	modified:   Modules/SurveyQuestionPool/classes/class.SurveyTextQuestion.php
+	modified:   Modules/SystemFolder/classes/class.ilSystemSupportContactsGUI.php
+	modified:   Modules/Test/classes/class.ilMarkSchemaGUI.php
+	modified:   Modules/Test/classes/class.ilObjTestDynamicQuestionSetConfigGUI.php
+	modified:   Modules/Test/classes/class.ilObjTestGUI.php
+	modified:   Modules/Test/classes/class.ilObjTestSettingsGeneralGUI.php
+	modified:   Modules/Test/classes/class.ilTestDynamicQuestionSetFilterSelection.php
+	modified:   Modules/Test/classes/class.ilTestEvaluationData.php
+	modified:   Modules/Test/classes/class.ilTestEvaluationGUI.php
+	modified:   Modules/Test/classes/class.ilTestEvaluationUserData.php
+	modified:   Modules/Test/classes/class.ilTestExport.php
+	modified:   Modules/Test/classes/class.ilTestExpressPageObjectGUI.php
+	modified:   Modules/Test/classes/class.ilTestFixedQuestionSetConfig.php
+	modified:   Modules/Test/classes/class.ilTestGradingMessageBuilder.php
+	modified:   Modules/Test/classes/class.ilTestPlayerDynamicQuestionSetGUI.php
+	modified:   Modules/Test/classes/class.ilTestQuestionNavigationGUI.php
+	modified:   Modules/Test/classes/class.ilTestSkillAdministrationGUI.php
+	modified:   Modules/Test/classes/tables/class.ilTestDynamicQuestionSetStatisticTableGUI.php
+	modified:   Modules/Test/templates/default/ta.css
+	modified:   Modules/Test/templates/default/tpl.il_as_tst_output.html
+	deleted:    Modules/Test/templates/default/tpl.il_as_tst_submission_review.html
+	modified:   Modules/TestQuestionPool/classes/class.assClozeSelectGap.php
+	modified:   Modules/TestQuestionPool/classes/class.assClozeTest.php
+	modified:   Modules/TestQuestionPool/classes/class.assErrorText.php
+	modified:   Modules/TestQuestionPool/classes/class.assErrorTextGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assFileUploadGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assFlashQuestionGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assFormulaQuestionResult.php
+	modified:   Modules/TestQuestionPool/classes/class.assImagemapQuestion.php
+	modified:   Modules/TestQuestionPool/classes/class.assImagemapQuestionGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assJavaApplet.php
+	modified:   Modules/TestQuestionPool/classes/class.assJavaAppletGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assKprimChoiceGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assLongMenu.php
+	modified:   Modules/TestQuestionPool/classes/class.assLongMenuGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assNumericGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assOrderingHorizontalGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assOrderingQuestionGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assTextQuestionGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.assTextSubsetGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.ilAnswerWizardInputGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.ilAssQuestionList.php
+	modified:   Modules/TestQuestionPool/classes/class.ilAssQuestionPreviewGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.ilLogicalAnswerComparisonExpressionInputGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.ilObjQuestionPoolGUI.php
+	modified:   Modules/TestQuestionPool/classes/class.ilQuestionsPlugin.php
+	modified:   Modules/TestQuestionPool/classes/export/qti12/class.assClozeTestExport.php
+	modified:   Modules/TestQuestionPool/classes/export/qti12/class.assErrorTextExport.php
+	modified:   Modules/TestQuestionPool/classes/export/qti12/class.assImagemapQuestionExport.php
+	modified:   Modules/TestQuestionPool/classes/export/qti12/class.assQuestionExport.php
+	modified:   Modules/TestQuestionPool/classes/feedback/class.ilAssKprimChoiceFeedback.php
+	modified:   Modules/TestQuestionPool/classes/feedback/class.ilAssMultiOptionQuestionFeedback.php
+	modified:   Modules/TestQuestionPool/classes/feedback/class.ilAssMultipleChoiceFeedback.php
+	modified:   Modules/TestQuestionPool/classes/feedback/class.ilAssQuestionFeedback.php
+	modified:   Modules/TestQuestionPool/classes/feedback/class.ilAssSingleChoiceFeedback.php
+	modified:   Modules/TestQuestionPool/classes/feedback/class.ilAssSingleOptionQuestionFeedback.php
+	modified:   Modules/TestQuestionPool/classes/import/qti12/class.assErrorTextImport.php
+	modified:   Modules/TestQuestionPool/classes/import/qti12/class.assQuestionImport.php
+	new file:   Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/class.ilAssQuestionTypeList.php
+	modified:   Modules/TestQuestionPool/classes/questions/LogicalAnswerCompare/ilAssLacCompositeValidator.php
+	new file:   Modules/TestQuestionPool/classes/questions/class.ilAssQuestionType.php
+	new file:   Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php
+	modified:   Modules/TestQuestionPool/classes/tables/class.assFileUploadFileTableGUI.php
+	modified:   Modules/TestQuestionPool/classes/tables/class.ilQuestionCumulatedStatisticsTableGUI.php
+	new file:   Modules/TestQuestionPool/interfaces/interface.ilAssSelfAssessmentMigrator.php
+	modified:   Modules/TestQuestionPool/templates/default/errortext.js
+	modified:   Modules/TestQuestionPool/templates/default/imagewizard.js
+	modified:   Modules/TestQuestionPool/templates/default/longMenuQuestion.js
+	modified:   Modules/TestQuestionPool/templates/default/test_javascript.css
+	new file:   Modules/TestQuestionPool/templates/default/tpl.il_as_aggregated_long_menu_answers_table.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_cloze_question_gap_numeric.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_cloze_question_gap_select.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_cloze_question_gap_text.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_cloze_question_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_cloze_question_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_cloze_question_output_solution_gap.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_errortext_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_errortext_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_fileupload_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_fileupload_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_formulaquestion_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_formulaquestion_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_imagemap_question_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_imagemap_question_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_lome_question_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_long_menu_select_gap.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_long_menu_text_gap.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_longmenu_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_kprim_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_kprim_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_mr_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_sr_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_nested_ordering_output_html.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_nested_ordering_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_numeric_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_numeric_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_ordering_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_orderinghorizontal_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_orderinghorizontal_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_orderinghorizontal_preview.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_text_question_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_text_question_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_textsubset_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_textsubset_output_solution.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_tst_solution_output.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.qpl_question_preview.html
+	modified:   Modules/TestQuestionPool/templates/default/tpl.qst_question_related_navigation.html
+	new file:   Modules/TestQuestionPool/templates/default/tpl.tst_question_additional_behaviour_checkbox.html
+	modified:   Modules/Wiki/classes/class.ilObjWiki.php
+	modified:   Modules/Wiki/classes/class.ilObjWikiGUI.php
+	modified:   Modules/Wiki/classes/class.ilPCAMDPageListGUI.php
+	modified:   Services/AccessControl/classes/class.ilConditionHandlerGUI.php
+	modified:   Services/AccessControl/classes/class.ilObjRole.php
+	modified:   Services/ActiveRecord/Views/Index/class.arIndexTableGUI.php
+	modified:   Services/Administration/classes/class.ilAdministrationGUI.php
+	modified:   Services/AdvancedMetaData/classes/class.ilAdvancedMDClaimingPlugin.php
+	modified:   Services/AuthApache/classes/class.ilAuthContainerApache.php
+	modified:   Services/AuthShibboleth/classes/User/class.shibUser.php
+	modified:   Services/AuthShibboleth/classes/class.ilAuthShibbolethSettingsGUI.php
+	modified:   Services/Authentication/classes/class.ilAuthBase.php
+	modified:   Services/Authentication/classes/class.ilAuthUtils.php
+	modified:   Services/Awareness/classes/class.ilAwarenessMailFeatureProvider.php
+	modified:   Services/Awareness/classes/class.ilAwarenessUserCollector.php
+	modified:   Services/Awareness/classes/class.ilAwarenessUserProviderMemberships.php
+	modified:   Services/Bookmarks/classes/class.ilBookmarkAdministrationTableGUI.php
+	modified:   Services/COPage/classes/class.ilCOPageImporter.php
+	modified:   Services/COPage/classes/class.ilMediaAliasItem.php
+	modified:   Services/COPage/classes/class.ilPCDataTableGUI.php
+	modified:   Services/COPage/classes/class.ilPCParagraph.php
+	modified:   Services/COPage/classes/class.ilPCQuestion.php
+	modified:   Services/COPage/classes/class.ilPCResourcesGUI.php
+	modified:   Services/COPage/classes/class.ilPageObject.php
+	modified:   Services/COPage/classes/class.ilPageObjectGUI.php
+	modified:   Services/Calendar/classes/class.ilCalendarAppointmentColors.php
+	modified:   Services/Calendar/classes/class.ilCalendarAppointmentGUI.php
+	modified:   Services/Certificate/classes/class.ilCertificateGUI.php
+	modified:   Services/Certificate/classes/class.ilObjCertificateSettingsGUI.php
+	modified:   Services/Component/classes/class.ilPlugin.php
+	modified:   Services/Contact/BuddySystem/classes/class.ilBuddyList.php
+	modified:   Services/Contact/BuddySystem/classes/class.ilBuddySystemGUI.php
+	modified:   Services/Contact/BuddySystem/classes/class.ilMailAutoCompleteBuddyRecipientsProvider.php
+	modified:   Services/Contact/BuddySystem/classes/tables/class.ilBuddySystemRelationsTableGUI.php
+	new file:   Services/Contact/BuddySystem/exceptions/class.ilBuddySystemRelationStateTransitionException.php
+	modified:   Services/Contact/BuddySystem/test/ilBuddyListTest.php
+	modified:   Services/Container/classes/class.ilContainer.php
+	modified:   Services/Container/classes/class.ilContainerObjectiveGUI.php
+	modified:   Services/Container/classes/class.ilContainerStartObjectsContentGUI.php
+	modified:   Services/Container/classes/class.ilContainerStartObjectsGUI.php
+	modified:   Services/ContainerReference/classes/class.ilContainerReferenceImporter.php
+	modified:   Services/CopyWizard/classes/class.ilCopyWizardOptions.php
+	new file:   Services/CopyWizard/js/ilCopyRedirection.js
+	modified:   Services/DataSet/classes/class.ilDataSet.php
+	new file:   Services/DataSet/service.xml
+	modified:   Services/Database/classes/class.ilAuthContainerMDB2.php
+	modified:   Services/Database/classes/class.ilDBUpdate.php
+	modified:   Services/FileDelivery/classes/class.ilFileDelivery.php
+	modified:   Services/FileSystem/classes/class.ilFileSystemGUI.php
+	modified:   Services/Form/classes/class.ilFileInputGUI.php
+	modified:   Services/Form/classes/class.ilFormPropertyGUI.php
+	modified:   Services/Form/classes/class.ilPropertyFormGUI.php
+	modified:   Services/Form/classes/class.ilTextAreaInputGUI.php
+	modified:   Services/Form/classes/class.ilTextInputGUI.php
+	modified:   Services/Form/templates/default/tpl.prop_tag_typeahead.html
+	modified:   Services/Form/templates/default/tpl.property_form.html
+	modified:   Services/GlobalCache/classes/Memcache/class.ilMemcacheServerTableGUI.php
+	modified:   Services/Help/js/ilHelp.js
+	modified:   Services/InfoScreen/classes/class.ilInfoScreenGUI.php
+	modified:   Services/Init/classes/class.ilErrorHandling.php
+	modified:   Services/Init/classes/class.ilStartUpGUI.php
+	modified:   Services/JavaScript/js/Basic.js
+	modified:   Services/LDAP/classes/class.ilLDAPCronSynchronization.php
+	modified:   Services/Language/classes/class.ilObjLanguage.php
+	modified:   Services/Language/classes/class.ilObjLanguageFolderGUI.php
+	modified:   Services/Mail/classes/class.ilMailFolderTableGUI.php
+	modified:   Services/Mail/phpmailer/VERSION
+	modified:   Services/Mail/phpmailer/class.phpmailer.php
+	modified:   Services/Mail/phpmailer/class.pop3.php
+	modified:   Services/Mail/phpmailer/class.smtp.php
+	deleted:    Services/Mail/phpmailer/examples/DKIM.phps
+	deleted:    Services/Mail/phpmailer/examples/code_generator.phps
+	deleted:    Services/Mail/phpmailer/examples/contents.html
+	deleted:    Services/Mail/phpmailer/examples/contentsutf8.html
+	deleted:    Services/Mail/phpmailer/examples/exceptions.phps
+	deleted:    Services/Mail/phpmailer/examples/gmail.phps
+	deleted:    Services/Mail/phpmailer/examples/gmail_xoauth.phps
+	deleted:    Services/Mail/phpmailer/examples/images/phpmailer.png
+	deleted:    Services/Mail/phpmailer/examples/images/phpmailer_mini.png
+	deleted:    Services/Mail/phpmailer/examples/index.html
+	deleted:    Services/Mail/phpmailer/examples/mail.phps
+	deleted:    Services/Mail/phpmailer/examples/mailing_list.phps
+	deleted:    Services/Mail/phpmailer/examples/pop_before_smtp.phps
+	deleted:    Services/Mail/phpmailer/examples/scripts/XRegExp.js
+	deleted:    Services/Mail/phpmailer/examples/scripts/shAutoloader.js
+	deleted:    Services/Mail/phpmailer/examples/scripts/shBrushPhp.js
+	deleted:    Services/Mail/phpmailer/examples/scripts/shCore.js
+	deleted:    Services/Mail/phpmailer/examples/scripts/shLegacy.js
+	deleted:    Services/Mail/phpmailer/examples/send_file_upload.phps
+	deleted:    Services/Mail/phpmailer/examples/send_multiple_file_upload.phps
+	deleted:    Services/Mail/phpmailer/examples/sendmail.phps
+	deleted:    Services/Mail/phpmailer/examples/signed-mail.phps
+	deleted:    Services/Mail/phpmailer/examples/smtp.phps
+	deleted:    Services/Mail/phpmailer/examples/smtp_check.phps
+	deleted:    Services/Mail/phpmailer/examples/smtp_no_auth.phps
+	deleted:    Services/Mail/phpmailer/examples/ssl_options.phps
+	deleted:    Services/Mail/phpmailer/examples/styles/shCore.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreDefault.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreDjango.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreEclipse.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreEmacs.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreFadeToGrey.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreMDUltra.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreMidnight.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shCoreRDark.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeAppleScript.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeDefault.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeDjango.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeEclipse.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeEmacs.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeFadeToGrey.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeMDUltra.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeMidnight.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeRDark.css
+	deleted:    Services/Mail/phpmailer/examples/styles/shThemeVisualStudio.css
+	deleted:    Services/Mail/phpmailer/examples/styles/wrapping.png
+	modified:   Services/Mail/phpmailer/extras/htmlfilter.php
+	new file:   Services/Mail/templates/default/img/ilias_logo.jpg
+	modified:   Services/MainMenu/classes/class.ilMainMenuGUI.php
+	modified:   Services/MediaObjects/classes/class.ilMediaItem.php
+	modified:   Services/MediaObjects/classes/class.ilMediaObjectDataSet.php
+	modified:   Services/MediaObjects/classes/class.ilMediaPlayerGUI.php
+	new file:   Services/MediaObjects/classes/class.ilMediaSvgSanitizer.php
+	modified:   Services/MediaObjects/classes/class.ilObjMediaObject.php
+	modified:   Services/MediaObjects/classes/class.ilObjMediaObjectGUI.php
+	modified:   Services/MediaObjects/classes/class.ilObjMediaObjectsSettingsGUI.php
+	modified:   Services/MediaObjects/js/MediaObjects.js
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/.gitignore
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/.travis.yml
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/LICENSE
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/README.md
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/composer.json
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/composer.lock
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/phpunit.xml.dist
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/src/Sanitizer.php
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/src/data/AllowedAttributes.php
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/src/data/AllowedTags.php
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/src/data/AttributeInterface.php
+	new file:   Services/MediaObjects/lib/svg-sanitizer-master/src/data/TagInterface.php
+	modified:   Services/MediaObjects/templates/default/tpl.flv_player.html
+	modified:   Services/Membership/classes/class.ilRegistrationGUI.php
+	modified:   Services/News/classes/class.ilNewsForContextBlockGUI.php
+	modified:   Services/News/classes/class.ilPDNewsTableGUI.php
+	modified:   Services/News/templates/default/tpl.table_row_pd_news.html
+	modified:   Services/Object/classes/class.ilObjectCopyProgressTableGUI.php
+	modified:   Services/Object/classes/class.ilObjectListGUI.php
+	modified:   Services/PDFGeneration/classes/class.ilTCPDFGenerator.php
+	modified:   Services/PersonalDesktop/classes/class.ilPDSelectedItemsBlockGUI.php
+	modified:   Services/PersonalWorkspace/classes/class.ilPersonalWorkspaceGUI.php
+	modified:   Services/PersonalWorkspace/classes/class.ilSharedResourceGUI.php
+	new file:   Services/PersonalWorkspace/classes/class.ilSingleUserShareGUI.php
+	modified:   Services/PersonalWorkspace/classes/class.ilWorkspaceAccessGUI.php
+	modified:   Services/PersonalWorkspace/classes/class.ilWorkspaceAccessHandler.php
+	modified:   Services/Preview/classes/class.ilPreviewGUI.php
+	modified:   Services/Preview/js/ilPreview.js
+	new file:   Services/RTE/tiny_mce_3_5_11/langs/de.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/advhr/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/advimage/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/advlink/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/emotions/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/fullpage/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/media/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/paste/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/searchreplace/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/style/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/table/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/template/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/plugins/xhtmlxtras/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/themes/advanced/langs/de.js
+	new file:   Services/RTE/tiny_mce_3_5_11/themes/advanced/langs/de_dlg.js
+	new file:   Services/RTE/tiny_mce_3_5_11/themes/simple/langs/de.js
+	modified:   Services/SOAPAuth/classes/class.ilAuthContainerSOAP.php
+	modified:   Services/Search/classes/class.ilSearchResultTableGUI.php
+	modified:   Services/Skill/classes/class.ilBasicSkillGUI.php
+	modified:   Services/Skill/classes/class.ilBasicSkillTemplateGUI.php
+	modified:   Services/Skill/classes/class.ilObjSkillManagementGUI.php
+	modified:   Services/Skill/classes/class.ilSkillCatTableGUI.php
+	modified:   Services/Skill/classes/class.ilSkillCategoryGUI.php
+	modified:   Services/Skill/classes/class.ilSkillLevelTableGUI.php
+	modified:   Services/Skill/classes/class.ilSkillProfileGUI.php
+	modified:   Services/Skill/classes/class.ilSkillRootGUI.php
+	modified:   Services/Skill/classes/class.ilSkillTemplateCategoryGUI.php
+	modified:   Services/Skill/classes/class.ilSkillTemplateReferenceGUI.php
+	modified:   Services/Skill/classes/class.ilSkillTreeNodeGUI.php
+	modified:   Services/Style/classes/class.ilObjStyleSheet.php
+	modified:   Services/Style/classes/class.ilObjStyleSheetGUI.php
+	modified:   Services/Style/classes/class.ilStyleDataSet.php
+	modified:   Services/Style/classes/class.ilStyleDefinition.php
+	modified:   Services/Taxonomy/classes/class.ilTaxAssignInputGUI.php
+	modified:   Services/Tracking/classes/class.ilLPTableBaseGUI.php
+	modified:   Services/Tracking/classes/class.ilLearningProgressAccess.php
+	modified:   Services/Tracking/classes/class.ilLearningProgressBaseGUI.php
+	modified:   Services/Tracking/classes/class.ilLearningProgressGUI.php
+	modified:   Services/Tracking/classes/class.ilObjUserTracking.php
+	modified:   Services/Tracking/classes/object_statistics/class.ilLPObjectStatisticsDailyTableGUI.php
+	modified:   Services/Tracking/classes/object_statistics/class.ilLPObjectStatisticsLPTableGUI.php
+	modified:   Services/Tracking/classes/object_statistics/class.ilLPObjectStatisticsTableGUI.php
+	modified:   Services/Tracking/classes/repository_statistics/class.ilLPCollectionSettingsTableGUI.php
+	modified:   Services/Tracking/classes/repository_statistics/class.ilLPListOfObjectsGUI.php
+	modified:   Services/Tracking/classes/repository_statistics/class.ilLPListOfProgressGUI.php
+	modified:   Services/Tracking/classes/repository_statistics/class.ilTrMatrixTableGUI.php
+	modified:   Services/Tracking/classes/repository_statistics/class.ilTrSummaryTableGUI.php
+	modified:   Services/Tracking/classes/repository_statistics/class.ilTrUserObjectsPropsTableGUI.php
+	modified:   Services/UIComponent/Explorer2/js/Explorer2.js
+	modified:   Services/UIComponent/GroupedList/classes/class.ilGroupedListGUI.php
+	modified:   Services/UIComponent/ProgressBar/classes/class.ilProgressBar.php
+	modified:   Services/UIComponent/ProgressBar/templates/default/tpl.il_progress.html
+	modified:   Services/UICore/classes/class.ilTemplate.php
+	modified:   Services/User/classes/class.ilCronDeleteInactivatedUserAccounts.php
+	modified:   Services/User/classes/class.ilObjUserFolder.php
+	modified:   Services/User/classes/class.ilUserUtil.php
+	modified:   Services/Utilities/classes/class.ilBrowser.php
+	modified:   Services/Utilities/classes/class.ilStr.php
+	modified:   Services/WebServices/RPC/lib/ilServer.jar
+	modified:   Services/WebServices/RPC/lib/jars/poi/LICENSE
+	new file:   Services/WebServices/RPC/lib/jars/poi/poi-3.15.jar
+	deleted:    Services/WebServices/RPC/lib/jars/poi/poi-3.9-20121203.jar
+	new file:   Services/WebServices/RPC/lib/jars/poi/poi-examples-3.15.jar
+	deleted:    Services/WebServices/RPC/lib/jars/poi/poi-examples-3.9-20121203.jar
+	new file:   Services/WebServices/RPC/lib/jars/poi/poi-excelant-3.15.jar
+	deleted:    Services/WebServices/RPC/lib/jars/poi/poi-excelant-3.9-20121203.jar
+	new file:   Services/WebServices/RPC/lib/jars/poi/poi-ooxml-3.15.jar
+	deleted:    Services/WebServices/RPC/lib/jars/poi/poi-ooxml-3.9-20121203.jar
+	new file:   Services/WebServices/RPC/lib/jars/poi/poi-ooxml-schemas-3.15.jar
+	deleted:    Services/WebServices/RPC/lib/jars/poi/poi-ooxml-schemas-3.9-20121203.jar
+	new file:   Services/WebServices/RPC/lib/jars/poi/poi-scratchpad-3.15.jar
+	deleted:    Services/WebServices/RPC/lib/jars/poi/poi-scratchpad-3.9-20121203.jar
+	modified:   Services/WebServices/SOAP/classes/class.ilAuthSOAP.php
+	modified:   Services/jQuery/js/jquery.nestable.js
+	modified:   cron/cron.php
+	modified:   docs/INSTALL
+	new file:   docs/settings/ini-file.md
+	new file:   fixTestQuestionOrderingGaps.php
+	modified:   lang/ilias_ar.lang
+	modified:   lang/ilias_bg.lang
+	modified:   lang/ilias_cs.lang
+	modified:   lang/ilias_da.lang
+	modified:   lang/ilias_el.lang
+	modified:   lang/ilias_es.lang
+	modified:   lang/ilias_et.lang
+	modified:   lang/ilias_fa.lang
+	modified:   lang/ilias_fr.lang
+	modified:   lang/ilias_hu.lang
+	modified:   lang/ilias_it.lang
+	modified:   lang/ilias_ja.lang
+	modified:   lang/ilias_ka.lang
+	modified:   lang/ilias_lt.lang
+	modified:   lang/ilias_nl.lang
+	modified:   lang/ilias_pl.lang
+	modified:   lang/ilias_pt.lang
+	modified:   lang/ilias_ro.lang
+	modified:   lang/ilias_ru.lang
+	modified:   lang/ilias_sk.lang
+	modified:   lang/ilias_sq.lang
+	modified:   lang/ilias_sr.lang
+	modified:   lang/ilias_tr.lang
+	modified:   lang/ilias_uk.lang
+	modified:   lang/ilias_vi.lang
+	modified:   lang/ilias_zh.lang
+	modified:   setup/classes/class.ilSetup.php
+	modified:   setup/classes/class.ilSetupGUI.php
+	modified:   setup/sql/5_1_hotfixes.php
+	modified:   setup/sql/dbupdate_03.php
+	modified:   setup/sql/dbupdate_04.php
+	modified:   setup/sql/ilDBTemplate.php
+	modified:   setup/sql/ilias3.sql
+	modified:   templates/default/less/Modules/Forum/delos.less
+	modified:   webservice/soap/classes/class.ilNusoapUserAdministrationAdapter.php
+	modified:   webservice/soap/classes/class.ilObjectXMLParser.php
+	modified:   webservice/soap/classes/class.ilSoapLearningProgressAdministration.php
+	modified:   webservice/soap/classes/class.ilSoapTestAdministration.php
+	modified:   webservice/soap/classes/class.ilSoapUserAdministration.php
+	modified:   webservice/soap/classes/class.ilSoapUtils.php
+	modified:   webservice/soap/include/inc.soap_functions.php
+	modified:   xml/ilias_mail_transport_4_0.dtd
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+	both modified:   Modules/Course/classes/class.ilObjCourse.php
+	both modified:   Modules/Exercise/classes/class.ilExParticipantTableGUI.php
+	both modified:   Modules/Exercise/classes/class.ilExerciseManagementGUI.php
+	both modified:   Modules/Glossary/classes/class.ilObjGlossary.php
+	both modified:   Modules/Group/classes/class.ilGroupRegistrationGUI.php
+	both modified:   Modules/Group/classes/class.ilObjGroup.php
+	both modified:   Modules/LearningModule/classes/class.ilObjContentObject.php
+	both modified:   Modules/Scorm2004/scripts/buildrte/rte.js
+	both modified:   Modules/Test/classes/class.ilObjTest.php
+	both modified:   Modules/Test/classes/class.ilTestDynamicQuestionSet.php
+	both modified:   Modules/Test/classes/class.ilTestLP.php
+	both modified:   Modules/Test/classes/class.ilTestPlayerAbstractGUI.php
+	both modified:   Modules/Test/classes/class.ilTestRandomQuestionSetBuilderWithAmountPerPool.php
+	both modified:   Modules/Test/classes/class.ilTestSubmissionReviewGUI.php
+	both modified:   Modules/Test/classes/tables/class.ilTestQuestionBrowserTableGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.assClozeTestGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.assFormulaQuestion.php
+	both modified:   Modules/TestQuestionPool/classes/class.assFormulaQuestionGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.assKprimChoice.php
+	both modified:   Modules/TestQuestionPool/classes/class.assMatchingQuestion.php
+	both modified:   Modules/TestQuestionPool/classes/class.assMatchingQuestionGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.assMultipleChoice.php
+	both modified:   Modules/TestQuestionPool/classes/class.assMultipleChoiceGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.assQuestion.php
+	both modified:   Modules/TestQuestionPool/classes/class.assQuestionGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.assSingleChoice.php
+	both modified:   Modules/TestQuestionPool/classes/class.assSingleChoiceGUI.php
+	both modified:   Modules/TestQuestionPool/classes/class.ilImageWizardInputGUI.php
+	both modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_matching_output.html
+	both modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_matching_output_solution.html
+	both modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_mr_output.html
+	both modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_sr_output.html
+	both modified:   Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_ordering_output.html
+	both modified:   Modules/TestQuestionPool/templates/default/tpl.prop_nestable_value.html
+	both modified:   Services/AccessControl/classes/class.ilRbacSystem.php
+	both modified:   Services/COPage/xsl/page.xsl
+	both modified:   Services/Calendar/classes/class.ilCalendarRecurrence.php
+	both modified:   Services/Container/classes/class.ilContainerContentGUI.php
+	both modified:   Services/Init/classes/class.ilInitialisation.php
+	both modified:   Services/Link/classes/class.ilInternalLink.php
+	both modified:   Services/Mail/classes/class.ilMail.php
+	both modified:   Services/Mail/classes/class.ilMailFormGUI.php
+	both modified:   Services/Mail/classes/class.ilMimeMail.php
+	both modified:   Services/Mail/templates/default/tpl.html_mail_template.html
+	both modified:   Services/Math/classes/class.EvalMath.php
+	both modified:   Services/Object/classes/class.ilObjectCopyGUI.php
+	both modified:   Services/QTI/classes/class.ilQTIMatimage.php
+	both modified:   Services/QTI/classes/class.ilQTIParser.php
+	both added:      Services/QTI/classes/class.ilQtiMatImageSecurity.php
+	both modified:   Services/Registration/classes/class.ilAccountRegistrationGUI.php
+	both modified:   Services/Registration/classes/class.ilRegistrationCode.php
+	both modified:   Services/Tracking/classes/repository_statistics/class.ilTrObjectUsersPropsTableGUI.php
+	both modified:   Services/UIComponent/Explorer2/classes/class.ilExplorerBaseGUI.php
+	both modified:   Services/User/LuceneObjectDefinition.xml
+	both modified:   Services/User/classes/class.ilObjUser.php
+	both modified:   Services/Utilities/classes/class.ilFileUtils.php
+	both modified:   Services/Utilities/classes/class.ilUtil.php
+	both modified:   Services/VirusScanner/classes/class.ilVirusScanner.php
+	both modified:   Services/VirusScanner/classes/class.ilVirusScannerClamAV.php
+	both modified:   error.php
+	both modified:   include/inc.ilias_version.php
+	both modified:   lang/ilias_de.lang
+	both modified:   lang/ilias_en.lang
+	both modified:   shib_login.php
+	both modified:   templates/default/delos.css
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	docs/merge-status.log
+

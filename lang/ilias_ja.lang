@@ -626,20 +626,6 @@ assessment#:#ects_fill_out_all_values#:#各ECTS成績の値を入力してくだ
 assessment#:#ects_fx_threshold#:#しきい値
 assessment#:#ects_fx_threshold_info#:#FX’グレード評価用の百分位数要件を入力してください。
 assessment#:#ects_grade#:#ECTS成績
-assessment#:#ects_grade_a#:#優れた成績ながらわずかにミスがある
-assessment#:#ects_grade_a_short#:#優秀
-assessment#:#ects_grade_b#:#平均以上ながらミスが見受けられる
-assessment#:#ects_grade_b_short#:#大変良い
-assessment#:#ects_grade_c#:#可ではあるもののミスの数が目立つ
-assessment#:#ects_grade_c_short#:#良
-assessment#:#ects_grade_d#:#可ではあるもののかなり欠点がある
-assessment#:#ects_grade_d_short#:#可
-assessment#:#ects_grade_e#:#最低基準を満たす
-assessment#:#ects_grade_e_short#:#十分
-assessment#:#ects_grade_f#:#今後相当の努力を要する
-assessment#:#ects_grade_f_short#:#不合格
-assessment#:#ects_grade_fx#:#合格するにはさらなる努力が必要
-assessment#:#ects_grade_fx_short#:#不合格
 assessment#:#ects_output_of_ects_grades#:#ECTS成績の出力
 assessment#:#ects_range_error_a#:#ECTS成績Aの0～100の値を入力してください!
 assessment#:#ects_range_error_b#:#ECTS成績Bの0～100の値を入力してください!
@@ -10592,7 +10578,7 @@ mathjax#:#mathjax_limiter#:#インライン区切り文字
 mathjax#:#mathjax_limiter_info#:#MathJaxを有効にする構成するインライン区切り文字を選択します。
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_path_to_mathjax#:#MathJaxのURL
-mathjax#:#mathjax_path_to_mathjax_desc#:#例：http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMMLまたはローカルシステムのURL。
+mathjax#:#mathjax_path_to_mathjax_desc#:#例：https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMMLまたはローカルシステムのURL。
 mathjax#:#mathjax_settings#:#MathJax設定
 mcst#:#mcst_add_new_item#:#新しいメディアキャストアイテムを追加
 mcst#:#mcst_audioportable_settings_info#:#ファイルサフィックスのカンマ区切りリスト
@@ -10936,7 +10922,7 @@ meta#:#meta_c_LI#:#Liechtenstein
 meta#:#meta_c_LK#:#Sri Lanka
 meta#:#meta_c_LR#:#Liberia
 meta#:#meta_c_LS#:#Lesotho
-meta#:#meta_c_LT#:#Lithunia
+meta#:#meta_c_LT#:#Lithuania
 meta#:#meta_c_LU#:#Luxembourg
 meta#:#meta_c_LV#:#Latvia
 meta#:#meta_c_LY#:#Libyan Arab Jamahiriya
@@ -16223,3 +16209,25 @@ dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.###25
 certificate#:#certificate_var_user_matriculation#:#12345###25 10 2016 new variable
 rbac#:#edit_members#:#Manage members###22 12 2016 new variable
 rbac#:#prg_manage_members#:#Manage members of Study Programme###22 12 2016 new variable
+mep#:#mobs_black_list_file_types#:#Forbidden File Types###09 03 2017 new variable
+mep#:#mobs_black_list_file_types_info#:#Enter a comma separated list of file suffixes. This list will restrict the set of allowed file types. Usually you need this if the former list is empty (all file types are allowed).###09 03 2017 new variable
+form#:#form_msg_file_type_is_not_allowed#:#This file type is not allowed.###09 03 2017 new variable
+common#:#file_no_valid_file_type#:#This file type is not allowed.###09 03 2017 new variable
+common#:#file_some_invalid_file_types_removed#:#Some file types are not allowed and have been removed.###09 03 2017 new variable
+common#:#err_inactive_login_attempts#:#Your user account has been deactivated due too many failed login attempts. Click 'Contact Technical Support' at the footer of this page to notify the administrator about the need to re-activate your account. ###17 05 2017 new variable
+wsp#:#share_content#:#Share content###17 05 2017 new variable
+wsp#:#share_with#:#Share with:###17 05 2017 new variable
+wsp#:#element_already_shared#:#This element is already shared with this user.###17 05 2017 new variable
+wsp#:#search_no_match#:#Your search did not match any results###17 05 2017 new variable
+wsp#:#element_shared#:#Element shared###17 05 2017 new variable
+wsp#:#share#:#Share###17 05 2017 new variable
+assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to save the prepared solution unchanged or modified to adopt it for the current pass.###19 07 2017 new variable
+wiki#:#wiki_pg_list_no_search_fields#:#No searchable meta data fields found in the metadata sets of the wiki.###13 10 2017 new variable
+assessment#:#ects_grade_a_desc#:#outstanding performance with only minor errors###01 02 2018 new variable
+assessment#:#ects_grade_b_desc#:#above the average standard but with some errors###01 02 2018 new variable
+assessment#:#ects_grade_c_desc#:#generally sound work with a number of notable errors###01 02 2018 new variable
+assessment#:#ects_grade_d_desc#:#fair but with significant shortcomings###01 02 2018 new variable
+assessment#:#ects_grade_e_desc#:#performance meets the minimum criteria###01 02 2018 new variable
+assessment#:#ects_grade_f_desc#:#considerable further work is required###01 02 2018 new variable
+assessment#:#ects_grade_fx_desc#:#some more work required before the credit can be awarded###01 02 2018 new variable
+survey#:#please_enter_mail_url#:#Please enter the access url placeholder [url]###01 02 2018 new variable

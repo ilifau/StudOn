@@ -621,20 +621,6 @@ assessment#:#ects_fill_out_all_values#:#Ju lutem shëno një vlerë për çdo EC
 assessment#:#ects_fx_threshold#:#Threshold
 assessment#:#ects_fx_threshold_info#:#Please enter the required percentile for granting the 'FX' grade.
 assessment#:#ects_grade#:#Vlerësimi ECTS
-assessment#:#ects_grade_a#:#përmbushje e shkëlqyeshme me pak gabime të vogla
-assessment#:#ects_grade_a_short#:#SHKËLQYESHËM
-assessment#:#ects_grade_b#:#mbi mesataren standarde por me disa gabime
-assessment#:#ects_grade_b_short#:#SHUMË MIRË
-assessment#:#ects_grade_c#:#përgjithësisht punë e mirë me një numër të dukshëm të gabimeve
-assessment#:#ects_grade_c_short#:#MIRË
-assessment#:#ects_grade_d#:#pranohet, por me gabime qenësore
-assessment#:#ects_grade_d_short#:#PRANOHET
-assessment#:#ects_grade_e#:#përmbushje e kritereve minimale
-assessment#:#ects_grade_e_short#:#MJAFTUESHËM
-assessment#:#ects_grade_f#:#kërkohet punë më e konsiderueshme
-assessment#:#ects_grade_f_short#:#DËSHTIM
-assessment#:#ects_grade_fx#:#duhet të punohet më shume për të u shpërblyer
-assessment#:#ects_grade_fx_short#:#DËSHTIM
 assessment#:#ects_output_of_ects_grades#:#Të dhënat e vlerësimit ECTS
 assessment#:#ects_range_error_a#:#Ju lutem të shënoni një vlerë në mes 0 dhe 100 për notën A të ECTS!
 assessment#:#ects_range_error_b#:#Ju lutem të shënoni një vlerë në mes 0 dhe 100 për notën B të ECTS!
@@ -10554,7 +10540,7 @@ mathjax#:#mathjax_limiter#:#Inline Delimiters
 mathjax#:#mathjax_limiter_info#:#Select the inline delimiters as they are configured in your MathJax installation.
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_path_to_mathjax#:#URL to MathJax
-mathjax#:#mathjax_path_to_mathjax_desc#:#E.g. http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML or a URL to your local installation.
+mathjax#:#mathjax_path_to_mathjax_desc#:#E.g. https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML or a URL to your local installation.
 mathjax#:#mathjax_settings#:#MathJax Settings
 mcst#:#mcst_add_new_item#:#Add New Media Cast Item
 mcst#:#mcst_audioportable_settings_info#:#Comma separated list of file suffixes
@@ -16223,3 +16209,25 @@ dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.###25
 certificate#:#certificate_var_user_matriculation#:#12345###25 10 2016 new variable
 rbac#:#edit_members#:#Manage members###22 12 2016 new variable
 rbac#:#prg_manage_members#:#Manage members of Study Programme###22 12 2016 new variable
+mep#:#mobs_black_list_file_types#:#Forbidden File Types###09 03 2017 new variable
+mep#:#mobs_black_list_file_types_info#:#Enter a comma separated list of file suffixes. This list will restrict the set of allowed file types. Usually you need this if the former list is empty (all file types are allowed).###09 03 2017 new variable
+form#:#form_msg_file_type_is_not_allowed#:#This file type is not allowed.###09 03 2017 new variable
+common#:#file_no_valid_file_type#:#This file type is not allowed.###09 03 2017 new variable
+common#:#file_some_invalid_file_types_removed#:#Some file types are not allowed and have been removed.###09 03 2017 new variable
+common#:#err_inactive_login_attempts#:#Your user account has been deactivated due too many failed login attempts. Click 'Contact Technical Support' at the footer of this page to notify the administrator about the need to re-activate your account. ###17 05 2017 new variable
+wsp#:#share_content#:#Share content###17 05 2017 new variable
+wsp#:#share_with#:#Share with:###17 05 2017 new variable
+wsp#:#element_already_shared#:#This element is already shared with this user.###17 05 2017 new variable
+wsp#:#search_no_match#:#Your search did not match any results###17 05 2017 new variable
+wsp#:#element_shared#:#Element shared###17 05 2017 new variable
+wsp#:#share#:#Share###17 05 2017 new variable
+assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to save the prepared solution unchanged or modified to adopt it for the current pass.###19 07 2017 new variable
+wiki#:#wiki_pg_list_no_search_fields#:#No searchable meta data fields found in the metadata sets of the wiki.###13 10 2017 new variable
+assessment#:#ects_grade_a_desc#:#outstanding performance with only minor errors###01 02 2018 new variable
+assessment#:#ects_grade_b_desc#:#above the average standard but with some errors###01 02 2018 new variable
+assessment#:#ects_grade_c_desc#:#generally sound work with a number of notable errors###01 02 2018 new variable
+assessment#:#ects_grade_d_desc#:#fair but with significant shortcomings###01 02 2018 new variable
+assessment#:#ects_grade_e_desc#:#performance meets the minimum criteria###01 02 2018 new variable
+assessment#:#ects_grade_f_desc#:#considerable further work is required###01 02 2018 new variable
+assessment#:#ects_grade_fx_desc#:#some more work required before the credit can be awarded###01 02 2018 new variable
+survey#:#please_enter_mail_url#:#Please enter the access url placeholder [url]###01 02 2018 new variable

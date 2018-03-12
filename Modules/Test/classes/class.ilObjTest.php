@@ -593,7 +593,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 	 * @var integer
 	 */
 	private $tmpCopyWizardCopyId;
-
+	
 	#endregion
 	
 	/**
@@ -713,7 +713,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 		$this->testFinalBroken = false;
 		
 		$this->tmpCopyWizardCopyId = null;
-
+		
 		$this->ilObject($a_id, $a_call_by_reference);
 	}
 
@@ -732,7 +732,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 	{
 		$this->tmpCopyWizardCopyId = $tmpCopyWizardCopyId;
 	}
-
+	
 	/**
 	* create test object
 	*/
@@ -814,7 +814,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 		$participantData = new ilTestParticipantData($ilDB, $lng);
 		$participantData->load($this->getTestId());
 		$this->removeTestResults($participantData);
-
+		
 		$affectedRows = $ilDB->manipulateF("DELETE FROM tst_mark WHERE test_fi = %s",
 			array('integer'),
 			array($this->getTestId())
@@ -3473,6 +3473,18 @@ function getAnswerFeedbackPoints()
 		}
 	}
 
+	/**
+	 * @param array $removeQuestionIds
+	 */
+	public function removeQuestions($removeQuestionIds)
+	{
+		foreach ($removeQuestionIds as $value) {
+			$this->removeQuestion($value);
+		}
+
+		$this->reindexFixedQuestionOrdering();
+	}
+
 /**
 * Removes a question from the test object
 *
@@ -3491,6 +3503,29 @@ function getAnswerFeedbackPoints()
 		$question->delete($question_id);
 	}
 	
+	/**
+	 * - at the time beeing ilObjTest::removeTestResults needs to call the LP service for deletion
+	 * - ilTestLP calls ilObjTest::removeTestResultsByUserIds
+	 *
+	 * this method should only be used from non refactored soap context i think
+	 *
+	 * @param $userIds
+	 */
+	public function removeTestResultsFromSoapLpAdministration($userIds)
+	{
+		$this->removeTestResultsByUserIds($userIds);
+
+		$ilDB = isset($GLOBALS['DIC']) ? $GLOBALS['DIC']['ilDB'] : $GLOBALS['ilDB'];
+		$lng = isset($GLOBALS['DIC']) ? $GLOBALS['DIC']['lng'] : $GLOBALS['lng'];
+
+		require_once 'Modules/Test/classes/class.ilTestParticipantData.php';
+		$participantData = new ilTestParticipantData($ilDB, $lng);
+		$participantData->setUserIds($userIds);
+		$participantData->load($this->getTestId());
+
+		$this->removeTestActives($participantData->getActiveIds());
+	}
+
 	public function removeTestResults(ilTestParticipantData $participantData)
 	{
 		if( count($participantData->getAnonymousActiveIds()) )
@@ -3503,9 +3538,7 @@ function getAnswerFeedbackPoints()
 			/* @var ilTestLP $testLP */
 			require_once 'Services/Object/classes/class.ilObjectLP.php';
 			$testLP = ilObjectLP::getInstance($this->getId());
-// fim: [trash] inject the current test object to prevent the lookup for a deleted test
 			$testLP->setTestObject($this);
-// fim.
 			$testLP->resetLPDataForUserIds($participantData->getUserIds(), false);
 		}
 
@@ -3548,7 +3581,7 @@ function getAnswerFeedbackPoints()
 		$ilDB->manipulate("DELETE FROM tst_result_cache WHERE $IN_activeIds");
 		$ilDB->manipulate("DELETE FROM tst_sequence WHERE $IN_activeIds");
 		$ilDB->manipulate("DELETE FROM tst_times WHERE $IN_activeIds");
-
+		
 		if( $this->isRandomTest() )
 		{
 			$ilDB->manipulate("DELETE FROM tst_test_rnd_qst WHERE $IN_activeIds");
@@ -4292,9 +4325,9 @@ function getAnswerFeedbackPoints()
 			
 			$key++;
 		}
-
+		
 		$numQuestionsTotal = count($unordered);
-
+                
 		$pass_max = 0;
 		$pass_reached = 0;
 		$pass_requested_hints = 0;
@@ -4341,7 +4374,7 @@ function getAnswerFeedbackPoints()
 		$found['pass']['obligationsAnswered'] = $obligationsAnswered;
 		$found['pass']['num_workedthrough'] = $numWorkedThrough;
 		$found['pass']['num_questions_total'] = $numQuestionsTotal;
-
+		
 		$found["test"]["total_max_points"] = $results['max_points'];
 		$found["test"]["total_reached_points"] = $results['reached_points'];
 		$found["test"]["total_requested_hints"] = $results['hint_count'];
@@ -4939,7 +4972,7 @@ function getAnswerFeedbackPoints()
 	function getUnfilteredEvaluationData()
 	{
 		global $ilDB;
-		
+
 		include_once "./Modules/Test/classes/class.ilTestEvaluationPassData.php";
 		include_once "./Modules/Test/classes/class.ilTestEvaluationUserData.php";
 		include_once "./Modules/Test/classes/class.ilTestEvaluationData.php";
@@ -4968,7 +5001,8 @@ function getAnswerFeedbackPoints()
 		$pass = NULL;
 		$checked = array();
 		$datasets = 0;
-		
+		$questionData  = [];
+
 		while( $row = $ilDB->fetchAssoc($result) )
 		{
 			$participantObject = $data->getParticipant($row["active_fi"]);
@@ -5014,6 +5048,65 @@ function getAnswerFeedbackPoints()
 							$data->getParticipant($active_id)->addQuestion($row["original_id"], $row["question_fi"], $row["points"], $row["sequence"], $tpass);
 							$data->addQuestionTitle($row["question_fi"], $row["title"]);
 						}
+					}
+				}
+			}
+			else if($this->isDynamicTest())
+			{
+				require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
+				require_once 'Modules/Test/classes/class.ilObjTestDynamicQuestionSetConfig.php';
+				require_once 'Modules/Test/classes/class.ilTestDynamicQuestionSetFilterSelection.php';
+
+				$lastPass = $data->getParticipant($active_id)->getLastPass();
+				for($testpass = 0; $testpass <= $lastPass; $testpass++)
+				{
+					require_once 'Modules/Test/classes/class.ilObjTestDynamicQuestionSetConfig.php';
+					$dynamicQuestionSetConfig = new ilObjTestDynamicQuestionSetConfig(
+						$GLOBALS['tree'], $ilDB, $GLOBALS['ilPluginAdmin'], $this
+					);
+					$dynamicQuestionSetConfig->loadFromDb();
+
+					require_once 'Modules/Test/classes/class.ilTestSequenceFactory.php';
+					$testSequenceFactory = new ilTestSequenceFactory($ilDB, $GLOBALS['lng'], $GLOBALS['ilPluginAdmin'], $this);
+					$testSequence        = $testSequenceFactory->getSequenceByActiveIdAndPass($active_id, $testpass);
+
+					$testSequence->loadFromDb($dynamicQuestionSetConfig);
+					$testSequence->loadQuestions($dynamicQuestionSetConfig, new ilTestDynamicQuestionSetFilterSelection());
+
+					$sequence = (array)$testSequence->getUserSequenceQuestions();
+
+					$questionsIdsToRequest = array_diff(array_values($sequence), array_values($questionData));
+					if(count($questionsIdsToRequest) > 0)
+					{
+						$questionIdsCondition = ' ' . $ilDB->in('question_id', array_values($questionsIdsToRequest), false, 'integer') . ' ';
+
+						$res = $ilDB->queryF("
+							SELECT * 
+							FROM qpl_questions
+							WHERE {$questionIdsCondition}",
+							array('integer'),
+							array($active_id)
+						);
+						while($row = $ilDB->fetchAssoc($res))
+						{
+							$questionData[$row['question_id']] = $row;
+							$data->addQuestionTitle($row['question_id'], $row['title']);
+						}
+					}
+
+					foreach($sequence as $questionId)
+					{
+						if(!isset($questionData[$questionId]))
+						{
+							continue;
+						}
+
+						$row = $questionData[$questionId];
+
+						$data->getParticipant(
+							$active_id)->addQuestion($row['original_id'], $row['question_id'], $row['points'],
+							NULL, $testpass
+						);
 					}
 				}
 			}
@@ -5096,7 +5189,7 @@ function getAnswerFeedbackPoints()
 			$tstUserData->setFirstVisit($visitingTime["firstvisit"]);
 			$tstUserData->setLastVisit($visitingTime["lastvisit"]);
 		}
-
+		
 		return $data;
 	}
 	
@@ -5510,7 +5603,7 @@ function getAnswerFeedbackPoints()
 		
 		$question_type_gui = assQuestion::getGuiClassNameByQuestionType($question_type);
 		$question = new $question_type_gui();
-
+		
 		if ($question_id > 0)
 		{
 			$question->object->loadFromDb($question_id);
@@ -6026,23 +6119,22 @@ function getAnswerFeedbackPoints()
 				case "show_summary":
 					$this->setListOfQuestionsSettings($metadata["entry"]);
 					break;
-                // fim: [bugfix] fix import of test dates from ilias 4.3
 				case "reporting_date":
 					$iso8601period = $metadata["entry"];
-					if ($iso8601period != '000000000000' and preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $iso8601period, $matches))
+					if (preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $iso8601period, $matches))
 					{
 						$this->setReportingDate(sprintf("%02d%02d%02d%02d%02d%02d", $matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6]));
 					}
-					break;
+					break; 
 				case 'enable_processing_time': 
 					$this->setEnableProcessingTime($metadata['entry']); 
 					break;
-				case "processing_time":
+				case "processing_time": 
 					$this->setProcessingTime($metadata['entry']);
 					break;
 				case "starting_time":
 					$iso8601period = $metadata["entry"];
-					if ($iso8601period != '000000000000' and preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $iso8601period, $matches))
+					if (preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $iso8601period, $matches))
 					{
 						$this->setStartingTime(sprintf("%02d%02d%02d%02d%02d%02d", $matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6]));
 						$this->setStartingTimeEnabled(true);
@@ -6050,13 +6142,12 @@ function getAnswerFeedbackPoints()
 					break;
 				case "ending_time":
 					$iso8601period = $metadata["entry"];
-					if ($iso8601period != '000000000000' and preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $iso8601period, $matches))
+					if (preg_match("/P(\d+)Y(\d+)M(\d+)DT(\d+)H(\d+)M(\d+)S/", $iso8601period, $matches))
 					{
 						$this->setEndingTime(sprintf("%02d%02d%02d%02d%02d%02d", $matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $matches[6]));
 						$this->setEndingTimeEnabled(true);
 					}
 					break;
-                // fim.
 // fau: testGradingMessage - get mark messages from XML
 				case "mark_tst_passed":
 					$this->setMarkTstPassed($metadata["entry"]);
@@ -6412,8 +6503,8 @@ function getAnswerFeedbackPoints()
 		$a_xml_writer->xmlElement("fieldlabel", NULL, "force_instant_feedback");
 		$a_xml_writer->xmlElement("fieldentry", NULL, (int)$this->isForceInstantFeedbackEnabled());
 		$a_xml_writer->xmlEndTag("qtimetadatafield");
-
-
+		
+		
 		// highscore
 		$highscore_metadata = array(
 			'highscore_enabled'     => array('value' => $this->getHighscoreEnabled()),
@@ -7342,6 +7433,11 @@ function getAnswerFeedbackPoints()
 		$newObj->setResultFilterTaxIds($this->getResultFilterTaxIds());
 		$newObj->setInstantFeedbackAnswerFixationEnabled($this->isInstantFeedbackAnswerFixationEnabled());
 		$newObj->setForceInstantFeedbackEnabled($this->isForceInstantFeedbackEnabled());
+		$newObj->setAutosave($this->getAutosave());
+		$newObj->setAutosaveIval($this->getAutosaveIval());
+		$newObj->setOfferingQuestionHintsEnabled($this->isOfferingQuestionHintsEnabled());
+		$newObj->setSpecificAnswerFeedback($this->getSpecificAnswerFeedback());
+		$newObj->setObligationsEnabled($this->areObligationsEnabled());
 // fau: copyShowGradingStatus -copy the setting for showing the grading status
 		$newObj->setShowGradingStatusEnabled($this->isShowGradingStatusEnabled());
 // fau.
@@ -7363,14 +7459,14 @@ function getAnswerFeedbackPoints()
 		$skillLevelThresholdList->setTestId($this->getTestId());
 		$skillLevelThresholdList->loadFromDb();
 		$skillLevelThresholdList->cloneListForTest($newObj->getTestId());
-
+		
 		$newObj->saveToDb();
 		$newObj->updateMetaData();// #14467
-
+		
 		include_once('./Services/Tracking/classes/class.ilLPObjSettings.php');
 		$obj_settings = new ilLPObjSettings($this->getId());
 		$obj_settings->cloneSettings($newObj->getId());
-
+		
 		return $newObj;
 	}
 
@@ -8366,43 +8462,43 @@ function getAnswerFeedbackPoints()
 	function getPassFinishDate($active_id, $pass)
 	{
 		global $ilDB;
-
+		
 		if (is_null($pass))
 		{
 			$pass = 0;
 		}
-
+		
 		$query = "
 			SELECT	tst_pass_result.tstamp pass_res_tstamp,
 					tst_test_result.tstamp quest_res_tstamp
-
+			
 			FROM tst_pass_result
-
+			
 			LEFT JOIN tst_test_result
 			ON tst_test_result.active_fi = tst_pass_result.active_fi
 			AND tst_test_result.pass = tst_pass_result.pass
-
+			
 			WHERE tst_pass_result.active_fi = %s
 			AND tst_pass_result.pass = %s
-
+			
 			ORDER BY tst_test_result.tstamp DESC
 		";
-
+		
 		$result = $ilDB->queryF($query,
 			array('integer', 'integer'),
 			array($active_id, $pass)
 		);
-
+		
 		while( $row = $ilDB->fetchAssoc($result) )
 		{
 			if( $row['qres_tstamp'] )
 			{
 				return $row['quest_res_tstamp'];
 			}
-
+			
 			return $row['pass_res_tstamp'];
 		}
-
+		
 		return 0;
 	}
 
@@ -8497,12 +8593,12 @@ function getAnswerFeedbackPoints()
 	{
 		// this logic was implemented before, it got stabled only for now
 		// this method is not as exact as it's required, it's to be replaced in the long time
-
+		
 		switch( $this->getScoreReporting() )
 		{
 			case self::SCORE_REPORTING_IMMIDIATLY:
 			case self::SCORE_REPORTING_FINISHED: // this isn't excact enough
-
+				
 				return true;
 
 			case self::SCORE_REPORTING_DATE:
@@ -8511,7 +8607,7 @@ function getAnswerFeedbackPoints()
 				{
 					return false;
 				}
-
+				
 				if (preg_match("/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/", $this->getReportingDate(), $matches))
 				{
 					$epoch_time = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[3], $matches[1]);
@@ -8524,7 +8620,7 @@ function getAnswerFeedbackPoints()
 
 				return true;
 		}
-
+		
 		return false;
 	}
 
@@ -10135,12 +10231,6 @@ function getAnswerFeedbackPoints()
 			$print_output = str_replace("&otimes;", "X", $print_output);
 		}
 
-		// fim: [exam] debug pdf output before question2fo
-		// include_once "./Services/Utilities/classes/class.ilUtil.php";
-		// ilUtil::deliverData($print_output, "print_output.xml", "text/xml", false, true);
-		// return;
-		// fim.
-
 		$xsl = file_get_contents("./Modules/Test/xml/question2fo.xsl");
 
 		// additional font support
@@ -10199,13 +10289,6 @@ function getAnswerFeedbackPoints()
 			$html = str_replace("&otimes;", "X", $html);
 		}
 		$html = preg_replace("/src=\".\\//ims", "src=\"" . ILIAS_HTTP_PATH . "/", $html);
-
-		// fim: [exam] debug pdf output
-		// include_once "./Services/Utilities/classes/class.ilUtil.php";
-		// ilUtil::deliverData($html, "output.html", "text/html", false, true);
-		//return;
-		// fim.
-
 		$this->deliverPDFfromFO($this->processPrintoutput2FO($html), $title);
 	}
 	
@@ -10540,7 +10623,7 @@ function getAnswerFeedbackPoints()
 		$query = "
 			SELECT tst_test_result.active_fi, tst_test_result.question_fi, tst_test_result.pass 
 			FROM tst_test_result
-			INNER JOIN tst_active ON tst_active.active_id = tst_test_result.active_fi AND tst_active.test_fi = %s
+			INNER JOIN tst_active ON tst_active.active_id = tst_test_result.active_fi AND tst_active.test_fi = %s 
 			INNER JOIN qpl_questions ON qpl_questions.question_id = tst_test_result.question_fi
 			LEFT JOIN usr_data ON usr_data.usr_id = tst_active.user_fi
 			WHERE tst_test_result.question_fi = %s
@@ -11014,6 +11097,22 @@ function getAnswerFeedbackPoints()
 	    $this->poolUsage = (boolean)$usage;
 	}
 
+	public function reindexFixedQuestionOrdering()
+	{
+		$tree = isset($GLOBALS['DIC']) ? $GLOBALS['DIC']['tree'] : $GLOBALS['tree'];
+		$db = isset($GLOBALS['DIC']) ? $GLOBALS['DIC']['ilDB'] : $GLOBALS['ilDB'];
+		$pluginAdmin = isset($GLOBALS['DIC']) ? $GLOBALS['DIC']['ilPluginAdmin'] : $GLOBALS['ilPluginAdmin'];
+
+		require_once 'Modules/Test/classes/class.ilTestQuestionSetConfigFactory.php';
+		$qscFactory = new ilTestQuestionSetConfigFactory($tree, $db, $pluginAdmin, $this);
+		$questionSetConfig = $qscFactory->getQuestionSetConfig();
+
+		/* @var ilTestFixedQuestionSetConfig $questionSetConfig */
+		$questionSetConfig->reindexQuestionOrdering();
+
+		$this->loadQuestions();
+	}
+
 	public function setQuestionOrderAndObligations($orders, $obligations)
 	{
 	    global $ilDB;
@@ -11072,6 +11171,7 @@ function getAnswerFeedbackPoints()
 	    $values = array($row['sequence'] + 1, $question_to_move);
 	    $ilDB->manipulateF($update, $types, $values);
 
+	    $this->reindexFixedQuestionOrdering();
 	}
 
 	public function hasQuestionsWithoutQuestionpool()

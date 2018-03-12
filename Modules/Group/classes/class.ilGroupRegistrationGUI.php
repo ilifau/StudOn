@@ -267,9 +267,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 			$reg_info = ilObjGroupAccess::lookupRegistrationInfo($this->getContainer()->getId());
 			$free = $reg_info['reg_info_free_places'];
 
-// fim: [meminf] show label for free places
 			$tpl->setVariable('TXT_FREE',$this->lng->txt('mem_free_places'));
-// fim.
 			if($free)
 			{
 				$tpl->setVariable('NUM_FREE',$free);

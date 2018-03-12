@@ -112,7 +112,7 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 		
 		ilCalendarRecurrenceExclusions::delete($a_cal_id);
 	}
-// fau: fix51 - 0020118: Kalenderserie in Google-Kalender/Outlook mit falschem Enddatum
+	
 	/**
 	 * Get ical presentation for calendar recurrence
 	 * @param type $a_user_id
@@ -138,8 +138,8 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 		{
 			if($entry->isFullday())
 			{
-			$ical .= (';UNTIL='.$this->getFrequenceUntilDate()->get(IL_CAL_FKT_DATE,'Ymd'));
-		}
+				$ical .= (';UNTIL='.$this->getFrequenceUntilDate()->get(IL_CAL_FKT_DATE,'Ymd'));
+			}
 			else
 			{
 				$his = $entry->getStart()->get(IL_CAL_FKT_DATE, 'His');
@@ -189,7 +189,7 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 
 		return $ical;
 	}
-// fau.
+	
 	
 	/**
 	 * reset all settings
@@ -235,16 +235,16 @@ class ilCalendarRecurrence implements ilCalendarRecurrenceCalculation
 	{
 	 	$this->cal_id = $a_id;
 	}
-// fau: fix51 - 0020118: Kalenderserie in Google-Kalender/Outlook mit falschem Enddatum
+	
 	/**
 	 * Get calendar entry id
 	 * @return int
 	 */
 	public function getEntryId()
 	{
-		return $this->entry_id;
+		return $this->cal_id;
 	}
-// fau.
+	
 	/**
 	 * set type of recurrence
 	 *

@@ -135,12 +135,13 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 		if( $questionSet->isSmallerThan($requiredQuestionAmount) )
 		{
 			$missingQuestionCount = $questionSet->getMissingCount($requiredQuestionAmount);
-// fau: fixRandomTestBuildable - avoid already chosen questions being used as fillers
 			$potentialQuestionStage = $this->getQuestionStageForSourcePoolDefinitionList($this->sourcePoolDefinitionList);
 			$actualQuestionStage = $potentialQuestionStage->getRelativeComplementCollection($questionSet);
 			$questions = $this->fetchQuestionsFromStageRandomly($actualQuestionStage, $missingQuestionCount);
+// fau: fixRandomTestBuildable - log added filler questions
 			$ilLog->write("RANDOM TEST: added questions:" .implode(',', $questions->getInvolvedQuestionIds()));
 // fau.
+
 			$questionSet->mergeQuestionCollection($questions);
 		}
 

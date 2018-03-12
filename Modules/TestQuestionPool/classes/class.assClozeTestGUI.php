@@ -336,7 +336,8 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 		}
 		else
 		{
-			$question->setRteTags(self::getSelfAssessmentTags());
+			require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
+			$question->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
 			$question->setUseTagsForRteOnly(false);
 		}
 		$form->addItem($question);
@@ -1208,7 +1209,15 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 			$fb = $this->getSpecificFeedbackOutput($active_id, $pass);
 			$feedback .=  strlen($fb) ? $fb : '';
 		}
-		if (strlen($feedback)) $solutiontemplate->setVariable("FEEDBACK", $feedback);
+		if (strlen($feedback))
+		{
+			$cssClass = ( $this->hasCorrectSolution($active_id, $pass) ?
+				ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+			);
+
+			$solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+			$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
+		}
 		
 		$solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
@@ -1231,11 +1240,12 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 		{
 			return $manual_feedback;
 		}
+		$useAuthorizedSolution = $this->isLastSolutionSubmitAuthorized($active_id, $pass);
 		$correct_feedback = $this->object->feedbackOBJ->getGenericFeedbackTestPresentation($this->object->getId(), true);
 		$incorrect_feedback = $this->object->feedbackOBJ->getGenericFeedbackTestPresentation($this->object->getId(), false);
 		if (strlen($correct_feedback.$incorrect_feedback))
 		{
-			$reached_points = $this->object->calculateReachedPoints($active_id, $pass);
+			$reached_points = $this->object->calculateReachedPoints($active_id, $pass, (bool)$useAuthorizedSolution);
 			$max_points = $this->object->getMaximumPoints();
 			if ($reached_points == $max_points)
 			{
@@ -1252,7 +1262,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 	
 	function getTestOutput(
 				$active_id, 
-				$pass = NULL, 
+				// hey: prevPassSolutions - will be always available from now on
+				$pass,
+				// hey.
 				$is_postponed = FALSE, 
 				$use_post_solutions = FALSE, 
 				$show_feedback = FALSE
@@ -1262,12 +1274,14 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 		$user_solution = array();
 		if ($active_id)
 		{
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-			}
-			$user_solution = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			// hey: prevPassSolutions - obsolete due to central check
+			#include_once "./Modules/Test/classes/class.ilObjTest.php";
+			#if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+			#{
+			#	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+			#}
+			$user_solution = $this->getTestOutputSolutions($active_id, $pass);
+			// hey.
 			if (!is_array($user_solution)) 
 			{
 				$user_solution = array();
@@ -1627,7 +1641,7 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
 	 */
 	private function populateSolutiontextToGapTpl($gaptemplate, $gap, $solutiontext)
 	{
-		if ($_GET['pdf'])
+		if( $this->isPdfOutputMode() || $this->isContentEditingOutputMode() )
 		{
 			$gaptemplate->setCurrentBlock('gap_span');
 			$gaptemplate->setVariable('SPAN_SOLUTION', $solutiontext);

@@ -336,10 +336,10 @@ abstract class ilContainerContentGUI
 		$item_list_gui->enableNotes(true);
 		$item_list_gui->enableTags(true);
 		$item_list_gui->enableRating(true);
-// fau: fix51 - 0020005: Verfügbarkeit einer Sitzung verhindert einen Ordnerzugriff auch ausserhalb dieser Sitzung
-		// reset
+		
+		// reset 
 		$item_list_gui->forceVisibleOnly(false);
-// fau.
+
 		// container specific modifications
 		$this->getContainerGUI()->modifyItemGUI($item_list_gui, $item_data, $a_show_path);
 
@@ -460,13 +460,12 @@ abstract class ilContainerContentGUI
 	function renderItem($a_item_data,$a_position = 0,$a_force_icon = false, $a_pos_prefix = "")
 	{
 		global $ilSetting,$ilAccess,$ilCtrl;
-
+		
 		// Pass type, obj_id and tree to checkAccess method to improve performance
 		if(!$ilAccess->checkAccess('visible','',$a_item_data['ref_id'],$a_item_data['type'],$a_item_data['obj_id'],$a_item_data['tree']))
 		{
 			return '';
 		}
-		
 		$item_list_gui = $this->getItemGUI($a_item_data);
 		if ($ilSetting->get("icon_position_in_lists") == "item_rows" ||
 			$a_item_data["type"] == "sess" || $a_force_icon)

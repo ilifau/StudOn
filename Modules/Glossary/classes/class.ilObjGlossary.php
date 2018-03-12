@@ -1216,13 +1216,12 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
 		}
 		
 		// copy terms
+		$term_mappings = array();
 		foreach (ilGlossaryTerm::getTermList($this->getId()) as $term)
 		{
 			$new_term_id = ilGlossaryTerm::_copyTerm($term["id"], $new_obj->getId());
-
-// fau: copyFlashcardTerms - add mapping of glossary terms for flashcards
 			$term_mappings[$term["id"]] = $new_term_id;
-// fau.
+
 			// copy tax node assignments
 			if ($tax_id > 0)
 			{
@@ -1237,9 +1236,12 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
 			}
 		}
 
-// fau: copyFlashcardTerms - save term mappings in copy wizard options
-		$cp_options->appendMapping('GloTerms_'.$this->getRefId(), (array) $term_mappings);
-// fau.
+		// add mapping of term_ids to copy wizard options
+		if (!empty($term_mappings))
+		{
+			$cp_options->appendMapping($this->getRefId().'_glo_terms', (array) $term_mappings);
+		}
+
 
 		return $new_obj;
 	}

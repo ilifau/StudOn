@@ -425,10 +425,9 @@ class ilAccountRegistrationGUI
 
 		
 		// custom validation
-				
 		$valid_code = $valid_role = false;
 		 		
-		// code		
+		// code
 		if($this->code_enabled)
 		{
 // fau: regCodes - take the code object instead of form input

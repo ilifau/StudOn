@@ -609,9 +609,10 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 	
 	public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
 	{
+		$participantSolution = $previewSession->getParticipantsSolution();
 		foreach ($this->answers as $key => $answer)
 		{
-			if( $key == $previewSession->getParticipantsSolution() )
+			if( is_numeric($participantSolution) && $key == $participantSolution )
 			{
 				return $answer->getPoints();
 			}
@@ -903,9 +904,9 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 
 	function copyImages($question_id, $source_questionpool)
 	{
-// fau: fix51 - fixed logging *choice question types to prevent mass logging (thousands of lines)
 		/** @var $ilLog ilLogger */
 		global $ilLog;
+
 		$imagepath = $this->getImagePath();
 		$imagepath_original = str_replace("/$this->id/images", "/$question_id/images", $imagepath);
 		$imagepath_original = str_replace("/$this->obj_id/", "/$source_questionpool/", $imagepath_original);
@@ -939,7 +940,6 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 				}
 			}
 		}
-// fau.
 	}
 	
 	/**
@@ -1059,6 +1059,18 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 	}
 	
 	/**
+	 * @param ilAssSelfAssessmentMigrator $migrator
+	 */
+	protected function lmMigrateQuestionTypeSpecificContent(ilAssSelfAssessmentMigrator $migrator)
+	{
+		foreach($this->getAnswers() as $answer)
+		{
+			/* @var ASS_AnswerBinaryStateImage $answer */
+			$answer->setAnswertext( $migrator->migrateToLmContent($answer->getAnswertext()) );
+		}
+	}
+
+	/**
 	* Returns a JSON representation of the question
 	*/
 	public function toJSON()
@@ -1067,7 +1079,7 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 		$result = array();
 		$result['id'] = (int) $this->getId();
 		$result['type'] = (string) $this->getQuestionType();
-		$reilUtilsult['title'] = (string) $this->getTitle();
+		$result['title'] = (string) $this->getTitle();
 		$result['question'] =  $this->formatSAQuestion($this->getQuestion());
 		$result['nr_of_tries'] = (int) $this->getNrOfTries();
 		$result['shuffle'] = (bool) $this->getShuffle();
@@ -1090,8 +1102,8 @@ class assSingleChoice extends assQuestion implements  ilObjQuestionScoringAdjust
 				"points" => (float)$answer_obj->getPoints(),
 				"order" => (int)$answer_obj->getOrder(),
 				"image" => (string) $answer_obj->getImage(),
-				"feedback" => ilRTE::_replaceMediaObjectImageSrc(
-						$this->feedbackOBJ->getSpecificAnswerFeedbackExportPresentation($this->getId(), $key), 0
+				"feedback" => $this->formatSAQuestion(
+					$this->feedbackOBJ->getSpecificAnswerFeedbackExportPresentation($this->getId(), $key)
 				)
 			));
 		}

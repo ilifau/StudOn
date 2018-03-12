@@ -48,11 +48,11 @@ class ilUtil
 			. "&lang=".$lng->getLangKey()
 			. "&client_id=".rawurlencode(CLIENT_ID)
 			. ($target ? "&login_target=" . $target : "");
-		
+
 		return $url;
 	}
 // fau.
-	
+
 	/**
 	* Builds an html image tag
 	* TODO: function still in use, but in future use getImagePath and move HTML-Code to your template file
@@ -243,6 +243,8 @@ class ilUtil
 			$vers = str_replace(" ", "-", $ilias->getSetting("ilias_version_suffix"));
 // fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
+			$skin_version = ilStyleDefinition::getCurrentSkinVersion();
+			$vers .= ($skin_version != '' ? str_replace(".", "-", '-' . $skin_version) : '');
 		}
 		return $filename . $vers;
 	}
@@ -1803,6 +1805,8 @@ class ilUtil
 	*/
 	public static function unzip($a_file, $overwrite = false, $a_flat = false)
 	{
+		global $ilLog;
+
 		if (!is_file($a_file))
 		{
 			return;
@@ -1877,7 +1881,23 @@ class ilUtil
 		ilUtil::execQuoted($unzip, $unzipcmd);
 
 		chdir($cdir);
-		
+
+		// remove all sym links
+		clearstatcache();			// prevent is_link from using cache
+		$dir_realpath = realpath($dir);
+		foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $name => $f)
+		{
+			if (is_link($name))
+			{
+				$target = readlink($name);
+				if (substr($target, 0, strlen($dir_realpath)) != $dir_realpath)
+				{
+					unlink($name);
+					$ilLog->write("Remove symlink ".$name);
+				}
+			}
+		}
+
 		// if flat, get all files and move them to original directory
 		if ($a_flat)
 		{
@@ -3199,7 +3219,33 @@ class ilUtil
 		return $a_str;
 	}
 	// fim.
-	
+
+	/**
+	 * Prepare secure href attribute
+	 *
+	 * @param
+	 * @return
+	 */
+	function secureUrl($url)
+	{
+		// check if url is valid (absolute or relative)
+		if (filter_var($url, FILTER_VALIDATE_URL) === false &&
+			filter_var("http://".$url, FILTER_VALIDATE_URL) === false &&
+			filter_var("http:".$url, FILTER_VALIDATE_URL) === false &&
+			filter_var("http://de.de".$url, FILTER_VALIDATE_URL) === false &&
+			filter_var("http://de.de/".$url, FILTER_VALIDATE_URL) === false)
+		{
+			return "";
+		}
+		if (trim(strtolower(parse_url($url, PHP_URL_SCHEME))) == "javascript")
+		{
+			return "";
+		}
+		$url = htmlspecialchars($url, ENT_QUOTES);
+		return $url;
+	}
+
+
 
 	/**
 	* prepare a string for db writing (insert/update)
@@ -3665,7 +3711,7 @@ class ilUtil
 	*
 	* fim: [bugfix] add parameter to redirect by html page istead http header
 	*		this is needed for the join links of courses and groups
-	*		if they are not called from the browser  
+	*		if they are not called from the browser
 	* @param	string		$a_script		target script
 	* @param	string		$a_html_redirect generate a redirecting page instead of a header
 	* @static
@@ -3707,7 +3753,7 @@ class ilUtil
 				}
 			}
 		}
-		
+
 		// fim: [debug] show redirect link instead of redirecting
 		global $ilCust;
 		if (is_object($ilCust) and $ilCust->getSetting('ilias_trace_redirects'))
@@ -3726,7 +3772,7 @@ class ilUtil
 			exit;
   		}
 		// fim.
-		  		
+
 		// fim: [bugfix] use html redirect
 		if ($a_html_redirect)
 		{
@@ -3736,7 +3782,7 @@ class ilUtil
 			exit;
 		}
 		// fim.
-		
+
 		header("Location: ".$a_script);
 		exit();
 	}
@@ -4242,16 +4288,14 @@ class ilUtil
 
 
 	/**
-	* move uploaded file
-	* 
-	* @static
-	* 
-	*/
+ 	 * move uploaded file
+	 * @return bool
+	 * @throws ilFileUtilsException
+	 */
 	public static function moveUploadedFile($a_file, $a_name, $a_target, $a_raise_errors = true,
 		$a_mode = "move_uploaded")
 	{
 		global $lng, $ilias;
-//echo "<br>ilUtli::moveuploadedFile($a_name)";
 
 		if (!is_file($a_file))
 		{
@@ -4290,6 +4334,8 @@ class ilUtil
 			{
 				ilUtil::sendInfo($vir[1], true);
 			}
+			include_once("./Services/Utilities/classes/class.ilFileUtils.php");
+			$a_target = ilFileUtils::getValidFilename($a_target);
 			switch ($a_mode)
 			{
 				case "rename":

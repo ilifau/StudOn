@@ -211,7 +211,7 @@ class ilMail
 	 * @var string
 	 */
 	const ILIAS_HOST = 'ilias';
-
+	
 	/**
 	 * 
 	 * Used to store properties which should be set/get at runtime
@@ -916,19 +916,30 @@ class ilMail
 		);
 	}
 
-	function updateDraft($a_folder_id,
-						 $a_attachments,
-						 $a_rcp_to,
-						 $a_rcp_cc,
-						 $a_rcp_bcc,
-						 $a_m_type,
-						 $a_m_email,
-						 $a_m_subject,
-						 $a_m_message,
-						 $a_draft_id = 0,
-						 $a_use_placeholders = 0,
-						 $a_tpl_context_id = null,
-						 $a_tpl_context_params = array()
+	/**
+	 * @param int $usrId
+	 * @param int $folderId
+	 * @return int
+	 */
+	public function getNewDraftId($usrId, $folderId)
+	{
+		global $ilDB;
+
+		$next_id = $ilDB->nextId($this->table_mail);
+		$ilDB->insert($this->table_mail, array(
+			'mail_id'        => array('integer', $next_id),
+			'user_id'        => array('integer', $usrId),
+			'folder_id'      => array('integer', $folderId),
+			'sender_id'      => array('integer', $usrId)
+		));
+
+		return $next_id;
+	}
+
+	public function updateDraft(
+		$a_folder_id, $a_attachments, $a_rcp_to, $a_rcp_cc, $a_rcp_bcc,
+		$a_m_type, $a_m_email, $a_m_subject,  $a_m_message, $a_draft_id = 0,
+		$a_use_placeholders = 0, $a_tpl_context_id = null, $a_tpl_context_params = array()
 	)
 	{
 		global $ilDB;
@@ -1020,7 +1031,6 @@ class ilMail
 		/**/
 
 		$next_id = $ilDB->nextId($this->table_mail);
-
 		$ilDB->insert($this->table_mail, array(
 			'mail_id'		=> array('integer', $next_id),
 			'user_id'		=> array('integer', $a_user_id),
@@ -1115,11 +1125,11 @@ class ilMail
 		if (!$a_use_placeholders) # No Placeholders
 		{
 			$rcp_ids = $this->getUserIds(trim($a_rcp_to).','.trim($a_rcp_cc).','.trim($a_rcp_bcc));
-// fau: fix51 - mail logging
+
 			ilLoggerFactory::getLogger('mail')->debug(sprintf(
-				"Parsed TO/CC/BCC user ids from given recipients: %s", implode(', ', $rcp_ids)
+				"Parsed TO/CC/BCC user ids from given recipients: " . implode(', ', $rcp_ids)
 			));
-// fau.
+
 			$as_email = array();
 
 			foreach($rcp_ids as $id)
@@ -1197,14 +1207,13 @@ class ilMail
 			// cc / bcc
 			$rcp_ids_no_replace = $this->getUserIds(trim($a_rcp_cc).','.trim($a_rcp_bcc));
 
-// fau: fix51 - mail logging
 			ilLoggerFactory::getLogger('mail')->debug(sprintf(
 				"Parsed TO user ids from given recipients for serial letter notification: %s", implode(', ', $rcp_ids_replace)
 			));
 			ilLoggerFactory::getLogger('mail')->debug(sprintf(
 				"Parsed CC/BCC user ids from given recipients for serial letter notification: %s", implode(', ', $rcp_ids_no_replace)
 			));
-// fau.
+
 			$as_email = array();
 
 			// to
@@ -1322,7 +1331,7 @@ class ilMail
 	/**
 	* get user_ids
 	* @param    string recipients seperated by ','
-	* @return	string error message
+	* @return	array error message
 	*/
 	function getUserIds($a_recipients)
 	{
@@ -1412,9 +1421,7 @@ class ilMail
 						foreach ($grp_object->getGroupMemberIds() as $id)
 						{
 							$ids[] = $id;
-// fau: fix51 - 0020142: PHP error when sending email to a group
 							$foundUserIds[] = $id;
-// fau.
 						}
 
 						ilLoggerFactory::getLogger('mail')->debug(sprintf(
@@ -1624,7 +1631,7 @@ class ilMail
 	* @return   Returns an empty string, if all recipients are okay.
 	*           Returns a string with invalid recipients, if some are not okay.
 	*/
-	function checkRecipients($a_recipients,$a_type)
+	function checkRecipients($a_recipients)
 	{
 		global $rbacsystem,$rbacreview;
 		$wrong_rcps = '';
@@ -1878,6 +1885,44 @@ class ilMail
 	}
 
 	/**
+	 * @param string $a_rcp_to
+	 * @param string $a_rcp_cc
+	 * @param string $a_rcp_bc
+	 * @return string
+	 */
+	public function validateRecipients($a_rcp_to, $a_rcp_cc, $a_rcp_bc)
+	{
+		try
+		{
+			$message = '';
+
+			if($error_message = $this->checkRecipients($a_rcp_to))
+			{
+				$message .= $error_message;
+			}
+			if($error_message = $this->checkRecipients($a_rcp_cc))
+			{
+				$message .= $error_message;
+			}
+			if($error_message = $this->checkRecipients($a_rcp_bc))
+			{
+				$message .= $error_message;
+			}
+
+			if(strlen($message) > 0)
+			{
+				return $this->lng->txt('mail_following_rcp_not_valid') . $message;
+			}
+
+			return '';
+		}
+		catch(ilMailException $e)
+		{
+			return $this->lng->txt('mail_following_rcp_not_valid') . $this->lng->txt($e->getMessage());
+		}
+	}
+
+	/**
 	* send external mail using class.ilMimeMail.php
 	* @param string to
 	* @param string cc
@@ -1893,7 +1938,7 @@ class ilMail
 	function sendMail($a_rcp_to,$a_rcp_cc,$a_rcp_bc,$a_m_subject,$a_m_message,$a_attachment,$a_type, $a_use_placeholders = 0)
 	{
 		global $lng,$rbacsystem;
-// fau: fix51 - mail logging
+
 		ilLoggerFactory::getLogger('mail')->debug(
 			"New mail system task:" .
 			" To: " . $a_rcp_to .
@@ -1901,15 +1946,12 @@ class ilMail
 			" | BCC: " . $a_rcp_bc .
 			" | Subject: " . $a_m_subject
 		);
-// fau.
+
 		$this->mail_to_global_roles = true;
 		if($this->user_id != ANONYMOUS_USER_ID)
 		{
 			$this->mail_to_global_roles = $rbacsystem->checkAccessOfUser($this->user_id, 'mail_to_global_roles', $this->mail_obj_ref_id);
 		}
-
-		$error_message = '';
-		$message = '';
 
 		if (in_array("system",$a_type))
 		{
@@ -1929,34 +1971,10 @@ class ilMail
 			return $error_message;
 		}
 
-		try
- 		{
-			// check recipients
-			if ($error_message = $this->checkRecipients($a_rcp_to,$a_type))
-			{
-				$message .= $error_message;
-			}
-
-			if ($error_message = $this->checkRecipients($a_rcp_cc,$a_type))
-			{
-				$message .= $error_message;
-			}
-
-			if ($error_message = $this->checkRecipients($a_rcp_bc,$a_type))
-			{
-				$message .= $error_message;
-			}
- 		}
-
-		catch(ilMailException $e)
- 		{
-			return $this->lng->txt($e->getMessage());
- 		}
-
-		// if there was an error
-		if (!empty($message))
+		$error_message = $this->validateRecipients($a_rcp_to, $a_rcp_cc, $a_rcp_bc);
+		if(strlen($error_message) > 0)
 		{
-			return $this->lng->txt("mail_following_rcp_not_valid").$message;
+			return $error_message;
 		}
 
 		// ACTIONS FOR ALL TYPES
@@ -2065,7 +2083,7 @@ class ilMail
 			$externalMailRecipientsTo = $this->__getEmailRecipients($rcp_to);
 			$externalMailRecipientsCc = $this->__getEmailRecipients($rcp_cc);
 			$externalMailRecipientsBcc = $this->__getEmailRecipients($rcp_bc);
-// fau: fix51 - mail logging
+
 			ilLoggerFactory::getLogger('mail')->debug(
 				"Parsed external mail addresses from given recipients:" .
 				" To: " . $externalMailRecipientsTo .
@@ -2073,7 +2091,7 @@ class ilMail
 				" | BCC: " . $externalMailRecipientsBcc .
 				" | Subject: " . $a_m_subject
 			);
-// fau.
+
 			$this->sendMimeMail(
 				$externalMailRecipientsTo,
 				$externalMailRecipientsCc,
@@ -2086,9 +2104,7 @@ class ilMail
 		}
 		else
 		{
-// fau: fix51 - mail logging
 			ilLoggerFactory::getLogger('mail')->debug("No external mail addresses given in recipient string");
-// fau.
 		}
 
 		if (in_array('system',$a_type))

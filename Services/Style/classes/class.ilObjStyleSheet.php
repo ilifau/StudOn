@@ -830,6 +830,9 @@ class ilObjStyleSheet extends ilObject
 					ilObject::_lookupTitle($style_rec["id"]);
 			}
 		}
+
+		asort($clonable_styles);
+
 		return $clonable_styles;
 	}
 
