@@ -387,7 +387,7 @@ common#:#sub_no_member_added#:#Es wurde kein neues Mitglied aufgenommen.
 common#:#sub_select_one_request#:#Bitte wählen Sie einen Aufnahmeantrag aus!
 common#:#sub_confirm_request_question#:#Sind Sie sicher, dass Sie die folgenden Aufnahmeanträge annehmen möchten? Die angenommenen Anträge verbleiben auf der Liste, bis sie beim Auffüllen freier Plätze an der Reihe sind.
 common#:#sub_revoke_request#:#Antrag ablehnen
-common#:#sub_separate_object#:#Kombiniere Anmeldung
+common#:#sub_separate_object#:#Kombinierte Anmeldung
 common#:#sub_separate_object_info#:#Die Anmeldung erfolgt zusammen mit anderen in einem eigenen StudOn-Objekt. Bitte wählen Sie das Objekt vom Typ "Kombinierte Anmeldung" aus:
 common#:#sub_separate_object_reg_info#:#Die Anmeldung erfolgt zusammen mit anderen in einem eigenen StudOn-Objekt. Klicken Sie auf den Titel, um dorthin zu wechseln.
 common#:#sub_subscription_object#:#Anmeldeobjekt
