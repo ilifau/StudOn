@@ -1578,6 +1578,11 @@ class ilSetup extends PEAR
 			$dir_to_create = substr(strrchr($datadir_path, "/"), 1);
 			$dir_to_check = substr($datadir_path,0,- strlen($dir_to_create)-1);
 
+			if ($this->isDirectoryInOther($dir_to_create, ILIAS_ABSOLUTE_PATH)) {
+				$this->error = "cannot_create_datadir_inside_webdir";
+				return false;
+			}
+
 			if (is_writable($datadir_path))
 			{
 				$this->error = "dir_exists_create";
@@ -1592,6 +1597,11 @@ class ilSetup extends PEAR
 		}
 		else	// check set target dir
 		{
+			if ($this->isDirectoryInOther($datadir_path, ILIAS_ABSOLUTE_PATH)) {
+				$this->error = "cannot_create_datadir_inside_webdir";
+				return false;
+			}
+
 			if (!is_writable($datadir_path))
 			{
 				$this->error = "cannot_create_datadir_no_write_access";
@@ -2357,6 +2367,19 @@ class tmpDirectoyIterator extends DirectoryIterator
 	public function rewind()
 	{
 		parent::rewind();
+    }
+
+	/**
+	 * Checks if directory is subdirectory of other directory.
+	 *
+	 * @param	string	$directory
+	 * @param	string	$other_directory
+	 * @return	bool
+	 */
+	protected function isDirectoryInOther($directory, $other_directory) {
+		$other_directory = $other_directory."/";
+
+		return !(strpos($directory, $other_directory) !== 0);
 	}
 }
 ?>
