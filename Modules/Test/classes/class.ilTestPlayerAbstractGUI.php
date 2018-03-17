@@ -1286,7 +1286,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 // fau.
 
 // fau: testNav - check for existing intermediate or authorized solution (obsolete)
-//		$state = $questionGui->object->lookupForExistingSolutions($this->testSession->getActiveId(), $this->testSession->getPass());
+		$state = $questionGui->object->lookupForExistingSolutions($this->testSession->getActiveId(), $this->testSession->getPass());
 //		$solutionPassIndex = ($state['authorized'] || $state['intermediate']) ? $this->testSession->getPass() : NULL;
 // fau.
 

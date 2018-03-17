@@ -1032,22 +1032,6 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 		return false;
 	}
 
-	protected function isValidSolutionResultValue($submittedValue)
-	{
-		$submittedValue = str_replace(',', '.', $submittedValue);
-
-		if( is_numeric($submittedValue) )
-		{
-			return true;
-		}
-
-		if( preg_match('/^\d+\/\d+$/', $submittedValue) )
-		{
-			return true;
-		}
-
-		return false;
-	}
 
 	/**
 	 * Saves the learners input of the question to the database
@@ -1204,28 +1188,6 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 	}
 // fau.
 
-// fau: testNav - Remove an existing solution (specific for formula question: don't delete variables)
-	/**
-	 * Remove an existing solution without removing the variables
-	 * @param 	int 		$activeId
-	 * @param 	int 		$pass
-	 * @return int
-	 */
-	public function removeExistingSolutions($activeId, $pass)
-	{
-		global $ilDB;
-
-		$query = "
-			DELETE FROM tst_solutions
-			WHERE active_fi = " . $ilDB->quote($activeId, 'integer') ."
-			AND question_fi = ". $ilDB->quote($this->getId(), 'integer') ."
-			AND pass = " .$ilDB->quote($pass, 'integer') ."
-			AND value1 like '\$r%'
-		";
-
-		return $ilDB->manipulate($query);
-	}
-// fau.
 
 	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
 	{
