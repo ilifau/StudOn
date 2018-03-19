@@ -125,19 +125,11 @@ class assClozeTestImport extends assQuestionImport
 								$answers[$ident] = array(
 									"answertext" => $answertext,
 									"points" => 0,
-// fau: testImportResults - take the identifier as answerorder
-                                    // the answeroder is saved with the user working data
-                                    "answerorder" => $ident,
-// fau.
+									"answerorder" => $answerorder++,
 									"action" => "",
 									"shuffle" => $rendertype->getShuffle()
 								);
 							}
-                            // fim: [exam] sort answers by response label identities
-                            // Otherwise they will be reordered when added to the gap object later.
-                            // This would result in a wrong mapping of user inputs.
-                            ksort($answers);
-                            // fim.
 							array_push($gaps, array("ident" => $response->getIdent(), "type" => CLOZE_SELECT, "shuffle" => $rendertype->getShuffle(), "answers" => $answers));
 							break;
 					}

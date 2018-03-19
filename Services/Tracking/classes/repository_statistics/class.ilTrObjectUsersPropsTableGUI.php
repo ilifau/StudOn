@@ -69,18 +69,18 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 		{
 			$this->setPrintMode(true);
 		}
-
+		
 		if(!$this->getPrintMode())
 		{
 			// see ilObjCourseGUI::addMailToMemberButton()
 			include_once "Services/Mail/classes/class.ilMail.php";
 			$mail = new ilMail($ilUser->getId());
 			if($rbacsystem->checkAccess("internal_mail", $mail->getMailObjectReferenceId()))
-			{
+			{							
 				$this->addMultiCommand("mailselectedusers", $this->lng->txt("send_mail"));
 				$this->addColumn("", "", 1);
 				$this->has_multi = true;
-			}
+			}			
 		}
 
 		$labels = $this->getSelectableColumns();
@@ -99,7 +99,7 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 		{
 			$this->addColumn($this->lng->txt("actions"), "");
 		}
-
+		$this->setSelectAllCheckbox('uid');
 		$this->setExternalSorting(true);
 		$this->setExternalSegmentation(true);
 		$this->setEnableHeader(true);
@@ -120,13 +120,14 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 		$this->getItems();
 		
 		// #13807
-		$this->has_edit = $rbacsystem->checkAccess('edit_learning_progress',$this->ref_id);
-
+		include_once './Services/Tracking/classes/class.ilLearningProgressAccess.php';
+		$this->has_edit = ilLearningProgressAccess::checkPermission('edit_learning_progress', $this->ref_id);
+		
 		/* currently not active, needs to be revised
 		include_once "Services/Object/classes/class.ilObjectLP.php";
 		include_once "Services/Tracking/classes/collection/class.ilLPCollection.php";
 		$objlp = ilObjectLP::getInstance($this->obj_id);
-		$this->has_collection = in_array($objlp->getCurrentMode(), ilLPCollection::getCollectionModes());
+		$this->has_collection = in_array($objlp->getCurrentMode(), ilLPCollection::getCollectionModes());				 
 		*/
 	}
 	
@@ -341,7 +342,7 @@ class ilTrObjectUsersPropsTableGUI extends ilLPTableBaseGUI
 	protected function fillRow($data)
 	{
 		global $ilCtrl, $lng, $objDefinition;
-
+		
 		if($this->has_multi)
 		{
 			$this->tpl->setVariable("USER_ID", $data["usr_id"]);

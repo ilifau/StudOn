@@ -603,6 +603,12 @@ class ilSoapTestAdministration extends ilSoapAdministration
 									   'Client');
 		}
 		global $rbacsystem, $tree, $ilLog;
+		
+		global $ilAccess; /* @var ilAccessHandler $ilAccess */
+		if( !$ilAccess->checkAccess('write', '', $test_ref_id) )
+		{
+			return $this->__raiseError('no permission. Aborting!', 'Client');
+		}
 
 		if(ilObject::_isInTrash($test_ref_id))
 		{
@@ -625,10 +631,13 @@ class ilSoapTestAdministration extends ilSoapAdministration
 			$a_user_ids = $a_user_ids['item'];
 		}
 		
-		foreach((array) $a_user_ids as $user_id)
-		{
-			$tst->removeTestResultsForUser($user_id);
-		}
+		include_once './Modules/Test/classes/class.ilObjTest.php';
+		include_once './Modules/Test/classes/class.ilTestParticipantData.php';
+		$part = new ilTestParticipantData($GLOBALS['ilDB'], $GLOBALS['lng']);
+		$part->setUserIds((array) $a_user_ids);
+		$part->load($tst->getTestId());
+		$tst->removeTestResults($part);
+
 		return true;
 	}
 	

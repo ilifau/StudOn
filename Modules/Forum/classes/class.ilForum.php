@@ -150,7 +150,6 @@ class ilForum
 	}
 	
 	/**
-	 * // @todo  this should be renamed to getObjId()
 	* get forum id
 	* @access	public
 	* @return	integer	object id of forum
@@ -477,6 +476,10 @@ class ilForum
 				$objNewPost->setCreateDate(date("Y-m-d H:i:s", $date));
 			}
 		}
+		if($status == 1)
+		{
+			$objNewPost->setPostActivationDate($objNewPost->getCreateDate());
+		}
 
 		$objNewPost->setImportName($this->getImportName());
 		$objNewPost->setNotification($notify);
@@ -740,14 +743,7 @@ class ilForum
 	{		
 		global $ilDB;
 
-		if($cens > 0)
-		{
-			$cens_date = date("Y-m-d H:i:s");
-		}
-		else
-		{
-			$cens_date = NULL;
-		}
+		$cens_date = date("Y-m-d H:i:s");
 
 		$ilDB->manipulateF('
 			UPDATE frm_posts

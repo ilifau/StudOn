@@ -52,9 +52,19 @@ class assFileUploadFileTableGUI extends ilTable2GUI
 	{
 		if( count($this->getData()) )
 		{
-			$this->addCommandButton($this->parent_cmd, $this->lng->txt('delete'));
+			$this->addCommandButton($this->parent_cmd, $this->lng->txt('delete'), '', '', 'ilc_qsubmit_Submit');
 		}
 	}
+	
+	// hey: uploadFileTimestamps - parse solution file versioning timestamp from storage filename
+	protected function fetchUploadTimestampFromStorageFilename($storageFilename)
+	{
+		list($prefix, $activeId, $passIndex, $versioningUploadTS) = explode(
+			'_', pathinfo($storageFilename, PATHINFO_BASENAME)
+		);
+		return $versioningUploadTS;
+	}
+	// hey.
 	
 	/**
 	 * fill row 
@@ -76,9 +86,11 @@ class assFileUploadFileTableGUI extends ilTable2GUI
 		{
 			$this->tpl->setVariable('VAL_FILE', ilUtil::prepareFormOutput($a_set['value2']));
 		}
+		// hey: uploadFileTimestamps - parse solution file versioning timestamp from storage filename
+		$a_set['tstamp'] = $this->fetchUploadTimestampFromStorageFilename($a_set['value1']);
+		// hey.
 		ilDatePresentation::setUseRelativeDates(false);
 		$this->tpl->setVariable('VAL_DATE', ilDatePresentation::formatDate(new ilDateTime($a_set["tstamp"],IL_CAL_UNIX)));
 	}
 	
 }
-?>

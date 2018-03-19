@@ -253,20 +253,6 @@ assessment#:#duplicate_order_values_entered#:#Εισάγατε διπλές τι
 assessment#:#ects_allow_ects_grades#:#Εμφάνιση βαθμού ECTS επιπλέον του τελικού βαθμού
 assessment#:#ects_fill_out_all_values#:#Παρακαλώ εισάγετε μια τιμή για κάθε βαθμό ECTS!
 assessment#:#ects_grade#:#Βαθμός ECTS
-assessment#:#ects_grade_a#:#εξαιρετική απόδοση με πολύ λίγα λάθη
-assessment#:#ects_grade_a_short#:#ΕΞΑΙΡΕΤΙΚΑ
-assessment#:#ects_grade_b#:#πάνω από το μέσο όρο αλλά με μερικά λάθη
-assessment#:#ects_grade_b_short#:#ΠΟΛΥ ΚΑΛΑ
-assessment#:#ects_grade_c#:#γενικά καλή δουλειά με κάποια όμως αξιοσημείωτα λάθη
-assessment#:#ects_grade_c_short#:#ΚΑΛΑ
-assessment#:#ects_grade_d#:#καλά αλλά με σημαντικές αδυναμίας
-assessment#:#ects_grade_d_short#:#ΙΚΑΝΟΠΟΙΗΤΙΚΑ
-assessment#:#ects_grade_e#:#η απόδοση ικανοποιεί τα βασικά μόνο κριτήρια
-assessment#:#ects_grade_e_short#:#ΕΠΑΡΚΏΣ
-assessment#:#ects_grade_f#:#απαιτείται πολύ περισσότερη δουλειά
-assessment#:#ects_grade_fx#:#απαιτείται περισσότερη δουλειά προτού δοθεί η διάκριση
-assessment#:#ects_grade_fx_short#:#ΑΠΟΤΥΧΙΑ
-assessment#:#ects_grade_f_short#:#ΑΠΟΤΥΧΙΑ
 assessment#:#ects_output_of_ects_grades#:#Έξοδος βαθμών ECTS
 assessment#:#ects_range_error_a#:#Παρακαλώ εισάγετε μια τιμή μεταξύ 0 και 100 για το βαθμό ECTS A!
 assessment#:#ects_range_error_b#:#Παρακαλώ εισάγετε μια τιμή μεταξύ 0 και 100 για το βαθμό ECTS B!
@@ -12510,7 +12496,7 @@ survey#:#svy_activation_limited_visibility_info#:#If chosen, the survey is visib
 mathjax#:#mathjax_enable_mathjax_info#:#Activates support for MathJax based mathematical output of LaTeX expressions.###28 09 2012 new variable
 mathjax#:#mathjax_enable_mathjax#:#Enable MathJax###28 09 2012 new variable
 mathjax#:#mathjax_mathjax#:#MathJax###28 09 2012 new variable
-mathjax#:#mathjax_path_to_mathjax_desc#:#E.g. http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML or a URL to your local installation.###28 09 2012 new variable
+mathjax#:#mathjax_path_to_mathjax_desc#:#E.g. https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML or a URL to your local installation.###28 09 2012 new variable
 mathjax#:#mathjax_path_to_mathjax#:#URL to MathJax###28 09 2012 new variable
 mathjax#:#mathjax_settings#:#MathJax Settings###28 09 2012 new variable
 mathjax#:#mathjax_limiter#:#Inline Delimiters###28 09 2012 new variable
@@ -16224,3 +16210,25 @@ dcl#:#dcl_std_field_not_importable#:# - Standard fields are not importable.###25
 certificate#:#certificate_var_user_matriculation#:#12345###25 10 2016 new variable
 rbac#:#edit_members#:#Manage members###22 12 2016 new variable
 rbac#:#prg_manage_members#:#Manage members of Study Programme###22 12 2016 new variable
+mep#:#mobs_black_list_file_types#:#Forbidden File Types###09 03 2017 new variable
+mep#:#mobs_black_list_file_types_info#:#Enter a comma separated list of file suffixes. This list will restrict the set of allowed file types. Usually you need this if the former list is empty (all file types are allowed).###09 03 2017 new variable
+form#:#form_msg_file_type_is_not_allowed#:#This file type is not allowed.###09 03 2017 new variable
+common#:#file_no_valid_file_type#:#This file type is not allowed.###09 03 2017 new variable
+common#:#file_some_invalid_file_types_removed#:#Some file types are not allowed and have been removed.###09 03 2017 new variable
+common#:#err_inactive_login_attempts#:#Your user account has been deactivated due too many failed login attempts. Click 'Contact Technical Support' at the footer of this page to notify the administrator about the need to re-activate your account. ###17 05 2017 new variable
+wsp#:#share_content#:#Share content###17 05 2017 new variable
+wsp#:#share_with#:#Share with:###17 05 2017 new variable
+wsp#:#element_already_shared#:#This element is already shared with this user.###17 05 2017 new variable
+wsp#:#search_no_match#:#Your search did not match any results###17 05 2017 new variable
+wsp#:#element_shared#:#Element shared###17 05 2017 new variable
+wsp#:#share#:#Share###17 05 2017 new variable
+assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to save the prepared solution unchanged or modified to adopt it for the current pass.###19 07 2017 new variable
+wiki#:#wiki_pg_list_no_search_fields#:#No searchable meta data fields found in the metadata sets of the wiki.###13 10 2017 new variable
+assessment#:#ects_grade_a_desc#:#outstanding performance with only minor errors###01 02 2018 new variable
+assessment#:#ects_grade_b_desc#:#above the average standard but with some errors###01 02 2018 new variable
+assessment#:#ects_grade_c_desc#:#generally sound work with a number of notable errors###01 02 2018 new variable
+assessment#:#ects_grade_d_desc#:#fair but with significant shortcomings###01 02 2018 new variable
+assessment#:#ects_grade_e_desc#:#performance meets the minimum criteria###01 02 2018 new variable
+assessment#:#ects_grade_f_desc#:#considerable further work is required###01 02 2018 new variable
+assessment#:#ects_grade_fx_desc#:#some more work required before the credit can be awarded###01 02 2018 new variable
+survey#:#please_enter_mail_url#:#Please enter the access url placeholder [url]###01 02 2018 new variable

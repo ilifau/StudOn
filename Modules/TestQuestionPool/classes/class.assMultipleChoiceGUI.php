@@ -65,7 +65,6 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		return 1;
 	}
 
-// fau: fixScMcSingleLine - new function to check if answers should be edited multiline
 	/**
 	 * Get the single/multiline editing of answers
 	 * - The settings of an already saved question is preferred
@@ -93,8 +92,6 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 			return $this->object->isSingleline;
 		}
 	}
-// fau.
-
 
 	/**
 	 * Creates an output of the edit form for the question
@@ -112,9 +109,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
 		$form->setTitle($this->outQuestionType());
-// fau: fixScMcSingleLine - use getEditAnswersSingleLine() to determine the mode
 		$isSingleline = $this->getEditAnswersSingleLine($checkonly);
-// fau.
 		if ($isSingleline)
 		{
 			$form->setMultipart(TRUE);
@@ -404,7 +399,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 			{
 				if (strcmp($mc_solution, $answer_id) == 0)
 				{
-					if( $this->isPdfOutputMode() || $this->isUserInputOutputMode() )
+					if( $this->isPdfOutputMode() || $this->isContentEditingOutputMode() )
 					{
 						$template->setVariable("SOLUTION_IMAGE", ilUtil::getHtmlPath(ilUtil::getImagePath("checkbox_checked.png")));
 						$template->setVariable("SOLUTION_ALT", $this->lng->txt("checked"));
@@ -421,7 +416,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 			}
 			if (!$checked)
 			{
-				if( $this->isPdfOutputMode() || $this->isUserInputOutputMode() )
+				if( $this->isPdfOutputMode() || $this->isContentEditingOutputMode() )
 				{
 					$template->setVariable("SOLUTION_IMAGE", ilUtil::getHtmlPath(ilUtil::getImagePath("checkbox_unchecked.png")));
 					$template->setVariable("SOLUTION_ALT", $this->lng->txt("unchecked"));
@@ -443,7 +438,15 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		$questionoutput = $template->get();
 		$feedback = ($show_feedback && !$this->isTestPresentationContext()) ? $this->getAnswerFeedbackOutput($active_id, $pass) : "";
 		
-		if (strlen($feedback)) $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback , true ));
+		if (strlen($feedback))
+		{
+			$cssClass = ( $this->hasCorrectSolution($active_id, $pass) ?
+				ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+			);
+
+			$solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+			$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback , true ));
+		}
 		$solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
 		$solutionoutput = $solutiontemplate->get(); 
@@ -551,7 +554,9 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 	 */
 	function getTestOutput(
 		$active_id, 
-		$pass = NULL, 
+		// hey: prevPassSolutions - will be always available from now on
+		$pass,
+		// hey.
 		$is_postponed = FALSE, 
 		$use_post_solutions = FALSE, 
 		$show_feedback = FALSE
@@ -562,7 +567,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
 		// fim.
-		
+
 		// shuffle output
 		$keys = $this->getChoiceKeys();
 
@@ -570,13 +575,15 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		$user_solution = array();
 		if ($active_id)
 		{
-			$solutions = NULL;
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-			}
-			$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			// hey: prevPassSolutions - obsolete due to central check
+			#$solutions = NULL;
+			#include_once "./Modules/Test/classes/class.ilObjTest.php";
+			#if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+			#{
+			#	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+			#}
+			$solutions = $this->getTestOutputSolutions($active_id, $pass);
+			// hey.
 			foreach ($solutions as $idx => $solution_value)
 			{
 // fau: testNav - don't add the dummy entry for 'none of the above' to the user options
@@ -852,11 +859,10 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 			$form->addItem( $hidden );
 		}
 
+		$isSingleline = $this->getEditAnswersSingleLine();
+
 		if (!$this->object->getSelfAssessmentEditingMode())
 		{
-// fau: fixScMcSingleLine - use getEditAnswersSingleLine() to determine the mode
-			$isSingleline = $this->getEditAnswersSingleLine();
-// fau.
 			// Answer types
 			$types = new ilSelectInputGUI($this->lng->txt( "answer_types" ), "types");
 			$types->setRequired( false );
@@ -893,9 +899,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		$choices = new ilMultipleChoiceWizardInputGUI($this->lng->txt( "answers" ), "choice");
 		$choices->setRequired( true );
 		$choices->setQuestionObject( $this->object );
-// fau: fixScMcSingleLine - use getEditAnswersSingleLine() to determine the mode
 		$isSingleline = $this->getEditAnswersSingleLine();
-// fau.
 		$choices->setSingleline( $isSingleline );
 		$choices->setAllowMove( false );
 		if ($this->object->getSelfAssessmentEditingMode())

@@ -1984,8 +1984,12 @@ class ilObjSurvey extends ilObject
 	{
 		include_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
 		$question =& $this->_instanciateQuestion($question_id);
-		$question->delete($question_id);
-		$this->removeConstraintsConcerningQuestion($question_id);
+		#20610 if no question found, do nothing.
+		if($question)
+		{
+			$question->delete($question_id);
+			$this->removeConstraintsConcerningQuestion($question_id);
+		}
 	}
 	
 /**
@@ -2166,7 +2170,10 @@ class ilObjSurvey extends ilObject
 	function &getQuestionblockQuestionIds($questionblock_id)
 	{
 		global $ilDB;
-		$result = $ilDB->queryF("SELECT question_fi FROM svy_qblk_qst WHERE questionblock_fi = %s",
+
+		// we need a correct order here, see #22011
+		$result = $ilDB->queryF("SELECT a.question_fi FROM svy_qblk_qst a JOIN svy_svy_qst b ON (a.question_fi = b.question_fi) ".
+			" WHERE a.questionblock_fi = %s ORDER BY b.sequence",
 			array("integer"),
 			array($questionblock_id)
 		);
@@ -2175,9 +2182,13 @@ class ilObjSurvey extends ilObject
 		{
 			while ($data = $ilDB->fetchAssoc($result))
 			{
-				array_push($ids, $data['question_fi']);
+				if (!in_array($data['question_fi'], $ids))		// no duplicates, see #22018
+				{
+					array_push($ids, $data['question_fi']);
+				}
 			}
 		}
+
 		return $ids;
 	}
 	
@@ -4215,11 +4226,13 @@ class ilObjSurvey extends ilObject
 	}
 
 	/**
-	* Imports a survey from XML into the ILIAS database
-	*
-	* @return boolean True, if the import succeeds, false otherwise
-	* @access public
-	*/
+ 	 * Imports a survey from XML into the ILIAS database
+	 * @param $file_info
+	 * @param $svy_qpl_id
+	 * @return string
+	 * @throws ilFileUtilsException
+	 * @throws ilInvalidSurveyImportFileException
+	 */
 	function importObject($file_info, $svy_qpl_id)
 	{
 		if ($svy_qpl_id < 1) $svy_qpl_id = -1;
@@ -4292,11 +4305,14 @@ class ilObjSurvey extends ilObject
 			unset($_SESSION["import_mob_xhtml"]);
 			if (strpos($xml, "questestinterop"))
 			{
+				include_once("./Modules/Survey/exceptions/class.ilInvalidSurveyImportFileException.php");
+				throw new ilInvalidSurveyImportFileException("Unsupported survey version (< 3.8) found.");
+				/*
 				include_once "./Services/Survey/classes/class.SurveyImportParserPre38.php";
 				$import = new SurveyImportParserPre38($svy_qpl_id, "", TRUE);
 				$import->setSurveyObject($this);
 				$import->setXMLContent($xml);
-				$import->startParsing();
+				$import->startParsing();*/
 			}
 			else
 			{
@@ -6547,14 +6563,15 @@ class ilObjSurvey extends ilObject
 	{
 		global $ilDB, $ilAccess;
 		
-		$now = time();		
+		$now = time();
+		$now_with_format = date("YmdHis", $now);
 		$today = date("Y-m-d");
 		
 		// object settings / participation period
 		if($this->isOffline() ||
 			!$this->getReminderStatus() ||
-			($this->getStartDate() && $now < $this->getStartDate()) ||
-			($this->getEndDate() && $now > $this->getEndDate()))
+			($this->getStartDate() && $now_with_format < $this->getStartDate()) ||
+			($this->getEndDate() && $now_with_format > $this->getEndDate()))
 		{
 			return false;
 		}

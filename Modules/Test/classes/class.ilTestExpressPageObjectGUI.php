@@ -141,6 +141,7 @@ class ilTestExpressPageObjectGUI extends ilAssQuestionPageGUI
 				if( $cmd == 'view' )
                 {
 					$cmd = 'showPage';
+					$ilCtrl->setCmd($cmd);
 				}
 
                 $q_gui = & assQuestionGUI::_getQuestionGUI('', $_REQUEST["q_id"]);
@@ -178,7 +179,7 @@ class ilTestExpressPageObjectGUI extends ilAssQuestionPageGUI
 						ilUtil::sendInfo($lng->txt("test_has_datasets_warning_page_view")." ".$link);
 					}
 		    
-                    if( in_array($cmd, array('view', 'showPage')) || $cmd == 'edit' && $this->test_object->evalTotalPersons() )
+                    if( (in_array($cmd, array('view', 'showPage')) || $cmd == 'edit') && $this->test_object->evalTotalPersons() )
 					{
                         return $this->showPage();
                     }

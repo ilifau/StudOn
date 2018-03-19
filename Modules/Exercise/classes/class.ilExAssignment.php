@@ -811,8 +811,8 @@ class ilExAssignment
 			"peer_file" => array("integer", $this->hasPeerReviewFileUpload()),
 			"peer_prsl" => array("integer", $this->hasPeerReviewPersonalized()),
 			"peer_char" => array("integer", $this->getPeerReviewChars()),
-			"peer_text" => array("integer", $this->hasPeerReviewText()),
-			"peer_rating" => array("integer", $this->hasPeerReviewRating()),
+			"peer_text" => array("integer", (int) $this->hasPeerReviewText()),
+			"peer_rating" => array("integer", (int) $this->hasPeerReviewRating()),
 			"peer_crit_cat" => array("integer", $this->getPeerReviewCriteriaCatalogue()),
 			"fb_file" => array("text", $this->getFeedbackFile()),
 			"fb_date" => array("integer", $this->getFeedbackDate()),
@@ -857,8 +857,8 @@ class ilExAssignment
 			"peer_file" => array("integer", $this->hasPeerReviewFileUpload()),
 			"peer_prsl" => array("integer", $this->hasPeerReviewPersonalized()),
 			"peer_char" => array("integer", $this->getPeerReviewChars()),
-			"peer_text" => array("integer", $this->hasPeerReviewText()),
-			"peer_rating" => array("integer", $this->hasPeerReviewRating()),
+			"peer_text" => array("integer", (int) $this->hasPeerReviewText()),
+			"peer_rating" => array("integer", (int) $this->hasPeerReviewRating()),
 			"peer_crit_cat" => array("integer", $this->getPeerReviewCriteriaCatalogue()),
 			"fb_file" => array("text", $this->getFeedbackFile()),
 			"fb_date" => array("integer", $this->getFeedbackDate()),
@@ -1728,7 +1728,7 @@ class ilExAssignment
 	{
 		$path = $this->getGlobalFeedbackFileStoragePath();
 		ilUtil::delDir($path, true);
-		if(@move_uploaded_file($a_file["tmp_name"], $path."/".$a_file["name"]))
+		if (ilUtil::moveUploadedFile($a_file["tmp_name"], $a_file["name"], $path.$a_file["name"]))
 		{
 			$this->setFeedbackFile($a_file["name"]);
 			return true;

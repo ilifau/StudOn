@@ -115,7 +115,7 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 // fau: testQuestionBrowserRoot - always show the filters
 		$this->setDisableFilterHiding(true);
 // fau.
-	
+
 		$this->setFormName('questionbrowser');
 		$this->setStyle('table', 'fullwidth');
 		$this->addColumn('','','1%', true);
@@ -138,6 +138,7 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		//$this->enable('header');
 		$this->enable('select_all');
 		$this->initFilter();
+		$this->setDisableFilterHiding(true);
 	}
 
 	public function setWriteAccess($value)
@@ -240,15 +241,25 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 	
 	private function handleParameters()
 	{
-		// $this->ctrl->saveParameter($this, 'q_id'); // required ?? maybe for page view ?
-
-// fau: fixQuestionBrowseParams - remember the params also when they are posted
 		$this->ctrl->saveParameter($this, self::CONTEXT_PARAMETER);
-		$this->addHiddenInput(self::CONTEXT_PARAMETER, $this->fetchContextParameter());
+		if(isset($_GET[self::CONTEXT_PARAMETER]))
+		{
+			$this->addHiddenInput(self::CONTEXT_PARAMETER, $_GET[self::CONTEXT_PARAMETER]);
+		}
+		else if(isset($_POST[self::CONTEXT_PARAMETER]))
+		{
+			$this->addHiddenInput(self::CONTEXT_PARAMETER, $_POST[self::CONTEXT_PARAMETER]);
+		}
 		
 		$this->ctrl->saveParameter($this, self::MODE_PARAMETER);
-		$this->addHiddenInput(self::MODE_PARAMETER, $this->fetchModeParameter());
-// fau.
+		if(isset($_GET[self::MODE_PARAMETER]))
+		{
+			$this->addHiddenInput(self::MODE_PARAMETER, $_GET[self::MODE_PARAMETER]);
+		}
+		else if(isset($_POST[self::MODE_PARAMETER]))
+		{
+			$this->addHiddenInput(self::MODE_PARAMETER, $_POST[self::MODE_PARAMETER]);
+		}
 	}
 
 	private function fetchContextParameter()
@@ -417,6 +428,7 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		$this->filter['parent_title'] = $ti->getValue();
 	
 		// repo root node
+// fau: testQuestionBrowserRoot - set the default root and show message if no filter is set
 		require_once 'Services/Form/classes/class.ilRepositorySelectorInputGUI.php';
 		$ri = new ilRepositorySelectorInputGUI($this->lng->txt('container'), 'repository_root_node');
 		$ri->setHeaderMessage($this->lng->txt('question_browse_area_info'));
@@ -424,11 +436,10 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		$ri->readFromSession();
 		if (empty($ri->getValue()))
 		{
-// fau: testQuestionBrowserRoot - set the default root and show message if no filter is set
 			ilUtil::sendInfo($this->lng->txt('tst_question_browse_root_message'));
 			$ri->setValue($this->getValidRoot());
-// fau.
 		}
+// fau.
 		$this->filter['repository_root_node'] = $ri->getValue();
 	}
 
@@ -447,7 +458,7 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		}
 	}
 // fau.
-	
+
 	private function getParentObjectLabel()
 	{
 		switch( $this->fetchModeParameter() )
@@ -558,7 +569,7 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 // fau: testQuestionBrowserRoot - avoid a duplicate scan for question pools
 		if($this->fetchModeParameter() == self::MODE_BROWSE_POOLS)
 		{
-			$parentIds = array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(
+			return array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(
 				TRUE, FALSE, FALSE, FALSE, FALSE, "read", "", $repositoryRootNode)));
 		}
 		else if($this->fetchModeParameter() == self::MODE_BROWSE_TESTS)
@@ -583,21 +594,16 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 
 			$access = $this->access;
 
-			$parentIds = array_filter($parentIds, function($obj_id) use ($access) {
+			return array_filter($parentIds, function($obj_id) use ($access) {
 				$refIds = ilObject::_getAllReferences($obj_id);
 				$refId  = current($refIds);
 				return $access->checkAccess('write', '', $refId);
 			});
 		}
 // fau.
-// fau: fixQuestionBrowseParams - security fix: avoid showing all questions if the mode is not clear
-		else
-		{
-			$parentIds = array();
-		}
-// fau.
 
-		return $parentIds;
+		// Return no parent ids if the user wants to hack...
+		return array();
 	}
 	
 	private function getQuestionParentObjectType()

@@ -66,7 +66,7 @@ class ilFileDelivery {
 	/**
 	 * @var bool
 	 */
-	protected $convert_file_name_to_asci = false;
+	protected $convert_file_name_to_asci = true;
 	/**
 	 * @var string
 	 */
@@ -87,6 +87,14 @@ class ilFileDelivery {
 	 * @var bool
 	 */
 	protected $hash_filename = false;
+	/**
+	 * @var bool
+	 */
+	protected $delete_file = false;
+	/**
+	 * @var bool
+	 */
+	protected $urlencode_filename = false;
 	/**
 	 * @var bool
 	 */
@@ -205,20 +213,35 @@ class ilFileDelivery {
 
 
 	protected function deliverXSendfile() {
-		$this->clearHeaders();
-		header('X-Sendfile: ' . realpath($this->getPathToFile()));
+		$realpath = realpath($this->getPathToFile());
+		$closure = function () use ($realpath) {
+			header('X-Sendfile: ' . $realpath);
+		};
+		if ($this->isDeleteFile()) {
+			$this->sendFileUnbufferedUsingHeaders($closure);
+		} else {
+			$closure();
+		}
 	}
 
 
 	protected function deliverXAccelRedirect() {
-		$path_to_file = $this->getPathToFile();
 		$this->clearHeaders();
-		header('Content-type:');
+		$path_to_file = $this->getPathToFile();
+
 		if (strpos($path_to_file, './' . self::DATA . '/') === 0) {
 			$path_to_file = str_replace('./' . self::DATA . '/', '/' . self::SECURED_DATA . '/', $path_to_file);
 		}
 
-		header('X-Accel-Redirect: ' . ($path_to_file));
+		$closure = function () use ($path_to_file) {
+			header('Content-type:');
+			header('X-Accel-Redirect: ' . ($path_to_file));
+		};
+		if ($this->isDeleteFile()) {
+			$this->sendFileUnbufferedUsingHeaders($closure);
+		} else {
+			$closure();
+		}
 	}
 
 
@@ -235,14 +258,15 @@ class ilFileDelivery {
 	}
 
 
-	protected function setGeneralHeaders() {
+	public function setGeneralHeaders() {
+		header("X-ILIAS-FileDelivery-Method: " . $this->getDeliveryType());
 		$this->checkExisting();
 		if ($this->isSendMimeType()) {
 			header("Content-type: " . $this->getMimeType());
 		}
 		$download_file_name = $this->getDownloadFileName();
 		if ($this->isConvertFileNameToAsci()) {
-			$download_file_name = ilUtil::getASCIIFilename($download_file_name);
+			$download_file_name = self::returnASCIIFileName($download_file_name);
 		}
 		if ($this->hasHashFilename()) {
 			$download_file_name = md5($download_file_name);
@@ -254,6 +278,7 @@ class ilFileDelivery {
 			header("Content-Length: " . (string)filesize($this->getPathToFile()));
 		}
 		header("Connection: close");
+		header("X-ILIAS-FileDelivery: " . $this->getDeliveryType());
 	}
 
 
@@ -736,20 +761,83 @@ class ilFileDelivery {
 	}
 
 
-	protected function cleanDownloadFileName() {
-		$download_file_name = self::returnASCIIFileName($this->getDownloadFileName());
+	public function cleanDownloadFileName() {
+		global $ilClientIniFile;
+		/**
+		 * @var $ilClientIniFile ilIniFile
+		 */
+
+		if ($ilClientIniFile instanceof ilIniFile && $ilClientIniFile->readVariable('file_access', 'disable_ascii')) {
+			$this->setConvertFileNameToAsci(false);
+			$this->setUrlencodeFilename(false);
+		}
+		$download_file_name = $this->getDownloadFileName();
+		if ($this->isConvertFileNameToAsci()) {
+			$download_file_name = self::returnASCIIFileName($download_file_name);
+		}
+		if ($this->isUrlencodeFilename()) {
+			$download_file_name = urlencode($download_file_name);
+		}
 		$this->setDownloadFileName($download_file_name);
 	}
 
 
 	/**
 	 * @param $original_name
+	 *
 	 * @return string
 	 */
 	public static function returnASCIIFileName($original_name) {
 		return ilUtil::getASCIIFilename($original_name);
 		//		return iconv("UTF-8", "ASCII//TRANSLIT", $original_name); // proposal
 	}
-}
 
-?>
+
+	/**
+	 * @return boolean
+	 */
+	public function isDeleteFile() {
+		return $this->delete_file;
+	}
+
+
+	/**
+	 * @param boolean $delete_file
+	 */
+	public function setDeleteFile($delete_file) {
+		$this->delete_file = $delete_file;
+	}
+
+
+	/**
+	 * @return bool
+	 */
+	public function isUrlencodeFilename() {
+		return $this->urlencode_filename;
+	}
+
+
+	/**
+	 * @param bool $urlencode_filename
+	 */
+	public function setUrlencodeFilename($urlencode_filename) {
+		$this->urlencode_filename = $urlencode_filename;
+	}
+
+
+	/**
+	 * @param \Closure $closure which sets the output-headers, e.g.
+	 *                          header('X-Sendfile: ' . realpath($this->getPathToFile()));
+	 */
+	protected function sendFileUnbufferedUsingHeaders(\Closure $closure) {
+		ignore_user_abort(true);
+		set_time_limit(0);
+		ob_start();
+
+		$closure();
+
+		ob_flush();
+		ob_end_flush();
+		flush();
+	}
+}

@@ -859,7 +859,15 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 			}
 			$questionoutput = $template->get();
 			$feedback = ($show_feedback) ? $this->getAnswerFeedbackOutput($active_id, $pass) : "";
-			if (strlen($feedback)) $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
+			if (strlen($feedback))
+			{
+				$cssClass = ( $this->hasCorrectSolution($active_id, $pass) ?
+					ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+				);
+				
+				$solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+				$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
+			}
 			$solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 	
 			$solutionoutput = $solutiontemplate->get(); 
@@ -933,6 +941,14 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 		if($shuffleAnswers)
 		{
 			$keys = $this->object->getShuffler()->shuffle($keys);
+		}
+
+		if($GLOBALS['ilBrowser']->isMobile() || $GLOBALS['ilBrowser']->isIpad())
+		{
+			require_once 'Services/jQuery/classes/class.iljQueryUtil.php';
+			iljQueryUtil::initjQuery();
+			iljQueryUtil::initjQueryUI();
+			$this->tpl->addJavaScript('./Services/jQuery/js/jquery.ui.touch-punch.min.js');
 		}
 
 		if ($this->object->getOrderingType() == OQ_NESTED_TERMS || $this->object->getOrderingType() == OQ_NESTED_PICTURES)
@@ -1051,8 +1067,10 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 
 		return $randomIdToAnswerMap;
 	}
-
-	function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $user_post_solution = FALSE, $inlineFeedback = false)
+	
+	// hey: prevPassSolutions - pass will be always available from now on
+	function getTestOutput($active_id, $pass, $is_postponed = FALSE, $user_post_solution = FALSE, $inlineFeedback = false)
+	// hey.
 	{
 		// fim: [exam] init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
@@ -1082,6 +1100,13 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 		}
 		$_SESSION["ordering_keys"] = $keys;
 
+		if($GLOBALS['ilBrowser']->isMobile() || $GLOBALS['ilBrowser']->isIpad())
+		{
+			require_once 'Services/jQuery/classes/class.iljQueryUtil.php';
+			iljQueryUtil::initjQuery();
+			iljQueryUtil::initjQueryUI();
+			$this->tpl->addJavaScript('./Services/jQuery/js/jquery.ui.touch-punch.min.js');
+		}
 
 		if ($this->object->getOrderingType() == OQ_NESTED_TERMS
 		|| $this->object->getOrderingType() == OQ_NESTED_PICTURES)
@@ -1116,14 +1141,16 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 			}
 			else
 			{
-				include_once "./Modules/Test/classes/class.ilObjTest.php";
+				// hey: prevPassSolutions - obsolete due to central check
+				#include_once "./Modules/Test/classes/class.ilObjTest.php";
 
-				if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-				{
-					if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-				}
+				#if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+				#{
+				#	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+				#}
 
-				$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+				$solutions = $this->getTestOutputSolutions($active_id, $pass);
+				// hey.
 
 				if( count($solutions) )
 				{
@@ -1174,12 +1201,14 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 			// get the solution of the user for the active pass or from the last pass if allowed
 			if ($active_id)
 			{
-				$solutions = NULL;
-				include_once "./Modules/Test/classes/class.ilObjTest.php";
-				if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-				{
-					if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-				}
+				// hey: prevPassSolutions - obsolete due to central check
+				#$solutions = NULL;
+				#include_once "./Modules/Test/classes/class.ilObjTest.php";
+				#if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+				#{
+				#	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+				#}
+				// hey.
 				if (is_array($user_post_solution))
 				{
 					$solutions = array();
@@ -1199,7 +1228,9 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 				}
 				else
 				{
-					$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+					// hey: prevPassSolutions - obsolete due to central check
+					$solutions = $this->getTestOutputSolutions($active_id, $pass);
+					// hey.
 				}
 
 				$jssolutions = array();

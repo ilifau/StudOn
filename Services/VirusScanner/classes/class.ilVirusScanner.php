@@ -142,7 +142,6 @@ class ilVirusScanner
 		$this->scanZipFiles = false;
 	}
 
-// fau: fix51 - qti image security
 	/**
 	 * @param string $buffer (any data, binary)
 	 * @return bool $infected
@@ -182,7 +181,6 @@ class ilVirusScanner
 	{
 		unlink($bufferFile);
 	}
-// fau.
 
 	/**
 	* scan a file for viruses

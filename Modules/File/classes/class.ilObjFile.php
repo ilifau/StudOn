@@ -1,41 +1,38 @@
 <?php
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once "Services/Object/classes/class.ilObject2.php";
-include_once('Modules/File/classes/class.ilFSStorageFile.php');
-
-/** @defgroup ModulesFile Modules/File
- */
+require_once("Services/Object/classes/class.ilObject2.php");
+require_once('Modules/File/classes/class.ilFSStorageFile.php');
 
 /**
-* Class ilObjFile
-*
-* @author Sascha Hofmann <shofmann@databay.de> 
-* @version $Id$
-*
-* @ingroup ModulesFile
-*/
-class ilObjFile extends ilObject2
-{
+ * Class ilObjFile
+ *
+ * @author  Sascha Hofmann <shofmann@databay.de>
+ * @author  Fabian Schmid <fs@studer-raimann.ch>
+ * @version $Id$
+ *
+ * @ingroup ModulesFile
+ */
+class ilObjFile extends ilObject2 {
+
 	var $filename;
 	var $filetype;
 	var $filemaxsize = "20000000";	// not used yet
 	var $raise_upload_error;
 	var $mode = "object";
-	protected $rating;
+	protected $rating = false;
 	
 	private $file_storage = null;
 	protected $log = null;
 
 
 	/**
-	* Constructor
-	* @access	public
-	* @param	integer	reference_id or object_id
-	* @param	boolean	treat the id as reference_id (true) or object_id (false)
-	*/
-	function __construct($a_id = 0,$a_call_by_reference = true)
-	{
+	 * ilObjFile constructor.
+	 *
+	 * @param int $a_id ID of the object, ref_id or obj_id possible
+	 * @param bool $a_call_by_reference defines the $a_id a ref_id
+	 */
+	public function __construct($a_id = 0, $a_call_by_reference = true) {
 		$this->version = 0;
 		$this->raise_upload_error = true;
 
@@ -152,7 +149,7 @@ class ilObjFile extends ilObject2
 	protected function doCreateMetaData()
 	{
 		// add technical section with file size and format
-		$md_obj =& new ilMD($this->getId(),0,$this->getType());
+		$md_obj = new ilMD($this->getId(),0,$this->getType());
 		$technical = $md_obj->addTechnical();
 		$technical->setSize($this->getFileSize());
 		$technical->save();
@@ -237,9 +234,18 @@ class ilObjFile extends ilObject2
 		$this->raise_upload_error = $a_raise;
 	}
 
-	function getUploadFile($a_upload_file, $a_filename, $a_prevent_preview = false)
+	function getUploadFile($a_upload_file, $a_filename, $a_prevent_preview = false, $handle_secure_name = true)
 	{
-		$this->setVersion($this->getVersion() + 1);
+		if ($handle_secure_name) {
+			require_once('./Services/Utilities/classes/class.ilFileUtils.php');
+			$a_filename = ilFileUtils::getValidFilename($a_filename);
+			$this->setFileName($a_filename);
+			$this->setTitle($a_filename);
+			$this->update();
+		}
+		if($this->version) {
+			$this->setVersion($this->getVersion() + 1);
+		}
 
 		if (@!is_dir($this->getDirectory($this->getVersion())))
 		{
@@ -247,9 +253,8 @@ class ilObjFile extends ilObject2
 		}
 
 		$file = $this->getDirectory($this->getVersion())."/".$a_filename;
-		//move_uploaded_file($a_upload_file, $file);
 		ilUtil::moveUploadedFile($a_upload_file, $a_filename, $file, $this->raise_upload_error);
-		
+
 		$this->handleQuotaUpdate($this);
 		
 		// create preview?
@@ -447,7 +452,7 @@ class ilObjFile extends ilObject2
 	protected function doUpdateMetaData()
 	{
 		// add technical section with file size and format
-		$md_obj =& new ilMD($this->getId(),0,$this->getType());
+		$md_obj = new ilMD($this->getId(),0,$this->getType());
 		if(!is_object($technical = $md_obj->getTechnical()))
 		{
 			$technical = $md_obj->addTechnical();
@@ -550,7 +555,7 @@ class ilObjFile extends ilObject2
 
 	function getVersion()
 	{
-		return $this->version;
+		return $this->version ? $this->version : 1;
 	}
 	
 	/**
@@ -572,8 +577,8 @@ class ilObjFile extends ilObject2
 	{
 		return $this->mode;
 	}
-	
-	function _writeFileType($a_id ,$a_format)
+
+	static function _writeFileType($a_id ,$a_format)
 	{
 		global $ilDB;
 		
@@ -584,7 +589,7 @@ class ilObjFile extends ilObject2
 		
 	}
 
-	function _lookupFileName($a_id)
+	static function _lookupFileName($a_id)
 	{
 		global $ilDB;
 
@@ -597,7 +602,7 @@ class ilObjFile extends ilObject2
 
 
 	/** Lookups the file size of the file in bytes. */
-	function _lookupFileSize($a_id)
+	static function _lookupFileSize($a_id)
 	{
 	    require_once("./Modules/File/classes/class.ilObjFileAccess.php");
 		return ilObjFileAccess::_lookupFileSize($a_id);
@@ -606,7 +611,7 @@ class ilObjFile extends ilObject2
 	/**
 	* lookup version
 	*/
-	function _lookupVersion($a_id)
+	static function _lookupVersion($a_id)
 	{
 		require_once("./Modules/File/classes/class.ilObjFileAccess.php");
 		return ilObjFileAccess::_lookupVersion($a_id);
@@ -678,16 +683,35 @@ class ilObjFile extends ilObject2
 		if (@is_file($file))
 		{
 			global $ilClientIniFile;
-			
+			/**
+			 * @var $ilClientIniFile ilIniFile
+			 */
+			/*require_once('./Services/FileDelivery/classes/class.ilFileDelivery.php');
+
+			// 
+
+			$ilFileDelivery = new ilFileDelivery($file);
+			$ilFileDelivery->setDeliveryType(ilFileDelivery::DELIVERY_METHOD_PHP); // always use PHP in ILIAS 5.1
+			$ilFileDelivery->setDisposition($this->isInline() ? ilFileDelivery::DISP_INLINE : ilFileDelivery::DISP_ATTACHMENT);
+			$ilFileDelivery->setMimeType($this->guessFileType($file));
+			$ilFileDelivery->setConvertFileNameToAsci(true);*/
+
 			// also returning the 'real' filename if a history file is delivered
-			if ($ilClientIniFile->readVariable('file_access','download_with_uploaded_filename') != '1' && is_null($a_hist_entry_id))
-			{
+			if ($ilClientIniFile->readVariable('file_access', 'download_with_uploaded_filename') != '1' && is_null($a_hist_entry_id)) {
+				// $ilFileDelivery->setDownloadFileName($this->getTitle());
 				ilUtil::deliverFile($file, $this->getTitle(), $this->guessFileType($file), $this->isInline());
+			} else {
+				// $download_file_name = basename($file);
+				/* FSX Info: basename has a Bug with Japanese and other characters, see:
+				 * http://stackoverflow.com/questions/32115609/basename-fail-when-file-name-start-by-an-accent
+				 * Therefore we can no longer use basename();
+				 */
+				$download_file_name = end(explode(DIRECTORY_SEPARATOR, $file));
+				// $ilFileDelivery->setDownloadFileName($download_file_name);
+				ilUtil::deliverFile($file, $download_file_name, $this->guessFileType($file), $this->isInline());
 			}
-			else
-			{
-				ilUtil::deliverFile($file, basename($file), $this->guessFileType($file), $this->isInline());
-			}
+			// $ilFileDelivery->deliver();
+
 			return true;
 		}
 
@@ -898,7 +922,7 @@ class ilObjFile extends ilObject2
 	/**
 	* static delete all usages of
 	*/
-	function _deleteAllUsages($a_type, $a_id, $a_usage_hist_nr = 0, $a_usage_lang = "-")
+	static function _deleteAllUsages($a_type, $a_id, $a_usage_hist_nr = 0, $a_usage_lang = "-")
 	{
 		global $ilDB;
 		
@@ -932,7 +956,7 @@ class ilObjFile extends ilObject2
 	/**
 	* save usage
 	*/
-	function _saveUsage($a_file_id, $a_type, $a_id, $a_usage_hist_nr = 0, $a_usage_lang = "-")
+	static function _saveUsage($a_file_id, $a_type, $a_id, $a_usage_hist_nr = 0, $a_usage_lang = "-")
 	{
 		global $ilDB;
 		
@@ -998,7 +1022,7 @@ class ilObjFile extends ilObject2
 	*
 	* @return	array		array of file ids
 	*/
-	function _getFilesOfObject($a_type, $a_id, $a_usage_hist_nr = 0, $a_usage_lang = "-")
+	static function _getFilesOfObject($a_type, $a_id, $a_usage_hist_nr = 0, $a_usage_lang = "-")
 	{
 		global $ilDB;
 
@@ -1096,8 +1120,8 @@ class ilObjFile extends ilObject2
 			}
 
 			$file = $this->getDirectory($this->getVersion())."/".$a_filename;
-			//move_uploaded_file($a_upload_file, $file);
-			rename($a_upload_file,  $file);
+			require_once('./Services/Utilities/classes/class.ilFileUtils.php');
+			ilFileUtils::rename($a_upload_file,  $file);
 			
 			// create preview
 			$this->createPreview();

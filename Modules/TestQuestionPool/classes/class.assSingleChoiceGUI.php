@@ -61,7 +61,6 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 		return 1;
 	}
 
-// fau: fixScMcSingleLine - new function to check if answers should be edited multiline
 	/**
 	 * Get the single/multiline editing of answers
 	 * - The settings of an already saved question is preferred
@@ -89,7 +88,6 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 			return $this->object->isSingleline;
 		}
 	}
-// fau.
 
 	/**
 	 * Creates an output of the edit form for the question
@@ -104,9 +102,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 		$form = new ilPropertyFormGUI();
 		$form->setFormAction($this->ctrl->getFormAction($this));
 		$form->setTitle($this->outQuestionType());
-// fau: fixScMcSingleLine - use getEditAnswersSingleLine() to determine the mode
 		$isSingleline = $this->getEditAnswersSingleLine($checkonly);
-// fau.
 		if ($isSingleline)
 		{
 			$form->setMultipart(TRUE);
@@ -320,7 +316,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 			$template->setCurrentBlock("answer_row");
 			$template->setVariable("ANSWER_TEXT", $this->object->prepareTextareaOutput($answer->getAnswertext(), TRUE));
 			
-			if( $this->isPdfOutputMode() || $this->isUserInputOutputMode() )
+			if( $this->isPdfOutputMode() || $this->isContentEditingOutputMode() )
 			{
 				if (strcmp($user_solution, $answer_id) == 0)
 				{
@@ -359,7 +355,15 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 		}
 		$questionoutput = $template->get();
 		$feedback = ($show_feedback && !$this->isTestPresentationContext()) ? $this->getAnswerFeedbackOutput($active_id, $pass) : "";
-		if (strlen($feedback)) $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
+		if (strlen($feedback))
+		{
+			$cssClass = ( $this->hasCorrectSolution($active_id, $pass) ?
+				ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+			);
+
+			$solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+			$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
+		}
 		$solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
 
 		$solutionoutput = $solutiontemplate->get();
@@ -378,7 +382,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
 		// fim.
-		
+
 		$keys = $this->getChoiceKeys();
 		
 		// generate the question output
@@ -455,27 +459,31 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 		return $questionoutput;
 	}
 
-	function getTestOutput($active_id, $pass = NULL, $is_postponed = FALSE, $use_post_solutions = FALSE, $show_feedback = FALSE)
+	// hey: prevPassSolutions - pass will be always available from now on
+	function getTestOutput($active_id, $pass, $is_postponed = FALSE, $use_post_solutions = FALSE, $show_feedback = FALSE)
+	// hey.
 	{
 		// fim: [exam] init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
 		// fim.
-		
+
 		$keys = $this->getChoiceKeys();
 
 		// get the solution of the user for the active pass or from the last pass if allowed
 		$user_solution = "";
 		if ($active_id)
 		{
-			$solutions = NULL;
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-			}
-			$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			// hey: prevPassSolutions - obsolete due to central check
+			#$solutions = NULL;
+			#include_once "./Modules/Test/classes/class.ilObjTest.php";
+			#if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+			#{
+			#	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+			#}
+			// hey.
+			$solutions = $this->getTestOutputSolutions($active_id, $pass);
 			foreach ($solutions as $idx => $solution_value)
 			{
 				$user_solution = $solution_value["value1"];
@@ -692,9 +700,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 
 	public function populateQuestionSpecificFormPart(\ilPropertyFormGUI $form)
 	{
-// fau: fixScMcSingleLine - use getEditAnswersSingleLine() to determine the mode
 		$isSingleline = $this->getEditAnswersSingleLine();
-// fau.
 		// shuffle
 		$shuffle = new ilCheckboxInputGUI($this->lng->txt( "shuffle_answers" ), "shuffle");
 		$shuffle->setValue( 1 );
@@ -801,9 +807,8 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 
 	public function populateAnswerSpecificFormPart(\ilPropertyFormGUI $form)
 	{
-// fau: fixScMcSingleLine - use getEditAnswersSingleLine() to determine the mode
 		$isSingleline = $this->getEditAnswersSingleLine();
-// fau.
+
 		// Choices
 		include_once "./Modules/TestQuestionPool/classes/class.ilSingleChoiceWizardInputGUI.php";
 		$choices = new ilSingleChoiceWizardInputGUI($this->lng->txt( "answers" ), "choice");

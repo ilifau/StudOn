@@ -14,9 +14,8 @@ require_once "./Services/VirusScanner/classes/class.ilVirusScanner.php";
 
 class ilVirusScannerClamAV extends ilVirusScanner
 {
-// fau: fix51 - qti image security
 	const ADD_SCAN_PARAMS = '--no-summary -i';
-// fau.
+	
         /**
         * Constructor
         * @access        public
@@ -28,8 +27,7 @@ class ilVirusScannerClamAV extends ilVirusScanner
                 $this->type = "clamav";
                 $this->scanZipFiles = true;
         }
-
-// fau: fix51 - qti image security
+	
 	/**
 	 * @return string $scanCommand
 	 */
@@ -37,27 +35,27 @@ class ilVirusScannerClamAV extends ilVirusScanner
 	{
 		return $this->scanCommand.' '.self::ADD_SCAN_PARAMS.' '.$file;
 	}
-
+	
 	/**
 	 * @return bool $isBufferScanSupported
 	 */
 	protected function isBufferScanPossible()
 	{
 		$functions = array('proc_open', 'proc_close');
-
+		
 		foreach($functions as $func)
 		{
 			if( function_exists($func) )
 			{
 				continue;
 			}
-
+			
 			return false;
 		}
-
+		
 		return true;
 	}
-
+	
 	/**
 	 * @param string $buffer (any data, binary)
 	 * @return bool $infected
@@ -68,10 +66,10 @@ class ilVirusScannerClamAV extends ilVirusScanner
 		{
 			return $this->scanFileFromBuffer($buffer);
 		}
-
+		
 		return $this->processBufferScan($buffer);
 	}
-
+	
 	/**
 	 * @param string $buffer (any data, binary)
 	 * @return bool
@@ -83,13 +81,13 @@ class ilVirusScannerClamAV extends ilVirusScanner
 			1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
 			2 => array("pipe", "w")		// stderr for the child
 		);
-
+		
 		$pipes = array(); // will look like follows after passing
 		// 0 => writeable handle connected to child stdin
 		// 1 => readable handle connected to child stdout
 
 		$process = proc_open($this->buildScanCommand(), $descriptorspec, $pipes);
-
+		
 		if( !is_resource($process) )
 		{
 			return false; // no scan, no virus detected
@@ -105,10 +103,10 @@ class ilVirusScannerClamAV extends ilVirusScanner
 		fclose($pipes[2]);
 
 		$return = proc_close($process);
-
+		
 		return $this->hasDetections($detectionReport);
 	}
-
+	
 	/**
 	 * @param $detectionReport
 	 * @return int
@@ -117,7 +115,6 @@ class ilVirusScannerClamAV extends ilVirusScanner
 	{
 		return preg_match("/FOUND/", $detectionReport);
 	}
-// fau.
 
         /**
         * scan a file for viruses
@@ -142,7 +139,6 @@ class ilVirusScannerClamAV extends ilVirusScanner
                 $this->scanFilePath = $a_filepath;
                 $this->scanFileOrigName = $a_origname;
 
-// fau: fix51 - qti image security
                 // Call of antivir command
                 $cmd = $this->buildScanCommand($a_filepath)." 2>&1";
                 exec($cmd, $out, $ret);
@@ -160,7 +156,7 @@ class ilVirusScannerClamAV extends ilVirusScanner
                         $this->scanFileIsInfected = false;
                         return "";
                 }
-// fau.
+
                 // antivir has failed (todo)
                 $this->log->write("ERROR (Virus Scanner failed): "
                                                 . $this->scanResult

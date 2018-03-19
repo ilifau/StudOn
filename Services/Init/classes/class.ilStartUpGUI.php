@@ -114,18 +114,10 @@ class ilStartUpGUI
 			if ($_GET["rep_ref_id"] != "")
 			{
 				$_GET["ref_id"] = $_GET["rep_ref_id"];
-			}			
+			}
 			$this->processStartingPage();
 		}
 		
-		// if authentication of soap user failed, but email address is
-		// known, show users and ask for password
-		if ($status == AUTH_SOAP_NO_ILIAS_USER_BUT_EMAIL)
-		{
-			$this->showUserMappingSelection();
-			return;
-		}
-
 		// check for session cookies enabled
 		if (!isset($_COOKIE['iltest']))
 		{
@@ -310,6 +302,14 @@ class ilStartUpGUI
 					$failure = $lng->txt($ilUser->getInactiveMessageVar())	
 							 . $lng->txt("err_inactive_contact");	
 // fau.
+					break;
+
+				case AUTH_USER_INACTIVE_LOGIN_ATTEMPTS:
+					ilSession::setClosingContext(ilSession::SESSION_CLOSE_INACTIVE);
+					$ilAuth->logout();
+					session_destroy();
+					
+					$failure = $lng->txt("err_inactive_login_attempts");
 					break;
 					
 				// special cases end

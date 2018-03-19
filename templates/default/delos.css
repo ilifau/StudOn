@@ -6528,6 +6528,7 @@ p {
 ol,
 ul {
   padding-left: 40px;
+  list-style-image: none;
 }
 [dir="rtl"] ol,
 [dir="rtl"] ul {
@@ -7830,11 +7831,6 @@ a.ilTreeView {
 	width: 6px;
     fim. */
 }
-@media only screen and (max-width: 768px) {
-  a.ilTreeView {
-    top: 140px;
-  }
-}
 a.ilTreeView > img {
   display: inline-block;
   margin-top: 5px;
@@ -8084,6 +8080,17 @@ div.ilFrmPostHeader span.small {
   margin: 0 0 10px;
   width: 80%;
   float: left;
+}
+@media only screen and (max-width: 767px) {
+  .ilFrmPostContentContainer {
+    width: 100%;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .ilFrmPostContentContainer img {
+    width: 100%;
+    height: auto !important;
+  }
 }
 .ilFrmPostContent {
   margin-top: 20px;
@@ -8539,6 +8546,21 @@ a.nostyle:hover {
 ul#ilAdvSelListTable_style_selection {
   overflow: auto;
   max-height: 400px;
+}
+/* fau: fixScMcDisplay - avoid line breaks for labels */
+div.ilc_answers.answer-table div.ilc_qanswer_Answer {
+  display: table-row;
+}
+div.ilc_answers.answer-table div.ilc_qanswer_Answer > div {
+  display: table-cell;
+}
+div.ilc_question_SingleChoice .answertext > p,
+div.ilc_question_MultipleChoice .answertext > p {
+  margin: 0 !important;
+}
+div.ilc_question_SingleChoice .ilc_qanswer_Answer > div:first-child,
+div.ilc_question_MultipleChoice .ilc_qanswer_Answer > div:first-child {
+  padding-right: 10px;
 }
 /* Services/Calendar */
 td.even {
@@ -9772,7 +9794,7 @@ div.iosCaptchaInputCommandContainer .audio {
 div.ilProfile {
   width: 450px;
   margin: 0 auto;
-  background: url("images/form_back.png") repeat-y #f6f6f6;
+  background-color: #F6F6F6;
   border: 1px solid #D0D5EA;
   padding: 15px;
 }
@@ -11210,6 +11232,9 @@ div.ilPCMyCoursesPath {
 #awareness-content .media-body h4 {
   padding-top: 0px;
   color: #606060;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 #awareness-content .dropdown-menu {
   background-color: #f0f0f0;
@@ -11255,12 +11280,25 @@ div.ilPCMyCoursesPath {
 .ilAwarenessDropDown h3.popover-title {
   display: none;
 }
+.ilAwarenessDropDown .media {
+  display: table;
+  width: 100%;
+}
+.ilAwarenessItemRow {
+  display: table-row;
+  width: 100%;
+}
+.ilAwarenessDropDown .media-left {
+  width: 45px;
+}
 .ilAwarenessDropDown .media-body {
   /* background-image: url('./templates/default/images/scorm/not_attempted.svg'); */
   background-repeat: no-repeat;
   background-size: 12px 12px;
-  width: 100%;
   background-position: right 10px top 50%;
+  /* see http://stackoverflow.com/questions/9789723/css-text-overflow-in-a-table-cell */
+  /* and bug #18937 */
+  max-width: 0;
 }
 .ilAwarenessDropDown .media-body.ilAwarenessOnline {
   background-image: url('images/scorm/completed.svg');
@@ -11324,9 +11362,9 @@ img[src$="icon_checked.svg"] {
 }
 div.ilNewObjectSelector {
   display: inline-block;
-  float: right;
   margin-bottom: 8px;
   padding: 0 10px;
+  width: 100%;
 }
 div.ilNewObjectSelector > .btn-group {
   display: block;
@@ -11337,9 +11375,6 @@ div.ilNewObjectSelector > .btn-group #ilAdvSelListAnchorText_asl {
 }
 div.ilNewObjectSelector > .btn-group .dropdown-menu.pull-right {
   top: 30px;
-}
-[dir="rtl"] div.ilNewObjectSelector {
-  float: left;
 }
 [dir="rtl"] div.ilNewObjectSelector > .btn-group #ilAdvSelListAnchorText_asl {
   float: left;
@@ -11438,7 +11473,7 @@ table.mceToolbar td {
    Google recommending 640px: https://developers.google.com/webmasters/smartphone-sites/details
    
    */
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767px) {
   html {
     -webkit-text-size-adjust: none;
   }
@@ -11686,27 +11721,28 @@ table.mceToolbar td {
 }
 /* print css */
 @media print {
+  #ilTopBar,
+  .osdNotificationContainer,
+  .ilMainHeader,
+  .ilMainMenu,
+  .ilTreeView,
+  #left_nav,
+  ol.breadcrumb,
+  .btn,
+  #ilTab,
+  #ilSubTab,
+  #minheight,
+  #ilFooter {
+    display: none;
+  }
+  #mainspacekeeper {
+    padding: 0;
+  }
+  .ilLeftNavSpace {
+    margin-left: 0 !important;
+  }
   div.ilTabContentOuter {
     border: none;
-    box-shadow: none;
-  }
-  div.ilTabsTable {
-    display: block;
-    width: auto;
-  }
-  div.ilTabsTableRow {
-    display: block;
-  }
-  div.ilTabsTableCell {
-    display: block;
-  }
-  div.ilContentFixed {
-    left: 0;
-    position: static;
-  }
-  [dir="rtl"] div.ilContentFixed {
-    left: auto;
-    right: 0;
   }
   div.ilFileDropTargetOverlay {
     display: none;

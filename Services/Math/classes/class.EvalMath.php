@@ -353,14 +353,13 @@ class EvalMath {
                 if (in_array($fnn, $this->fb)) { // built-in function:
                     if (is_null($op1 = $stack->pop())) return $this->trigger("internal error");
                     $fnn = preg_replace("/^arc/", "a", $fnn); // for the 'arc' trig synonyms
-// fau: fix51 - Fix log/ln issue in Formula Question, vgl. Bug 20043
                     if ($fnn == 'log') {
                     	$fnn = 'log10';
                     } elseif ($fnn == 'ln') {
                     	$fnn = 'log';
                     }
+
                     $stack->push($fnn($op1)); // 'eval()' can be easily avoided here
-// fau.
                 }
 // fau: formulaQuestionAtan2 - evaluate functions with two arguments
                 elseif (in_array($fnn, $this->f2)) { // built-in function with 2 arguments

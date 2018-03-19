@@ -346,7 +346,9 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 	 */
 	function getTestOutput(
 		$active_id,
-		$pass = NULL,
+		// hey: prevPassSolutions - will be always available from now on
+		$pass,
+		// hey.
 		$is_postponed = FALSE,
 		$use_post_solutions = FALSE,
 		$showInlineFeedback = FALSE
@@ -359,13 +361,15 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 		$user_solution = array();
 		if ($active_id)
 		{
-			$solutions = NULL;
-			include_once "./Modules/Test/classes/class.ilObjTest.php";
-			if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
-			}
-			$solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
+			// hey: prevPassSolutions - obsolete due to central check
+			#$solutions = NULL;
+			#include_once "./Modules/Test/classes/class.ilObjTest.php";
+			#if (!ilObjTest::_getUsePreviousAnswers($active_id, true))
+			#{
+			#	if (is_null($pass)) $pass = ilObjTest::_getPass($active_id);
+			#}
+			$solutions = $this->getTestOutputSolutions($active_id, $pass);
+			// hey.
 			foreach ($solutions as $idx => $solution_value)
 			{
 				$user_solution[$solution_value["value1"]] = $solution_value["value2"];
@@ -654,7 +658,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 			$template->setCurrentBlock("answer_row");
 			$template->setVariable("ANSWER_TEXT", $this->object->prepareTextareaOutput($answer->getAnswertext(), TRUE));
 
-			if( $this->isPdfOutputMode() || $this->isUserInputOutputMode() )
+			if( $this->isPdfOutputMode() || $this->isContentEditingOutputMode() )
 			{
 				if( isset($user_solution[$answer->getPosition()]) )
 				{
@@ -730,9 +734,14 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 
 		$solutiontemplate = new ilTemplate("tpl.il_as_tst_solution_output.html",TRUE, TRUE, "Modules/TestQuestionPool");
 
-		if( strlen($feedback) )
+		if (strlen($feedback))
 		{
-			$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback , true ));
+			$cssClass = ( $this->hasCorrectSolution($active_id, $pass) ?
+				ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
+			);
+			
+			$solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
+			$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
 		}
 		
 		$solutiontemplate->setVariable("SOLUTION_OUTPUT", $questionoutput);
@@ -765,17 +774,14 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
 		
 		if($this->object->getSpecificFeedbackSetting() == ilAssConfigurableMultiOptionQuestionFeedback::FEEDBACK_SETTING_CHECKED)
 		{
-			foreach($user_solution as $mc_solution)
+			if($user_solution[$answer_id])
 			{
-				if(strcmp($mc_solution, $answer_id) == 0)
+				$fb = $this->object->feedbackOBJ->getSpecificAnswerFeedbackTestPresentation($this->object->getId(), $answer_id);
+				if(strlen($fb))
 				{
-					$fb = $this->object->feedbackOBJ->getSpecificAnswerFeedbackTestPresentation($this->object->getId(), $answer_id);
-					if(strlen($fb))
-					{
-						$template->setCurrentBlock("feedback");
-						$template->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($fb, true));
-						$template->parseCurrentBlock();
-					}
+					$template->setCurrentBlock("feedback");
+					$template->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($fb, true));
+					$template->parseCurrentBlock();
 				}
 			}
 		}

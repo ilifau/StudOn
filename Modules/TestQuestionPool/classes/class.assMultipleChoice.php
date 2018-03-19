@@ -847,9 +847,9 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 
 	function duplicateImages($question_id, $objectId = null)
 	{
-// fau: fix51 - fixed logging *choice question types to prevent mass logging (thousands of lines)
 		/** @var $ilLog ilLogger */
 		global $ilLog;
+
 		$imagepath = $this->getImagePath();
 		$imagepath_original = str_replace("/$this->id/images", "/$question_id/images", $imagepath);
 		
@@ -888,7 +888,6 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 				}
 			}
 		}
-// fau.
 	}
 
 	function copyImages($question_id, $source_questionpool)
@@ -1047,6 +1046,18 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 	}
 
 	/**
+	 * @param ilAssSelfAssessmentMigrator $migrator
+	 */
+	protected function lmMigrateQuestionTypeSpecificContent(ilAssSelfAssessmentMigrator $migrator)
+	{
+		foreach($this->getAnswers() as $answer)
+		{
+			/* @var ASS_AnswerBinaryStateImage $answer */
+			$answer->setAnswertext( $migrator->migrateToLmContent($answer->getAnswertext()) );
+		}
+	}
+
+	/**
 	 * Returns a JSON representation of the question
 	 */
 	public function toJSON()
@@ -1078,8 +1089,8 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 				"points_unchecked" => (float) $answer_obj->getPointsUnchecked(),
 				"order" => (int) $answer_obj->getOrder(),
 				"image" => (string) $answer_obj->getImage(),
-				"feedback" => ilRTE::_replaceMediaObjectImageSrc(
-						$this->feedbackOBJ->getSpecificAnswerFeedbackExportPresentation($this->getId(), $key), 0
+				"feedback" => $this->formatSAQuestion(
+						$this->feedbackOBJ->getSpecificAnswerFeedbackExportPresentation($this->getId(), $key)
 				)
 			));
 		}

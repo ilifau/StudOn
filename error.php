@@ -12,7 +12,7 @@ try
 // fau: rootAsLogin - changed button text to home, removed blocks
 	$txt = $lng->txt('to_home');
 	$tpl->SetVariable("TXT_LINK", $txt);
-	$tpl->SetVariable("LINK", ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilRepositoryGUI&amp;client_id=' . CLIENT_ID);
+	$tpl->SetVariable("LINK", ilUtil::secureUrl(ILIAS_HTTP_PATH . '/ilias.php?baseClass=ilRepositoryGUI&amp;client_id=' . CLIENT_ID));
 	$tpl->setVariable("ERROR_MESSAGE", ($_SESSION["failure"]));
 	$tpl->setVariable("MESSAGE_HEADING", $lng->txt('error_sry_error'));
 // fau.

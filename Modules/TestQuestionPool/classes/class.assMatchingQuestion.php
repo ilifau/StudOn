@@ -155,12 +155,13 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		foreach ($this->terms as $key => $term)
 		{
 			$next_id = $ilDB->nextId( 'qpl_a_mterm' );
-// fau: testImportResults - store the old term id (needed for for processing user results correctly)
-            $ilDB->manipulateF( "INSERT INTO qpl_a_mterm (term_id, question_fi, picture, term, old_id) VALUES (%s, %s, %s, %s, %s)",
-                array('integer','integer','text', 'text', 'integer'),
-                array($next_id, $this->getId(), $term->picture, $term->text, $term->identifier ? $term->identifier : NULL)
-			);
-// fau.
+			$ilDB->insert('qpl_a_mterm', array(
+				'term_id' => array('integer', $next_id),
+				'question_fi' => array('integer', $this->getId()),
+				'picture' => array('text', $term->picture),
+				'term' => array('text', $term->text),
+				'ident' => array('integer', $term->identifier)
+			));
 			$termids[$term->identifier] = $next_id;
 		}
 
@@ -169,11 +170,13 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		foreach ($this->definitions as $key => $definition)
 		{
 			$next_id = $ilDB->nextId( 'qpl_a_mdef' );
-			$ilDB->manipulateF( "INSERT INTO qpl_a_mdef (def_id, question_fi, picture, definition, morder) VALUES (%s, %s, %s, %s, %s)",
-								array( 'integer', 'integer', 'text', 'text', 'integer' ),
-								array( $next_id, $this->getId(
-								), $definition->picture, $definition->text, $definition->identifier )
-			);
+			$ilDB->insert('qpl_a_mdef', array(
+				'def_id' => array('integer', $next_id),
+				'question_fi' => array('integer', $this->getId()),
+				'picture' => array('text', $definition->picture),
+				'definition' => array('text', $definition->text),
+				'ident' => array('integer', $definition->identifier)
+			));
 			$definitionids[$definition->identifier] = $next_id;
 		}
 
@@ -282,7 +285,7 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		{
 			while ($data = $ilDB->fetchAssoc($result))
 			{
-				$term = new assAnswerMatchingTerm($data['term'], $data['picture'], $data['term_id']);
+				$term = new assAnswerMatchingTerm($data['term'], $data['picture'], $data['ident']);
 				array_push($this->terms, $term);
 				$termids[$data['term_id']] = $term;
 			}
@@ -299,7 +302,7 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		{
 			while ($data = $ilDB->fetchAssoc($result))
 			{
-				$definition = new assAnswerMatchingDefinition($data['definition'], $data['picture'], $data['morder']);
+				$definition = new assAnswerMatchingDefinition($data['definition'], $data['picture'], $data['ident']);
 				array_push($this->definitions, $definition);
 				$definitionids[$data['def_id']] = $definition;
 			}
@@ -542,11 +545,21 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 				{
 					ilUtil::makeDirParents($imagepath);
 				}
-				if (!copy($imagepath_original . $filename, $imagepath . $filename)) 
+
+				if( assQuestion::isFileAvailable($imagepath_original . $filename) )
+				{
+					copy($imagepath_original . $filename, $imagepath . $filename);
+				}
+				else
 				{
 					$ilLog->write("matching question image could not be copied: $imagepath_original$filename");
 				}
-				if (!copy($imagepath_original . $this->getThumbPrefix() . $filename, $imagepath . $this->getThumbPrefix() . $filename)) 
+				
+				if( assQuestion::isFileAvailable($imagepath_original . $this->getThumbPrefix() . $filename) )
+				{
+					copy($imagepath_original . $this->getThumbPrefix() . $filename, $imagepath . $this->getThumbPrefix() . $filename);
+				}
+				else
 				{
 					$ilLog->write("matching question image thumbnail could not be copied: $imagepath_original" . $this->getThumbPrefix() . $filename);
 				}
@@ -1206,54 +1219,6 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		return $saveWorkingDataResult;
 	}
 
-// fau: testImportResults - new function _mapWorkingData
-    /**
-     * Map imported working data
-     *
-     * This function is called from the ilTestResultImportParser.  
-     * Overwritten from assQuestion
-     *
-     * The assoc array corresponds to a row in tst_solutions.
-     * 'question_id' and 'active_id' are already mapped to their new values.
-     *
-     * This function changes the term_ids to their new values
-     * The table qpl_a_mterm has beed extended by the column old_id for this purpose
-     * see also function saveToDb
-     *
-     * @param   array   assoc array of tst_solutions row
-     * @return  array   assoc array of tst_solutions row
-     */
-    public static function _mapWorkingData($a_data)
-    {
-        global $ilDB;      
-        static $term_mapping = array();
-       
-        // read and cache the term_id mappings for a question
-        $question_id = $a_data['question_fi'];
-        if (!isset($term_mapping[$question_id]))
-        {
-            $question_term_mapping = array();
-           
-            $query = "SELECT term_id, old_id FROM qpl_a_mterm"
-                    ." WHERE question_fi = ". $ilDB->quote($question_id, "integer");
-           
-            $result = $ilDB->query($query);
-            while ($row = $ilDB->fetchAssoc($result))
-            {
-                $question_term_mapping[$row['old_id']] = $row['term_id'];
-            }
-                       
-            $term_mapping[$question_id] = $question_term_mapping;
-        }
-               
-        // change the value1 in the working data to the new term_id if possible
-        $new_term_id = $term_mapping[$question_id][$a_data['value1']];
-        $a_data['value1'] = $new_term_id ? $new_term_id : $a_data['value1'];
-       
-        return $a_data;
-    }
-// fau.
-
 	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
 	{
 		$submittedMatchings = $this->fetchSubmittedMatchingsFromPost();
@@ -1672,7 +1637,7 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		}
 
 		$data = $ilDB->queryF(
-			"SELECT term_id FROM qpl_a_mterm WHERE question_fi = %s ORDER BY term_id",
+			"SELECT ident FROM qpl_a_mterm WHERE question_fi = %s ORDER BY term_id",
 			array("integer"),
 			array($this->getId())
 		);
@@ -1681,7 +1646,7 @@ class assMatchingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		for($index=1; $index <= $ilDB->numRows($data); ++$index)
 		{
 			$row = $ilDB->fetchAssoc($data);
-			$terms[$row["term_id"]] = $index;
+			$terms[$row["ident"]] = $index;
 		}
 
 		$maxStep = $this->lookupMaxStep($active_id, $pass);

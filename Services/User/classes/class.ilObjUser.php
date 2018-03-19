@@ -20,7 +20,7 @@ require_once './Services/User/exceptions/class.ilUserException.php';
 * @author	Sascha Hofmann <saschahofmann@gmx.de>
 * @author	Stefan Meyer <meyer@leifos.com>
 * @author	Peter Gabriel <pgabriel@databay.de>
-* @version	$Id: class.ilObjUser.php 61281 2015-11-03 12:10:11Z fneumann $
+* @version	$Id$
 *
 * @ingroup ServicesUser
 */
@@ -253,7 +253,7 @@ class ilObjUser extends ilObject
 			}
 			else
 			{
-				$data["passwd_type"] = IL_PASSWD_CRYPTED;				
+				$data["passwd_type"] = IL_PASSWD_CRYPTED;
 			}
 // fau.
 
@@ -487,7 +487,7 @@ class ilObjUser extends ilObject
 				$pw_value = $this->passwd;
 				break;
 // fau.
-			
+
 			default :
 				 $ilErr->raiseError("<b>Error: passwd_type missing in function saveAsNew. ".
 									$this->id."!</b><br />class: ".get_class($this)."<br />Script: ".__FILE__.
@@ -562,7 +562,7 @@ class ilObjUser extends ilObject
 			'is_self_registered' => array('integer', (int)$this->is_self_registered)
 			);
 		$ilDB->insert("usr_data", $insert_array);
-		
+
 		$this->updateMultiTextFields(true);
 
 		// add new entry in usr_defined_data
@@ -692,7 +692,7 @@ class ilObjUser extends ilObject
 				$update_array["passwd"] = array("text", (string) $this->passwd);
 				break;
 // fau.
-			
+
 			default :
 				$ilErr->raiseError("<b>Error: passwd_type missing in function update()".$this->id."!</b><br />class: ".
 								   get_class($this)."<br />Script: ".__FILE__."<br />Line: ".__LINE__, $ilErr->FATAL);
@@ -828,7 +828,7 @@ class ilObjUser extends ilObject
 		}
 		return $fullname;
 	}
-	
+
 	/**
 	* Lookup IM
 	*/
@@ -836,8 +836,8 @@ class ilObjUser extends ilObject
 	{
 		return ilObjUser::_lookup($a_user_id, "im_".$a_type);
 	}
-	
-	
+
+
 	/**
 	* Lookup email
 	*/
@@ -1517,7 +1517,7 @@ class ilObjUser extends ilObject
 		// remove reminder entries
 		require_once 'Services/User/classes/class.ilCronDeleteInactiveUserReminderMail.php';
 		ilCronDeleteInactiveUserReminderMail::removeSingleUserFromTable($this->getId());
-		
+
 		// Delete user defined field entries
 		$this->deleteUserDefinedFieldEntries();
 		
@@ -2476,8 +2476,15 @@ class ilObjUser extends ilObject
     public function isPasswordChangeDemanded()
     {
 		//error_reporting(E_ALL);
-		if( $this->id == ANONYMOUS_USER_ID || $this->id == SYSTEM_USER_ID )
+		if( $this->id == ANONYMOUS_USER_ID )
 			return false;
+
+		if ($this->id == SYSTEM_USER_ID) {
+			require_once './Services/User/classes/class.ilUserPasswordManager.php';
+			if (\ilUserPasswordManager::getInstance()->verifyPassword($this, base64_decode('aG9tZXI='))) {
+				return true;
+			}
+		}
 
     	require_once('./Services/PrivacySecurity/classes/class.ilSecuritySettings.php');
     	$security = ilSecuritySettings::_getInstance();
@@ -2648,7 +2655,7 @@ class ilObjUser extends ilObject
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Check for simultaneous login
 	 * 
@@ -2662,7 +2669,7 @@ class ilObjUser extends ilObject
 			SELECT COUNT(*) session_count
 			FROM usr_session WHERE user_id = %s AND expires > %s',
 			array('integer', 'integer'),
-			array($a_user_id, time()));	
+			array($a_user_id, time()));
 		$row = $ilDB->fetchAssoc($set);
 		return (bool)$row['session_count'];		
 	}
@@ -2689,7 +2696,7 @@ class ilObjUser extends ilObject
 	 */
 	private static function getLoginFromAuth() {
 		global $ilAuth;
-                
+
 		// BEGIN WebDAV: Strip Microsoft Domain Names from logins
 		require_once ('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
 		if (ilDAVActivationChecker::_isActive())
@@ -2702,7 +2709,7 @@ class ilObjUser extends ilObject
 		{
 			$login = $ilAuth->getUsername();
 		}
-		
+
 // fau: loginFailed - get also the username of users with wrong password
 // this allows to check the activation status of accounts with wrong password
 // and show a message if their trial limit is exceeded
@@ -2711,9 +2718,9 @@ class ilObjUser extends ilObject
 			$login = $_REQUEST["username"];
 		}
 // fau.
-                
+
 		return $login;
-    }
+        }
 
     /*
      * check to see if current user has been made active
@@ -2957,7 +2964,7 @@ class ilObjUser extends ilObject
 	function _getAllUserLogins(&$ilias)
 	{
 		global $ilDB;
-		
+
 		$res = $ilDB->query("SELECT login FROM usr_data");
 		while($row = $ilDB->fetchObject($res))
 		{
@@ -3808,7 +3815,7 @@ class ilObjUser extends ilObject
 	}
 // fau.
 
-	
+
 	/**
 	 * Get list of external account by authentication method
 	 * Note: If login == ext_account for two user with auth_mode 'default' and auth_mode 'ldap'
@@ -4139,7 +4146,7 @@ class ilObjUser extends ilObject
 				if($a_size == "small" || $a_size == "big")
 				{
 					$a_size = "xsmall";
-				}				
+				}
 				$file = ilUtil::getImagePath("no_photo_".$a_size.".jpg");
 			}
 		}
@@ -4479,8 +4486,8 @@ class ilObjUser extends ilObject
 			
 			$body .= $language->txt('time_limit').': '.$start->get(IL_CAL_DATETIME);
 			$body .= $language->txt('time_limit').': '.$end->get(IL_CAL_DATETIME);
-			
-			
+
+
 			#$body .= $language->txt('time_limit').': '.$period;
 			/*
 			$body .= ($language->txt('time_limit').": ".$language->txt('crs_from')." ".
@@ -5005,7 +5012,7 @@ class ilObjUser extends ilObject
 		/**
 		 * @var $ilDB ilDB
 		 */
-		global $ilDB;
+		global $ilDB, $rbacreview;
 
 		$pd_set = new ilSetting('pd');
 		$atime  = $pd_set->get('user_activity_time') * 60;
@@ -5016,12 +5023,6 @@ class ilObjUser extends ilObject
 		if($a_user_id == 0)
 		{
 			$where[] = 'user_id > 0';
-
-			require_once 'Services/TermsOfService/classes/class.ilTermsOfServiceHelper.php';
-			if(ilTermsOfServiceHelper::isEnabled())
-			{
-				$where[] = '(agree_date IS NOT NULL OR user_id = ' . $ilDB->quote(SYSTEM_USER_ID, 'integer') . ')';
-			}
 		}
 		else if (is_array($a_user_id))
 		{
@@ -5050,14 +5051,14 @@ class ilObjUser extends ilObject
 		$where = 'WHERE ' . implode(' AND ', $where);
 
 		$r = $ilDB->queryF("
-			SELECT COUNT(user_id) num, user_id, firstname, lastname, title, login, last_login, MAX(ctime) ctime
+			SELECT COUNT(user_id) num, user_id, firstname, lastname, title, login, last_login, MAX(ctime) ctime, agree_date
 			FROM usr_session
 			LEFT JOIN usr_data u
 				ON user_id = u.usr_id
 			LEFT JOIN usr_pref p
 				ON (p.usr_id = u.usr_id AND p.keyword = %s)
 			{$where}
-			GROUP BY user_id, firstname, lastname, title, login, last_login
+			GROUP BY user_id, firstname, lastname, title, login, last_login, agree_date
 			ORDER BY lastname, firstname
 			",
 			array('text'),
@@ -5073,6 +5074,18 @@ class ilObjUser extends ilObject
 			}
 		}
 
+		require_once 'Services/TermsOfService/classes/class.ilTermsOfServiceHelper.php';
+		if (ilTermsOfServiceHelper::isEnabled()) {
+			$adminRoleUserIds = array_flip($rbacreview->assignedUsers(SYSTEM_ROLE_ID));
+			$users = array_filter($users, function($user) use ($adminRoleUserIds) {
+				if ($user['agree_date'] || $user['user_id'] == SYSTEM_USER_ID || 'root' === $user['login']) {
+					return true;
+				}
+
+				return isset($adminRoleUserIds[$user['user_id']]);
+			});
+		}
+
 		return $users;
 	}
 
@@ -5083,6 +5096,7 @@ class ilObjUser extends ilObject
 	*
 	* @param	integer	user_id User ID of the current user.
 	* @return	array
+	* @deprecated This is dead code since ILIAS 5.3.x (ilUsersOnlineBlock ...) and could be removed in future releases.
 	*/
 	public static function _getAssociatedUsersOnline($a_user_id, $a_no_anonymous = false)
 	{
@@ -5228,7 +5242,7 @@ class ilObjUser extends ilObject
 	public static function _verifyRegistrationHash($a_hash)
 	{
 		global $ilDB;
-
+		
 		$res = $ilDB->queryf('
 			SELECT usr_id, create_date FROM usr_data 
 			WHERE reg_hash = %s',
@@ -5732,15 +5746,15 @@ class ilObjUser extends ilObject
 	{
 		return (bool)$this->getPref("delete_flag");
 	}
-	
+
 // fau: loginFailed - new function getInactiveMessageVar
 	/**
 	 *  Get the language var for showing an inactive failure message
-	 *  
+	 *
 	 *  @return string	language variable or empty string, is user is active
-	 */  
+	 */
 	public function getInactiveMessageVar()
-	{	
+	{
 		// user account not found
 		// should not create an inactive message
 		// instead ilStartupGUI::showLogin() will create an err_wrong_login message
@@ -5748,7 +5762,7 @@ class ilObjUser extends ilObject
 		{
 			return "";
 		}
-		
+
 		// time limit reached (independent from activation status)
 		if (!$this->checkTimeLimit())
 		{
@@ -5758,16 +5772,16 @@ class ilObjUser extends ilObject
 		// user is active => no message
 		if ($this->getActive())
 		{
-			return "";	
-		}		
-		
+			return "";
+		}
+
 		// too many wrong logins
 		require_once 'Services/PrivacySecurity/classes/class.ilSecuritySettings.php';
 		$security = ilSecuritySettings::_getInstance();
-		
+
 		if ($security->getLoginMaxAttempts() > 0 and $security->getLoginMaxAttempts() <= $this->getLoginAttempts())
 		{
-			return "err_inactive_wrong_logins"; 
+			return "err_inactive_wrong_logins";
 		}
 
 		// user has not yet been logged
@@ -5775,23 +5789,23 @@ class ilObjUser extends ilObject
 		{
 			return "err_inactive_new";
 		}
-		
+
 		// last login before one year
-		include_once('./Services/Calendar/classes/class.ilDateTime.php');	
+		include_once('./Services/Calendar/classes/class.ilDateTime.php');
 		$check = new ilDateTime(time(),IL_CAL_UNIX);
 		$check->increment(IL_CAL_YEAR, -1);
 		$last = new ilDateTime($this->getLastLogin(),IL_CAL_DATETIME);
-		
+
 		if (ilDate::_before($last, $check))
 		{
-			return "err_inactive_too_long"; 
+			return "err_inactive_too_long";
 		}
 
 		// user has been set to inactive for any other reason
-		return "err_inactive_set";	
+		return "err_inactive_set";
 	}
 // fau.
-		
+
 
 	/**
 	 * @param bool $status
