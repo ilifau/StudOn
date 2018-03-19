@@ -90,13 +90,6 @@ abstract class assQuestionGUI
 	// hey.
 
 
-// fau: testNav - flag to indicate that a previous answer is shown
-	/**
-	 * @var bool
-	 */
-	private $previousAnswerIsShown = false;
-// fau.
-
 	/**
 	* assQuestionGUI constructor
 	*/
@@ -451,7 +444,7 @@ abstract class assQuestionGUI
 	function outQuestionPage($a_temp_var, $a_postponed = false, $active_id = "", $html = "")
 	{
 // fau: testNav - add the "use previous answer or" or "use unchanged answer checkbox"
-		if ($this->previousAnswerIsShown)
+		if ($this->isPreviousSolutionPrefilled())
 		{
 			$html .= $this->getUsePreviousAnswerCheckboxHtml();
 		}
@@ -2118,20 +2111,6 @@ abstract class assQuestionGUI
 	)
 	{
 		$formaction = $this->completeTestOutputFormAction($formaction, $active_id, $pass);
-
-// fau: testNav - central check if a previous answer should be shown
-//				  the checks in the individual gui classes are obsolete because the pass will be fixed
-		if ($active_id && is_null($pass))
-		{
-			require_once './Modules/Test/classes/class.ilObjTest.php';
-			if (ilObjTest::_getUsePreviousAnswers($active_id, true))
-			{
-				$pass = $this->object->getSolutionMaxPass($active_id);
-				$previous = $this->object->lookupForExistingSolutions($active_id, $pass);
-				$this->previousAnswerIsShown = $previous['authorized'] || $previous['intermediate'];
-			}
-		}
-// fau.
 
 		$test_output = $this->getTestOutput(
 			$active_id,

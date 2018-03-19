@@ -410,7 +410,7 @@ class ilObjLanguageExtGUI extends ilObjectGUI
 		{
 // fau: fixLangFileImport - get an allowed tempname
 			//$file = $_FILES['userfile']['tmp_name'].'x';
-			$file = ilUtil::ilTempnam();
+			$file = ilUtil::ilTempnam() . '.sec';
 // fau.
 			
 			if (ilUtil::moveUploadedFile($_FILES['userfile']['tmp_name'],

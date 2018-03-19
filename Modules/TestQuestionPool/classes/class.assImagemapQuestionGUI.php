@@ -811,6 +811,7 @@ class assImagemapQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 // fau: testNav - get the html of the "use previous answer checkbox"
 	protected function getUsePreviousAnswerCheckboxHtml()
 	{
+		return parent::getUsePreviousAnswerCheckboxHtml();
 		return  "<hr />". $this->lng->txt('tst_use_previous_answer_imagemap');
 	}
 // fau.

@@ -725,7 +725,6 @@ class assImagemapQuestion extends assQuestion implements ilObjQuestionScoringAdj
 
 		if(!$authorized)
 		{
-
 			$solutions = $this->getSolutionValues($active_id, $pass, false);
 			if(0 == count($solutions))
 			{
@@ -784,7 +783,16 @@ class assImagemapQuestion extends assQuestion implements ilObjQuestionScoringAdj
 		}
 		else
 		{
-			$solutions = $this->getUserSolutionPreferingIntermediate($active_id, $pass);
+// fau: testNav - fix previousSolution for 5.1
+			if ($_POST['tst_use_unchanged_answer'])
+			{
+				$solutions = $this->getSolutionValues($active_id, $this->getSolutionMaxPass($active_id));
+			}
+			else
+			{
+				$solutions = $this->getUserSolutionPreferingIntermediate($active_id, $pass);
+			}
+// fau.
 			$this->removeCurrentSolution($active_id, $pass, true);
 			$this->removeCurrentSolution($active_id, $pass, false);
 			foreach($solutions as $solution)

@@ -149,7 +149,7 @@ class ilLimitedMediaPlayerGUI
 		$tpl->setVariable("CURRENT_USES_TEXT", $lng->txt("cont_limit_starts_current_plays_text"));
 		$tpl->setVariable("MAX_USES", $this->limit_count == 0 ? $lng->txt('no_limit') : (int) $this->limit_count);
 		$tpl->setVariable("MAX_USES_TEXT", $lng->txt("cont_limit_starts_max_plays_text"));
-		$tpl->show();
+		echo $tpl->get();
 		
 		//echo "<pre>"; var_dump($this); echo "</pre>";
 	}
