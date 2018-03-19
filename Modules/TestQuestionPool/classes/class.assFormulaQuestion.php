@@ -1472,17 +1472,12 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 		$solutionSubmit = array();
 		foreach($_POST as $k => $v)
 		{
+// fau: testNav - keep invalid submit, it will generate an error message in saveWorkingData
 			if(preg_match("/^result_(\\\$r\\d+)$/", $k))
 			{
-				if( $this->isValidSolutionResultValue($v) )
-				{
 					$solutionSubmit[$k] = $v;
-				}
-				else
-				{
-					$solutionSubmit[$k] = '';
-				}
 			}
+// fau.
 			elseif(preg_match("/^result_(\\\$r\\d+)_unit$/", $k))
 			{
 				$solutionSubmit[$k] = $v;

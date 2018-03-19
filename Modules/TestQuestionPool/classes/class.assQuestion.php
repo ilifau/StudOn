@@ -1247,26 +1247,6 @@ abstract class assQuestion
 	 */
 	//abstract protected function reworkWorkingData($active_id, $pass, $obligationsAnswered, $intermediate);
 
-// fau: testImportResults new function _mapWorkingData
-	/**
-	 * Map imported working data
-	 *
-	 * This function is called from the ilTestResultImportParser.
-	 * It changes nothing in general but can be overwritten in child clases
-	 * to do a type specific mapping (e.g. of term_ids) at import.
-	 *
-	 * The assoc array corresponds to a row in tst_solutions.
-	 * 'question_id' and 'active_id' are already mapped to their new values.
-	 *
-	 * @param   array   assoc array of tst_solutions row
-	 * @return  array   assoc array of tst_solutions row
-	 */
-	public static function _mapWorkingData($a_data)
-	{
-		return $a_data;
-	}
-// fau.
-
 	protected function savePreviewData(ilAssQuestionPreviewSession $previewSession)
 	{
 		$previewSession->setParticipantsSolution($this->getSolutionSubmit());
