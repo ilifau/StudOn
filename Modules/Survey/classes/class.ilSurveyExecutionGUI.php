@@ -144,6 +144,16 @@ class ilSurveyExecutionGUI
 
             $anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
         }
+        elseif ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA && $ilUser->getId() != ANONYMOUS_USER_ID)
+		{
+			$anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
+			if (empty($anonymous_code))
+			{
+				$anonymous_code = $this->object->createNewAccessCode();
+				$_SESSION["anonymous_id"][$this->object->getId()] = $anonymous_code;
+				$a_may_start = true;
+			}
+		}
 		elseif ($this->object->getAnonymize() || !$this->object->isAccessibleWithoutCode())
 // fau.
 		{
