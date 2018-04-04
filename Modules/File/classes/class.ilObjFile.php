@@ -207,12 +207,15 @@ class ilObjFile extends ilObject2 {
 
 	function getDirectory($a_version = 0)
 	{
+// fau: fixFileVersionDir - wirkaround for Mantis #22761
 		$version_subdir = "";
+		$version_subdir2 = "";
 
 		if ($a_version)
 		{
 			// BEGIN WebDAV Avoid double slash before version subdirectory
 			$version_subdir = sprintf("%03d", $a_version);
+			$version_subdir2 = sprintf("%03d", $a_version + 1);
 			// END WebDAV Avoid  double slash before version subdirectory
 		}
 		
@@ -220,8 +223,14 @@ class ilObjFile extends ilObject2 {
 		{
 			$this->initFileStorage();
 		}
-		
+
+		if (!is_dir($this->file_storage->getAbsolutePath().'/'.$version_subdir)
+			&& is_dir($this->file_storage->getAbsolutePath().'/'.$version_subdir2))
+		{
+			return $this->file_storage->getAbsolutePath().'/'.$version_subdir2;
+		}
 		return $this->file_storage->getAbsolutePath().'/'.$version_subdir;
+// fau.
 	}
 
 	function createDirectory()
@@ -1141,8 +1150,19 @@ class ilObjFile extends ilObject2 {
 		{
 			$a_version = ilObjFile::_lookupVersion ($obj_id);
 		}
-		$version_subdir = DIRECTORY_SEPARATOR.sprintf("%03d", $a_version);		
+
+// fau: fixFileVersionDir - workaround for mantis #22761
+		$version_subdir = DIRECTORY_SEPARATOR.sprintf("%03d", $a_version);
+		$version_subdir2 = DIRECTORY_SEPARATOR.sprintf("%03d", $a_version+1);
+
+		if (!is_dir($file_storage->getAbsolutePath().$version_subdir)
+			&& is_dir($file_storage->getAbsolutePath().$version_subdir2))
+		{
+			return $file_storage->getAbsolutePath().$version_subdir2.DIRECTORY_SEPARATOR.$filename;
+		}
+
 		return $file_storage->getAbsolutePath().$version_subdir.DIRECTORY_SEPARATOR.$filename;
+// fau.
 	}
 	
 	/**
