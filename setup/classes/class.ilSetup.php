@@ -2337,6 +2337,20 @@ class ilSetup extends PEAR
 
 		return ($ini_get === 1 OR $ini_get === '1' OR strtolower($ini_get) === 'on');
 	}
+
+	/**
+	 * Checks if directory is subdirectory of other directory.
+	 *
+	 * @param	string	$directory
+	 * @param	string	$other_directory
+	 * @return	bool
+	 */
+	protected function isDirectoryInOther($directory, $other_directory) {
+		$other_directory = $other_directory."/";
+
+		return !(strpos($directory, $other_directory) !== 0);
+	}
+
 } // END class.ilSetup
 
 class tmpDirectoyIterator extends DirectoryIterator
@@ -2368,18 +2382,5 @@ class tmpDirectoyIterator extends DirectoryIterator
 	{
 		parent::rewind();
     }
-
-	/**
-	 * Checks if directory is subdirectory of other directory.
-	 *
-	 * @param	string	$directory
-	 * @param	string	$other_directory
-	 * @return	bool
-	 */
-	protected function isDirectoryInOther($directory, $other_directory) {
-		$other_directory = $other_directory."/";
-
-		return !(strpos($directory, $other_directory) !== 0);
-	}
 }
 ?>
