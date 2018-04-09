@@ -73,8 +73,10 @@
 		{
 			'answer <- answers':
 			{
-				'td.answertext': 'answer.answertext',
-				'td.kprimInput input@name': function(arg)
+// fau: fixKPrimLmDisplay - use the new element names
+				'span.answertext': 'answer.answertext',
+				'div.kprimInput input@name': function(arg)
+// fau.
 				{
 					return 'kprim_choice_'+questionData.id+'_result_'+arg.context.answers[arg.pos].order;
 				}
