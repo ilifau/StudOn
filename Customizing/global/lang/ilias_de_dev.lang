@@ -338,7 +338,7 @@ common#:#sub_fair_to_act_start_min#:#Die chancengleiche Phase wurde auf den Mind
 common#:#sub_fair_to_act_end#:#Die chancengleiche Phase wurde auf das Ende der Verfügbarkeit begrenzt.
 common#:#sub_fair_not_changeable#:#Die chancengleiche Phase kann nicht verkürzt werden, da vorhandene Anmeldungen betroffen wären.
 common#:#sub_fair_subscribe_message#:#Bis %s werden alle Anmeldungen chancengleich gesammelt und danach die freien Plätze per Los zugeteilt.
-common#:#sub_fair_added_to_waiting_list#:#Sie wurden auf die Warteliste gesetzt und erfahren nach Ende der changengleichen Phase per E-Mail, ob Sie zugeteilt wurden oder auf der Warteliste verbleiben.
+common#:#sub_fair_added_to_waiting_list#:#Sie wurden auf die Warteliste gesetzt und erfahren nach Ende der chancengleichen Phase per E-Mail, ob Sie zugeteilt wurden oder auf der Warteliste verbleiben.
 common#:#sub_fair_subscribe_label#:#Zur Zuteilung anmelden
 common#:#sub_fair_position_with_other#:#%s (mit 1 chancengleichen)
 common#:#sub_fair_position_with_others#:#%s (mit %s chancengleichen)
