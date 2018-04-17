@@ -98,7 +98,7 @@ class ilHTTPS
 		// if https is enabled for scripts or classes, check for redirection
 	    if ($this->enabled)
 		{
-            // fim: [debug] allow tracing of redirections
+            // fau: traceRedirects - allow tracing of protocol switch
     		if($this->shouldSwitchProtocol(self::PROTOCOL_HTTPS))
     		{
                 ilUtil::redirect("https://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
@@ -109,7 +109,7 @@ class ilHTTPS
                 ilUtil::redirect("http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
     			exit;
     		}
-            // fim.
+            // fau.
 		}
 		return true;
 	}

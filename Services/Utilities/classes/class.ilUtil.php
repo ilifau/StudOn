@@ -3754,7 +3754,7 @@ class ilUtil
 			}
 		}
 
-		// fim: [debug] show redirect link instead of redirecting
+// fau: traceRedirects - show redirect link instead of redirecting
 		global $ilCust;
 		if (is_object($ilCust) and $ilCust->getSetting('ilias_trace_redirects'))
   		{
@@ -3771,7 +3771,7 @@ class ilUtil
 			echo '</pre>';
 			exit;
   		}
-		// fim.
+// fau.
 
 		// fim: [bugfix] use html redirect
 		if ($a_html_redirect)
@@ -3787,8 +3787,9 @@ class ilUtil
 		exit();
 	}
 
+// fau: traceRedirects - new function backtrace()
 	/**
-	 * fim: [debug] new function to get a short backtrace
+	 * Return a backtrace with mst important information
 	 * @return string
 	 */
 	public static function backtrace()
@@ -3806,7 +3807,7 @@ class ilUtil
 		$backtrace .=  '['.$i.'] '.$_SERVER['REQUEST_URI'];
 		return $backtrace;
 	}
-	// fim.
+// fau.
 
 	/**
 	* inserts installation id into ILIAS id

@@ -537,14 +537,7 @@ class ilSoapUtils extends ilSoapAdministration
 			return true;
 		}
 		$target_id = $mappings[$parent_id];
-		
-		// fim: [debug] log recursive copying
-		// log_var($node, "node");
-		// log_var($options,"options");
-		// log_var($mappings,"mappings");
-		// log_var($target_id,"target_id");
-		// fim.
-		
+
 		if(!$tree->isInTree($target_id))
 		{
 			ilLoggerFactory::getLogger('obj')->notice('Omitting node '.$source_id.', '.$node['title'].', '.$node['type']. '. Object has been deleted.');

@@ -1,5 +1,5 @@
 <?php
-// fim: [debug] new class RequestLog.
+// fau: requestLog - new class RequestLog.
 
 class RequestLog
 {

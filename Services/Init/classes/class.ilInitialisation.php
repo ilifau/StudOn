@@ -350,9 +350,6 @@ class ilInitialisation
 		define ("DEVMODE",$ilClientIniFile->readVariable("system","DEVMODE"));
 		define ("SHOWNOTICES",$ilClientIniFile->readVariable("system","SHOWNOTICES"));
 		define ("DEBUGTOOLS",$ilClientIniFile->readVariable("system","DEBUGTOOLS"));
-		// fim: [debug] new variable DISPLAYERRORS
-		define ("DISPLAYERRORS",$ilClientIniFile->readVariable("system","DISPLAYERRORS"));
-		// fim.
 		define ("ROOT_FOLDER_ID",$ilClientIniFile->readVariable('system','ROOT_FOLDER_ID'));
 		define ("SYSTEM_FOLDER_ID",$ilClientIniFile->readVariable('system','SYSTEM_FOLDER_ID'));
 		define ("ROLE_FOLDER_ID",$ilClientIniFile->readVariable('system','ROLE_FOLDER_ID'));
@@ -942,7 +939,6 @@ class ilInitialisation
 			// add notices to error reporting
 			error_reporting(E_ALL);
 		}
-		
 		if(defined('DEBUGTOOLS') && DEBUGTOOLS)
 		{
 			include_once "include/inc.debug.php";
@@ -1110,17 +1106,6 @@ class ilInitialisation
 		{
 			self::handleDevMode();
 		}						
-	
-		// fim: [debug] set the display of errors according to ini setting
-		if (DISPLAYERRORS)
-		{
-				ini_set("display_errors","on");
-		}
-		else
-		{
-				ini_set("display_errors","off");
-		}
-		// fim.
 
 		self::handleMaintenanceMode();
 

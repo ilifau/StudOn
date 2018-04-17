@@ -1635,25 +1635,6 @@ class ilObjMediaObject extends ilObject
 		{
 			copy($tmp_name, $file);
 		}
-
-		// fim: [debug] log missing source or target
-		global $ilLog;
-		static $missing_files = array();
-
-		if (!file_exists($tmp_name))
-		{
-			$ilLog->write(__METHOD__.': COPY FAILURE (missing source): '. $tmp_name, $ilLog->WARNING);
-			$missing_files[] = $name;
-			ilUtil::sendFailure("Failed media files (see ILIAS log): " . implode(", ", $missing_files), true);
-		}
-		elseif (!file_exists($file))
-		{
-			$ilLog->write(__METHOD__.': COPY FAILURE (missing target): '. $file, $ilLog->WARNING);
-			$missing_files[] = $name;
-			ilUtil::sendFailure("Failed media files (see ILIAS log): "  . implode(", ", $missing_files), true);
-		}
-		// fim.
-
 		// get mime type
 		$format = ilObjMediaObject::getMimeType($file);
 		$location = $name;

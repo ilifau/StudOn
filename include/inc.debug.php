@@ -32,7 +32,7 @@
  */
 
 
-// fim: [debug] add logging functions
+// fau: requestLog - add logging functions
 function log_request()
 {
 	include_once ("include/inc.log_request.php");
@@ -105,7 +105,7 @@ function show_backtrace()
 	
 	echo '</pre>';
 }
-// fim.
+// fau.
 
 
 

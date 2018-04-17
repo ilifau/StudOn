@@ -224,17 +224,6 @@ if ($target_type == 'studon')
 			}
 		    break;
 // fau.
-
-		// fim: [debug] create an error.	
-		case "error":
-			echo 10 /0;
-			break;
-		
-		// fim: [debug] show a request log.	
-		case "logtest":
-			log_request();
-			show_log();
-			break;
 	}
 }
 // fim.	
