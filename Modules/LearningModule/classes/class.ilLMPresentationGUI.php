@@ -1797,7 +1797,17 @@ class ilLMPresentationGUI
 			$a_page_gui->setOfflineDirectory($this->getOfflineDirectory());
 			$this->fill_on_load_code = false;
 		}
+// fau: fixLmFileDownload - cherry-picked from 5.2
+		if (!$this->offlineMode())
+		{
+			$this->ctrl->setParameter($this, "obj_id", $this->getCurrentPageId());		// see #22403
+		}
 		$a_page_gui->setFileDownloadLink($this->getLink($_GET["ref_id"], "downloadFile"));
+		if (!$this->offlineMode())
+		{
+			$this->ctrl->setParameter($this, "obj_id", $_GET["obj_id"]);
+		}
+// fau.
 		$a_page_gui->setFullscreenLink($this->getLink($_GET["ref_id"], "fullscreen"));
 	}
 
