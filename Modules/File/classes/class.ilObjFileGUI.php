@@ -339,7 +339,7 @@ class ilObjFileGUI extends ilObject2GUI
 			$fileObj->createDirectory();
 			$fileObj->getUploadFile($upload_file["tmp_name"],
 				$upload_file["name"]);
-			
+
 			$this->handleAutoRating($fileObj);
 
 			// BEGIN ChangeEvent: Record write event.
@@ -567,10 +567,14 @@ class ilObjFileGUI extends ilObject2GUI
 				"", $data["name"], $data["type"]));
 			$this->object->setFileSize($data['size']);
 		}
-		
+
 		$this->object->setDescription($form->getInput('description'));
 		$this->object->setRating($form->getInput('rating'));
-		
+
+// fau: fixFileTitleEdit - take the entered file title
+		$this->object->setTitle($title);
+// fau.
+
 		$this->update = $this->object->update();
 
 		// BEGIN ChangeEvent: Record update event.
@@ -1289,6 +1293,11 @@ class ilObjFileGUI extends ilObject2GUI
 			$fileObj->createDirectory();
 			$fileObj->raiseUploadError(false);
 			$fileObj->getUploadFile($temp_name, $filename, false);
+
+// fau: fixFileTitleEdit - take the entered file title
+			$fileObj->setTitle($title);
+			$fileObj->update();
+// fau.
 			
 			$this->handleAutoRating($fileObj);
 			
