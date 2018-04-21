@@ -403,6 +403,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			return false;
 		}
+		elseif ($a_time < $this->getRegistrationStart()->get(IL_CAL_UNIX))
+		{
+			return false;
+		}
 		else
 		{
 			return true;
