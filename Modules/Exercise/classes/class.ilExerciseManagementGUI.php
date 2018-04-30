@@ -945,6 +945,7 @@ class ilExerciseManagementGUI
 						// fim: [bugfix] allow html special chars in comment
 						$member_status->setComment(ilUtil::stripSlashes($comment, false));
 						// fim.
+						$member_status->setFeedback(true);
 						$member_status->update();
 						
 						if(trim($comment))

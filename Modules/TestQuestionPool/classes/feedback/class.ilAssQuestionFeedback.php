@@ -291,20 +291,21 @@ abstract class ilAssQuestionFeedback
 			if( !$this->questionOBJ->getPreventRteUsage() )
 			{
 				$property->setUseRte(true);
-
-// fau: fixQuestionFeedbackImage - support images in question feedback form
-				include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
-				$property->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
 				$property->addPlugin("latex");
 				$property->addButton("latex");
 				$property->addButton("pastelatex");
+
+				require_once 'Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php';
+				$property->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
+				$property->setRTESupport($this->questionOBJ->getId(), "qpl", "assessment");
+			}
+			else
+			{
+				require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
+				$property->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
+				$property->setUseTagsForRteOnly(false);
 			}
 
-//			require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
-//			$property->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
-//			$property->setUseTagsForRteOnly(false);
-// fau.
-			
 			$property->setRTESupport($this->questionOBJ->getId(), "qpl", "assessment");
 		}
 		

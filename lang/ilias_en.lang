@@ -16250,3 +16250,11 @@ assessment#:#tst_question_not_marked#:#Question is not Marked###fau: testNav
 assessment#:#tst_save_and_proceed#:#Save and Proceed###fau: testNav
 adve#:#char_selector_menu_open#:#Open Special Character Selector###fau: testNav
 adve#:#char_selector_menu_close#:#Close Special Character Selector###fau: testNav
+file#:#file_suffix_default_white#:#Default Suffix Whitelist
+file#:#file_suffix_default_white_info#:#Default list of accepted file suffixes.
+file#:#file_suffix_custom_black#:#Custom Suffix Blacklist
+file#:#file_suffix_custom_black_info#:#These suffixes will be removed from the default whitelist.
+file#:#file_suffix_custom_white#:#Custom Suffix Whitelist
+file#:#file_suffix_custom_white_info#:#These suffixes will be added to the default whitelist.
+file#:#file_suffix_overall_white#:#Overal Suffix Whitelist
+file#:#file_suffix_overall_white_info#:#Resulting overall list of accepted file suffixes.

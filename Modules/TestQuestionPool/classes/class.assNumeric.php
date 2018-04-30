@@ -516,7 +516,7 @@ class assNumeric extends assQuestion implements ilObjQuestionScoringAdjustable, 
 
 		if( !$this->isValidSolutionSubmit($numericSolution) )
 		{
-			ilUtil::sendInfo($this->lng->txt("err_no_numeric_value"), true);
+			ilUtil::sendFailure($this->lng->txt("err_no_numeric_value"), true);
 		}
 		
 		$previewSession->setParticipantsSolution($numericSolution);
