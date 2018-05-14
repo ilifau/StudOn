@@ -5001,7 +5001,7 @@ function getAnswerFeedbackPoints()
 		$pass = NULL;
 		$checked = array();
 		$datasets = 0;
-		$questionData  = [];
+		$questionData  = array();
 
 		while( $row = $ilDB->fetchAssoc($result) )
 		{
