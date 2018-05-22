@@ -666,7 +666,9 @@ class ilObjCourseGUI extends ilContainerGUI
 			}
 // fau.
 // fau: fairSub - show fair period on info screen
-			if ($this->object->isSubscriptionMembershipLimited() && $this->object->getSubscriptionMaxMembers())
+			if ($this->object->isSubscriptionMembershipLimited()
+				&& $this->object->getSubscriptionMaxMembers()
+				&& $this->object->getSubscriptionType() != IL_CRS_SUBSCRIPTION_OBJECT)
 			{
 				$info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
 					$this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));

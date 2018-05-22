@@ -2575,7 +2575,9 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 // fau.
 // fau: fairSub - show fair period on info screen
-			if ($this->object->isMembershipLimited() && $this->object->getMaxMembers())
+			if ($this->object->isMembershipLimited()
+				&& $this->object->getMaxMembers()
+				&& $this->object->getRegistrationType() != GRP_REGISTRATION_OBJECT)
 			{
 				$info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
 					$this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
