@@ -205,7 +205,7 @@ if ($target_type == 'studon')
 			exit;
 			
 		case "agreement":
-			ilUtil::redirect('ilias.php?baseClass=ilStartUpGUI&cmd=showUserAgreement');
+			ilUtil::redirect('ilias.php?baseClass=ilStartUpGUI&cmd=showTermsOfService');
 			break;
 			
 		case "regstarts":
