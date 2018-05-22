@@ -646,7 +646,10 @@ class ilObjCourseGUI extends ilContainerGUI
 		$info->addProperty($this->lng->txt("crs_info_reg"),$subscription_text.$txt);
 		// fim.
 
-		if($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
+// fim: [campus] don't show subscription period for mycampus
+		if($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED
+			&& $this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_MYCAMPUS)
+// fim.
 		{
 			if($this->object->getSubscriptionUnlimitedStatus())
 			{
