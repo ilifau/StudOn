@@ -62,6 +62,7 @@ ilias_login_help_url = ""				;link for local login help button
 ilias_footer_type = "studon"            ;possible values: "", "studon", "exam"
 ilias_footer_contact_url = ""			;contact URL un footer
 ilias_footer_imprint_url = ""			;imprint url in footer
+ilias_footer_privacy_url = ""           ;privacy url in footer
  
 ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
 ilias_root_as_login = "0"               ;use the root folder as login page

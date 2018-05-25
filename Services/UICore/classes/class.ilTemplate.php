@@ -924,6 +924,9 @@ class ilTemplate extends ilTemplateX
 			$ftpl->setVariable("TXT_IMPRINT", $lng->txt('footer_imprint'));
 			$ftpl->setVariable("URL_IMPRINT", $ilCust->getSetting("ilias_footer_imprint_url"));
 
+			$ftpl->setVariable("TXT_PRIVACY", $lng->txt('footer_privacy'));
+			$ftpl->setVariable("URL_PRIVACY", $ilCust->getSetting("ilias_footer_privacy_url"));
+
 			$ftpl->setVariable("TXT_REALISED_WITH", $lng->txt('footer_realised_with'));
 			$ftpl->setVariable("ILIAS_VERSION_NUMERIC", ILIAS_VERSION_NUMERIC);
 		}
