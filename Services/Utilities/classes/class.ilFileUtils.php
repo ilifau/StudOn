@@ -774,6 +774,9 @@ class ilFileUtils
 			'xif',   // IMAGE__VND_XIFF,
 			'xls',   // APPLICATION__EXCEL,
 			'xlsx',   // APPLICATION__VND_OPENXMLFORMATS_OFFICEDOCUMENT_SPREADSHEETML_SHEET,
+// fau: allowFileTypes - add Excel with Macros
+			'xlsm',
+// fau.
 			'xmind',
 			'xml',   // self::TEXT__XML,
 			'xsl',   // APPLICATION__XML,
