@@ -39,6 +39,7 @@ assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die Anmeldedatei ist 
 assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
 assessment#:#fq_err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert oder einen Bruch ein.
 assessment#:#fq_formula_desc_additional#:#In StudOn wird auch 'atan2(y;x)' unterstützt (bitte Parameter per Semikolon trennen).
+assessment#:#log_wrong_test_password_entered#:#Teilnehmer hat falsches Testpasswort eingegeben.###fau: reducedTestPasswordLog
 assessment#:#save_on_navigation_prevent_confirmation#:#Diese Meldung nicht mehr anzeigen###fau: testNav
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nMatrikelnummer: %s\nDatum des Durchlaufs: %s
 assessment#:#send_simple_results_subject#:#Ergebnis "%s" vom %s
