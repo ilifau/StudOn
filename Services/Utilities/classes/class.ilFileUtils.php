@@ -746,9 +746,6 @@ class ilFileUtils
 			'swa', // scorm wbts
 			'swf',   // APPLICATION__X_SHOCKWAVE_FLASH,
 			'swz', // scorm wbts
-// fau: allowFileTypes - add cad file
-			'stp', // STEP CAD file
-// fau.
 			'tex',   // APPLICATION__X_TEX,
 			'texi',   // APPLICATION__X_TEXINFO,
 			'texinfo',   // APPLICATION__X_TEXINFO,
@@ -774,9 +771,6 @@ class ilFileUtils
 			'xif',   // IMAGE__VND_XIFF,
 			'xls',   // APPLICATION__EXCEL,
 			'xlsx',   // APPLICATION__VND_OPENXMLFORMATS_OFFICEDOCUMENT_SPREADSHEETML_SHEET,
-// fau: allowFileTypes - add Excel with Macros
-			'xlsm',
-// fau.
 			'xmind',
 			'xml',   // self::TEXT__XML,
 			'xsl',   // APPLICATION__XML,
