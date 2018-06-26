@@ -1065,7 +1065,7 @@ class ilAccountRegistrationGUI
 		{
 			$this->tpl->setCurrentBlock('activation');
 // fau: regCodes - merge the username in the welcome text
-			$this->tpl->setVariable("TXT_REGISTERED", sprintf($lng->txt("txt_registered"), $this->userObj->getLogin()));
+			$this->tpl->setVariable("TXT_REGISTERED", sprintf($lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
 // fau.
 			$this->tpl->setVariable('FORMACTION', 'login.php?cmd=post&target=' . ilUtil::stripSlashes($_GET['target']));
 			if(ilSession::get('forceShoppingCartRedirect'))

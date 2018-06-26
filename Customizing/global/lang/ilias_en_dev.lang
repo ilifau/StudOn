@@ -426,7 +426,7 @@ common#:#svy_helptext#:#You can create polls on StudOn and therewith e.g. votes 
 common#:#to_home#:#Home
 common#:#to_login#:#To the Login
 common#:#tst_helptext#:#For review of the learnsuccess in your courses you can create tests, that can be composed of different questiontypes. Available are e.g. cloze-, multiple choice-, matching-, or free text-questions, but also complex tasks in flash-form can be realized.
-common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
+common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
 common#:#univis#:#UnivIS
 common#:#univis_category_course_import#:#import course as courses
 common#:#univis_category_course_update#:#update data of imported courses

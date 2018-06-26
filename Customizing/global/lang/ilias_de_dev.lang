@@ -399,7 +399,7 @@ common#:#svy_helptext#:#Sie können in StudOn Umfragen erstellen und damit z.B. 
 common#:#to_home#:#Startseite
 common#:#to_login#:#Zum Login
 common#:#tst_helptext#:#Zur Überprüfung des Lernerfolgs in Ihren Kursen können Sie Tests anlegen, die sich aus unterschiedlichen Fragetypen zusammensetzen können. Möglich sind u.a. Lückentexte, Multiple Choice-, Zuordnungs- oder Freitextfragen, aber auch komplexere Aufgaben im Flash-Format lassen sich realisieren.
-common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>
+common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie sich Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>
 common#:#univis#:#UnivIS
 common#:#univis_category_course_import#:#Lehrveranstaltungen als Kurse importieren
 common#:#univis_category_course_update#:#Daten der importierten Kurse aktualisieren
