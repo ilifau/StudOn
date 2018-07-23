@@ -58,6 +58,7 @@ assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Zur Regel %s gib
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Zur Regel %s wurde keine Fragengruppe mit der erforderlichen Anzahl an Fragen gefunden!###fau: taxGroupFilter
 assessment#:#tst_msg_rand_quest_set_not_sync#:#Die Regeln für die zufällige Fragenauswahl wurden neu erstellt oder geändert. Bevor der Test verwendet werden kann, müssen die Fragen aus den Pools synchronisiert werden. Dabei wird auch geprüft, ob mit den Regeln ein zufälliger Test möglich ist.
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#Bei der Synchronisation werden alle Fragen die zu den Regeln passen in den Test kopiert. Diese Aktion kann bei großen Pools einige Minuten dauern.
+assessment#:#tst_msg_rand_quest_set_has_double_originals#:#Die zufällige Fragenauswahl enthält doppelte Originale. Bitte synchronisieren sie den Test erneut, möglichst nicht über einen Load Balancer!
 assessment#:#tst_filter_question_type#:#Fragentyp
 assessment#:#tst_filter_question_type_enabled#:#Verwende Fragentyp als Filter
 assessment#:#tst_recalculate_solutions#:#Ergebnisse neu berechnen

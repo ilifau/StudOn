@@ -747,6 +747,15 @@ class ilTestRandomQuestionSetConfigGUI
 			$infoMessage .="<br><small>".$this->lng->txt('tst_msg_rand_quest_set_sync_duration')."</small>";
 		}
 // fau.
+// fau: fixRandomTestDoubleOriginals - check if the test has double originals
+		elseif (!$this->questionSetConfig->hasUniqueOriginalQuestions())
+		{
+			$infoMessage = $this->lng->txt('tst_msg_rand_quest_set_pass_not_buildable');
+			$infoMessage .= "<br />{$this->buildQuestionStageRebuildLink($currentRequestCmd)}";
+			$infoMessage .="<br><small>".$this->lng->txt('tst_msg_rand_quest_set_sync_duration')."</small>";
+			ilUtil::sendFailure($this->lng->txt('tst_msg_rand_quest_set_has_double_originals'));
+		}
+//fau.
 		elseif( !$this->questionSetConfig->isQuestionSetBuildable() )
 		{
 //fau: fixRandomTestBuildable - show the messages if set is not buildable

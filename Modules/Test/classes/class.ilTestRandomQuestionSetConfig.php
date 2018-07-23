@@ -292,6 +292,11 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 			return false;
 		}
 
+		if (!$this->hasUniqueOriginalQuestions())
+		{
+			return false;
+		}
+
 		if( !$this->isQuestionSetBuildable() )
 		{
 			return false;
@@ -299,6 +304,20 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 
 		return true;
 	}
+
+// fau: fixRandomTestDoubleOriginals - check if the test has double originals
+	public function hasUniqueOriginalQuestions()
+	{
+		$res = $this->db->query("
+				SELECT COUNT(DISTINCT original_id) AS orig_count, COUNT(DISTINCT question_id) AS question_count
+				FROM qpl_questions q
+				WHERE obj_fi = " . $this->db->quote($this->testOBJ->getId(), 'integer')
+		);
+		$row = $this->db->fetchAssoc($res);
+
+		return ($row['orig_count'] == $row['question_count']);
+	}
+// fau.
 
 	public function isQuestionAmountConfigComplete()
 	{

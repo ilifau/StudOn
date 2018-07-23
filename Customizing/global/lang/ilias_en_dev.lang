@@ -57,6 +57,7 @@ assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Rule %s requires
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Rule %s provides no question group with the required amount of questions!###fau: taxGroupFilter
 assessment#:#tst_msg_rand_quest_set_not_sync#:#The rules for a random selection of questions were newly created or changed. The questions from the pools have to be synchronized in the test before it can be used. This checks also if a random test is possible with the given set of rules.
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies all questions matching the rules into the test. This may take several minutes for big pools.
+assessment#:#tst_msg_rand_quest_set_has_double_originals#:#The random selection has double originals. Please synchronize the set again, prteferrably not via a load balancer!
 assessment#:#tst_filter_question_type#:#Question Type
 assessment#:#tst_filter_question_type#:#Use Question Type as Filter
 assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
