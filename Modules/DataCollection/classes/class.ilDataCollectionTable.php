@@ -1410,6 +1410,13 @@ class ilDataCollectionTable {
 				case ilDataCollectionDatatype::INPUTFORMAT_REFERENCE:
 					$prop = $sort_field->getPropertyvalues();
 					$ref_field = ilDataCollectionCache::getFieldCache($sort_field->getFieldRef());
+// fau: fixDclSortRef - don't sort if referenced field has no storage location
+					if (!$ref_field->getStorageLocation())
+					{
+						$no_order = true;
+						break;
+					}
+// fau.
 					$n_ref = $prop[ilDataCollectionField::PROPERTYID_N_REFERENCE];
 					if ($n_ref) {
 						$has_nref = true;
@@ -1580,8 +1587,12 @@ class ilDataCollectionTable {
 		}
 		$props = $sort_field->getProperties();
 		if($id != 'comments' && $sort_field->getDatatypeId() != ilDataCollectionDatatype::INPUTFORMAT_FORMULA && !$props[ilDataCollectionField::PROPERTYID_URL]) {
-			$sql .= " ORDER BY field_{$id} {$direction}";
+// fau: fixDclSortRef - don't sort if referenced field has no storage location
+			if (!$no_order) {
+				$sql .= " ORDER BY field_{$id} {$direction}";
+			}
 		}
+// fau.
 		$set = $ilDB->query($sql);
 		$total_record_ids = array();
 		// Save record-ids in session to enable prev/next links in detail view
