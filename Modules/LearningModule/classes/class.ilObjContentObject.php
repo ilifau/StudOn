@@ -1344,13 +1344,19 @@ class ilObjContentObject extends ilObject
 			'fullscreen' => 'fullscreen'
 			);
 		
-		foreach ($layouts as $l)
+// fau: lmLayout - make special layouts only avbailable to admins
+		global $rbacsystem;
+		if ($rbacsystem->checkAccess("visible", SYSTEM_FOLDER_ID))
 		{
-			if (!in_array($l, $ret))
+			foreach ($layouts as $l)
 			{
-				$ret[$l] = $l;
+				if (!in_array($l, $ret))
+				{
+					$ret[$l] = $l;
+				}
 			}
 		}
+// fau.
 
 		return $ret;
 	}

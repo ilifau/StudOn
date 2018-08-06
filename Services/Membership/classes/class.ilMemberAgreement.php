@@ -62,10 +62,12 @@ class ilMemberAgreement
 	 	
 	 	$this->privacy = ilPrivacySettings::_getInstance();
 	 	
-	 	if($this->privacy->confirmationRequired($this->type) or ilCourseDefinedFieldDefinition::_hasFields($this->obj_id))
-	 	{
+	 	// fim: [export] read always the agreement data (to get the registration/access time)
+	 	//if($this->privacy->confirmationRequired($this->type) or ilCourseDefinedFieldDefinition::_hasFields($this->obj_id))
+	 	//{
 		 	$this->read();
-	 	}
+	 	//}
+	 	// fim.
 	}
 	
 	/**
@@ -250,6 +252,33 @@ class ilMemberAgreement
 		
 		return true;
 	}
+
+	/**
+	 * fim: [export] set the first access time
+	 */
+	public static function _setFirstAccessTime($a_usr_id, $a_obj_id)
+	{
+		global $ilDB;
+
+		$query = "SELECT * FROM member_agreement ".
+			"WHERE usr_id = ".$ilDB->quote($a_usr_id ,'integer')." ".
+			"AND obj_id = ".$ilDB->quote($a_obj_id ,'integer');
+		$res = $ilDB->query($query);
+
+		if (!$row = $res->fetchRow(DB_FETCHMODE_OBJECT))
+		{
+		 	$query = "INSERT INTO member_agreement (usr_id,obj_id,accepted,acceptance_time) ".
+		 		"VALUES( ".
+		 		$ilDB->quote($a_usr_id ,'integer').", ".
+		 		$ilDB->quote($a_obj_id ,'integer').", ".
+		 		$ilDB->quote(0, 'integer').", ".
+		 		$ilDB->quote(time() ,'integer')." ".
+		 		")";
+		 	$ilDB->manipulate($query);
+		}		
+	}
+	// fim.
+	
 	/**
 	 * set accepted
 	 *

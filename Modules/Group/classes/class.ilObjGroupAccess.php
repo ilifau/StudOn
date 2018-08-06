@@ -60,7 +60,9 @@ class ilObjGroupAccess extends ilObjectAccess
 				}
 
 				include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-				if(ilGroupWaitingList::_isOnList($ilUser->getId(), $a_obj_id))
+				// fim: [memfix] use $a_user_id parameter to query waiting list
+				if(ilGroupWaitingList::_isOnList($a_user_id, $a_obj_id))
+				// fim.
 				{
 					return false;
 				}
@@ -80,12 +82,12 @@ class ilObjGroupAccess extends ilObjectAccess
 					include_once './Modules/Group/classes/class.ilObjGroup.php';
 					$limit = null;
 					if(!ilObjGroup::mayLeave($a_obj_id, $a_user_id, $limit))
-					{						
-						$ilAccess->addInfoItem(IL_STATUS_MESSAGE, 
+					{
+						$ilAccess->addInfoItem(IL_STATUS_MESSAGE,
 							sprintf($lng->txt("grp_cancellation_end_rbac_info"), ilDatePresentation::formatDate($limit)));
 						return false;
-					}		
-					
+					}
+
 					include_once './Modules/Group/classes/class.ilGroupParticipants.php';
 					if(!ilGroupParticipants::_isParticipant($a_ref_id, $a_user_id))
 					{
@@ -96,13 +98,36 @@ class ilObjGroupAccess extends ilObjectAccess
 				if($a_permission == 'join')
 				{
 					include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-					if(!ilGroupWaitingList::_isOnList($ilUser->getId(), $a_obj_id))
+					// fim: [memfix] use $a_user_id parameter to query waiting list
+					if(!ilGroupWaitingList::_isOnList($a_user_id, $a_obj_id))
+					// fim.
 					{
 						return false;
 					}
 				}
 				break;
-				
+
+			// fim: [memad] check rights for guest accounts to request a join
+			case 'joinAsGuest':
+
+				include_once './Modules/Group/classes/class.ilGroupParticipants.php';
+
+				// don't show join_as_guest command if user is already assigned
+				if(ilGroupParticipants::_isParticipant($a_ref_id, $a_user_id))
+				{
+					return false;
+				}
+
+				// don't show join_as_guest command if user can join
+				if ($rbacsystem->checkAccessOfUser($a_user_id,'join',$a_ref_id))
+				{
+					return false;
+				}
+
+				break;
+			// fim.
+
+
 		}
 
 		switch ($a_permission)
@@ -145,7 +170,17 @@ class ilObjGroupAccess extends ilObjectAccess
 		$commands[] = array("permission" => "join", "cmd" => "join", "lang_var" => "join");
 
 		// on waiting list
-		$commands[]	= array('permission' => "join", "cmd" => "leave", "lang_var" => "leave_waiting_list");
+// fau: fairSub - general command for editing requests
+		$commands[]	= array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
+// fau.
+
+		// fim: [memad] add command for guest accounts to request a join
+		include_once('Services/User/classes/class.ilUserUtil.php');
+		if (ilUserUtil::_isGuestHearer())
+		{
+			$commands[]	= array('permission' => "visible", "cmd" => "joinAsGuest", "lang_var" => "join_as_guest");
+		}
+		// fim.
 		
 		// regualar users
 		$commands[]	= array('permission' => "leave", "cmd" => "leave", "lang_var" => "grp_btn_unsubscribe");
@@ -190,8 +225,24 @@ class ilObjGroupAccess extends ilObjectAccess
 			return false;
 		}
 
-		if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
-			$ilAccess->checkAccess("visible", "", $t_arr[1]))
+		// fim: [univis] don't allow 'join' command for anonymous users
+		if ($t_arr[2] == 'join'
+			and (empty($_SESSION["AccountId"]) or $_SESSION["AccountId"] == ANONYMOUS_USER_ID))
+		{
+	        global $lng;
+
+			// ugly fix: $tpl used by ilUtil may not be initialized
+	        //ilUtil::sendInfo($lng->txt('join_grp_needs_login'), true);
+			$_SESSION['info'] = $lng->txt('join_grp_needs_login', true);
+			ilUtil::redirect(ilUtil::_getRootLoginLink($a_target), true);
+		}
+		// fim.
+
+		// fim: [bugfix] omit checking read access (bug 5323)(see ilObjCourseAccess::_checkGoto)
+		if ($ilAccess->checkAccess("visible", "", $t_arr[1]))
+		//		if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
+		//		$ilAccess->checkAccess("visible", "", $t_arr[1]))
+		// fim.
 		{
 			return true;
 		}
@@ -240,7 +291,7 @@ class ilObjGroupAccess extends ilObjectAccess
 		}
 		return false;
 	}
-	
+
 
 	/**
 	 * Preload data
@@ -263,12 +314,16 @@ class ilObjGroupAccess extends ilObjectAccess
 	 * @param int $a_obj_id
 	 * @return array
 	 */
-	public static function lookupRegistrationInfo($a_obj_id)
+	// fim: [meminf] add ref_id as parameter for checking write access
+	public static function lookupRegistrationInfo($a_obj_id, $a_ref_id = 0)
+	// fim.
 	{
 		global $ilDB, $ilUser, $lng;
-		
+
+		// fim: [meminf] query for showing memmbership limitation
+// fau: fairSub - query for fair period
 		$query = 'SELECT registration_type, registration_enabled, registration_unlimited,  registration_start, '.
-			'registration_end, registration_mem_limit, registration_max_members FROM grp_settings '.
+			'registration_end, registration_mem_limit, registration_max_members, show_mem_limit, sub_fair FROM grp_settings '.
 			'WHERE obj_id = '.$ilDB->quote($a_obj_id);
 		$res = $ilDB->query($query);
 		
@@ -289,23 +344,42 @@ class ilObjGroupAccess extends ilObjectAccess
 			}
 			
 			$info['reg_info_enabled'] = $row->registration_enabled;
+			$info['reg_info_show_mem_limit'] = $row->show_mem_limit;
+			$info['reg_info_sub_fair'] = $row->sub_fair;
 		}
-		
+// fau.
+		// fim.
+
 		$registration_possible = $info['reg_info_enabled'];
 
 		// Limited registration (added $registration_possible, see bug 0010157)
 		if(!$info['reg_info_unlimited'] && $registration_possible)
 		{
+// fau: fairSub - add info about fair period
+			$fair_suffix = '';
+			if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0)
+			{
+				if ($info['reg_info_sub_fair'] < 0 )
+				{
+					$fair_suffix = " - <b>".$lng->txt('sub_fair_inactive_short')."</b>";
+				}
+//				elseif (time() < $info['reg_info_sub_fair'])
+//				{
+//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
+//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
+//				}
+			}
+
 			$dt = new ilDateTime(time(),IL_CAL_UNIX);
 			if(ilDateTime::_before($dt, $info['reg_info_start']))
 			{
 				$info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_start');
-				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']);
+				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_start']) . $fair_suffix;
 			}
 			elseif(ilDateTime::_before($dt, $info['reg_info_end']))
 			{
 				$info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_end');
-				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']);
+				$info['reg_info_list_prop']['value'] = ilDatePresentation::formatDate($info['reg_info_end']) . $fair_suffix;
 			}
 			else
 			{
@@ -313,6 +387,7 @@ class ilObjGroupAccess extends ilObjectAccess
 				$info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_period');
 				$info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
 			}
+// fau.
 		}
 		else
 		{
@@ -324,35 +399,77 @@ class ilObjGroupAccess extends ilObjectAccess
 				$info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
 			}
 		}
-		
-		if($info['reg_info_mem_limit'] && $info['reg_info_max_members'] && $registration_possible)
+
+		// fim: [meminf] get info about membership limitations and subscription status
+		global $ilAccess;
+		include_once './Modules/Group/classes/class.ilGroupParticipant.php';
+		include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
+
+		$partObj = ilGroupParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
+
+		if($info['reg_info_mem_limit'] && $info['reg_info_show_mem_limit'] && $registration_possible)
 		{
-			// Check for free places
-			include_once './Modules/Group/classes/class.ilGroupParticipants.php';
-			$part = ilGroupParticipants::_getInstanceByObjId($a_obj_id);
-
-			include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
-			$info['reg_info_list_size'] = ilCourseWaitingList::lookupListSize($a_obj_id);
-			if($info['reg_info_list_size'])
-			{
-				$info['reg_info_free_places'] = 0;
-			}
-			else
-			{
-				$info['reg_info_free_places'] = max(0,$info['reg_info_max_members'] - $part->getCountMembers());
-			}
-
-			if($info['reg_info_free_places'])
-			{
-				$info['reg_info_list_prop_limit']['property'] = $lng->txt('grp_list_reg_limit_places');
-				$info['reg_info_list_prop_limit']['value'] = $info['reg_info_free_places'];
-			}
-			else
-			{
-				$info['reg_info_list_prop_limit']['property'] = '';
-				$info['reg_info_list_prop_limit']['value'] = $lng->txt('grp_list_reg_limit_full');
-			}
+			$show_mem_limit = true;
+			$show_hidden_notice = false;
 		}
+		elseif ($info['reg_info_mem_limit'] && $ilAccess->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id))
+		{
+			$show_mem_limit = true;
+			$show_hidden_notice = true;
+		}
+		else
+		{
+			$show_mem_limit = false;
+			$show_hidden_notice = false;
+		}
+
+
+		if($show_mem_limit)
+		{
+			$max_members = $info['reg_info_max_members'];
+			$members = $partObj->getNumberOfMembers();
+			$free_places = max($max_members - $members, 0);
+			$info['reg_info_free_places'] = $free_places;
+
+			$waiting = ilGroupWaitingList::lookupListSize($a_obj_id);
+
+			$limits = array();
+			if ($show_hidden_notice)
+			{
+				$limits[] = $lng->txt("mem_max_users_hidden");
+			}
+			$limits[] =  $lng->txt("mem_max_users"). $max_members;
+			$limits[] =  $lng->txt("mem_free_places"). ': '. $free_places;
+			if ($waiting > 0)
+			{
+				$limits[] =  $lng->txt("subscribers_or_waiting_list"). ': '. (string) ($waiting);
+			}
+			$info['reg_info_list_prop_limit']['property'] = '';
+			$info['reg_info_list_prop_limit']['value'] = implode(' &nbsp; ', $limits);
+		}
+
+		// registration status
+		switch(ilGroupWaitingList::_getStatus($ilUser->getId(), $a_obj_id))
+		{
+			case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
+				$status = $lng->txt('on_waiting_list');
+				break;
+			case ilWaitingList::REQUEST_TO_CONFIRM:
+				$status = $lng->txt('sub_status_pending');
+				break;
+			case ilWaitingList::REQUEST_CONFIRMED:
+				$status = $lng->txt('sub_status_confirmed');
+				break;
+			default:
+				$status = '';
+
+		}
+		if ($status)
+		{
+			$info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
+			$info['reg_info_list_prop_status']['value'] = $status;
+		}
+		// fim.
 
 		return $info;
 	}

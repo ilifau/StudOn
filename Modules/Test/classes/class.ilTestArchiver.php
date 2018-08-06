@@ -83,7 +83,6 @@ class ilTestArchiver
 	protected $archive_data_index;		/** @var $archive_data_index array[string[]] Archive data index as associative array */
 
 	protected $ilDB;					/** @var $ilDB ilDBInterface */
-	
 	/**
 	 * @var ilTestParticipantData
 	 */

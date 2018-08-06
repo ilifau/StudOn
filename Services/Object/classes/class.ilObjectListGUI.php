@@ -163,7 +163,7 @@ class ilObjectListGUI
 	 * @var \ILIAS\DI\UIServices
 	 */
 	protected $ui;
-	
+
 	/**
 	* constructor
 	*
@@ -184,7 +184,7 @@ class ilObjectListGUI
 		$this->mode = IL_LIST_FULL;
 		$this->path_enabled = false;
 		$this->context = $a_context;
-		
+
 		$this->enableComments(false);
 		$this->enableNotes(false);
 		$this->enableTags(false);
@@ -1006,7 +1006,7 @@ class ilObjectListGUI
 	*/
 	function initItem($a_ref_id, $a_obj_id, $a_title = "", $a_description = "")
 	{
-		$this->offline_mode = false;		
+		$this->offline_mode = false;
 		if ($this->type == "sahs") {
 			include_once('Modules/ScormAicc/classes/class.ilObjSAHSLearningModuleAccess.php');
 			$this->offline_mode = ilObjSAHSLearningModuleAccess::_lookupUserIsOfflineMode($a_obj_id);  	
@@ -1208,7 +1208,10 @@ class ilObjectListGUI
 		// ...
 		
 		// #8280: WebDav is only supported in repository
-		if($this->context == self::CONTEXT_REPOSITORY)
+		// fim: [webdav] customize visibility of locking info and warnings
+		global $ilCust;
+		if($this->context == self::CONTEXT_REPOSITORY and $ilCust->getSetting('webdav_show_warnings'))
+		// fim.
 		{
 			// BEGIN WebDAV Display locking information
 			require_once ('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
@@ -1666,6 +1669,11 @@ class ilObjectListGUI
 
 		// see bug #16519
 		$d = $this->getDescription();
+// fau: fixDescriptionLineBreaks - repace line breaks by spaces inobject lists
+		$d = str_replace('<br>',' ', $d);
+		$d = str_replace('<br />', ' ', $d);
+		$d = str_replace("\n", ' ', $d);
+// fau.
 		$d = strip_tags($d, "<b>");
 		$this->tpl->setCurrentBlock("item_description");
 		$this->tpl->setVariable("TXT_DESC", $d);
@@ -2141,7 +2149,7 @@ class ilObjectListGUI
 			{
 				$prevent_background_click = true;
 			}
-			
+
 			if ($a_cmd == "downloadFolder")
 			{
 				include_once "Services/BackgroundTask/classes/class.ilFolderDownloadBackgroundTaskHandler.php";
@@ -2149,9 +2157,9 @@ class ilObjectListGUI
 				{
 					$a_onclick = ilFolderDownloadBackgroundTaskHandler::getObjectListAction($this->ref_id);
 					$a_href = "#";
-				}				
-			}			
-			
+				}
+			}
+
 			$this->current_selection_list->addItem($a_text, "", $a_href, $a_img, $a_text, $a_frame,
 				"", $prevent_background_click, $a_onclick);
 		}				
@@ -2401,7 +2409,7 @@ class ilObjectListGUI
 		$type = ilObject::_lookupType(ilObject::_lookupObjId($this->getCommandId()));
 
 		if ($ilUser->getId() != ANONYMOUS_USER_ID)
-		{	
+		{
 			// #17467 - add ref_id to link (in repository only!)
 			if(is_object($this->container_obj) &&
 				!($this->container_obj instanceof ilAdministrationCommandHandling) &&
@@ -2522,16 +2530,18 @@ class ilObjectListGUI
 		
 		$parent_ref_id = $this->container_obj->object->getRefId();
 		$parent_type = $this->container_obj->object->getType();
-		
+
 		// #18737
 		if($this->reference_ref_id)
 		{
 			$this->ctrl->setParameterByClass('ilobjectactivationgui', 'ref_id', $this->reference_ref_id);
 		}
-		
-		if($this->checkCommandAccess('write','',$parent_ref_id,$parent_type) ||
+
+		// fim: [rights] write permission to parent is not enough to set availability
+		if( // $this->checkCommandAccess('write','',$parent_ref_id,$parent_type) ||
 			$this->checkCommandAccess('write','',$this->ref_id,$this->type))
-		{												
+		// fim.
+		{
 			$this->ctrl->setParameterByClass('ilobjectactivationgui','cadh',
 				$this->ajax_hash);	
 			$this->ctrl->setParameterByClass('ilobjectactivationgui','parent_id',
@@ -2541,7 +2551,7 @@ class ilObjectListGUI
 			
 			$this->insertCommand($cmd_lnk, $this->lng->txt('obj_activation_list_gui'));			
 		}
-		
+
 		if($this->reference_ref_id)
 		{
 			$this->ctrl->setParameterByClass('ilobjectactivationgui', 'ref_id', $this->ref_id);
@@ -2623,8 +2633,19 @@ class ilObjectListGUI
 						$txt = ($command["lang_var"] == "")
 							? $command["txt"]
 							: $this->lng->txt($command["lang_var"]);
-						$this->insertCommand($cmd_link, $txt,
-							$command["frame"], $command["img"], $command["cmd"]);
+
+						// fim: [layout] remember mount_webfolder command
+						if ($command["cmd"] == "mount_webfolder")
+						{
+							$mountcommand = $command;
+							$mountcommand["txt"] = $txt;
+						}
+						else
+						{
+							$this->insertCommand($cmd_link, $txt,
+								$command["frame"], $command["img"], $command["cmd"]);
+						}
+						// fim.
 					}
 				}
 				else
@@ -3192,6 +3213,15 @@ class ilObjectListGUI
 				$htpl->setVariable("PROP_CHUNKS", 
 					implode("&nbsp;&nbsp;&nbsp;", $chunks)."&nbsp;&nbsp;&nbsp;");
 			}
+
+			// fim: [layout] insert remembered mount command
+			if ($mountcommand)
+			{
+				$this->insertCommand($mountcommand['link'], $mountcommand['txt'],
+								$mountcommand["frame"], $mountcommand["img"], $mountcommand["cmd"]);
+			}
+			// fim.
+
 		}
 		
 		$htpl->setVariable("ACTION_DROP_DOWN",
@@ -3546,7 +3576,7 @@ class ilObjectListGUI
 		
   		// visible check
 		if (!$this->checkCommandAccess("visible", "", $a_ref_id, "", $a_obj_id))
-		{			
+		{
 			$this->resetCustomData();
 			return "";
 		}

@@ -41,7 +41,10 @@ class ilCopyWizardOptions
 	const DISABLE_SOAP = -4;
 	const ROOT_NODE = -5;
 	const DISABLE_TREE_COPY = -6;
-	
+// fau: copyBySoap - constant for mail option
+	const SEND_MAIL = -7;
+// fau.
+
 	private $db;
 	
 	private $copy_id;
@@ -210,16 +213,16 @@ class ilCopyWizardOptions
 	}
 	
 	/**
-	 * Disable copying of tree. 
+	 * Disable copying of tree.
 	 * Used for workspace copies
 	 * @global type $ilDB
 	 */
 	public function disableTreeCopy()
 	{
 		global $ilDB;
-		
+
 		$this->options[self::DISABLE_TREE_COPY] = 1;
-		
+
 		$ilDB->insert("copy_wizard_options", array(
 			"copy_id" 	=> array("integer", $this->getCopyId()),
 			"source_id" => array("integer", self::DISABLE_TREE_COPY),
@@ -238,9 +241,9 @@ class ilCopyWizardOptions
 	 		return true;
 	 	}
 	 	return false;
-		
+
 	}
-	
+
 	/**
 	 * Check if SOAP calls are disabled
 	 *

@@ -23,6 +23,12 @@ class ilAssSelfAssessmentQuestionFormatter implements ilAssSelfAssessmentMigrato
 		$string = str_replace("</li><br />", "</li>", $string);
 		$string = str_replace("</li><br>", "</li>", $string);
 
+// fau: lmGapFormat - remove line breaks coming from the RTE editor in tables
+		$string = preg_replace("/(<td[^>]*>)<br \/>/","$1", $string);
+		$string = str_replace("<br />\n</td>", "</td>", $string);
+		$string = str_replace("</td><br />", "</td>", $string);
+// fau.
+
 		require_once 'Services/MathJax/classes/class.ilMathJax.php';
 		$string = ilMathJax::getInstance()->insertLatexImages($string, "\[tex\]", "\[\/tex\]");
 		$string = ilMathJax::getInstance()->insertLatexImages($string, "\<span class\=\"latex\">", "\<\/span>");
@@ -140,7 +146,11 @@ class ilAssSelfAssessmentQuestionFormatter implements ilAssSelfAssessmentMigrato
 		/// BH 01-03-2018: added P tag to allowed tags due to missing newline problems
 		$tags[] = 'p';
 		/// BH 01-03-2018: added P tag to allowed tags due to missing newline problems
-		
+
+// fau: fixHtmlInGapText - allow line breaks in question text of cloze question on lm pages
+		$tags[] = 'br';
+// fau.
+
 		foreach ($st as $s)
 		{
 			if (!in_array($s, $not_supported))

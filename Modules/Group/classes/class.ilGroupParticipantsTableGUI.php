@@ -14,7 +14,7 @@ include_once './Services/Tracking/classes/class.ilLPStatus.php';
 class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 {
     protected $show_learning_progress = false;
-	
+
 	protected $current_filter = array();
 
     /**
@@ -41,12 +41,12 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 		$this->lng->loadLanguageModule('mmbr');
 
 		$this->ctrl = $ilCtrl;
-		
+
 		$this->rep_object = $rep_object;
 
 		include_once('./Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
 		$this->privacy = ilPrivacySettings::_getInstance();
-		
+
 		include_once './Services/Membership/classes/class.ilParticipants.php';
 		$this->participants = ilParticipants::getInstanceByObjId($this->getRepositoryObject()->getId());
 
@@ -91,15 +91,15 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 		$this->enable('header');
 		$this->enable('numinfo');
 		$this->enable('select_all');
-		
+
 		$this->initFilter();
-		
+
 		$this->addMultiCommand('editParticipants', $this->lng->txt('edit'));
 		$this->addMultiCommand('confirmDeleteParticipants', $this->lng->txt('remove'));
 		$this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('mmbr_btn_mail_selected_users'));
 		$this->lng->loadLanguageModule('user');
 		$this->addMultiCommand('addToClipboard', $this->lng->txt('clipboard_add_btn'));
-		
+
 		$this->setSelectAllCheckbox('participants');
 		$this->addCommandButton('updateParticipantsStatus', $this->lng->txt('save'));
 	}
@@ -117,7 +117,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         
         $this->tpl->setVariable('VAL_ID',$a_set['usr_id']);
         $this->tpl->setVariable('VAL_NAME',$a_set['lastname'].', '.$a_set['firstname']);
-        if(!$ilAccess->checkAccessOfUser($a_set['usr_id'],'read','',$this->getRepositoryObject()->getRefId()) and 
+        if(!$ilAccess->checkAccessOfUser($a_set['usr_id'],'read','',$this->getRepositoryObject()->getRefId()) and
             is_array($info = $ilAccess->getInfo()))
         {
 			$this->tpl->setCurrentBlock('access_warning');
@@ -181,7 +181,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 						}
 					}
 					$this->tpl->setCurrentBlock('custom_fields');
-					$this->tpl->setVariable('VAL_CUST', (string) implode('<br />', $tmp)) ;					
+					$this->tpl->setVariable('VAL_CUST', (string) implode('<br />', $tmp)) ;
 					$this->tpl->parseCurrentBlock();
 					break;
 					
@@ -190,20 +190,23 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 					$this->tpl->setVariable('VAL_CUST',(string) $a_set['odf_info_txt']);
 					$this->tpl->parseCurrentBlock();
 					break;
-				
+
 				case 'roles':
 					$this->tpl->setCurrentBlock('custom_fields');
 					$this->tpl->setVariable('VAL_CUST', (string) $a_set['roles_label']);
 					$this->tpl->parseCurrentBlock();
 					break;
-					
+
 				case 'org_units':
 					$this->tpl->setCurrentBlock('custom_fields');
 					include_once './Modules/OrgUnit/classes/PathStorage/class.ilOrgUnitPathStorage.php';
 					$this->tpl->setVariable('VAL_CUST', (string) ilOrgUnitPathStorage::getTextRepresentationOfUsersOrgUnits($a_set['usr_id']));
 					$this->tpl->parseCurrentBlock();
 					break;
-					
+				// fim: [studydata] format table output of studydata
+                case 'studydata':
+                    $a_set['studydata'] = nl2br($a_set['studydata']);
+				// fim.
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST',isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -271,28 +274,28 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
     public function parse()
     {
 		$this->determineOffsetAndOrder(true);
-		
+
 		$part = ilGroupParticipants::_getInstanceByObjId($this->getRepositoryObject()->getId())->getParticipants();
-		
+
 		$part = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
-			'manage_members', 
-			'manage_members', 
+			'manage_members',
+			'manage_members',
 			$this->getRepositoryObject()->getRefId(),
 			$part
-		);			
-		
+		);
+
 		if(!$part)
 		{
 			$this->setData(array());
 			return;
 		}
-		
+
 
 		$group_user_data = (array) $this->getParentObject()->readMemberData(
 			$part,
 			$this->getSelectedColumns()
 		);
-		
+
         include_once './Services/User/classes/class.ilUserQuery.php';
 		
         $additional_fields = $this->getSelectedColumns();
@@ -304,8 +307,8 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 		unset($additional_fields['prtf']);
 		unset($additional_fields['roles']);
 		unset($additional_fields['org_units']);
-				
-		
+
+
 		
 		$udf_ids = $usr_data_fields = $odf_ids = array();
 		foreach($additional_fields as $field)
@@ -340,9 +343,9 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
             $usr_data_fields,
 			$part
         );
-		
+
 		$a_user_data = array();
-		$filtered_user_ids = array();		
+		$filtered_user_ids = array();
 		$local_roles = $this->getParentObject()->getLocalRoles();
 		foreach((array) $usr_data['set'] as $ud)
 		{
@@ -364,11 +367,11 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 					continue;
 				}
 			}
-			
+
 			$filtered_user_ids[] = $user_id;
 			$a_user_data[$user_id] = array_merge($ud,(array) $group_user_data[$user_id]);
 
-			$roles = array();			
+			$roles = array();
 			foreach($local_roles as $role_id => $role_name)
 			{
 				// @todo fix performance
@@ -472,7 +475,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 			'name',
 			$this->getOrderDirection()
 		);
-		
+
         return $this->setData($a_user_data);
     }
 }

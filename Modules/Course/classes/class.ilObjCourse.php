@@ -38,7 +38,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	 * @var ilLogger
 	 */
 	protected $course_logger = null;
-	
+
 
 	const CAL_REG_START = 1;
 	const CAL_REG_END = 2;
@@ -66,8 +66,10 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	private $reg_access_code = '';
 	private $reg_access_code_enabled = false;
 	private $status_dt = null;
-	
-	private $mail_members = ilCourseConstants::MAIL_ALLOWED_ALL;
+
+// fau: mailToMembers - change default setting for mail to members
+	private $mail_members = ilCourseConstants::MAIL_ALLOWED_TUTORS;
+// fau.
 	
 	protected $crs_start; // [ilDate]
 	protected $crs_end; // [ilDate]
@@ -79,7 +81,13 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	 * @var bool
 	 */
 	protected $member_export = false;
-	
+
+
+// fau: fairSub - new class variables
+	protected $subscription_fair;
+	protected $subscription_auto_fill = true;
+	protected $subscription_last_fill;
+// fau.
 	/**
 	 *
 	 * 
@@ -117,7 +125,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		$this->setStatusDetermination(self::STATUS_DETERMINATION_LP);
 
 		$this->type = "crs";
-		
+
 		$this->course_logger = $GLOBALS['DIC']->logger()->crs();
 
 		parent::__construct($a_id,$a_call_by_reference);
@@ -145,7 +153,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		return $this->member_export;
 	}
-	
+
 	public function setShowMembersExport($a_mem_export)
 	{
 		$this->member_export = $a_mem_export;
@@ -305,6 +313,16 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->subscription_limitation_type = $a_type;
 	}
+// fau: objectSub - getter / setter
+	function getSubscriptionRefId()
+	{
+		return $this->subscription_ref_id;
+	}
+	function setSubscriptionRefId($a_ref_id)
+	{
+		$this->subscription_ref_id = $a_ref_id;
+	}
+// fau.
 	function getSubscriptionUnlimitedStatus()
 	{
 		return $this->subscription_limitation_type == IL_CRS_SUBSCRIPTION_UNLIMITED;
@@ -317,6 +335,57 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->subscription_start = $a_value;
 	}
+// fau: fairSub - getter / setter
+	public function getSubscriptionFair()
+	{
+		return $this->subscription_fair ? $this->subscription_fair : $this->getSubscriptionStart() + $this->getSubscriptionMinFairSeconds();
+	}
+	public function setSubscriptionFair($a_value)
+	{
+		$this->subscription_fair = $a_value;
+	}
+	public function getSubscriptionAutoFill()
+	{
+		return (bool) $this->subscription_auto_fill;
+	}
+	public function setSubscriptionAutoFill($a_value)
+	{
+		$this->subscription_auto_fill = (bool) $a_value;
+	}
+	public function getSubscriptionLastFill()
+	{
+		return $this->subscription_last_fill;
+	}
+	public function setSubscriptionLastFill($a_value)
+	{
+		$this->subscription_last_fill = $a_value;
+	}
+	public function saveSubscriptionLastFill($a_value = null)
+	{
+		global $ilDB;
+		$ilDB->update('crs_settings',
+			array('sub_last_fill' => array('integer', $a_value)),
+			array('obj_id' => array('integer', $this->getId()))
+		);
+		$this->subscription_last_fill = $a_value;
+	}
+
+	public function getSubscriptionMinFairSeconds()
+	{
+		global $ilSetting;
+		return $ilSetting->get('SubscriptionMinFairSeconds', 3600);
+	}
+
+	public function getSubscriptionFairDisplay($a_relative)
+	{
+		require_once('Services/Calendar/classes/class.ilDatePresentation.php');
+		$relative = ilDatePresentation::useRelativeDates();
+		ilDatePresentation::setUseRelativeDates($a_relative);
+		$fairdate = ilDatePresentation::formatDate(new ilDateTime($this->getSubscriptionFair(),IL_CAL_UNIX));
+		ilDatePresentation::setUseRelativeDates($relative);
+		return $fairdate;
+	}
+// fau.
 	function getSubscriptionEnd()
 	{
 		return $this->subscription_end;
@@ -327,8 +396,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	}
 	function getSubscriptionType()
 	{
-		return $this->subscription_type ? $this->subscription_type : IL_CRS_SUBSCRIPTION_DIRECT;
-		#return $this->subscription_type ? $this->subscription_type : $this->SUBSCRIPTION_DEACTIVATED;
+		// fim: [memfix] set the default subscription type to confirmation
+		return isset($this->subscription_type) ? $this->subscription_type : IL_CRS_SUBSCRIPTION_CONFIRMATION;
+		// fim.
 	}
 	function setSubscriptionType($a_value)
 	{
@@ -342,6 +412,38 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->subscription_password = $a_value;
 	}
+
+	// fim: [memsess] new functions get/setSubscriptionWithEvents()
+	function getSubscriptionWithEvents()
+	{
+		if ($this->subscription_with_events)
+		{
+			return $this->subscription_with_events;
+		}
+		else
+		{
+			return IL_CRS_SUBSCRIPTION_EVENTS_OFF;
+		}
+	}
+	function setSubscriptionWithEvents($a_value)
+	{
+		$this->subscription_with_events = $a_value;
+	}
+	// fim.
+
+
+	// fim: [meminf] new functions get/setShowMemLimit()
+	function getShowMemLimit()
+	{
+		return $this->show_mem_limit;
+	}
+	function setShowMemLimit($a_value)
+	{
+		$this->show_mem_limit = $a_value;
+	}
+	// fim.
+
+
 	function enabledObjectiveView()
 	{
 		return $this->view_mode == IL_CRS_VIEW_OBJECTIVE;
@@ -369,7 +471,38 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		}
 		return false;
 	}
-	
+
+// fau: fairSub - check if current time is in fair time span
+	function inSubscriptionFairTime($a_time = null)
+	{
+		if (!isset($a_time))
+		{
+			$a_time = time();
+		}
+
+		if(!$this->isSubscriptionMembershipLimited())
+		{
+			return false;
+		}
+		elseif (empty($this->getSubscriptionMaxMembers()))
+		{
+			return false;
+		}
+		elseif ($a_time < $this->getSubscriptionStart())
+		{
+			return false;
+		}
+		elseif($a_time > $this->getSubscriptionFair())
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
+// fau.
+
 	/**
 	 * en/disable limited number of sessions 
 	 * @return 
@@ -757,7 +890,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public function read()
 	{
@@ -857,7 +990,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->enablemap = $a_enablemap;
 	}
-	
+
 	/**
 	 * Type independent wrapper
 	 * @return type
@@ -978,7 +1111,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		$obj_settings = new ilLPObjSettings($this->getId());
 		$obj_settings->cloneSettings($new_obj->getId());
 		unset($obj_settings);
-		
+
 		// clone certificate (#11085)
 		include_once "./Services/Certificate/classes/class.ilCertificate.php";
 		include_once "./Modules/Course/classes/class.ilCourseCertificateAdapter.php";
@@ -1085,6 +1218,49 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			$this->appendMessage($this->lng->txt("subscription_times_not_valid"));
 		}
+
+// fau: fairSub - validate activation and subscription times
+		if(($this->getActivationType() == IL_CRS_ACTIVATION_LIMITED) && $this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED &&
+			($this->getSubscriptionStart() < $this->getActivationStart() || $this->getSubscriptionEnd() > $this->getActivationEnd()))
+		{
+			$this->appendMessage($this->lng->txt("sub_time_not_in_activation_time"));
+		}
+
+		if(($this->getActivationType() == IL_CRS_ACTIVATION_LIMITED) &&
+			$this->getActivationEnd() < $this->getActivationStart() + $this->getSubscriptionMinFairSeconds())
+		{
+			$this->appendMessage(sprintf($this->lng->txt("sub_fair_activation_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
+		}
+		if(($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED) &&
+			$this->getSubscriptionEnd() < $this->getSubscriptionStart() + $this->getSubscriptionMinFairSeconds())
+		{
+			$this->appendMessage(sprintf($this->lng->txt("sub_fair_subscription_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
+		}
+// fau.
+
+		// fim: [memad] check deny time for registration
+		if($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED)
+		{
+			global $ilCust;
+			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
+			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+			if ($deny_regstart_from and $deny_regstart_to)
+			{
+				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
+				$deny_regstart_to = new ilDateTime($deny_regstart_to, IL_CAL_DATETIME);
+				$regstart = new ilDateTime($this->getSubscriptionStart(), IL_CAL_UNIX);
+
+				if(ilDateTime::_before($deny_regstart_from, $regstart)
+				and ilDateTime::_after($deny_regstart_to, $regstart))
+				{
+					$this->appendMessage(sprintf($this->lng->txt('deny_regstart_message'),
+						ilDatePresentation::formatDate($deny_regstart_from),
+						ilDatePresentation::formatDate($deny_regstart_to)));
+				}
+			}
+		}
+		// fim.
+
 		#if((!$this->getActivationUnlimitedStatus() and
 		#	!$this->getSubscriptionUnlimitedStatus()) and
 		#	($this->getSubscriptionStart() > $this->getActivationEnd() or
@@ -1126,6 +1302,22 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			$this->appendMessage($this->lng->txt("crs_course_period_not_valid"));
 		}
+
+		// fim: [memsess] check event registration
+		if ($this->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF &&
+			( 	$this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_DEACTIVATED ||
+				(	$this->getSubscriptionType() != IL_CRS_SUBSCRIPTION_DIRECT &&
+					$this->getSubscriptionType() != IL_CRS_SUBSCRIPTION_PASSWORD
+				) ||
+				(	$this->isSubscriptionMembershipLimited() &&
+					$this->getSubscriptionMaxMembers() > 0
+				)
+			)
+		)
+		{
+				$this->appendMessage($this->lng->txt('crs_subscribe_events_not_possible'));
+		}
+		// fim.
 
 		return $this->getMessage() ? false : true;
 	}
@@ -1196,7 +1388,12 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		
 		include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
 		ilCourseDefinedFieldDefinition::_deleteByContainer($this->getId());
-		
+
+		// fim: [memcond] delete membership conditions when course is deleted
+		require_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+		ilSubscribersStudyCond::_deleteAll($this->getId());
+		// fim.
+
 		$ilAppEventHandler->raise('Modules/Course',
 			'delete',
 			array('object' => $this,
@@ -1247,6 +1444,8 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->__createDefaultSettings();
 		}
 		
+		// fim: [memsess] update subscription_with_events
+		// fim: [meminf] update show_mem_limit
 		$query = "UPDATE crs_settings SET ".
 			"syllabus = ".$ilDB->quote($this->getSyllabus() ,'text').", ".
 			"contact_name = ".$ilDB->quote($this->getContactName() ,'text').", ".
@@ -1254,15 +1453,27 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			"contact_phone = ".$ilDB->quote($this->getContactPhone() ,'text').", ".
 			"contact_email = ".$ilDB->quote($this->getContactEmail() ,'text').", ".
 			"contact_consultation = ".$ilDB->quote($this->getContactConsultation() ,'text').", ".
-			"activation_type = ".$ilDB->quote(!$this->getOfflineStatus() ,'integer').", ".			
-			"sub_limitation_type = ".$ilDB->quote($this->getSubscriptionLimitationType() ,'integer').", ".
+			"activation_type = ".$ilDB->quote(!$this->getOfflineStatus() ,'integer').", ".
+			// fim: [memfix] cast time limit activation
+			"sub_limitation_type = ".$ilDB->quote((int) $this->getSubscriptionLimitationType() ,'integer').", ".
+			// fim.
+// fau: objectSub - save sub_ref_id
+			"sub_ref_id = ".$ilDB->quote($this->getSubscriptionRefId() ,'integer').", ".
+// fau.
 			"sub_start = ".$ilDB->quote($this->getSubscriptionStart() ,'integer').", ".
+// fau: fairSub - save sub_fair and sub_last_fill
+			"sub_fair = ".$ilDB->quote($this->getSubscriptionFair() ,'integer').", ".
+			"sub_auto_fill = ".$ilDB->quote((int) $this->getSubscriptionAutoFill() ,'integer').", ".
+			"sub_last_fill = ".$ilDB->quote($this->getSubscriptionLastFill() ,'integer').", ".
+// fau.
 			"sub_end = ".$ilDB->quote($this->getSubscriptionEnd() ,'integer').", ".
 			"sub_type = ".$ilDB->quote($this->getSubscriptionType() ,'integer').", ".
 			"sub_password = ".$ilDB->quote($this->getSubscriptionPassword() ,'text').", ".
 			"sub_mem_limit = ".$ilDB->quote((int) $this->isSubscriptionMembershipLimited() ,'integer').", ".
 			"sub_max_members = ".$ilDB->quote($this->getSubscriptionMaxMembers() ,'integer').", ".
 			"sub_notify = ".$ilDB->quote($this->getSubscriptionNotify() ,'integer').", ".
+			"subscription_with_events = ".$ilDB->quote($this->getSubscriptionWithEvents() ,'integer').", ".
+			"show_mem_limit = ".$ilDB->quote($this->getShowMemLimit() ,'integer').", ".
 			"view_mode = ".$ilDB->quote($this->getViewMode() ,'integer').", ".
 			"abo = ".$ilDB->quote($this->getAboStatus() ,'integer').", ".
 			"waiting_list = ".$ilDB->quote($this->enabledWaitingList() ,'integer').", ".
@@ -1280,14 +1491,14 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			'reg_ac = '.$ilDB->quote($this->getRegistrationAccessCode(),'text').', '.
 			'auto_notification = '.$ilDB->quote( (int)$this->getAutoNotification(), 'integer').', '.
 			'status_dt = '.$ilDB->quote((int) $this->getStatusDetermination()).', '.
-			'mail_members_type = '.$ilDB->quote((int) $this->getMailToMembersType(),'integer').', '.					
+			'mail_members_type = '.$ilDB->quote((int) $this->getMailToMembersType(),'integer').', '.
 			'crs_start = '.$ilDB->quote(($this->getCourseStart() && !$this->getCourseStart()->isNull()) ? $this->getCourseStart()->get(IL_CAL_UNIX) : null, 'integer').', '.
 			'crs_end = '.$ilDB->quote(($this->getCourseEnd() && !$this->getCourseEnd()->isNull()) ? $this->getCourseEnd()->get(IL_CAL_UNIX) : null, 'integer').', '.
 			'auto_wait = '.$ilDB->quote((int) $this->hasWaitingListAutoFill(),'integer').', '.
 			'leave_end = '.$ilDB->quote(($this->getCancellationEnd() && !$this->getCancellationEnd()->isNull()) ? $this->getCancellationEnd()->get(IL_CAL_UNIX) : null, 'integer').', '.
-			'min_members = '.$ilDB->quote((int) $this->getSubscriptionMinMembers(),'integer').'  '.				
-			"WHERE obj_id = ".$ilDB->quote($this->getId() ,'integer')."";		
-				
+			'min_members = '.$ilDB->quote((int) $this->getSubscriptionMinMembers(),'integer').'  '.
+			"WHERE obj_id = ".$ilDB->quote($this->getId() ,'integer')."";
+			// fim.
 		$res = $ilDB->manipulate($query);
 		
 		// moved activation to ilObjectActivation
@@ -1341,6 +1552,20 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		$new_obj->enableSubscriptionMembershipLimitation($this->isSubscriptionMembershipLimited());
 		$new_obj->setSubscriptionMaxMembers($this->getSubscriptionMaxMembers());
 		$new_obj->setSubscriptionNotify($this->getSubscriptionNotify());
+		// fim: [memsess] clone subscriptionWithEvents
+		$new_obj->setSubscriptionWithEvents($this->getSubscriptionWithEvents());
+		// fim.
+		// fim: [meminf] clone showMemLimit
+		$new_obj->setShowMemLimit($this->getShowMemLimit());
+		// fim.
+// fau: objectSub - clone sub_ref_id
+		$new_obj->setSubscriptionRefId($this->getSubscriptionRefId());
+// fau.
+// fau: fairSub - clone sub_fair and reset sub_last_fill
+		$new_obj->setSubscriptionFair($this->getSubscriptionFair());
+		$new_obj->setSubscriptionAutoFill($this->getSubscriptionAutoFill());
+		$new_obj->setSubscriptionLastFill(null);
+// fau.
 		$new_obj->setViewMode($this->getViewMode());
 		$new_obj->setOrderType($this->getOrderType());
 		$new_obj->setAboStatus($this->getAboStatus());
@@ -1381,10 +1606,15 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
 		$this->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
 
+// fau: objectSub - add sub_ref_id
+// fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
+		// fim: [memsess] add subscription with events
+		// fim: [meminf] add show_mem_limit
+		// fim: [memfix] init subscription type with "confirmation"
 		$query = "INSERT INTO crs_settings (obj_id,syllabus,contact_name,contact_responsibility,".
 			"contact_phone,contact_email,contact_consultation,activation_type,activation_start,".
-			"activation_end,sub_limitation_type,sub_start,sub_end,sub_type,sub_password,sub_mem_limit,".
-			"sub_max_members,sub_notify,view_mode,abo," .
+			"activation_end,sub_limitation_type,sub_start,sub_end,sub_fair,sub_auto_fill,sub_last_fill,sub_type,sub_ref_id,sub_password,sub_mem_limit,".
+			"sub_max_members,sub_notify,subscription_with_events,show_mem_limit,view_mode,abo," .
 			"latitude,longitude,location_zoom,enable_course_map,waiting_list,show_members,show_members_export, ".
 			"session_limit,session_prev,session_next, reg_ac_enabled, reg_ac, auto_notification, status_dt,mail_members_type) ".
 			"VALUES( ".
@@ -1401,11 +1631,17 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote(IL_CRS_SUBSCRIPTION_DEACTIVATED ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionStart() ,'integer').", ".
 			$ilDB->quote($this->getSubscriptionEnd() ,'integer').", ".
-			$ilDB->quote(IL_CRS_SUBSCRIPTION_DIRECT ,'integer').", ".
+			$ilDB->quote($this->getSubscriptionFair(), 'integer').", ".
+			$ilDB->quote((int)$this->getSubscriptionAutoFill(), 'integer').", ".
+			$ilDB->quote($this->getSubscriptionLastFill(), 'integer').", ".
+			$ilDB->quote(IL_CRS_SUBSCRIPTION_CONFIRMATION ,'integer').", ".
+			$ilDB->quote($this->getSubscriptionRefId(), 'integer').", ".
 			$ilDB->quote($this->getSubscriptionPassword() ,'text').", ".
 			"0, ".
 			$ilDB->quote($this->getSubscriptionMaxMembers() ,'integer').", ".
 			"1, ".
+			$ilDB->quote($this->getSubscriptionWithEvents() ,'integer').", ".
+			"1, ". // showMemLimit
 			"0, ".
 			$ilDB->quote($this->ABO_ENABLED ,'integer').", ".
 			$ilDB->quote($this->getLatitude() ,'text').", ".
@@ -1425,7 +1661,8 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$ilDB->quote((int)$this->getStatusDetermination(),'integer').', '.
 			$ilDB->quote((int) $this->getMailToMembersType(),'integer').' '.
 			")";
-			
+		// fim.
+
 		$res = $ilDB->manipulate($query);
 		$this->__readSettings();
 
@@ -1453,13 +1690,27 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->setContactConsultation($row->contact_consultation);
 			$this->setOfflineStatus(!(bool)$row->activation_type); // see below
 			$this->setSubscriptionLimitationType($row->sub_limitation_type);
+// fau: objectSub - read sub_ref_id
+			$this->setSubscriptionRefId($row->sub_ref_id);
+// fau.
 			$this->setSubscriptionStart($row->sub_start);
+// fau: fairSub - read sub_fair and sub_last_fill
+			$this->setSubscriptionFair($row->sub_fair);
+			$this->setSubscriptionAutoFill($row->sub_auto_fill);
+			$this->setSubscriptionLastFill($row->sub_last_fill);
+// fau.
 			$this->setSubscriptionEnd($row->sub_end);
 			$this->setSubscriptionType($row->sub_type);
 			$this->setSubscriptionPassword($row->sub_password);
 			$this->enableSubscriptionMembershipLimitation($row->sub_mem_limit);
 			$this->setSubscriptionMaxMembers($row->sub_max_members);
 			$this->setSubscriptionNotify($row->sub_notify);
+			// fim: [memsess] read subscription_with_events
+			$this->setSubscriptionWithEvents($row->subscription_with_events);
+			// fim.
+			// fim: [meminf] read show_mem_limit
+			$this->setShowMemLimit($row->show_mem_limit);
+			// fim.
 			$this->setViewMode($row->view_mode);
 			$this->setAboStatus($row->abo);
 			$this->enableWaitingList($row->waiting_list);
@@ -1482,7 +1733,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			$this->setCourseEnd($row->crs_end ? new ilDate($row->crs_end, IL_CAL_UNIX) : null);
 			$this->setCancellationEnd($row->leave_end ? new ilDate($row->leave_end, IL_CAL_UNIX) : null);
 			$this->setWaitingListAutoFill($row->auto_wait);
-			$this->setSubscriptionMinMembers($row->min_members ? $row->min_members : null);			
+			$this->setSubscriptionMinMembers($row->min_members ? $row->min_members : null);
 		}
 		
 		// moved activation to ilObjectActivation
@@ -1536,6 +1787,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 		include_once "./Modules/Course/classes/class.ilCourseParticipant.php";
 		$this->member_obj = ilCourseParticipant::_getInstanceByObjId($this->getId(),$ilUser->getId());
+		// fim: [memsess] set back reference to course object (for notification mails)
+		$this->member_obj->setCourseObject($this);
+		// fim.
 		return true;
 	}
 
@@ -1550,6 +1804,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 
 		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
 		$this->members_obj = ilCourseParticipants::_getInstanceByObjId($this->getId());
+		// fim: [memsess] set back reference to course object (for notification mails)
+		$this->members_obj->setCourseObject($this);
+		// fim.
 		return true;
 	}
 
@@ -1933,7 +2190,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 					$app->setTitle($this->getTitle());
 					$app->setSubtitle('crs_cal_start');
 					$app->setTranslationType(IL_CAL_TRANSLATION_SYSTEM);
-					$app->setDescription($this->getLongDescription());	
+					$app->setDescription($this->getLongDescription());
 					$app->setStart($this->getCourseStart());
 					$app->setFullday(true);
 					$apps[] = $app;
@@ -2008,7 +2265,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 					ilMembershipRegistrationException::REGISTRATION_INVALID_OFFLINE
 				);
 			}
-			
+
 			// activation
 			if(!ilObjCourseAccess::_isActivated($this->getId()))
 			{
@@ -2017,7 +2274,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 					ilMembershipRegistrationException::REGISTRATION_INVALID_AVAILABILITY
 				);
 			}
-			
+
 			if($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_DEACTIVATED)
 			{
 				if(!ilObjCourseAccess::_usingRegistrationCode())
@@ -2172,62 +2429,176 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		}
 		return parent::getOrderType();
 	}
-	
+
+// fau: fairSub: new function findFairAutoFill
 	/**
-	 * Handle course auto fill 
+	 * Find couses that can be auto filled after the fair subscription time
+	 * @return int[]	object ids
 	 */
-	public function handleAutoFill()
+	public static function findFairAutoFill()
 	{
-		if(
-			!$this->enabledWaitingList() or
-			!$this->hasWaitingListAutoFill()
+		global $ilDB;
+
+		$query = "
+			SELECT s.obj_id
+			FROM crs_settings s
+			INNER JOIN object_reference r ON r.obj_id = s.obj_id
+			WHERE r.deleted IS NULL
+			AND (s.activation_type = 1 
+				OR (s.activation_type = 2 
+					AND s.activation_start <= UNIX_TIMESTAMP() 
+					AND s.activation_end >= UNIX_TIMESTAMP()))
+			AND s.sub_mem_limit > 0
+			AND s.sub_max_members > 0 
+			AND s.sub_auto_fill > 0
+			AND s.sub_fair > 0
+			AND s.sub_fair < UNIX_TIMESTAMP()
+			AND s.sub_last_fill IS NULL
+		";
+
+		$obj_ids = array();
+		$result = $ilDB->query($query);
+		while ($row = $ilDB->fetchAssoc($result))
+		{
+			$obj_ids[] = $row['obj_id'];
+		}
+		return $obj_ids;
+	}
+// fau.
+
+// fau: fairSub - fill only assignable users, treat manual fill, return filled users
+	/**
+	 * Auto fill free places in the course from the waiting list
+	 * @param bool 		$manual		called manually by admin
+	 * @param bool 		$initial	called initially by cron job after fair time
+	 * @return int[]	added user ids
+	 */
+	public function handleAutoFill($manual = false, $initial = false)
+	{
+		$added_users = array();
+		$last_fill = $this->getSubscriptionLastFill();
+
+		// never fill if subscriptions are still fairly collected, even if manual call (should not happen)
+		if ($this->inSubscriptionFairTime())
+		{
+			return array();
+		}
+
+		// check the conditions for autofill
+		if ($manual
+			|| $initial
+			|| ($this->enabledWaitingList() && $this->hasWaitingListAutoFill())
 		)
 		{
-			$this->course_logger->debug('Waiting list or auto fill disabled.');
-			return;
-		}		
-		
-		$max = $this->getSubscriptionMaxMembers();
-		$now = ilCourseParticipants::lookupNumberOfMembers($this->getRefId());
+			include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
+			include_once('./Modules/Course/classes/class.ilCourseParticipants.php');
+			include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
 
-		$this->course_logger->debug('Max members: ' . $max);
-		$this->course_logger->debug('Current members: ' . $now);
-		
-		if($max <= $now)
-		{
-			return;
+
+			$max = (int) $this->getSubscriptionMaxMembers();
+			$now = ilCourseParticipants::lookupNumberOfMembers($this->getRefId());
+			$grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this);
+
+			if($max == 0 || $max > $now)
+			{
+				// see assignFromWaitingListObject()
+				$waiting_list = new ilCourseWaitingList($this->getId());
+				$members_obj = ilCourseParticipants::_getInstanceByObjId($this->getId());
+
+				foreach($waiting_list->getAssignableUserIds($max == 0 ? null :  $max - $now) as $user_id)
+				{
+					// check conditions for adding the member
+					if(
+						// user does not longer exist
+						ilObjectFactory::getInstanceByObjId($user_id,false) == false
+						// user is already assigned to the course
+						|| $members_obj->isAssigned($user_id) == true
+						// user is already assigned to a grouped course
+						|| ilObjCourseGrouping::_checkGroupingDependencies($this, $user_id) == false
+					)
+					{
+						$waiting_list->removeFromList($user_id);
+						continue;
+					}
+
+					// avoid race condition
+					if ($members_obj->addLimited($user_id,IL_CRS_MEMBER, $max))
+					{
+						// user is now member
+						$added_users[] = $user_id;
+						$this->checkLPStatusSync($user_id);
+
+						// delete user from this and grouped waiting lists
+						$waiting_list->removeFromList($user_id);
+						foreach ($grouping_ref_ids as $ref_id)
+						{
+							ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
+						}
+					}
+					else
+					{
+						// last free places are taken by parallel requests, don't try further
+						break;
+					}
+
+					$now++;
+					if($max > 0  && $now >= $max)
+					{
+						break;
+					}
+				}
+
+				// get the user that remain on the waiting list
+				$waiting_users = $waiting_list->getUserIds();
+
+				// prepare notifications
+				// the waiting list object is injected to allow the inclusion of the waiting list position
+				include_once('./Modules/Course/classes/class.ilCourseMembershipMailNotification.php');
+				$mail = new ilCourseMembershipMailNotification();
+				$mail->setRefId($this->ref_id);
+				$mail->setWaitingList($waiting_list);
+				// fim: [memsess] add hint about subscription to events
+				$mail->setSubscribeToEvents($this->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF);
+				// fim.
+
+				// send notifications to added users
+				if (!empty($added_users))
+				{
+					$mail->setType(ilCourseMembershipMailNotification::TYPE_ADMISSION_MEMBER);
+					$mail->setRecipients($added_users);
+					$mail->send();
+				}
+
+				// send notifications to waiting users if waiting list is automatically filled for the first time
+				// the distinction between requests and subscriptions is done in the send() function
+				if (empty($last_fill) && !empty($waiting_users))
+				{
+					$mail->setType(ilCourseMembershipMailNotification::TYPE_AUTOFILL_STILL_WAITING);
+					$mail->setRecipients($waiting_users);
+					$mail->send();
+				}
+
+				// send notification to course admins if waiting users have to be confirmed and places are free
+				// this should be done only once after the end of the fair time
+				if ($initial
+					&& $waiting_list->getCountToConfirm() > 0
+					&& ($max == 0 || $max > $now))
+				{
+					$mail->setType(ilCourseMembershipMailNotification::TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM);
+					$mail->setRecipients($members_obj->getNotificationRecipients());
+					$mail->send();
+				}
+			}
 		}
 
-		// see assignFromWaitingListObject()
-		include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
-		$waiting_list = new ilCourseWaitingList($this->getId());
+		// remember the fill date
+		// this prevents further calls from the cron job
+		$this->saveSubscriptionLastFill(time());
 
-		foreach($waiting_list->getUserIds() as $user_id)
-		{
-			if(!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id,false))
-			{
-				$this->course_logger->warning('Cannot create user instance for id: ' . $user_id);
-				continue;
-			}
-			if($this->getMembersObject()->isAssigned($user_id))
-			{
-				$this->course_logger->warning('User is already assigned to course. uid: ' . $user_id. ' course_id: ' . $this->getRefId());
-				continue;
-			}
-			$this->getMembersObject()->add($user_id,IL_CRS_MEMBER);
-			$this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_ACCEPT_USER,$user_id,true);
-			$waiting_list->removeFromList($user_id);
-			$this->checkLPStatusSync($user_id);
-			
-			$this->course_logger->info('Assigned user from waiting list to course: ' . $this->getTitle());
-			$now++;
-			if($now >= $max)
-			{
-				break;
-			}
-		}
+		return $added_users;
 	}
-	
+// fau.
+
 	public static function mayLeave($a_course_id, $a_user_id = null, &$a_date = null)
 	{
 		global $ilUser, $ilDB;
@@ -2253,7 +2624,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Minimum members check
 	 * @global type $ilDB
@@ -2289,7 +2660,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 			{
 				continue;
 			}
-			
+
 			$part = new ilCourseParticipants($row["obj_id"]);
 			$reci = $part->getNotificationRecipients();
 			if(sizeof($reci))

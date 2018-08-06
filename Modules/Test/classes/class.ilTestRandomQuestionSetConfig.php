@@ -35,7 +35,7 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 	 * @var integer
 	 */
 	private $lastQuestionSyncTimestamp = null;
-	
+
 	//fau: fixRandomTestBuildable - variable for messages
 	private $buildableMessages = array();
 	// fau.
@@ -105,13 +105,13 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 		{
 			case self::QUESTION_AMOUNT_CONFIG_MODE_PER_POOL:
 			case self::QUESTION_AMOUNT_CONFIG_MODE_PER_TEST:
-				
+
 				return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @param integer $questionAmountPerTest
 	 */
@@ -150,7 +150,7 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 		return $this->buildableMessages;
 	}
 	// fau.
-	
+
 	// -----------------------------------------------------------------------------------------------------------------
 	
 	/**
@@ -301,7 +301,7 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 			return false;
 		}
 		// fau.
-		
+
 		if( !$this->isQuestionAmountConfigComplete() )
 		{
 			return false;
@@ -312,6 +312,13 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 			return false;
 		}
 
+// fau: fixRandomTestDoubleOriginals - check if the test has double originals
+		if (!$this->hasUniqueOriginalQuestions())
+		{
+			return false;
+		}
+// fau.
+
 		if( !$this->isQuestionSetBuildable() )
 		{
 			return false;
@@ -319,6 +326,20 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 
 		return true;
 	}
+
+// fau: fixRandomTestDoubleOriginals - new function hasUniqueOriginalQuestions()
+	public function hasUniqueOriginalQuestions()
+	{
+		$res = $this->db->query("
+				SELECT COUNT(DISTINCT original_id) AS orig_count, COUNT(DISTINCT question_id) AS question_count
+				FROM qpl_questions q
+				WHERE obj_fi = " . $this->db->quote($this->testOBJ->getId(), 'integer')
+		);
+		$row = $this->db->fetchAssoc($res);
+
+		return ($row['orig_count'] == $row['question_count']);
+	}
+// fau.
 
 	public function isQuestionAmountConfigComplete()
 	{
@@ -363,16 +384,23 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 
 		require_once 'Modules/Test/classes/class.ilTestRandomQuestionSetBuilder.php';
 		$questionSetBuilder = ilTestRandomQuestionSetBuilder::getInstance($this->db, $this->testOBJ, $this, $sourcePoolDefinitionList, $stagingPoolQuestionList);
-		
+
 		//fau: fixRandomTestBuildable - get messages if set is not buildable
 		$buildable = $questionSetBuilder->checkBuildable();
 		$this->buildableMessages = $questionSetBuilder->getCheckMessages();
 		return $buildable;
 		// fau.
-		
+
 		return $questionSetBuilder->checkBuildable();
 	}
-	
+
+//fau: fixRandomTestBuildable - function to get messages
+	public function getBuildableMessages()
+	{
+		return $this->buildableMessages;
+	}
+// fau.
+
 	public function doesQuestionSetRelatedDataExist()
 	{
 		if( $this->dbRecordExists($this->testOBJ->getTestId()) )

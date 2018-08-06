@@ -175,7 +175,10 @@ final class ilLinkCheckerTableGUI extends ilTable2GUI
 		}
 		
 		$this->addColumn($lng->txt('title'), 'title', '20%');
-		$this->addColumn($lng->txt('url'), 'url', '80%');
+// fau: fixLinkChecker - add column for status
+		$this->addColumn($lng->txt('url'), 'url', '70%');
+		$this->addColumn($lng->txt('status'), 'status', '10%');
+// fau.
 		$this->addColumn('', '', '10%');
 		$this->setLimit(32000);
 		$this->setEnableHeader(true);

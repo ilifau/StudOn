@@ -140,7 +140,7 @@ class ilVirusScanner
 		$this->type         = "simulate";
 		$this->scanZipFiles = false;
 	}
-	
+
 	/**
 	 * @param string $buffer (any data, binary)
 	 * @return bool $infected
@@ -149,7 +149,7 @@ class ilVirusScanner
 	{
 		return $this->scanFileFromBuffer($buffer);
 	}
-	
+
 	/**
 	 * @param string $buffer (any data, binary)
 	 * @return bool $infected
@@ -161,7 +161,7 @@ class ilVirusScanner
 		$this->removeBufferFile($bufferFile);
 		return $isInfected;
 	}
-	
+
 	/**
 	 * @param string $buffer (any data, binary)
 	 * @return string $bufferFile
@@ -172,7 +172,7 @@ class ilVirusScanner
 		file_put_contents($bufferFile, $buffer);
 		return $bufferFile;
 	}
-	
+
 	/**
 	 * @param string $bufferFile
 	 */
@@ -180,7 +180,7 @@ class ilVirusScanner
 	{
 		unlink($bufferFile);
 	}
-	
+
 	/**
 	 * scan a file for viruses
 	 * needs to be redefined in child classes

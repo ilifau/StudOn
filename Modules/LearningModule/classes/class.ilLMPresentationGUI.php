@@ -612,6 +612,12 @@ class ilLMPresentationGUI
 					case "ilLMNotes":
 						$this->ilLMNotes();
 						break;
+
+// fau: lmFooter - new layout node for Footer
+					case "ilFooter":
+						$this->add_ilias_footer = true;
+						break;
+// fau.
 				}
 			}
 
@@ -696,6 +702,13 @@ class ilLMPresentationGUI
 			$this->tpl->fillBodyClass();
 
 		}
+
+// fau: lmFooter - add ILIAS footer
+		if ($this->add_ilias_footer)
+		{
+			$this->tpl->addILIASFooter();
+		}
+// fau.
 
 		if ($doShow)
 		{
@@ -812,12 +825,12 @@ class ilLMPresentationGUI
 		// LTI
 		global $DIC;
 		$ltiview = $DIC["lti"];
- 		if ($ltiview->isActive()) 
+ 		if ($ltiview->isActive())
  		{
  			include_once './Services/LTI/classes/class.ilMainMenuGUI.php';
  			$ilMainMenu = new LTI\ilMainMenuGUI("_top", false, $this->tpl);
  		}
- 		else 
+ 		else
  		{
  			include_once './Services/MainMenu/classes/class.ilMainMenuGUI.php';
  			$ilMainMenu = new ilMainMenuGUI("_top", false, $this->tpl);
@@ -937,9 +950,11 @@ class ilLMPresentationGUI
 	*/
 	function ilLMMenu()
 	{
+// fau: lmMenu - show lm menu as tabs instead of sub tabs
 		$this->tpl->setVariable("MENU", $this->lm_gui->setilLMMenu($this->offlineMode()
-			,$this->getExportFormat(), "content", false, true, $this->getCurrentPageId(),
+			,$this->getExportFormat(), "content", false, false, $this->getCurrentPageId(),
 			$this->lang, $this->export_all_languages));
+// fau.
 	}
 
 	/**
@@ -1025,13 +1040,33 @@ class ilLMPresentationGUI
 			{
 				$title.= ": ".$pg_title;
 			}
-			
-			$plinkgui->setTitle($title);
-				
-			$tpl_menu->setCurrentBlock("perma_link");
-			$tpl_menu->setVariable("PERMA_LINK", $plinkgui->getHTML());
-			$tpl_menu->parseCurrentBlock();
 
+// fau: lmFooter - use permalink in footer if footer is added
+			if ($this->add_ilias_footer)
+			{
+				$this->tpl->setPermanentLink("pg", $page_id."_".$this->lm->getRefId(), "", "_top", $title);
+			}
+			else
+			{
+				$plinkgui->setTitle($title);
+
+				$tpl_menu->setCurrentBlock("perma_link");
+				$tpl_menu->setVariable("PERMA_LINK", $plinkgui->getHTML());
+				$tpl_menu->parseCurrentBlock();
+			}
+// fau.
+
+// fau: relativeLink - add to lm page if write access
+			global $ilAccess;
+			if ($ilAccess->checkAccess("write", "", $_GET["ref_id"]) ||
+				$ilAccess->checkAccess("edit_permissions", "", $_GET["ref_id"]))
+			{
+				include_once 'Services/RelativeLink/classes/class.ilRelativeLinkGUI.php';
+				$rlink = new ilRelativeLinkGUI();
+				$rlink->setTarget(ilRelativeLink::TYPE_LM_PAGE, $page_id);
+				$tpl_menu->setVariable("RELATIVE_LINK", $rlink->getHTML(true));
+			}
+// fau.
 		}
 
 		$this->tpl->setVariable("SUBMENU", $tpl_menu->get());
@@ -1096,7 +1131,7 @@ class ilLMPresentationGUI
 		$ilAccess = $this->access;
 		$ilSetting = $this->settings;
 		
-		
+
 		// no notes in offline (export) mode
 		if ($this->offlineMode())
 		{
@@ -1206,11 +1241,11 @@ class ilLMPresentationGUI
 		if (!$this->offlineMode())
 		{
 			// LTI
-			if ($ltiview->isActive()) 
+			if ($ltiview->isActive())
 			{
 				// Do nothing, its complicated...
 			}
-			else 
+			else
 			{
 				$ilLocator->addItem("...", "");
 
@@ -1444,7 +1479,7 @@ class ilLMPresentationGUI
 		$this->fill_on_load_code = true;
 
 		// check if page is (not) visible in public area
-		if($ilUser->getId() == ANONYMOUS_USER_ID && 
+		if($ilUser->getId() == ANONYMOUS_USER_ID &&
 		   $this->lm_gui->object->getPublicAccessMode() == 'selected')
 		{
 			$public = ilLMObject::_isPagePublic($this->getCurrentPageId());
@@ -3198,7 +3233,7 @@ class ilLMPresentationGUI
 						ilStructureObject::_getPresentationTitle($node["obj_id"], IL_CHAPTER_TITLE,
 							$this->lm->isActiveNumbering(),
 							$this->lm_set->get("time_scheduled_page_activation"), false, 0, $this->lang);
-					if($ilUser->getId() == ANONYMOUS_USER_ID && 
+					if($ilUser->getId() == ANONYMOUS_USER_ID &&
 					   $this->lm_gui->object->getPublicAccessMode() == "selected")
 					{
 						if (!ilLMObject::_isPagePublic($node["obj_id"]))
@@ -3486,7 +3521,7 @@ class ilLMPresentationGUI
 				// output chapter title
 				if ($node["type"] == "st")
 				{
-					if($ilUser->getId() == ANONYMOUS_USER_ID && 
+					if($ilUser->getId() == ANONYMOUS_USER_ID &&
 					   $this->lm_gui->object->getPublicAccessMode() == "selected")
 					{
 						if (!ilLMObject::_isPagePublic($node["obj_id"]))

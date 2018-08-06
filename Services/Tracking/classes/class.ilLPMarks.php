@@ -168,7 +168,30 @@ class ilLPMarks
 		return '';
 	}
 
-		
+	/**
+	 * fim: [export] get the LP marks of an object
+	 *
+	 * @param int 		obj_id
+	 * @param array		usr_id => mark data
+	 */
+	function _getMarkDataOfObject($a_obj_id)
+	{
+		global $ilDB;
+
+		$marks = array();
+
+		$query = "SELECT * FROM ut_lp_marks ".
+			"WHERE obj_id = ".$ilDB->quote($a_obj_id ,'integer');
+
+		$res = $ilDB->query($query);
+		while($row = $res->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+			$marks[$row['usr_id']] = $row;
+		}
+		return $marks;
+	}
+	// fim.
+
 	static function _lookupComment($a_usr_id,$a_obj_id)
 	{
 		global $ilDB;

@@ -22,6 +22,43 @@ class ilUtil
 {
 	static protected $db_supports_distinct_umlauts;
 
+// fau: rootAsLogin - new function getRootLoginLink()
+	static function _getRootLoginLink($a_target = "")
+	{
+		//TODO: return login link if 'ilias_root_as_login' is not set
+
+		global $ilUser, $tree, $lng, $https;
+
+		if ($ilUser->getId() and $ilUser->getId() != ANONYMOUS_USER_ID)
+		{
+			require_once "Services/Link/classes/class.ilLink.php";
+			return ilLink::_getStaticLink(1, "root");
+		}
+
+		$target = $a_target ? $a_target : $_GET["target"];
+
+		if ($target == "" and $_GET["ref_id"] != "")
+		{
+			if ($tree->isInTree($_GET["ref_id"]) && $_GET["ref_id"] != $tree->getRootId())
+			{
+				$obj_id = ilObject::_lookupObjId($_GET["ref_id"]);
+				$type = ilObject::_lookupType($obj_id);
+				$target = $type."_".$_GET["ref_id"];
+			}
+		}
+
+		$url = "ilias.php"
+			. "?baseClass=ilrepositorygui"
+			. "&cmd=frameset"
+			. "&ref_id=1"
+			. "&lang=".$lng->getLangKey()
+			. "&client_id=".rawurlencode(CLIENT_ID)
+			. ($target ? "&login_target=" . $target : "");
+
+		return $url;
+	}
+// fau.
+
 	/**
 	* Builds an html image tag
 	* TODO: function still in use, but in future use getImagePath and move HTML-Code to your template file
@@ -216,7 +253,9 @@ class ilUtil
 		$vers = "";
 		if ($mode != "filesystem")
 		{
-			$vers = str_replace(" ", "-", $ilSetting->get("ilias_version"));
+// fau: versionSuffix - use the version number with own suffix
+			$vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
+// fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
 			// use version from template xml to force reload on changes
             $skin = ilStyleDefinition::getSkins()[ilStyleDefinition::getCurrentSkin()];
@@ -259,7 +298,9 @@ class ilUtil
 		$vers = "";
 		if ($add_version)
 		{
-			$vers = str_replace(" ", "-", $ilSetting->get("ilias_version"));
+// fau: versionSuffix - use the version number with own suffix
+			$vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
+// fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
 		}
 		return $filename . $vers;
@@ -313,7 +354,9 @@ class ilUtil
 		// add version as parameter to force reload for new releases
 		if ($mode != "filesystem")
 		{
-			$vers = str_replace(" ", "-", $ilSetting->get("ilias_version"));
+// fau: versionSuffix - use the version number with own suffix
+			$vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
+// fau.
 			$vers = "?vers=".str_replace(".", "-", $vers);
 		}
 
@@ -836,12 +879,20 @@ class ilUtil
 		// mask existing image tags
 		$ret = str_replace('src="http://', '"***masked_im_start***', $ret);
 		
+		// fim: [univis] mask existing href tags
+		$ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
+		// fim.
+
 		include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
 		$parser = new ilMWParserAdapter();
 		$ret = $parser->replaceFreeExternalLinks($ret);
 
 		// unmask existing image tags
 		$ret = str_replace('"***masked_im_start***', 'src="http://', $ret);
+
+		// fim: [univis] unmask existing href tags
+		$ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/','href="$1',$ret);
+		// fim.
 
 		// Should be Safe
 
@@ -1910,7 +1961,13 @@ class ilUtil
 		{
 			$a_dir .="/*";
 			$pathinfo = pathinfo($a_dir);
-			chdir($pathinfo["dirname"]);
+// fau: fixZip - prevent zipping if source dir can't be set
+// otherwise the whole ilias directory would be zipped
+			if (!chdir($pathinfo["dirname"]))
+			{
+				return false;
+			}
+// fau.
 		}
 		
 		$pathinfo = pathinfo($a_file);
@@ -1919,7 +1976,13 @@ class ilUtil
 
 		if(!$compress_content)
 		{
-			chdir($dir);
+// fau: fixZip - prevent zipping f source dir can't be set
+// otherwise the whole ilias directory would be zipped
+			if (!chdir($dir))
+			{
+				return false;
+			}
+// fau.
 		}
 
 		$zip = PATH_TO_ZIP;
@@ -2958,7 +3021,7 @@ class ilUtil
 
 		while (preg_match('/<('.$tag.$att.'('.$tag_att.$ws.'="'.$ws.'(([$@!*()~;,_0-9A-z\/:=%.&#?+\-])*)")'.$att.')>/i',
 			$a_str, $found))
-		{			
+		{
 			$old_str = $a_str;
 			$a_str = preg_replace("/<".preg_quote($found[1], "/").">/i",
 				'&lt;'.$tag.' '.$tag_att.$tag_att.'="'.$found[3].'"&gt;', $a_str);
@@ -2982,7 +3045,7 @@ class ilUtil
 
 		while (preg_match('/&lt;('.$tag.' '.$tag_att.$tag_att.'="(([$@!*()~;,_0-9A-z\/:=%.&#?+\-])*)")&gt;/i',
 			$a_str, $found))
-		{			
+		{
 			$old_str = $a_str;
 			$a_str = preg_replace("/&lt;".preg_quote($found[1], "/")."&gt;/i",
 				'<'.$tag.' '.$tag_att.'="'.ilUtil::secureLink($found[2]).'">', $a_str);
@@ -3137,6 +3200,20 @@ class ilUtil
 		$a_str = str_replace("\\", "&#92;", $a_str);
 		return $a_str;
 	}
+
+	/**
+	 * fim: [bugfix] revert the replacements done in ilUtil::prepareFormOutput
+	 * @param	string
+	 * @return	string
+	 */
+	public static function revertFormOutput($a_str)
+	{
+		$a_str = str_replace("&#123;", "{", $a_str);
+		$a_str = str_replace("&#125;", "}", $a_str);
+		$a_str = str_replace("&#92;", "\\", $a_str);
+		return $a_str;
+	}
+	// fim.
 
 	/**
 	 * Prepare secure href attribute
@@ -3342,12 +3419,16 @@ class ilUtil
 		// locale is provided and mb string functions are supported
 		if ($array_sortorder == "asc")
 		{
-			return ilStr::strCmp($a[$array_sortby], $b[$array_sortby]);
+			// fim: [sort] use case sensitive string compare
+			return ilStr::strCmpCaseSensitive($a[$array_sortby], $b[$array_sortby]);
+			// fim.
 		}
 
 		if ($array_sortorder == "desc")
 		{
-			return !ilStr::strCmp($a[$array_sortby], $b[$array_sortby]);
+			// fim: [sort] use case sensitive string compare
+			return !ilStr::strCmpCaseSensitive($a[$array_sortby], $b[$array_sortby]);
+			// fim.
 			return strcoll(ilStr::strToUpper($b[$array_sortby]), ilStr::strToUpper($a[$array_sortby]));
 		}
 	}
@@ -3620,11 +3701,16 @@ class ilUtil
 
 
 	/**
-	 * @param $a_script
+	 * fim: [bugfix] add parameter to redirect by html page istead http header
+	 *		this is needed for the join links of courses and groups
+	 *		if they are not called from the browser
+	 * @param	string		$a_script		target script
+	 * @param	string		$a_html_redirect generate a redirecting page instead of a header
 	 *
 	 * @deprecated Use $DIC->ctrl()->redirectToURL() instead
 	 */
-	public static function redirect($a_script)
+	public static function redirect($a_script, $a_html_redirect = false)
+	// fim.
 	{
 		global $DIC;
 
@@ -3633,7 +3719,7 @@ class ilUtil
 		} else {
 			$ctrl = $DIC->ctrl();
 		}
-		$ctrl->redirectToURL($a_script);
+		$ctrl->redirectToURL($a_script, $a_html_redirect);
 	}
 
 	/**
@@ -4355,11 +4441,14 @@ class ilUtil
 	* @param	string	permission to check e.g. 'visible' or 'read'
 	* @param	int id of user in question
 	* @param    int limit of results. if not given it defaults to search max hits.If limit is -1 limit is unlimited
+	* @param	int ref_id of the sub tree node to search in
 	* @return	array of ref_ids
 	* @static
 	* 
 	*/
-	public static function _getObjectsByOperations($a_obj_type,$a_operation,$a_usr_id = 0,$limit = 0)
+// fau: treeQuery - add root as optional parameter to allow selection in sub tree
+	public static function _getObjectsByOperations($a_obj_type,$a_operation,$a_usr_id = 0,$limit = 0, $a_root_id = 0)
+// fau.
 	{
 		global $DIC;
 
@@ -4378,6 +4467,21 @@ class ilUtil
 		{
 			$where = "WHERE ".$ilDB->in("type", $a_obj_type, false, "text")." ";
 		}
+
+// fau: treeQuery - respect the root id parameter
+		if ($a_root_id)
+		{
+			$where .= ' AND '. $tree->getGrandChildCondition((int) $a_root_id) . "  ";
+
+			$tree_join = " LEFT JOIN tree ON obr.ref_id = tree.child ";
+			$tree_cond = " AND tree = 1 ";
+		}
+		else
+		{
+			$tree_join = "";
+			$tree_cond = "";
+		}
+// fau.
 
 		// limit number of results default is search result limit
 		if(!$limit)
@@ -4437,14 +4541,18 @@ class ilUtil
 
 		$and = "AND ((".$ilDB->in("rol_id", $a_roles, false, "integer")." ";
 
+// fau: treeQuery - respect the root conditions
 		$query = "SELECT DISTINCT(obr.ref_id),obr.obj_id,type FROM object_reference obr ".
 			"JOIN object_data obd ON obd.obj_id = obr.obj_id ".
 			"LEFT JOIN rbac_pa  ON obr.ref_id = rbac_pa.ref_id ".
+			$tree_join.
 			$where.
+			$tree_cond.
 			$and.
 			"AND (".$ilDB->like("ops_id", "text","%i:".$ops_id."%"). " ".
 			"OR ".$ilDB->like("ops_id", "text", "%:\"".$ops_id."\";%").")) ".
 			$check_owner;
+// fau.
 
 		$res = $ilDB->query($query);
 		$counter = 0;
@@ -5265,12 +5373,12 @@ class ilUtil
 
 		fclose($fp);
 	}
-	
-	
+
+
 	//
 	//  used to be in ilFormat
 	//
-	
+
 	/**
 	 * Returns the magnitude used for size units.
 	 *
@@ -5287,11 +5395,11 @@ class ilUtil
 	{
 		return 1024;
 	}
-	
+
 	/**
 	* format a float
-	* 
-	* this functions takes php's number_format function and 
+	*
+	* this functions takes php's number_format function and
 	* formats the given value with appropriate thousand and decimal
 	* separator.
 	* @access	public
@@ -5325,7 +5433,7 @@ class ilUtil
 
 		$txt = number_format($a_float, $a_decimals, $a_dec_point, $a_thousands_sep);
 
-		// remove trailing ".0" 
+		// remove trailing ".0"
 		if (($a_suppress_dot_zero == 0 || $a_decimals == 0)
 		    && substr($txt, - 2) == $a_dec_point . '0'
 		) {
@@ -5337,7 +5445,7 @@ class ilUtil
 
 		return $txt;
 	}
-	
+
 	/**
 	 * Returns the specified file size value in a human friendly form.
 	 * <p>
@@ -5393,17 +5501,17 @@ class ilUtil
 
 		return $result;
 	}
-	
-	
-	// 
+
+
+	//
 	// used for disk quotas
-	// 
-	
+	//
+
 	public static function MB2Bytes($a_value)
 	{
 		return  $a_value * pow(self::_getSizeMagnitude(), 2);
 	}
-	
+
 	public static function Bytes2MB($a_value)
 	{
 		return  $a_value / (pow(self::_getSizeMagnitude(), 2));

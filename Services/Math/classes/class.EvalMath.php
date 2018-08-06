@@ -99,6 +99,12 @@ class EvalMath {
         'cos','cosh','arccos','acos','arccosh','acosh',
         'tan','tanh','arctan','atan','arctanh','atanh',
         'sqrt','abs','ln','log');
+// fau: formulaQuestionAtan2 - define functions with two arguments
+    var $f2 = array(
+        'atan2', 'arctan2'
+    );
+// fau.
+
     // mjansen-patch: begin
     function __construct() {
     // mjansen-patch: end
@@ -141,7 +147,9 @@ class EvalMath {
         // is it a function assignment?
         } elseif (preg_match('/^\s*([a-z]\w*)\s*\(\s*([a-z]\w*(?:\s*,\s*[a-z]\w*)*)\s*\)\s*=\s*(.+)$/', $expr, $matches)) {
             $fnn = $matches[1]; // get the function name
-            if (in_array($matches[1], $this->fb)) { // make sure it isn't built in
+// fau: formulaQuestionAtan2 - check function assignments of functions with two arguments
+            if (in_array($matches[1], $this->fb) or in_array($matches[1], $this->f2)) { // make sure it isn't built in
+// fau.
                 return $this->trigger("cannot redefine built-in function '$matches[1]()'");
             }
             $args = explode(",", preg_replace("/\s+/", "", $matches[2])); // get the arguments
@@ -235,6 +243,11 @@ class EvalMath {
                     if (in_array($fnn, $this->fb)) { // check the argument count
                         if($arg_count > 1)
                             return $this->trigger("too many arguments ($arg_count given, 1 expected)");
+// fau: formulaQuestionAtan2 - check number of arguments for functions with two
+                    } elseif (in_array($fnn, $this->f2)) { // check the argument count
+                        if($arg_count != 2)
+                            return $this->trigger("false number of arguments ($arg_count given, 2 expected)");
+// fau.
                     } elseif (array_key_exists($fnn, $this->f)) {
                         if ($arg_count != count($this->f[$fnn]['args']))
                             return $this->trigger("wrong number of arguments ($arg_count given, " . count($this->f[$fnn]['args']) . " expected)");
@@ -266,7 +279,9 @@ class EvalMath {
                 $expecting_op = true;
                 $val = $match[1];
                 if (preg_match("/^([a-z]\w*)\($/", $val, $matches)) { // may be func, or variable w/ implicit multiplication against parentheses...
-                    if (in_array($matches[1], $this->fb) or array_key_exists($matches[1], $this->f)) { // it's a func
+// fau: formulaQuestionAtan2 -recognize functions with 2 arguments
+                    if (in_array($matches[1], $this->fb) or in_array($matches[1], $this->f2) or array_key_exists($matches[1], $this->f)) { // it's a func
+// fau.
                         $stack->push($val);
                         $stack->push(1);
                         $stack->push('(');
@@ -346,9 +361,22 @@ class EvalMath {
                     } elseif ($fnn == 'ln') {
                     	$fnn = 'log';
                     }
-                    
+
                     $stack->push($fnn($op1)); // 'eval()' can be easily avoided here
-                } elseif (array_key_exists($fnn, $this->f)) { // user function
+                }
+// fau: formulaQuestionAtan2 - evaluate functions with two arguments
+                elseif (in_array($fnn, $this->f2)) { // built-in function with 2 arguments
+                    // note the inverse order on the stack
+                    if (is_null($op2 = $stack->pop())) return $this->trigger("internal error");
+                    if (is_null($op1 = $stack->pop())) return $this->trigger("internal error");
+                    $fnn = preg_replace("/^arc/", "a", $fnn); // for the 'arc' trig synonyms
+                    if ($fnn == 'atand') {
+                        $fnn = 'atan2';
+                    }
+                    $stack->push($fnn($op1,$op2)); // 'eval()' can be easily avoided here
+                }
+// fau.
+                elseif (array_key_exists($fnn, $this->f)) { // user function
                     // get args
                     $args = array();
                     for ($i = count($this->f[$fnn]['args'])-1; $i >= 0; $i--) {

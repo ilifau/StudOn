@@ -1,0 +1,145 @@
+/*
+ * Custom Content Styles
+ * Copied from Customizing/css/startpage.css
+ */
+
+/*
+ * Hide navigation tree
+ */
+.ilTreeView, .ilLeftNav { display: none; }
+.ilLeftNavSpace { margin-left: 0 !important; }
+
+/*
+ * Banner Image
+ */
+.ilc_section_BannerBlock {
+    margin-bottom: 10px;
+}
+.ilc_section_BannerBlock table.ilc_media_cont_MediaContainer,
+.ilc_section_BannerBlock table.ilc_media_cont_MediaContainer tbody
+.ilc_section_BannerBlock table.ilc_media_cont_MediaContainer tr
+.ilc_section_BannerBlock table.ilc_media_cont_MediaContainer td {
+    display: block;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: 100%!important;
+    height: 100px!important;
+    /* needed for cutting image */
+    position: relative;
+    overflow: hidden;
+}
+.ilc_section_BannerBlock img {
+    /* center and cut image */
+    position: absolute;
+    height: 100px!important;
+    left: 50%;                              /* this is relative to the container width */
+    -webkit-transform: translate(-50%);     /* this works relative to the image width */
+    -ms-transform: translate(-50%);
+    transform: translate(-50%);
+}
+
+/*
+ * Banner Image in Editor
+ */
+#il_EditPage .ilc_section_BannerBlock img {
+    position: relative;
+    height: 100px!important;
+    width: 100%!important;
+    left: 0;
+    -webkit-transform: translate(0);
+    -ms-transform: translate(0);
+    transform: translate(0);
+}
+
+/*
+ * 3 Column Grid Layout
+ */
+.ilc_section_Grid3Row {
+    width: auto;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding: 0;
+    overflow:auto; /* important for stretching background */
+}
+.ilc_section_Grid3Column {
+    width: 100%;
+    margin: 0;
+    padding: 0px 15px 0px 15px;
+    background: transparent;
+    float: left;
+}
+
+/*
+ * 3 Column Grid Layout Media queries
+ */
+@media(min-width: 768px) {
+    .ilc_section_Grid3Row {
+        background-image: linear-gradient(#ddd, #ddd);
+        background-repeat: repeat-y;
+        background-size: 2px;
+        background-position: 50%;
+    }
+
+    .ilc_section_Grid3Column {
+        width: 50%;
+    }
+}
+
+@media(min-width: 992px) {
+    .ilc_section_Grid3Row {
+        background-image: linear-gradient(#ddd, #ddd), linear-gradient(#ddd, #ddd);
+        background-repeat: repeat-y, repeat-y;
+        background-size: 2px, 2px;
+        background-position: 33.33%, 66.66%;
+    }
+
+    .ilc_section_Grid3Column {
+    		width: 33.33%;
+    }
+}
+
+/*
+ * 3 Column Grid Layout in Editor
+ */
+#il_EditPage .ilc_section_Grid3Row {
+    background-image: none!important;
+    margin: 0!important;
+    padding: 0px 20px!important;
+}
+#il_EditPage .ilc_section_Grid3Column {
+    float: none;
+    width:100%!important;
+    max-width: 768px!important;
+    padding: 0px 20px!important;
+
+}
+#il_EditPage .ilc_section_Grid3Row::before,
+#il_EditPage .ilc_section_Grid3Column::before,
+#il_EditPage .ilc_section_BannerBlock::before {
+    content: attr(class);
+    font-family: monospace;
+}
+
+/*
+ * Styles for Login form
+ */
+.loginBlock {
+    padding-left: 22px;
+}
+.loginHeadline {
+    background-image: url(../../../templates/default/images/tree_col.svg)!important;
+    background-repeat: no-repeat;
+    background-position: 0 3px;
+    margin-left: -22px;
+    padding-left: 22px;
+}
+.loginHeadline.open {
+    background-image: url(../../../templates/default/images/tree_exp.svg)!important;
+}
+.loginHelp {
+    padding-top: 20px;
+}
+h2 small {font-size: 13px; }
+h2 a { color: #036!important;}

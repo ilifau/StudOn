@@ -81,6 +81,21 @@ class ilTaxSelectInputGUI extends ilExplorerSelectInputGUI
 	function getTitleForNodeId($a_id)
 	{
 		include_once("./Services/Taxonomy/classes/class.ilTaxonomyNode.php");
-		return ilTaxonomyNode::_lookupTitle($a_id);
+
+// fau: taxDesc - add tooltip for taxonomy description
+		$description = ilTaxonomyNode::_lookupDescription($a_id);
+		if (!empty($description))
+		{
+			require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+			ilTooltipGUI::addTooltip('ilTaxonomyNode'.$a_id, $description);
+
+			return '<span id="ilTaxonomyNode'.$a_id.'">'.ilTaxonomyNode::_lookupTitle($a_id)
+				.' <small><span class="glyphicon glyphicon-info-sign"></span></small></span>';
+		}
+		else
+		{
+			return ilTaxonomyNode::_lookupTitle($a_id);
+		}
 	}
+// fau.
 }

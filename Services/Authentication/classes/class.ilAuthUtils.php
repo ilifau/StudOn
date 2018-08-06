@@ -51,6 +51,9 @@ define('AUTH_USER_TIME_LIMIT_EXCEEDED', -602);
 define('AUTH_USER_SIMULTANEOUS_LOGIN', -603);
 define('AUTH_CAPTCHA_INVALID', -604);
 
+// fau: rootAsLogin - new value for manual logout
+define('AUTH_USER_MANUAL_LOGOUT', -900);
+// fau.
 
 include_once './Services/Authentication/classes/class.ilAuthFactory.php';
 require_once('Services/Authentication/classes/class.ilSessionControl.php');
@@ -68,14 +71,14 @@ class ilAuthUtils
 	const LOCAL_PWV_FULL = 1;
 	const LOCAL_PWV_NO = 2;
 	const LOCAL_PWV_USER = 3;
-	
+
 	
 	/**
 	 * Initialize session
 	 */
 	public static function initSession()
 	{
-		
+
 	}
 	
 	/**
@@ -89,7 +92,7 @@ class ilAuthUtils
 		}
 		return false;
 	}
-	
+
 	public static function handleForcedAuthentication()
 	{
 		if(isset($_GET['ecs_hash']) or isset($_GET['ecs_hash_url']))
@@ -98,14 +101,14 @@ class ilAuthUtils
 			$credentials = new ilAuthFrontendCredentials();
 			$credentials->setUsername($_GET['ecs_login']);
 			$credentials->setAuthMode(AUTH_ECS);
-			
+
 			include_once './Services/Authentication/classes/Provider/class.ilAuthProviderFactory.php';
 			$provider_factory = new ilAuthProviderFactory();
 			$providers = $provider_factory->getProviders($credentials);
-			
+
 			include_once './Services/Authentication/classes/class.ilAuthStatus.php';
 			$status = ilAuthStatus::getInstance();
-			
+
 			include_once './Services/Authentication/classes/Frontend/class.ilAuthFrontendFactory.php';
 			$frontend_factory = new ilAuthFrontendFactory();
 			$frontend_factory->setContext(ilAuthFrontendFactory::CONTEXT_STANDARD_FORM);
@@ -115,21 +118,21 @@ class ilAuthUtils
 				$credentials,
 				$providers
 			);
-			
+
 			$frontend->authenticate();
-			
+
 			switch($status->getStatus())
 			{
 				case ilAuthStatus::STATUS_AUTHENTICATED:
 					return;
-					
+
 				case ilAuthStatus::STATUS_AUTHENTICATION_FAILED:
 					ilInitialisation::goToPublicSection();
 					return;
 			}
 		}
 	}
-	
+
 
 	
 	static function _getAuthModeOfUser($a_username,$a_password,$a_db_handler = '')
@@ -218,7 +221,7 @@ class ilAuthUtils
 			case 'lti':
 				include_once './Services/LTI/classes/InternalProvider/class.ilAuthProviderLTI.php';
 				return ilAuthProviderLTI::getKeyByAuthMode($a_auth_mode);
-				
+
 			case "radius":
 				return AUTH_RADIUS;
 				break;
@@ -275,7 +278,7 @@ class ilAuthUtils
 			case AUTH_PROVIDER_LTI:
 				include_once './Services/LTI/classes/InternalProvider/class.ilAuthProviderLTI.php';
 				return ilAuthProviderLTI::getAuthModeByKey($a_auth_key);
-				
+
 			case AUTH_RADIUS:
 				return "radius";
 				break;
@@ -330,13 +333,13 @@ class ilAuthUtils
 		{
 			$modes['ldap_'.$sid] = (AUTH_LDAP.'_'.$sid);
 		}
-		
+
 		include_once './Services/LTI/classes/InternalProvider/class.ilAuthProviderLTI.php';
 		foreach(ilAuthProviderLTI::getAuthModes() as $sid)
 		{
 			$modes['lti_'.$sid] = (AUTH_PROVIDER_LTI.'_'.$sid);
 		}
-		
+
 		// end-patch ldap_multiple
 		if ($ilSetting->get("radius_active")) $modes['radius'] = AUTH_RADIUS;
 		if ($ilSetting->get("shib_active")) $modes['shibboleth'] = AUTH_SHIBBOLETH;
@@ -601,7 +604,7 @@ class ilAuthUtils
 		{
 			return true;
 		}
-		
+
 		include_once './Services/LTI/classes/InternalProvider/class.ilAuthProviderLTI.php';
 		if(count(ilAuthProviderLTI::getActiveAuthModes()))
 		{
@@ -718,7 +721,7 @@ class ilAuthUtils
 				require_once 'Services/Saml/classes/class.ilSamlIdp.php';
 				$idp = ilSamlIdp::getInstanceByIdpId(ilSamlIdp::getIdpIdByAuthMode($a_authmode));
 				return $idp->isActive() && $idp->allowLocalAuthentication();
-			
+
 			// Always for and local
 			case AUTH_LOCAL:
 			case AUTH_APACHE:
@@ -726,7 +729,10 @@ class ilAuthUtils
 
 			// Read setting:
 			case AUTH_SHIBBOLETH:
-				return $ilSetting->get("shib_auth_allow_local");
+// fau: samlAuth - don't allow password change if sso is standard
+				// return $ilSetting->get("shib_auth_allow_local");
+				return false;
+// fau.
 			case AUTH_SOAP:
 				return $ilSetting->get("soap_auth_allow_local");
 			case AUTH_CAS:
@@ -810,12 +816,12 @@ class ilAuthUtils
 				$sid = ilLDAPServer::getServerIdByAuthMode($a_auth_key);
 				$server = ilLDAPServer::getInstanceByServerId($sid);
 				return $server->getName();
-				
+
 			case AUTH_PROVIDER_LTI:
 				include_once './Services/LTI/classes/InternalProvider/class.ilAuthProviderLTI.php';
 				$sid = ilAuthProviderLTI::getServerIdByAuthMode($a_auth_key);
 				return ilAuthProviderLTI::lookupConsumer($sid);
-				
+
 
 			case AUTH_SAML:
 				require_once 'Services/Saml/classes/class.ilSamlIdp.php';
@@ -827,5 +833,79 @@ class ilAuthUtils
 				return $lng->txt('auth_'.self::_getAuthModeName($a_auth_key));
 		}
 	}
+
+
+// fau: idmPass - new function _isSSHAPassword
+	public static function _isSSHAPassword($a_passwd)
+	{
+		return substr($a_passwd, 0, 6) == "{SSHA}";
+	}
+// fau.
+
+
+// fau: idmPass - new function _makeSSHAPassword
+	/**
+	* generate an SSHA hash of a password
+	*
+	* @param 	string 	plain password
+	* @param 	string 	optional salt (random as default)
+	* @return   string
+	*/
+	public static function _makeSSHAPassword($a_passwd, $a_salt = "")
+	{
+		if (!$a_salt)
+		{
+			$a_salt = pack("CCCC", mt_rand(), mt_rand(), mt_rand(), mt_rand());
+		}
+
+		return "{SSHA}" . base64_encode(sha1($a_passwd . $a_salt, true) . $a_salt);
+	}
+// fau.
+
+
+// fau: idmPass - new function _checkSSHAPassword
+	/**
+	* check a password against an ssha hash
+	*
+	* @param 	string 		plain password
+	* @param 	string 		ssha hash (with prefix "{SSHA}")
+	* @return   boolean     matches (true) or not (false)
+	*/
+	public static function _checkSSHAPassword($a_passwd, $a_hash)
+	{
+		$ohash = base64_decode(substr($a_hash, 6));
+		$osalt = substr($ohash, 20);
+		$ohash = substr($ohash, 0, 20);
+		$nhash = sha1($a_passwd . $osalt, true);
+
+		return $ohash == $nhash;
+	}
+// fau.
+
+
+// fau: idmPass - new function _checkPassword
+	/**
+	* check a password (md5 or ssha encoded)
+	*
+	* @param 	string 		plain password
+	* @param 	string      encoded password
+	* @return   boolean     matches (true) or not (false)
+	*/
+	public static function _checkPassword($a_passwd, $a_hash)
+	{
+		if (self::_isSSHAPassword($a_hash))
+		{
+			return self::_checkSSHAPassword($a_passwd, $a_hash);
+		}
+		elseif ($a_hash == md5($a_passwd))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+// fau.
 }
 ?>

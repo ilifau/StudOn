@@ -298,7 +298,10 @@ class ilPCPlugged extends ilPageContent
 		while ($end > 0)
 		{
 			$param = substr($a_html, $start + 5, $end - $start - 5);
-			$param = str_replace(' xmlns:xhtml="http://www.w3.org/1999/xhtml"', "", $param);
+// fau: linkInSameWindow - remove also php namespace namespace attributes, not just xhtml
+			$param = preg_replace('/ *xmlns[^"]*"[^"]*"/','', $param);
+			// $param = str_replace(' xmlns:xhtml="http://www.w3.org/1999/xhtml"', "", $param);
+// fau.
 			$param = explode("<pl/>", $param);
 //var_dump($param); exit;
 			$plugin_name = $param[1];

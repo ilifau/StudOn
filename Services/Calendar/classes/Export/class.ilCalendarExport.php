@@ -143,6 +143,9 @@ class ilCalendarExport
 		$reader = fopen($tzid_file,'r');
 		while($line = fgets($reader))
 		{
+// fau: fixIcalLines - remove also carriage returns
+			$line = str_replace("\r", '', $line);
+// fau.
 			$line = str_replace("\n", '', $line);
 			$this->writer->addLine($line);
 		}

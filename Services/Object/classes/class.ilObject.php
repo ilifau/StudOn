@@ -119,6 +119,14 @@ class ilObject
 	var $add_dots;
 
 
+    // fim: [cust] variable for meta data identifiers
+	/**
+	 * Storage of meta data identifiers
+	 * @var array|null		catalog => entry
+	 */
+	protected $metaIdentifiers;
+	// fim.
+
 	/**
 	* Constructor
 	* @access	public
@@ -699,7 +707,7 @@ class ilObject
 		{
 			ilOrgUnitGlobalSettings::getInstance()->saveDefaultPositionActivationStatus($this->id);
 		}
-		
+
 		// the line ($this->read();) messes up meta data handling: meta data,
 		// that is not saved at this time, gets lost, so we query for the dates alone
 		//$this->read();
@@ -948,6 +956,84 @@ class ilObject
 			return 0;
 		}
 	}
+
+
+	/**
+	 * fim: [soap] get all untrashed objects for an import id
+	 *
+	 * @param   string		import id
+	 * @param	string		matching mode ('exact', 'like', 'ilike')
+	 *						exact:	exact matching
+	 *						like:	pattern matching with % and _
+	 *						ilike:	case insensitive pattern matching
+	 * @return   array		arrays of object data (ref_id, obj_id, title, ...)
+	*/
+	function _getUntrashedObjectsForImportId($a_import_id, $a_matching = 'exact')
+	{
+	    global $ilDB;
+
+		switch($a_matching)
+		{
+			case 'like':
+				$cond = $ilDB->like('d.import_id', 'text', $a_import_id, false);
+				break;
+
+			case 'ilike':
+				$cond = $ilDB->like('d.import_id', 'text', $a_import_id, true);
+				break;
+
+			case 'exact':
+			default:
+				$cond = 'd.import_id = '.$ilDB->quote($a_import_id, "text");
+				break;
+		}
+
+		$q = "SELECT r.ref_id, d.* "
+			." FROM object_data d "
+			." INNER JOIN object_reference r ON d.obj_id = r.obj_id "
+            ." INNER JOIN tree t ON r.ref_id = t.child "
+			." WHERE " . $cond
+			." AND t.tree = 1 "
+			." ORDER BY d.obj_id DESC";
+		$result = $ilDB->query($q);
+
+		$objects = array();
+		while ($row = $ilDB->fetchAssoc($result))
+		{
+			$objects[] = $row;
+		}
+
+		return $objects;
+	}
+	// fim.
+
+
+	/**
+	* fim: [univis] get import id for object id
+	*
+	* @param	int		$a_object_id		object id
+	* @return	string	id                  import_id
+	*/
+	function _getImportIdForObjectId($a_obj_id)
+	{
+		global $ilDB;
+
+		$ilDB->setLimit(1,0);
+		$q = "SELECT import_id FROM object_data WHERE obj_id = ".$ilDB->quote($a_obj_id, "integer").
+			" ORDER BY create_date DESC";
+		$obj_set = $ilDB->query($q);
+
+		if ($obj_rec = $ilDB->fetchAssoc($obj_set))
+		{
+			return $obj_rec["import_id"];
+		}
+		else
+		{
+			return '';
+		}
+	}
+	// fim.
+
 
 	/**
 	* get all reference ids of object
@@ -1531,10 +1617,10 @@ class ilObject
 			$ilLog->write("ilObject::delete(), deleted object, obj_id: ".$this->getId().", type: ".
 				$this->getType().", title: ".$this->getTitle());
 			
-			// keep log of core object data 
+			// keep log of core object data
 			include_once "Services/Object/classes/class.ilObjectDataDeletionLog.php";
 			ilObjectDataDeletionLog::add($this);
-			
+
 			// remove news
 			include_once("./Services/News/classes/class.ilNewsItem.php");
 			$news_item = new ilNewsItem();
@@ -1572,6 +1658,13 @@ class ilObject
 			include_once("Services/Tracking/classes/class.ilLPObjSettings.php");
 			ilLPObjSettings::_deleteByObjId($this->getId());
 
+// fau: relativeLink - delete relative link if last reference is deleted
+			if ($this->referenced)
+			{
+				require_once("./Services/RelativeLink/classes/class.ilRelativeLink.php");
+				ilRelativeLink::deleteLink(ilRelativeLink::TYPE_REP_OBJECT, $this->getId());
+			}
+// fau.
 			$remove = true;
 		}
 		else
@@ -1764,11 +1857,11 @@ class ilObject
 	
 	/**
 	 * Prepare copy wizard object selection 
-	 * 
+	 *
 	 * This method should renamed. Currently used in ilObjsurvey and ilObjTest
 	 * @deprecated since version 5.2
 	 * @static
-	 * 
+	 *
 	 * @global type $ilDB
 	 * @global type $lng
 	 * @global type $objDefinition
@@ -1853,7 +1946,7 @@ class ilObject
 		
 		include_once './Services/CopyWizard/classes/class.ilCopyWizardOptions.php';
 		$options = ilCopyWizardOptions::_getInstance($a_copy_id);
-		
+
 		if(!$options->isTreeCopyDisabled() && !$a_omit_tree)
 		{
 			$title = $this->appendCopyInfo($a_target_id,$a_copy_id);
@@ -1886,12 +1979,17 @@ class ilObject
 				// copy local roles
 				$rbacadmin->copyLocalRoles($this->getRefId(),$new_obj->getRefId());
 			}
+
+// fau: relativeLink - clone relative link
+		require_once("./Services/RelativeLink/classes/class.ilRelativeLink.php");
+		ilRelativeLink::cloneLink(ilRelativeLink::TYPE_REP_OBJECT, $this->getId(), $new_obj->getId());
+// fau.
 		}
 		else
 		{
 			ilLoggerFactory::getLogger('obj')->debug('Tree copy is disabled');
 		}
-		
+
 		include_once('./Services/AdvancedMetaData/classes/class.ilAdvancedMDValues.php');
 		ilAdvancedMDValues::_cloneValues($this->getId(),$new_obj->getId());
 
@@ -2037,18 +2135,15 @@ class ilObject
 		if ($ilSetting->get("custom_icons") &&
 			in_array($a_type, array("cat","grp","crs", "root", "fold", "prg")))
 		{
+// fau: legacyIcons - support existing png and gif icons for containers
 			require_once("./Services/Container/classes/class.ilContainer.php");
-			if (ilContainer::_lookupContainerSetting($a_obj_id, "icon_custom"))
+			$file_name = ilContainer::_lookupIconPath($a_obj_id, $a_size);
+			if ($file_name)
 			{
-				$cont_dir = ilContainer::_getContainerDirectory($a_obj_id);
-
-				$file_name = $cont_dir."/icon_custom.svg";
-				if (is_file($file_name))
-				{
-					// prevent caching
-					return $file_name."?tmp=".filemtime($file_name);
-				}
+				// prevent caching
+				return $file_name."?tmp=".filemtime($file_name);
 			}
+// fau.
 		}
 		
 		if (!$a_offline)
@@ -2279,7 +2374,31 @@ class ilObject
 		$rec  = $ilDB->fetchAssoc($set);
 		return $rec["create_date"];
 	}
-		
+
+
+
+	/**
+	 * fim: [cust] get a catalog entry from the meta data
+	 *
+	 * @param	string 	catalog name
+	 * @return	string	catalog entry
+	 */
+	function getMetaIdentifier($catalog)
+	{
+		if (!isset($this->metaIdentifiers))
+		{
+			$this->metaIdentifiers = array();
+			require_once("./Services/MetaData/classes/class.ilMDIdentifier.php");
+			$entries = ilMDIdentifier::_getEntriesForRbacObj($this->getId());
+			foreach ($entries as $entry)
+			{
+				$this->metaIdentifiers[$entry['catalog']] = $entry['entry'];
+			}
+		}
+		return $this->metaIdentifiers[$catalog];
+	}
+	// fim.
+
 	/**
 	 * Check if auto rating is active for parent group/course
 	 * 

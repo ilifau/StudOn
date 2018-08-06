@@ -112,7 +112,10 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		parent::__construct($this, self::CMD_BROWSE_QUESTIONS);
 		$this->setFilterCommand(self::CMD_APPLY_FILTER);
 		$this->setResetCommand(self::CMD_RESET_FILTER);
-	
+// fau: testQuestionBrowserRoot - always show the filters
+		$this->setDisableFilterHiding(true);
+// fau.
+
 		$this->setFormName('questionbrowser');
 		$this->setStyle('table', 'fullwidth');
 		$this->addColumn('','','1%', true);
@@ -425,14 +428,37 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 		$this->filter['parent_title'] = $ti->getValue();
 	
 		// repo root node
+// fau: testQuestionBrowserRoot - set the default root and show message if no filter is set
 		require_once 'Services/Form/classes/class.ilRepositorySelectorInputGUI.php';
-		$ri = new ilRepositorySelectorInputGUI($this->lng->txt('repository'), 'repository_root_node');
+		$ri = new ilRepositorySelectorInputGUI($this->lng->txt('container'), 'repository_root_node');
 		$ri->setHeaderMessage($this->lng->txt('question_browse_area_info'));
 		$this->addFilterItem($ri);
 		$ri->readFromSession();
+		if (empty($ri->getValue()))
+		{
+			ilUtil::sendInfo($this->lng->txt('tst_question_browse_root_message'));
+			$ri->setValue($this->getValidRoot());
+		}
+// fau.
 		$this->filter['repository_root_node'] = $ri->getValue();
 	}
-	
+
+// fau: testQuestionBrowserRoot - use the test object container as default
+	private function getValidRoot($a_value = null)
+	{
+		global $tree;
+
+		if (!empty($a_value))
+		{
+			return $a_value;
+		}
+		else
+		{
+			return $tree->getParentId($this->testOBJ->getRefId());
+		}
+	}
+// fau.
+
 	private function getParentObjectLabel()
 	{
 		switch( $this->fetchModeParameter() )
@@ -510,7 +536,10 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 				}
 			}
 		}
-		
+
+// fau: testQuestionBrowserRoot - use the default root if no filter is set
+		$repositoryRootNode = $this->getValidRoot($repositoryRootNode);
+// fau.
 		$parentObjectIds = $this->getQuestionParentObjIds($repositoryRootNode);
 		
 		if( !count($parentObjectIds) )
@@ -537,38 +566,41 @@ class ilTestQuestionBrowserTableGUI extends ilTable2GUI
 	
 	private function getQuestionParentObjIds($repositoryRootNode)
 	{
-		$parents = $this->tree->getSubTree(
-			$this->tree->getNodeData($repositoryRootNode), true, $this->getQuestionParentObjectType()
-		);
-
-		$parentIds = array();
-
-		foreach($parents as $nodeData)
-		{
-			if( $nodeData['obj_id'] == $this->testOBJ->getId() )
-			{
-				continue;
-			}
-			
-			$parentIds[ $nodeData['obj_id'] ] = $nodeData['obj_id'];
-		}
-
-		$parentIds = array_map('intval', array_values($parentIds));
-
+// fau: testQuestionBrowserRoot - avoid a duplicate scan for question pools
 		if($this->fetchModeParameter() == self::MODE_BROWSE_POOLS)
 		{
-			$available_pools = array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(true)));
-			return array_intersect($parentIds, $available_pools);
+			return array_map('intval', array_keys(ilObjQuestionPool::_getAvailableQuestionpools(
+				TRUE, FALSE, FALSE, FALSE, FALSE, "read", "", $repositoryRootNode)));
 		}
 		else if($this->fetchModeParameter() == self::MODE_BROWSE_TESTS)
 		{
-			// TODO bheyser: Move this to another place ...
-			return array_filter($parentIds, function($obj_id)  {
+			$parents = $this->tree->getSubTree(
+				$this->tree->getNodeData($repositoryRootNode), true, $this->getQuestionParentObjectType()
+			);
+
+			$parentIds = array();
+
+			foreach($parents as $nodeData)
+			{
+				if( $nodeData['obj_id'] == $this->testOBJ->getId() )
+				{
+					continue;
+				}
+
+				$parentIds[ $nodeData['obj_id'] ] = $nodeData['obj_id'];
+			}
+
+			$parentIds = array_map('intval', array_values($parentIds));
+
+			$access = $this->access;
+
+			return array_filter($parentIds, function($obj_id) use ($access) {
 				$refIds = ilObject::_getAllReferences($obj_id);
 				$refId  = current($refIds);
 				return $this->access->checkAccess('write', '', $refId);
 			});
 		}
+// fau.
 
 		// Return no parent ids if the user wants to hack...
 		return array();

@@ -84,13 +84,22 @@ class ilSessionOverviewTableGUI extends ilTable2GUI
 				continue;
 			}
 			// sort by date of 1st appointment
-			$events[$tmp_event->getFirstAppointment()->getStartingTime().'_'.$tmp_event->getId()] = $tmp_event;
+			// fim: [memsess] add title to sorting criteria
+			$events[$tmp_event->getFirstAppointment()->getStartingTime().'_'.$tmp_event->getTitle().'_'.$tmp_event->getId()] = $tmp_event;
+			// fim.
 		}
 		
 		ksort($events);	
 		return array_values($events);
 	}
-	
+
+	// fim: [memsess] allow to get the gathered events to show a legend
+	public function getEvents()
+	{
+		return $this->events;
+	}
+	// fim.
+
 	protected function getItems(array $a_events, array $a_members)
 	{	 			
 		$data = array();
@@ -107,8 +116,11 @@ class ilSessionOverviewTableGUI extends ilTable2GUI
 			
 			foreach($a_events as $event_obj)
 			{															
-				$event_part = new ilEventParticipants($event_obj->getId());							
-				$data[$user_id]['event_'.$event_obj->getId()] = $event_part->hasParticipated($user_id);																
+				$event_part = new ilEventParticipants($event_obj->getId());
+// fau: sessionOverview - get info about registration and participation
+				$data[$user_id]['event_'.$event_obj->getId().'_participated'] = $event_part->hasParticipated($user_id);
+				$data[$user_id]['event_'.$event_obj->getId().'_registered'] = $event_part->isRegistered($user_id);
+// fau.
 			}								
 		}		
 		
@@ -123,17 +135,26 @@ class ilSessionOverviewTableGUI extends ilTable2GUI
 		$this->tpl->setCurrentBlock('eventcols');
 		foreach($this->events as $event_obj)
 		{
-			if((bool)$a_set['event_'.$event_obj->getId()])
+// fau: sessionOverview - show different icons with additional icon for not registered
+			if ($event_obj->enabledRegistration()
+				and (! (bool) $a_set['event_'.$event_obj->getId().'_registered'])
+				and (! (bool) $a_set['event_'.$event_obj->getId().'_participated']))
 			{
-				$this->tpl->setVariable("IMAGE_PARTICIPATED", ilUtil::getImagePath('icon_ok.svg'));
-				$this->tpl->setVariable("PARTICIPATED", $this->lng->txt('event_participated'));
+				$this->tpl->setVariable("IMAGE_PARTICIPATED", ilUtil::getImagePath('scorm/not_attempted.svg'));
+				$this->tpl->setVariable("PARTICIPATED", $this->lng->txt('event_not_registered'));
 			}
 			else
 			{
-				$this->tpl->setVariable("IMAGE_PARTICIPATED", ilUtil::getImagePath('icon_not_ok.svg'));
-				$this->tpl->setVariable("PARTICIPATED", $this->lng->txt('event_not_participated'));
+				$this->tpl->setVariable("IMAGE_PARTICIPATED", (bool) $a_set['event_'.$event_obj->getId().'_participated'] ?
+					ilUtil::getImagePath('scorm/passed.svg') :
+					ilUtil::getImagePath('scorm/failed.svg'));
+
+				$this->tpl->setVariable("PARTICIPATED", (bool) $a_set['event_'.$event_obj->getId().'_participated'] ?
+					$this->lng->txt('event_participated') :
+					$this->lng->txt('event_not_participated'));
 			}
+// fau.
 			$this->tpl->parseCurrentBlock();
-		}		
+		}
 	}
 }

@@ -1,0 +1,37 @@
+<tr class="{CSS_ROW}">
+	<td class="std" style="vertical-align: top">
+		<!-- BEGIN select_multiple -->
+		<input type="checkbox" name="{POSTNAME_CHECKED}[]" value="{LECTURE_ID}" {CHECKED} />
+		<input type="hidden" name="{POSTNAME_HIDDEN}[]" value="{LECTURE_ID}" />
+		<!-- END select_multiple -->
+		<!-- BEGIN select_single -->
+		<input type="radio" name="{POSTNAME_CHECKED}[]" value="{LECTURE_ID}" {CHECKED} />
+		<input type="hidden" name="{POSTNAME_HIDDEN}[]" value="{LECTURE_ID}" />
+		<!-- END select_single -->
+	</td>
+	<td class="std" style="vertical-align: top">
+		<div class="small">{TXT_TITLE}</div>
+		<!-- BEGIN info -->
+		<div class="small">{TXT_INFO}</div>
+        <!-- END info -->
+		<!-- BEGIN terms -->
+		<div class="small">{TXT_TERMS}</div>
+        <!-- END terms --> 
+		<!-- BEGIN message -->
+        <div class="small"><span class="alert">{TXT_MESSAGE}</span></div>
+		<!-- END message -->
+		<!-- BEGIN path -->
+		<div class="small">{TXT_PATH} {PATH}</div>
+		<!-- END path -->
+		<!-- BEGIN univis_id -->
+		<div class="small">{TXT_UNIVIS_ID}: {VAL_UNIVIS_ID}</div>
+		<!-- END univis_id -->
+	</td>
+	<td class="std" style="vertical-align: top">
+		<div class="small">{LECTURERS}</div>
+	</td>
+	<td class="std" style="vertical-align: top">
+		<div class="small">{SEMESTER}</div>
+	</td>
+
+</tr>

@@ -31,6 +31,84 @@
  * @package ilias-develop
  */
 
+
+// fau: requestLog - add logging functions
+function log_request()
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeRequestLog();
+}
+
+function log_soap()
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeSoapLog();
+}
+
+function log_server()
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeServerLog();
+}
+
+function log_session()
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeSessionLog();
+}
+
+function log_var(&$a_var, $a_name = '')
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeVarDump($a_var, $a_name);
+}
+
+function log_backtrace()
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeBacktrace();
+}
+
+function log_line($a_line)
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->writeline($a_line);
+}
+
+function show_log()
+{
+	include_once ("include/inc.log_request.php");
+	$RequestLog = RequestLog::getInstance();
+	$RequestLog->showLog();
+}
+
+function show_backtrace()
+{
+	echo '<br/><pre>';
+	$i = 0;
+	foreach (debug_backtrace() as $step)
+	{
+            if ($i > 0)
+		{
+			echo '['.$i.'] '.$step['file'].' '.$step['line'].': '.$step['function']."()\n";
+		}
+		$i++;
+	}
+	echo '['.$i.'] '.$_SERVER['REQUEST_URI'];
+	
+	echo '</pre>';
+}
+// fau.
+
+
+
 /**
  * shortcut for var_dump with enhanced debug information
  * 

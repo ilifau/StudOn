@@ -1,0 +1,28 @@
+<!-- fim: [vhb] new template file. -->
+
+<div class="il_Header">
+<h1>vhb-Anmeldung</h1>
+</div>
+
+<p>Das vom vhb-Portal übergebene Kennwort Ihres Accounts stimmt nicht mit dem
+im System vorhandenen überein.<br />
+Das kann sein, wenn Sie bereits als Nutzer im System 
+registriert sind und Ihr Passwort selbst geändert haben.</p>
+
+<p>Bitte melden Sie sich beim System direkt an.<br />
+Ihr Benutzername lautet <strong>{USERNAME}</strong></p>
+
+<form method="post" action="login.php?lang=de&target=crs_{COURSE_REF_ID}&client_id={CLIENT_ID}&cmd=force_login">
+<input type="hidden" name="username" value="{USERNAME}"/>
+<input type="submit" name="butSubmit" value="Zur Anmeldung"/>
+</form>
+
+<p><strong>Hinweis:</strong><br />
+Sie brauchen den Umweg über das vhb-Portal nur einmal zu gehen, 
+um in den Kurs aufgenommen zu werden. <br />
+Danach können sie sich immer auf der nachfolgenden Anmeldeseite direkt anmelden und gelangen<br />
+über ihren persönlichen Schreibtisch zum Kurs.</p>
+
+
+<p>Sollten Sie mit dieser Anleitung nicht weiterkommen:<br />
+{ERROR_SUFFIX}</p>

@@ -37,7 +37,9 @@ class ilTestAverageReachedPointsTableGUI extends ilTable2GUI
 		$this->addColumn($this->lng->txt("points"), 'points', '');
 		$this->addColumn($this->lng->txt("percentage"), 'percentage', '');
 		$this->addColumn($this->lng->txt("number_of_answers"), 'answers', '');
-
+// fau: extendTestResults add actions column in questions table
+		$this->addColumn($this->lng->txt("actions"), 'actions', '');
+// fau.
 		$this->setRowTemplate("tpl.il_as_tst_average_reached_points_row.html", "Modules/Test");
 
 		$this->setFormAction($this->ctrl->getFormAction($a_parent_obj, $a_parent_cmd));
@@ -84,6 +86,11 @@ class ilTestAverageReachedPointsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("POINTS", $this->formatPoints($data));
 		$this->tpl->setVariable("PERCENTAGE", sprintf("%.2f", $data["percentage"]) . "%");
 		$this->tpl->setVariable("ANSWERS", $data["answers"]);
+// fau: extendTestResults - add pdf link to questions table
+		$this->ctrl->setParameter($this->parent_obj, "qid", $data["qid"]);
+		$this->tpl->setVariable("TXT_PDF_EXPORT", $this->lng->txt("pdf_export"));
+		$this->tpl->setVariable("URL_PDF_EXPORT", $this->ctrl->getLinkTarget($this->parent_obj, "exportQuestionForAllParticipants"));
+// fau.
 	}
 
 	/**

@@ -932,11 +932,8 @@ class assKprimChoice extends assQuestion implements ilObjQuestionScoringAdjustab
 				{
 					if(!copy($sourcePath . $this->getThumbPrefix() . $filename, $targetPath . $this->getThumbPrefix() . $filename))
 					{
-						$ilLog->warning(sprintf(
-							"Could not clone thumbnail source image '%s' to '%s' (srcQuestionId: %s|tgtQuestionId: %s|srcParentObjId: %s|tgtParentObjId: %s)",
-							$sourcePath . $this->getThumbPrefix() . $filename, $targetPath . $this->getThumbPrefix() . $filename,
-							$sourceQuestionId, $targetQuestionId, $sourceParentId, $targetParentId
-						));
+						$ilLog->write("image thumbnail could not be duplicated!!!!", $ilLog->ERROR);
+						$ilLog->write("object: " . print_r($this, TRUE), $ilLog->ERROR);
 					}
 				}
 			}
@@ -954,7 +951,7 @@ class assKprimChoice extends assQuestion implements ilObjQuestionScoringAdjustab
 		
 		return $combinedText;
 	}
-	
+
 	/**
 	 * @param ilAssSelfAssessmentMigrator $migrator
 	 */
@@ -1065,7 +1062,7 @@ class assKprimChoice extends assQuestion implements ilObjQuestionScoringAdjustab
 		parent::setExportDetailsXLS($worksheet, $startrow, $active_id, $pass);
 
 		$solution = $this->getSolutionValues($active_id, $pass);
-		
+
 		$i = 1;
 		foreach($this->getAnswers() as $id => $answer)
 		{

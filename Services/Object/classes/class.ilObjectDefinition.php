@@ -909,15 +909,18 @@ class ilObjectDefinition// extends ilSaxParser
 		global $DIC;
 
 		$ilDB = $DIC->database();
-		
-		$set = $ilDB->query("SELECT * FROM il_object_group");
-		$groups = array();
-		while ($gr_rec = $set->fetchRow(ilDBConstants::FETCHMODE_ASSOC))
-		{
-			$groups[$gr_rec["id"]] = $gr_rec;
-		}
+
+// fau: globalCache: take il_object_group from cache
+//		$set = $ilDB->query("SELECT * FROM il_object_group");
+//		$groups = array();
+//		while ($gr_rec = $set->fetchRow(ilDBConstants::FETCHMODE_ASSOC))
+//		{
+//			$groups[$gr_rec["id"]] = $gr_rec;
+//		}
 
 		$global_cache = ilCachedComponentData::getInstance();
+		$groups = $global_cache->getIlObjectGroup();
+// fau.
 
 		$recs = $global_cache->lookupGroupedRepObj($a_parent_obj_type);
 		

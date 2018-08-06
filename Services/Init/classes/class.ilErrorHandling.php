@@ -84,7 +84,7 @@ class ilErrorHandling extends PEAR
 		$this->error_obj = false;
 		
 		$this->initWhoopsHandlers();
-		
+
 		// somehow we need to get rid of the whoops error handler
 		restore_error_handler();
 		set_error_handler(array($this, "handlePreWhoops"));
@@ -151,6 +151,15 @@ class ilErrorHandling extends PEAR
 	function errorHandler($a_error_obj)
 	{
 		global $log;
+
+// fau: fixErrorHandlingDirectory  - set standard directory for includes
+// The constant is set in ilInitialisation::initCore()
+// The chdir() for other handlers is done in 	ilDelegatingHandler::handle()
+		if (defined("IL_INITIAL_WD"))
+		{
+			chdir(IL_INITIAL_WD);
+		}
+// fau.
 
 		// see bug 18499 (some calls to raiseError do not pass a code, which leads to security issues, if these calls
 		// are done due to permission checks)
@@ -425,8 +434,18 @@ class ilErrorHandling extends PEAR
 	 * @return Whoops\Handler
 	 */
 	protected function loggingHandler() {
-		// php7-todo : alex, 1.3.2016: Exception -> Throwable, please check
-		return new CallbackHandler(function($exception, Inspector $inspector, Run $run) {
+		// TODO: remove this, when PHP 5.3 support is dropped. Make logMessageFor protected then as well.
+		$self = $this;
+		return new CallbackHandler(function(Exception $exception, Inspector $inspector, Run $run) use ($self) {
+// fau: fixErrorHandlingDirectory  - set standard directory for includes
+// The constant is set in ilInitialisation::initCore()
+// The chdir() for other handlers is done in ilDelegatingHandler::handle()
+			if (defined("IL_INITIAL_WD"))
+			{
+				chdir(IL_INITIAL_WD);
+			}
+// fau.
+
 			/**
 			 * Don't move this out of this callable
 			 * @var ilLog $ilLog;
@@ -437,18 +456,18 @@ class ilErrorHandling extends PEAR
 				$message = $exception->getMessage().' in '.$exception->getFile().":".$exception->getLine();
 				$ilLog->error($exception->getCode().' '.$message);
 			}
-			
+
 			// Send to system logger
 			error_log($exception->getMessage());
 		});
 	}
-	
+
 	public function handlePreWhoops($level, $message, $file, $line)
 	{
 		global $ilLog;
-		
+
 		if ($level & error_reporting()) {
-			
+
 			// correct-with-php5-removal JL start
 			// ignore all E_STRICT that are E_NOTICE (or nothing at all) in PHP7
 			if (version_compare(PHP_VERSION, '7.0.0', '<')) {
@@ -464,24 +483,24 @@ class ilErrorHandling extends PEAR
 
 			if (!$this->isDevmodeActive()) {
 				// log E_USER_NOTICE, E_STRICT, E_DEPRECATED, E_USER_DEPRECATED only
-				if ($level >= E_USER_NOTICE) {	
-					
-					if ($ilLog) {				
+				if ($level >= E_USER_NOTICE) {
+
+					if ($ilLog) {
 						$severity = Whoops\Util\Misc::TranslateErrorCode($level);
 						$ilLog->write("\n\n".$severity." - ".$message."\n".$file." - line ".$line."\n");
 					}
 					return true;
 				}
 			}
-			
+
 			// trigger whoops error handling
 			if($this->whoops)
 			{
 				return $this->whoops->handleError($level, $message, $file, $line);
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 } // END class.ilErrorHandling

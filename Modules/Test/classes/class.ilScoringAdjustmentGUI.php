@@ -282,7 +282,7 @@ class ilScoringAdjustmentGUI
 			$passesSelector = new ilTestPassesSelector($db, $this->object);
 			$passesSelector->setActiveId($active_id);
 			$passesSelector->loadLastFinishedPass();
-			
+
 			foreach( $passesSelector->getClosedPasses() as $pass )
 			{
 				$results[] = $question->object->getSolutionValues($active_id, $pass);
@@ -396,11 +396,11 @@ class ilScoringAdjustmentGUI
 	protected function populateScoringAdjustments( $question, $form )
 	{
 		$question->setAdjustmentEditContext();
-		
+
 		if ( $question instanceof ilGuiQuestionScoringAdjustable )
 		{
 			$question->populateQuestionSpecificFormPart($form);
-			
+
 			$this->suppressPostParticipationFormElements(
 				$form, $question->getAfterParticipationSuppressionQuestionPostVars()
 			);
@@ -408,8 +408,9 @@ class ilScoringAdjustmentGUI
 
 		if ( $question instanceof ilGuiAnswerScoringAdjustable )
 		{
-			$question->populateAnswerSpecificFormPart($form);
-			
+			// fim: [exam] set flag for scoring adjustment mode
+			$question->populateAnswerSpecificFormPart( $form , true);
+			// fim.
 			$this->suppressPostParticipationFormElements(
 				$form, $question->getAfterParticipationSuppressionAnswerPostVars()
 			);

@@ -1,43 +1,18 @@
-{RELOAD}
-<div id="ilTopBar" class="ilTopBar">
-	<div class="container">
-		<div class="row">
-            <!-- BEGIN header_top_title -->
-            <div class="ilTopTitle">{TXT_HEADER_TITLE}</div>
-            <!-- END header_top_title -->
-            <ul id="ilTopBarNav" class="">
-                <!-- BEGIN lang_select -->
-                <li class="dropdown"><a id="mm_lang_sel" href="#" class="dropdown-toggle" data-toggle="dropdown">{TXT_LANGSELECT} <span class="caret"></span></a>
-                    {LANG_SELECT}
-                </li>
-                <!-- END lang_select -->
-            </ul>
-		</div>
-	</div>
-</div>
-<div class="ilMainHeader">
-	<header class="container">
-		<div id="il_startup_logo" class="row">
-			<img class="hidden-xs noMirror" src="{HEADER_ICON}" alt="Logo" />
-			<img class="visible-xs-inline-block noMirror" src="{HEADER_ICON_RESPONSIVE}" alt="Logo" />
-		</div>
-	</header>
-</div>
-<div class="ilMainMenu">
-	<div class="container">
-		<div class="row">
-			<nav id="ilTopNav" class="navbar navbar-default" role="navigation"></nav>
-		</div>
-	</div>
-</div>
-<div id="mainspacekeeper" class="container">
+<!-- fim: [layout] use the standard main menu -->
+<!-- BEGIN menu_block -->
+{MAINMENU}
+<div id="mainspacekeeper" class="container-fluid ilContainerWidth {MAINMENU_SPACER}">
+<!-- END menu_block -->
+<!-- fim. -->
 	<div class="row" style="position: relative;">
 		<div id="fixed_content" class=" ilContentFixed">
 			<div id="mainscrolldiv" class="ilStartupFrame container">
 				<!-- BEGIN page_headline -->
-				<div class="il_Header">
-					<h1><!-- BEGIN img_headline --><img src="{IMG_PAGEHEADLINE}" /> <!-- END img_headline -->{TXT_PAGEHEADLINE}</h1>
+                <!-- fim: [layout] added classes from standard template -->
+				<div class="media il_HeaderInner">
+					<h1 class="ilHeader"><!-- BEGIN img_headline --><img src="{IMG_PAGEHEADLINE}" /> <!-- END img_headline --><a class="ilAccAnchor" id="il_mhead_t_focus" name="il_mhead_t_focus">{TXT_PAGEHEADLINE}</a></h1>
 				</div>
+                <!-- fim. -->
 				<!-- END page_headline -->
 				{MESSAGE}
 				<div class="ilMessageBox">
@@ -56,11 +31,15 @@
 					</div>
 					<!-- END success -->
 				</div>
+                <!-- fim: [layout] added container div -->
+                <div class="container container-fluid" id="ilContentContainer">
 				{STARTUP_CONTENT}
+                </div>
+                <!-- fim. -->
 				<!-- BEGIN links_bl -->
 				<div class="ilCenter" style="padding-top: 25px">
 					<!-- BEGIN link_item_bl -->
-					<a class="il_ContainerItemCommand" href="{LINK_URL}">{LINK_TXT}</a>
+					<a class="btn btn-default" href="{LINK_URL}">{LINK_TXT}</a>
 					<!-- END link_item_bl -->
 				</div>
 				<!-- END links_bl -->
@@ -69,9 +48,9 @@
 	</div>
 </div>
 <div id="minheight"></div>
+<!-- fau: ownFooter - own footer layout with permalink inside -->
 <footer id="ilFooter" class="ilFooter hidden-print">
-	<div class="container">
-		<div class="row"><div class="ilFooterContainer">{PRMLINK} {FOOTER}</div></div>
-	</div>
+    <div class="container-fluid ilContainerWidth">{FOOTER}</div>
 </footer>
+<!-- fau. -->
 {SCRIPT}

@@ -43,7 +43,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	 * @var array
 	 */
 	private $taxFilters = array();
-	
+
 	// fau: taxFilter/typeFilter - private variable
 	// TODO-RND2017: rename to typesFilter (multiple types allowed)
 	/**
@@ -51,7 +51,19 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	 */
 	private $typeFilter = array();
 	// fau.
-	
+
+// fau: taxGroupFilter - class variables for question grouping and selection
+	private $groupTaxId = null;
+	/** @var array node_id => question_ids[] */
+	private $groupedQuestions = array();
+
+	private $selectSize = 0;
+// fau.
+
+// fau: randomSetOrder -class variable for ordering the selected questions
+	private	$orderBy = null;
+// fau.
+
 	/**
 	 * @var array
 	 */
@@ -106,23 +118,59 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	{
 		return $this->taxFilters;
 	}
-	
+
 	// fau: taxFilter/typeFilter - getter/setter
 	public function getTypeFilter()
 	{
 		return $this->typeFilter;
 	}
-	
+
 	public function setTypeFilter($typeFilter)
 	{
 		$this->typeFilter = $typeFilter;
 	}
 	// fau.
 
+// fau: taxGroupFilter - getter/setter
+	public function getGroupTaxId()
+	{
+		return $this->groupTaxId;
+	}
+
+	public function setGroupTaxId($groupTaxId)
+	{
+		$this->groupTaxId = $groupTaxId;
+	}
+
+	public function setSelectSize($size)
+	{
+		$this->selectSize = $size;
+	}
+
+	public function getSelectSize()
+	{
+		return $this->selectSize;
+	}
+// fau.
+
+// fau: randomSetOrder - getter/setter
+	public function getOrderBy()
+	{
+		return $this->orderBy;
+	}
+
+	public function setOrderBy($orderBy)
+	{
+		$this->orderBy = $orderBy;
+	}
+// fau.
+
+// fau: randomSetOrder - sort the loaded questions
 	public function loadQuestions()
 	{		
 		$query = "
-			SELECT		qpl_questions.question_id,
+			SELECT		{$this->getSortKey()}
+						qpl_questions.question_id,
 						qpl_qst_type.type_tag,
 						qpl_qst_type.plugin,
 						qpl_qst_type.plugin_name
@@ -144,26 +192,51 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 		$res = $this->db->queryF(
 			$query, array('integer', 'integer'), array($this->getTestId(), $this->getPoolId())
 		);
-		
+
 		//echo sprintf($query, $this->getTestId(), $this->getPoolId());exit;
-		
+
+		$questions = array();
 		while( $row = $this->db->fetchAssoc($res) )
 		{
 			$row = ilAssQuestionType::completeMissingPluginName($row);
-			
+
 			if( !$this->isActiveQuestionType($row) )
 			{
 				continue;
 			}
+			$questions[$row['question_id']] = $row['sort_key'];
+		}
 
-			$this->questions[] = $row['question_id'];
+		if ($this->getOrderBy())
+		{
+			natsort($questions);
+		}
+
+		$this->questions = array_keys($questions);
+	}
+// fau.
+
+// fau: randomSetOrder - get a sort key field
+	private function getSortKey()
+	{
+		switch ($this->getOrderBy())
+		{
+			case 'title':
+				return 'qpl_questions.title sort_key,';
+			case 'description':
+				return 'qpl_questions.description sort_key,';
+			case 'random':
+				return 'RAND() sort_key,';
+			default:
+				return "'A' AS sort_key,";
 		}
 	}
+// fau.
 
 	private function getConditionalExpression()
 	{
 		$CONDITIONS = $this->getTaxonomyFilterExpressions();
-		
+
 		// fau: taxFilter/typeFilter - add the type filter expression to conditions
 		$CONDITIONS = array_merge($CONDITIONS,  $this->getTypeFilterExpressions());
 		// fau.
@@ -199,6 +272,17 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
 				$taxItems = $taxNodeAssignment->getAssignmentsOfNode($subNodes);
 
+// fau: taxGroupFilter - collect the defined questions per group node
+				if ($taxId == $this->getGroupTaxId())
+				{
+					$group = array();
+					foreach($taxItems as $taxItem)
+					{
+						$group[] = $taxItem['item_id'];
+					}
+					$this->groupedQuestions[$taxNode] = array_unique($group);
+				}
+// fau.
 				foreach($taxItems as $taxItem)
 				{
 					$questionIds[$taxItem['item_id']] = $taxItem['item_id'];
@@ -213,7 +297,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 
 		return $expressions;
 	}
-	
+
 	// fau: taxFilter/typeFilter - get the expressions for a type filter
 	private function getTypeFilterExpressions()
 	{
@@ -223,7 +307,7 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 				$this->db->in('question_type_fi', $this->typeFilter, false, 'integer')
 			);
 		}
-		
+
 		return array();
 	}
 	// fau;
@@ -258,6 +342,54 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	{
 		return array_values($this->questions);
 	}
+
+
+// fau: taxGroupFilter - get selected questions
+	public function getSelectedQuestions()
+	{
+		if (empty($this->getSelectSize()))
+		{
+			return array();
+		}
+
+		if ($this->getGroupTaxId())
+		{
+			$validGroups = array();
+			foreach($this->groupedQuestions	as $taxNode => $nodeQuestions)
+			{
+				// filter the really found questions by the question ids of the group node
+				// this keeps them in the loaded order
+				$filteredQuestions = array_intersect($this->questions, $nodeQuestions);
+
+				// collect groups that have enough questions
+				if (count($filteredQuestions) >= $this->getSelectSize())
+				{
+					$validGroups[] = $filteredQuestions;
+				}
+			}
+
+			if (count($validGroups))
+			{
+				// choose a question group randomly
+				$groupQuestions = $validGroups[array_rand($validGroups)];
+
+				// choose the selected amount of questions and keep their order
+				$selectedKeys = array_rand($groupQuestions, $this->getSelectSize());
+				$selectedQuestions = array_values(array_intersect_key($groupQuestions, array_flip($selectedKeys)));
+				return $selectedQuestions;
+			}
+		}
+		elseif (count($this->questions) >= $this->getSelectSize())
+		{
+			// choose the selected amount of questions and keep their order
+			$selectedKeys = array_rand($this->questions, $this->getSelectSize());
+			$selectedQuestions = array_values(array_intersect_key($this->questions, array_flip($selectedKeys)));
+			return $selectedQuestions;
+		}
+
+		return array();
+	}
+// fau.
 
 	// =================================================================================================================
 
@@ -300,13 +432,13 @@ class ilTestRandomQuestionSetStagingPoolQuestionList implements Iterator
 	{
 		return key($this->questions) !== null;
 	}
-	
+
 	public static function updateSourceQuestionPoolId($testId, $oldPoolId, $newPoolId)
 	{
 		$db = $GLOBALS['DIC']['ilDB'];
-		
+
 		$query = "UPDATE tst_rnd_cpy SET qpl_fi = %s WHERE tst_fi = %s AND qpl_fi = %s";
-		
+
 		$db->manipulateF(
 			$query, array('integer', 'integer', 'integer'), array($newPoolId, $testId, $oldPoolId)
 		);

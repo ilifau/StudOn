@@ -79,7 +79,7 @@ abstract class assQuestionGUI
 	const RENDER_PURPOSE_PREVIEW = 'renderPurposePreview';
 	const RENDER_PURPOSE_PRINT_PDF = 'renderPurposePrintPdf';
 	const RENDER_PURPOSE_INPUT_VALUE = 'renderPurposeInputValue';
-	
+
 	/**
 	 * @var string
 	 */
@@ -99,7 +99,7 @@ abstract class assQuestionGUI
 	 */
 	private $previousSolutionPrefilled = false;
 	// hey.
-	
+
 	/**
 	 * @var \ilPropertyFormGUI
 	 */
@@ -232,47 +232,47 @@ abstract class assQuestionGUI
 	{
 		$this->renderPurpose = $renderPurpose;
 	}
-	
+
 	public function isRenderPurposePrintPdf()
 	{
 		return $this->getRenderPurpose() == self::RENDER_PURPOSE_PRINT_PDF;
 	}
-	
+
 	public function isRenderPurposePreview()
 	{
 		return $this->getRenderPurpose() == self::RENDER_PURPOSE_PREVIEW;
 	}
-	
+
 	public function isRenderPurposeInputValue()
 	{
 		return $this->getRenderPurpose() == self::RENDER_PURPOSE_INPUT_VALUE;
 	}
-	
+
 	public function isRenderPurposePlayback()
 	{
 		return $this->getRenderPurpose() == self::RENDER_PURPOSE_PLAYBACK;
 	}
-	
+
 	public function isRenderPurposeDemoplay()
 	{
 		return $this->getRenderPurpose() == self::RENDER_PURPOSE_DEMOPLAY;
 	}
-	
+
 	public function renderPurposeSupportsFormHtml()
 	{
 		if( $this->isRenderPurposePrintPdf() )
 		{
 			return false;
 		}
-		
+
 		if( $this->isRenderPurposeInputValue() )
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -280,7 +280,7 @@ abstract class assQuestionGUI
 	{
 		return $this->editContext;
 	}
-	
+
 	/**
 	 * @param string $editContext
 	 */
@@ -288,7 +288,7 @@ abstract class assQuestionGUI
 	{
 		$this->editContext = $editContext;
 	}
-	
+
 	/**
 	 * @param bool $isAuthoringEditContext
 	 */
@@ -296,7 +296,7 @@ abstract class assQuestionGUI
 	{
 		return $this->getEditContext() == self::EDIT_CONTEXT_AUTHORING;
 	}
-	
+
 	/**
 	 * @param bool $isAdjustmentEditContext
 	 */
@@ -304,7 +304,7 @@ abstract class assQuestionGUI
 	{
 		return $this->getEditContext() == self::EDIT_CONTEXT_ADJUSTMENT;
 	}
-	
+
 	public function setAdjustmentEditContext()
 	{
 		return $this->setEditContext(self::EDIT_CONTEXT_ADJUSTMENT);
@@ -489,7 +489,7 @@ abstract class assQuestionGUI
 		include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
 		$this->question =& assQuestionGUI::_getQuestionGUI($question_type, $question_id);
 	}
-	
+
 	public function populateJavascriptFilesRequiredForWorkForm(ilTemplate $tpl)
 	{
 		$tpl->addJavaScript('Modules/TestQuestionPool/js/ilAssMultipleChoice.js');
@@ -516,7 +516,7 @@ abstract class assQuestionGUI
 			$this->tpl->addBlockFile("ADM_CONTENT", "adm_content", "tpl.il_as_question.html", "Modules/TestQuestionPool");
 		}
 	}
-	
+
 	/**
 	 * @param $form
 	 */
@@ -537,8 +537,18 @@ abstract class assQuestionGUI
 		include_once("./Modules/TestQuestionPool/classes/class.ilAssQuestionPageGUI.php");
 		$page_gui = new ilAssQuestionPageGUI($this->object->getId());
 		$page_gui->setQuestionHTML(array($this->object->getId() => $html));
-		$page_gui->setOutputMode("presentation");
-		$presentation = $page_gui->presentation();
+		// fim: [media] use preview mode for page content in solution output
+		// this sets the mode for the limited media player
+		if (strtolower($_GET['cmdClass']) == 'iltestevaluationgui')
+		{
+			$page_gui->setOutputMode("preview");
+		}
+		else
+		{
+			$page_gui->setOutputMode("presentation");
+		}
+		// fim.
+		$presentation = $page_gui->presentation($page_gui->getOutputMode());
 		$presentation = preg_replace("/src=\"\\.\\//ims", "src=\"" . ILIAS_HTTP_PATH . "/", $presentation);
 		return $presentation;
 	}
@@ -611,7 +621,7 @@ abstract class assQuestionGUI
 	{
 		return $this->lng->txt('use_previous_solution_advice');
 	}
-	
+
 	protected function getPreviousSolutionConfirmationCheckboxHtml()
 	{
 		$tpl = new ilTemplate('tpl.tst_question_additional_behaviour_checkbox.html', true, true, 'Modules/TestQuestionPool');
@@ -2335,7 +2345,7 @@ abstract class assQuestionGUI
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	protected function buildEditForm()
 	{

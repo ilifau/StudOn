@@ -1,0 +1,36 @@
+<!-- fim: [memsess] new template for event registration at course registration. -->
+<div class="small">
+{EVENT_DATE}
+<!-- BEGIN event_registrations -->
+<div style="float:right; margin-left:10px;">
+	<em>{TXT_REGISTRATIONS}</em> {REGISTRATIONS}
+</div>
+<!-- END event_registrations -->
+			
+<!-- BEGIN event_free -->
+<div style="float:right; margin-left:10px;">
+	<em>{TXT_FREE}</em> {FREE}
+</div>
+<!-- END event_free -->
+
+<!-- BEGIN event_description -->
+<div class="il_Description">
+	{DESCRIPTION}
+</div>
+<!-- END event_description -->
+
+<!-- BEGIN event_location -->
+<div class="il_Description"  style="float:left; margin-right:10px;">
+	<em>{TXT_LOCATION}</em> {LOCATION}
+</div>
+<!-- END event_location -->
+
+<!-- BEGIN event_referee -->
+<div class="il_Description" style="float:left ;margin-right:10px;">
+	<em>{TXT_REFEREE}</em> {REFEREE}
+	<!-- BEGIN event_referee_mail -->
+	<a href="mailto:{REFEREE_MAIL}">&lt;{REFEREE_MAIL}&gt;</a>
+	<!-- END event_referee_mail -->
+</div>
+<!-- END event_referee -->
+</div>

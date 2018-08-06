@@ -23,8 +23,11 @@ class ilResultsByQuestionTableGUI extends ilTable2GUI
 		parent::__construct($a_parent_obj, $a_parent_cmd);
 		
 		$this->addColumn($lng->txt("question_id"), "qid", "");
-		$this->addColumn($lng->txt("question_title"), "question_title", "35%");
-		$this->addColumn($lng->txt("number_of_answers"), "number_of_answers", "15%");
+		$this->addColumn($lng->txt("question_title"), "question_title", "25%");
+		// fim: [exam] add question description column 
+		$this->addColumn($lng->txt("description"), "question_description", "25%");
+		// fim.
+		$this->addColumn($lng->txt("number_of_answers"), "number_of_answers", "10%");
 		$this->addColumn($lng->txt("output"), "", "20%");
 		$this->addColumn($lng->txt("file_uploads"), "", "20%");
 		
@@ -43,6 +46,9 @@ class ilResultsByQuestionTableGUI extends ilTable2GUI
 
 		$this->tpl->setVariable("QUESTION_ID", $a_set['qid']);
 		$this->tpl->setVariable("QUESTION_TITLE", $a_set['question_title']);
+		// fim: [exam] fill question description row
+		$this->tpl->setVariable("QUESTION_DESCRIPTION", $a_set['question_description']);
+		// fim.
 		$this->tpl->setVariable("NUMBER_OF_ANSWERS", $a_set['number_of_answers']);
 		$this->tpl->setVariable("FILE_UPLOADS", $a_set['file_uploads']);
 	}

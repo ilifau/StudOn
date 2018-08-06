@@ -55,6 +55,10 @@ abstract class ilRegistrationGUI
 	protected $lng;
 	protected $ctrl; 
 
+// fau: fairSub - class variable for join button text
+	protected $join_button_text = '';
+// fau.
+
 	/**
 	 * Constructor
 	 *
@@ -80,6 +84,22 @@ abstract class ilRegistrationGUI
 		$this->obj_id = ilObject::_lookupObjId($this->ref_id);
 		$this->type = ilObject::_lookupType($this->obj_id);
 		
+		// fim: [memcond] define matches_studycond, describe_studycond
+		global $ilUser;
+		include_once "./Services/Membership/classes/class.ilSubscribersStudyCond.php";
+		$this->has_studycond = ilSubscribersStudyCond::_hasConditions($this->obj_id);
+		if ($this->has_studycond)
+		{
+			$this->matches_studycond = ilSubscribersStudyCond::_checkConditions($this->obj_id, $ilUser->getId());
+			$this->describe_studycond = ilSubscribersStudyCond::_getConditionsText($this->obj_id);
+		}
+		else
+		{
+			$this->matches_studycond = true;
+			$this->describe_studycond = "";
+		}
+		// fim.
+
 		// Init participants
 		$this->initParticipants();
 		
@@ -180,7 +200,7 @@ abstract class ilRegistrationGUI
 		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $parent);
 		$ilCtrl->redirectByClass("ilrepositorygui", "");
 	}
-	
+
 	/**
 	 * Get title for property form
 	 *
@@ -221,7 +241,35 @@ abstract class ilRegistrationGUI
 	 * @return
 	 */
 	abstract protected function fillRegistrationType();
-	
+
+// fau: objectSub - new function fillRegistrationTypeObject()
+	protected function fillRegistrationTypeObject($a_ref_id)
+	{
+		require_once('Services/Link/classes/class.ilLink.php');
+		$obj_id = ilObject::_lookupObjId($a_ref_id);
+		$link = ilLink::_getLink($a_ref_id);
+
+		require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+		$locator = new ilLocatorGUI();
+		$locator->addRepositoryItems($a_ref_id);
+
+		$tpl = new ilTemplate('tpl.sub_object_link.html', true, true, 'Services/Membership');
+		$tpl->setVariable('TXT_INFO', $this->lng->txt('sub_separate_object_reg_info'));
+		$tpl->setVariable('IMG_TYPE', ilObject::_getIcon($obj_id, 'small'));
+		$tpl->setVariable('URL_OBJECT', $link);
+		$tpl->setVariable('TITLE_OBJECT', ilObject::_lookupTitle($obj_id));
+		$tpl->setVariable('TXT_PATH', $locator->getTextVersion());
+
+		$input = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
+		$input->setHtml($tpl->get());
+		$this->form->addItem($input);
+
+		// Disable registration
+		$this->enableRegistration(false);
+		return true;
+	}
+// fau.
+
 	/**
 	 * Show membership limitations
 	 *
@@ -242,7 +290,7 @@ abstract class ilRegistrationGUI
 		
 		$tpl = new ilTemplate('tpl.membership_limitation_form.html',true,true,'Services/Membership');
 		$tpl->setVariable('LIMIT_INTRO',$this->lng->txt($this->type.'_grp_info_reg'));
-		
+
 		foreach($items as $ref_id)
 		{
 			$obj_id = ilObject::_lookupObjId($ref_id);
@@ -279,6 +327,14 @@ abstract class ilRegistrationGUI
 		$this->form->addItem($mem);
 	}
 	
+
+	/**
+	 * fim: [memsess] new function fillEventRegistration()
+	 * this function is overwritten in courses
+	 */
+	protected function fillEventRegistration() {}
+	// fim.
+
 	/**
 	 * Show user agreement
 	 *
@@ -319,6 +375,9 @@ abstract class ilRegistrationGUI
 		
 
 		ilMemberAgreementGUI::addCustomFields($this->form, $this->obj_id, $this->type);
+// fau: courseUdf - fill already existing course defined when registration is changed
+		ilMemberAgreementGUI::setCourseDefinedFieldValues($this->form, $this->obj_id);
+// fau.
 
 		// Checkbox agreement		
 		if($this->privacy->confirmationRequired($this->type))
@@ -332,6 +391,9 @@ abstract class ilRegistrationGUI
 	 * Show course defined fields
 	 *
 	 * @access protected
+	 * fau: courseUdf - this method seems to be no longer be used
+	 * @deprecated
+	 * fau.
 	 */
 	protected function showCustomFields()
 	{
@@ -412,7 +474,11 @@ abstract class ilRegistrationGUI
 	 * Check required course fields
 	 *
 	 * @access protected
-	 * 
+	 *
+	 * fau: courseUdf - validateCustomFields() is deprecaded - ide
+	 * @deprecated
+	 * fau.
+	 *
 	 */
 	protected function validateCustomFields()
 	{
@@ -445,6 +511,7 @@ abstract class ilRegistrationGUI
 				case IL_CDF_TYPE_TEXT:
 					$value = $_POST['cdf_'.$field_obj->getId()];
 					break;
+
 			}
 			
 			$GLOBALS['ilLog']->write(__METHOD__.': new value '. $value);
@@ -453,17 +520,10 @@ abstract class ilRegistrationGUI
 			$course_user_data = new ilCourseUserData($ilUser->getId(),$field_obj->getId());
 			$course_user_data->setValue($value);
 			$course_user_data->update();
-			
-			// #14220
-			if($field_obj->isRequired() and $value == "")
-			{
-				$required_fullfilled = false;
-			}
 		}
-
-		return $required_fullfilled;
 	}
-	
+
+
 	/**
 	 * Set Agreement accepted
 	 *
@@ -474,17 +534,17 @@ abstract class ilRegistrationGUI
 	{
 		global $ilUser;
 
+		// fim: [export] set always the acceptance time
 		include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
-		if(!$this->privacy->confirmationRequired($this->type) and !ilCourseDefinedFieldDefinition::_hasFields($this->container->getId()))
-		{
-			return true;
-		}
-
 		include_once('Services/Membership/classes/class.ilMemberAgreement.php');
 		$this->agreement = new ilMemberAgreement($ilUser->getId(),$this->container->getId());
- 		$this->agreement->setAccepted($a_status);
- 		$this->agreement->setAcceptanceTime(time());
+		if(!$this->privacy->confirmationRequired($this->type) and !ilCourseDefinedFieldDefinition::_hasFields($this->container->getId()))
+		{
+			$this->agreement->setAccepted($a_status);
+ 		}
+		$this->agreement->setAcceptanceTime(time());
  		$this->agreement->save();
+ 		// fim.
 	}
 	
 	/**
@@ -548,7 +608,10 @@ abstract class ilRegistrationGUI
 			$this->show($form);
 			return false;
 		}
-		
+
+		include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
+		ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
+
 		$this->add();
 	}
 	
@@ -590,7 +653,11 @@ abstract class ilRegistrationGUI
 		{
 			$this->fillRegistrationPeriod();
 		}
-		if($this->isRegistrationPossible() || $this->participants->isSubscriber($ilUser->getId()))
+// fau: fairSub - fill registration type if user is to confirm on waiting list
+		if($this->isRegistrationPossible()
+			|| $this->participants->isSubscriber($ilUser->getId())
+			|| $this->getWaitingList()->isToConfirm($ilUser->getId()))
+// fau.
 		{
 			$this->fillRegistrationType();
 		}
@@ -598,6 +665,12 @@ abstract class ilRegistrationGUI
 		{
 			$this->fillMaxMembers();
 		}
+		// fim: [memsess] add event registration to the form
+		if($this->isRegistrationPossible())
+		{
+			$this->fillEventRegistration();
+		}
+		// fim.
 		if($this->isRegistrationPossible())
 		{
 			$this->fillAgreement();
@@ -613,23 +686,30 @@ abstract class ilRegistrationGUI
 	protected function addCommandButtons()
 	{
 		global $ilUser;
-		
-		if($this->isRegistrationPossible() and $this->isWaitingListActive() and !$this->getWaitingList()->isOnList($ilUser->getId()))
+
+		if($this->isRegistrationPossible() && $this->isWaitingListActive() && !$this->getWaitingList()->isOnList($ilUser->getId()))
 		{
-			$this->form->addCommandButton('join',$this->lng->txt('mem_add_to_wl'));
+// fau: fairSub - use prepared join button text if existing
+			$this->form->addCommandButton('join',$this->join_button_text ? $this->join_button_text : $this->lng->txt('mem_add_to_wl'));
+// fau.
 			$this->form->addCommandButton('cancel',$this->lng->txt('cancel'));
 		}
-		elseif($this->isRegistrationPossible() and !$this->getWaitingList()->isOnList($ilUser->getId()))
+		elseif($this->isRegistrationPossible() && !$this->getWaitingList()->isOnList($ilUser->getId()))
 		{
-			$this->form->addCommandButton('join',$this->lng->txt('join'));
+// fau: fairSub - use prepared join button text if existing
+			$this->form->addCommandButton('join',$this->join_button_text ? $this->join_button_text : $this->lng->txt('join'));
+// fau.
 			$this->form->addCommandButton('cancel',$this->lng->txt('cancel'));
 		}
 		if($this->getWaitingList()->isOnList($ilUser->getId()))
 		{
-			ilUtil::sendQuestion(
-				sprintf($this->lng->txt($this->container->getType().'_cancel_waiting_list'),
-				$this->container->getTitle())
-			);
+// fau: fairSub - allow to update the subscription_request
+			if ($this->getWaitingList()->isToConfirm($ilUser->getId()))
+			{
+				ilUtil::sendQuestion($this->lng->txt('mem_user_already_subscribed'));
+				$this->form->addCommandButton('updateWaitingList', $this->lng->txt('crs_update_subscr_request'));
+			}
+// fau.
 			$this->form->addCommandButton('leaveWaitingList', $this->lng->txt('leave_waiting_list'));
 			$this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
 		}
@@ -642,7 +722,7 @@ abstract class ilRegistrationGUI
 	protected function updateSubscriptionRequest()
 	{
 		global $ilUser, $tree, $ilCtrl;
-		
+
 		$this->participants->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
 		ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
 		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
@@ -650,7 +730,38 @@ abstract class ilRegistrationGUI
 		$ilCtrl->redirectByClass("ilrepositorygui", "");
 
 	}
-	
+
+// fau: fairSub - new function 	updateWaitingList()
+	/**
+	 * Update the subscription message when being on the waiting list
+	 * @return void
+	 */
+	protected function updateWaitingList()
+	{
+		global $ilUser, $tree, $ilCtrl;
+
+// fau: courseUdf - save the user defined values when waiting list is updated
+		$this->initForm();
+		if ($this->form->checkInput())
+		{
+			include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
+			ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
+
+			$this->participants->sendExternalNotifications($this->container, $ilUser, true);
+
+			$this->getWaitingList()->updateSubject($ilUser->getId(),ilUtil::stripSlashes($_POST['subject']));
+			ilUtil::sendSuccess($this->lng->txt('sub_request_saved'),true);
+			$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
+				$tree->getParentId($this->container->getRefId()));
+			$ilCtrl->redirectByClass("ilrepositorygui", "");
+		}
+		{
+			$this->form->setValuesByPost();
+			$this->tpl->setContent($this->form->getHTML());
+		}
+	}
+// fau.
+
 	protected function cancelSubscriptionRequest()
 	{
 		global $ilUser, $tree, $ilCtrl;
@@ -662,5 +773,164 @@ abstract class ilRegistrationGUI
 			$tree->getParentId($this->container->getRefId()));
 		$ilCtrl->redirectByClass("ilrepositorygui", "");
 	}
+
+	/**
+	 * fim: [memad] new function to confirm requests from guest users
+	 */
+	protected function joinAsGuest()
+	{
+		require_once('Services/Utilities/classes/class.ilConfirmationGUI.php');
+
+		$gui = new ilConfirmationGUI();
+		$gui->setFormAction($this->ctrl->getFormAction($this));
+
+		switch ($this->type)
+		{
+			case 'grp':
+				$gui->setHeaderText($this->lng->txt('join_as_guest_question_grp')
+									.$this->lng->txt('join_as_guest_question_info'));
+				break;
+
+			case 'crs':
+				$gui->setHeaderText($this->lng->txt('join_as_guest_question_crs')
+									.$this->lng->txt('join_as_guest_question_info'));
+				break;
+		}
+
+		$gui->setCancel($this->lng->txt('cancel'), 'cancel');
+		$gui->setConfirm($this->lng->txt('join_as_guest'), 'joinAsGuestConfirmed');
+
+		$this->tpl->setContent($gui->getHTML());
+	}
+	// fim.
+
+	/**
+	 * fim: [memad] new function to handle join requests from guest users
+	 *
+	 */
+	protected function joinAsGuestConfirmed()
+	{
+		global $ilCtrl, $ilSetting, $ilUser, $tree;
+
+		require_once './Services/Language/classes/class.ilLanguageFactory.php';
+		require_once './Services/Tree/classes/class.ilPathGUI.php';
+		require_once './Services/Mail/classes/class.ilMimeMail.php';
+		require_once './Services/Link/classes/class.ilLink.php';
+
+		// get always the installation's default language
+		$lng = ilLanguageFactory::_getLanguage();
+		$lng->loadLanguageModule('mail');
+		$lng->loadLanguageModule($this->type);
+
+		$pgui = new ilPathGUI;
+
+		$subject = $lng->txt('join_as_guest_mail_subject');
+		$subject = str_replace('{LOGIN}', $ilUser->getLogin(), $subject);
+		$subject = str_replace('{OBJECT}', $this->container->getTitle(), $subject);
+
+		$message = $lng->txt('join_as_guest_mail_message');
+		$message = str_replace('\n', "\n", $message);
+		$message = str_replace('{FIRSTNAME}', $ilUser->getFirstname(), $message);
+		$message = str_replace('{LASTNAME}', $ilUser->getLastname(), $message);
+		$message = str_replace('{LOGIN}', $ilUser->getLogin(), $message);
+		$message = str_replace('{EMAIL}', $ilUser->getEmail(), $message);
+		$message = str_replace('{LINK}', ilLink::_getStaticLink($this->container->getRefId(),$this->type), $message);
+		$message = str_replace('{PATH}', $pgui->getPath(1,$this->container->getRefId()), $message);
+		$message = str_replace('{OBJECT}', $this->container->getTitle(), $message);
+
+		switch ($this->container->getType())
+		{
+			case 'crs':
+				$message = str_replace('{LABEL_REG_TYPE}', $this->lng->txt('crs_registration_type'), $message);
+				if ($this->container->getSubscriptionLimitationType() ==  IL_CRS_SUBSCRIPTION_DEACTIVATED)
+				{
+					$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_reg_no_selfreg'), $message);
+				}
+				else
+				{
+					switch ($this->container->getSubscriptionType())
+					{
+						case IL_CRS_SUBSCRIPTION_MYCAMPUS:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
+							break;
+// fau: objectSub  - add info in email about guest user request
+						case IL_CRS_SUBSCRIPTION_OBJECT:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
+// fau.
+						case IL_CRS_SUBSCRIPTION_CONFIRMATION:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_confirmation'), $message);
+							break;
+						case IL_CRS_SUBSCRIPTION_DIRECT:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_direct'), $message);
+							break;
+						case IL_CRS_SUBSCRIPTION_PASSWORD:
+							$message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_password'), $message);
+							break;
+					}
+				}
+				if ($this->container->isSubscriptionMembershipLimited())
+				{
+					$message = str_replace('{MAX_MEMBERS}',
+						"\n".$this->lng->txt('crs_subscription_max_members').': '
+						.$this->container->getSubscriptionMaxMembers(), $message);
+				}
+				else
+				{
+					$message = str_replace('{MAX_MEMBERS}','', $message);
+				}
+				break;
+
+			case 'grp':
+				$message = str_replace('{LABEL_REG_TYPE}', $this->lng->txt('group_registration_mode'), $message);
+				switch ($this->container->getRegistrationType())
+				{
+// fau: objectSub  - add info in email about guest user request
+					case GRP_REGISTRATION_OBJECT:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
+						break;
+// fau.
+					case GRP_REGISTRATION_DEACTIVATED:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_no_selfreg'), $message);
+						break;
+					case GRP_REGISTRATION_REQUEST:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_request'), $message);
+						break;
+					case GRP_REGISTRATION_DIRECT:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_direct'), $message);
+						break;
+					case GRP_REGISTRATION_PASSWORD:
+						$message = str_replace('{REG_TYPE}', $this->lng->txt('grp_pass_request'), $message);
+						break;
+				}
+				if ($this->container->isMembershipLimited())
+				{
+					$message = str_replace('{MAX_MEMBERS}',
+						"\n".$this->lng->txt('reg_grp_max_members_short').': '
+						.$this->container->getMaxMembers(), $message);
+				}
+				else
+				{
+					$message = str_replace('{MAX_MEMBERS}','', $message);
+				}
+				break;
+		}
+
+		// send email to admins
+		$mmail = new ilMimeMail();
+		$mmail->autoCheck(false);
+		$mmail->From($ilUser->getEMail());
+		$mmail->To($ilSetting->get('admin_email'));
+		$mmail->Subject($subject);
+		$mmail->Body($message);
+		$mmail->send();
+
+		ilUtil::sendSuccess($this->lng->txt('join_as_guest_success'),true);
+
+		$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id",
+			$tree->getParentId($this->container->getRefId()));
+		$ilCtrl->redirectByClass("ilrepositorygui");
+		return true;
+	}
+	// fim.
 }
 ?>

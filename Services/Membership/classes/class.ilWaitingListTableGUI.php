@@ -35,8 +35,11 @@ include_once('./Services/Table/classes/class.ilTable2GUI.php');
 class ilWaitingListTableGUI extends ilTable2GUI
 {
 	protected $rep_object = null;
-	
+
+// fau: fairSub - add type hint
+	/** @var ilWaitingList $waiting_list */
 	protected $waiting_list = null;
+// fau.
 	protected $wait = array();
 	protected $wait_user_ids = array();
 
@@ -61,31 +64,48 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		$this->lng->loadLanguageModule('sess');
 		$this->lng->loadLanguageModule('ps');
 	 	$this->ctrl = $ilCtrl;
-		
+
 		$this->rep_object = $rep_object;
-	 	
+
 		$this->setId('crs_wait_'. $this->getRepositoryObject()->getId());
 		parent::__construct($a_parent_obj,'participants');
 
 		$this->setFormName('waiting');
 		$this->setFormAction($this->ctrl->getFormAction($a_parent_obj,'participants'));
 
+// fau: fairSub - adjust waiting list columns
 	 	$this->addColumn('','f',"1");
-	 	$this->addColumn($this->lng->txt('name'),'lastname','20%');
-		
+	 	$this->addColumn($this->lng->txt('name'),'lastname','10%');
 		$all_cols = $this->getSelectableColumns();
 		foreach($this->getSelectedColumns() as $col)
 		{
 			$this->addColumn($all_cols[$col]['txt'], $col);
 		}
-		
-	 	$this->addColumn($this->lng->txt('application_date'),'sub_time',"10%");
-	 	$this->addColumn('','mail','10%');
-		
-		$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('assign'));
-		$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('refuse'));
-		$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
-		
+	 	$this->addColumn($this->lng->txt('date'),'sub_time',"15%");
+		$this->addColumn($this->lng->txt('status'),'to_confirm','10%');
+		$this->addColumn($this->lng->txt('message'),'subject','20%');
+
+	 	$this->addColumn('','','10%');
+
+	 	$this->setDefaultOrderField('sub_time');
+// fau.
+
+// fau: fairSub - adjust waiting list commands
+		if ($a_parent_obj->object->getType() == 'sess')
+		{
+			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('assign'));
+			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
+			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
+		}
+		else
+		{
+			$this->addMultiCommand('confirmAcceptOnList',$this->lng->txt('sub_confirm_requests'));
+			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('sub_assign_waiting'));
+			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
+			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
+		}
+// fau.
+
 		$this->setPrefix('waiting');
 		$this->setSelectAllCheckbox('waiting');
 		$this->setRowTemplate("tpl.show_waiting_list_row.html","Services/Membership");
@@ -112,7 +132,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		self::$has_odf_definitions = ilCourseDefinedFieldDefinition::_hasFields($this->getRepositoryObject()->getId());
 		
 	}
-	
+
 	/**
 	 * @return \ilWaitingList
 	 */
@@ -120,7 +140,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 	{
 		return $this->waiting_list;
 	}
-	
+
 	/**
 	 * Get repository object
 	 * @return ilObject
@@ -190,6 +210,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		}
 				
 		$this->tpl->setVariable('VAL_ID',$a_set['usr_id']);
+// fau: fairSub - show waiting list position
+		$this->tpl->setVariable('VAL_POS',$a_set['wait_pos']);
+// fau.
 		$this->tpl->setVariable('VAL_NAME',$a_set['lastname'].', '.$a_set['firstname']);
 
 		foreach($this->getSelectedColumns() as $field)
@@ -220,8 +243,12 @@ class ilWaitingListTableGUI extends ilTable2GUI
 					$this->tpl->setVariable('VAL_CUST', (string) ilOrgUnitPathStorage::getTextRepresentationOfUsersOrgUnits($a_set['usr_id']));
 					$this->tpl->parseCurrentBlock();
 					break;
-				
 
+
+                // fim: [studydata] format table output of studydata
+                case 'studydata':
+                    $a_set['studydata'] = nl2br($a_set['studydata']);
+                // fim.
 				default:
 					$this->tpl->setCurrentBlock('custom_fields');
 					$this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -229,12 +256,35 @@ class ilWaitingListTableGUI extends ilTable2GUI
 					break;
 			}
 		}
-		
-		$this->tpl->setVariable('VAL_SUBTIME',ilDatePresentation::formatDate(new ilDateTime($a_set['sub_time'],IL_CAL_UNIX)));
+
+// fau: fairSub - show date of registrations in fair time
+		$time = ilDatePresentation::formatDate(new ilDateTime($a_set['sub_time'],IL_CAL_UNIX));
+		if ($a_set['sub_time'] == $this->getParentObject()->object->getSubscriptionFair())
+		{
+			$time = '<em>'.sprintf($this->lng->txt('sub_fair_time_before'), $time).'</em>';
+		}
+		$this->tpl->setVariable('VAL_SUBTIME',$time);
+// fau.
 		
 		#$this->tpl->setVariable('VAL_LOGIN',$a_set['login']);
 		
 		$this->showActionLinks($a_set);
+// fau: fairSub - add subject and info about needed confirmation to waiting list
+		$this->tpl->setVariable('VAL_SUBJECT',$a_set['subject'] ? '"'.$a_set['subject'].'"' : '');
+
+		switch($a_set['to_confirm'])
+		{
+			case ilWaitingList::REQUEST_TO_CONFIRM:
+				$this->tpl->setVariable('VAL_STATUS','<b>'.$this->lng->txt('sub_status_request').'</b>');
+				break;
+			case ilWaitingList::REQUEST_CONFIRMED:
+				$this->tpl->setVariable('VAL_STATUS',$this->lng->txt('sub_status_confirmed'));
+				break;
+			case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
+			default:
+				$this->tpl->setVariable('VAL_STATUS',$this->lng->txt('sub_status_normal'));
+		}
+// fau.
 	}
 	
 	/**
@@ -246,7 +296,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
 	 */
 	public function readUserData()
 	{
-		$this->determineOffsetAndOrder();
+        // fim: [bugfix] set external segmentation for waiting list table
+        $this->setExternalSegmentation(true);
+        // fim.
+ 		$this->determineOffsetAndOrder();
 
 		include_once './Services/User/classes/class.ilUserQuery.php';
 
@@ -293,7 +346,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		
 		ilLoggerFactory::getLogger('mem')->dump($this->wait_user_ids);
 		ilLoggerFactory::getLogger('mem')->dump($usr_data);
-		
+
 		foreach((array) $usr_data['set'] as $user)
 		{
 			$usr_ids[] = $user['usr_id'];
@@ -391,11 +444,25 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		}
 		
 		// Waiting list subscription
-		foreach($this->wait as $usr_id => $usr_data)
+        // fim: [bugfix] avoid overwriting user array
+        foreach($this->wait as $usr_id => $w_data)
 		{
-			$a_user_data[$usr_id]['sub_time'] = $usr_data['time'];
+            // fim: [bugfix] omit waiting list records that are not in user paging limit or offset
+            if (!in_array($usr_id, $usr_ids))
+            {
+                continue;
+            }
+            // fim.
+
+			$a_user_data[$usr_id]['sub_time'] = $w_data['time'];
+// fau: fairSub - add further data to waiting list table
+			$a_user_data[$usr_id]['subject'] = $w_data['subject'];
+			$a_user_data[$usr_id]['to_confirm'] = $w_data['to_confirm'];
+// fau.
+
 		}
-		
+        // fim.
+
 		$this->setMaxCount($usr_data['cnt'] ? $usr_data['cnt'] : 0);
 		return $this->setData($a_user_data);		
 	}
@@ -406,7 +473,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
 	 */
 	public function showActionLinks($a_set)
 	{
-		if(!self::$has_odf_definitions)
+// fau: fairSub - add options to confirm a subscription
+		if(!self::$has_odf_definitions && $a_set['to_confirm'] != 1)
 		{
 			$this->ctrl->setParameterByClass(get_class($this->getParentObject()),'member_id',$a_set['usr_id']);
 			$link = $this->ctrl->getLinkTargetByClass(get_class($this->getParentObject()),'sendMailToSelectedUsers');
@@ -428,11 +496,21 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		$trans = $this->lng->txt($this->getRepositoryObject()->getType().'_mem_send_mail');
 		$link = $this->ctrl->getLinkTargetByClass(get_class($this->getParentObject()),'sendMailToSelectedUsers');
 		$list->addItem($trans, '', $link,'sendMailToSelectedUsers');
-		
-		$this->ctrl->setParameterByClass('ilobjectcustomuserfieldsgui','member_id',$a_set['usr_id']);
-		$trans = $this->lng->txt($this->getRepositoryObject()->getType().'_cdf_edit_member');
-		$list->addItem($trans, '', $this->ctrl->getLinkTargetByClass('ilobjectcustomuserfieldsgui','editMember'));
-		
+
+		if (self::$has_odf_definitions)
+		{
+			$this->ctrl->setParameterByClass('ilobjectcustomuserfieldsgui','member_id',$a_set['usr_id']);
+			$trans = $this->lng->txt($this->getRepositoryObject()->getType().'_cdf_edit_member');
+			$list->addItem($trans, '', $this->ctrl->getLinkTargetByClass('ilobjectcustomuserfieldsgui','editMember'));
+		}
+
+		if ($a_set['to_confirm'])
+		{
+			$this->ctrl->setParameterByClass(get_class($this->getParentObject()), 'member_id', $a_set['usr_id']);
+			$list->addItem($this->lng->txt('sub_confirm_request'),'',$this->ctrl->getLinkTargetByClass(get_class($this->getParentObject()),'confirmAcceptOnList'));
+			$list->addItem($this->lng->txt('sub_revoke_request'),'',$this->ctrl->getLinkTargetByClass(get_class($this->getParentObject()),'confirmRefuseFromList'));
+		}
+// fau.
 		$this->tpl->setVariable('ACTION_USER',$list->getHTML());
 		
 	}

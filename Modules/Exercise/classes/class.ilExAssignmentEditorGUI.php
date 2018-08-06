@@ -285,6 +285,18 @@ class ilExAssignmentEditorGUI
 			$form->addItem($rd_template);
 		}
 
+// fau: exResTime - property elements for result time
+		// result time y/n
+		$result_time_cb = new ilCheckboxInputGUI($lng->txt("exc_result_time"), "result_time_cb");
+		$result_time_cb->setInfo($lng->txt('exc_result_time_info'));
+		$form->addItem($result_time_cb);
+
+		// result time
+		$result_time = new ilDateTimeInputGUI("", "result_time");
+		$result_time->setShowTime(true);
+		$result_time_cb->addSubItem($result_time);
+// fau.
+
 		// mandatory
 		$cb = new ilCheckboxInputGUI($lng->txt("exc_mandatory"), "mandatory");
 		$cb->setInfo($lng->txt("exc_mandatory_info"));
@@ -537,7 +549,37 @@ class ilExAssignmentEditorGUI
 					$valid = false;						
 				}				
 			}
-			
+
+// fau: exResTime - checks for result time
+			if ($a_form->getInput("result_time_cb"))
+			{
+				$result_date = $a_form->getItemByPostVar("result_time")->getDate()->get(IL_CAL_UNIX);
+
+				if ($a_form->getInput("deadline_cb"))
+				{
+					$result_min_date = $a_form->getItemByPostVar("deadline")->getDate()->get(IL_CAL_UNIX);
+					if ($result_date < $result_min_date)
+					{
+						$a_form->getItemByPostVar("result_time")
+							->setAlert($lng->txt("exc_result_time_should_be_after_end_date"));
+						$valid = false;
+					}
+				}
+
+				if ($a_form->getInput("peer"))
+				{
+					$a_form->getItemByPostVar("result_time_cb")
+						->setAlert($lng->txt("exc_result_time_not_for_peer_feedback"));
+					$valid = false;
+				}
+			}
+			else
+			{
+				$result_date = null;
+			}
+// fau.
+
+
 			if($valid)
 			{
 				$res = array(
@@ -550,6 +592,9 @@ class ilExAssignmentEditorGUI
 					,"start" => $time_start
 					,"deadline" => $time_deadline
 					,"deadline_ext" => $time_deadline_ext
+// fau: exResTime - add result date to form result
+					,"result_time" =>  $result_date
+// fau.
 					,"max_file" => $a_form->getInput("max_file_tgl")
 						? $a_form->getInput("max_file")
 						: null
@@ -629,6 +674,10 @@ class ilExAssignmentEditorGUI
 		$a_ass->setStartTime($a_input["start"]);
 		$a_ass->setDeadline($a_input["deadline"]);
 		$a_ass->setExtendedDeadline($a_input["deadline_ext"]);
+
+// fau: exResTime - set the result tme ffrom the form
+		$a_ass->setResultTime($a_input["result_time"]);
+// fau.
 									
 		$a_ass->setMaxFile($a_input["max_file"]);		
 		$a_ass->setTeamTutor($a_input["team_tutor"]);
@@ -790,7 +839,14 @@ class ilExAssignmentEditorGUI
 		{			
 			$values["start_time"] = new ilDateTime($this->assignment->getStartTime(), IL_CAL_UNIX);		
 		}
-		
+
+// fau: exResTime - set the checkbox for result time
+		if ($this->assignment->getResultTime() > 0)
+		{
+			$values["result_time_cb"] = true;
+		}
+// fau.
+
 		if($this->assignment->getType() == ilExAssignment::TYPE_UPLOAD ||
 			$this->assignment->getType() == ilExAssignment::TYPE_UPLOAD_TEAM)
 		{
@@ -807,6 +863,15 @@ class ilExAssignmentEditorGUI
 		}		
 		
 		$a_form->setValuesByArray($values);
+
+// fau: exResTime - set the checkbox for result time
+		if ($this->assignment->getResultTime() > 0)
+		{
+			$edit_date = new ilDateTime($this->assignment->getResultTime(), IL_CAL_UNIX);
+			$ed_item = $a_form->getItemByPostVar("result_time");
+			$ed_item->setDate($edit_date);
+		}
+// fau.
 		
 		// global feedback		
 		if($this->assignment->getFeedbackFile())

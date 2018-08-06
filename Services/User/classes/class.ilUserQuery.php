@@ -42,7 +42,7 @@ class ilUserQuery
 		"lastname", 
 		"email",
 		"second_email",
-		"time_limit_until", 
+		"time_limit_until",
 		"time_limit_unlimited", 
 		"time_limit_owner", 
 		"last_login", 
@@ -60,13 +60,13 @@ class ilUserQuery
 	/**
 	 * Set udf filter
 	 *
-	 * @param array $a_val udf filter array	
+	 * @param array $a_val udf filter array
 	 */
 	function setUdfFilter($a_val)
 	{
 		$this->udf_filter = $a_val;
 	}
-	
+
 	/**
 	 * Get udf filter
 	 *
@@ -76,7 +76,7 @@ class ilUserQuery
 	{
 		return $this->udf_filter;
 	}
-	
+
 	/**
 	 * Set order field (column in usr_data)
 	 * Default order is 'login'
@@ -249,7 +249,7 @@ class ilUserQuery
 		$this->authentication_method = $a_authentication;
 
 	}
-	
+
 	/**
 	 * Query usr_data
 	 * @return array ('cnt', 'set') 
@@ -317,7 +317,16 @@ class ilUserQuery
 			{
 				continue;
 			}
-			
+
+            // fim: [studydata] don't query for studydata directly, add them later
+            if ($field == 'studydata')
+            {
+                include_once("./Services/StudyData/classes/class.ilStudyData.php");
+                $add_studydata = true;
+                continue;
+            }
+            // fim.
+
 			if(in_array($field, $all_multi_fields))
 			{
 				$multi_fields[] = $field;
@@ -346,17 +355,40 @@ class ilUserQuery
 		$count_query = $count_query." ".
 			$join;
 
-		// filter
-		$query.= " WHERE usr_data.usr_id <> ".$ilDB->quote(ANONYMOUS_USER_ID, "integer");
+        // fim: [performance] build optimized user query for role
+        if ($this->role > 0)
+        {
+            $role_join = " INNER JOIN rbac_ua ON usr_data.usr_id = rbac_ua.usr_id";
+            $role_cond = " AND rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer");
 
-		// User filter
+            $query.= $role_join;
+            $count_query.= $role_join;
+        }
+        // fim.
+
+
+		// filter
+
+		// fim: [bugfix] apply user filter also to count query
 		if($this->users and is_array(($this->users)))
 		{
-			$query .= ' AND '.$ilDB->in('usr_data.usr_id',$this->users,false,'integer');
+			$where = ' WHERE '.$ilDB->in('usr_data.usr_id',$this->users,false,'integer');
 		}
+        else
+        {
+            $where = " WHERE usr_data.usr_id <> ".$ilDB->quote(ANONYMOUS_USER_ID, "integer");
+        }
 
-		$count_query.= " WHERE usr_data.usr_id <> ".$ilDB->quote(ANONYMOUS_USER_ID, "integer");
-		$where = " AND";
+        $query .= $where;
+		$count_query.=  $where;
+        $where = " AND";
+        // fim.
+
+
+        // fim: [performance] apply optimized user query for role
+        $query .= $role_cond;
+        $count_query.= $role_cond;
+        // fim.
 
 		if ($this->first_letter != "")
 		{
@@ -477,16 +509,19 @@ class ilUserQuery
 			$count_query.= $add;
 			$where = " AND";
 		}
-		if ($this->role > 0)		// global role
-		{
-			$add = $where." usr_data.usr_id IN (".
-				"SELECT DISTINCT ud.usr_id ".
-				"FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) ".
-				"WHERE rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer").")";
-			$query.= $add;
-			$count_query.= $add;
-			$where = " AND";
-		}
+
+        // fim: [performance] omit old user query for roles
+//		if ($this->role > 0)		// global role
+//		{
+//			$add = $where." usr_data.usr_id IN (".
+//				"SELECT DISTINCT ud.usr_id ".
+//				"FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) ".
+//				"WHERE rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer").")";
+//			$query.= $add;
+//			$count_query.= $add;
+//			$where = " AND";
+//		}
+        // fim.
 		
 		if($this->user_folder)
 		{
@@ -528,7 +563,12 @@ class ilUserQuery
 					$query.= " ORDER BY ut_online.online_time ASC";
 				}	
 				break;
-				
+
+            // fim: [studydata] don't oeder by studydata
+            case "studydata":
+                break;
+           // fim.
+
 			default:
 				if ($this->order_dir != "asc" && $this->order_dir != "desc")
 				{
@@ -578,7 +618,13 @@ class ilUserQuery
 		$result = array();
 		while($rec = $ilDB->fetchAssoc($set))
 		{
-			$result[] = $rec;
+            // fim: [studydata] optionally add the studydata
+            if ($add_studydata)
+            {
+                $rec['studydata'] = ilStudyData::_getStudyDataText($rec['usr_id']);
+            }
+            // fim.
+            $result[] = $rec;
 			
 			if(sizeof($multi_fields))
 			{

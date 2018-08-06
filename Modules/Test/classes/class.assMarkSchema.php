@@ -391,10 +391,18 @@ class ASS_MarkSchema
 		/** @noinspection PhpAssignmentInConditionInspection */
 		while ($row = $ilDB->fetchAssoc($result))
 		{
-			if ($percentage >= $row["minimum_level"])
+			// fim: [bugfix] allow tolerance in floating point calculation
+			$difference = $percentage - $row["minimum_level"];
+			//log_var($row["minimum_level"], 'minimum_level');
+			//log_var($percentage, 'percentage');
+			//log_var($difference, 'difference');
+			
+			//if ($percentage >= $row["minimum_level"])
+			if ($difference >= -0.0000000001)
 			{
 				return $row;
 			}
+			// fim.
 		}
 		return FALSE;
 	}

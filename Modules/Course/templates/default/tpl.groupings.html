@@ -16,9 +16,21 @@
 		<div>{ITEM_TITLE}</div>
 		<!-- END assigned -->
 	</td>
+
+<!-- fau: limitSub - add registrations column -->
+	<td lass="std">
+	  <div>{COUNT_WAITING_LIST}</div>
+	</td>
+<!-- fau. -->
+
 	<td class="std">
 		<div class="ilFloatRight">
-			<a class="il_ContainerItemCommand2" href="{EDIT_LINK}">{TXT_EDIT}</a>&nbsp;&nbsp;
+			<a class="il_ContainerItemCommand2" href="{EDIT_LINK}">{TXT_EDIT}</a>
+<!-- fau: limitSub -->
+			<!-- BEGIN add_waiting_link -->
+			&nbsp; <a class="il_ContainerItemCommand2" href="{LINK_ADD_WAITING_MEMBERS}">{TXT_ADD_WAITING_MEMBERS}</a>
+			<!-- END add_waiting_link -->
+<!-- fau. -->
 		</div>
 	</td>
 </tr>

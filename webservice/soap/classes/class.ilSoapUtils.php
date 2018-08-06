@@ -213,6 +213,49 @@ class ilSoapUtils extends ilSoapAdministration
 		return true;
 	}
 	
+// fau: sendSimpleResults - new function sendUserMail()
+	function sendUserMail($sid, $to, $cc, $bcc, $sender, $subject, $message, $attach, $type, $use_placeholders)
+	{
+		$this->initAuth($sid);
+		$this->initIlias();
+
+		if(!$this->__checkSession($sid))
+		{
+			return $this->__raiseError($this->__getMessage(),$this->__getMessageCode());
+		}
+
+		include_once("./Services/Mail/classes/class.ilMail.php");
+		if (!$sender_id = ilObjUser::_lookupId($sender))
+		{
+			$sender_id = ANONYMOUS_USER_ID;
+		}
+
+		$mail = new ilMail($sender_id);
+		$error = $mail->sendMail(
+					$to, 					// to
+					$cc, 					// cc
+					$bcc, 					// bcc
+					$subject, 				// subject
+					$message, 				// message
+					array(),				// attachments (TODO)
+					explode(',', $type), 	// type
+					$use_placeholders     	// use placeholders
+				);
+
+		if ($error)
+		{
+	        return $this->__raiseError($error, 'mail');
+	    }
+
+
+		global $ilLog;
+		$ilLog->write('SOAP: sendUserMail(): '.$to.', '.$cc.', '.$bcc);
+
+		return true;
+	}
+// fau.
+
+	
 	function saveTempFileAsMediaObject($sid, $name, $tmp_name)
 	{
 		$this->initAuth($sid);
@@ -273,6 +316,33 @@ class ilSoapUtils extends ilSoapAdministration
 		// Fetch first node
 		if(($node = $cp_options->fetchFirstDependenciesNode()) === false)
 		{
+// fau: copyBySoap - send a system message when the copy process is finished
+			$mail_options =  $cp_options->getOptions(ilCopyWizardOptions::SEND_MAIL);
+			if ($cp_options->isSOAPEnabled() and !empty($mail_options))
+			{
+				$root_options = $cp_options->getOptions(ilCopyWizardOptions::ROOT_NODE);
+				if (count($root_options))
+				{
+					$root_id = current($root_options);
+					$mappings = $cp_options->getMappings();
+					if (isset($mappings[$root_id]))
+					{
+						global $ilUser, $lng;
+						include_once './Services/Locator/classes/class.ilLocatorGUI.php';
+						include_once './Services/Link/classes/class.ilLink.php';
+						include_once './Services/Mail/classes/class.ilMail.php';
+
+						$target_id = $mappings[$root_id];
+						$obj_id = ilObject::_lookupObjId($target_id);
+						$title = ilObject::_lookupTitle($obj_id, true);
+						$subject = sprintf($lng->txt('object_copy_mail_subject'), $title);
+						$message = sprintf($lng->txt('object_copy_mail_body'), ilLink::_getStaticLink($target_id));
+						$mail = new ilMail(ANONYMOUS_USER_ID);
+						$mail->sendMail($ilUser->getLogin(), null, null, $subject, $message, null, array("system"));
+					}
+				}
+			}
+// fau.
 			$cp_options->deleteAll();
 			ilLoggerFactory::getLogger('obj')->info('Finished copy step 2. Copy completed');
 			return true;
@@ -346,8 +416,8 @@ class ilSoapUtils extends ilSoapAdministration
 			return $this->ilCloneDependencies($sid,$copy_identifier);
 		}
 	
-		// Check options of this node
-		$options = $cp_options->getOptions($node['child']);
+		// Check options of this node		
+		$options = $cp_options->getOptions($node['child']);		
 		
 		$new_ref_id = 0;
 		switch($options['type'])
@@ -456,7 +526,7 @@ class ilSoapUtils extends ilSoapAdministration
 		$parent_id = $node['parent'];
 		$options = $cp_options->getOptions($node['child']);
 		$mappings = $cp_options->getMappings();
-		
+				
 		if(!$ilAccess->checkAccess('copy','',$node['child']))
 		{
 			ilLoggerFactory::getLogger('obj')->error('No copy permission granted: '.$source_id.', '.$node['title'].', '.$node['type']);
@@ -469,7 +539,7 @@ class ilSoapUtils extends ilSoapAdministration
 			return true;
 		}
 		$target_id = $mappings[$parent_id];
-		
+
 		if(!$tree->isInTree($target_id))
 		{
 			ilLoggerFactory::getLogger('obj')->notice('Omitting node '.$source_id.', '.$node['title'].', '.$node['type']. '. Object has been deleted.');

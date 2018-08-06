@@ -276,17 +276,17 @@ class ilContainer extends ilObject
 	{
 		return $this->news_timeline;
 	}
-	
+
 	/**
 	 * Set news timeline auto entries
 	 *
-	 * @param bool $a_val include automatically created entries	
+	 * @param bool $a_val include automatically created entries
 	 */
 	function setNewsTimelineAutoEntries($a_val)
 	{
 		$this->news_timeline_auto_entries = $a_val;
 	}
-	
+
 	/**
 	 * Get news timeline auto entries
 	 *
@@ -358,13 +358,13 @@ class ilContainer extends ilObject
 	/**
 	 * Set news block activated
 	 *
-	 * @param bool $a_val news block activated	
+	 * @param bool $a_val news block activated
 	 */
 	function setNewsBlockActivated($a_val)
 	{
 		$this->news_block_activated = $a_val;
 	}
-	
+
 	/**
 	 * Get news block activated
 	 *
@@ -374,17 +374,17 @@ class ilContainer extends ilObject
 	{
 		return $this->news_block_activated;
 	}
-	
+
 	/**
 	 * Set use news
 	 *
-	 * @param bool $a_val use news system?	
+	 * @param bool $a_val use news system?
 	 */
 	function setUseNews($a_val)
 	{
 		$this->use_news = $a_val;
 	}
-	
+
 	/**
 	 * Get use news
 	 *
@@ -394,7 +394,7 @@ class ilContainer extends ilObject
 	{
 		return $this->use_news;
 	}
-	
+
 	/**
 	* Lookup a container setting.
 	*
@@ -530,20 +530,59 @@ class ilContainer extends ilObject
 			$a_xml->xmlEndTag("ContainerSettings");
 		}		
 	}
-	
+
+// fau: legacyIcons - support existing png and gif icons for containers
 	/**
 	* lookup icon path
 	*
 	* @param	int		$a_id		container object id
-	* @param	string	$a_size		"big" | "small"
+	* @param	string	$a_size		"big" | "small" | "tiny"
 	*/
 	static function _lookupIconPath($a_id, $a_size = "big")
 	{
-		if (ilContainer::_lookupContainerSetting($a_id, "icon_custom"))
-		{
-			$cont_dir = ilContainer::_getContainerDirectory($a_id);
+		global $DIC;
+		$ilDB = $DIC->database();
 
-			$file_name = $cont_dir."/icon_custom.svg";
+		// first get the available sizes
+		$icons = array();
+		$q = "SELECT * FROM container_settings WHERE ".
+			" id = ".$ilDB->quote($a_id ,'integer').
+			" AND ".$ilDB->like("keyword", "text", "icon%").
+			" AND value = 1";
+
+		$set = $ilDB->query($q);
+		while ($row = $set->fetchRow(DB_FETCHMODE_ASSOC))
+		{
+			$icons[] = $row['keyword'];
+		}
+
+		// always use custom icon (svg) if existing
+		if (in_array('icon_custom', $icons))
+		{
+			$icon = "icon_custom";
+		}
+		// use former big icon (32px) for new big (45px) or small (35px) size
+		elseif (in_array('icon_big', $icons) and in_array($a_size, array('big','small')))
+		{
+			$icon = 'icon_big';
+		}
+		// use former small icon (22px) for new small (35px) or tiny size
+		elseif (in_array('icon_small', $icons) and in_array($a_size, array('small','tiny')))
+		{
+			$icon = 'icon_small';
+		}
+		// use former tiny icon (16px) for new tiny size
+		elseif (in_array('icon_tiny', $icons) and in_array($a_size, array('tiny')))
+		{
+			$icon = "icon_tiny";
+		}
+
+		// get the image file according to the existing format
+		$cont_dir = ilContainer::_getContainerDirectory($a_id);
+		foreach (array('svg','png','gif','jpg') as $suffix)
+		{
+
+			$file_name = $cont_dir.'/'.$icon.'.'.$suffix;
 			if (is_file($file_name))
 			{
 				return $file_name;
@@ -552,6 +591,36 @@ class ilContainer extends ilObject
 		
 		return "";
 	}
+// fau.
+
+// fau: copyContainerIcon - new function to copy the container icon and its settings
+	/**
+	 * Copy the container icon to the clone
+	 * @param ilContainer $a_new_obj
+	 */
+	function copyIcon(ilContainer $a_new_obj)
+	{
+		/* @var ilDB */
+		global $ilDB;
+
+		$q = "
+			REPLACE INTO container_settings (id, keyword, value)
+			SELECT ".$ilDB->quote($a_new_obj->getId(),'integer'). ", keyword, value
+			FROM container_settings
+			WHERE id = ".$ilDB->quote($this->getId() ,'integer') ."
+			AND ".$ilDB->like("keyword", "text", "icon%");
+
+		$num_rows = $ilDB->manipulate($q);
+
+		if ($num_rows > 0)
+		{
+			$source_dir = $this->getContainerDirectory();
+			$a_new_obj->createContainerDirectory();
+			$target_dir = $a_new_obj->getContainerDirectory();
+			ilUtil::rCopy($source_dir, $target_dir);
+		}
+	}
+// fau.
 
 	/**
 	* save container icons
@@ -587,9 +656,18 @@ class ilContainer extends ilObject
 	function removeCustomIcon()
 	{
 		$cont_dir = $this->getContainerDirectory();
-		$small_file_name = $cont_dir."/icon_custom.svg";
-		@unlink($small_file_name);
-		ilContainer::_writeContainerSetting($this->getId(), "icon_custom", 0);
+
+// fau: legacyIcons - delete all sizes if custom icon is removed
+		foreach (array('custom','big','small','tiny') as $size)
+		{
+			foreach (array('svg','png','gif','jpg') as $suffix)
+			{
+				$file_name = $cont_dir."/icon_$size.$suffix";
+				@unlink($file_name);
+				ilContainer::_deleteContainerSettings($this->getId(), "icon_$size");
+			}
+		}
+// fau.
 	}
 	
 	/**
@@ -607,7 +685,7 @@ class ilContainer extends ilObject
 		include_once('./Services/Container/classes/class.ilContainerSortingSettings.php');
 		#18624 - copy all sorting settings
 		ilContainerSortingSettings::_cloneSettings($this->getId(), $new_obj->getId());
-		
+
 		// copy content page
 		include_once("./Services/Container/classes/class.ilContainerPage.php");
 		if (ilContainerPage::_exists("cont",
@@ -659,7 +737,12 @@ class ilContainer extends ilObject
 				}
 			}
 		}
-		
+
+// fau: copyContainerIcon - copy icon when container is copied
+		$this->copyIcon($new_obj);
+// fau.
+
+
 		return $new_obj;
 	}
 	
@@ -682,7 +765,7 @@ class ilContainer extends ilObject
 
 		// fix internal links to other objects
 		ilContainer::fixInternalLinksAfterCopy($a_target_id,$a_copy_id, $this->getRefId());
-		
+
 		// fix item group references in page content
 		include_once("./Modules/ItemGroup/classes/class.ilObjItemGroup.php");
 		ilObjItemGroup::fixContainerItemGroupRefsAfterCloning($this, $a_copy_id);
@@ -763,7 +846,10 @@ class ilContainer extends ilObject
 		$soap_client->enableWSDL(true);
 
 		$ilLog->write(__METHOD__.': Trying to call Soap client...');
-		if($soap_client->init())
+// fau: copyBySoap - customize use of SOAP for copying containers
+		global $ilCust;
+		if($ilCust->getSetting('ilias_copy_by_soap') and $soap_client->init())
+// fau.
 		{
 			ilLoggerFactory::getLogger('obj')->info('Calling soap clone method');
 			$res = $soap_client->call('ilClone',array($new_session_id.'::'.$client_id, $copy_id));
@@ -1157,6 +1243,6 @@ class ilContainer extends ilObject
 			$pg->update(true, true);
 		}
 	}
-	
+
 } // END class ilContainer
 ?>

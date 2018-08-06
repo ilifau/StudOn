@@ -1,6 +1,25 @@
 <div id="ilTopBar" class="ilTopBar ilTopFixed{TOPBAR_CLASS} hidden-print">
 	<div class="container-fluid ilContainerWidth">
 		<div class="row">
+            <!-- fim: [layout] add FAU logo (for blog) or links -->
+            <!-- BEGIN header_top_logo -->
+            <div class="ilTopTitle">
+                <a href="{TOPBAR_LOGO_URL}" target="_top">
+                    <img src="templates/default/images/studon/studon-square-white.svg" alt="Logo" class="studonSmall noMirror" />
+                </a>
+            </div>
+            <!-- END header_top_logo -->
+            <!-- BEGIN header_top_links -->
+            <div class="ilTopTitle">
+                <a tabindex=-1" href="http://www.fau.de/">FAU</a> &nbsp;
+                <a tabindex=-1" href="http://univis.uni-erlangen.de/">UnivIS</a> &nbsp;
+                <a tabindex=-1" href="https://www.idm.uni-erlangen.de">IdM</a> &nbsp;
+                <a tabindex=-1" href="https://www.campus.uni-erlangen.de">mein campus</a> &nbsp;
+                <!--<a href="https://faumail.uni-erlangen.de">FAUMail</a>  &nbsp; -->
+                <!-- <a href="http://www.video.uni-erlangen.de">Videoportal</a> -->
+            </div>
+            <!-- END header_top_links -->
+            <!-- fim. -->
 			<!-- BEGIN header_top_title -->
 			<div class="ilTopTitle">{TXT_HEADER_TITLE}</div>
 			<!-- END header_top_title -->
@@ -11,7 +30,7 @@
 			<div class="ilTopMemberView"><h3>{MEMBER_VIEW_INFO}</h3></div>
 			<!-- END member_view_bl -->
 			<!-- BEGIN topbar_icons_bl -->
-			<ul id="ilTopBarNav" class="">					
+			<ul id="ilTopBarNav" class="">
 				<!-- BEGIN status_box -->
 					<li>{GLYPH}</li>
 				<!-- END status_box -->

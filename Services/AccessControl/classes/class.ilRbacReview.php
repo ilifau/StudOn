@@ -37,7 +37,7 @@ class ilRbacReview
 	 * @var array
 	 */
 	protected static $is_assigned_cache = array();
-	
+
 	/**
 	 * @var ilLogger
 	 */
@@ -173,6 +173,54 @@ class ilRbacReview
 		#return $this->getParentRoles($a_endnode_id,$a_templates,$a_keep_protected);
 		return $this->__getParentRoles($pathIds,$a_templates);
 	}
+
+	/**
+	 * fim: [rights] get the context roles with specific permissions on an object
+	 * The permissions are checked in order of the input array
+	 * If a role is found for the first permission, it is not listed for the second
+	 *
+	 * @access   public
+	 * @param    integer     ref_id of an object which is end node
+	 * @param    array       list of permissions to check
+	 * @param    boolean     include the own roles (default: true)
+	 * @param    boolean     include the global roles (default: true)
+	 * @return   array       array (permission => array(role_id => role_data))
+	 */
+	function getRolesByPermissions($a_ref_id, $a_permissions = array(), $a_with_own = true, $a_with_global = true)
+	{
+		global $rbacsystem;
+
+		$roles = $this->getParentRoleIds($a_ref_id, false, false);
+		$rolf_id = $a_ref_id;	// no separate role folder since ILIAS 5
+
+		$return = array();
+
+		foreach ($roles as $role_id  => $role_data)
+		{
+			if (!$a_with_own and $this->isAssignable($role_id, $rolf_id))
+			{
+				continue;
+			}
+
+			if (!$a_with_global and $this->isGlobalRole($role_id))
+			{
+				continue;
+			}
+
+			foreach ($a_permissions as $perm)
+			{
+				if ($rbacsystem->checkPermission($a_ref_id,$role_id,$perm))
+				{
+					$return[$perm][$role_id] = $role_data;
+					break;
+				}
+			}
+		}
+		return $return;
+	}
+	// fim.
+
+
 
 	/**
 	 * Returns a list of roles in an container
@@ -421,7 +469,7 @@ class ilRbacReview
 	public function assignedUsers($a_rol_id)
 	{
 		global $ilBench,$ilDB;
-		
+
 		if (!isset($a_rol_id))
 		{
 			$message = get_class($this)."::assignedUsers(): No role_id given!";

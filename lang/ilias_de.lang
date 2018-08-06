@@ -50,7 +50,7 @@ lti#:#lti_released_objects#:#Objekt-Freigaben
 lti#:#lti_consumer#:#Freigegeben für
 orgu#:#orgu_global_set_form#:#Globale Einstellungen
 orgu#:#orgu_global_set_positions#:#Anzeige von Benutzerdaten nach Positionen in Organisationseinheiten
-orgu#:#orgu_global_set_positions_type_active#:#Positionen in: 
+orgu#:#orgu_global_set_positions_type_active#:#Positionen in:
 orgu#:#orgu_global_set_type_changeable#:#Verhalten neuer Objekte
 orgu#:#orgu_global_set_type_changeable_object#:#Änderbare Einstellung im Objekt
 orgu#:#orgu_global_set_type_changeable_no#:#Positionen sind im Objekt nicht deaktivierbar
@@ -86,7 +86,7 @@ common#:#pd_enable_pdfrmpostdraft#:#'Meine Beitragsentwürfe' aktivieren
 common#:#pd_enable_pdfrmpostdraft_info#:#Sofern aktiviert, wird auf dem Persönlichen Schreibtisch ein Block 'Meine Beitragsentwürfe' angezeigt, in welchem die Beitragsentwürfe des Benutzers in Foren aufgelistet werden.
 forum#:#forums_thread_drafts_deleted#:#Das gewählte Thema einschließlich aller dazugehörigen Beiträge und evtl. Beitragsentwürfe wurde gelöscht.
 forum#:#forums_threads_drafts_deleted#:#Die gewählten Themen einschließlich aller dazugehörigen Beiträge und evtl. Beitragsentwürfe wurden gelöscht.
-forum#:#save_draft_successfully#:#Der Entwurf wurde erfolgreich gespeichert. 
+forum#:#save_draft_successfully#:#Der Entwurf wurde erfolgreich gespeichert.
 forum#:#forums_info_delete_draft#:#Sind Sie sicher, dass Sie diesen Entwurf löschen möchten?
 forum#:#delete_draft_successfully#:#Der Entwurf wurde erfolgreich gelöscht.
 forum#:#forums_edit_draft#:#Entwurf bearbeiten
@@ -96,9 +96,9 @@ forum#:#frm_posting_draft#:#Entwurf
 forum#:#frm_posting_drafts#:#Entwürfe
 forum#:#enable_send_attachments#:#Dateien an Foren-Benachrichtigungen anhängen
 forum#:#enable_send_attachments_desc#:#Bitte beachten Sie, dass Datei-Anhänge für jeden benachrichtigten Benutzer separat gespeichert werden müssen, sofern die Zustellung auch als interne Nachricht erfolgt. Dies kann eine sehr hohe Belegung des Festplattenspeichers auf dem Server hervorrufen.
-forum#:#adm_save_drafts#:#Entwürfe speichern   
-forum#:#adm_save_drafts_desc#:#Wenn aktiviert, können angemeldete Benutzer Beiträge in Foren als Entwurf speichern 
-forum#:#adm_autosave_drafts#:#Entwürfe automatisch speichern   
+forum#:#adm_save_drafts#:#Entwürfe speichern
+forum#:#adm_save_drafts_desc#:#Wenn aktiviert, können angemeldete Benutzer Beiträge in Foren als Entwurf speichern
+forum#:#adm_autosave_drafts#:#Entwürfe automatisch speichern
 forum#:#adm_autosave_ival#:#Speicherintervall
 forum#:#adm_autosave_drafts_desc#:#Wenn aktiviert, werden Entwürfe während des Editierens automatisch gespeichert.
 common#:#pwsp_recalculate_disk_quota#:#Persönlicher Arbeitsraum: Neuberechnung Disk-Quota
@@ -555,7 +555,7 @@ assessment#:#dont_use_questionpool#:#Fragen nicht in einen Fragenpool einfügen 
 assessment#:#duplicate#:#Kopieren
 assessment#:#duplicate_matching_values_selected#:#Sie haben mindestens einen doppelten Zuordnungswert ausgewählt!
 assessment#:#duplicate_order_values_entered#:#Sie haben mindestens eine doppelte Reihenfolge angegeben!
-assessment#:#ects_grade_desc_prefix#:#Bedeutung der Note: 
+assessment#:#ects_grade_desc_prefix#:#Bedeutung der Note:
 assessment#:#ects_grade_a_desc#:#ausgezeichnete Leistungen und nur wenige unbedeutende Fehler
 assessment#:#ects_grade_b_desc#:#überdurchschnittliche Leistungen, aber einige Fehler
 assessment#:#ects_grade_c_desc#:#insgesamt gute und solide Arbeit, jedoch mit einigen grundlegenden Fehlern
@@ -581,7 +581,11 @@ assessment#:#tst_conflict_reset_fbh_force#:#Die Einstellung "Antworten nach Rüc
 assessment#:#enlarge#:#vergrößern
 assessment#:#enter_anonymous_code#:#Zugangsschlüssel für anonymen Zugang
 assessment#:#enter_enough_positive_points#:#Die maximale Punktezahl für die Frage muss größer als Null sein! Bitte geben Sie ausreichend viele nicht-negative Punkte für die Antworten ein.
-assessment#:#err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert ein
+assessment#:#err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert ein.
+assessment#:#error_cloze_not_numeric#:#Bitte geben Sie einen numerischen Wert ein.
+assessment#:#error_duplicate_term#:#Sie haben einen Term mehrfach einem Zuordnungspaar zugewiesen
+assessment#:#error_image_upload_copy_file#:#Beim Verschieben einer hochgeladenen Grafik in ihren Zielordner ist ein Fehler aufgetreten!
+assessment#:#error_image_upload_wrong_format#:#Bitte laden Sie eine gültige Bilddatei hoch. Unterstützte Formate sind GIF, JPEG und PNG.
 assessment#:#error_importing_question#:#Beim Importieren der Frage(n) ist ein Fehler aufgetreten!
 assessment#:#error_open_image_file#:#Fehler beim Öffnen einer Bilddatei!
 assessment#:#error_random_question_generation#:#Bei der Erzeugung von Zufallsfragen ist ein unbekannter Fehler aufgetreten. Bitte kontaktieren Sie Ihren ILIAS-Administrator und geben Sie die folgende Information weiter: Das ILIAS-System konnte keine Aktivitäts-ID für die Benutzer-ID %s und die Test-ID %s erzeugen.
@@ -1559,7 +1563,7 @@ assessment#:#sign_submission#:#Digitale Signatur
 assessment#:#sign_submission_info#:#Das Signatur-Plugin muss installiert und aktiviert sein, damit Teilnehmer aufgefordert werden, ihre Testabgabe zu signieren.
 assessment#:#preserve_manscoring#:#Manuelle Bewertungen erhalten
 assessment#:#preserve_manscoring_info#:#Aufgrund von Veränderungen in der Fragebewertung kann es erforderlich sein, bislang erfolgte manuelle Bewertungen zu verwerfen. Dieser Schalter gestattet die Entwertung ALLER manuellen Bewertungen in einem Test und sollte nur in Ausnahmefällen genutzt werden. 
-assessment#:#tst_qst_added_to_pool_s#:#Die Frage wurde erfolgreich in den Fragenpool übernommen. 
+assessment#:#tst_qst_added_to_pool_s#:#Die Frage wurde erfolgreich in den Fragenpool übernommen.
 assessment#:#tst_qst_added_to_pool_p#:#Die Fragen wurden erfolgreich in den Fragenpool übernommen.
 auth#:#auth_account_code#:#Code
 auth#:#auth_account_code_info#:#Um Ihr Benutzerkonto zu reaktivieren, können Sie einen ILIAS-Benutzerkonten-Code benutzen.
@@ -1784,7 +1788,7 @@ chatroom#:#autogen_usernames_info#:#Schema für automatisch generierte Benutzern
 chatroom#:#ban_question#:#Wollen Sie den Benutzer wirklich aus dem aktuellen Chatraum ausschließen?
 chatroom#:#ban_table_title#:#Gesperrte Benutzer
 chatroom#:#banned#:#Sie wurden für diesen Chatraum gesperrt
-chatroom#:#kicked#:#Sie wurden von einem Moderator aus dem Chatraum geworfen 
+chatroom#:#kicked#:#Sie wurden von einem Moderator aus dem Chatraum geworfen
 chatroom#:#bans#:#Gesperrte Benutzer
 chatroom#:#chat_address#:#Ansprechen
 chatroom#:#chat_ban#:#Sperren
@@ -3143,7 +3147,7 @@ common#:#mail_sent#:#Ihre Mail wurde versandt
 common#:#mail_settings#:#Mail-Einstellungen
 rbac#:#mail_smtp_mail#:#Benutzer darf E-Mails per SMTP an externe Adressen senden
 rbac#:#mail_system_message#:#Benutzer darf Mails als Systemnachrichten versenden
-common#:#mail_to_global_roles_not_allowed#:#%1$s (das Versenden an globale Rollen ist nicht erlaubt) 
+common#:#mail_to_global_roles_not_allowed#:#%1$s (das Versenden an globale Rollen ist nicht erlaubt)
 rbac#:#mail_visible#:#Mail-Administration ist sichtbar
 rbac#:#mail_write#:#Einstellungen im Mail-Administration bearbeiten
 common#:#mail_z_local#:#Eigene Ordner
@@ -3696,6 +3700,7 @@ common#:#refuse#:#Antrag ablehnen
 common#:#reg_account_confirmation_successful#:#Das Benutzerkonto wurde bestätigt und aktiviert.
 common#:#reg_mail_body_2_confirmation#:#Der Link wird nur für %s gültig sein, danach müssen Sie sich erneut registrieren.
 common#:#reg_mail_body_3_confirmation#:#Falls Sie diese E-Mail unerwartet erhalten haben, ist es möglich, dass eine andere Person Ihre E-Mail Adresse versehentlich oder vorsätzlich angegeben hat. In diesem Fall ignorieren Sie diese Mail bitte.
+common#:#reg_mail_body_confirmation#:#um Ihr Benutzerprofil freizuschalten und gleichzeitig diese E-Mail-Adresse zu bestätigen, klicken Sie bitte den folgenden Link an:
 common#:#reg_mail_body_forgot_password_info#:#Um ein neues Passwort für diesen Benutzerzugang zu beantragen nutzen Sie bitte die Funktion « Passwort vergessen? » auf der Loginseite.
 common#:#reg_mail_body_salutation#:#Hallo
 common#:#reg_mail_body_text1#:#Willkommen auf der eLearning-Plattform ILIAS!
@@ -6121,7 +6126,7 @@ forum#:#forums_thread_marked#:#Alle Beiträge wurden als gelesen markiert.
 forum#:#forums_thread_new_entry#:#Neues Thema wurde eingetragen
 forum#:#forums_your_reply#:#Ihr Beitrag
 forum#:#frm_anonymous_posting#:#Mit Pseudonym schreiben
-forum#:#frm_anonymous_posting_desc#:#Ist diese Option eingeschaltet, können registrierte Benutzer nur mit einem Pseudonym oder ohne Nennung ihres Namens Beiträge in diesem Forum schreiben. Sollte die Option "Moderatoren-Beiträge markieren" ebenfalls aktiviert sein, können Moderatoren kein Pseudonym verwenden.    
+forum#:#frm_anonymous_posting_desc#:#Ist diese Option eingeschaltet, können registrierte Benutzer nur mit einem Pseudonym oder ohne Nennung ihres Namens Beiträge in diesem Forum schreiben. Sollte die Option "Moderatoren-Beiträge markieren" ebenfalls aktiviert sein, können Moderatoren kein Pseudonym verwenden.
 forum#:#frm_default_view#:#Standardansicht
 forum#:#frm_detach_moderator_role#:#Moderatorenrolle entziehen
 forum#:#frm_edit_title#:#Titel bearbeiten
@@ -9134,7 +9139,7 @@ trac#:#trac_mode_collection_info#:#Der Status des Lernfortschritts des Objekts w
 trac#:#trac_mode_deactivated#:#Lernfortschritt ist deaktiviert
 trac#:#trac_mode_deactivated_info_new#:#Der Lernfortschrittsstatus wird nicht angezeigt und beeinflusst keine übergeordneten Objekte.
 trac#:#trac_mode_event#:#Tutoren erfassen Teilnahme
-trac#:#trac_mode_exercise_returned#:#Tutor entscheidet über den Status 
+trac#:#trac_mode_exercise_returned#:#Tutor entscheidet über den Status
 trac#:#trac_mode_exercise_returned_info#:#Tutoren entscheiden anhand der Einreichungen, ob Teilnehmer die Übung gelöst haben. Tutoren setzen händisch den Status auf 'Bearbeitet' oder 'Nicht bestanden'.
 trac#:#trac_mode_manual#:#Benutzer entscheidet selbst über den Status des Lernfortschritts für das gesamte Lernmodul.
 trac#:#trac_mode_manual_by_tutor#:#Tutor entscheidet über den Status des Lernfortschritts
@@ -10374,7 +10379,7 @@ survey#:#svy_invite_action#:#Auf den Persönlichen Schreibtisch legen
 rbac#:#chtr_delete#:#Chat löschen oder verschieben
 ecs#:#ecs_role_mappings#:#Rollenzuordnung für Kurse/Gruppen
 ecs#:#ecs_role_mapping_value#:#Attributwert
-forum#:#sorting_manual_sticky#:#Manuelle Sortierung der Top-Themen 
+forum#:#sorting_manual_sticky#:#Manuelle Sortierung der Top-Themen
 forum#:#sticky_threads_always_on_top#:#"Top-Themen" erscheinen generell immer ganz oben in der Liste der Themen. Innerhalb der "Top-Themen" haben Sie bei Wahl dieser Option die Möglichkeit, die Sortierung manuell anzupassen.
 blog#:#blog_toggle_draft_admin#:#Beitrag deaktivieren
 blog#:#blog_keywords_info#:#Benutzen Sie die +/- Icons um Schlagwörter hinzuzufügen und zu entfernen.
@@ -12255,7 +12260,7 @@ administration#:#language_save_dist_info#:#Erzeugt ein Backup der Standard-Sprac
 administration#:#language_saved_dist#:#Das Backup der Standard-Sprachdatei wurde erzeugt.
 administration#:#language_save_dist_failed#:#Das Backup der Standard-Sprachdatei konnte nicht geschrieben werden.
 crs#:#crs_loc_type_initial_all_info#:#Anhand der Ergebnisse des Einstiegstests empfiehlt ILIAS Lerninhalte für die  noch nicht erreichten Lernziele. Ein Qualifizierender Test prüft zum Abschluss  die Erreichung aller Lernziele.
-crs#:#crs_loc_type_qualified_info#:#Der Kurs startet mit einem Test, der individuell prüft, ob die Kursmitglieder die Lernziele bereits beherrschen. Beim Bestehen des Tests, brauchen weder weitere Lerninhalte noch Tests bearbeitet werden. Für alle nicht erreichten Lernziele empfiehlt ILIAS Lerninhalte. Die Erreichung dieser Lernziele wird in einem weiteren Testdurchlauf abgeprüft. 
+crs#:#crs_loc_type_qualified_info#:#Der Kurs startet mit einem Test, der individuell prüft, ob die Kursmitglieder die Lernziele bereits beherrschen. Beim Bestehen des Tests, brauchen weder weitere Lerninhalte noch Tests bearbeitet werden. Für alle nicht erreichten Lernziele empfiehlt ILIAS Lerninhalte. Die Erreichung dieser Lernziele wird in einem weiteren Testdurchlauf abgeprüft.
 assessment#:#tst_rnd_quest_set_cfg_pool_form#:#Regel für die Auswahl von Fragen
 rbac#:#bibs_copy#:#Literaturlisten kopieren
 crs#:#crs_loc_settings_reset_enable#:#Zurücksetzen der persönlichen Testergebnisse erlauben
@@ -13202,7 +13207,7 @@ sess#:#sess_list_reg_limit_places#:#Freie Plätze
 sess#:#sess_accept_request#:#Zu Sitzung zulassen
 sess#:#sess_new_registrations#:#Teilnahmeanträge
 mail#:#mail_attachment_file_not_exist#:#Mindestens einer der folgenden Anhänge konnte nicht gefunden werden: %1$s
-mail#:#mail_recipient_not_found#:#%1$s (es konnte kein gültiger Empfänger gefunden werden) 
+mail#:#mail_recipient_not_found#:#%1$s (es konnte kein gültiger Empfänger gefunden werden)
 mail#:#mail_multiple_role_recipients_found#:#%1$s (für den Emfpänger wurden mehrere Rollen gefunden: %2$s)
 mail#:#mail_generic_rcp_error#:#Beim Validieren der Empfänger ist ein Fehler aufgetreten: %1$s
 rbac#:#mep_copy#:#Medienpool kopieren
@@ -13219,7 +13224,7 @@ auth#:#auth_err_ldap_exception#:#Die Authentifizierung konnte wegen eines Fehler
 assessment#:#ass_location#:#Ort
 assessment#:#ass_imap_hint#:#Hinweis (angezeigt als Tooltip)
 assessment#:#ass_imap_map_file_not_readable#:#Die hochgeladene Imagemap kann nicht gelesen werden.
-assessment#:#ass_imap_no_map_found#:#In der hochgeladenen Imagemap konnte keine unterstützte Form gefunden werden. 
+assessment#:#ass_imap_no_map_found#:#In der hochgeladenen Imagemap konnte keine unterstützte Form gefunden werden.
 rbac#:#sty_write_content#:#Content-Styles bearbeiten
 rbac#:#stys_sty_write_custom#:#Content-Styles bearbeiten
 rbac#:#sty_write_system#:#System-Styles bearbeiten
@@ -13262,7 +13267,7 @@ survey#:#svy_anonymous_participants_svy_info#:#Wenn aktiviert ist eine Teilnehme
 survey#:#survey_results_started#:#Umfrage begonnen
 survey#:#survey_results_not_started#:#Umfrage nicht begonnen
 survey#:#svy_mail_own_results_body#:#Sie haben an folgender Umfrage teilgenommen:
-assessment#:#ass_competence_respect_level_ordering#:#Bitte beachten Sie, dass die Kompetenz-Schwellenwerte gemäß der Reihenfolge der Kompetenz-Ausprägungen in aufsteigender Reihenfolge definiert werden müssen. 
+assessment#:#ass_competence_respect_level_ordering#:#Bitte beachten Sie, dass die Kompetenz-Schwellenwerte gemäß der Reihenfolge der Kompetenz-Ausprägungen in aufsteigender Reihenfolge definiert werden müssen.
 common#:#grpr#:#Gruppenlink
 common#:#grpr_edit#:#Gruppenlink bearbeiten
 common#:#grpr_edit_info#:#Bitte wählen Sie die Gruppe aus, für die Sie einen Link erstellen möchten.
@@ -13285,13 +13290,13 @@ badge#:#badge_settings#:#Badge Einstellungen
 badge#:#badge_service_activate#:#Service aktivieren
 badge#:#badge_service_activate_info#:#Aktiveren Sie den Service, um Badges verfügbar zu machen
 badge#:#badge_obi_activate#:#Mozilla Open Badges Infrastructure aktivieren
-badge#:#badge_obi_activate_info#:#Benutzer Badges können aus ILIAS exportieren und im Internet als Nachweis ihrer Qualifikation nutzen. 
+badge#:#badge_obi_activate_info#:#Benutzer Badges können aus ILIAS exportieren und im Internet als Nachweis ihrer Qualifikation nutzen.
 badge#:#badge_obi_organisation#:#Organisation
-badge#:#badge_obi_organisation_info#:#Diese Angabe wird als Herausgeber des Badges angezeigt. 
+badge#:#badge_obi_organisation_info#:#Diese Angabe wird als Herausgeber des Badges angezeigt.
 badge#:#badge_obi_contact#:#Kontakt-E-Mail
 badge#:#badge_obi_contact_info#:#Diese E-Mail wird zwar nicht angezeigt, aber in das Badge eingebacken.
 badge#:#badge_obi_salt#:#Salt
-badge#:#badge_obi_salt_info#:#Geben Sie eine Kombination von Zahlen und Buchstaben ein, um Dritten später die Möglichkeit zu bieten, die Echtheit des Badges zu validieren. Bitte ändern Sie die Eingabe später nicht mehr. 
+badge#:#badge_obi_salt_info#:#Geben Sie eine Kombination von Zahlen und Buchstaben ein, um Dritten später die Möglichkeit zu bieten, die Echtheit des Badges zu validieren. Bitte ändern Sie die Eingabe später nicht mehr.
 badge#:#badge_types#:#Typen
 badge#:#badge_image_templates#:#Bildvorlagen
 badge#:#badge_activity_badges#:#Activity Badges
@@ -13677,7 +13682,7 @@ chatroom#:#chat_auth_token_info#:#Bitte definieren Sie hier zwei eindeutige Zeic
 chatroom#:#chat_https_cert_info#:#Bitte geben Sie den absoluten Serverpfad zum SSL-Zertifikat an (bspw.: /etc/ssl/certs/server.pem).
 chatroom#:#chat_https_key_info#:#Bitte geben Sie den absoluten Serverpfad zum privaten Schlüssel an (bspw.: /etc/ssl/private/server.key).
 chatroom#:#chat_https_dhparam_info#:#Bitte geben Sie hier den absoluten Serverpfad zu einer Datei an (bspw.: /etc/ssl/private/dhparam.pem), um Diffie-Hellman-Parameter auszuhandeln (z.B. generiert via: openssl dhparam -out /etc/ssl/private/dhparam.pem 2048 ).
-chatroom#:#chat_log_info#:#Bitte geben Sier hier den absoluten Serverpfad zu jener Datei an (bspw. /var/www/ilias/data/chat.log), in die der Chat-Server allgemeine Ereignisse protokolliert. Wird kein Pfad eingetragen, wird die eine Protokolldatei im selben Verzeichnis erstellt, in dem der Chat-Server liegt. 
+chatroom#:#chat_log_info#:#Bitte geben Sier hier den absoluten Serverpfad zu jener Datei an (bspw. /var/www/ilias/data/chat.log), in die der Chat-Server allgemeine Ereignisse protokolliert. Wird kein Pfad eingetragen, wird die eine Protokolldatei im selben Verzeichnis erstellt, in dem der Chat-Server liegt.
 chatroom#:#chat_error_log_info#:#Bitte geben Sier hier den absoluten Serverpfad zu jener Datei an (bspw. /var/www/ilias/data/chat_errors.log), in die der Chat-Server Fehler protokolliert. Wird kein Pfad eingetragen, wird die eine Protokolldatei im selben Verzeichnis erstellt, in dem der Chat-Server liegt.
 chatroom#:#chatroom_enable_osc#:#On-Screen-Chat aktivieren
 chatroom#:#chatroom_enable_osc_info#:#Wenn aktiviert, steht der On-Screen-Chat jedem Benutzer auf der Plattform zur Verfügung. Jeder kann jedoch individuell entscheiden, ob er von anderen Benutzern angesprochen werden möchte. Konversationen können über das ‘Who is online?’-Tool gestartet werden.
@@ -13796,7 +13801,7 @@ pdfgen#:#page_size#:#Seitengröße
 pdfgen#:#reset_to_default#:#Default Einstellungen laden
 pdfgen#:#problem_with_purposes#:#Es wurde ein Problem in der Konfiguration festgestellt, nutzen sie bitten den Button "Bereinigen" um das Problem zu lösen.
 copg#:#copg_questions_not_supported_here#:#In diesem Kontext werden keine Fragen unterstützt.
-auth#:#auth_err_login_attempts_deactivation#:#Das Benutzerkonto wurde wegen falscher Loginversuche deaktiviert. 
+auth#:#auth_err_login_attempts_deactivation#:#Das Benutzerkonto wurde wegen falscher Loginversuche deaktiviert.
 crs#:#crs_edit_lo_introduction#:#Einleitung bearbeiten
 rbac#:#grp_manage_members#:#Mitglieder einer Gruppe verwalten
 rbac#:#crs_manage_members#:#Mitglieder eines Kurses verwalten

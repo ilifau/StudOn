@@ -886,4 +886,49 @@ abstract class ilObject2GUI extends ilObjectGUI
 			parent::handleAutoRating($a_new_obj);
 		}				
 	}
+	
+	
+	/** fim: [privacy] get the message about public visibility of the object
+	 * 
+	 * special implementation for object in workspace
+	 * see ilObject::getPublicVisibilityMessage() for other objects
+	 * 
+	 * @return string	message about public visibility
+	 */
+	protected function getPublicVisibilityMessage()
+	{
+		global $lng;
+		
+		switch($this->id_type)
+		{
+			case self::REPOSITORY_NODE_ID:
+			case self::REPOSITORY_OBJECT_ID:
+				// use default implementation for objects in the repository
+				return parent::getPublicVisibilityMessage();
+				
+			case self::WORKSPACE_NODE_ID:
+			case self::WORKSPACE_OBJECT_ID:
+				break;
+
+			case self::OBJECT_ID:
+				return "";					
+		}
+		
+		$access_handler = $this->getAccessHandler();
+				
+		if ($this->checkPermissionBool("write")
+			or ($type = "blog" and $this->checkPermissionBool("contribute"))
+		)
+		{
+			if ($access_handler->hasGlobalPermission($this->node_id))
+			{
+				return $lng->txt('privacy_object_visible_to_public');
+			}
+			elseif ($access_handler->hasGlobalPasswordPermission($this->node_id))
+			{	
+				return $lng->txt('privacy_object_visible_with_password');
+			}
+		}
+	}
+	// fim.
 }

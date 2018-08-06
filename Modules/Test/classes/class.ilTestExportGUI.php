@@ -27,7 +27,16 @@ class ilTestExportGUI extends ilExportGUI
 		$this->addFormat('xml', $a_parent_gui->lng->txt('ass_create_export_file'));
 		$this->addFormat('xmlres', $a_parent_gui->lng->txt('ass_create_export_file_with_results'), $this, 'createTestExportWithResults');
 		$this->addFormat('csv', $a_parent_gui->lng->txt('ass_create_export_test_results'), $this, 'createTestResultsExport');
-		$this->addFormat( 'arc', $a_parent_gui->lng->txt( 'ass_create_export_test_archive' ), $this, 'createTestArchiveExport');
+
+        // fim: [exam] Button to export test results for my campus
+        global $ilCust;
+        if ($ilCust->getSetting('tst_export_mycampus'))
+        {
+            $this->addFormat('prf', $a_parent_gui->lng->txt('ass_create_export_mycampus'), $this, 'createTestResultsMyCampus');
+        }
+        // fim.
+
+
 		$pl_names = $ilPluginAdmin->getActivePluginsForSlot(IL_COMP_MODULE, 'Test', 'texp');
 		foreach($pl_names as $pl)
 		{
@@ -93,6 +102,14 @@ class ilTestExportGUI extends ilExportGUI
 		ilUtil::sendSuccess($lng->txt('exp_file_created'), true);
 		$ilCtrl->redirectByClass('iltestexportgui');
 	}
+
+	// fim: [campus] create test results for my campus
+	public function createTestResultsMyCampus()
+	{
+		global $ilCtrl;
+		$ilCtrl->redirectByClass("iltestmycampusgui");
+	}
+	// fim.
 
 	function createTestArchiveExport()
 	{
@@ -196,7 +213,9 @@ class ilTestExportGUI extends ilExportGUI
 				array_push($data, array(
 					'file'      => $exp_file,
 					'size'      => filesize($export_dir . "/" . $exp_file),
-					'timestamp' => $file_arr[0]
+                    // fim: [campus] support export files with other naming scheme
+					'timestamp' => filemtime($export_dir . "/" . $exp_file)
+                    // fim.
 				));
 			}
 		}

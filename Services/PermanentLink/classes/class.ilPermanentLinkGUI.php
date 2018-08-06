@@ -36,7 +36,8 @@ class ilPermanentLinkGUI
 	/**
 	* Example: type = "wiki", id (ref_id) = "234", append = "_Start_Page"
 	*/
-	function __construct($a_type, $a_id, $a_append = "", $a_target = "")
+// fau: dropUp - added dropup mode
+	function __construct($a_type, $a_id, $a_append = "", $a_target = "", $a_dropup = false)
 	{
 		global $DIC;
 
@@ -48,8 +49,11 @@ class ilPermanentLinkGUI
 		$this->setAppend($a_append);
 		$this->setIncludePermanentLinkText(true);
 		$this->setTarget($a_target);
+
+		$this->dropup = $a_dropup;
 	}
-	
+// fau.
+
 	/**
 	* Set Include permanent link text.
 	*
@@ -243,8 +247,9 @@ class ilPermanentLinkGUI
 		{
 			$tpl->setVariable("TARGET", 'target="'.$this->getTarget().'"');
 		}
-
-		$bm_html = self::getBookmarksSelectionList($title, $href);
+// fau: dropUp - set parameter
+		$bm_html = self::getBookmarksSelectionList($title, $href, $this->dropup);
+// fau.
 		if($bm_html)
 		{
 			$tpl->setVariable('SELECTION_LIST', $bm_html);
@@ -252,16 +257,21 @@ class ilPermanentLinkGUI
 
 		return $tpl->get();
 	}
-	
+
 	/**
 	 * @return string
 	 */
-	protected static function getBookmarksSelectionList($title, $href)
+// fau: dropUp - added parameter for dropup mode
+	protected static function _getBookmarksSelectionList($title, $href, $dropup = false)
+// fau.
 	{
 		require_once 'Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php';
 
 		$current_selection_list = new ilAdvancedSelectionListGUI();
 		$current_selection_list->setId('socialbm_actions_' . md5(uniqid(rand(), true)));
+// fau: dropUp - use parameter for dropup mode
+		$current_selection_list->setDropUp($dropup);
+// fau.
 
 		$html = '';
 

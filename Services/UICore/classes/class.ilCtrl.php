@@ -116,8 +116,10 @@ class ilCtrl
 		
 		if ($module != "")
 		{
-			$m_set = $ilDB->query("SELECT * FROM il_component WHERE name = ".
+// fau: sqlCache - use sql cache
+			$m_set = $ilDB->query("SELECT SQL_CACHE * FROM il_component WHERE name = ".
 				$ilDB->quote($module, "text"));
+// fau.
 			$m_rec = $ilDB->fetchAssoc($m_set);
 			$this->module_dir = $m_rec["type"]."/".$m_rec["name"];
 			include_once $this->module_dir."/".$class_dir."/class.".$class.".php";
@@ -604,7 +606,8 @@ class ilCtrl
 		$this->call_node[$a_nr] = array("class" => $a_class, "parent" => $a_parent);
 
 //echo "<br>nr:$a_nr:class:$a_class:parent:$a_parent:";
-		$call_set = $ilDB->query("SELECT * FROM ctrl_calls WHERE parent = ".
+// fau: sqlCache - use sql cache
+		$call_set = $ilDB->query("SELECT SQL_CACHE * FROM ctrl_calls WHERE parent = ".
 			$ilDB->quote(strtolower($a_class), "text").
 			" ORDER BY child", array("text"));
 		$a_parent = $a_nr;
@@ -613,6 +616,7 @@ class ilCtrl
 			$a_nr = $this->readCallStructure($call_rec["child"], $a_nr, $a_parent);
 			$forw[] = $call_rec["child"];
 		}
+// fau.
 		
 		// determin forward and parent array
 		$this->forwards($a_class, $forw);

@@ -160,6 +160,10 @@ class ilSetup
 		define("ILIAS_DATA_DIR",$this->ini->readVariable("clients","datadir"));
 		define("ILIAS_WEB_DIR",$this->ini->readVariable("clients","path"));
 
+// fau: customClientIni - read the client.ini file name from ilias.ini
+		$client_ini = $this->ini->readVariable("clients","inifile");
+		define("ILIAS_CLIENT_INI_FILE", $client_ini ? $client_ini : "client.ini.php");
+// fau.
 		return true;
 	}
 

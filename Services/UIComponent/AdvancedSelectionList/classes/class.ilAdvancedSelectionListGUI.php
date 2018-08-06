@@ -42,7 +42,7 @@ class ilAdvancedSelectionListGUI
 	protected $grouped_list = null;
 	protected $style = 0;
 	private $dd_pullright = true;
-	
+
 	/*
 	
 	The modes implement the following html for non-js fallback:
@@ -550,6 +550,26 @@ class ilAdvancedSelectionListGUI
 		return $this->dd_pullright;
 	}
 
+// fau: dropUp - get/set dropup mode
+	/**
+	 * Set dropup mode
+	 * @param boolean
+	 */
+	function setDropUp($a_dropup)
+	{
+		$this->dropup = $a_dropup;
+	}
+
+	/**
+	 * Get dropup mode
+	 * @return boolean
+	 */
+	function getDropUp()
+	{
+		return $this->dropup;
+	}
+// fau.
+
 	/**
 	* Get selection list HTML
 	*/
@@ -577,6 +597,12 @@ class ilAdvancedSelectionListGUI
 
 		$cnt = 0;
 
+// fau: dropUp - allow dropup menu
+		if ($this->getDropUp())
+		{
+			$tpl->setVariable('DROPUP', 'dropup');
+		}
+// fau.
 		if ($this->getAsynch())
 		{
 			$tpl->setCurrentBlock("asynch_request");

@@ -56,10 +56,13 @@ class ilHelp
 		if ($rec["tt_text"] != "")
 		{
 			$t = $rec["tt_text"];
-			if ($module_id == 0)
+			// fim: [help] make showing of ids independent from OH_REF_ID
+			global $ilCust;
+			if ($ilCust->getSetting("help_show_ids"))
 			{
 				$t.="<br/><i class='small'>".$a_tt_id."</i>";
 			}
+			// fim.
 			return $t;
 		}
 		else // try to get general version
@@ -74,17 +77,23 @@ class ilHelp
 			if ($rec["tt_text"] != "")
 			{
 				$t = $rec["tt_text"];
-				if ($module_id == 0)
+				// fim: [help] make showing of ids independent from OH_REF_ID
+				global $ilCust;
+				if ($ilCust->getSetting("help_show_ids"))
 				{
 					$t.="<br/><i class='small'>".$a_tt_id."</i>";
 				}
+				// fim.
 				return $t;
 			}
 		}
-		if ($module_id == 0)
+		// fim: [help] make showing of ids independent from OH_REF_ID
+		global $ilCust;
+		if ($ilCust->getSetting("help_show_ids"))
 		{
 			return "<i>".$a_tt_id."</i>";
 		}
+		// fim.
 		return "";
 	}
 

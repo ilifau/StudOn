@@ -1,4 +1,6 @@
-<tr class="{CSS_ROW}">
+<!-- fim: [layout] set small class -->
+<tr class="{CSS_ROW} small">
+<!-- fim. -->
 	<td class="std">
 		<input type="checkbox" name="waiting[]" value="{VAL_ID}" />
 	</td>
@@ -19,6 +21,17 @@
 	<td class="std">
 		{VAL_SUBTIME}
 	</td>
+<!-- fau: waitSub - add columns for status and subject -->
+	<td class="std">
+		{VAL_STATUS}
+	</td>
+	<td class="std">
+		<!-- BEGIN to_confirm -->
+		<font class="smallred">{TXT_TO_CONFIRM}</font><br />
+		<!-- END to_confirm -->
+		<font class="small">{VAL_SUBJECT}</font>
+	</td>
+<!-- fau. -->
 	<td class="std">
 			<!-- BEGIN as_link -->
 			<div class="il_ContainerItemCommands2">

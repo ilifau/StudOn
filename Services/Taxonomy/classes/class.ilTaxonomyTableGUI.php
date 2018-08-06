@@ -68,6 +68,9 @@ class ilTaxonomyTableGUI extends ilTable2GUI
 			$this->setDefaultOrderDirection("asc");
 		}
 		$this->addColumn($this->lng->txt("title"));
+// fau: taxDesc - add column for description
+		$this->addColumn($this->lng->txt("description"));
+// fau.
 		
 		$this->setFormAction($ilCtrl->getFormAction($a_parent_obj));
 		$this->setRowTemplate("tpl.tax_row.html", "Services/Taxonomy");
@@ -113,6 +116,9 @@ class ilTaxonomyTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("HREF_TITLE", $ret);
 		
 		$this->tpl->setVariable("TITLE", ilUtil::prepareFormOutput($a_set["title"]));
+// fau: taxDesc - set template var
+		$this->tpl->setVariable("DESCRIPTION", ilUtil::prepareFormOutput($a_set["description"]));
+// fau.
 		$this->tpl->setVariable("NODE_ID", $a_set["child"]);
 	}
 

@@ -214,3 +214,11 @@ table.freefield_bottom {
 	width: 50%;
 	float:left;
 }
+
+
+/* fim: [exam] new style for solution (needed here and in ta.css)*/
+.questionPrintviewCorrectSolution {
+	border-left: 3px dotted green;
+	padding-left:10px;
+}
+/* fim. */

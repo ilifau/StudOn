@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- fau: lmLayout - main.xml for layout 'help'. -->
+<ilLayout>
+	<ilFrame name="maincontent">
+        <PageObject template="tpl.page_new.html" template_location="module">
+            <ilTOC />
+            <ilPage />
+            <ilMainMenu />
+            <ilLMHead />
+            <ilLMNavigation/>
+            <ilFooter /> <!-- must be included before sub menu (this sets a flag to hide the permalink there -->
+            <ilLMSubMenu /><!-- shows "edit page" link" -->
+		</PageObject>
+	</ilFrame>
+	<ilLinkTargets>
+		<LinkTarget Type="New" Frame="_blank"/>
+		<LinkTarget Type="FAQ" Frame="_blank"/>
+		<LinkTarget Type="Glossary" Frame="_blank"/>
+		<LinkTarget Type="Media" Frame="_blank"/>
+	</ilLinkTargets>
+</ilLayout>

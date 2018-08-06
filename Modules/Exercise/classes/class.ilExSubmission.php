@@ -987,6 +987,12 @@ class ilExSubmission
 		{		
 			$user = $item["name"];
 			$user_files = $item["files"];
+// fau: fixExDownloadAll - fault tolerance for missing files
+			if (!is_array($user_files))
+			{
+				$user_files = array();
+			}
+// fau.
 			
 			$sourcedir = $savepath.DIRECTORY_SEPARATOR.$id;
 			if (!is_dir($sourcedir))

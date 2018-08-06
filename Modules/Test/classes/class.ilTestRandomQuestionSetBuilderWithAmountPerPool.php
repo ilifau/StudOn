@@ -79,8 +79,17 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 
 			$requiredQuestionAmount = $definition->getQuestionAmount();
 
-			$potentialQuestionStage = $this->getSrcPoolDefRelatedQuestCollection($definition);
-
+// fau: taxGroupFilter - draw a question group randomly
+			if (!empty($definition->getMappedGroupTaxId()))
+			{
+				// draw the needed amount of questions from a filternode of the group taxonomy
+				$potentialQuestionStage = $this->getQuestionSetForSourcePoolDefinition($definition);
+			}
+			else
+			{
+				$potentialQuestionStage = $this->getSrcPoolDefRelatedQuestCollection($definition);
+			}
+// fau.
 			$actualQuestionStage = $potentialQuestionStage->getRelativeComplementCollection($questionSet);
 
 			if( $actualQuestionStage->isGreaterThan($requiredQuestionAmount) )

@@ -54,11 +54,11 @@ class ilExAssignmentGUI
 		$tpl = new ilTemplate("tpl.assignment_head.html", true, true, "Modules/Exercise");
 		
 		// we are completely ignoring the extended deadline here
-		
+
 		$idl = $a_ass->getPersonalDeadline($ilUser->getId());
-		
+
 		// :TODO: meaning of "ended on"
-		$dl = max($a_ass->getDeadline(), $idl);		
+		$dl = max($a_ass->getDeadline(), $idl);
 		if ($dl &&
 			$dl < time())
 		{
@@ -103,7 +103,7 @@ class ilExAssignmentGUI
 					ilDatePresentation::formatDate(new ilDateTime($a_ass->getDeadline(),IL_CAL_UNIX)));
 				$tpl->parseCurrentBlock();
 			}
-			
+
 			if ($idl && $idl != $a_ass->getDeadline())
 			{
 				$tpl->setCurrentBlock("prop");
@@ -111,8 +111,19 @@ class ilExAssignmentGUI
 				$tpl->setVariable("PROP_VAL",
 					ilDatePresentation::formatDate(new ilDateTime($idl,IL_CAL_UNIX)));
 				$tpl->parseCurrentBlock();
-			}		
+			}
 		}
+
+// fau: exResTime - add info about result availability
+		if ($a_ass->getResultTime() > 0)
+		{
+			$tpl->setCurrentBlock("prop");
+			$tpl->setVariable("PROP", $lng->txt("exc_result_available_after"));
+			$tpl->setVariable("PROP_VAL",
+				ilDatePresentation::formatDate(new ilDateTime($a_ass->getResultTime(),IL_CAL_UNIX)));
+			$tpl->parseCurrentBlock();
+		}
+// fau.
 
 		$mand = "";
 		if ($a_ass->getMandatory())
@@ -122,8 +133,24 @@ class ilExAssignmentGUI
 		$tpl->setVariable("TITLE", $a_ass->getTitle().$mand);
 
 		// status icon
-		$stat = $a_ass->getMemberStatus()->getStatus();
-		$pic = $a_ass->getMemberStatus()->getStatusIcon();	
+// fau: exResTime - don't show the result status before the result time is reached
+		$stat = "not_attempted";
+		$pic = "scorm/not_attempted.svg";
+		if ((int) $a_ass->getResultTime() <= time())
+		{
+			$stat = $a_ass->getMemberStatus()->getStatus();
+			$pic = $a_ass->getMemberStatus()->getStatusIcon();
+		}
+		if ($stat != "passed" and $stat != "failed")
+		{
+			$submission = new ilExSubmission($a_ass, $this->user->getId());
+			if($submission->hasSubmitted())
+			{
+				$stat = "notgraded";
+				$pic = "scorm/running.svg";
+			}
+		}
+// fau.
 		$tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
 		$tpl->setVariable("ALT_STATUS", $lng->txt("exc_".$stat));
 
@@ -153,7 +180,7 @@ class ilExAssignmentGUI
 		}
 
 		$this->addSchedule($info, $a_ass);
-		
+
 		if (!$a_ass->notStartedYet())
 		{
 			$this->addSubmission($info, $a_ass);
@@ -190,8 +217,8 @@ class ilExAssignmentGUI
 	{		
 		$lng = $this->lng;
 		$ilUser = $this->user;
-		
-		$idl = $a_ass->getPersonalDeadline($ilUser->getId());		
+
+		$idl = $a_ass->getPersonalDeadline($ilUser->getId());
 		
 		$a_info->addSection($lng->txt("exc_schedule"));
 		if ($a_ass->getStartTime() > 0)
@@ -199,19 +226,19 @@ class ilExAssignmentGUI
 			$a_info->addProperty($lng->txt("exc_start_time"),
 				ilDatePresentation::formatDate(new ilDateTime($a_ass->getStartTime(),IL_CAL_UNIX)));
 		}
-		
-		// extended deadline info/warning						
+
+		// extended deadline info/warning
 		$late_dl = "";
 		if ($idl &&
-			$idl < time() &&				
+			$idl < time() &&
 			$a_ass->beforeDeadline()) // ext dl is last deadline
-		{				
+		{
 			// extended deadline date should not be presented anywhere
 			$late_dl = ilDatePresentation::formatDate(new ilDateTime($idl, IL_CAL_UNIX));
-			$late_dl = "<br />".sprintf($lng->txt("exc_late_submission_warning"), $late_dl);								
-			$late_dl = '<span class="warning">'.$late_dl.'</span>';									
-		}			
-		
+			$late_dl = "<br />".sprintf($lng->txt("exc_late_submission_warning"), $late_dl);
+			$late_dl = '<span class="warning">'.$late_dl.'</span>';
+		}
+
 		if ($a_ass->getDeadline())
 		{
 			$until = ilDatePresentation::formatDate(new ilDateTime($a_ass->getDeadline(),IL_CAL_UNIX));
@@ -222,24 +249,24 @@ class ilExAssignmentGUI
 			{
 				$until .= $late_dl;
 			}
-			
-			$a_info->addProperty($lng->txt("exc_edit_until"), $until);			
+
+			$a_info->addProperty($lng->txt("exc_edit_until"), $until);
 		}
-		
-		if ($idl && 
+
+		if ($idl &&
 			$idl != $a_ass->getDeadline())
 		{
 			$until = ilDatePresentation::formatDate(new ilDateTime($idl,IL_CAL_UNIX));
-			
+
 			// add late info?
 			if ($late_dl)
 			{
 				$until .= $late_dl;
 			}
-			
-			$a_info->addProperty($lng->txt("exc_individual_deadline"), $until);	
+
+			$a_info->addProperty($lng->txt("exc_individual_deadline"), $until);
 		}
-				
+
 		if (!$a_ass->notStartedYet())
 		{
 			$a_info->addProperty($lng->txt("exc_time_to_send"),
@@ -339,11 +366,11 @@ class ilExAssignmentGUI
 				}
 			}
 
-		}			
+		}
 	}
 
 	protected function addSubmission(ilInfoScreenGUI $a_info, ilExAssignment $a_ass)
-	{		
+	{
 		$lng = $this->lng;
 		$ilCtrl = $this->ctrl;
 		$ilUser = $this->user;
@@ -384,8 +411,12 @@ class ilExAssignmentGUI
 		{
 			$show_global_feedback = ($last_sub && $a_ass->getFeedbackFile());
 		}
-
-		$this->addSubmissionFeedback($a_info, $a_ass, $submission->getFeedbackId(), $show_global_feedback);
+// fau: exResTime - show tutor feedback section after result time
+		if ((int) $a_ass->getResultTime() <= time())
+		{
+			$this->addSubmissionFeedback($a_info, $a_ass, $submission->getFeedbackId(), $show_global_feedback);
+		}
+// fau.
 
 	}
 	
@@ -412,7 +443,9 @@ class ilExAssignmentGUI
 			if ($lpcomment != "")
 			{
 				$a_info->addProperty($lng->txt("exc_comment"),
-					$lpcomment);
+					// fim: [bugfix] allow html special chars in comment
+					ilUtil::prepareFormOutput($lpcomment));
+					// fim.
 			}
 			if ($mark != "")
 			{
@@ -480,7 +513,7 @@ class ilExAssignmentGUI
 			$time_str = $lng->txt("exc_time_over_short");
 		}
 		else
-		{			
+		{
 			$time_str = ilUtil::period2String(new ilDateTime($a_deadline, IL_CAL_UNIX));
 		}
 

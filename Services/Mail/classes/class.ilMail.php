@@ -257,7 +257,19 @@ class ilMail
 			return false;
 		}
 
-		return (bool)$this->soap_enabled;
+
+// fau: mailBySoap - use an customizing switch to enable Mails being sent by SOAP
+		global $ilCust;
+
+		if ($ilCust->getSetting('mail_by_soap'))
+		{
+			return (bool) $this->soap_enabled;
+		}
+		else
+		{
+			return false;
+		}
+// fau.
 	}
 
 	/**
@@ -816,7 +828,7 @@ class ilMail
 
 				if($user_is_active)
 				{
-					if(!$user_can_read_internal_mails 
+					if(!$user_can_read_internal_mails
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_BOTH)
 					{
@@ -848,7 +860,7 @@ class ilMail
 
 			$to  = array();
 			$bcc = array();
-			
+
 			$as_email = array_unique($as_email);
 			if(count($as_email) == 1)
 			{
@@ -899,12 +911,12 @@ class ilMail
 
 				if($user_is_active)
 				{
-					if(!$user_can_read_internal_mails 
+					if(!$user_can_read_internal_mails
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_BOTH)
 					{
 						$as_email[$tmp_user->getId()] = ilMailOptions::getExternalEmailsByUser($tmp_user, $tmp_mail_options);
-	
+
 						if($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL)
 						{
 							continue;
@@ -958,8 +970,8 @@ class ilMail
 					{
 						continue;
 					}
-					
-					
+
+
 					if(!$user_can_read_internal_mails
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_BOTH)
@@ -1321,7 +1333,7 @@ class ilMail
 		$sent_folder_id = $mbox->getSentFolder();
 
 		return $this->sendInternalMail(
-			$sent_folder_id, $this->user_id, $a_attachment, 
+			$sent_folder_id, $this->user_id, $a_attachment,
 			$a_rcp_to,$a_rcp_cc, $a_rcp_bcc,
 			'read', $a_type, 0,
 			$a_m_subject, $a_m_message, $this->user_id, 0
@@ -1650,12 +1662,21 @@ class ilMail
 		{
 			return $lang->txt('mail_salutation_anonymous') . ',';
 		}
-
-		return
-			$lang->txt('mail_salutation_' . $gender) . ' ' .
-			($name['title'] ? $name['title'] . ' ' : '') .
-			($name['firstname'] ? $name['firstname'] . ' ' : '') .
-			$name['lastname'] . ',';
+// fau: genderSalutation - use gender specific salutation in German
+		elseif ($gender != 'n' and $lang->getLangKey() == 'de')
+		{
+			return $lang->txt('mail_salutation_'.$gender).' '.
+				($name['title'] ? $name['title'].' ' : '').
+				$name['lastname'].',';
+		}
+		else
+		{
+			return $lang->txt('mail_salutation_'.$gender).' '.
+				($name['title'] ? $name['title'].' ' : '').
+				($name['firstname'] ? $name['firstname'].' ' : '').
+				$name['lastname'].',';
+		}
+// fau.
 	}
 
 	/**

@@ -29,7 +29,7 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	 *
 	 * @param integer $id The database id of a image map question object
 	 * @param integer $id The database id of a image map question object
-	 * 
+	 *
 	 * @return \assMatchingQuestionGUI
 	 */
 	public function __construct($id = -1)
@@ -445,6 +445,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 		$show_question_text = TRUE
 	)
 	{
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		// generate the question output
 		include_once "./Services/UICore/classes/class.ilTemplate.php";
 		$template = new ilTemplate("tpl.il_as_qpl_matching_output_solution.html", TRUE, TRUE, "Modules/TestQuestionPool");
@@ -621,6 +627,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	{
 		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
 
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		if($GLOBALS['ilBrowser']->isMobile() || $GLOBALS['ilBrowser']->isIpad())
 		{
 			require_once 'Services/jQuery/classes/class.iljQueryUtil.php';
@@ -795,6 +807,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	function getTestOutput($active_id, $pass, $is_postponed = FALSE, $user_post_solution = FALSE, $inlineFeedback = false)
 	// hey.
 	{
+		// fim: [exam] init colorbox
+		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+		iljQueryUtil::initjQuery();
+		iljQueryUtil::initColorbox();
+		// fim.
+
 		if($GLOBALS['ilBrowser']->isMobile() || $GLOBALS['ilBrowser']->isIpad())
 		{
 			require_once 'Services/jQuery/classes/class.iljQueryUtil.php';

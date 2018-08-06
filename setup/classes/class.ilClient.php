@@ -46,7 +46,9 @@ class ilClient
 		if ($a_client_id)
 		{
 			$this->id = $a_client_id;
-			$this->ini_file_path = ILIAS_ABSOLUTE_PATH."/".ILIAS_WEB_DIR."/".$this->getId()."/client.ini.php";
+// fau: customClientIni - use the client ini file name defined in ilias.ini
+			$this->ini_file_path = ILIAS_ABSOLUTE_PATH."/".ILIAS_WEB_DIR."/".$this->getId()."/". ILIAS_CLIENT_INI_FILE;
+// fau.
 		}
 
 		$this->db_connections = $a_db_connections;
@@ -88,6 +90,11 @@ class ilClient
 
 			return false;
 		}
+
+// fau: globalCache - make client.ini globally available in setup
+		global $ilClientIniFile;
+		$ilClientIniFile = $this->ini;
+// fau.
 
 		// only for ilias main
 		define("CLIENT_WEB_DIR", ILIAS_ABSOLUTE_PATH . "/" . ILIAS_WEB_DIR . "/" . $this->getId());
@@ -804,11 +811,13 @@ class ilClient
 	*/
 	function delete ($a_ini = true, $a_db = false, $a_files = false)
 	{
-		if ($a_ini === true and file_exists(ILIAS_ABSOLUTE_PATH."/".ILIAS_WEB_DIR."/".$this->getId()."/client.ini.php"))
+// fau: customClientIni - use the client ini file name defined in ilias.ini
+		if ($a_ini === true and file_exists(ILIAS_ABSOLUTE_PATH."/".ILIAS_WEB_DIR."/".$this->getId()."/".ILIAS_CLIENT_INI_FILE))
 		{
-			unlink(CLIENT_WEB_DIR."/client.ini.php");
+			unlink(CLIENT_WEB_DIR."/".ILIAS_CLIENT_INI_FILE);
 			$msg[] = "ini_deleted";
 		}
+// fau.
 
 		if ($a_db === true and $this->db_exists)
 		{

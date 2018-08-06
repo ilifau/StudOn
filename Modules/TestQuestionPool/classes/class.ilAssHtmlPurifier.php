@@ -30,6 +30,17 @@ abstract class ilAssHtmlPurifier extends ilHtmlPurifierAbstractLibWrapper
 		$config->set('HTML.ForbiddenAttributes', 'div@style');
 		if ($def = $config->maybeGetRawHTMLDefinition()) {
 			$def->addAttribute('a', 'target', 'Enum#_blank,_self,_target,_top');
+
+// fau: nobrElement - add nobr to the known elements of html purifier
+			$def->addElement(
+				'nobr',   // name
+				'Flow',  // content set
+				'Flow', // allowed children
+				'', // attribute collection
+				array(
+				)
+			);
+// fau.
 		}
 
 		return $config;

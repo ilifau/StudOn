@@ -209,6 +209,11 @@ class ilSubscriberTableGUI extends ilTable2GUI
 					$this->tpl->parseCurrentBlock();
 					break;
 
+                // fim: [studydata] format table output of studydata
+                case 'studydata':
+                    $a_set['studydata'] = nl2br($a_set['studydata']);
+                // fim.
+
 				default:
 					$this->tpl->setCurrentBlock('custom_fields');
 					$this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');

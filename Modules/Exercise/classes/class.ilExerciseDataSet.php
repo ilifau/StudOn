@@ -76,7 +76,7 @@ class ilExerciseDataSet extends ilDataSet
 						"ShowSubmissions" => "integer",
 						"ComplBySubmission" => "integer"
 					);
-					
+
 				case "5.2.0":
 				case "5.3.0":
 					return array(
@@ -151,6 +151,9 @@ class ilExerciseDataSet extends ilDataSet
 						,"FeedbackCron" => "integer"
 						,"FeedbackDate" => "integer"
 						,"FeedbackDir" => "directory"
+// fau: exResTime - add result time to export structure
+						,"ResultTime" => "integer"
+// fau.
 					);
 					
 				case "5.1.0":
@@ -185,6 +188,9 @@ class ilExerciseDataSet extends ilDataSet
 						,"FeedbackCron" => "integer"
 						,"FeedbackDate" => "integer"
 						,"FeedbackDir" => "directory"
+// fau: exResTime - add result time to export structure
+						,"ResultTime" => "integer"
+// fau.
 					);
 				case "5.3.0":
 					return array(
@@ -219,6 +225,9 @@ class ilExerciseDataSet extends ilDataSet
 						,"FeedbackCron" => "integer"
 						,"FeedbackDate" => "integer"
 						,"FeedbackDir" => "directory"
+// fau: exResTime - add result time to export structure
+						,"ResultTime" => "integer"
+// fau.
 					);
 			}
 		}
@@ -309,7 +318,7 @@ class ilExerciseDataSet extends ilDataSet
 						" FROM exc_data JOIN object_data ON (exc_data.obj_id = object_data.obj_id)".
 						" WHERE ".$ilDB->in("exc_data.obj_id", $a_ids, false, "integer"));
 					break;
-				
+
 				case "5.2.0":
 				case "5.3.0":
 					$this->getDirectDataFromQuery("SELECT exc_data.obj_id id, title, description,".
@@ -343,6 +352,9 @@ class ilExerciseDataSet extends ilDataSet
 					$this->getDirectDataFromQuery("SELECT id, exc_id exercise_id, type, time_stamp deadline,".
 						" instruction, title, start_time, mandatory, order_nr, peer, peer_min, peer_dl peer_deadline,".
 						" peer_file, peer_prsl peer_personal, fb_file feedback_file, fb_cron feedback_cron, fb_date feedback_date".
+// fau: exResTime - query for result time at export
+						",res_time result_time".
+// fau.
 						" FROM exc_assignment".
 						" WHERE ".$ilDB->in("exc_id", $a_ids, false, "integer"));
 					break;
@@ -354,6 +366,9 @@ class ilExerciseDataSet extends ilDataSet
 						" instruction, title, start_time, mandatory, order_nr, team_tutor, max_file, peer, peer_min,".
 						" peer_dl peer_deadline, peer_file, peer_prsl peer_personal, peer_char, peer_unlock, peer_valid,".
 						" peer_text, peer_rating, peer_crit_cat, fb_file feedback_file, fb_cron feedback_cron, fb_date feedback_date".
+// fau: exResTime - query for result time at export
+						",res_time result_time".
+// fau.
 						" FROM exc_assignment".
 						" WHERE ".$ilDB->in("exc_id", $a_ids, false, "integer"));
 					break;
@@ -430,6 +445,13 @@ class ilExerciseDataSet extends ilDataSet
 				$a_set["Deadline2"] = $deadline->get(IL_CAL_DATETIME,'','UTC');
 			}
 
+// fau: exResTime - convert result time to utc
+			if($a_set["ResultTime"] != "")
+			{
+				$result_time = new ilDateTime($a_set["ResultTime"], IL_CAL_UNIX);
+				$a_set["ResultTime"] = $result_time->get(IL_CAL_DATETIME,'','UTC');
+			}
+// fau.
 			include_once("./Modules/Exercise/classes/class.ilFSStorageExercise.php");
 			$fstorage = new ilFSStorageExercise($a_set["ExerciseId"], $a_set["Id"]);
 			$a_set["Dir"] = $fstorage->getPath();
@@ -566,7 +588,14 @@ class ilExerciseDataSet extends ilDataSet
 						$deadline = new ilDateTime($a_rec["Deadline"], IL_CAL_DATETIME, "UTC");
 						$ass->setDeadline($deadline->get(IL_CAL_UNIX));
 					}
-					
+
+// fau: exResTime - convert result time to utc
+					if ($a_rec["ResultTime"] != "")
+					{
+						$result_time = new ilDateTime($a_rec["ResultTime"], IL_CAL_DATETIME, "UTC");
+						$ass->setResultTime($result_time->get(IL_CAL_UNIX));
+					}
+// fau.
 					$ass->setInstruction($a_rec["Instruction"]);
 					$ass->setTitle($a_rec["Title"]);
 					$ass->setMandatory($a_rec["Mandatory"]);

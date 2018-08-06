@@ -270,7 +270,7 @@ class ilTrQuery
 		$check_agreement = false, $privacy_fields = NULL)
 	{
 		global $ilDB;
-		
+
 		$fields = array("usr_data.usr_id", "login", "active");
 		$udf = self::buildColumns($fields, $a_additional_fields);
 		
@@ -280,7 +280,7 @@ class ilTrQuery
 		// users
 		$left = "";
 		$a_users = self::getParticipantsForObject($a_ref_id);
-		
+
 		$obj_id = ilObject::_lookupObjectId($a_ref_id);
 		self::refreshObjectsStatus(array($obj_id), $a_users);
 
@@ -390,6 +390,11 @@ class ilTrQuery
 			unset($all_public);
 		}
 
+		// fim: [studydata] include studydata class
+		require_once('Services/StudyData/classes/class.ilStudyData.php');
+		// fim.
+
+
 		foreach($a_result["set"] as $idx => $row)
 		{
 			// add udf data
@@ -397,6 +402,13 @@ class ilTrQuery
 			{
 				$a_result["set"][$idx] = $row = array_merge($row, $udf[$row["usr_id"]]);
 			}
+
+			// fim: [studydata] get studydata if allowed
+			if (!$check_agreement or in_array($row["usr_id"], $agreements))
+			{
+				$a_result["set"][$idx]['studydata'] = ilStudyData::_getStudyDataText($row["usr_id"]);
+			}
+			// fim.
 
 			// remove all private data - if active agreement and agreement not given by user
 			if(sizeof($a_privacy_fields) && $a_check_agreement && !in_array($row["usr_id"], $agreements))
@@ -746,7 +758,7 @@ class ilTrQuery
 
 		// users
 		$a_users = self::getParticipantsForObject($a_ref_id);
-		
+
 		$left = "";
 		if (is_array($a_users)) // #14840
 		{
@@ -867,7 +879,7 @@ class ilTrQuery
 		$obj_type = ilObject::_lookupType($obj_id);
 
 		$members = [];
-		
+
 		// try to get participants from (parent) course/group
 		$members_read = false;
 		switch($obj_type)
@@ -878,7 +890,7 @@ class ilTrQuery
 				$member_obj = ilParticipants::getInstance($a_ref_id);
 				$members = $member_obj->getMembers();
 				break;
-			
+
 
 			/* Mantis 19296: Individual Assessment can be subtype of crs.
 		 	 * But for LP view only his own members should be displayed.
@@ -916,7 +928,7 @@ class ilTrQuery
 				$members
 			);
 		}
-		
+
 		$a_users = null;
 		
 		// no participants possible: use tracking/object data where possible
@@ -981,7 +993,7 @@ class ilTrQuery
 		{
 			return $a_users;
 		}
-		
+
 		// begin-patch ouf
 		return $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
 			'read_learning_progress',
@@ -1233,9 +1245,14 @@ class ilTrQuery
 
 					switch($field)
 					{
+						// fim: [studydata] don't get the studydata directly from user table
+						case "studydata":
+							break;
+						// fim.
+
 						case 'org_units':
 							break;
-						
+
 						case "language":
 							if($function)
 							{
@@ -1334,7 +1351,7 @@ class ilTrQuery
 			// what about LP_MODE_SCORM_PACKAGE ?
 			case ilLPObjSettings::LP_MODE_SCORM:
 				include_once "Services/Tracking/classes/class.ilLPStatusFactory.php";
-				$status_scorm = get_class(ilLPStatusFactory::_getInstance($a_parent_obj_id, ilLPObjSettings::LP_MODE_SCORM));				
+				$status_scorm = get_class(ilLPStatusFactory::_getInstance($a_parent_obj_id, ilLPObjSettings::LP_MODE_SCORM));
 				$scorm = $status_scorm::_getStatusInfo($a_parent_obj_id);
 				break;
 			
@@ -1568,10 +1585,10 @@ class ilTrQuery
 			$udf = self::buildColumns($fields, $a_additional_fields);
 				
 			include_once("./Services/Tracking/classes/class.ilLPStatus.php");
-					
+
 			// #18673 - if parent supports percentage does not matter for "sub-items"
 			$fields[] = "percentage";
-																		
+
 			$raw = array();
 			foreach($a_obj_ids as $obj_id)
 			{				
@@ -1582,7 +1599,7 @@ class ilTrQuery
 					" AND ut_lp_marks.obj_id = ".$ilDB->quote($obj_id, "integer").")".
 					" LEFT JOIN usr_pref ON (usr_pref.usr_id = usr_data.usr_id AND keyword = ".$ilDB->quote("language", "text").")".
 					self::buildFilters($where);
-				
+
 				$raw = self::executeQueries(array(array("fields"=>$fields, "query"=>$query)), "login");
 				if($raw["cnt"])
 				{
@@ -1651,7 +1668,7 @@ class ilTrQuery
 			include_once "Modules/Course/classes/Objectives/class.ilLOSettings.php";
 			$lo_set = ilLOSettings::getInstanceByObjId($a_parent_obj_id);
 			$initial_qualifying = $lo_set->isInitialTestQualifying();	
-		
+
 			// there may be missing entries for any user / objective combination
 			foreach($objective_ids as $objective_id)
 			{
@@ -1781,7 +1798,7 @@ class ilTrQuery
 		foreach($res as $type => $values)
 		{
 			$res[$type]["objects"] = sizeof(array_unique($values["objects"]));
-		}		
+		}
 		
 		// portfolios (not part of repository)
 		foreach(self::getPortfolios() as $obj_id)
@@ -1790,65 +1807,65 @@ class ilTrQuery
 			$res["prtf"]["references"]++;
 			$res["prtf"]["objects"]++;
 		}
-		
+
 		foreach(self::getWorkspaceBlogs() as $obj_id)
 		{
 			$res["blog"]["type"] = "blog";
 			$res["blog"]["references"]++;
 			$res["blog"]["objects"]++;
 		}
-		
+
 		return $res;
 	}
-	
+
 	static public function getWorkspaceBlogs($a_title = null)
 	{
 		global $ilDB;
-		
+
 		$res = array();
-		
+
 		// blogs in workspace?
-		$sql = "SELECT od.obj_id,oref.wsp_id,od.type".		
+		$sql = "SELECT od.obj_id,oref.wsp_id,od.type".
 			" FROM tree_workspace wst".
 			" JOIN object_reference_ws oref ON (oref.wsp_id = wst.child)".
 			" JOIN object_data od ON (oref.obj_id = od.obj_id)".
 			" WHERE od.type = ".$ilDB->quote("blog", "text");
-		
+
 		if($a_title)
 		{
 			$sql .= " AND ".$ilDB->like("od.title", "text", "%".$a_title."%");
 		}
-		
-		$set = $ilDB->query($sql);		
-		while($row = $ilDB->fetchAssoc($set))
-		{
-			$res[] = $row["obj_id"];
-		}
-				
-		return $res;
-	}
-	
-	static public function getPortfolios($a_title = null)
-	{
-		global $ilDB;
-		
-		$res = array();
-		
-		$sql = "SELECT od.obj_id".
-			" FROM usr_portfolio prtf".
-			" JOIN object_data od ON (od.obj_id = prtf.id)";
-		
-		if($a_title)
-		{
-			$sql .= " WHERE ".$ilDB->like("od.title", "text", "%".$a_title."%");
-		}
-		
+
 		$set = $ilDB->query($sql);
 		while($row = $ilDB->fetchAssoc($set))
 		{
 			$res[] = $row["obj_id"];
 		}
-				
+
+		return $res;
+	}
+
+	static public function getPortfolios($a_title = null)
+	{
+		global $ilDB;
+
+		$res = array();
+
+		$sql = "SELECT od.obj_id".
+			" FROM usr_portfolio prtf".
+			" JOIN object_data od ON (od.obj_id = prtf.id)";
+
+		if($a_title)
+		{
+			$sql .= " WHERE ".$ilDB->like("od.title", "text", "%".$a_title."%");
+		}
+
+		$set = $ilDB->query($sql);
+		while($row = $ilDB->fetchAssoc($set))
+		{
+			$res[] = $row["obj_id"];
+		}
+
 		return $res;
 	}
 

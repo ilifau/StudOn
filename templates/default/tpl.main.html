@@ -5,7 +5,12 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>{WINDOW_TITLE} {PAGETITLE}</title>
-	<!-- BEGIN mh_meta_item -->
+<!-- fau: customPage - custom meta tags -->
+    <!-- BEGIN custom_meta_tags -->
+    {CUSTOM_META_TAG}
+    <!-- END custom_meta_tags -->
+<!-- fau. -->
+    <!-- BEGIN mh_meta_item -->
 	<meta name="{MH_META_NAME}" lang="{MH_META_LANG}" content="{MH_META_CONTENT}" />
 	<!-- END mh_meta_item -->
     <!-- BEGIN HeadBaseTag -->
@@ -46,7 +51,12 @@
 	<!-- END ContentStyle -->
 	<!-- <link rel="P3Pv1" href="{LOCATION_P3PFILE}" /> -->
 	{LOCATION_NEWCONTENT_STYLESHEET_TAG}
-<!-- BEGIN HeadContent -->
+<!-- fau: customPage - custom css files -->
+    <!-- BEGIN custom_css_file -->
+    <link rel="stylesheet" type="text/css" href="{CSS_FILE}" media="{CSS_MEDIA}" />
+    <!-- END custom_css_file -->
+<!-- fau. -->
+    <!-- BEGIN HeadContent -->
 {CONTENT_BLOCK}
 <!-- END HeadContent -->
 <!-- BEGIN CalendarJS -->

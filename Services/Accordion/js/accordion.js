@@ -156,7 +156,12 @@ il.Accordion = {
 		} else {
 			il.Accordion.handleAccordion(id, el);
 		}
-		return false;
+
+// fau: ownFooter - adjust footer when accordion changes
+        il.UICore.refreshLayout();
+// fau.
+
+        return false;
 	},
 
 	initByIntId: function(int_id) {
@@ -215,7 +220,11 @@ il.Accordion = {
 						il.Accordion.rerenderContent(t);
 
 						a.animating = false;
-					});
+
+// fau: ownFooter - adjust footer when accordion changes
+                        il.UICore.refreshLayout();
+// fau.
+                    });
 				}
 			});
 
@@ -287,7 +296,11 @@ il.Accordion = {
 						$(this).addClass("ilAccHideContent");
 						a.last_opened_acc = null;
 						a.animating = false;
-					});
+
+// fau: ownFooter - adjust footer when accordion changes
+                        il.UICore.refreshLayout();
+// fau.
+                    });
 				}
 			});
 
@@ -325,7 +338,11 @@ il.Accordion = {
 				tab_nr = il.Accordion.getTabNr(a.clicked_acc);
 				il.Util.sendAjaxGetRequestToUrl(a.save_url + act + "&tab_nr=" + tab_nr, {}, {}, null);
 			}
-		});
+
+// fau: ownFooter - adjust footer when accordion changes
+            il.UICore.refreshLayout();
+// fau.
+        });
 	},
 
 	getTabNr: function (acc_el) {
@@ -426,6 +443,10 @@ il.Accordion = {
 			il.Accordion.saveOpenedTabs(a, id);
 
 			a.animating = false;
+
+// fau: ownFooter - adjust footer when accordion changes
+            il.UICore.refreshLayout();
+// fau.
 		});
 
 
@@ -439,7 +460,11 @@ il.Accordion = {
 			}
 			$(last_acc).animate(options2, il.Accordion.duration, function () {
 				$(last_acc).addClass("ilAccHideContent");
-			});
+
+// fau: ownFooter - adjust footer when accordion changes
+                il.UICore.refreshLayout();
+// fau.
+            });
 		}
 	},
 

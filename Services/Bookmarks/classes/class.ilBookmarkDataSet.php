@@ -180,7 +180,9 @@ class ilBookmarkDataSet extends ilDataSet
 								$parent = (int) $a_mapping->getMapping("Services/Bookmarks", "bookmark_tree", $a_rec["Parent"]);
 								include_once("./Services/Bookmarks/classes/class.ilBookmarkFolder.php");
 								$bmf = new ilBookmarkFolder(0, $usr_id);
-								$bmf->setTitle($a_rec["Title"]);
+// fau: fixPdImportXss - apply secureString
+								$bmf->setTitle(ilUtil::secureString($a_rec["Title"]));
+// fau.
 								$bmf->setParent($parent);
 								$bmf->create();
 								$fold_id = $bmf->getId();
@@ -215,9 +217,11 @@ class ilBookmarkDataSet extends ilDataSet
 //echo "-$parent-";
 							include_once("./Services/Bookmarks/classes/class.ilBookmark.php");
 							$bm = new ilBookmark(0, $usr_id);
-							$bm->setTitle($a_rec["Title"]);
-							$bm->setDescription($a_rec["Description"]);
-							$bm->setTarget($a_rec["Target"]);
+// fau: fixPdImportXss - apply secureString
+							$bm->setTitle(ilUtil::secureString($a_rec["Title"]));
+							$bm->setDescription(ilUtil::secureString($a_rec["Description"]));
+							$bm->setTarget(ilUtil::secureString($a_rec["Target"]));
+// fau.
 							$bm->setParent($parent);
 							$bm->create();
 							break;

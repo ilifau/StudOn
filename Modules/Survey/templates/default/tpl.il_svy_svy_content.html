@@ -1,3 +1,4 @@
+<!-- fim: [form] added  classes ilSurvey*. -->
 <!-- BEGIN percentage -->
 <div align="center">	
 	<div style="width:50%">{NEW_PBAR}</div>
@@ -6,7 +7,7 @@
 <!-- END percentage -->
 <form name="surveyOutput" method="post" action="{FORM_ACTION}" class="form-inline" role="form">
 <table class="fullwidth">
-	<tr>
+	<tr class="ilSurveyTopRow">
 	<td align="left" width="33%" class="submit">
 <!-- BEGIN top_prev -->
 		<input type="submit" id="prevButton" class="btn btn-default" name="cmd[previous]" value="{BTN_PREV}" />
@@ -14,7 +15,7 @@
 	</td>
 	<td class="submit">
 <!-- BEGIN suspend_survey -->
-		<div align="center">
+		<div align="center" class="ilSurveySuspend">
 			<a href="{HREF_SUSPEND}" class="btn btn-default">{TEXT_SUSPEND}</a>
 		</div>
 <!-- END suspend_survey -->
@@ -36,8 +37,11 @@
 <!-- BEGIN heading -->
 <div class="questionheading">{QUESTION_HEADING}</div>
 <!-- END heading -->
+<div class="ilSurveyQuestionOutput">
 {QUESTION_OUTPUT}
-<br />
+</div>
+<br class="ilSurveyContentBreak1" />
+<br class="ilSurveyContentBreak2" />
 <!-- END survey_content -->
 {SYSTEMSETTINGS}
 			</div>
@@ -51,16 +55,16 @@
 	<!-- END required -->				
 </table>
 <!-- BEGIN bottom_navigation -->
-<table class="fullwidth">
-	<tr>
-		<td align="left" width="33%" class="submit">
+<table class="fullwidth ilSurveyBottomTable">
+	<tr class="ilSurveyBottomRow">
+		<td class="ilSurveyBottomRowLeft" align="left" width="33%" class="submit">
 <!-- BEGIN bottom_prev -->
 			<input type="submit" id="prevButtonBottom" class="btn btn-default" name="cmd[previous]" value="{BTN_PREV}" />
 <!-- END bottom_prev -->
 		</td>
-		<td align="left" width="1" class="submit">
+		<td class="ilSurveyBottomRowMiddle" align="left" width="1" class="submit">
 		</td>
-		<td align="right" width="33%" class="submit">
+		<td class="ilSurveyBottomRowRight" align="right" width="33%" class="submit">
 <!-- BEGIN bottom_next -->
 			<input type="submit" id="nextButtonBottom" class="btn btn-default btn-primary" name="cmd[next]" value="{BTN_NEXT}" />
 <!-- END bottom_next -->

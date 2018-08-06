@@ -44,7 +44,7 @@ class ilTestPDFGenerator
 		{
 			return $contentHtml;
 		}
-		
+
 		$html = self::buildHtmlDocument($contentHtml, $styleHtml);
 
 		$dom = new DOMDocument("1.0", "utf-8");
@@ -52,7 +52,7 @@ class ilTestPDFGenerator
 		{
 			return $html;
 		}
-		
+
 		$invalid_elements = array();
 
 		$script_elements     = $dom->getElementsByTagName('script');

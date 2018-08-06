@@ -65,11 +65,16 @@ class ilWikiPageGUI extends ilPageObjectGUI
 		
 		// content style
 		include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-		
-		$tpl->setCurrentBlock("SyntaxStyle");
-		$tpl->setVariable("LOCATION_SYNTAX_STYLESHEET",
-			ilObjStyleSheet::getSyntaxStylePath());
-		$tpl->parseCurrentBlock();
+
+// fau: fixRemoveTrashed - allow instatiation of wiki pages in cron job (e.g. for deleting trash)
+		if (is_object($tpl))
+		{
+			$tpl->setCurrentBlock("SyntaxStyle");
+			$tpl->setVariable("LOCATION_SYNTAX_STYLESHEET",
+				ilObjStyleSheet::getSyntaxStylePath());
+			$tpl->parseCurrentBlock();
+		}
+// fau.
 	}
 	
 	/**
@@ -98,13 +103,13 @@ class ilWikiPageGUI extends ilPageObjectGUI
 	/**
 	 * Set wiki
 	 *
-	 * @param ilObjWiki $a_val wiki	
+	 * @param ilObjWiki $a_val wiki
 	 */
 	function setWiki($a_val)
 	{
 		$this->wiki = $a_val;
 	}
-	
+
 	/**
 	 * Get wiki
 	 *
@@ -113,8 +118,8 @@ class ilWikiPageGUI extends ilPageObjectGUI
 	function getWiki()
 	{
 		return $this->wiki;
-	}	
-	
+	}
+
 	/**
 	* execute command
 	*/

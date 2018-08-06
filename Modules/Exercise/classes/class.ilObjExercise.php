@@ -37,11 +37,11 @@ class ilObjExercise extends ilObject
 	var $certificate_visibility;
 	
 	var $tutor_feedback = 7; // [int]
-	
+
 	const TUTOR_FEEDBACK_MAIL = 1;
 	const TUTOR_FEEDBACK_TEXT = 2;
 	const TUTOR_FEEDBACK_FILE = 4;
-	
+
 	/**
 	 * 
 	 * Indicates whether completion by submission is enabled or not
@@ -179,31 +179,31 @@ class ilObjExercise extends ilObject
 	{
 		return $this->tutor_feedback & self::TUTOR_FEEDBACK_TEXT;
 	}
-	
+
 	function hasTutorFeedbackMail()
 	{
 		return $this->tutor_feedback & self::TUTOR_FEEDBACK_MAIL;
 	}
-	
+
 	function hasTutorFeedbackFile()
 	{
 		return $this->tutor_feedback & self::TUTOR_FEEDBACK_FILE;
 	}
-	
+
 	protected function getTutorFeedback()
 	{
 		return $this->tutor_feedback;
 	}
-	
+
 	public function setTutorFeedback($a_value)
 	{
 		$this->tutor_feedback = $a_value;
 	}
-	
+
 	function saveData()
 	{
 		$ilDB = $this->db;
-		
+
 		$ilDB->insert("exc_data", array(
 			"obj_id" => array("integer", $this->getId()),
 			"instruction" => array("clob", $this->getInstruction()),
@@ -237,39 +237,39 @@ class ilObjExercise extends ilObject
 	 	$new_obj->saveData();
 	 	$new_obj->setPassNr($this->getPassNr());
 	 	$new_obj->setShowSubmissions($this->getShowSubmissions());
-	 	$new_obj->setCompletionBySubmission($this->isCompletionBySubmissionEnabled());	 
+	 	$new_obj->setCompletionBySubmission($this->isCompletionBySubmissionEnabled());
 		$new_obj->setTutorFeedback($this->getTutorFeedback());
 		$new_obj->setCertificateVisibility($this->getCertificateVisibility());
 	 	$new_obj->update();
 
 		$new_obj->saveCertificateVisibility($this->getCertificateVisibility());
-	 	
+
 		// Copy criteria catalogues
 		$crit_cat_map = array();
 		include_once("./Modules/Exercise/classes/class.ilExcCriteriaCatalogue.php");
 		foreach(ilExcCriteriaCatalogue::getInstancesByParentId($this->getId()) as $crit_cat)
 		{
 			$new_id = $crit_cat->cloneObject($new_obj->getId());
-			$crit_cat_map[$crit_cat->getId()] = $new_id;			
+			$crit_cat_map[$crit_cat->getId()] = $new_id;
 		}
-			
+
 		// Copy assignments
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
-		ilExAssignment::cloneAssignmentsOfExercise($this->getId(), $new_obj->getId(), $crit_cat_map);	
+		ilExAssignment::cloneAssignmentsOfExercise($this->getId(), $new_obj->getId(), $crit_cat_map);
 		
 		// Copy learning progress settings
 		include_once('Services/Tracking/classes/class.ilLPObjSettings.php');
 		$obj_settings = new ilLPObjSettings($this->getId());
 		$obj_settings->cloneSettings($new_obj->getId());
 		unset($obj_settings);
-		
+
 		// #18945
 		include_once "./Services/Certificate/classes/class.ilCertificate.php";
 		include_once "./Modules/Exercise/classes/class.ilExerciseCertificateAdapter.php";
 		$cert = new ilCertificate(new ilExerciseCertificateAdapter($this));
 		$newcert = new ilCertificate(new ilExerciseCertificateAdapter($new_obj));
 		$cert->cloneCertificate($newcert);
-			
+
 		return $new_obj;
 	}
 	
@@ -368,7 +368,7 @@ class ilObjExercise extends ilObject
 			));
 
 		$this->updateAllUsersStatus();
-		
+
 		return true;
 	}
 
@@ -381,27 +381,27 @@ class ilObjExercise extends ilObject
 		$ilUser = $this->user;
 		
 		$lng->loadLanguageModule("exc");
-		
+
 		// subject
 		$subject = $a_ass->getTitle()
 			? $this->getTitle().": ".$a_ass->getTitle()
 			: $this->getTitle();
-		
-		
+
+
 		// body
-		
+
 		$body = $a_ass->getInstruction();
 		$body .= "\n\n";
-		
+
 		$body .= $lng->txt("exc_edit_until").": ";
 		$body .= (!$a_ass->getDeadline())
 		  ? $lng->txt("exc_no_deadline_specified")
 		  : ilDatePresentation::formatDate(new ilDateTime($a_ass->getDeadline(), IL_CAL_UNIX));
 		$body .= "\n\n";
-		
+
 		include_once "Services/Link/classes/class.ilLink.php";
 		$body .= ilLink::_getLink($this->getRefId(), "exc");
-		
+
 
 		// files
 		$file_names = array();
@@ -428,7 +428,7 @@ class ilObjExercise extends ilObject
 			unset($tmp_obj);
 		}
 		$recipients = implode("," ,$recipients);
-	
+
 		// send mail
 		include_once "Services/Mail/classes/class.ilMail.php";
 		$tmp_mail_obj = new ilMail($ilUser->getId());
@@ -436,7 +436,7 @@ class ilObjExercise extends ilObject
 			$recipients,
 			"",
 			"",
-			$subject, 
+			$subject,
 			$body,
 			$file_names,
 			array("normal")
@@ -455,7 +455,7 @@ class ilObjExercise extends ilObject
 		{
 			$member_status = $a_ass->getMemberStatus($member_id);
 			$member_status->setSent(true);
-			$member_status->update();			
+			$member_status->update();
 		}
 
 		return true;
@@ -507,8 +507,14 @@ class ilObjExercise extends ilObject
 		{
 			$passed_all_mandatory = false;
 		}
-		
-		if ($this->getPassMode() != "nr")
+
+		// fim: [exercise] respect take existing status in "manual" mode
+		if ($this->getPassMode() == "man")
+		{
+			$overall_stat = ilExerciseMembers::_lookupStatus($this->getId(), $a_user_id);
+		}
+		elseif ($this->getPassMode() != "nr")
+		// fim.
 		{
 //echo "5";
 			$overall_stat = "notgraded";
@@ -590,97 +596,141 @@ class ilObjExercise extends ilObject
 	 */
 	function exportGradesExcel()
 	{
+
+		// fim: [exercise] check whether matriculation can be exported
+		global $ilCust;
+		$full_data = $ilCust->getSetting("export_member_data_is_allowed");
+		// fim.
+
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
 		$ass_data = ilExAssignment::getInstancesByExercise($this->getId());
 		
 		include_once "./Services/Excel/classes/class.ilExcel.php";
 		$excel = new ilExcel();
 		$excel->addSheet($this->lng->txt("exc_status"));
-		
+
 		
 		//
 		// status
 		//
 		
 		// header row
-		$row = $cnt = 1;
-		$excel->setCell($row, 0, $this->lng->txt("name"));		
+		// fim: [exercise] add extra fields to header
+		$row = 1;
+		$col = 0;
+		$excel->setCell($row, $col++, $this->lng->txt("login"));
+		$excel->setCell($row, $col++, $this->lng->txt("name"));
+		if ($full_data)
+		{
+			$excel->setCell($row, $col++, $this->lng->txt("matriculation"));
+		}
+		$ass_cnt = 1;
 		foreach ($ass_data as $ass)
 		{
-			$excel->setCell($row, $cnt++, $cnt-1);		
+			$excel->setCell($row, $col++, $ass_cnt++);
 		}
-		$excel->setCell($row, $cnt++, $this->lng->txt("exc_total_exc"));
-		$excel->setCell($row, $cnt++, $this->lng->txt("exc_mark"));
-		$excel->setCell($row++, $cnt, $this->lng->txt("exc_comment_for_learner"));
-		$excel->setBold("A1:".$excel->getColumnCoord($cnt)."1");
+		$excel->setCell($row, $col++, $this->lng->txt("exc_total_exc"));
+		$excel->setCell($row, $col++, $this->lng->txt("exc_mark"));
+		$excel->setCell($row++, $col, $this->lng->txt("exc_comment_for_learner"));
+		$excel->setBold("A1:".$excel->getColumnCoord($col_cnt)."1");
+		// fim.
 		
 		// data rows
 		$mem_obj = new ilExerciseMembers($this);
-		
+
 		$filtered_members = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
 			'etit_submissions_grades',
 			'edit_submissions_grades',
 			$this->getRefId(),
 			(array) $mem_obj->getMembers()
 		);
-		
+
 		foreach((array) $filtered_members as $user_id)
 		{
-			$mems[$user_id] = ilObjUser::_lookupName($user_id);
+			// fim: [exercise] get all user fields
+			$mems[$user_id] = ilObjUser::_lookupFields($user_id);
+			// fim.
 		}
 		$mems = ilUtil::sortArray($mems, "lastname", "asc", false, true);
-		
+
 		include_once 'Services/Tracking/classes/class.ilLPMarks.php';
 		foreach ($mems as $user_id => $d)
 		{
+			// fim: [exercise] add extra fields to row
 			$col = 0;
 
+			// login
+			$excel->setCell($row, $col++ $d["login"]);
 			// name
 			$excel->setCell($row, $col++, $d["lastname"].", ".$d["firstname"]." [".$d["login"]."]");
+			// matriculation
+			if ($full_data)
+			{
+				$excel->setCell($row, $col++, $d["matriculation"]);
+			}
+			// fim.
 
 			reset($ass_data);
 			foreach ($ass_data as $ass)
 			{
 				$status = $ass->getMemberStatus($user_id)->getStatus();
-				$excel->setCell($row, $col++, $this->lng->txt("exc_".$status));		
+				$excel->setCell($row, $col++, $this->lng->txt("exc_".$status));
 			}
 			
 			// total status
 			$status = ilExerciseMembers::_lookupStatus($this->getId(), $user_id);
 			$excel->setCell($row, $col++, $this->lng->txt("exc_".$status));
-			
+
 			// #18096
 			$marks_obj = new ilLPMarks($this->getId(), $user_id);
 			$excel->setCell($row, $col++, $marks_obj->getMark());
-			$excel->setCell($row++, $col, $marks_obj->getComment());						
+			$excel->setCell($row++, $col, $marks_obj->getComment());
 		}
-		
-		
+
+
 		//
 		// mark
 		//
-		
+
 		$excel->addSheet($this->lng->txt("exc_mark"));
 		
 		// header row
-		$row = $cnt = 1;
-		$excel->setCell($row, 0, $this->lng->txt("name"));		
+		// fim: [exercise] add extra fields to header
+		$row = 1;
+		$cnt = 0;
+		$excel->setCell($row, $cnt++, $this->lng->txt("login"));
+		$excel->setCell($row, $cnt++, $this->lng->txt("name"));
+		if ($full_data)
+		{
+			$excel->setCell($row, $col, $this->lng->txt("matriculation"));
+		}
+		$ass_cnt = 1;
 		foreach ($ass_data as $ass)
 		{
-			$excel->setCell($row, $cnt++, $cnt-1);		
+			$excel->setCell($row, $cnt++, $ass_cnt);
 		}
 		$excel->setCell($row++, $cnt++, $this->lng->txt("exc_total_exc"));
 		$excel->setBold("A1:".$excel->getColumnCoord($cnt)."1");
+		// fim.
 		
-		// data rows		
+		// data rows
 		reset($mems);
 		foreach ($mems as $user_id => $d)
 		{
 			$col = 0;
-			
-			// name			
+
+			// fim: [exercise] add extra fields to row
+			// login
+			$excel->setCell($row, $col++ $d["login"]);
+			// name
 			$d = ilObjUser::_lookupName($user_id);
 			$excel->setCell($row, $col++, $d["lastname"].", ".$d["firstname"]." [".$d["login"]."]");
+			// matriculation
+			if ($full_data)
+			{
+				$excel->setCell($row, $col++, $d["matriculation"]);
+			}
+			// fim.
 
 			reset($ass_data);
 			foreach ($ass_data as $ass)
@@ -688,10 +738,10 @@ class ilObjExercise extends ilObject
 				$excel->setCell($row, $col++, $ass->getMemberStatus($user_id)->getMark());
 			}
 			
-			// total mark			
+			// total mark
 			$excel->setCell($row++, $col, ilLPMarks::_lookupMark($user_id, $this->getId()));
 		}
-		
+
 		$exc_name = ilUtil::getASCIIFilename(preg_replace("/\s/", "_", $this->getTitle()));
 		$excel->sendToClient($exc_name);
 	}
@@ -756,21 +806,21 @@ class ilObjExercise extends ilObject
 	
 	public function processExerciseStatus(ilExAssignment $a_ass, array $a_user_ids, $a_has_submitted, array $a_valid_submissions = null)
 	{
-		$a_has_submitted = (bool)$a_has_submitted;			
-		
+		$a_has_submitted = (bool)$a_has_submitted;
+
 		include_once("./Modules/Exercise/classes/class.ilExerciseMembers.php");
 		foreach($a_user_ids as $user_id)
-		{		
+		{
 			$member_status = $a_ass->getMemberStatus($user_id);
-			$member_status->setReturned($a_has_submitted);	
-			$member_status->update();	
-			
+			$member_status->setReturned($a_has_submitted);
+			$member_status->update();
+
 			ilExerciseMembers::_writeReturned($this->getId(), $user_id, $a_has_submitted);
-		}		 
-				
+		}
+
 		// re-evaluate exercise status
 		if($this->isCompletionBySubmissionEnabled())
-		{							
+		{
 			foreach($a_user_ids as $user_id)
 			{
 				$status = 'notgraded';
@@ -779,17 +829,17 @@ class ilObjExercise extends ilObject
 					if(!is_array($a_valid_submissions) ||
 						$a_valid_submissions[$user_id])
 					{
-						$status = 'passed';				
-					}					
+						$status = 'passed';
+					}
 				}
-									
+
 				$member_status = $a_ass->getMemberStatus($user_id);
-				$member_status->setStatus($status);		
-				$member_status->update();				
+				$member_status->setStatus($status);
+				$member_status->update();
 			}
-		}			
-	}	
-	
+		}
+	}
+
 	/**
 	 * Get all exercises for user
 	 *

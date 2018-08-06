@@ -76,7 +76,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 		foreach($sourcePoolDefinitionList as $definition)
 		{
 			/** @var ilTestRandomQuestionSetSourcePoolDefinition $definition */
-			
+
 			// hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
 			$questions = $this->getSrcPoolDefRelatedQuestCollection($definition);
 			// hey.
@@ -85,7 +85,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 
 		return $questionStage;
 	}
-	
+
 	// hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
 	/**
 	 * @param ilTestRandomQuestionSetSourcePoolDefinition $definition
@@ -99,7 +99,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 
 		return $questionStage;
 	}
-	
+
 	// hey: fixRandomTestBuildable - rename/public-access to be aware for building interface
 	/**
 	 * @param ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList
@@ -112,7 +112,18 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 	}
 	// hey.
 
-	private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+// fau: taxGroupFilter - get a pre-selected set of questions for a source pool definition
+	protected function getQuestionSetForSourcePoolDefinition(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+	{
+		$questionIds = $this->getQuestionIdsForSourcePoolDefinitionIds($definition, true);
+		$questionStage = $this->buildSetQuestionCollection($definition, $questionIds);
+
+		return $questionStage;
+	}
+// fau.
+
+// fau: taxGroupFilter - add parameter to select questions from a group
+	private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition, $select = false)
 	{
 		$this->stagingPoolQuestionList->resetQuestionList();
 
@@ -132,7 +143,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 			#);
 			// fau.
 		}
-		
+
 		// fau: taxFilter/typeFilter - use type filter
 		if ($this->hasTypeFilter($definition))
 		{
@@ -140,9 +151,25 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 		}
 		// fau.
 
+// fau: taxGroupFilter - set the gouping information
+		$this->stagingPoolQuestionList->setGroupTaxId($definition->getMappedGroupTaxId());
+		$this->stagingPoolQuestionList->setSelectSize($definition->getQuestionAmount());
+// fau.
+
+// fau: randomOrder - set order information
+		$this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
+// fau.
+
 		$this->stagingPoolQuestionList->loadQuestions();
 
-		return $this->stagingPoolQuestionList->getQuestions();
+		if ($select)
+		{
+			return $this->stagingPoolQuestionList->getSelectedQuestions();
+		}
+		else
+		{
+			return $this->stagingPoolQuestionList->getQuestions();
+		}
 	}
 
 	private function buildSetQuestionCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition, $questionIds)
@@ -181,7 +208,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 		// fau.
 		return true;
 	}
-	
+
 	//	fau: typeFilter - check for existing type filter
 	private function hasTypeFilter(ilTestRandomQuestionSetSourcePoolDefinition $definition)
 	{
@@ -189,7 +216,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 	//	fau.
@@ -261,7 +288,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
 			$db, $testOBJ, $questionSetConfig, $sourcePoolDefinitionList, $stagingPoolQuestionList
 		);
 	}
-	
+
 	//fau: fixRandomTestBuildable - function to get messages
 	/**
 	 * @return array

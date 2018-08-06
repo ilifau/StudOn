@@ -55,7 +55,12 @@ class ilTemplate extends HTML_Template_ITX
 	var $js_files_batch = array("./Services/JavaScript/js/Basic.js" => 1);	// version parameter flag
 	var $css_files = array();		// list of css files that should be included
 	var $inline_css = array();
-	var $admin_panel_commands = array();
+// fau: customPage - custom css files and meta tags
+	var $custom_css_files = array();	// these will be included after the basic css file
+    var $custom_meta_tags = array();	// these will be included after the basic meta tags
+// fau.
+
+    var $admin_panel_commands = array();
 	
 	private $addFooter; // creates an output of the ILIAS footer
 
@@ -269,6 +274,9 @@ class ilTemplate extends HTML_Template_ITX
 			$this->initHelp();
 			
 			// these fill blocks in tpl.main.html
+// fau: customPage - fill custom meta tags
+            $this->fillCustomMetaTags();
+// fau.
 			$this->fillCssFiles();
 			$this->fillInlineCss();
 			$this->fillContentStyle();
@@ -547,6 +555,9 @@ class ilTemplate extends HTML_Template_ITX
 					}
 
 					// these fill blocks in tpl.main.html
+// fau: customPage - fill custom meta tags
+					$this->fillCustomMetaTags();
+// fau.
 					$this->fillCssFiles();
 					$this->fillInlineCss();
 					//$this->fillJavaScriptFiles();
@@ -575,7 +586,7 @@ class ilTemplate extends HTML_Template_ITX
 					// late loading of javascipr files, since operations above may add files
 					$this->fillJavaScriptFiles();
 					$this->fillOnLoadCode();
-					
+
 					// these fill just plain placeholder variables in tpl.adm_content.html
 					if ($this->blockExists("content"))
 					{
@@ -751,7 +762,26 @@ class ilTemplate extends HTML_Template_ITX
 			$this->touchBlock("page_form_end");
 		}
 	}
-	
+
+// fau: customPage - new function to fill custom meta tags
+    protected function fillCustomMetaTags()
+    {
+        foreach($this->custom_meta_tags as $attributes)
+        {
+            $html = "";
+            foreach ($attributes as $name => $value)
+            {
+                $html .= $name . '="' . $value . '" ';
+            }
+
+            $this->setCurrentBlock("custom_meta_tags");
+            $this->setVariable("CUSTOM_META_TAG", "<meta "  .$html . " />");
+            $this->parseCurrentBlock();
+        }
+    }
+// fau.
+
+
 	function fillJavaScriptFiles($a_force = false)
 	{
 		global $DIC;
@@ -760,8 +790,10 @@ class ilTemplate extends HTML_Template_ITX
 
 		if (is_object($ilSetting))		// maybe this one can be removed
 		{
-			$vers = "vers=".str_replace(array(".", " "), "-", $ilSetting->get("ilias_version"));
-			
+// fau: versionSuffix - use the version number with own suffix
+			$vers = "vers=".str_replace(array(".", " "), "-", $ilSetting->get("ilias_version_suffix"));
+// fau.
+
 			if(DEVMODE)
 			{
 				$vers .= '-'.time();
@@ -779,7 +811,7 @@ class ilTemplate extends HTML_Template_ITX
 					{
 						if (is_file($file) || substr($file, 0, 4) == "http" || substr($file, 0, 2) == "//" || $a_force)
 						{
-							$this->fillJavascriptFile($file, $vers);							
+							$this->fillJavascriptFile($file, $vers);
 						}
 						else if(substr($file, 0, 2) == './') // #13962
 						{
@@ -818,6 +850,21 @@ class ilTemplate extends HTML_Template_ITX
 				$this->parseCurrentBlock();
 			}
 		}
+
+// fau: customPage - include the custom css files
+		foreach($this->custom_css_files as $css)
+		{
+			$filename = $css["file"];
+			if (strpos($filename, "?") > 0) $filename = substr($filename, 0, strpos($filename, "?"));
+			if (is_file($filename) || $a_force)
+			{
+				$this->setCurrentBlock("custom_css_file");
+				$this->setVariable("CSS_FILE", $css["file"]);
+				$this->setVariable("CSS_MEDIA", $css["media"]);
+				$this->parseCurrentBlock();
+			}
+		}
+// fau.
 	}
 
 	/**
@@ -928,31 +975,54 @@ class ilTemplate extends HTML_Template_ITX
 		}
 
 		$ftpl = new ilTemplate("tpl.footer.html", true, true, "Services/UICore");
-
-		$php = "";
-		if (DEVMODE)
-		{
-			$php = ", PHP ".phpversion();
-		}
-		$ftpl->setVariable("ILIAS_VERSION", $ilSetting->get("ilias_version").$php);
 		
+// fau: ownFooter - fill the footer
+		global $ilCust;
+		$lng->loadLanguageModule("common");
+		$ftpl->setVariable("FAU_LOGO", ilUtil::getImagePath("studon/fau-white.svg"));
+		$ftpl->setVariable("ILI_LOGO", ilUtil::getImagePath("studon/ili-white.svg"));
+
+		if ($ilCust->getSetting('ilias_footer_type') != 'exam')
+		{
+			$ftpl->setVariable("TXT_FINANCED_BY", $lng->txt('footer_financed_by'));
+
+			$ftpl->setVariable("TXT_CONTACT", $lng->txt('footer_contact'));
+			$ftpl->setVariable("URL_CONTACT", $ilCust->getSetting("ilias_footer_contact_url"));
+
+			$ftpl->setVariable("TXT_IMPRINT", $lng->txt('footer_imprint'));
+			$ftpl->setVariable("URL_IMPRINT", $ilCust->getSetting("ilias_footer_imprint_url"));
+
+			$ftpl->setVariable("TXT_PRIVACY", $lng->txt('footer_privacy'));
+			$ftpl->setVariable("URL_PRIVACY", $ilCust->getSetting("ilias_footer_privacy_url"));
+
+			$ftpl->setVariable("TXT_REALISED_WITH", $lng->txt('footer_realised_with'));
+			$ftpl->setVariable("ILIAS_VERSION_NUMERIC", ILIAS_VERSION_NUMERIC);
+		}
+
+		$ftpl->setVariable("SERVER_ADDR", $_SERVER['SERVER_ADDR']);
+		$ftpl->setVariable("SERVER_NAME", current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR']))));
+		$ftpl->setVariable("USERS_ONLINE", ilSession::_getUsersOnline());
+		$ftpl->setVariable("TXT_SERVER", $lng->txt('footer_server'));
+		$ftpl->setVariable("TXT_ACTIVE_USERS", $lng->txt('footer_active_users'));
+		$ftpl->setVariable("TXT_HOTLINE", $lng->txt('footer_hotline'));
+
+
+		if (is_array($this->permanent_link))
+		{
+			include_once("./Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
+			$plinkgui = new ilPermanentLinkGUI(
+				$this->permanent_link["type"],
+				$this->permanent_link["id"],
+				$this->permanent_link["append"],
+				$this->permanent_link["target"],
+				true);
+			$plinkgui->setTitle($this->permanent_link["title"]);
+			$ftpl->setVariable("PRMLINK", $plinkgui->getHTML());
+		}
+
 		$link_items = array();
-		
-		// imprint
-		include_once "Services/Imprint/classes/class.ilImprint.php";
-		if($_REQUEST["baseClass"] != "ilImprintGUI" && ilImprint::isActive())
-		{
-			include_once "Services/Link/classes/class.ilLink.php";
-			$link_items[ilLink::_getStaticLink(0, "impr")] = array($lng->txt("imprint"), true);
-		}
+// fau.
 
-		// system support contacts
-		include_once("./Modules/SystemFolder/classes/class.ilSystemSupportContactsGUI.php");
-		if (($l = ilSystemSupportContactsGUI::getFooterLink()) != "")
-		{
-			$link_items[$l] = array(ilSystemSupportContactsGUI::getFooterText(), false);
-		}
-				
 		if (DEVMODE)
 		{
 			if (function_exists("tidy_parse_string"))
@@ -998,23 +1068,25 @@ class ilTemplate extends HTML_Template_ITX
 			$diff = $t2[0] - $t1[0] + $t2[1] - $t1[1];
 
 			$mem_usage = array();
+// fau: devmodeFooter - show memory usage as MB
 			if(function_exists("memory_get_usage"))
 			{
 				$mem_usage[] =
-					"Memory Usage: ".memory_get_usage()." Bytes";
+					"Memory Usage: ".round(memory_get_usage()/(1024*1024))." MB";
 			}
 			if(function_exists("xdebug_peak_memory_usage"))
 			{
 				$mem_usage[] =
-					"XDebug Peak Memory Usage: ".xdebug_peak_memory_usage()." Bytes";
+					"XDebug Peak Memory Usage: ".round(xdebug_peak_memory_usage()/(1024*1024))." MB";
 			}
+// fau.
 			$mem_usage[] = round($diff, 4)." Seconds";
 			
 			if (sizeof($mem_usage))
 			{
 				$ftpl->setVariable("MEMORY_USAGE", "<br>".implode(" | ", $mem_usage));
 			}
-			
+
 			if (!empty($_GET["do_dev_validate"]) && $ftpl->blockExists("xhtml_validation"))
 			{
 				require_once("Services/XHTMLValidator/classes/class.ilValidatorAdapter.php");
@@ -1561,7 +1633,7 @@ class ilTemplate extends HTML_Template_ITX
 		if (strpos($a_tplname,"/") === false)
 		{
 			$module_path = "";
-			
+
 			if ($a_in_module)
 			{
 				if ($a_in_module === true)
@@ -1838,10 +1910,12 @@ class ilTemplate extends HTML_Template_ITX
 			foreach($this->title_alerts as $alert)
 			{
 				$this->setCurrentBlock('header_alert');
-				if(!($alert['propertyNameVisible'] === false))
+				// fim: [meminf] show alert property name only if it exists
+				if ($alert['property'] != '' and !($alert['propertyNameVisible'] === false))
 				{
 					$this->setVariable('H_PROP', $alert['property'].':');
 				}
+				// fim.
 				$this->setVariable('H_VALUE', $alert['value']);
 				$this->parseCurrentBlock();
 			}
@@ -2362,7 +2436,25 @@ class ilTemplate extends HTML_Template_ITX
 		}
 	}
 
-	/**
+// fau: customPage - new function to sdd a custom css file behind the standard files
+	function addCustomCss($a_css_file, $media = "screen")
+	{
+		if (!array_key_exists($a_css_file . $media, $this->css_files))
+		{
+			$this->custom_css_files[$a_css_file . $media] = array("file" => $a_css_file, "media" => $media);
+		}
+	}
+// fau.
+
+// fau: customPage - add a custom meta tag
+// This was used by former AccountingQuestion plugin to solve IE10 issues with flash
+    public function addCustomMetaTag($a_attributes)
+    {
+            $this->custom_meta_tags[] = $a_attributes;
+    }
+// fau.
+
+    /**
 	 * Add a css file that should be included in the header.
 	 */
 	function addInlineCss($a_css, $media = "screen")
@@ -2524,7 +2616,9 @@ class ilTemplate extends HTML_Template_ITX
 	*/
 	function fillPermanentLink()
 	{
-		if (is_array($this->permanent_link))
+// fau: ownFooter - don't add permanent link outside footer
+		if (false and is_array($this->permanent_link))
+// fau.
 		{
 			include_once("./Services/PermanentLink/classes/class.ilPermanentLinkGUI.php");
 			$plinkgui = new ilPermanentLinkGUI(

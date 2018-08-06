@@ -11,6 +11,9 @@ require_once "./Services/Object/classes/class.ilObjectGUI.php";
 * @version $Id$
 *
 * @ilCtrl_Calls ilObjUserGUI: ilLearningProgressGUI, ilObjectOwnershipManagementGUI
+* fim: [studydata]: studydata tab
+* @ilCtrl_Calls ilObjUserGUI: ilStudyDataGUI
+* fim.
 *
 * @ingroup ServicesUser
 */
@@ -78,6 +81,14 @@ class ilObjUserGUI extends ilObjectGUI
 
 		switch($next_class)
 		{
+			// fim: [studydata] show StudyDataGUI
+			case "ilstudydatagui":
+				include_once './Services/StudyData/classes/class.ilStudyDataGUI.php';
+				$new_gui =& new ilStudyDataGUI($this->object);
+				$this->ctrl->forwardCommand($new_gui);
+				break;
+			// fim.
+
 			case "illearningprogressgui":
 				include_once './Services/Tracking/classes/class.ilLearningProgressGUI.php';
 				$new_gui = new ilLearningProgressGUI(ilLearningProgressGUI::LP_CONTEXT_USER_FOLDER,USER_FOLDER_ID,$this->object->getId());
@@ -169,6 +180,14 @@ class ilObjUserGUI extends ilObjectGUI
 			$this->tabs_gui->addTarget("properties",
 				$this->ctrl->getLinkTarget($this, "edit"), array("edit","","view"), get_class($this));
 		}
+
+		// fim: [studydata] add studydata tab
+		$this->lng->loadLanguageModule("registration");
+		$tabs_gui->addTarget('study_data',
+				$this->ctrl->getLinkTargetByClass('ilstudydatagui',''),
+							 '',
+							'ilstudydatagui');
+		// fim.
 
 		$this->tabs_gui->addTarget("role_assignment",
 			$this->ctrl->getLinkTarget($this, "roleassignment"), array("roleassignment"), get_class($this));
@@ -599,13 +618,13 @@ class ilObjUserGUI extends ilObjectGUI
 				break;
 		}		
 		
-		$from = $this->form_gui->getItemByPostVar('time_limit_from')->getDate();	
-		$user->setTimeLimitFrom($from 
+		$from = $this->form_gui->getItemByPostVar('time_limit_from')->getDate();
+		$user->setTimeLimitFrom($from
 			? $from->get(IL_CAL_UNIX)
 			: null);
 		
-		$until = $this->form_gui->getItemByPostVar('time_limit_until')->getDate();		
-		$user->setTimeLimitUntil($until 
+		$until = $this->form_gui->getItemByPostVar('time_limit_until')->getDate();
+		$user->setTimeLimitUntil($until
 			? $until->get(IL_CAL_UNIX)
 			: null);
 		
@@ -620,10 +639,10 @@ class ilObjUserGUI extends ilObjectGUI
 		if($this->isSettingChangeable('birthday'))
 		{
 			$bd = $this->form_gui->getItemByPostVar('birthday');
-			$bd = $bd->getDate();			
+			$bd = $bd->getDate();
 			$user->setBirthday($bd
 				? $bd->get(IL_CAL_DATE)
-				: null);			
+				: null);
 		}
 		
 		// Login
@@ -994,7 +1013,7 @@ class ilObjUserGUI extends ilObjectGUI
 		$data["time_limit_until"] = $this->object->getTimeLimitUntil()
 			? new ilDateTime($this->object->getTimeLimitUntil(), IL_CAL_UNIX)
 			: null;
-	
+
 		
 		// BEGIN DiskQuota, Show disk space used
 		require_once 'Services/WebDAV/classes/class.ilDiskQuotaActivationChecker.php';
@@ -1437,7 +1456,7 @@ class ilObjUserGUI extends ilObjectGUI
 				$caption = ($field == "title")
 					? "person_title"
 					: $field;
-				$inp = new ilTextInputGUI($lng->txt($caption), $field);			
+				$inp = new ilTextInputGUI($lng->txt($caption), $field);
 				$inp->setSize(32);
 				$inp->setMaxLength(32);
 				$inp->setRequired($req);
@@ -1460,7 +1479,7 @@ class ilObjUserGUI extends ilObjectGUI
 		if($this->isSettingChangeable('birthday'))
 		{
 			$birthday = new ilBirthdayInputGUI($lng->txt('birthday'), 'birthday');
-			$birthday->setRequired(isset($settings["require_birthday"]) && $settings["require_birthday"]);			
+			$birthday->setRequired(isset($settings["require_birthday"]) && $settings["require_birthday"]);
 			$this->form_gui->addItem($birthday);
 		}
 
@@ -1530,12 +1549,12 @@ class ilObjUserGUI extends ilObjectGUI
 				$settings["require_email"]);
 			$this->form_gui->addItem($em);
 		}
-		
+
 		// second email
 		if($this->isSettingChangeable('second_email'))
 		{
 			$em = new ilEMailInputGUI($lng->txt("second_email"), "second_email");
-			
+
 			$this->form_gui->addItem($em);
 		}
 
@@ -1584,7 +1603,7 @@ class ilObjUserGUI extends ilObjectGUI
 			}
 		}		
 		
-		
+
 		// other information
 		if($this->isSettingChangeable('user_profile_other'))
 		{
@@ -1603,6 +1622,13 @@ class ilObjUserGUI extends ilObjectGUI
 				$settings["require_matriculation"]);
 			$this->form_gui->addItem($mr);
 		}
+
+		// fim: [studydata] add row for studydata
+		include_once './Services/StudyData/classes/class.ilStudyData.php';
+		$stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
+  		$stu->setHTML(nl2br(ilStudyData::_getStudyDataText($this->object->getId())));
+ 		$this->form_gui->addItem($stu);
+		// fim.
 
 		// client IP
 		$ip = new ilTextInputGUI($lng->txt("client_ip"), "client_ip");
@@ -2457,7 +2483,7 @@ class ilObjUserGUI extends ilObjectGUI
 	public static function _goto($a_target)
 	{
 		global $ilUser, $ilCtrl;
-				
+
 		// #10888
 		if($a_target == md5("usrdelown"))
 		{						
@@ -2470,7 +2496,7 @@ class ilObjUserGUI extends ilObjectGUI
 			}
 			exit("This account is not flagged for deletion."); // #12160
 		}
-		
+
 		// badges
 		if(substr($a_target, -4) == "_bdg")
 		{

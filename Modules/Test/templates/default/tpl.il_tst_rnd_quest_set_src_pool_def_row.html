@@ -5,11 +5,26 @@
 	<!-- BEGIN col_order_checkbox -->
 	<td class="std">{ORDER_INPUT_HTML}</td>
 	<!-- END col_order_checkbox -->
-	<td class="std">{SOURCE_POOL_LABEL}</td>
-<!-- fau: taxFilter/typeFilter merge columns for tax and add col for type -->
-	<td class="std">{TAXONOMY_FILTER}</td>
-	<td class="std">{TYPE_FILTER}</td>
-<!-- fau. -->
+	<!-- fau: linkRandomPool - template -->
+	<td class="std">
+		<!-- BEGIN pool_linked -->
+		<a href="{SOURCE_POOL_LINK}">{SOURCE_POOL_LABEL_LINKED}</a>
+		<!-- END pool_linked -->
+		<!-- BEGIN pool_unlinked -->
+		{SOURCE_POOL_LABEL_UNLINKED}
+		<!-- END pool_unlinked -->
+	</td>
+	<!-- fau. -->
+    <!-- fau: taxFilter - merge columns for taxonomy filter -->
+	<!-- fau: taxGroupFilter - add grouping info -->
+	<td class="std">{TAXONOMY_FILTER}{GROUP_TAXONOMY}</td>
+    <!-- fau. -->
+    <!-- fau: typeFilter - new column -->
+    <td class="std">{TYPE_FILTER}</td>
+    <!-- fau. -->
+	<!-- fau: randomSetOrder - new column -->
+	<td class="std">{ORDER_BY}</td>
+	<!-- fau. -->
 	<!-- BEGIN col_question_amount -->
 	<td class="std">{QUESTION_AMOUNT_INPUT_HTML}</td>
 	<!-- END col_question_amount -->

@@ -16,7 +16,7 @@ include_once './Services/Membership/classes/class.ilMembershipRegistrationSettin
 class ilObjSession extends ilObject
 {
 	const LOCAL_ROLE_PARTICIPANT_PREFIX = 'il_sess_participant';
-	
+
 	const CAL_REG_START = 1;
 	
 	protected $db;
@@ -30,6 +30,9 @@ class ilObjSession extends ilObject
 	protected $event_id;
 	
 	protected $reg_type = ilMembershipRegistrationSettings::TYPE_NONE;
+// fau: objectSub - class variable
+	protected $reg_ref_id = null;
+// fau.
 	protected $reg_limited = 0;
 	protected $reg_min_users = 0;
 	protected $reg_limited_users = 0;
@@ -43,7 +46,7 @@ class ilObjSession extends ilObject
 	 * @var ilLogger
 	 */
 	protected $session_logger = null;
-	
+
 
 	
 	/**
@@ -55,7 +58,7 @@ class ilObjSession extends ilObject
 	public function __construct($a_id = 0,$a_call_by_reference = true)
 	{
 		global $ilDB;
-		
+
 		$this->session_logger = $GLOBALS['DIC']->logger()->sess();
 
 		$this->db = $ilDB;
@@ -141,7 +144,7 @@ class ilObjSession extends ilObject
 			self::LOCAL_ROLE_PARTICIPANT_PREFIX,
 			$this->getRefId()
 		);
-		
+
 		if(!$role instanceof ilObjRole)
 		{
 			$this->session_logger->warning('Could not create default session role.');
@@ -294,7 +297,18 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_type;
 	}
-	
+
+// fau: objectSub - getter / setter
+	function getRegistrationRefId()
+	{
+		return $this->reg_ref_id;
+	}
+	function setRegistrationRefId($a_ref_id)
+	{
+		$this->reg_ref_id = $a_ref_id;
+	}
+// fau.
+
 	public function isRegistrationUserLimitEnabled()
 	{
 		return $this->reg_limited;
@@ -309,12 +323,12 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_min_users;
 	}
-	
+
 	public function setRegistrationMinUsers($a_users)
 	{
 		$this->reg_min_users = $a_users;
 	}
-	
+
 	public function getRegistrationMaxUsers()
 	{
 		return $this->reg_limited_users;
@@ -339,12 +353,19 @@ class ilObjSession extends ilObject
 	{
 		$this->reg_waiting_list_autofill = (bool)$a_value;
 	}
-	
+
 	public function hasWaitingListAutoFill()
 	{
 		return (bool)$this->reg_waiting_list_autofill;
 	}
-	
+
+// fau: fairSub - fake getSubscriptionFair()
+	public function getSubscriptionFair()
+	{
+		return 0;
+	}
+// fau.
+
 	/**
 	 * is registration enabled
 	 *
@@ -355,7 +376,34 @@ class ilObjSession extends ilObject
 	{
 		return $this->reg_type != ilMembershipRegistrationSettings::TYPE_NONE;
 	}
-	
+
+	// fim: [memsess] new function registrationPossible()
+	function registrationPossible()
+	{
+		if (!$this->enabledRegistration())
+		{
+			return false;
+		}
+		elseif ($this->getRegistrationMaxUsers() == 0)
+		{
+			return true;
+		}
+		else
+		{
+			require_once("./Modules/Session/classes/class.ilEventParticipants.php");
+			$registrations = count(ilEventParticipants::_getRegistered($this->getId()));
+			if ($registrations < $this->getRegistrationMaxUsers())
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	// fim.
+
 	/**
 	 * get appointments
 	 *
@@ -424,15 +472,15 @@ class ilObjSession extends ilObject
 	public function validate()
 	{
 		global $ilErr;
-		
+
 		// #17114
 		if($this->isRegistrationUserLimitEnabled() &&
 			!$this->getRegistrationMaxUsers())
-		{			
+		{
 			$ilErr->appendMessage($this->lng->txt("sess_max_members_needed"));
 			return false;
 		}
-		
+
 		return true;
 	}
 	
@@ -449,11 +497,11 @@ class ilObjSession extends ilObject
 	 	$new_obj = parent::cloneObject($a_target_id,$a_copy_id, $a_omit_tree);
 
 	 	$this->read();
-	 	
+
 		$this->cloneSettings($new_obj);
 	 	$this->cloneMetaData($new_obj);
-	 	
-		
+
+
 		// Clone appointment
 		$new_app = $this->getFirstAppointment()->cloneObject($new_obj->getId());
 		$new_obj->setAppointments(array($new_app));
@@ -495,6 +543,9 @@ class ilObjSession extends ilObject
 		$new_obj->setDetails($this->getDetails());
 		
 		$new_obj->setRegistrationType($this->getRegistrationType());
+// fau: objectSub - clone sub_ref_id
+		$new_obj->setRegistrationRefId($this->getRegistrationRefId());
+// fau.
 		$new_obj->enableRegistrationUserLimit($this->isRegistrationUserLimitEnabled());
 		$new_obj->enableRegistrationWaitingList($this->isRegistrationWaitingListEnabled());
 		$new_obj->setWaitingListAutoFill($this->hasWaitingListAutoFill());
@@ -548,8 +599,9 @@ class ilObjSession extends ilObject
 		}
 
 		$next_id = $ilDB->nextId('event');
+// fau: objectSub - create sub_ref_id
 		$query = "INSERT INTO event (event_id,obj_id,location,tutor_name,tutor_phone,tutor_email,details,registration, ".
-			'reg_type, reg_limit_users, reg_limited, reg_waiting_list, reg_min_users, reg_auto_wait) '.
+			'reg_type, sub_ref_id, reg_limit_users, reg_limited, reg_waiting_list, reg_min_users, reg_auto_wait) '.
 			"VALUES( ".
 			$ilDB->quote($next_id,'integer').", ".
 			$this->db->quote($this->getId() ,'integer').", ".
@@ -560,12 +612,14 @@ class ilObjSession extends ilObject
 			$this->db->quote($this->getDetails() ,'text').",".
 			$this->db->quote($this->enabledRegistration() ,'integer').", ".
 			$this->db->quote($this->getRegistrationType(),'integer').', '.
+			$this->db->quote($this->getRegistrationRefId(),'integer').', '.
 			$this->db->quote($this->getRegistrationMaxUsers(),'integer').', '.
 			$this->db->quote($this->isRegistrationUserLimitEnabled(),'integer').', '.
 			$this->db->quote($this->isRegistrationWaitingListEnabled(),'integer').', '.
 			$this->db->quote($this->getRegistrationMinUsers(),'integer').', '.
 			$this->db->quote($this->hasWaitingListAutoFill(),'integer').' '.
 			")";
+// fau.
 		$res = $ilDB->manipulate($query);
 		$this->event_id = $next_id;
 		
@@ -598,7 +652,7 @@ class ilObjSession extends ilObject
 		{
 			$this->updateMetaData();
 		}
-		
+
 		$query = "UPDATE event SET ".
 			"location = ".$this->db->quote($this->getLocation() ,'text').",".
 			"tutor_name = ".$this->db->quote($this->getName() ,'text').", ".
@@ -607,6 +661,9 @@ class ilObjSession extends ilObject
 			"details = ".$this->db->quote($this->getDetails() ,'text').", ".
 			"registration = ".$this->db->quote($this->enabledRegistration() ,'integer').", ".
 			"reg_type = ".$this->db->quote($this->getRegistrationType() ,'integer').", ".
+// fau: objectSub - update sub_ref_id
+			"sub_ref_id = ".$this->db->quote($this->getRegistrationRefId() ,'integer').", ".
+// fau.
 			"reg_limited = ".$this->db->quote($this->isRegistrationUserLimitEnabled() ,'integer').", ".
 			"reg_limit_users = ".$this->db->quote($this->getRegistrationMaxUsers() ,'integer').", ".
 			"reg_min_users = ".$this->db->quote($this->getRegistrationMinUsers() ,'integer').", ".
@@ -638,10 +695,10 @@ class ilObjSession extends ilObject
 		{
 			return false;
 		}
-		
+
 		// delete meta data
 		$this->deleteMetaData();
-		
+
 		$query = "DELETE FROM event ".
 			"WHERE obj_id = ".$this->db->quote($this->getId() ,'integer')." ";
 		$res = $ilDB->manipulate($query);
@@ -693,6 +750,9 @@ class ilObjSession extends ilObject
 			$this->setEmail($row->tutor_email);
 			$this->setDetails($row->details);
 			$this->setRegistrationType($row->reg_type);
+// fau: objectSub - read sub_ref_id
+			$this->setRegistrationRefId($row->sub_ref_id);
+// fau.
 			$this->enableRegistrationUserLimit($row->reg_limited);
 			$this->enableRegistrationWaitingList($row->reg_waiting_list);
 			$this->setWaitingListAutoFill($row->reg_auto_wait);
@@ -772,20 +832,20 @@ class ilObjSession extends ilObject
 	 * Handle auto fill for session members
 	 */
 	public function handleAutoFill()
-	{	
+	{
 		if(
-			!$this->isRegistrationWaitingListEnabled() || 
+			!$this->isRegistrationWaitingListEnabled() ||
 			!$this->hasWaitingListAutoFill()
 		)
 		{
 			$this->session_logger->debug('Waiting list or auto fill is disabled.');
 			return true;
 		}
-		
+
 		$parts = ilSessionParticipants::_getInstanceByObjId($this->getId());
 		$current = $parts->getCountParticipants();
 		$max = $this->getRegistrationMaxUsers();
-		
+
 		if($max <= $current)
 		{
 			$this->session_logger->debug('Maximum number of participants not reached.');
@@ -793,7 +853,7 @@ class ilObjSession extends ilObject
 			$this->session_logger->debug('Current number of members: ' . $current);
 			return true;
 		}
-		
+
 		$session_waiting_list = new ilSessionWaitingList($this->getId());
 		foreach($session_waiting_list->getUserIds() as $user_id)
 		{
@@ -808,7 +868,7 @@ class ilObjSession extends ilObject
 				$this->session_logger->notice('User on waiting list already session member: ' . $user_id);
 				continue;
 			}
-			
+
 			if($this->enabledRegistration())
 			{
 				$this->session_logger->debug('Registration enabled: register user');
@@ -827,9 +887,9 @@ class ilObjSession extends ilObject
 					$user_id
 				);
 			}
-			
+
 			$session_waiting_list->removeFromList($user_id);
-			
+
 			$current++;
 			if($current >= $max)
 			{
@@ -837,7 +897,7 @@ class ilObjSession extends ilObject
 			}
 		}
 	}
-	
+
 	/**
 	 * Get mail to members type
 	 * @return int
@@ -846,10 +906,10 @@ class ilObjSession extends ilObject
 	{
 		return false;
 	}
-	
+
 	/**
 	 * init participants object
-	 * 
+	 *
 	 *
 	 * @access protected
 	 * @return
@@ -859,10 +919,10 @@ class ilObjSession extends ilObject
 		include_once('./Modules/Session/classes/class.ilSessionParticipants.php');
 		$this->members_obj = ilSessionParticipants::_getInstanceByObjId($this->getId());
 	}
-	
+
 	/**
 	 * Get members objects
-	 * 
+	 *
 	 * @return ilGroupParticipants
 	 */
 	public function getMembersObject()
@@ -874,8 +934,37 @@ class ilObjSession extends ilObject
 		}
 		return $this->members_obj;
 	}
-	
 
+
+
+	// fim: [memsess] _getSessions() get child sessions of an object
+	// sessions are ordered by date and title
+	public static function _getSessions($a_parent_ref_id, $a_for_registration = false)
+	{
+		global $ilAccess, $tree;
+
+		$sessions = array();
+		foreach ($tree->getChildsByType($a_parent_ref_id, "sess") as $node)
+		{
+			if(!is_object($session = ilObjectFactory::getInstanceByRefId($node["child"],false)))
+			{
+				continue;
+			}
+			if ($a_for_registration and !$session->enabledRegistration())
+			{
+				continue;
+			}
+			$sort = $session->getFirstAppointment()->getStart()->get(IL_CAL_DATETIME);
+			$sort.= ' '.$session->getTitle();
+			$sort.= ' '.$session->getId();
+
+			$sessions[$sort] = $session;
+		}
+
+		ksort($sessions);
+		return array_values($sessions);
+	}
+	// fim.
 }
 
 ?>

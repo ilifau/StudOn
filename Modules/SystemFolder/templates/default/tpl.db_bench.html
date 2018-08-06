@@ -1,13 +1,20 @@
+<!-- fau: extendBenchmark rearranged columns, add expand -->
 <tr class="{CSS_ROW}">
-	<td class="std small">
-		{VAL1}
-	</td>
-	<td class="std small">
-		{VAL2}
-	</td>
 	<!-- BEGIN td -->
 	<td class="std small">
 		{VAL}
 	</td>
 	<!-- END td -->
+	<!-- BEGIN toggle -->
+	<td class="std small">
+		<a onclick="$('#{EXPAND_ID}').toggle(); return false;"><img src="{EXPAND_IMG}" alt="{EXPAND_TXT}" /></a>
+	</td>
+	<!-- END toggle -->
+	<!-- BEGIN td2 -->
+	<td class="std small wrap">
+		{VAL2}
+		<pre id="{EXPAND_ID}" style="display:none;">{EXPAND_VAL}</pre>
+	</td>
+	<!-- END td2 -->
 </tr>
+<!-- fau. -->

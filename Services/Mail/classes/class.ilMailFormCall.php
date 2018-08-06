@@ -10,10 +10,10 @@
 class ilMailFormCall
 {
 	/**
-	 * 
+	 *
 	 */
 	const SESSION_KEY = 'mail_transport';
-	
+
 	/**
 	 * HTTP-GET parameter for the referer url
 	 */
@@ -214,7 +214,7 @@ class ilMailFormCall
 	public static function getContextId()
 	{
 		$session = ilSession::get(self::SESSION_KEY);
-		return ( 
+		return (
 			isset($session[self::CONTEXT_PREFIX][self::CONTEXT_KEY]) &&
 			strlen($session[self::CONTEXT_PREFIX][self::CONTEXT_KEY]) ?
 			$session[self::CONTEXT_PREFIX][self::CONTEXT_KEY] : NULL

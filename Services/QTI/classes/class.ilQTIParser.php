@@ -134,7 +134,7 @@ class ilQTIParser extends ilSaxParser
 	}
 	
 	protected $questionSetType = null;
-	
+
 	/**
 	* Constructor
 	*
@@ -216,7 +216,7 @@ class ilQTIParser extends ilSaxParser
 	{
 		$this->questionSetType = $questionSetType;
 	}
-	
+
 	function setTestObject(&$a_tst_object)
 	{
 		$this->tst_object =& $a_tst_object;
@@ -1115,6 +1115,19 @@ class ilQTIParser extends ilSaxParser
 			case "itemmetadata":
 				$this->in_itemmetadata = FALSE;
 				break;
+
+			// fim: [bugfix] allow metadata fields being indeded
+			case "fieldlabel":
+				$this->metadata["label"] = $this->characterbuffer;
+				$this->characterbuffer = "";
+				break;
+			case "fieldentry":
+				$this->metadata["entry"] = $this->characterbuffer;
+				$this->characterbuffer = "";
+				break;
+			// fim.
+
+
 			case "qtimetadatafield":
 				// handle only specific ILIAS metadata
 				switch ($this->metadata["label"])
@@ -1448,6 +1461,14 @@ class ilQTIParser extends ilSaxParser
 				}
 				$this->mattext = NULL;
 				break;
+			// fim: [exam] add support for matbreak element
+			case "matbreak":
+				$this->mattext = new ilQTIMattext();
+				$this->mattext->setContent('<br />');
+				$this->material->addMattext($this->mattext);
+				$this->mattext = NULL;
+				break;
+			// fim.
 			case "matapplet":
 				if ($this->material != NULL)
 				{
@@ -1586,7 +1607,7 @@ class ilQTIParser extends ilSaxParser
 	function handlerVerifyBeginTag($a_xml_parser,$a_name,$a_attribs)
 	{
 		$this->qti_element = $a_name;
-		
+
 		switch (strtolower($a_name))
 		{
 			case "assessment":
@@ -1802,7 +1823,7 @@ class ilQTIParser extends ilSaxParser
 		{
 			$this->verifyfieldentrytext = $a_data;
 		}
-		
+
 		switch($this->qti_element)
 		{
 			case "fieldlabel":
@@ -1936,7 +1957,7 @@ class ilQTIParser extends ilSaxParser
 	{
 		return $this->numImportedItems;
 	}
-	
+
 	protected function isMatImageAvailable()
 	{
 		if( !$this->material )

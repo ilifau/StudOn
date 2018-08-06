@@ -1236,6 +1236,9 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
 		$new_obj->setPresentationMode($this->getPresentationMode());
 		$new_obj->setSnippetLength($this->getSnippetLength());
 		$new_obj->setAutoGlossaries($this->getAutoGlossaries());
+// fau: copyGloShowTax - copy "show taxomony" setting of a glossary
+		$new_obj->setShowTaxonomy($this->getShowTaxonomy());
+// fau.
 		$new_obj->update();
 
 		// set/copy stylesheet

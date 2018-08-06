@@ -461,7 +461,9 @@ class assFormulaQuestionGUI extends assQuestionGUI
 				$result_header->setTitle(sprintf($this->lng->txt('result_x'), $result->getResult()));
 				
 				$formula = new ilTextInputGUI($this->lng->txt('formula'), 'formula_' . $result->getResult());
-				$formula->setInfo($this->lng->txt('fq_formula_desc'));
+// fau: formulaQuestionAtan2 - add description for additional functions
+				$formula->setInfo($this->lng->txt('fq_formula_desc').' '.$this->lng->txt('fq_formula_desc_additional'));
+// fau.
 				$formula->setRequired(true);
 				$formula->setSize(50);
 				$formula->setValue($result->getFormula());
@@ -1076,7 +1078,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
 			$cssClass = ( $this->hasCorrectSolution($active_id, $pass) ?
 				ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
 			);
-			
+
 			$solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
 			$solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput( $feedback, true ));
 		}
@@ -1123,11 +1125,11 @@ class assFormulaQuestionGUI extends assQuestionGUI
 				}
 			}
 		}
-		
+
 		if( !$this->object->hasRequiredVariableSolutionValues($user_solution) )
 		{
 			$user_solution = $this->object->getInitialVariableSolutionValues();
-			
+
 			if( is_object($this->getPreviewSession()) )
 			{
 				$this->getPreviewSession()->setParticipantsSolution($user_solution);
@@ -1170,7 +1172,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
 				require_once 'Modules/Test/classes/class.ilObjTest.php';
 				$actualPassIndex = ilObjTest::_getPass($active_id);
 			}
-			
+
 			foreach($solutions as $idx => $solution_value)
 			{
 				if(preg_match("/^(\\\$v\\d+)$/", $solution_value["value1"], $matches))
@@ -1179,7 +1181,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
 					{
 						$this->object->saveCurrentSolution($active_id, $actualPassIndex, $matches[1], $solution_value["value2"], true);
 					}
-					
+
 					$user_solution[$matches[1]] = $solution_value["value2"];
 				}
 				else if(preg_match("/^(\\\$r\\d+)$/", $solution_value["value1"], $matches))
@@ -1211,7 +1213,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
 			}
 		}
 // fau.
-		
+
 		if( !$this->object->hasRequiredVariableSolutionValues($user_solution) )
 		{
 			foreach($this->object->getInitialVariableSolutionValues() as $val1 => $val2)

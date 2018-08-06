@@ -89,9 +89,12 @@
 
 		<div id="il_center_col" class="<!-- BEGIN center_col_width -->{CENTER_COL}<!-- END center_col_width -->">
 			<!-- BEGIN add_commands -->
+			<!-- fim: [univis] add selector -->
 			<div class="ilNewObjectSelector">
-				{SELECT_OBJTYPE_REPOS}
+				<div class="pull-right">{SELECT_OBJTYPE_REPOS}</div> <div class="pull-right">{UNIVIS_IMPORT} &nbsp;</div>
 			</div>
+			<div class="clearfix"></div>
+			<!-- fim. -->
 			<!-- END add_commands -->
 			<!-- BEGIN toolbar_buttons -->{BUTTONS}<!-- END toolbar_buttons -->
 			{RTE_SWITCH}
@@ -123,6 +126,9 @@
 </div>
 </div>
 <div id="minheight"></div>
-<footer id="ilFooter" class="ilFooter hidden-print"><div class="container-fluid ilContainerWidth">
-		<div class="row"><div class="ilFooterContainer form-inline">{PRMLINK} {FOOTER}</div></div></div></footer>
+<!-- fau: ownFooter - own footer layout with permalink inside -->
+<footer id="ilFooter" class="ilFooter hidden-print">
+    <div class="container-fluid ilContainerWidth">{FOOTER}</div>
+</footer>
+<!-- fau. -->
 {LIGHTBOX}

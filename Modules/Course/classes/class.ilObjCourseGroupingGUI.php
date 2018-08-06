@@ -85,6 +85,56 @@ class ilObjCourseGroupingGUI
 		$tpl->setContent($table->getHTML());
 	}
 
+// fau: limitSub - new function addWaitingMembers()
+	/**
+	 * Add waiting members to the grouped objects
+	 * this calls their handleAutoFill function()
+	 */
+	function addWaitingMembers()
+	{
+		/** @var ilAccessHandler $ilAccess */
+		global $lng, $ilAccess;
+
+		$sum = 0;
+		$message = "";
+		$grouping = new ilObjCourseGrouping((int) $_GET['obj_id']);
+
+		foreach($grouping->getAssignedItems() as $condition)
+		{
+			if ($ilAccess->checkAccess('write', '', $condition['target_ref_id'], $condition['target_type']))
+			{
+				if ($object = ilObjectFactory::getInstanceByRefId($condition['target_ref_id']))
+				{
+					// call manual auto fill
+					$added = $object->handleAutoFill(true);
+					if (!empty($added))
+					{
+						$list = "";
+						foreach ($added as $user_id)
+						{
+							$list .= ", " .ilObjUser::_lookupLogin($user_id);
+						}
+						$message .= "<br />" . $object->getTitle() . ': ' . $list;
+						$sum += count($added);
+					}
+				}
+			}
+		}
+
+		if ($sum == 0)
+		{
+			ilUtil::sendFailure($this->lng->txt('sub_no_member_added'));
+		}
+		else
+		{
+			ilUtil::sendSuccess(sprintf($lng->txt($sum == 1 ? 'sub_added_member' : 'sub_added_members'), $sum) . $message);
+
+		}
+
+		$this->listGroupings();
+	}
+// fau.
+	
 	function askDeleteGrouping()
 	{
 		global $ilErr,$ilAccess,$tpl;

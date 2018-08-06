@@ -75,7 +75,12 @@ class ilTestParticipantsTableGUI extends ilTable2GUI
 			$this->addMultiCommand('showPassOverview', $this->lng->txt('show_pass_overview'));
 			$this->addMultiCommand('showUserAnswers', $this->lng->txt('show_user_answers'));
 			$this->addMultiCommand('showDetailedResults', $this->lng->txt('show_detailed_results'));
+
+// fau: sendSimpleResults - add command to send simple results to participants
+			$this->addMultiCommand('sendSimpleResultsToParticipants', $this->lng->txt('send_simple_results_to_participants'));
+// fau.
 		}
+
 		$this->addMultiCommand('deleteSingleUserResults', $this->lng->txt('delete_user_data'));
 
 		$this->setFormAction($this->ctrl->getFormAction($a_parent_obj, $a_parent_cmd));
@@ -117,7 +122,9 @@ class ilTestParticipantsTableGUI extends ilTable2GUI
 		$this->tpl->setVariable("FIRSTNAME", $data['firstname']);
 		$this->tpl->setVariable("LASTNAME", $data['lastname']);
 		*/
-		$this->tpl->setVariable("STARTED", ($data['started']) ? $started : '');
+		// fim: [exam] show actual starting time instead of flag in particilants list
+		$this->tpl->setVariable("STARTED", ($data['started']) ? ilDatePresentation::formatDate(new ilDateTime($data['started'], IL_CAL_DATETIME)) : '');
+		// fim.
 		$this->tpl->setVariable("PASSES", $passes);
 		$unfinished_passes = $data['unfinished'] == 1 ? $this->lng->txt('yes') : $this->lng->txt('no');
 		$this->tpl->setVariable("UNFINISHED_PASSES", $unfinished_passes );

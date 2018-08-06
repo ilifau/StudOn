@@ -8,6 +8,23 @@
 * @version $Id$
 */
 
+// fau: shortRssLink - process parameters from the shortened link
+if ($_GET['feed_id'] != '')
+{
+	$_GET['user_id'] = $_GET['feed_id'];	
+	unset($_GET['feed_id']);
+	
+}
+if ($_GET['feed_data'] != '')
+{
+	$_GET['hash'] = $_GET['feed_data'];	
+	unset($_GET['feed_data']);
+}
+// fau.
+
+// fau: httpPath - use defined http path for feeds
+$GLOBALS['USE_ILIAS_HTTP_PATH_FROM_INI'] = true;
+// fau.
 
 include_once "Services/Context/classes/class.ilContext.php";
 ilContext::init(ilContext::CONTEXT_RSS);

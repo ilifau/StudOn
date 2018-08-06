@@ -55,9 +55,16 @@ class ilAttendanceList
 		$this->waiting_list = $a_waiting_list;
 
 		// always available
-		$this->presets['name'] = array($DIC->language()->txt('name'), true);
-		$this->presets['login'] = array($DIC->language()->txt('login'), true);
+		$this->presets['name'] = array($lng->txt('name'), true);
+		$this->presets['login'] = array($lng->txt('login'), true);
 
+		// fim: [privacy] show email only with extended export rights
+		include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+		if (ilPrivacySettings::_checkExtendedAccess())
+		{
+			$this->presets['email'] = array($lng->txt('email'));
+		}
+		// fim.
 		
 		// add exportable fields
 		$this->readOrderedExportableFields();
@@ -84,7 +91,7 @@ class ilAttendanceList
 				case 'il_grp_m':
 					$this->addRole($role_id, $DIC->language()->txt('event_tbl_member'), 'member');
 					break;
-				
+
 				case 'il_sess_':
 					$this->addRole($role_id, $DIC->language()->txt('event_tbl_member'), 'member');
 					break;
@@ -121,7 +128,7 @@ class ilAttendanceList
 				case 'lastname':
 					continue 2;
 			}
-			
+
 			ilLoggerFactory::getLogger('mem')->dump($field, ilLogLevel::DEBUG);
 			// Check if default enabled
 			$this->presets[$field] = array(
@@ -139,7 +146,7 @@ class ilAttendanceList
 				false
 			);
 	 	}
-		
+
 		// add cdf fields
 		include_once './Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php';
 		foreach(ilCourseDefinedFieldDefinition::_getFields($this->parent_obj->getId()) as $field_obj)
@@ -198,8 +205,8 @@ class ilAttendanceList
 		$this->role_data[$a_id] = array($a_caption, $a_type);
 	}
 	
-	
-	
+
+
 	/**
 	 * Set role selection
 	 * 
@@ -252,7 +259,7 @@ class ilAttendanceList
 
 		include_once './Services/User/classes/class.ilUserDefinedFields.php';
 	 	$udf = ilUserDefinedFields::_getInstance();
-		
+
 		foreach($udf->getExportableFields($this->parent_obj->getId()) as $field_id => $udf_data)
 	 	{
 			foreach($profile_data as $user_id => $field)
@@ -262,34 +269,34 @@ class ilAttendanceList
 				$a_res[$user_id]['udf_'.$field_id] = (string) $udf_data->get('f_'.$field_id);
 			}
 	 	}
-		
+
 		if(sizeof($user_ids))
 		{
 			// object specific user data
 			include_once 'Modules/Course/classes/Export/class.ilCourseUserData.php';
 			$cdfs = ilCourseUserData::_getValuesByObjId($this->parent_obj->getId());
-			
+
 			foreach(array_unique($user_ids) as $user_id)
 			{					
 				if($tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false))
 				{
 					$a_res[$user_id]['login'] = $tmp_obj->getLogin();
-					$a_res[$user_id]['name'] = $tmp_obj->getLastname().', '.$tmp_obj->getFirstname();		
+					$a_res[$user_id]['name'] = $tmp_obj->getLastname().', '.$tmp_obj->getFirstname();
 
 					if(in_array($user_id, $subscriber_ids))
 					{
-						$a_res[$user_id]['status'] = $lng->txt('crs_subscriber'); 
+						$a_res[$user_id]['status'] = $lng->txt('crs_subscriber');
 					}
 					else
 					{
-						$a_res[$user_id]['status'] = $lng->txt('crs_waiting_list'); 
+						$a_res[$user_id]['status'] = $lng->txt('crs_waiting_list');
 					}
-					
+
 					foreach((array) $cdfs[$user_id] as $field_id => $value)
 					{
 						$a_res[$user_id]['cdf_'.$field_id] = (string) $value;
 					}
-				}	
+				}
 			}
 		}
 	}
@@ -399,7 +406,7 @@ class ilAttendanceList
 		foreach($this->role_data as $role_id => $role_data)
 		{
 			$title = ilObject::_lookupTitle($role_id);
-			
+
 			$role_name = $role_id;
 			if(substr($title, 0, 10) == 'il_'.$this->parent_obj->getType().'_adm')
 			{
@@ -413,7 +420,7 @@ class ilAttendanceList
 			{
 				$role_name = 'tut';
 			}
-			
+
 			$chk = new ilCheckboxOption(sprintf($lng->txt('event_user_selection_include_role'),$role_data[0]), 'role_'.$role_name);
 			$checked[] = 'role_'.$role_name;
 			$chk_grp->addOption($chk);
@@ -454,7 +461,7 @@ class ilAttendanceList
 			{
 				$settings = new ilUserFormSettings($this->parent_obj->getType().'s_pview', -1);
 			}
-			
+
 			$settings->deleteValue('desc'); // #11340
 			$settings->exportToForm($form);
 		}
@@ -467,11 +474,11 @@ class ilAttendanceList
 				// init from global defaults
 				$settings = new ilUserFormSettings($this->parent_obj->getType().'s_pview', -1);
 			}
-			
+
 			$settings->deleteValue('desc'); // #11340
 			$settings->exportToForm($form,true);
 		}
-		
+
 		return $form;
 	}
 	
@@ -501,7 +508,7 @@ class ilAttendanceList
 			
 			$this->setTitle($form->getInput('title'), $form->getInput('desc'));
 			$this->setBlankColumns($form->getInput('blank'));
-			
+
 			$selection_of_users = (array)$form->getInput('selection_of_users'); // #18238
 
 			$roles = array();
@@ -521,8 +528,8 @@ class ilAttendanceList
 				{
 					$role_name = 'tut';
 				}
-				
-				
+
+
 				if(in_array('role_'.$role_name, (array) $selection_of_users))
 				{
 					$roles[] = $role_id;

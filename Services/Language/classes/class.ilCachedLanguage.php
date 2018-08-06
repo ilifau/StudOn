@@ -78,7 +78,9 @@ class ilCachedLanguage {
 		/**
 		 * @var $ilDB ilDB
 		 */
-		$q = 'SELECT module, lang_array FROM lng_modules WHERE lang_key = %s';
+// fau: sqlCache - added sql cache
+		$q = 'SELECT SQL_CACHE module, lang_array FROM lng_modules WHERE lang_key = %s';
+// fau.
 		$res = $ilDB->queryF($q, array( 'text' ), array( $this->getLanguageKey() ));
 		$translations = array();
 		while ($set = $ilDB->fetchObject($res)) {

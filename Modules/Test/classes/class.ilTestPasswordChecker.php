@@ -126,7 +126,9 @@ class ilTestPasswordChecker
 		$msg = $this->lng->txtlng(
 			'assessment', 'log_wrong_test_password_entered', ilObjAssessmentFolder::_getLogLanguage()
 		);
-		
-		return sprintf($msg, $this->getUserEnteredPassword());
+
+// fau: reducedTestPasswordLog	- dont' add the entered password
+		return $msg;
+// fau.
 	}
 }

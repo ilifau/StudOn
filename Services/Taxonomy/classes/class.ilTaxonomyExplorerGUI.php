@@ -55,8 +55,8 @@ class ilTaxonomyExplorerGUI extends ilTreeExplorerGUI
 		//$this->setOrderField("title");
 		parent::__construct($this->id, $a_parent_obj, $a_parent_cmd, $this->tax_tree);
 	}
-	
-	
+
+
 	/**
 	 * Get content of node
 	 *
@@ -72,7 +72,20 @@ class ilTaxonomyExplorerGUI extends ilTreeExplorerGUI
 		}
 		else
 		{
-			return $a_node["title"];
+// fau: taxDesc - add tooltip for taxonomy description
+			if ($a_node['description'])
+			{
+				require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+				ilTooltipGUI::addTooltip('ilTaxExplorerNode'.$a_node["child"],$a_node['description']);
+
+				return '<span id="ilTaxExplorerNode'.$a_node["child"].'">'.$a_node["title"]
+					.' <small><span class="glyphicon glyphicon-info-sign"></span></small></span>';
+			}
+			else
+			{
+				return $a_node["title"];
+			}
+// fau.
 		}
 	}	
 	

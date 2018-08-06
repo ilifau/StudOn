@@ -9,6 +9,13 @@
  * @package ilias-layout
  */
 
+// fau: samlAuth - use saml_login instead of shib_login
+include('saml_login.php');
+exit;
+// fau.
+
+// Load all the ILIAS stuff
+require_once "include/inc.header.php";
 include_once './Services/Context/classes/class.ilContext.php';
 ilContext::init(ilContext::CONTEXT_SHIBBOLETH);
 

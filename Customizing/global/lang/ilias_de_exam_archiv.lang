@@ -1,0 +1,15 @@
+/**
+* StudOn: special German language variables for the exam platform
+* 
+* Import these variables after an update of languages in the exam platform
+*
+* @version			$Id: $
+*/
+<!-- language file start -->
+common#:#logged_in_to_ilias#:#Sie sind im StudOn-Prüfungsarchiv angemeldet.
+common#:#logged_in_to_ilias_info#:#Klicken Sie auf Abmelden, wenn Sie Ihre Sitzung schließen möchten.
+common#:#local_login_to_ilias#:#Zum StudOn-Prüfungsarchiv einloggen
+common#:#local_login_to_ilias_addition#:#(Teilnehmer und Prüfer)
+common#:#login_to_ilias_info#:#Bitte verwenden Sie für das Archiv Ihre aktuellen Studon-Zugangsdaten.
+pdesk#:#pd_description#:#Falls Ihre Prüfung hier nicht gelistet ist, rufen Sie bitte unter Online-Prüfungen den entsprechenden Bereich auf.
+common#:#err_inactive_contact#:#<br/>Bitte wenden Sie sich an <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>, um das Benutzerkonto aktivieren zu lassen.

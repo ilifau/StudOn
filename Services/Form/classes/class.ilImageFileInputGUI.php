@@ -28,7 +28,9 @@ class ilImageFileInputGUI extends ilFileInputGUI
 		parent::__construct($a_title, $a_postvar);
 		$this->setType("image_file");
 		$this->setAllowDeletion(true);
-		$this->setSuffixes(array("jpg", "jpeg", "png", "gif"));
+		// fim: [layout] allow upload of svg files
+		$this->setSuffixes(array("jpg", "jpeg", "png", "gif", "svg"));
+		// fim.
 		$this->setHiddenTitle("(".$lng->txt("form_image_file_input").")");
 		$this->cache = true;
 	}

@@ -1,8 +1,16 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <service xmlns="http://www.w3.org" version="$Id$" id="mmbr">	
 	<crons>
+<!-- fau: fairSub - add cron job  -->
+		<cron id="mem_autofill_fair" class="ilMembershipCronFairAutoFill" />
+<!-- fau. -->
 		<cron id="mem_notification" class="ilMembershipCronNotifications" />
 		<cron id="mem_min_members" class="ilMembershipCronMinMembers" />
 	</crons>
+    <!-- fim: [rpl] add registration period limiter -->
+    <baseclasses>
+        <baseclass name="ilRegistrationPeriodLimiterGUI" dir="classes" />
+    </baseclasses>
+    <!-- fim. -->
 	<logging />
 </service>

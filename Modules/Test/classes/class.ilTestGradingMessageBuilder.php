@@ -35,6 +35,10 @@ class ilTestGradingMessageBuilder
 	 */
 	private $activeId;
 
+// fau: testGradingMessage - initialize the message text
+	private $messageText = array();
+// fau.
+
 	/**
 	 * @param ilLanguage $lng
 	 * @param ilObjTest $testOBJ
@@ -82,9 +86,14 @@ class ilTestGradingMessageBuilder
 
 	private function addMessagePart($msgPart)
 	{
-		$this->messageText[] = $msgPart;
+// fau: testGradingMessage -  avoid spaces for empty grading status message
+		if (!empty($msgPart))
+		{
+			$this->messageText[] = $msgPart;
+		}
+// fau.
 	}
-	
+
 	private function getFullMessage()
 	{
 		return implode(' ', $this->messageText);
@@ -94,7 +103,7 @@ class ilTestGradingMessageBuilder
 	{
 		return (bool)$this->resultData['passed'];
 	}
-	
+
 	public function sendMessage()
 	{
 		if( !$this->testOBJ->isShowGradingStatusEnabled() )
@@ -129,26 +138,44 @@ class ilTestGradingMessageBuilder
 
 	private function buildGradingStatusMsg()
 	{
-		if( $this->isPassed() )
+// fau: testGradingMessage - build grading status message only if no specific mark message is configured
+		if( $this->isPassed())
 		{
-			return $this->lng->txt('grading_status_passed_msg');
+			$markMsg = $this->testOBJ->getMarkTstPassed();
+			return empty($markMsg) ? $this->lng->txt('grading_status_passed_msg') : '';
 		}
 
-		return $this->lng->txt('grading_status_failed_msg');
+		$markMsg = $this->testOBJ->getMarkTstFailed();
+		return empty($markMsg) ? $this->lng->txt('grading_status_failed_msg') : '';
+// fau.
 	}
 
-	private function buildGradingMarkMsg()
+// fau: testGradingMessage - allow public call and use test specific mark messages
+	public function buildGradingMarkMsg()
 	{
-		$markMsg = $this->lng->txt('grading_mark_msg');
+		if ($this->isPassed())
+		{
+			$markMsg = $this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstPassed());
+		}
+		else
+		{
+			$markMsg = $this->testOBJ->prepareTextareaOutput($this->testOBJ->getMarkTstFailed());
+		}
+
+		if (empty($markMsg))
+		{
+			$markMsg = $this->lng->txt('grading_mark_msg');
+		}
 
 		$markMsg = str_replace("[mark]", $this->getMarkOfficial(), $markMsg);
 		$markMsg = str_replace("[markshort]", $this->getMarkShort(), $markMsg);
 		$markMsg = str_replace("[percentage]", $this->getPercentage(), $markMsg);
 		$markMsg = str_replace("[reached]", $this->getReachedPoints(), $markMsg);
 		$markMsg = str_replace("[max]", $this->getMaxPoints(), $markMsg);
-		
+
 		return $markMsg;
 	}
+// fau.
 
 	private function getMarkOfficial()
 	{
@@ -181,7 +208,7 @@ class ilTestGradingMessageBuilder
 	{
 		return $this->resultData['max_points'];
 	}
-	
+
 	private function buildObligationsMsg()
 	{
 		if( $this->areObligationsAnswered() )
@@ -196,7 +223,7 @@ class ilTestGradingMessageBuilder
 	{
 		return (bool)$this->resultData['obligations_answered'];
 	}
-	
+
 	private function buildEctsGradeMsg()
 	{
 		return str_replace('[markects]', $this->getEctsGrade(), $this->lng->txt('mark_tst_ects'));
@@ -206,7 +233,7 @@ class ilTestGradingMessageBuilder
 	{
 		return $this->resultData['ects_grade'];
 	}
-	
+
 	public function buildList()
 	{
 		$this->loadResultData();
@@ -216,7 +243,7 @@ class ilTestGradingMessageBuilder
 		if( $this->testOBJ->isShowGradingStatusEnabled() )
 		{
 			$passedStatusLangVar = $this->isPassed() ? 'passed_official' : 'failed_official';
-			
+
 			$this->populateListEntry(
 				$this->lng->txt('passed_status'), $this->lng->txt($passedStatusLangVar)
 			);
@@ -232,7 +259,7 @@ class ilTestGradingMessageBuilder
 			{
 				$obligAnsweredStatusLangVar = 'grading_obligations_missing_listentry';
 			}
-			
+
 			$this->populateListEntry(
 				$this->lng->txt('grading_obligations_listlabel'), $this->lng->txt($obligAnsweredStatusLangVar)
 			);
@@ -247,7 +274,7 @@ class ilTestGradingMessageBuilder
 		{
 			$this->populateListEntry($this->lng->txt('ects_grade'), $this->getEctsGrade());
 		}
-		
+
 		$this->parseListTemplate();
 	}
 
@@ -269,7 +296,7 @@ class ilTestGradingMessageBuilder
 		$this->tpl->setCurrentBlock('grading_msg_list');
 		$this->tpl->parseCurrentBlock();
 	}
-	
+
 	public function getList()
 	{
 		return $this->tpl->get();

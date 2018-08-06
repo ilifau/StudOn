@@ -66,7 +66,27 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 	{
 		$vars = $this->getBaseVariablesForPreview(false);
 		$vars["COURSE_TITLE"] = ilUtil::prepareFormOutput($this->object->getTitle());
-		
+
+// fau: courseDataCert - add custom fields for preview
+		require_once('Services/Object/classes/class.ilObjectLP.php');
+		$olp = ilObjectLP::getInstance($this->object->getId());
+		if ($olp->isActive())
+		{
+			$this->lng->loadLanguageModule('trac');
+			$vars["COURSE_USER_MARK"] = $this->lng->txt('trac_mark');
+			$vars["COURSE_USER_COMMENT"] = $this->lng->txt('trac_comment');
+		}
+
+		require_once ('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+		foreach (ilCourseDefinedFieldDefinition::_getFields($this->object->getId()) as $field)
+		{
+			$name = str_replace('[', '(', $field->getName());
+			$name = str_replace(']', ')', $name);
+
+			$vars[$name] = $name;
+		}
+// fau.
+
 		$insert_tags = array();
 		foreach($vars as $id => $caption)
 		{
@@ -95,7 +115,31 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 		
 		$vars = $this->getBaseVariablesForPresentation($user_data, null, $completion_date);		
 		$vars["COURSE_TITLE"] = ilUtil::prepareFormOutput($this->object->getTitle());
-		
+
+// fau: courseDataCert - add custom fields for presentation
+		require_once('Services/Object/classes/class.ilObjectLP.php');
+		$olp = ilObjectLP::getInstance($this->object->getId());
+		if ($olp->isActive())
+		{
+			require_once('Services/Tracking/classes/class.ilLPMarks.php');
+			$mark = new ilLPMarks($this->object->getId(), $user_id);
+			$this->lng->loadLanguageModule('trac');
+			$vars["COURSE_USER_MARK"] = $mark->getMark();
+			$vars["COURSE_USER_COMMENT"] = $mark->getComment();
+		}
+
+		require_once ('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+		require_once ('Modules/Course/classes/Export/class.ilCourseUserData.php');
+		foreach (ilCourseDefinedFieldDefinition::_getFields($this->object->getId()) as $field)
+		{
+			$name = str_replace('[', '(', $field->getName());
+			$name = str_replace(']', ')', $name);
+
+			$data = new ilCourseUserData($params["user_id"], $field->getId());
+			$vars[$name] = $data->getValue();
+		}
+// fau.
+
 		$insert_tags = array();
 		foreach($vars as $id => $caption)
 		{
@@ -114,7 +158,27 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 	{
 		$vars = $this->getBaseVariablesDescription(false);
 		$vars["COURSE_TITLE"] = $this->lng->txt("crs_title");
-				
+
+// fau: courseDataCert - add custom fields as placeholders
+		require_once('Services/Object/classes/class.ilObjectLP.php');
+		$olp = ilObjectLP::getInstance($this->object->getId());
+		if ($olp->isActive())
+		{
+			$lng->loadLanguageModule('trac');
+			$vars["COURSE_USER_MARK"] =  $this->lng->txt('learning_progress'). ' / ' . $this->lng->txt('trac_mark');
+			$vars["COURSE_USER_COMMENT"] = $this->lng->txt('learning_progress') . ' / ' . $this->lng->txt('trac_comment');
+		}
+
+		require_once ('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+		foreach (ilCourseDefinedFieldDefinition::_getFields($this->object->getId()) as $field)
+		{
+			$name = str_replace('[', '(', $field->getName());
+			$name = str_replace(']', ')', $name);
+
+			$vars[$name] = $lng->txt('crs_custom_user_fields');
+		}
+// fau.
+
 		$template = new ilTemplate("tpl.il_as_tst_certificate_edit.html", TRUE, TRUE, "Modules/Test");	
 		$template->setCurrentBlock("items");
 		foreach($vars as $id => $caption)

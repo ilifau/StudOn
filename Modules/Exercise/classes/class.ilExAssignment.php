@@ -47,6 +47,9 @@ class ilExAssignment
 	protected $exc_id;
 	protected $type;
 	protected $start_time;
+// fau: exResTime - class variable
+	protected $result_time;
+// fau.
 	protected $deadline;
 	protected $deadline2;
 	protected $instruction;
@@ -72,7 +75,7 @@ class ilExAssignment
 	protected $portfolio_template;
 	protected $min_char_limit;
 	protected $max_char_limit;
-	
+
 	protected $member_status = array(); // [array]
 
 	protected $log;
@@ -92,7 +95,7 @@ class ilExAssignment
 		$this->setFeedbackDate(self::FEEDBACK_DATE_DEADLINE);
 
 		$this->log = ilLoggerFactory::getLogger("exc");
-		
+
 		if ($a_id > 0)
 		{
 			$this->setId($a_id);
@@ -248,7 +251,7 @@ class ilExAssignment
 	function getPersonalDeadline($a_user_id)
 	{
 		$ilDB = $this->db;
-		
+
 		$is_team = false;
 		if($this->getType() == self::TYPE_UPLOAD_TEAM)
 		{
@@ -262,32 +265,32 @@ class ilExAssignment
 			$a_user_id = $team_id;
 			$is_team = true;
 		}
-		
+
 		$set = $ilDB->query("SELECT tstamp FROM exc_idl".
 			" WHERE ass_id = ".$ilDB->quote($this->getId(), "integer").
 			" AND member_id = ".$ilDB->quote($a_user_id, "integer").
 			" AND is_team = ".$ilDB->quote($is_team, "integer"));
 		$row = $ilDB->fetchAssoc($set);
-		
+
 		// use assignment deadline if no direct personal
 		return max($row["tstamp"], $this->getDeadline());
 	}
-	
+
 	/**
 	 * Get last/final personal deadline (of assignment)
-	 * 
+	 *
 	 * @return int
 	 */
 	protected function getLastPersonalDeadline()
 	{
 		$ilDB = $this->db;
-		
+
 		$set = $ilDB->query("SELECT MAX(tstamp) FROM exc_idl".
 			" WHERE ass_id = ".$ilDB->quote($this->getId(), "integer"));
 		$row = $ilDB->fetchAssoc($set);
 		return $row["tstamp"];
 	}
-	
+
 	/**
 	 * Set extended deadline (timestamp)
 	 *
@@ -311,6 +314,28 @@ class ilExAssignment
 	{
 		return $this->deadline2;
 	}
+
+// fau: exResTime - get/set the result time
+	/**
+	 * Set result time (timestamp)
+	 *
+	 * @param	int		result time (timestamp)
+	 */
+	function setResultTime($a_val)
+	{
+		$this->result_time = $a_val;
+	}
+
+	/**
+	 * Get result time (timestamp)
+	 *
+	 * @return	int		result time (timestamp)
+	 */
+	function getResultTime()
+	{
+		return $this->result_time;
+	}
+// fau.
 
 	/**
 	 * Set instruction
@@ -854,6 +879,9 @@ class ilExAssignment
 		$this->setExerciseId($a_set["exc_id"]);
 		$this->setDeadline($a_set["time_stamp"]);
 		$this->setExtendedDeadline($a_set["deadline2"]);
+// fau: exeResTime - read the result time from the database
+		$this->setResultTime($a_set["res_time"]);
+// fau.
 		$this->setInstruction($a_set["instruction"]);
 		$this->setTitle($a_set["title"]);
 		$this->setStartTime($a_set["start_time"]);
@@ -904,6 +932,9 @@ class ilExAssignment
 			"instruction" => array("clob", $this->getInstruction()),
 			"title" => array("text", $this->getTitle()),
 			"start_time" => array("integer", $this->getStartTime()),
+// fau: exeResTime - save the result time to the database
+			"res_time" => array("integer", $this->getResultTime()),
+// fau.
 			"order_nr" => array("integer", $this->getOrderNr()),
 			"mandatory" => array("integer", $this->getMandatory()),
 			"type" => array("integer", $this->getType()),
@@ -950,6 +981,9 @@ class ilExAssignment
 			"instruction" => array("clob", $this->getInstruction()),
 			"title" => array("text", $this->getTitle()),
 			"start_time" => array("integer", $this->getStartTime()),
+// fau: exeResTime - update the result time in the database
+			"res_time" => array("integer", $this->getResultTime()),
+// fau.
 			"order_nr" => array("integer", $this->getOrderNr()),
 			"mandatory" => array("integer", $this->getMandatory()),
 			"type" => array("integer", $this->getType()),
@@ -1029,6 +1063,9 @@ class ilExAssignment
 				"instruction" => $rec["instruction"],
 				"title" => $rec["title"],
 				"start_time" => $rec["start_time"],
+// fau: exResTime - add result time to assignments data
+				"res_time" => $rec["res_time"],
+// fau.
 				"order_val" => $order_val,
 				"mandatory" => $rec["mandatory"],
 				"type" => $rec["type"],
@@ -1067,6 +1104,9 @@ class ilExAssignment
 			$new_ass->setMandatory($d->getMandatory());
 			$new_ass->setOrderNr($d->getOrderNr());
 			$new_ass->setStartTime($d->getStartTime());
+// fau: exResTime - clone result time
+			$new_ass->setResultTime($d->getResultTime());
+// fau.
 			$new_ass->setType($d->getType());
 			$new_ass->setPeerReview($d->getPeerReview());
 			$new_ass->setPeerReviewMin($d->getPeerReviewMin());
@@ -1099,7 +1139,7 @@ class ilExAssignment
 			$new_ass->save();
 			
 
-			// clone assignment files		
+			// clone assignment files
 			include_once("./Modules/Exercise/classes/class.ilFSWebStorageExercise.php");
 			$old_web_storage = new ilFSWebStorageExercise($a_old_exc_id, (int) $d->getId());
 			$new_web_storage = new ilFSWebStorageExercise($a_new_exc_id, (int) $new_ass->getId());
@@ -1108,8 +1148,8 @@ class ilExAssignment
 			{
 				ilUtil::rCopy($old_web_storage->getPath(), $new_web_storage->getPath());
 			}
-			
-			// clone global feedback file			
+
+			// clone global feedback file
 			include_once("./Modules/Exercise/classes/class.ilFSStorageExercise.php");
 			$old_storage = new ilFSStorageExercise($a_old_exc_id, (int) $d->getId());
 			$new_storage = new ilFSStorageExercise($a_new_exc_id, (int) $new_ass->getId());
@@ -1152,7 +1192,7 @@ class ilExAssignment
 
 		return $data;
 	}
-	
+
 	/**
 	 * Select the maximum order nr for an exercise
 	 */
@@ -1474,7 +1514,7 @@ class ilExAssignment
 		include_once("./Modules/Exercise/classes/class.ilExerciseMembers.php");
 		$exmem = new ilExerciseMembers($exc);
 		$mems = $exmem->getMembers();
-		
+
 		$mems = $DIC->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
 			'edit_submissions_grades',
 			'edit_submissions_grades',
@@ -1674,15 +1714,17 @@ class ilExAssignment
 					// rename file
 					rename($file_path, $target);
 										
-					if ($noti_rec_ids)
-					{						
+// fau: exResTime - revent sending of multi feedback notification
+					if ($noti_rec_ids and (int) $this->getResultTime() <= time())
+// fau.
+					{
 						foreach($noti_rec_ids as $user_id)
 						{
 							$member_status = $this->getMemberStatus($user_id);
 							$member_status->setFeedback(true);
 							$member_status->update();
-						}	
-						
+						}
+
 						$a_exc->sendFeedbackFileNotification($file_name, $noti_rec_ids,
 							(int) $this->getId());
 					}
@@ -1843,10 +1885,10 @@ class ilExAssignment
 	public function afterDeadline()
 	{
 		$ilUser = $this->user;
-				
+
 		// :TODO: always current user?
 		$idl = $this->getPersonalDeadline($ilUser->getId());
-		
+
 		// no deadline === true
 		$deadline = max($this->deadline, $this->deadline2, $idl);
 		return ($deadline - time() <= 0);
@@ -1854,22 +1896,22 @@ class ilExAssignment
 	
 	public function afterDeadlineStrict($a_include_personal = true)
 	{
-		// :TODO: this means that peer feedback, global feedback is available 
+		// :TODO: this means that peer feedback, global feedback is available
 		// after LAST personal deadline
 		// team management is currently ignoring personal deadlines
 		$idl = (bool)$a_include_personal
 			? $this->getLastPersonalDeadline()
 			: null;
-		
+
 		// no deadline === false
-		$deadline = max($this->deadline, $this->deadline2, $idl);		
-		
+		$deadline = max($this->deadline, $this->deadline2, $idl);
+
 		// #18271 - afterDeadline() does not handle last personal deadline
 		if($idl && $deadline == $idl)
 		{
 			return ($deadline - time() <= 0);
 		}
-		
+
 		return ($deadline > 0 && 
 			$this->afterDeadline());	
 	}
@@ -1949,9 +1991,9 @@ class ilExAssignment
 		$ilDB = $this->db;
 		
 		// see JF, 2015-05-11 
-				
+
 		$ext_deadline = $this->getExtendedDeadline();
-		
+
 		include_once "Modules/Exercise/classes/class.ilExSubmission.php";
 		foreach(ilExSubmission::getAllAssignmentFiles($this->exc_id, $this->getId()) as $file)
 		{
@@ -1961,8 +2003,8 @@ class ilExAssignment
 			
 			$deadline = $this->getPersonalDeadline($file["user_id"]);
 			$last_deadline = max($deadline, $this->getExtendedDeadline());
-			
-			$late = null;			
+
+			$late = null;
 			
 			// upload is not late anymore 
 			if($file["late"] && 
@@ -1993,23 +2035,23 @@ class ilExAssignment
 			}
 		}	
 	}
-	
-	
+
+
 	//
 	// individual deadlines
 	//
-	
+
 	public function setIndividualDeadline($id, ilDateTime $date)
 	{
 		$ilDB = $this->db;
-		
+
 		$is_team = false;
 		if(!is_numeric($id))
 		{
 			$id = substr($id, 1);
 			$is_team = true;
 		}
-		
+
 		$ilDB->replace("exc_idl",
 			array(
 				"ass_id" => array("integer", $this->getId()),
@@ -2021,13 +2063,13 @@ class ilExAssignment
 			)
 		);
 	}
-	
+
 	public function getIndividualDeadlines()
 	{
 		$ilDB = $this->db;
-		
+
 		$res = array();
-		
+
 		$set = $ilDB->query("SELECT * FROM exc_idl".
 			" WHERE ass_id = ".$ilDB->quote($this->getId(), "integer"));
 		while($row = $ilDB->fetchAssoc($set))
@@ -2036,33 +2078,33 @@ class ilExAssignment
 			{
 				$row["member_id"] = "t".$row["member_id"];
 			}
-			
+
 			$res[$row["member_id"]] = $row["tstamp"];
 		}
-		
+
 		return $res;
 	}
-	
+
 	public function hasActiveIDl()
-	{		
+	{
 		return (bool)$this->getDeadline();
 	}
-	
+
 	public function hasReadOnlyIDl()
 	{
 		if($this->getType() != ilExAssignment::TYPE_UPLOAD_TEAM &&
 			$this->getPeerReview())
-		{		
+		{
 			// all deadlines are read-only if we have peer feedback
 			include_once "Modules/Exercise/classes/class.ilExPeerReview.php";
-			$peer_review = new ilExPeerReview($this);	
+			$peer_review = new ilExPeerReview($this);
 			if($peer_review->hasPeerReviewGroups())
 			{
 				return true;
 			}
 		}
-		
-		return false;		
+
+		return false;
 	}
 
 	/**

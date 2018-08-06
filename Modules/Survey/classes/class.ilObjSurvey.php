@@ -46,7 +46,10 @@ class ilObjSurvey extends ilObject
 	const ANONYMIZE_ON = 1; // anonymized, codes
 	const ANONYMIZE_FREEACCESS = 2; // anonymized, no codes
 	const ANONYMIZE_CODE_ALL = 3; // personalized, codes
-	
+// fau: surveyCaptcha - add captcha option
+	const ANONYMIZE_CAPTCHA = 4;
+// fau.
+
 	const QUESTIONTITLES_HIDDEN = 0;
 	const QUESTIONTITLES_VISIBLE = 1;
 
@@ -162,7 +165,7 @@ class ilObjSurvey extends ilObject
 	 * @var ilLogger
 	 */
 	protected $log;
-	
+
 	protected $activation_visibility;
 	protected $activation_starting_time;
 	protected $activation_ending_time;
@@ -194,15 +197,19 @@ class ilObjSurvey extends ilObject
 	protected $view_own_results; // [bool]
 	protected $mail_own_results; // [bool]
 	protected $mail_confirmation; // [bool]
-	
+
 	protected $anon_user_list; // [bool]
-	
+
 	const NOTIFICATION_PARENT_COURSE = 1;
 	const NOTIFICATION_INVITED_USERS = 2;
 	const NOTIFICATION_APPRAISEES = 3;
 	const NOTIFICATION_RATERS = 4;
 	const NOTIFICATION_APPRAISEES_AND_RATERS = 5;
-	
+
+
+// fau: surveyAsForm - form mode settings
+	protected $formModeSettings = null;
+// fau.
 
 	/**
 	* Constructor
@@ -283,7 +290,7 @@ class ilObjSurvey extends ilObject
 		}
 
 		// put here object specific stuff
-		
+
 		return true;
 	}
 
@@ -314,7 +321,7 @@ class ilObjSurvey extends ilObject
 	{
 		array_push($this->questions, $question_id);
 	}
-	
+
 	/**
 	* delete object and all related data
 	*
@@ -689,7 +696,7 @@ class ilObjSurvey extends ilObject
 		}
 		$this->createQuestionblock($title, $show_questiontext, $show_blocktitle, $questions);
 	}
-	
+
 	public function saveUserSettings($usr_id, $key, $title, $value)
 	{
 		$ilDB = $this->db;
@@ -801,7 +808,7 @@ class ilObjSurvey extends ilObject
 				"tutor_ntf_target" => array("integer", (int)$this->getTutorNotificationTarget()),
 				"own_results_view" => array("integer", $this->hasViewOwnResults()),
 				"own_results_mail" => array("integer", $this->hasMailOwnResults()),
-				"confirmation_mail" => array("integer", $this->hasMailConfirmation()),				
+				"confirmation_mail" => array("integer", $this->hasMailConfirmation()),
 				"anon_user_list" => array("integer", $this->hasAnonymousUserList())
  			));
 			$this->setSurveyId($next_id);
@@ -847,8 +854,8 @@ class ilObjSurvey extends ilObject
 				"tutor_ntf_target" => array("integer", $this->getTutorNotificationTarget()),
 				"own_results_view" => array("integer", $this->hasViewOwnResults()),
 				"own_results_mail" => array("integer", $this->hasMailOwnResults()),
-				"confirmation_mail" => array("integer", $this->hasMailConfirmation()),				
-				"anon_user_list" => array("integer", $this->hasAnonymousUserList())				
+				"confirmation_mail" => array("integer", $this->hasMailConfirmation()),
+				"anon_user_list" => array("integer", $this->hasAnonymousUserList())
 			), array(
 			"survey_id" => array("integer", $this->getSurveyId())
 			));
@@ -900,14 +907,14 @@ class ilObjSurvey extends ilObject
 			" FROM svy_svy_qst WHERE survey_fi = %s",
 			array('integer'),
 			array($this->getSurveyId())
-		);		
+		);
 		while($row = $ilDB->fetchAssoc($result))
 		{
 			$old_questions[$row["question_fi"]] = $row;		// problem, as soon as duplicates exist, they will be hidden here
-		}		
-		
+		}
+
 		// #15231 - diff with current questions state
-		$insert = $update = $delete = array();		
+		$insert = $update = $delete = array();
 		foreach($this->questions as $seq => $fi)
 		{
 			if(!array_key_exists($fi, $old_questions))		// really new fi IDs
@@ -920,7 +927,7 @@ class ilObjSurvey extends ilObject
 			}
 			// keep track of still relevant questions
 			unset($old_questions[$fi]);						// deleting old question, if they are not in current array
-		}		
+		}
 		
 		// delete obsolete question relations
 		if(sizeof($old_questions))
@@ -935,9 +942,9 @@ class ilObjSurvey extends ilObject
 			$this->log->debug("delete: ".$q);
 		}
 		unset($old_questions);
-		
+
 		// create/update question relations
-		foreach($this->questions as $seq => $fi) 
+		foreach($this->questions as $seq => $fi)
 		{
 			if(in_array($fi, $insert))
 			{
@@ -1051,6 +1058,9 @@ class ilObjSurvey extends ilObject
 			case self::ANONYMIZE_ON:
 			case self::ANONYMIZE_FREEACCESS:
 			case self::ANONYMIZE_CODE_ALL:
+// fau: surveyCaptcha - add captcha option
+			case self::ANONYMIZE_CAPTCHA:
+// fau.
 				$this->anonymize = $a_anonymize;
 				break;
 			default:
@@ -1076,8 +1086,11 @@ class ilObjSurvey extends ilObject
 	*/
 	function isAccessibleWithoutCode()
 	{
-		return ($this->getAnonymize() == self::ANONYMIZE_OFF || 
-			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS);		
+// fau: surveyCaptcha - respect captcha option
+		return ($this->getAnonymize() == self::ANONYMIZE_OFF ||
+			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+			$this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+//fau.
 	}
 	
 	/**
@@ -1087,8 +1100,11 @@ class ilObjSurvey extends ilObject
 	*/
 	function hasAnonymizedResults()
 	{
-		return ($this->getAnonymize() == self::ANONYMIZE_ON || 
-			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS);
+// fau: surveyCaptcha - respect captcha option
+		return ($this->getAnonymize() == self::ANONYMIZE_ON ||
+			$this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+			$this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+// fau.
 	}
 
 /**
@@ -1154,8 +1170,8 @@ class ilObjSurvey extends ilObject
 			$this->setViewOwnResults($data["own_results_view"]);
 			$this->setMailOwnResults($data["own_results_mail"]);
 			$this->setMailConfirmation($data["confirmation_mail"]);
-			
-			$this->setAnonymousUserList($data["anon_user_list"]);			
+
+			$this->setAnonymousUserList($data["anon_user_list"]);
 		}
 		
 		// moved activation to ilObjectActivation
@@ -1830,7 +1846,7 @@ class ilObjSurvey extends ilObject
 		include_once "./Modules/SurveyQuestionPool/classes/class.ilObjSurveyQuestionPool.php";
 		return ilObjSurveyQuestionPool::_getAvailableQuestionpools($use_object_id = TRUE, $could_be_offline, $showPath);
 	}
-	
+
 /**
 * Move questions and/or questionblocks to another position
 *
@@ -2899,7 +2915,7 @@ class ilObjSurvey extends ilObject
 			return $result_array;
 		}
 	}
-	
+
 /**
 * Starts the survey creating an entry in the database
 *
@@ -3095,7 +3111,7 @@ class ilObjSurvey extends ilObject
 			$row = $ilDB->fetchAssoc($result);
 			// yes, we are doing it this way
 			$_SESSION["finished_id"][$this->getId()] = $row["finished_id"];
-			
+
 			return (int)$row["state"];
 		}
 	}
@@ -3138,7 +3154,7 @@ class ilObjSurvey extends ilObject
 		{
 			$row = $ilDB->fetchAssoc($result);			
 			return $row["finished_id"];
-		}	
+		}
 	}
 	
 /**
@@ -3288,30 +3304,30 @@ class ilObjSurvey extends ilObject
 	* @access public
 	*/
 	function getUserSpecificResults($finished_ids)
-	{		
+	{
 		$evaluation = array();
-		
+
 		include_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
 		foreach (array_keys($this->getSurveyQuestions()) as $question_id)
 		{
-			// get question instance			
+			// get question instance
 			$question_type = SurveyQuestion::_getQuestionType($question_id);
 			SurveyQuestion::_includeClass($question_type);
 			$question = new $question_type();
 			$question->loadFromDb($question_id);
-			
-			$q_eval = SurveyQuestion::_instanciateQuestionEvaluation($question_id, $finished_ids);		
+
+			$q_eval = SurveyQuestion::_instanciateQuestionEvaluation($question_id, $finished_ids);
 			$q_res =  $q_eval->getResults();
-			
+
 			$data = array();
 			foreach($finished_ids as $user_id)
 			{
-				$data[$user_id] = $q_eval->parseUserSpecificResults($q_res, $user_id);					
+				$data[$user_id] = $q_eval->parseUserSpecificResults($q_res, $user_id);
 			}
-			
-			$evaluation[$question_id] = $data;			
+
+			$evaluation[$question_id] = $data;
 		}
-		
+
 		return $evaluation;
 	}
 	
@@ -3350,8 +3366,8 @@ class ilObjSurvey extends ilObject
 		);
 		if ($foundrows)
 		{
-			if (($row["user_fi"] > 0) && 
-					(($row["user_fi"] != ANONYMOUS_USER_ID && 				
+			if (($row["user_fi"] > 0) &&
+					(($row["user_fi"] != ANONYMOUS_USER_ID &&
 						!$this->hasAnonymizedResults() &&
 						!$this->get360Mode()) ||  // 360° uses ANONYMIZE_CODE_ALL which is wrong - see ilObjSurveyGUI::afterSave()
 					(bool)$force_non_anonymous))
@@ -3428,7 +3444,7 @@ class ilObjSurvey extends ilObject
 		}
 		return $resultset;
 	}
-	
+
 /**
 * Calculates the data for the output of the question browser
 *
@@ -3693,9 +3709,9 @@ class ilObjSurvey extends ilObject
 		$custom_properties["own_results_view"] = (int)$this->hasViewOwnResults();
 		$custom_properties["own_results_mail"] = (int)$this->hasMailOwnResults();
 		$custom_properties["confirmation_mail"] = (int)$this->hasMailConfirmation();
-		
+
 		$custom_properties["anon_user_list"] = (int)$this->hasAnonymousUserList();
-		
+
 		$custom_properties["mode_360"] = (int)$this->get360Mode();
 		$custom_properties["mode_360_self_eval"] = (int)$this->get360SelfEvaluation();
 		$custom_properties["mode_360_self_rate"] = (int)$this->get360SelfRaters();
@@ -3776,7 +3792,7 @@ class ilObjSurvey extends ilObject
 	* @return object The question instance
 	* @access public
 	*/
-	static function _instanciateQuestion($question_id) 
+	static function _instanciateQuestion($question_id)
 	{
 		if ($question_id < 1) return FALSE;
 		include_once "./Modules/SurveyQuestionPool/classes/class.SurveyQuestion.php";
@@ -3830,9 +3846,9 @@ class ilObjSurvey extends ilObject
 			}
 			foreach($files as $file)
 			{
-				if(@is_file($importDirectory."/".$file) && 
-					($file != "." && $file!="..") && 
-					(preg_match("/^[0-9]{10}__[0-9]+__(svy_)*[0-9]+\.[A-Za-z]{1,3}$/", $file) || 
+				if(@is_file($importDirectory."/".$file) &&
+					($file != "." && $file!="..") &&
+					(preg_match("/^[0-9]{10}__[0-9]+__(svy_)*[0-9]+\.[A-Za-z]{1,3}$/", $file) ||
 						preg_match("/^[0-9]{10}__[0-9]+__(survey__)*[0-9]+\.[A-Za-z]{1,3}$/", $file)))
 				{
 					// found xml file
@@ -4056,7 +4072,7 @@ class ilObjSurvey extends ilObject
 		$newObj->setMailOwnResults($this->hasMailOwnResults());
 		$newObj->setMailConfirmation($this->hasMailConfirmation());
 		$newObj->setAnonymousUserList($this->hasAnonymousUserList());
-		
+
 		// #12661
 		if($this->get360Mode())
 		{
@@ -4146,7 +4162,7 @@ class ilObjSurvey extends ilObject
 		// create new questionblocks
 		foreach ($questionblocks as $key => $value)
 		{
-			$questionblock = self::_getQuestionblock($key); 
+			$questionblock = self::_getQuestionblock($key);
 			$questionblock_id = self::_addQuestionblock($questionblock["title"], $questionblock["owner_fi"], $questionblock["show_questiontext"], $questionblock["show_blocktitle"]);
 			$questionblocks[$key] = $questionblock_id;
 		}
@@ -4228,7 +4244,7 @@ class ilObjSurvey extends ilObject
 	* creates data directory for export files
 	* (data_dir/svy_data/svy_<id>/export, depending on data
 	* directory that is set in ILIAS setup/ini)
-	* 
+	*
 	* @throws ilSurveyException
 	*/
 	function createExportDirectory()
@@ -4273,7 +4289,7 @@ class ilObjSurvey extends ilObject
 	* creates data directory for import files
 	* (data_dir/svy_data/svy_<id>/import, depending on data
 	* directory that is set in ILIAS setup/ini)
-	* 
+	*
 	* @throws ilSurveyException
 	*/
 	function createImportDirectory()
@@ -4356,7 +4372,7 @@ class ilObjSurvey extends ilObject
 		);
 		return ($result->numRows() == 1) ? true : false;
 	}
-	
+
 	function bindSurveyCodeToUser($user_id, $code)
 	{
 		$ilDB = $this->db;
@@ -5123,7 +5139,7 @@ class ilObjSurvey extends ilObject
 	{
 		$this->mailparticipantdata = $a_data;
 	}
-	
+
 	function setStartTime($finished_id, $first_question)
 	{
 		$ilDB = $this->db;
@@ -6111,12 +6127,12 @@ class ilObjSurvey extends ilObject
 	{
 		return $this->reminder_tmpl;
 	}
-	
+
 	public function setReminderTemplate($a_value)
-	{		
+	{
 		$this->reminder_tmpl = $a_value;
 	}
-	
+
 	public function getTutorNotificationStatus()
 	{
 		return (bool)$this->tutor_ntf_status;
@@ -6353,7 +6369,7 @@ class ilObjSurvey extends ilObject
 		$today = date("Y-m-d");
 
 		$this->log->debug("Check status and dates.");
-		
+
 		// object settings / participation period
 		if($this->isOffline() ||
 			!$this->getReminderStatus() ||
@@ -6460,34 +6476,34 @@ class ilObjSurvey extends ilObject
 	protected function sentReminder(array $a_recipient_ids)
 	{
 		include_once "./Services/Mail/classes/class.ilMail.php";
-			
-		// use mail template		
+
+		// use mail template
 		if($this->getReminderTemplate() &&
 			array_key_exists($this->getReminderTemplate(), $this->getReminderMailTemplates()))
 		{
 			$prov = new ilMailTemplateDataProvider();
 			$tmpl = $prov->getTemplateById($this->getReminderTemplate());
 
-			$tmpl_params = array(				
+			$tmpl_params = array(
 				"ref_id" => $this->getRefId(),
 				"ts" => time()
-			);	
+			);
 		}
 		else
 		{
 			$tmpl = null;
-			
+
 			include_once "./Services/Link/classes/class.ilLink.php";
-			$link = ilLink::_getStaticLink($this->getRefId(), "svy");	
+			$link = ilLink::_getStaticLink($this->getRefId(), "svy");
 			
-			include_once "./Services/Language/classes/class.ilLanguageFactory.php";		
-		}			
-			
+			include_once "./Services/Language/classes/class.ilLanguageFactory.php";
+		}
+
 		foreach($a_recipient_ids as $user_id)
 		{																
 			if($tmpl)
 			{
-				$subject = $tmpl->getSubject();		
+				$subject = $tmpl->getSubject();
 				$message = $this->sentReminderPlaceholders($tmpl->getMessage(), $user_id, $tmpl_params);
 			}
 			// use lng
@@ -6495,14 +6511,14 @@ class ilObjSurvey extends ilObject
 			{
 				// use language of recipient to compose message
 				$ulng = ilLanguageFactory::_getLanguageOfUser($user_id);
-				$ulng->loadLanguageModule('survey');							
-			
+				$ulng->loadLanguageModule('survey');
+
 				$subject = sprintf($ulng->txt('survey_reminder_subject'), $this->getTitle());
 				$message = sprintf($ulng->txt('survey_reminder_salutation'), ilObjUser::_lookupFullname($user_id))."\n\n";
 
 				$message .= $ulng->txt('survey_reminder_body').":\n\n";
-				$message .= $ulng->txt('obj_svy').": ". $this->getTitle()."\n";			
-				$message .= "\n".$ulng->txt('survey_reminder_link').": ".$link;			
+				$message .= $ulng->txt('obj_svy').": ". $this->getTitle()."\n";
+				$message .= "\n".$ulng->txt('survey_reminder_link').": ".$link;
 			}
 
 			$mail_obj = new ilMail(ANONYMOUS_USER_ID);
@@ -6556,22 +6572,22 @@ class ilObjSurvey extends ilObject
 	{
 		$this->mail_confirmation = (bool)$a_value;
 	}
-	
+
 	function hasMailConfirmation()
 	{
 		return $this->mail_confirmation;
 	}
-	
+
 	function setAnonymousUserList($a_value)
 	{
 		$this->anon_user_list = (bool)$a_value;
 	}
-	
+
 	function hasAnonymousUserList()
 	{
 		return $this->anon_user_list;
 	}
-	
+
 	public static function getSurveySkippedValue()
 	{		
 		global $DIC;
@@ -6593,27 +6609,27 @@ class ilObjSurvey extends ilObject
 	}
 	
 	public function getReminderMailTemplates()
-	{	
+	{
 		$res = array();
-		
+
 		include_once "Services/Mail/classes/class.ilMailTemplateDataProvider.php";
-		include_once "Modules/Survey/classes/class.ilSurveyMailTemplateReminderContext.php";			
+		include_once "Modules/Survey/classes/class.ilSurveyMailTemplateReminderContext.php";
 		$mprov = new ilMailTemplateDataProvider();
 		foreach($mprov->getTemplateByContextId(ilSurveyMailTemplateReminderContext::ID) as $tmpl)
 		{
 			$res[$tmpl->getTplId()] = $tmpl->getTitle();
 		}
-		
+
 		return $res;
 	}
-		
+
 	protected function sentReminderPlaceholders($a_message, $a_user_id, array $a_context_params)
 	{
 		// see ilMail::replacePlaceholders()
-		include_once "Modules/Survey/classes/class.ilSurveyMailTemplateReminderContext.php";			
-				
+		include_once "Modules/Survey/classes/class.ilSurveyMailTemplateReminderContext.php";
+
 		try
-		{			
+		{
 			require_once 'Services/Mail/classes/class.ilMailTemplateService.php';
 			$context = ilMailTemplateService::getTemplateContextById(ilSurveyMailTemplateReminderContext::ID);
 
@@ -6623,17 +6639,17 @@ class ilObjSurvey extends ilObject
 			require_once 'Services/Mail/classes/class.ilMailFormCall.php';
 			$processor = new ilMailTemplatePlaceholderResolver($context, $a_message);
 			$a_message = $processor->resolve($user, ilMailFormCall::getContextParameters());
-			
+
 		}
 		catch(Exception $e)
 		{
 			require_once './Services/Logging/classes/public/class.ilLoggerFactory.php';
 			ilLoggerFactory::getLogger('mail')->error(__METHOD__ . ' has been called with invalid context.');
 		}
-		
+
 		return $a_message;
-	}	
-	
+	}
+
 } // END class.ilObjSurvey
 
 ?>

@@ -23,6 +23,14 @@ class iljQueryUtil {
 	 * @param \ilTemplate $a_tpl global $tpl is used when null
 	 */
 	public static function initjQuery($a_tpl = null) {
+
+// fim: [trash] ignore missing template (cron job line)
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+// fim.
+
 		global $DIC;
 
 		$tpl = $DIC["tpl"];
@@ -43,6 +51,12 @@ class iljQueryUtil {
 	 * (see included_components.txt for included components)
 	 */
 	public static function initjQueryUI($a_tpl = null) {
+// fim: [trash] ignore missing template (cron job line)
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+// fim.
 		global $DIC;
 
 		$tpl = $DIC["tpl"];
@@ -78,6 +92,12 @@ class iljQueryUtil {
 	 * Inits and add maphilight to the general template
 	 */
 	public static function initMaphilight() {
+// fim: [trash] ignore missing template (cron job line)
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+// fim.
 		global $DIC;
 
 		$tpl = $DIC["tpl"];
@@ -92,4 +112,23 @@ class iljQueryUtil {
 	public static function getLocalMaphilightPath() {
 		return "./libs/bower/bower_components/maphilight/jquery.maphilight.min.js";
 	}
+
+	// fim: [exam] init the colorbox functionality
+	// fim: [trash] ignore missing template (cron job line)
+	static function initColorbox()
+	{
+		if (!ilContext::usesTemplate())
+		{
+			return;
+		}
+
+		global $DIC;
+
+		$tpl = $DIC["tpl"];
+
+		$tpl->addJavaScript("./Services/jQuery/js/colorbox/jquery.colorbox-min.js", true, 1);
+		$tpl->addCss("./Services/jQuery/js/colorbox/example4/colorbox.css");
+	}
+	// fim.
+
 }

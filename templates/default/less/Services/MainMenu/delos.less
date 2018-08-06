@@ -64,7 +64,7 @@
 				padding: 5px 10px 6px;
 				text-transform: uppercase;
 				font-size: 14px;
-				border-top: 4px solid white;
+				border-top: 4px solid transparent;  // fim: transparent border.
 				background-color: @il-main-menu-link-bg;
 				color: @il-main-menu-link-color;
 				@media only screen and (max-width: @grid-float-breakpoint-max) {
@@ -135,6 +135,14 @@
 			}
 		}
 	}
+  a.dropdown-toggle {
+    // fim: adapted style from fau.de
+    font-size: 16px;
+    font-weight: bold;
+    color: #036!important;
+    text-decoration: none;
+    // fim.
+  }
 }
 
 [dir="rtl"] #ilTopNav {
@@ -177,7 +185,8 @@
 /* Main Menu Top Title */
 .ilTopTitle {
 	float: left;
-	font-weight: 600;
+	font-family: 'roboto';		// fim: use fau font.
+	// font-weight: 600; 		// fim: don't use font weight.
 	padding: 0 0 0 15px;
 	white-space: nowrap;
 	line-height: 40px;
@@ -213,7 +222,30 @@ input.ilOpenIDBox {
 	height: 40px;
 	top: 0;
 	z-index: 1040;
-	@media only screen and (max-width: @grid-float-breakpoint-max) {
+
+  // fim: added background
+  // background: transparent url("images/studon/header_bg.jpg") repeat-x scroll center top;
+  background-image: radial-gradient(ellipse at center center , lighten(#036, 7%) 0%, #036 100%);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: 0% 0%;
+  background-clip: border-box;
+  background-origin: padding-box;
+  background-size: auto auto;
+  // fim.
+
+  // fim: logo in top bar (for blog)
+  img.studonSmall {
+    display: inline;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    height: 30px;
+    width: 30px;
+  }
+  // fim.
+
+  @media only screen and (max-width: @grid-float-breakpoint-max) {
 		z-index: 1030;
 	}
 }
@@ -351,6 +383,13 @@ input.ilOpenIDBox {
 			height: 0;
 		}
 	}
+    /* fim: added transparent layer.
+    > header {
+      background-color: rgba(255, 255, 255, 0.90  );
+      width: 100%;
+      height: 100%;
+    }
+  	fim. */
 	> header > .row > a.navbar-brand {
 		height: auto;
 		display: inline-block;
@@ -415,7 +454,7 @@ div.ilTopMemberView {
 	h3 {
 		padding: 0;
 		margin: 0;
-		line-height: 40px;	
+		line-height: 40px;
 	}
 	@media only screen and (max-width: @grid-float-breakpoint-max) {
 		display: none;

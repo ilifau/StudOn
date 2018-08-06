@@ -2,6 +2,9 @@
 <div id="dontprint">
 	<p>
 		<a href="javascript:window.print();" class="btn btn-default">{BUTTON_PRINT}</a>
+        <!-- fim: [exam] add button to print with page breaks -->
+        <a href="{HREF_PRINT_PAGEBREAKS}" class="btn btn-default">{BUTTON_PRINT_PAGEBREAKS}</a>
+        <!-- fim. -->
 <!-- BEGIN pdf_export -->
 		<a class="btn btn-default" href="{PDF_URL}">{PDF_TEXT}</a>
 <!-- END pdf_export -->
@@ -12,8 +15,17 @@
 <h3>{TITLE}</h3>
 <p>{TXT_PRINT_DATE}:&nbsp;{VALUE_PRINT_DATE}&nbsp;&nbsp;{TXT_MAXIMUM_POINTS}:&nbsp;{VALUE_MAXIMUM_POINTS}</p>
 <!-- BEGIN question -->
-<div class="questionPrintview clearfix">
+<!-- fim: [exam] add page break style -->
+<div class="questionPrintview clearfix" style="{STYLE_PRINT_PAGEBREAKS}">
+<!-- fim. -->
 	<p class="questionTitle">{QUESTION_HEADER}<!-- BEGIN id_info_block --> [{TXT_QUESTION_ID}: {QUESTION_ID}]<!-- END id_info_block --></p>
 	<p>{SOLUTION_OUTPUT}</p>
 </div>
 <!-- END question -->
+<!-- fim: [exam] add print script -->
+<!-- BEGIN print -->
+<script language="JavaScript">
+	window.print();
+</script>
+<!-- END print -->
+<!-- fim. -->

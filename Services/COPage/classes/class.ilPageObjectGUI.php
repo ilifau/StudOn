@@ -326,7 +326,7 @@ class ilPageObjectGUI
 	{
 		return $this->page_config;
 	}
-	
+
 	/**
 	 * Set Page Object
 	 *
@@ -1136,7 +1136,7 @@ return;
 	 * @return
 	 */
 	function setQEditTabs($a_active)
-	{		
+	{
 		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
 		
 		$this->tabs_gui->clearTargets();
@@ -1781,6 +1781,19 @@ return;
 		// ensure no cache hit, if included files/media objects have been changed
 		$params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
+		// fim: [exam] init colorbox and add parameter to open fullscreen in box
+		global $ilCust;
+		if ($ilCust->getSetting('fullscreen_in_colorbox')
+			or $this instanceof ilAssQuestionPageGUI)
+		{
+			iljQueryUtil::initColorbox();
+			$params["fullscreen_in_colorbox"] = true;
+		}
+		else
+		{
+			$params["fullscreen_in_colorbox"] = false;
+		}
+		// fim.
 
 		// should be modularized
 		include_once("./Services/COPage/classes/class.ilPCSection.php");
@@ -1806,6 +1819,10 @@ return;
 		}
 		else
 		{
+// fau: linkInSameWindow - include link class before xsl transformation
+			require_once ('./Services/Link/classes/class.ilLink.php');
+// fau.
+
 			$xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
 
 			$this->log->debug("Calling XSLT, content: ".substr($content, 0, 100));
@@ -1858,9 +1875,18 @@ return;
 		{
 			$output = $this->insertPageToc($output);
 		}
-		
-		// insert advanced output trigger
-		$output = $this->insertAdvTrigger($output);
+
+// fau: shortRssLink - don't add special elements to abstract
+		if ($this->getAbstractOnly())
+		{
+			$output = $this->removeAdvTrigger($output);
+		}
+		else
+		{
+			// insert advanced output trigger
+			$output = $this->insertAdvTrigger($output);
+		}
+// fau.
 
 		// workaround for preventing template engine
 		// from hiding paragraph text that is enclosed
@@ -1993,9 +2019,9 @@ return;
 	function addActionsMenu($a_tpl, $sel_media_mode, $sel_html_mode, $sel_js_mode)
 	{
 		global $DIC;
-		
+
 		$ui = $DIC->ui();
-		
+
 		// actions
 		include_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
 
@@ -2006,7 +2032,7 @@ return;
 		$entries = false;
 		if ($this->getPageConfig()->getEnableActivation())
 		{
-			
+
 			$entries = true;
 			$captions = $this->getActivationCaptions();
 
@@ -2575,7 +2601,7 @@ return;
 		return $this->ctrl->getLinkTargetByClass(strtolower(get_class($this)), "preview");
 	}
 
-	
+
 	/**
 	 * Download file of file lists
 	 */
@@ -2856,7 +2882,26 @@ return;
 		
 		return $a_output;
 	}
-	
+
+// fau: shortRssLink - new function RemoveAdvTrigger
+	/**
+	 * Remove adv content trigger
+	 *
+	 * @param string $a_output output
+	 * @return string modified output
+	 */
+	function RemoveAdvTrigger($a_output)
+	{
+		global $lng;
+
+		$a_output = str_replace("{{{{{LV_show_adv}}}}}",
+			'', $a_output);
+		$a_output = str_replace("{{{{{LV_hide_adv}}}}}",
+			'', $a_output);
+
+		return $a_output;
+	}
+// fau.
 	
 	/**
 	 * Finalizing output processing. Maybe overwritten in derived
@@ -3000,7 +3045,7 @@ return;
 	function insertJSAtPlaceholder()
 	{
 		$tpl = $this->tpl;
-		
+
 		if ($_GET["pl_hier_id"] == "")
 		{
 			$this->obj->buildDom();
@@ -3449,7 +3494,7 @@ return;
 	* Get values for activation form
 	*/
 	function getActivationFormValues()
-	{		
+	{
 		$activation = "deactivated";
 		if ($this->getPageObject()->getActive())
 		{
@@ -3471,8 +3516,8 @@ return;
 				IL_CAL_DATETIME));
 		}
 		
-		$this->form->getItemByPostVar("activation")->setValue($activation);		
-		$this->form->getItemByPostVar("show_activation_info")->setChecked($this->getPageObject()->getShowActivationInfo());		
+		$this->form->getItemByPostVar("activation")->setValue($activation);
+		$this->form->getItemByPostVar("show_activation_info")->setChecked($this->getPageObject()->getShowActivationInfo());
 	}
 	
 	/**

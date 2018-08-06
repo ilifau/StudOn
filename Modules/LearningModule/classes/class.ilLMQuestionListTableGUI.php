@@ -143,15 +143,17 @@ class ilLMQuestionListTableGUI extends ilTable2GUI
 		}
 		else
 		{
+// fau: lmQStat - show rounded percentages
 			$this->tpl->setVariable("VAL_CORRECT_FIRST", $stats["first"].
-				" (".(100/$stats["all"] * $stats["first"])." %)");
+				" (".round(100/$stats["all"] * $stats["first"],2)." %)");
 			$this->tpl->setVariable("VAL_CORRECT_SECOND", $stats["second"].
-				" (".(100/$stats["all"] * $stats["second"])." %)");
+				" (".round(100/$stats["all"] * $stats["second"],2)." %)");
 			$this->tpl->setVariable("VAL_CORRECT_THIRD_AND_MORE", $stats["third_or_more"].
-				" (".(100/$stats["all"] * $stats["third_or_more"])." %)");
+				" (".round(100/$stats["all"] * $stats["third_or_more"],2)." %)");
 			$nev = $stats["all"] - $stats["first"] - $stats["second"] - $stats["third_or_more"];
 			$this->tpl->setVariable("VAL_NEVER", $nev.
-				" (".(100/$stats["all"] * $nev)." %)");
+				" (".round(100/$stats["all"] * $nev, 2)." %)");
+// fau.
 		}
 	}
 }

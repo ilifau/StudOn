@@ -17,7 +17,7 @@ class ilTestPlayerCommands
 	
 	const DISPLAY_ACCESS_CODE = 'displayAccessCode';
 	const ACCESS_CODE_CONFIRMED = 'accessCodeConfirmed';
-	
+
 	const SHOW_QUESTION = 'showQuestion';
 	
 	const PREVIOUS_QUESTION = 'previousQuestion';

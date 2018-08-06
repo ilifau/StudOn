@@ -82,6 +82,18 @@ class ilCourseParticipant extends ilParticipant
 		}
 		return self::$instances[$a_obj_id][$a_usr_id] = new ilCourseParticipant($a_obj_id,$a_usr_id);
 	}
+
+	/**
+	* fim: [memsess] set the assigned course (needed to get course settings for session info)
+	*
+	* @param 	object  course object
+	*/
+	public function setCourseObject($a_course_obj)
+	{
+		$this->course_obj = $a_course_obj;
+	}
+	// fim.
+	
 	
 }
 ?>

@@ -97,9 +97,12 @@ class ilLinkChecker
 		$res = $this->db->query($query);
 		while($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT))
 		{
+// fau: fixLinkChecker - add status to table data
 			$invalid[] = array('page_id' => $row->page_id,
-							   'url'	 => $row->url);
+							   'url'	 => $row->url,
+							   'status' => $row->http_status_code);
 		}
+// fau.
 
 		return $invalid ? $invalid : array();
 	}
@@ -530,7 +533,9 @@ class ilLinkChecker
 					$curl = new ilCurlConnection($link['complete']);
 					$curl->init();
 
-					if(ilProxySettings::_getInstance()->isActive())
+// fau: linkInSameWindow - don't use proxy when checking links to the same platform
+					if(ilProxySettings::_getInstance()->isActive() && !ilLink::_isLocalLink($link['complete']))
+// fau.
 					{
 						$curl->setOpt(CURLOPT_HTTPPROXYTUNNEL,true );
 						$curl->setOpt(CURLOPT_PROXY, ilProxySettings::_getInstance()->getHost());

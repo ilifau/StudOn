@@ -1259,6 +1259,12 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 					"value" => $data["value2"]
 				);
 			}
+			// fim: [bugfix] clear previous savings if last one is empty
+			else
+			{
+				unset($user_result[$data["value1"]]);
+			}
+			// fim.
 		}
 		
 		ksort($user_result); // this is required when identical scoring for same solutions is disabled
@@ -1642,6 +1648,13 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 	*/
 	public function toJSON()
 	{
+// fau: lmGapShuffle - set shuffler for gaps in cloze questions
+		include_once('Services/Randomization/classes/class.ilArrayElementShuffler.php');
+		$shuffler = new ilArrayElementShuffler();
+		$shuffler->setSeed($shuffler->buildSeedFromString(session_id()));
+		$this->setShuffler($shuffler);
+// fau.
+
 		include_once("./Services/RTE/classes/class.ilRTE.php");
 		$result = array();
 		$result['id'] = (int) $this->getId();
@@ -1680,7 +1693,14 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 
 			if( $gap->getGapSize() && ($gap->getType() == CLOZE_TEXT || $gap->getType() == CLOZE_NUMERIC) )
 			{
-				$jgap['size'] = $gap->getGapSize();
+// fau: fixMissingGapLength - use fallback for missing text gap lengths of cloze questions in page content
+				$size = $gap->getGapSize();
+				$size = $size ? $size : $this->getFixedTextLength();
+				if ($size)
+				{
+					$jgap['size'] = $size;
+				}
+// fau.
 			}
 
 			$jgap['shuffle'] = $gap->getShuffle();

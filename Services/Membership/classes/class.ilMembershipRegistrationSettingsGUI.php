@@ -72,6 +72,35 @@ abstract class ilMembershipRegistrationSettingsGUI
 		$reg_type = new ilRadioGroupInputGUI($this->txt('reg_type'),'registration_type');
 		//$reg_type->setValue($this->object->getRegistrationType());
 
+// fau: objectSub - add option for reference to subscription object
+		global $lng;
+		if(in_array(ilMembershipRegistrationSettings::TYPE_OBJECT, $this->getOptions()))
+		{
+			require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
+			$opt_obj = new ilRadioOption($lng->txt('sub_separate_object'), ilMembershipRegistrationSettings::TYPE_OBJECT);
+			$opt_obj->setInfo($lng->txt('sub_separate_object_info'));
+			$rep_sel = new ilRepositorySelectorInputGUI($lng->txt('sub_subscription_object'),'registration_ref_id');
+			$rep_sel->setHeaderMessage($lng->txt('sub_separate_object_info'));
+			$rep_sel->setClickableTypes(array('xcos'));
+			$rep_sel->setRequired(true);
+			$rep_sel->setParent($form);
+			$opt_obj->addSubItem($rep_sel);
+			$reg_type->addOption($opt_obj);
+
+			if ($ref_id = $this->object->getRegistrationRefId())
+			{
+				$rep_sel->setValue($ref_id);
+				require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+				$locator = new ilLocatorGUI();
+				$locator->setTextOnly(true);
+				$locator->addContextItems($ref_id);
+				$rep_loc = new ilNonEditableValueGUI();
+				$rep_loc->setValue($locator->getHTML());
+				$opt_obj->addSubItem($rep_loc);
+			}
+		}
+// fau.
+
 		if(in_array(ilMembershipRegistrationSettings::TYPE_DIRECT,$this->getOptions()))
 		{
 			$opt_dir = new ilRadioOption($this->txt('reg_direct'),  ilMembershipRegistrationSettings::TYPE_DIRECT);

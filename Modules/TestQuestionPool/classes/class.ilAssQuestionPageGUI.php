@@ -38,6 +38,11 @@ class ilAssQuestionPageGUI extends ilPageObjectGUI
 	{
 		parent::__construct('qpl', $a_id, $a_old_nr);
 		$this->setEnabledPageFocus(false);
+
+        // fim: [bugfix] prevent wrong fullscreen links on print view of more questions
+        global $ilCtrl;
+        $ilCtrl->setParameter($this, 'q_id', $a_id);
+        // fim.
 	}
 
 	public function getOriginalPresentationTitle()

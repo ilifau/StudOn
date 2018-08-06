@@ -62,7 +62,7 @@ class ilObjFileGUI extends ilObject2GUI
 
 		if(!$this->getCreationMode())
 		{
-			if($this->id_type == self::REPOSITORY_NODE_ID 
+			if($this->id_type == self::REPOSITORY_NODE_ID
 				&& $this->checkPermissionBool("read"))
 			{
 				$ilCtrl->setParameterByClass("ilrepositorygui", "ref_id", $this->node_id);
@@ -539,7 +539,11 @@ class ilObjFileGUI extends ilObject2GUI
 		
 		$this->object->setDescription($form->getInput('description'));
 		$this->object->setRating($form->getInput('rating'));
-		
+
+// fau: fixFileTitleEdit - take the entered file title
+		$this->object->setTitle($title);
+// fau.
+
 		$this->update = $this->object->update();
 
 		// BEGIN ChangeEvent: Record update event.
@@ -1274,6 +1278,10 @@ class ilObjFileGUI extends ilObject2GUI
 			$fileObj->raiseUploadError(false);
 			$result = $fileObj->getUploadFile($temp_name, $filename);
 			if ($result) {
+
+// fau: fixFileTitleEdit - take the entered file title
+				$fileObj->setTitle($title);
+// fau.
 				//if no title for the file was set use the filename as title
 				if(empty($fileObj->getTitle())) {
 					$fileObj->setTitle($result->getName());

@@ -21,11 +21,13 @@
 			WHERE mail_id IN (?);
 		</Query>
 		<Param format="list" type="int" value="mail_id" />
+        <!-- fim: [lucene] don't add directory
 		<DataSource type="Directory" action="append">
 			<PathCreator name="MailAttachmentPathCreator" />
 			<Field store="YES" index="ANALYZED" name="mattachment">
 				<Transformer name="LinefeedSanitizer" />
 			</Field>
 		</DataSource>
+		fim. -->
 	</DataSource>
 </DataSource>

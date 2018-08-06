@@ -177,7 +177,12 @@ class ilMailFormGUI
 	{
 		$m_type = isset($_POST["m_type"]) ? $_POST["m_type"] : array("normal");
 
-		$message = strip_tags(ilUtil::stripSlashes($_POST['m_message'], false));
+// fau: fixTagsInMail - avoid replacement of accidental tags in mail text
+		$message = $_POST['m_message'];
+		$message = preg_replace('/< */', '< ', $message);
+		$message = preg_replace('/ *>/', ' >', $message);
+		$message = strip_tags(ilUtil::stripSlashes($message, false));
+// fau.
 		$message = str_replace("\r", '', $message);
 
 		$files = $this->decodeAttachmentFiles(isset($_POST['attachments']) ? (array)$_POST['attachments'] : array());
@@ -697,6 +702,9 @@ class ilMailFormGUI
 		$inp->setSize(50);
 		$inp->setValue($mailData["rcp_to"]);
 		$inp->setDataSource($dsDataLink, ",");
+// fau: mailToRolesInfo
+		$inp->setAlert($this->lng->txt('mail_only_own_courses_info'));
+// fau.
 		$inp->setMaxLength(null);
 		$form_gui->addItem($inp);
 

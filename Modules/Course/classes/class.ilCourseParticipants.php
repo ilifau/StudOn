@@ -60,8 +60,8 @@ class ilCourseParticipants extends ilParticipants
 		$this->NOTIFY_REGISTERED = 10;
 		$this->NOTIFY_UNSUBSCRIBE = 11;
 		$this->NOTIFY_WAITING_LIST = 12;
-		
-		// ref based constructor 
+
+		// ref based constructor
 		$refs = ilObject::_getAllReferences($a_obj_id);
 		parent::__construct(self::COMPONENT_NAME,  array_pop($refs));
 	}
@@ -97,7 +97,33 @@ class ilCourseParticipants extends ilParticipants
 		}
 		return false;
 	}
-	
+
+	/**
+	* fim: [memsess] set the assigned course (needed to get course settings for session info)
+	*
+	* @param 	object  course object
+	*/
+	public function setCourseObject($a_course_obj)
+	{
+		$this->course_obj = $a_course_obj;
+	}
+	// fim.
+
+	/**
+	* fim: [memsess] get the assigned course (needed to get course settings for session info)
+	*
+	* @return 	object  course object
+	*/
+	public function getCourseObject()
+	{
+		if (!is_object($this->course_obj))
+		{
+			$this->course_obj = ilObjectFactory::getInstanceByObjId($this->obj_id);
+		}
+		return $this->course_obj;
+	}
+	// fim.
+
 	/**
 	 * Get member roles
 	 * @param int $a_ref_id
@@ -276,6 +302,14 @@ class ilCourseParticipants extends ilParticipants
 		$mail = new ilCourseMembershipMailNotification();
 		$mail->forceSendingMail($a_force_sending_mail);
 
+		// fim: [memsess] get info about subscription to events
+		$course = $this->getCourseObject();
+		if ($course->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF)
+		{
+			$subscribe_to_events = true;
+		}
+		// fim.
+
 		switch($a_type)
 		{
 			case $this->NOTIFY_DISMISS_SUBSCRIBER:
@@ -289,7 +323,10 @@ class ilCourseParticipants extends ilParticipants
 				$mail->setType(ilCourseMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER);	
 				$mail->setRefId($this->ref_id);
 				$mail->setRecipients(array($a_usr_id));
-				$mail->send();				
+				// fim: [memsess] add event reminder
+				$mail->setSubscribeToEvents($subscribe_to_events);
+				// fim.
+				$mail->send();
 				break;				
 
 			case $this->NOTIFY_DISMISS_MEMBER:
@@ -317,7 +354,10 @@ class ilCourseParticipants extends ilParticipants
 				$mail->setType(ilCourseMembershipMailNotification::TYPE_ADMISSION_MEMBER);	
 				$mail->setRefId($this->ref_id);
 				$mail->setRecipients(array($a_usr_id));
-				$mail->send();				
+				// fim: [memsess] add event reminder
+				$mail->setSubscribeToEvents($subscribe_to_events);
+				// fim.
+				$mail->send();
 				break;
 
 			case $this->NOTIFY_STATUS_CHANGED:
@@ -341,17 +381,11 @@ class ilCourseParticipants extends ilParticipants
 				$mail->send();				
 				break;
 
+// fau: fairSub - deprecated case, fallback to specific function
 			case $this->NOTIFY_WAITING_LIST:
-				include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
-				$wl = new ilCourseWaitingList($this->obj_id);
-				$pos = $wl->getPosition($a_usr_id);
-					
-				$mail->setType(ilCourseMembershipMailNotification::TYPE_WAITING_LIST_MEMBER);	
-				$mail->setRefId($this->ref_id);
-				$mail->setRecipients(array($a_usr_id));
-				$mail->setAdditionalInformation(array('position' => $pos));
-				$mail->send();
+				$this->sendAddedToWaitingList($a_usr_id);
 				break;
+// fau.
 
 			case $this->NOTIFY_SUBSCRIPTION_REQUEST:
 				$this->sendSubscriptionRequestToAdmins($a_usr_id);
@@ -364,7 +398,27 @@ class ilCourseParticipants extends ilParticipants
 		}
 		return true;
 	}
-	
+
+// fau: fairSub - new function sendAddedToWaitingList()
+	/**
+	 * Send notification to user about being added to the waiting list
+	 * @param int			$a_usr_id
+	 * @param ilWaitingList	$a_waiting_list
+	 * @return bool
+	 */
+	function sendAddedToWaitingList($a_usr_id, $a_waiting_list = null)
+	{
+		include_once './Modules/Course/classes/class.ilCourseMembershipMailNotification.php';
+		$mail = new ilCourseMembershipMailNotification();
+		$mail->setType(ilCourseMembershipMailNotification::TYPE_WAITING_LIST_MEMBER);
+		$mail->setRefId($this->ref_id);
+		$mail->setWaitingList($a_waiting_list);
+		$mail->setRecipients(array($a_usr_id));
+		$mail->send();
+		return true;
+	}
+// fau.
+
 	function sendUnsubscribeNotificationToAdmins($a_usr_id)
 	{
 		global $ilDB,$ilObjDataCache;
