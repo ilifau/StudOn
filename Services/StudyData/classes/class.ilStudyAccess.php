@@ -24,10 +24,10 @@ class ilStudyAccess
 	 */
 	public static function _checkAccess($a_ref_id, $a_user_id)
 	{
-        global $ilCust;
+
 
         // only check objects which are
-        $ref_ids = explode(',', $ilCust->getSetting('studydata_check_ref_ids'));
+        $ref_ids = explode(',', ilCust::get('studydata_check_ref_ids'));
         if (!in_array($a_ref_id, $ref_ids))
         {
             return false;

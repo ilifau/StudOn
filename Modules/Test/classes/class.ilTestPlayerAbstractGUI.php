@@ -1875,8 +1875,8 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 		);
 
 		// fim: [exam] prevent dragging of images into text boxes during test (would display the image name which could be a hint)
-		global $ilCust;
-		if ($ilCust->getSetting("tst_prevent_image_drag"))
+
+		if (ilCust::get("tst_prevent_image_drag"))
 		{
 			require_once("Services/jQuery/classes/class.iljQueryUtil.php");
 			iljQueryUtil::initjQuery();

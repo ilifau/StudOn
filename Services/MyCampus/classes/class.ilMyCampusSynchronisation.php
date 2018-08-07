@@ -13,21 +13,21 @@ class ilMyCampusSynchronisation
 	
 	public function __construct()
 	{
-		global $ilCust, $ilUser;
+		global $ilUser;
 		
-		$this->enabled = $ilCust->getSetting('mycampus_sync_enabled');
+		$this->enabled = ilCust::get('mycampus_sync_enabled');
 		$this->campus = null;
 		
-		if ($this->logfile = $ilCust->getSetting('mycampus_sync_logfile'))
+		if ($this->logfile = ilCust::get('mycampus_sync_logfile'))
 		{
 			require_once('Services/Logging/classes/class.ilLog.php');
 			$this->log = new ilLog(ILIAS_LOG_DIR, $this->logfile, CLIENT_ID);
 			$this->log->setLogLevel('message');
 		}
 		
-		if ($this->mail_interval = $ilCust->getSetting('mycampus_sync_mail_interval'))
+		if ($this->mail_interval = ilCust::get('mycampus_sync_mail_interval'))
 		{
-			$this->mail_verbose = $ilCust->getSetting('mycampus_sync_mail_verbose');
+			$this->mail_verbose = ilCust::get('mycampus_sync_mail_verbose');
 			
 			require_once("Services/Mail/classes/class.ilMail.php");
 			$this->mail = new ilMail($ilUser->getId());

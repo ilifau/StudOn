@@ -617,8 +617,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 // fau.
 		
 			// fim: [univis] show link to import univis
-			global $ilCust;
-			if ($ilCust->getSetting($this->object->getType().'_enable_univis_import'))
+
+			if (ilCust::get($this->object->getType().'_enable_univis_import'))
 			{
 				$this->showUnivisImportActions();
 			}

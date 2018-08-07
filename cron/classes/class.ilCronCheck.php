@@ -139,14 +139,14 @@ class ilCronCheck
 		);
 
         // fim: [campus] synchronize course registrations from mein campus
-        global $ilCust;
+
 		$this->possible_tasks = array(
 
 			'ilMyCampusSynchronisation::start' => array(
 				'classname'		=> 'ilMyCampusSynchronisation',
 				'method'		=> 'start',
 				'location'		=> 'Services/MyCampus',
-				'condition'		=> $ilCust->getSetting('mycampus_sync_enabled')
+				'condition'		=> ilCust::get('mycampus_sync_enabled')
 			),
 		// fim.
 

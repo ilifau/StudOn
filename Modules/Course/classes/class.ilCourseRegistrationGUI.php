@@ -415,12 +415,12 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 		if($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
 			or $this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
 		{
-			global $ilCust;
+
 			$reg = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
 
 			$reg->setHtml(sprintf($this->lng->txt('crs_subscription_mycampus_registration'),
 				ilUtil::getImagePath('studon/meinCampusSmall.gif'),
-				sprintf($ilCust->getSetting('mycampus_reg_url'),$this->container->getImportId())));
+				sprintf(ilCust::get('mycampus_reg_url'),$this->container->getImportId())));
 			$this->form->addItem($reg);
 
 			// Disable registration

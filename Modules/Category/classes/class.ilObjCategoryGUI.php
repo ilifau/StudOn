@@ -82,13 +82,13 @@ class ilObjCategoryGUI extends ilContainerGUI
 		}
 
 // fau: rootIsReduced - set container appearance for reduced view mode
-		global $ilCust, $tree;
-		if ($ilCust->getSetting("ilias_repository_cat_id") && $this->ref_id)
+		global $tree;
+		if (ilCust::get("ilias_repository_cat_id") && $this->ref_id)
 		{
-			if ($ilCust->getSetting("ilias_repository_cat_id") != $this->ref_id
+			if (ilCust::get("ilias_repository_cat_id") != $this->ref_id
 				and
 				!$tree->isGrandChild(
-					$ilCust->getSetting("ilias_repository_cat_id"),
+					ilCust::get("ilias_repository_cat_id"),
 					$this->ref_id))
 			{
 				// flag for ilContainerGUI

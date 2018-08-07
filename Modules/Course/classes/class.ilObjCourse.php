@@ -1241,9 +1241,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		// fim: [memad] check deny time for registration
 		if($this->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED)
 		{
-			global $ilCust;
-			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
-			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+
+			$deny_regstart_from = ilCust::get('ilias_deny_regstart_from');
+			$deny_regstart_to = ilCust::get('ilias_deny_regstart_to');
 			if ($deny_regstart_from and $deny_regstart_to)
 			{
 				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);

@@ -3238,7 +3238,7 @@ class ilObjTestGUI extends ilObjectGUI
 	*/
 	function sendSimpleResultsToParticipantsConfirmedObject()
 	{
-	    global $ilDB, $ilCust, $lng;
+	    global $ilDB, $lng;
 
 		if (count($_POST["chbUser"]) == 0)
 		{
@@ -3247,7 +3247,7 @@ class ilObjTestGUI extends ilObjectGUI
 		}
 
 		// init remote notification
-		if ($ilCust->getSetting('tst_notify_remote'))
+		if (ilCust::get('tst_notify_remote'))
 		{
 			include_once 'Services/WebServices/SOAP/classes/class.ilRemoteIliasClient.php';
 			$soap_client = ilRemoteIliasClient::_getInstance();
@@ -3304,7 +3304,7 @@ class ilObjTestGUI extends ilObjectGUI
 						$user->getMatriculation(),
 						$time);
 
-			if ($ilCust->getSetting('tst_notify_remote'))
+			if (ilCust::get('tst_notify_remote'))
 			{
 	            // send as mail in remote platform
 
@@ -3357,7 +3357,7 @@ class ilObjTestGUI extends ilObjectGUI
 		}
 
 		// close remote notification
-		if ($ilCust->getSetting('tst_notify_remote'))
+		if (ilCust::get('tst_notify_remote'))
 		{
 			$soap_client->logout();
 	    }

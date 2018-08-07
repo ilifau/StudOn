@@ -57,8 +57,8 @@ class ilHelp
 		{
 			$t = $rec["tt_text"];
 			// fim: [help] make showing of ids independent from OH_REF_ID
-			global $ilCust;
-			if ($ilCust->getSetting("help_show_ids"))
+
+			if (ilCust::get("help_show_ids"))
 			{
 				$t.="<br/><i class='small'>".$a_tt_id."</i>";
 			}
@@ -78,8 +78,8 @@ class ilHelp
 			{
 				$t = $rec["tt_text"];
 				// fim: [help] make showing of ids independent from OH_REF_ID
-				global $ilCust;
-				if ($ilCust->getSetting("help_show_ids"))
+
+				if (ilCust::get("help_show_ids"))
 				{
 					$t.="<br/><i class='small'>".$a_tt_id."</i>";
 				}
@@ -88,8 +88,8 @@ class ilHelp
 			}
 		}
 		// fim: [help] make showing of ids independent from OH_REF_ID
-		global $ilCust;
-		if ($ilCust->getSetting("help_show_ids"))
+
+		if (ilCust::get("help_show_ids"))
 		{
 			return "<i>".$a_tt_id."</i>";
 		}

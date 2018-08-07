@@ -712,11 +712,11 @@ class ilInfoScreenGUI
 
 		// fim: [rights] show info about users with special rights
 
-		global $ilAccess, $ilCust, $rbacreview, $tree;
+		global $ilAccess, $rbacreview, $tree;
 		$a_obj = $this->gui_object->object;
 
 		if (is_object($a_obj)
-			and $ilCust->getSetting('ilias_show_roles_info')
+			and ilCust::get('ilias_show_roles_info')
 			and $ilUser->getId() != ANONYMOUS_USER_ID)
 		{
 			$type = $a_obj->getType();

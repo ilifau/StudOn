@@ -36,8 +36,8 @@ class ilObjRootFolderGUI extends ilContainerGUI
 		$lng->loadLanguageModule("obj");
 		
 // fau: rootAsLogin - init root folder for login purposes and reduced view mode
-		global $ilCust;
-		if ($ilCust->getSetting("ilias_root_as_login"))
+
+		if (ilCust::get("ilias_root_as_login"))
 		{
 			// flag to enable login forms;
             $this->enable_login_forms = true;
@@ -48,8 +48,8 @@ class ilObjRootFolderGUI extends ilContainerGUI
 // fau.
 
 // fau: rootIsReduced - init root folder for login purposes and reduced view mode
-			global $ilCust, $ilMainMenu;
-			if ($ilCust->getSetting("ilias_repository_cat_id"))
+			global $ilMainMenu;
+			if (ilCust::get("ilias_repository_cat_id"))
 			{
 				// flag for ilContainerGUI and info tab
 				$this->reduced_view_mode = true;

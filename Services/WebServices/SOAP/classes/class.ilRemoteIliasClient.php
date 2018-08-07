@@ -43,13 +43,13 @@ class ilRemoteIliasClient extends ilSoapClient
 	*/
 	private function __construct()
 	{
-		global $ilCust;
 
-		$this->user = $ilCust->getSetting('remote_soap_user');
-		$this->password = $ilCust->getSetting('remote_soap_password');
-		$this->client_id = $ilCust->getSetting('remote_soap_client_id');
 
-		$this->ilSoapClient($ilCust->getSetting('remote_soap_server'));
+		$this->user = ilCust::get('remote_soap_user');
+		$this->password = ilCust::get('remote_soap_password');
+		$this->client_id = ilCust::get('remote_soap_client_id');
+
+		$this->ilSoapClient(ilCust::get('remote_soap_server'));
 		$this->setTimeout(DEFAULT_TIMEOUT);
 		$this->setResponseTimeout(DEFAULT_RESPONSE_TIMEOUT);
 		$this->enableWSDL(true);

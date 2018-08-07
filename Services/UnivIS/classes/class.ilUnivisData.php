@@ -256,8 +256,8 @@ class ilUnivisData
 	*/
 	static function _getPrgUrl()
 	{
-	    global $ilCust;
-		return $ilCust->getSetting('univis_prg_url');
+
+		return ilCust::get('univis_prg_url');
 	}
 
 

@@ -847,8 +847,8 @@ class ilContainer extends ilObject
 
 		$ilLog->write(__METHOD__.': Trying to call Soap client...');
 // fau: copyBySoap - customize use of SOAP for copying containers
-		global $ilCust;
-		if($ilCust->getSetting('ilias_copy_by_soap') and $soap_client->init())
+
+		if(ilCust::get('ilias_copy_by_soap') and $soap_client->init())
 // fau.
 		{
 			ilLoggerFactory::getLogger('obj')->info('Calling soap clone method');

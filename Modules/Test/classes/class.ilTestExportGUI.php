@@ -29,8 +29,8 @@ class ilTestExportGUI extends ilExportGUI
 		$this->addFormat('csv', $a_parent_gui->lng->txt('ass_create_export_test_results'), $this, 'createTestResultsExport');
 
         // fim: [exam] Button to export test results for my campus
-        global $ilCust;
-        if ($ilCust->getSetting('tst_export_mycampus'))
+
+        if (ilCust::get('tst_export_mycampus'))
         {
             $this->addFormat('prf', $a_parent_gui->lng->txt('ass_create_export_mycampus'), $this, 'createTestResultsMyCampus');
         }

@@ -276,14 +276,14 @@ class ilLPStatus
 	 */
 	static function checkStatusForObject($a_obj_id, $a_users = false)
 	{
-		global $ilDB, $ilCust, $ilLog;
+		global $ilDB, $ilLog;
 
 //@todo: there maybe the need to add extra handling for sessions here, since the
 // "in progress" status is time dependent here. On the other hand, if they registered
 // to the session, they already accessed the course and should have a "in progress"
 // anyway. But the status on the session itself may not be correct.
 
-		$limit = (int) $ilCust->getSetting('lp_refreshes_limit');
+		$limit = (int) ilCust::get('lp_refreshes_limit');
 		$limit = 0 - self::$refreshes_done;
 		$limit = $limit < 0 ? 0 : $limit;
 

@@ -36,7 +36,7 @@ class ilUnivisImportLecturesTableGUI extends ilTable2GUI
     */
 	function __construct($a_parent_obj, $a_parent_cmd)
     {
-        global $ilCust, $ilCtrl, $lng;
+        global $ilCtrl, $lng;
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
@@ -121,9 +121,9 @@ class ilUnivisImportLecturesTableGUI extends ilTable2GUI
     */
 	function getPath($a_ref_id)
 	{
-		global $ilCust;
 
-		$start_id = $ilCust->getSetting('ilias_repository_cat_id');
+
+		$start_id = ilCust::get('ilias_repository_cat_id');
 		$start_id = $start_id ? $start_id : ROOT_FOLDER_ID;
 
 		return $this->pathGUI->getPath($start_id, $a_ref_id);

@@ -902,9 +902,9 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 					$dur->setEnd($this->values->getSessionDurationEnd('conditions_form','subscription_period', mktime(0,0,0,12,31,date("Y",time())+1)));
 					$dur->setEndText($this->lng->txt('crs_end'));
 					// fim: [memad] show deny time for registration
-					global $ilCust;
-					$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
-					$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+
+					$deny_regstart_from = ilCust::get('ilias_deny_regstart_from');
+					$deny_regstart_to = ilCust::get('ilias_deny_regstart_to');
 					if ($deny_regstart_from and $deny_regstart_to)
 					{
 						$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);

@@ -235,7 +235,7 @@ class ilIdmData
      */
     public function applyToUser(ilObjUser $userObj, $mode = 'update')
     {
-        global $ilSetting, $ilCust;
+        global $ilSetting;
 
         // update the profile fields if auth mode is shibboleth
         if ($userObj->getAuthMode() == "shibboleth")
@@ -269,9 +269,9 @@ class ilIdmData
         $userObj->setExternalPasswd($this->coded_password);
 
         // time limit and activation
-        if ($ilCust->getSetting('shib_create_limited'))
+        if (ilCust::get('shib_create_limited'))
         {
-            $limit = new ilDateTime($ilCust->getSetting('shib_create_limited'), IL_CAL_DATE);
+            $limit = new ilDateTime(ilCust::get('shib_create_limited'), IL_CAL_DATE);
             $userObj->setTimeLimitUnlimited(0);
             $userObj->setTimeLimitFrom(time());
             $userObj->setTimeLimitUntil($limit->get(IL_CAL_UNIX));

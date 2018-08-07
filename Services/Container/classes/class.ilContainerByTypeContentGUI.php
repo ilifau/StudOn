@@ -139,11 +139,11 @@ class ilContainerByTypeContentGUI extends ilContainerContentGUI
 		}
 
 // fau: rootAsLogin - insert login blocks if enabled
-		global $ilCust, $ilAccess;
+		global $ilAccess;
 		$ref_id = $this->getContainerObject()->getRefId();
 		$container_gui = $this->getContainerGUI();
 
-		if ($container_gui->enable_login_forms and $ilCust->getSetting("ilias_root_as_login"))
+		if ($container_gui->enable_login_forms and ilCust::get("ilias_root_as_login"))
 		{
 			require_once ("Services/Init/classes/class.ilCustomLoginGUI.php");
 			$output_html = ilCustomLoginGUI::addLoginBlocks($output_html);

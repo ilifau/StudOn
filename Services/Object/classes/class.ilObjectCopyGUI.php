@@ -980,8 +980,8 @@ class ilObjectCopyGUI
 
 // fau: copyBySoap - show info about sending an email when copying is finished
 		$info = $this->lng->txt($this->getType().'_copy_threads_info');
-		global $ilCust;
-		if($ilCust->getSetting('ilias_copy_by_soap'))
+
+		if(ilCust::get('ilias_copy_by_soap'))
 		{
 			$info.= '<br /><span class="small">'.$this->lng->txt('object_copy_with_mail_info').'</span>';
 		}

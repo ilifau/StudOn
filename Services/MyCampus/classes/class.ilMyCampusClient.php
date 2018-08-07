@@ -40,13 +40,13 @@ class ilMyCampusClient extends ilSoapClient
 	*/
 	private function __construct()
 	{
-		global $ilCust;
 
-		$this->user = $ilCust->getSetting('mycampus_soap_user');
-		$this->password = $ilCust->getSetting('mycampus_soap_password');
-		$this->client_id = $ilCust->getSetting('mycampus_soap_client');
 
-		$this->ilSoapClient($ilCust->getSetting('mycampus_soap_url'));
+		$this->user = ilCust::get('mycampus_soap_user');
+		$this->password = ilCust::get('mycampus_soap_password');
+		$this->client_id = ilCust::get('mycampus_soap_client');
+
+		$this->ilSoapClient(ilCust::get('mycampus_soap_url'));
 		$this->setTimeout(DEFAULT_TIMEOUT);
 		$this->setResponseTimeout(DEFAULT_RESPONSE_TIMEOUT);
 		$this->enableWSDL(true);

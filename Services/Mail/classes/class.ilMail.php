@@ -259,9 +259,9 @@ class ilMail
 
 
 // fau: mailBySoap - use an customizing switch to enable Mails being sent by SOAP
-		global $ilCust;
 
-		if ($ilCust->getSetting('mail_by_soap'))
+
+		if (ilCust::get('mail_by_soap'))
 		{
 			return (bool) $this->soap_enabled;
 		}

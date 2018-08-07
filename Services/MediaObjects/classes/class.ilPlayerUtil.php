@@ -35,8 +35,8 @@ class ilPlayerUtil
 	static function initMediaElementJs($a_tpl = null)
 	{
 		// fim: [exam] prevent the embedding of media_element
-		global $ilCust;
-		if ($ilCust->getSetting('tst_prevent_media_player'))
+
+		if (ilCust::get('tst_prevent_media_player'))
 		{
 			return;
 		}

@@ -34,7 +34,7 @@ class ilRegistrationPeriodLimiter
 	 */
 	public static function _isValidByNumberOfPlaces($proposed_start, $get_number = false)
 	{
-		global $ilDB, $ilCust;
+		global $ilDB;
 
 		//Get timestamp from String in case of groups
 		if (!is_int($proposed_start))
@@ -55,8 +55,8 @@ class ilRegistrationPeriodLimiter
 		WHERE t.tree = 1
 		AND s.sub_mem_limit > 0
 		AND s.sub_limitation_type = " . $ilDB->quote(2, "integer") . "
-		AND s.sub_start > " . $ilDB->quote($proposed_start - (int) $ilCust->getSetting('rpl_period_of_check_before'), "integer") . "
-		AND s.sub_start < " . $ilDB->quote($proposed_start + (int) $ilCust->getSetting('rpl_period_of_check_after'), "integer");
+		AND s.sub_start > " . $ilDB->quote($proposed_start - (int) ilCust::get('rpl_period_of_check_before'), "integer") . "
+		AND s.sub_start < " . $ilDB->quote($proposed_start + (int) ilCust::get('rpl_period_of_check_after'), "integer");
 		$executed_query_courses = $ilDB->query($query_courses);
 		$result_courses = $ilDB->fetchAssoc($executed_query_courses);
 		$places_in_courses_in_this_period = $result_courses["members"];
@@ -70,8 +70,8 @@ class ilRegistrationPeriodLimiter
 		WHERE t.tree = 1
 		AND s.registration_mem_limit > 0
 		AND s.registration_unlimited = 0
- 		AND s.registration_start > " . $ilDB->quote(date('Y-m-d H:i:s', ($proposed_start - (int) $ilCust->getSetting('rpl_period_of_check_before'))), "text") . "
-		AND s.registration_start < " . $ilDB->quote(date('Y-m-d H:i:s', ($proposed_start + (int) $ilCust->getSetting('rpl_period_of_check_after'))), "text");
+ 		AND s.registration_start > " . $ilDB->quote(date('Y-m-d H:i:s', ($proposed_start - (int) ilCust::get('rpl_period_of_check_before'))), "text") . "
+		AND s.registration_start < " . $ilDB->quote(date('Y-m-d H:i:s', ($proposed_start + (int) ilCust::get('rpl_period_of_check_after'))), "text");
 		$executed_query_groups = $ilDB->query($query_groups);
 		$result_groups = $ilDB->fetchAssoc($executed_query_groups);
 		$places_in_groups_in_this_period = $result_groups["members"];
@@ -83,15 +83,15 @@ class ilRegistrationPeriodLimiter
 			return $period_users;
 		}
 
-		if ($period_users > $ilCust->getSetting('rpl_warning_cat_1'))
+		if ($period_users > ilCust::get('rpl_warning_cat_1'))
 		{
 			return 'rpl_warning_cat_1';
 		}
-		elseif ($period_users > $ilCust->getSetting('rpl_warning_cat_2'))
+		elseif ($period_users > ilCust::get('rpl_warning_cat_2'))
 		{
 			return 'rpl_warning_cat_2';
 		}
-		elseif ($period_users > $ilCust->getSetting('rpl_warning_cat_3'))
+		elseif ($period_users > ilCust::get('rpl_warning_cat_3'))
 		{
 			return 'rpl_warning_cat_3';
 		}

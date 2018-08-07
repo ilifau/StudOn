@@ -31,7 +31,7 @@ class ilUnivisImport
 	*/
 	function __construct()
 	{
-	    global $ilCust;
+
 
 	    // initialize the interface
 		require_once ('./Services/UnivIS/parser/class.univis2mysql.php');
@@ -45,18 +45,18 @@ class ilUnivisImport
 	*/
 	function initConf()
 	{
-	    global $ilCust;
+
 
 	    $this->conf = array();
-		$this->conf['univis']['server'] = $ilCust->getSetting('univis_server');
-		$this->conf['univis']['port'] = $ilCust->getSetting('univis_port');
-		$this->conf['univis']['prg_url'] = $ilCust->getSetting('univis_prg_url');
-		$this->conf['univis']['tempdir'] = $ilCust->getSetting('univis_tempdir');
-		$this->conf['univis']['noimports'] = $ilCust->getSetting('univis_noimports');
+		$this->conf['univis']['server'] = ilCust::get('univis_server');
+		$this->conf['univis']['port'] = ilCust::get('univis_port');
+		$this->conf['univis']['prg_url'] = ilCust::get('univis_prg_url');
+		$this->conf['univis']['tempdir'] = ilCust::get('univis_tempdir');
+		$this->conf['univis']['noimports'] = ilCust::get('univis_noimports');
 
 		// first and last semester for query (if null: running semester and following)
 		// array('year' => (integer), 'sem' => (string))
-		if ($semester = $ilCust->getSetting('univis_semester'))
+		if ($semester = ilCust::get('univis_semester'))
 		{
 			$this->conf['univis']['first_semester'] = ilUnivisLecture::_getSemesterFromString($semester);
 			$this->conf['univis']['last_semester'] = ilUnivisLecture::_getSemesterFromString($semester);

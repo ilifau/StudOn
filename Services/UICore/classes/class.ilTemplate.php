@@ -977,23 +977,23 @@ class ilTemplate extends HTML_Template_ITX
 		$ftpl = new ilTemplate("tpl.footer.html", true, true, "Services/UICore");
 		
 // fau: ownFooter - fill the footer
-		global $ilCust;
+
 		$lng->loadLanguageModule("common");
 		$ftpl->setVariable("FAU_LOGO", ilUtil::getImagePath("studon/fau-white.svg"));
 		$ftpl->setVariable("ILI_LOGO", ilUtil::getImagePath("studon/ili-white.svg"));
 
-		if ($ilCust->getSetting('ilias_footer_type') != 'exam')
+		if (ilCust::get('ilias_footer_type') != 'exam')
 		{
 			$ftpl->setVariable("TXT_FINANCED_BY", $lng->txt('footer_financed_by'));
 
 			$ftpl->setVariable("TXT_CONTACT", $lng->txt('footer_contact'));
-			$ftpl->setVariable("URL_CONTACT", $ilCust->getSetting("ilias_footer_contact_url"));
+			$ftpl->setVariable("URL_CONTACT", ilCust::get("ilias_footer_contact_url"));
 
 			$ftpl->setVariable("TXT_IMPRINT", $lng->txt('footer_imprint'));
-			$ftpl->setVariable("URL_IMPRINT", $ilCust->getSetting("ilias_footer_imprint_url"));
+			$ftpl->setVariable("URL_IMPRINT", ilCust::get("ilias_footer_imprint_url"));
 
 			$ftpl->setVariable("TXT_PRIVACY", $lng->txt('footer_privacy'));
-			$ftpl->setVariable("URL_PRIVACY", $ilCust->getSetting("ilias_footer_privacy_url"));
+			$ftpl->setVariable("URL_PRIVACY", ilCust::get("ilias_footer_privacy_url"));
 
 			$ftpl->setVariable("TXT_REALISED_WITH", $lng->txt('footer_realised_with'));
 			$ftpl->setVariable("ILIAS_VERSION_NUMERIC", ILIAS_VERSION_NUMERIC);

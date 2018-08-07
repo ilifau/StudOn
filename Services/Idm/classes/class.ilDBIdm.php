@@ -23,12 +23,9 @@ class ilDBIdm extends ilDBInnoDB
 	 */
 	public static function getInstance()
 	{
-		/** @var ilCustomize $ilCust */
-		global $ilCust;
-
 		try
 		{
-			if (!$ilCust->getSetting('idm_host'))
+			if (!ilCust::get('idm_host'))
 			{
 				return null;
 			}
@@ -38,11 +35,11 @@ class ilDBIdm extends ilDBInnoDB
 				$instance = new ilDBIdm;
 				$instance->setSubType("mysqli");
 
-				$instance->setDBHost($ilCust->getSetting('idm_host'));
-				$instance->setDBPort($ilCust->getSetting('idm_port'));
-				$instance->setDBUser($ilCust->getSetting('idm_user'));
-				$instance->setDBPassword($ilCust->getSetting('idm_pass'));
-				$instance->setDBName($ilCust->getSetting('idm_name'));
+				$instance->setDBHost(ilCust::get('idm_host'));
+				$instance->setDBPort(ilCust::get('idm_port'));
+				$instance->setDBUser(ilCust::get('idm_user'));
+				$instance->setDBPassword(ilCust::get('idm_pass'));
+				$instance->setDBName(ilCust::get('idm_name'));
 				if (!$instance->connect(true))
 				{
 					return null;

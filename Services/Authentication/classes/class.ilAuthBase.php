@@ -328,12 +328,12 @@ abstract class ilAuthBase
 	 */
 	protected function checkLocalAuthAlternatives()
 	{
-		global $ilCust;
+
 
 		$authentified = false;
 
 		// check for login with external account
-		if (!$authentified and $ilCust->getSetting('local_auth_external'))
+		if (!$authentified and ilCust::get('local_auth_external'))
 		{
             $tmp_login = false;
 			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('local', $this->username);
@@ -348,7 +348,7 @@ abstract class ilAuthBase
 		}
 
 		// check for login with matriculation as password
-		if (!$authentified and $ilCust->getSetting('local_auth_matriculation') and $this->password != '')
+		if (!$authentified and ilCust::get('local_auth_matriculation') and $this->password != '')
 		{
             $tmp_login = false;
 			$tmp_login = $tmp_login ? $tmp_login : ilObjUser::_checkExternalAuthAccount('local', $this->username);
@@ -363,7 +363,7 @@ abstract class ilAuthBase
 		}
 
 		// check for login with matriculation as username
-		if (!$authentified and $ilCust->getSetting('local_auth_matriculation_as_username'))
+		if (!$authentified and ilCust::get('local_auth_matriculation_as_username'))
 		{
             $tmp_login = ilObjUser::_findLoginByField('matriculation', $this->username);
             $tmp_user = new ilObjUser(ilObjUser::_lookupId($tmp_login));
@@ -371,7 +371,7 @@ abstract class ilAuthBase
 		}
 
 		// check for support login
-		if (!$authentified and $ilCust->getSetting('local_auth_support'))
+		if (!$authentified and ilCust::get('local_auth_support'))
 		{
             $tmp_login = $this->username;
 			$tmp_user = new ilObjUser(SYSTEM_USER_ID);

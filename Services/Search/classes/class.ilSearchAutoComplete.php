@@ -66,8 +66,8 @@ class ilSearchAutoComplete
 	static function getList($a_str)
 	{
 		// fim: [search] customize the availability of auto-complete function
-		global $ilCust;
-		if (!$ilCust->getSetting("search_enable_autocomplete"))
+
+		if (!ilCust::get("search_enable_autocomplete"))
 		{
 			include_once './Services/JSON/classes/class.ilJsonUtil.php';
 			return ilJsonUtil::encode(array());

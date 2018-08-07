@@ -712,14 +712,14 @@ class ilObjGroupGUI extends ilContainerGUI
 			$this->object->update();
 
 			//fim: [rpl] check the status of the registration for this period
-			global $ilCust;
-			if($ilCust->getSetting('rpl_warning_on') and !$this->object->isRegistrationUnlimited())
+
+			if(ilCust::get('rpl_warning_on') and !$this->object->isRegistrationUnlimited())
 			{
 				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
 				$warning_cat = ilRegistrationPeriodLimiter::_isValidByNumberOfPlaces($this->object->getRegistrationStart());
 				if($warning_cat != '')
 				{
-					$message = sprintf($this->lng->txt('rpl_warning'),$ilCust->getSetting($warning_cat));
+					$message = sprintf($this->lng->txt('rpl_warning'),ilCust::get($warning_cat));
 					$message.= '<br />'.ilRegistrationPeriodLimiter::_getOverviewLink($this->object->getRegistrationStart());
 					ilUtil::sendFailure($message, true);
 				}
@@ -1836,8 +1836,8 @@ class ilObjGroupGUI extends ilContainerGUI
 			$reg_type->addOption($opt_deact);
 
 			// fim: [memfix] customize use of registration codes
-	        global $ilCust;
-	        if ($ilCust->getSetting('grp_enable_reg_codes'))
+
+	        if (ilCust::get('grp_enable_reg_codes'))
 	        {
 				// Registration codes
 				$reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'),'reg_code_enabled');
@@ -1849,8 +1849,8 @@ class ilObjGroupGUI extends ilContainerGUI
 			$form->addItem($reg_type);
 
 			// fim: [memfix] customize use of registration codes
-			global $ilCust;
-			if ($ilCust->getSetting('grp_enable_reg_codes'))
+
+			if (ilCust::get('grp_enable_reg_codes'))
 			{
 				// Registration codes
 				if(!$this->object->getRegistrationAccessCode())
@@ -1881,9 +1881,9 @@ class ilObjGroupGUI extends ilContainerGUI
 			// fim: [memad] show deny time for registration
 			// fim: [rpl] check the status of the registration for this period
 			$info = array();
-			global $ilCust;
-			$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
-			$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+
+			$deny_regstart_from = ilCust::get('ilias_deny_regstart_from');
+			$deny_regstart_to = ilCust::get('ilias_deny_regstart_to');
 			if ($deny_regstart_from and $deny_regstart_to)
 			{
 				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
@@ -1893,7 +1893,7 @@ class ilObjGroupGUI extends ilContainerGUI
 					ilDatePresentation::formatDate($deny_regstart_to));
 
 			}
-			if($ilCust->getSetting('rpl_warning_on'))
+			if(ilCust::get('rpl_warning_on'))
 			{
 				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
 				$info[] = $this->lng->txt('rpl_info');
@@ -1975,8 +1975,8 @@ class ilObjGroupGUI extends ilContainerGUI
 				);
 			}
 
-			global $ilCust;
-			$fair_date->setInfo($fair_date_info . ($ilCust->getSetting('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
+
+			$fair_date->setInfo($fair_date_info . (ilCust::get('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
 			$lim->addSubItem($fair_date);
 
 			$wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');

@@ -1283,14 +1283,14 @@ class ilObjCourseGUI extends ilContainerGUI
 // fau.
 
 			// fim: [rpl] check the status of the registration for this period
-			global $ilCust;
-			if($ilCust->getSetting('rpl_warning_on') and $this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED)
+
+			if(ilCust::get('rpl_warning_on') and $this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED)
 			{
 				require_once('./Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
 				$warning_cat = ilRegistrationPeriodLimiter::_isValidByNumberOfPlaces((int)$this->object->getSubscriptionStart());
 				if($warning_cat != '')
 				{
-					$message = sprintf($this->lng->txt('rpl_warning'),$ilCust->getSetting($warning_cat));
+					$message = sprintf($this->lng->txt('rpl_warning'),ilCust::get($warning_cat));
 					$message.= '<br />'.ilRegistrationPeriodLimiter::_getOverviewLink((int)$this->object->getSubscriptionStart());
 					ilUtil::sendFailure($message, true);
 				}
@@ -1546,8 +1546,8 @@ class ilObjCourseGUI extends ilContainerGUI
 		// $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
 		// fim: [campus] add option for my campus subscription
-		global $ilCust;
-		if ($ilCust->getSetting('mycampus_enabled'))
+
+		if (ilCust::get('mycampus_enabled'))
 		{
 			$opt = new ilRadioOption($this->lng->txt('crs_subscription_mycampus'),IL_CRS_SUBSCRIPTION_MYCAMPUS);
 			require_once ('./Services/UnivIS/classes/class.ilUnivisLecture.php');
@@ -1610,8 +1610,8 @@ class ilObjCourseGUI extends ilContainerGUI
 		$form->addItem($reg_proc);
 
 		// fim: [memfix] customize use of registration codes
-		global $ilCust;
-		if ($ilCust->getSetting('crs_enable_reg_codes'))
+
+		if (ilCust::get('crs_enable_reg_codes'))
 		{
 			// Registration codes
 			$reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'),'reg_code_enabled');
@@ -1660,10 +1660,10 @@ class ilObjCourseGUI extends ilContainerGUI
 		}
 		// fim: [rpl] check the status of the registration for this period
 		// fim: [memad] show deny time for registration
-		global $ilCust;
+
 		$info = array();
-		$deny_regstart_from = $ilCust->getSetting('ilias_deny_regstart_from');
-		$deny_regstart_to = $ilCust->getSetting('ilias_deny_regstart_to');
+		$deny_regstart_from = ilCust::get('ilias_deny_regstart_from');
+		$deny_regstart_to = ilCust::get('ilias_deny_regstart_to');
 		if ($deny_regstart_from && $deny_regstart_to)
 		{
 			$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
@@ -1672,7 +1672,7 @@ class ilObjCourseGUI extends ilContainerGUI
 				ilDatePresentation::formatDate($deny_regstart_from),
 				ilDatePresentation::formatDate($deny_regstart_to));
 		}
-		if($ilCust->getSetting('rpl_warning_on'))
+		if(ilCust::get('rpl_warning_on'))
 		{
 			require_once('Services/Membership/classes/class.ilRegistrationPeriodLimiter.php');
 			$info[] = $this->lng->txt('rpl_info');
@@ -1783,8 +1783,8 @@ class ilObjCourseGUI extends ilContainerGUI
 				'no_list'=> 'sub_fair_no_list'
 			);
 		}
-		global $ilCust;
-		$fair_date->setInfo($fair_date_info . ($ilCust->getSetting('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
+
+		$fair_date->setInfo($fair_date_info . (ilCust::get('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
 		$lim->addSubItem($fair_date);
 
 		$wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');

@@ -1209,8 +1209,8 @@ class ilObjectListGUI
 		
 		// #8280: WebDav is only supported in repository
 		// fim: [webdav] customize visibility of locking info and warnings
-		global $ilCust;
-		if($this->context == self::CONTEXT_REPOSITORY and $ilCust->getSetting('webdav_show_warnings'))
+
+		if($this->context == self::CONTEXT_REPOSITORY and ilCust::get('webdav_show_warnings'))
 		// fim.
 		{
 			// BEGIN WebDAV Display locking information

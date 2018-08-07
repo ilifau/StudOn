@@ -1782,8 +1782,8 @@ return;
 		$params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
 		// fim: [exam] init colorbox and add parameter to open fullscreen in box
-		global $ilCust;
-		if ($ilCust->getSetting('fullscreen_in_colorbox')
+
+		if (ilCust::get('fullscreen_in_colorbox')
 			or $this instanceof ilAssQuestionPageGUI)
 		{
 			iljQueryUtil::initColorbox();

@@ -67,7 +67,7 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
 	 */
 	public function login()
     {
-		global $ilCust, $ilUser, $ilias, $lng;
+		global $ilUser, $ilias, $lng;
 
         // optionally log the request data for specific accounts
         $this->debugLogin();
@@ -79,9 +79,9 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
         }
 
         // get the idm data
-        if (DEVMODE and $ilCust->getSetting('shib_devmode_identity'))
+        if (DEVMODE and ilCust::get('shib_devmode_identity'))
         {
-            $this->fetchIdmData($ilCust->getSetting('shib_devmode_identity'));
+            $this->fetchIdmData(ilCust::get('shib_devmode_identity'));
         }
         else
         {
@@ -89,9 +89,9 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
         }
 
         // get the studon login name for the idm data
-        if (DEVMODE and $ilCust->getSetting('shib_devmode_login'))
+        if (DEVMODE and ilCust::get('shib_devmode_login'))
         {
-            $login = $ilCust->getSetting('shib_devmode_login');
+            $login = ilCust::get('shib_devmode_login');
         }
         else
         {
@@ -239,10 +239,10 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
      */
     protected function getNewUser($login)
     {
-        global $ilCust, $ilSetting, $lng;
+        global $ilSetting, $lng;
 
         // check general possibility for creating accounts
-        if (!$ilCust->getSetting('shib_allow_create'))
+        if (!ilCust::get('shib_allow_create'))
         {
             $this->handleFailedLogin($lng->txt('shib_user_not_found'));
         }
@@ -359,9 +359,9 @@ class ilSimpleSamlAuthStudOn extends ShibAuth
      */
     protected function debugLogin()
     {
-        global $ilCust;
 
-        if ($log_accounts = $ilCust->getSetting('shib_log_accounts'))
+
+        if ($log_accounts = ilCust::get('shib_log_accounts'))
         {
             $log_accounts = explode(',', $log_accounts);
             foreach ($log_accounts as $log_account)

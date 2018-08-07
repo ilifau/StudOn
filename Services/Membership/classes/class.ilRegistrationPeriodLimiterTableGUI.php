@@ -34,7 +34,7 @@ class ilRegistrationPeriodLimiterTableGUI extends ilTable2GUI
 
 	public function init($timestamp, $show_period)
 	{
-		global $lng, $ilCust, $rbacsystem;
+		global $lng, $rbacsystem;
 
 		//Set admin mode or not
 		if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID))
@@ -84,9 +84,9 @@ class ilRegistrationPeriodLimiterTableGUI extends ilTable2GUI
 			}
 		}
 
-		$this->cat1 = (int) $ilCust->getSetting('rpl_warning_cat_1');
-		$this->cat2 = (int) $ilCust->getSetting('rpl_warning_cat_2');
-		$this->cat3 = (int) $ilCust->getSetting('rpl_warning_cat_3');
+		$this->cat1 = (int) ilCust::get('rpl_warning_cat_1');
+		$this->cat2 = (int) ilCust::get('rpl_warning_cat_2');
+		$this->cat3 = (int) ilCust::get('rpl_warning_cat_3');
 	}
 
 	public function getContent($timestamp)
@@ -133,8 +133,8 @@ class ilRegistrationPeriodLimiterTableGUI extends ilTable2GUI
 			// Registration period end
 			$this->tpl->setVariable("END", $data["end"]);
 
-            global $ilCust;
-            $root_id = $ilCust->getSetting("ilias_repository_cat_id");
+
+            $root_id = ilCust::get("ilias_repository_cat_id");
             $root_id = $root_id ? $root_id : ROOT_FOLDER_ID;
             require_once("Services/Tree/classes/class.ilPathGUI.php");
             $pathGUI = new ilPathGUI();

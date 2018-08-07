@@ -40,9 +40,9 @@ class ilEvaluationData
 	 */
 	static function _isEvaluationActivated($a_ref_id)
 	{
-		global $tree, $ilCust;
+		global $tree;
 
-		$categories = explode(',', $ilCust->getSetting('eval_categories'));
+		$categories = explode(',', ilCust::get('eval_categories'));
         foreach ($categories as $cat_ref_id)
 		{
 			if ((int) $cat_ref_id > 0 and $tree->isGrandChild((int) $cat_ref_id, $a_ref_id))

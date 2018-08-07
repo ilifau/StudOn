@@ -216,7 +216,7 @@ class ilUserUtil
 	static function _isGuestHearer($a_user_id = '')
 	{
 
-		global $ilUser, $ilCust, $rbacreview;
+		global $ilUser, $rbacreview;
 
 		static $checked = array();
 
@@ -242,7 +242,7 @@ class ilUserUtil
 		// check the guest status
 		// 1. has guest role
 		// 2. login begins with 'gh'
-		if ($rbacreview->isAssigned($a_user_id, $ilCust->getSetting('ilias_guest_role_id'))
+		if ($rbacreview->isAssigned($a_user_id, ilCust::get('ilias_guest_role_id'))
 		and substr($login,0,2) == 'gh')
 		{
 			$checked[$a_user_id] = true;

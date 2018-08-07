@@ -42,9 +42,8 @@ class ilCust
 
 	/**
 	 * Constructor
-	 * @todo make private when all calls are migrated to the static function
 	 */
-	public function __construct()
+	private function __construct()
 	{
 		global $DIC;
 
@@ -60,10 +59,31 @@ class ilCust
 	}
 
 	/**
+	 * get a customization setting
+	 *
+	 * @param	string		setting name
+	 * @return   mixed  	setting value
+	 */
+	private function getSetting($a_setting)
+	{
+		if (isset($this->client_settings[$a_setting]))
+		{
+			return $this->client_settings[$a_setting];
+		}
+		elseif (isset($this->default_settings[$a_setting]))
+		{
+			return $this->default_settings[$a_setting];
+		}
+
+		return '';
+	}
+
+
+	/**
 	 * Get an instance of the object
 	 * @return self
 	 */
-	public static function getInstance()
+	private static function getInstance()
 	{
 		if (!isset(self::$instance)) {
 			self::$instance = new self;
@@ -81,27 +101,6 @@ class ilCust
 		return self::getInstance()->getSetting($a_setting);
 	}
 
-
-	/**
-	 * get a customization setting
-	 *
-	 * @param	string		setting name
-	 * @return   mixed  	setting value
-	 * @deprecated 			use the static function instead
-	 */
-	public function getSetting($a_setting)
-	{
-		if (isset($this->client_settings[$a_setting]))
-		{
-			return $this->client_settings[$a_setting];
-		}
-		elseif (isset($this->default_settings[$a_setting]))
-		{
-			return $this->default_settings[$a_setting];
-		}
-
-		return '';
-	}
 
 	/**
 	* Checks if the administration section should be visible

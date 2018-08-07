@@ -333,8 +333,8 @@ class ilMainMenuGUI
 			if ($GLOBALS['DIC']['ilUser']->getId() == ANONYMOUS_USER_ID)
 			{
 // fau: rootAsLogin - don't show standard registration link, if the root is the login page
-				global $ilCust;
-				if (!$ilCust->getSetting('ilias_root_as_login'))
+
+				if (!ilCust::get('ilias_root_as_login'))
 				{
 					include_once 'Services/Registration/classes/class.ilRegistrationSettingsGUI.php';
 					if (ilRegistrationSettings::_lookupRegistrationType() != IL_REG_DISABLED)
@@ -357,8 +357,8 @@ class ilMainMenuGUI
 
 
 // fau: rootAsLogin - don't show standard login link if the root is the login page
-				global $ilCust;
-				if (!$ilCust->getSetting('ilias_root_as_login')
+
+				if (!ilCust::get('ilias_root_as_login')
 					or (!empty($_GET['ref_id']) and $_GET['ref_id'] != 1)
 					or !empty($_GET['wsp_id'])
 					or !empty($_GET['prt_id'])
@@ -449,8 +449,8 @@ class ilMainMenuGUI
 		}
 
 		// fim: [layout] don't show links in reduced mode
-		global $ilCust;
-		if ($ilCust->getSetting('ilias_footer_type') != 'exam')
+
+		if (ilCust::get('ilias_footer_type') != 'exam')
 		{
 			if($this->getMode() == self::MODE_FULL)
 			{
@@ -513,8 +513,8 @@ class ilMainMenuGUI
 		$ilAccess = $this->access;
 
 // fau: rootAsLogin - show root login link on specific pages (if not logged in)
-		global $ilCust;
-		if ($ilCust->getSetting('ilias_root_as_login') and ($this->user->isAnonymous()))
+
+		if (ilCust::get('ilias_root_as_login') and ($this->user->isAnonymous()))
 		{
 			$this->renderEntry($a_tpl, "login",
 				$lng->txt("to_home"),
@@ -532,10 +532,10 @@ class ilMainMenuGUI
 
 		// repository
 // fau: rootIsReduced - use different link for repository category, show always if readable
-		global $ilCust;
+
 		global $ilUser;
 		include_once './Services/Link/classes/class.ilLink.php';
-		if ($rep_id = $ilCust->getSetting("ilias_repository_cat_id"))
+		if ($rep_id = ilCust::get("ilias_repository_cat_id"))
 		{
 			$nd = $tree->getNodeData($rep_id);
 			$nd_link = ilLink::_getStaticLink($rep_id,'cat',true);
@@ -606,8 +606,8 @@ class ilMainMenuGUI
 			
 // fau: rootIsReduced - respect the script parameter (may be cat instead of root)
 			// shorten the script
-			global $ilCust;
-			$rep_id = $ilCust->getSetting("ilias_repository_cat_id");
+
+			$rep_id = ilCust::get("ilias_repository_cat_id");
 			$icon = ilUtil::img(ilObject::_getIcon(ilObject::_lookupObjId($rep_id ? $rep_id : 1), "tiny"));
 			$gl->addEntry($icon." ".$a_txt." - ".$lng->txt("rep_main_page"), $a_script, "_top", "", "ilLVNavEnt");
 // fau.
@@ -1087,8 +1087,8 @@ class ilMainMenuGUI
 
 		// screen id
 		// fim: [help] make showing of ids independent from author mode
-		global $ilCust;
-		if ($ilCust->getSetting("help_show_ids"))
+
+		if (ilCust::get("help_show_ids"))
 		// fim.
 		{
 			if ($ilHelp->getScreenId() != "")

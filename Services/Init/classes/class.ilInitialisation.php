@@ -756,14 +756,11 @@ class ilInitialisation
 // fau: customSettings - new function initCust()
 	/**
 	 * initialize customizations
-	 * must be after the user is authenticated (skin is known)
-	 * and before the language is initialised (may be customized)
+	 * must be done after client ini is read(settings are takem from there)
 	 */
 	protected static function initCust()
 	{
 		require_once("Customizing/classes/class.ilCust.php");
-		$ilCust = ilCust::getInstance();
-		$GLOBALS['ilCust'] = $ilCust;
 	}
 // fau.
 
@@ -1434,13 +1431,13 @@ class ilInitialisation
 	*/
 	static function checkStudOnAuthMode($a_authentified, $a_auth_mode = AUTH_CURRENT)
 	{
-	    global $ilCust, $ilAuth, $ilUser;
+	    global $ilAuth, $ilUser;
 
 		// no check of the authentication mode needed
 		if ($_SESSION["SHIBBOLETH_CONVERSION"]
 			or $a_auth_mode == 0
 			or $ilUser->getId() == ANONYMOUS_USER_ID
-			or !$ilCust->getSetting('shib_check_auth_mode'))
+			or !ilCust::get('shib_check_auth_mode'))
 		{
 	        return;
 		}

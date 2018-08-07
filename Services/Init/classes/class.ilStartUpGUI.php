@@ -454,8 +454,8 @@ class ilStartUpGUI
 		
 
 // fau: rootAsLogin - show root page instead of login page
-		global $ilCust, $ilCtrl;
-		if ($ilCust->getSetting("ilias_root_as_login"))
+		global $ilCtrl;
+		if (ilCust::get("ilias_root_as_login"))
 		{
 			if ($failure)
 			{
@@ -1543,8 +1543,8 @@ class ilStartUpGUI
 		global $tpl, $ilSetting, $lng, $ilIliasIniFile;
 
 		// fau: rootAsLogin - jump to root as login page when being logged out
-		global $ilCust;
-		if ($ilCust->getSetting("ilias_root_as_login"))
+
+		if (ilCust::get("ilias_root_as_login"))
 		{
 			ilInitialisation::goToPublicSection(AUTH_USER_MANUAL_LOGOUT, $lng->txt("logout_text"), "success");
 		}
@@ -2035,7 +2035,7 @@ class ilStartUpGUI
 	*/
 	function shibNotCreatable()
 	{
-		global $ilCust, $ilCtrl, $tpl, $lng;
+		global $ilCtrl, $tpl, $lng;
 
 		$lng->loadLanguageModule('auth');
 

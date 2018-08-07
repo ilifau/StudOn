@@ -56,7 +56,7 @@ class ilCustomLoginGUI
 	 */
 	static function getLoginBlockSSO()
 	{
-		global $ilCust, $ilSetting, $lng;
+		global $ilSetting, $lng;
 
 		// prepare the shibboleth link
 		$shib_link = 'saml_login.php';
@@ -70,12 +70,12 @@ class ilCustomLoginGUI
 		{
 			$tpl->setVariable("shib_login_instructions", $ilSetting->get("shib_login_instructions"));
 		}
-		$tpl->setVariable("FORMACTION", $ilCust->getSetting("shib_login_help_url"));
+		$tpl->setVariable("FORMACTION", ilCust::get("shib_login_help_url"));
 		$tpl->setVariable("SHIB_LINK", $shib_link);
 		$tpl->setVariable("SHIB_TITLE", $lng->txt("login_to_ilias_via_shibboleth"));
 		$tpl->setVariable("SHIB_TITLE_ADD", $lng->txt("login_to_ilias_via_shibboleth_addition"));
 		
-		if ($help_url = $ilCust->getSetting("shib_login_help_url"))
+		if ($help_url = ilCust::get("shib_login_help_url"))
 		{
 			$tpl->setVariable("HELP_LINK",  $help_url);
 			$tpl->setVariable("HELP_TITLE", $lng->txt("shib_login_help_title"));
@@ -93,7 +93,7 @@ class ilCustomLoginGUI
 	 */
 	static function getLoginBlockLocal()
 	{
-		global $ilCust, $ilCtrl, $ilSetting, $lng, $https;
+		global $ilCtrl, $ilSetting, $lng, $https;
 
 		if ($_GET["cookies"] == "nocookies")
 		{
@@ -114,7 +114,7 @@ class ilCustomLoginGUI
 		$tpl->setVariable("LOGIN_TITLE", $lng->txt("local_login_to_ilias"));
 		$tpl->setVariable("LOGIN_TITLE_ADD", $lng->txt("local_login_to_ilias_addition"));
 
-		if ($help_url = $ilCust->getSetting("ilias_login_help_url"))
+		if ($help_url = ilCust::get("ilias_login_help_url"))
 		{
 			$tpl->setVariable("HELP_LINK",  $help_url);
 			$tpl->setVariable("HELP_TITLE", $lng->txt("local_login_help_title"));
