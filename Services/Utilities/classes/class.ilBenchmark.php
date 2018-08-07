@@ -128,7 +128,7 @@ class ilBenchmark
 						$ilDB->insert("benchmark", array(
 							"id" => array("integer", $id),
 							"duration" => array("float", $this->microtimeDiff($b["start"], $b["stop"])),
-							"sql_stmt" => array("clob", $b["sql"])
+							"sql_stmt" => array("clob", $b["sql"]),
 							"backtrace" => array("clob", $b["backtrace"])
 						));
 					}

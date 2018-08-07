@@ -434,9 +434,8 @@ class ilErrorHandling extends PEAR
 	 * @return Whoops\Handler
 	 */
 	protected function loggingHandler() {
-		// TODO: remove this, when PHP 5.3 support is dropped. Make logMessageFor protected then as well.
-		$self = $this;
-		return new CallbackHandler(function(Exception $exception, Inspector $inspector, Run $run) use ($self) {
+		// php7-todo : alex, 1.3.2016: Exception -> Throwable, please check
+		return new CallbackHandler(function($exception, Inspector $inspector, Run $run) {
 // fau: fixErrorHandlingDirectory  - set standard directory for includes
 // The constant is set in ilInitialisation::initCore()
 // The chdir() for other handlers is done in ilDelegatingHandler::handle()
@@ -445,7 +444,6 @@ class ilErrorHandling extends PEAR
 				chdir(IL_INITIAL_WD);
 			}
 // fau.
-
 			/**
 			 * Don't move this out of this callable
 			 * @var ilLog $ilLog;
