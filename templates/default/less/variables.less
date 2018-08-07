@@ -32,8 +32,8 @@
 @web-font-path: "fonts/";
 
 @mid-gray: #434343;
-@il-primary-container-bg: #FAFAFC;                 // fim: changed container background
-@il-secondary-container-bg: #FAFAFC;               // fim: changed container background
+@il-primary-container-bg: #FAFAFC;                 // fim: changed container background.
+@il-secondary-container-bg: #FAFAFC;               // fim: changed container background.
 
 @il-highlight-bg: #ffffd0;
 /* @il-highlight-bg: saturate(lighten(@brand-warning, 34%), 80%); */
@@ -190,27 +190,27 @@
 //
 //## Variables to control the header (Top Navigation and Main menu) section of ILIAS.
 //** controls background color of the "topbar" (that gray thingy on top of the page in the standard).
-@il-top-bar-bg:		@mid-gray;
+@il-top-bar-bg:		#004080;                                       // fim: changed.
 //** controls text color of the "topbar" (the title of the ILIAS Installation)
 @il-top-bar-color:		    white;
 //** controls height of the "topbar"
 @il-top-bar-height:			40px;
 //** controls colors and bg colors of the "topbar" buttons
-@il-top-bar-link-bg:	lighten(@mid-gray, 20%);
+@il-top-bar-link-bg:	@il-top-bar-bg;                           // fim: changed.
 @il-top-bar-link-color:	lighten(@mid-gray, 70%);
-@il-top-bar-link-hover-bg:	lighten(@mid-gray, 42%);
+@il-top-bar-link-hover-bg:	lighten(@il-top-bar-bg, 10%);         // fim: changed.
 @il-top-bar-link-hover-color:	white;
 //** controls colors and bg colors of the "topbar" dropdowns
-@il-top-bar-dropdown-bg:	lighten(@mid-gray, 42%);
+@il-top-bar-dropdown-bg:	@il-top-bar-bg;                       // fim: changed.
 @il-top-bar-dropdown-color:	lighten(@mid-gray, 70%);
 @il-top-bar-dropdown-link-bg:	transparent;
 @il-top-bar-dropdown-link-color:	lighten(@mid-gray, 70%);
-@il-top-bar-dropdown-link-hover-bg:	lighten(@brand-primary, 53%);
+@il-top-bar-dropdown-link-hover-bg:	lighten(@il-top-bar-bg, 10%); // fim: changed.
 @il-top-bar-dropdown-link-hover-color:	lighten(@mid-gray, 42%);
 //** controls the height of the "logo" (that [ILIAS] thingy on top the page in the standard).
 @il-logo-height:			50px;
 //** controls the width of the "logo" (that [ILIAS] thingy on top the page in the standard).
-@il-logo-width:				50px;
+@il-logo-width:				150px;
 //** controls margin around the logo
 @il-logo-margin: 15px 15px 0;
 @il-logo-resp-margin: 10px;
@@ -223,19 +223,19 @@
 //** controls the height of the border underneath the main header.
 @il-header-border-bottom-height: 3px;
 //** controls the color of the border underneath the main header.
-@il-header-border-bottom-color: @body-bg;
+@il-header-border-bottom-color: #fefefe;                          // fim: changed.
 //** that is the height of the complete header, that is that thingy upon the real content of the page.
 @il-header-height:			ceil((@il-main-header-height + @il-top-bar-height - @il-header-border-bottom-height));
 //** controls the bg color of the main header.
-@il-main-header-bg: white;
+@il-main-header-bg: #fafafc;                                      // fim: changed.
 //** controls the position of the top of the main menu.
-@il-main-menu-top:		    -38px;
+@il-main-menu-top:		    -50px;                                // fim: aligned with logo.
 //** controls the position of the left side of the main menu.
 @il-main-menu-left:		    15px + @il-logo-width;
 @il-main-menu-margin: @il-main-menu-top 0 0 @il-main-menu-left;
 //** controls colors of the main menu.
 @il-main-menu-bg: @il-main-header-bg;
-@il-main-menu-link-color: #808080;
+@il-main-menu-link-color: #036;                                   // fim.
 @il-main-menu-link-hover-color: #808080;
 @il-main-menu-link-active-color: #808080;
 @il-main-menu-link-bg: transparent;

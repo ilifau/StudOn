@@ -62,8 +62,10 @@
 				> a {
 				margin: 0;
 				padding: 5px 10px 6px;
-				text-transform: uppercase;
-				font-size: 14px;
+				text-transform: none;               // fim: no transformation.
+				font-size: 16px;					// fim: added.
+				font-weight: bold;					// fim: added.
+				text-decoration: none;				// fim: added.
 				border-top: 4px solid transparent;  // fim: transparent border.
 				background-color: @il-main-menu-link-bg;
 				color: @il-main-menu-link-color;
@@ -135,14 +137,6 @@
 			}
 		}
 	}
-  a.dropdown-toggle {
-    // fim: adapted style from fau.de
-    font-size: 16px;
-    font-weight: bold;
-    color: #036!important;
-    text-decoration: none;
-    // fim.
-  }
 }
 
 [dir="rtl"] #ilTopNav {
@@ -222,29 +216,6 @@ input.ilOpenIDBox {
 	height: 40px;
 	top: 0;
 	z-index: 1040;
-
-  // fim: added background
-  // background: transparent url("images/studon/header_bg.jpg") repeat-x scroll center top;
-  background-image: radial-gradient(ellipse at center center , lighten(#036, 7%) 0%, #036 100%);
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-position: 0% 0%;
-  background-clip: border-box;
-  background-origin: padding-box;
-  background-size: auto auto;
-  // fim.
-
-  // fim: logo in top bar (for blog)
-  img.studonSmall {
-    display: inline;
-    position: fixed;
-    top: 5px;
-    left: 5px;
-    height: 30px;
-    width: 30px;
-  }
-  // fim.
-
   @media only screen and (max-width: @grid-float-breakpoint-max) {
 		z-index: 1030;
 	}
@@ -383,13 +354,6 @@ input.ilOpenIDBox {
 			height: 0;
 		}
 	}
-    /* fim: added transparent layer.
-    > header {
-      background-color: rgba(255, 255, 255, 0.90  );
-      width: 100%;
-      height: 100%;
-    }
-  	fim. */
 	> header > .row > a.navbar-brand {
 		height: auto;
 		display: inline-block;
