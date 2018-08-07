@@ -761,8 +761,8 @@ class ilInitialisation
 	 */
 	protected static function initCust()
 	{
-		require_once("Customizing/classes/class.ilCustomize.php");
-		$ilCust = new ilCustomize();
+		require_once("Customizing/classes/class.ilCust.php");
+		$ilCust = ilCust::getInstance();
 		$GLOBALS['ilCust'] = $ilCust;
 	}
 // fau.

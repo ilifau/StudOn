@@ -598,8 +598,7 @@ class ilObjExercise extends ilObject
 	{
 
 		// fim: [exercise] check whether matriculation can be exported
-		global $ilCust;
-		$full_data = $ilCust->getSetting("export_member_data_is_allowed");
+		$full_data = ilCust::extendedUserDataAccess();
 		// fim.
 
 		include_once("./Modules/Exercise/classes/class.ilExAssignment.php");

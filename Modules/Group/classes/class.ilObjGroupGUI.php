@@ -2457,8 +2457,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		// fau: subFair - activation and deactivation of the fair period
 		public function activateSubFairObject()
 	{
-		global $ilCust;
-		if (!$ilCust->getSetting('deactivate_fair_time_is_allowed'))
+		if (!ilCust::deactivateFairTimeIsAllowed())
 		{
 			ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
 		}
@@ -2474,8 +2473,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
 		public function deactivateSubFairObject()
 	{
-		global $ilCust;
-		if (!$ilCust->getSetting('deactivate_fair_time_is_allowed'))
+		if (!ilCust::deactivateFairTimeIsAllowed())
 		{
 			ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
 		}
@@ -2496,8 +2494,7 @@ class ilObjGroupGUI extends ilContainerGUI
 
 		public function confirmDeactivateSubFairObject()
 	{
-		global $ilCust;
-		if (!$ilCust->getSetting('deactivate_fair_time_is_allowed'))
+		if (!ilCust::deactivateFairTimeIsAllowed())
 		{
 			ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
 		}

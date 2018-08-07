@@ -44,7 +44,7 @@ class ilTestMyCampusGUI extends ilTestServiceGUI
 	*/
 	function &executeCommand()
 	{
-		global $ilCtrl, $ilCust, $ilAccess, $lng;
+		global $ilCtrl, $ilAccess, $lng;
 			
 		// check access rights
 		if (!$ilAccess->checkAccess("write", "", $this->object->getRefId())
@@ -54,7 +54,7 @@ class ilTestMyCampusGUI extends ilTestServiceGUI
 			$ilCtrl->redirectByClass("ilobjtestgui", "infoScreen");
 		}
 		
-		if (!$ilCust->getSetting('export_member_data_is_allowed'))
+		if (!ilCust::extendedUserDataAccess())
 		{
 			ilUtil::sendInfo(sprintf($lng->txt("ass_mycampus_export_forbidden"), "goto.php?target=studon_exportrequest"), TRUE);
             $ilCtrl->redirectByClass('iltestexportgui');

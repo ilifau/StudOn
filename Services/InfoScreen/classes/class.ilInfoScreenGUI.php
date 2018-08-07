@@ -577,8 +577,7 @@ class ilInfoScreenGUI
 
 		// fim: [info] show the ref_id (and the obj_id to admins)
 		$this->addProperty($this->lng->txt('studon_ref_id'), $a_obj->getRefId());
-		global $ilCust;
-		if ($ilCust->getSetting('administration_is_visible'))
+		if (ilCust::administrationIsVisible())
 		{
 			$this->addProperty($this->lng->txt('object_id'), $a_obj->getId());
 		}
