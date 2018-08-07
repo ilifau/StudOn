@@ -363,12 +363,11 @@ class ilMainMenuGUI
 					or !empty($_GET['wsp_id'])
 					or !empty($_GET['prt_id'])
 				)
-// fau.
+
 				{
 					$this->tpl->setCurrentBlock("userisanonymous");
-					$this->tpl->setVariable("TXT_NOT_LOGGED_IN",$lng->txt("not_logged_in"));
-					$this->tpl->setVariable("TXT_LOGIN",$lng->txt("log_in"));
-
+					$this->tpl->setVariable("TXT_NOT_LOGGED_IN", $lng->txt("not_logged_in"));
+					$this->tpl->setVariable("TXT_LOGIN", $lng->txt("log_in"));
 				// #13058
 				$target_str = ($this->getLoginTargetPar() != "")
 					? $this->getLoginTargetPar()
@@ -376,6 +375,8 @@ class ilMainMenuGUI
 				$this->tpl->setVariable("LINK_LOGIN",
 					$link_dir."login.php?target=".$target_str."&client_id=".rawurlencode(CLIENT_ID)."&cmd=force_login&lang=".$ilUser->getCurrentLanguage());
 				$this->tpl->parseCurrentBlock();
+				}
+// fau.
 			}
 			else
 			{
@@ -513,7 +514,7 @@ class ilMainMenuGUI
 
 // fau: rootAsLogin - show root login link on specific pages (if not logged in)
 		global $ilCust;
-		if ($ilCust->getSetting('ilias_root_as_login') and ($ilUser->isAnonymous()))
+		if ($ilCust->getSetting('ilias_root_as_login') and ($this->user->isAnonymous()))
 		{
 			$this->renderEntry($a_tpl, "login",
 				$lng->txt("to_home"),
@@ -548,7 +549,7 @@ class ilMainMenuGUI
 		/* @var ilAccessHandler $ilAccess */
 		if ($ilAccess->checkAccess('read','' , $nd['ref_id'], $nd['type'], $nd['obj_id']))
 		{
-			if(!$ilUser->getId() or $ilUser->getId() == ANONYMOUS_USER_ID)
+			if(!$ilUser->getId() or $this->user->getId() == ANONYMOUS_USER_ID)
 			{
 				$title = $nd["title"] . $lng->txt("repository_public_suffix");
 				$this->renderEntry($a_tpl, "public", $title, $nd_link);
