@@ -85,12 +85,14 @@ a.ilTreeView {
 	top: @il-header-height;
 	//@media only screen and (max-width: 768px) {top: 140px;}
 	z-index: 1020;
-	bottom: 160px;
-	background-color: white;
-	border: 1px solid #e0e0e0;
-	border-left: none;
-    .box-shadow(1px 1px 2px #b9b9b9);
-	width: 6px;
+	// fim: dont' stretch navigation toggle
+	// bottom: 160px;
+	// background-color: white;
+	// border: 1px solid #e0e0e0;
+	// border-left: none;
+    // .box-shadow(1px 1px 2px #b9b9b9);
+	// width: 6px;
+	// fim.
 	@media only screen and (max-width: @screen-lg-min) {
 		/* at last temporary, since it overlaps content */
         display: none;
@@ -100,7 +102,7 @@ a.ilTreeView {
 		margin-left: -2px;
 		max-width: inherit;
 		background-color: white;
-		border-right: 2px solid #e0e0e0;
+		// border-right: 2px solid #e0e0e0; // fim: no border.
 		width: 28px;
 		height: 28px;
 	}

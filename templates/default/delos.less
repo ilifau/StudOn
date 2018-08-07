@@ -1258,11 +1258,41 @@ footer.ilFooter {
       color: @text-color;
     }
 
-    .ilFooterLogo, {
+    .ilFooterLogo {
       height: 35px;
     }
 
-    .ilFooterDevmode {
+	div.ilPermalinkContainer {
+		margin: 0px;
+		display:inline;
+	}
+
+	div.ilPermalinkContainer .small {
+		font-size: 70%;
+	}
+
+	div.ilPermalinkContainer .il_adv_sel {
+		font-size: 100%;
+	}
+
+	div.ilPermalinkContainer #current_perma_link {
+		color: @text-color;
+		width: 100px;
+		height: 20px;
+		font-size: 90%;
+		float: right;
+		margin-left: 3px;
+		background-color: white;
+		+ .btn-group {
+			vertical-align: top;
+		}
+	}
+
+	div.ilPermalinkContainer a {
+		font-size: 1em;
+	}
+
+	.ilFooterDevmode {
       clear: both;
       a {
         color: @text-color;
@@ -1287,37 +1317,6 @@ footer.ilFooter {
             width: 100%;
         }
     }
-}
-
-/* ----------------- permanent link  ------------- */
-div.ilPermaLink {
-	margin: 15px;
-}
-
-div.ilPermaLink .small {
-	font-size: 70%;
-}
-
-div.ilPermaLink .il_adv_sel {
-	font-size: 100%;
-}
-
-div.ilPermaLink input {
-	font-size: 70%;
-	width: 350px;
-}
-
-div.ilPermaLink a {
-	font-size: 1em;
-}
-
-#current_perma_link {
-	color: @text-color;
-	width: 100px;			// fim: fixed width for permalink
-	font-size: 90%;
-	+ .btn-group {
-		vertical-align: top;
-	}
 }
 
 

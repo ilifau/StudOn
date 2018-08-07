@@ -9472,6 +9472,31 @@ footer.ilFooter .dropdown-menu a {
 footer.ilFooter .ilFooterLogo {
   height: 35px;
 }
+footer.ilFooter div.ilPermalinkContainer {
+  margin: 0px;
+  display: inline;
+}
+footer.ilFooter div.ilPermalinkContainer .small {
+  font-size: 70%;
+}
+footer.ilFooter div.ilPermalinkContainer .il_adv_sel {
+  font-size: 100%;
+}
+footer.ilFooter div.ilPermalinkContainer #current_perma_link {
+  color: #434343;
+  width: 100px;
+  height: 20px;
+  font-size: 90%;
+  float: right;
+  margin-left: 3px;
+  background-color: white;
+}
+footer.ilFooter div.ilPermalinkContainer #current_perma_link + .btn-group {
+  vertical-align: top;
+}
+footer.ilFooter div.ilPermalinkContainer a {
+  font-size: 1em;
+}
 footer.ilFooter .ilFooterDevmode {
   clear: both;
 }
@@ -9493,31 +9518,6 @@ footer.ilFooter .ilFooterDevmode a {
     table-layout: fixed;
     width: 100%;
   }
-}
-/* ----------------- permanent link  ------------- */
-div.ilPermaLink {
-  margin: 15px;
-}
-div.ilPermaLink .small {
-  font-size: 70%;
-}
-div.ilPermaLink .il_adv_sel {
-  font-size: 100%;
-}
-div.ilPermaLink input {
-  font-size: 70%;
-  width: 350px;
-}
-div.ilPermaLink a {
-  font-size: 1em;
-}
-#current_perma_link {
-  color: #434343;
-  width: 100px;
-  font-size: 90%;
-}
-#current_perma_link + .btn-group {
-  vertical-align: top;
 }
 /* ----------------- invisible border ------------- */
 div.invisible_border {
@@ -10291,13 +10291,6 @@ a.ilTreeView {
   position: fixed;
   top: 117px;
   z-index: 1020;
-  bottom: 160px;
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-left: none;
-  -webkit-box-shadow: 1px 1px 2px #b9b9b9;
-  box-shadow: 1px 1px 2px #b9b9b9;
-  width: 6px;
 }
 @media only screen and (max-width: 1200px) {
   a.ilTreeView {
@@ -10310,7 +10303,6 @@ a.ilTreeView > img {
   margin-left: -2px;
   max-width: inherit;
   background-color: white;
-  border-right: 2px solid #e0e0e0;
   width: 28px;
   height: 28px;
 }

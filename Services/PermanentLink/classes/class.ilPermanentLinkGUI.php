@@ -248,7 +248,7 @@ class ilPermanentLinkGUI
 			$tpl->setVariable("TARGET", 'target="'.$this->getTarget().'"');
 		}
 // fau: dropUp - set parameter
-		$bm_html = self::getBookmarksSelectionList($title, $href, $this->dropup);
+		$bm_html = self::_getBookmarksSelectionList($title, $href, $this->dropup);
 // fau.
 		if($bm_html)
 		{
