@@ -152,7 +152,7 @@ class ilStr
 	/**
 	 * Compare two string case sensitive
 	 */
-	function strCmpCaseSensitive($a, $b)
+	static function strCmpCaseSensitive($a, $b)
 	{
 		global $ilCollator;
 
