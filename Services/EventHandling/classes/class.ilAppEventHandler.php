@@ -90,10 +90,8 @@ class ilAppEventHandler
 
 		$this->listener = array();
 
-// fau: sqlCache - use sql cache
-		$sql = "SELECT SQL_CACHE * FROM il_event_handling".
+		$sql = "SELECT * FROM il_event_handling".
 			" WHERE type = ".$ilDB->quote("listen", "text");
-// fau.
 		$res = $ilDB->query($sql);
 		while($row = $ilDB->fetchAssoc($res))
 		{

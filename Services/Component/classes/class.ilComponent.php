@@ -129,11 +129,9 @@ abstract class ilComponent
 	{
 		global $ilDB;
 		
-// fau: sqlCache - use sql cache
-		$set = $ilDB->queryF("SELECT SQL_CACHE * FROM il_component WHERE type = %s ".
+		$set = $ilDB->queryF("SELECT * FROM il_component WHERE type = %s ".
 			" AND name = %s", array("text", "text"),
 			array($a_ctype, $a_cname));
-// fau.
 		if (!$ilDB->fetchAssoc($set))
 		{
 			return null;

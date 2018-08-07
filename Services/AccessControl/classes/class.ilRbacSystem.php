@@ -317,11 +317,9 @@ class ilRbacSystem
 		
 		$ops = array();
 
-// fau: sqlCache - use sql cache
-		$query = 'SELECT SQL_CACHE ops_id FROM rbac_operations '.
+		$query = 'SELECT ops_id FROM rbac_operations '.
 			'WHERE operation = '.$ilDB->quote($a_operation,'text');
 		$res = $ilDB->query($query);
-// fau.
 		while($row = $ilDB->fetchObject($res))
 		{
 			$ops_id = $row->ops_id;
