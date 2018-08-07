@@ -3,9 +3,7 @@
 
 define ("IL_PASSWD_PLAIN", "plain");
 define ("IL_PASSWD_CRYPTED", "crypted");
-
-// fau: idmPass - support for ssha passwords
-include_once("./Services/Authentication/classes/class.ilAuthUtils.php");
+// fau: idmPass - support for ssha passwords - an SSHA encoded password is stored in passwd column with prefix "{SSHA}"
 define ("IL_PASSWD_SSHA", "ssha");          // SSHA generated password
 // fau.
 
@@ -60,8 +58,6 @@ class ilObjUser extends ilObject
 					// methods work exclusively with the $passwd and $passwd_type
 					// variables.
 
-// fau: idmPass - an SSHA encoded password is stored in passwd column with prefix "{SSHA}
-// fau.
 
 // fau: idmPass - add field for external password (always SSHA encrypted)
     var $ext_passwd;
@@ -247,7 +243,7 @@ class ilObjUser extends ilObject
 			// convert password storage layout used by table usr_data into
 			// storage layout used by class ilObjUser
 // fau: idmPass - recognize password type ssha
-			if (ilAuthUtils::_isSSHAPassword($data["passwd"]))
+			if (ilUserPasswordManager::_isSSHAPassword($data["passwd"]))
 			{
 				$data["passwd_type"] = IL_PASSWD_SSHA;
 			}

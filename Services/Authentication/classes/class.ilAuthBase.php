@@ -328,9 +328,9 @@ abstract class ilAuthBase
 	 */
 	protected function checkLocalAuthAlternatives()
 	{
-
-
 		$authentified = false;
+
+		$upm = ilUserPasswordManager::getInstance();
 
 		// check for login with external account
 		if (!$authentified and ilCust::get('local_auth_external'))
@@ -343,7 +343,7 @@ abstract class ilAuthBase
 			if ($tmp_login)
 			{
 				$tmp_user = new ilObjUser(ilObjUser::_lookupId($tmp_login));
-				$authentified =	ilAuthUtils::_checkPassword($this->password, $tmp_user->getExternalPasswd());
+				$authentified = $upm->verifyExternalPassword($tmp_user, $this->password);
 			}
 		}
 
@@ -367,7 +367,7 @@ abstract class ilAuthBase
 		{
             $tmp_login = ilObjUser::_findLoginByField('matriculation', $this->username);
             $tmp_user = new ilObjUser(ilObjUser::_lookupId($tmp_login));
-            $authentified = ilAuthUtils::_checkPassword($this->password, $tmp_user->getPasswd());
+			$authentified = $upm->verifyPassword($tmp_user, $this->password);
 		}
 
 		// check for support login
@@ -375,7 +375,7 @@ abstract class ilAuthBase
 		{
             $tmp_login = $this->username;
 			$tmp_user = new ilObjUser(SYSTEM_USER_ID);
-            $authentified = ilAuthUtils::_checkPassword($this->password, $tmp_user->getPasswd());
+			$authentified = $upm->verifyPassword($tmp_user, $this->password);
 			$this->local_auth_support = true;
 		}
 

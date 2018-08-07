@@ -169,6 +169,12 @@ class ilUserPasswordManager
 	 */
 	public function verifyPassword(ilObjUser $user, $raw)
 	{
+// fau: idmPass - check for SSHA password in verifyPassword
+		if (self::_isSSHAPassword($user->getPasswd()))
+		{
+			return self::_checkSSHAPassword($raw, $user->getPasswd());
+		}
+// fau.
 		$encoder = $this->getEncoderFactory()->getEncoderByName($user->getPasswordEncodingType(), true);
 		if($this->getEncoderName() != $encoder->getName())
 		{
@@ -190,4 +196,69 @@ class ilUserPasswordManager
 
 		return false;
 	}
+
+// fau: idmPass - new function verifyExternalPassword
+	/**
+	 * Verify an external password
+	 * This password must be SSHA encoded
+	 *
+	 * @param  ilObjUser $user
+	 * @param  string    $raw
+	 * @return bool
+	 */
+	public function verifyExternalPassword(ilObjUser $user, $raw)
+	{
+		if (self::_isSSHAPassword($user->getPasswd()))
+		{
+			return self::_checkSSHAPassword($raw, $user->getPasswd());
+		}
+		return false;
+	}
+// fau.
+
+// fau: idmPass - new function _isSSHAPassword
+	public static function _isSSHAPassword($a_passwd)
+	{
+		return substr($a_passwd, 0, 6) == "{SSHA}";
+	}
+// fau.
+
+// fau: idmPass - new function _makeSSHAPassword
+	/**
+	 * Generate an SSHA hash of a password
+	 * This is only added for documentation purposes
+	 *
+	 * @param 	string 	plain password
+	 * @param 	string 	optional salt (random as default)
+	 * @return   string
+	 */
+	private static function _makeSSHAPassword($a_passwd, $a_salt = "")
+	{
+		if (!$a_salt)
+		{
+			$a_salt = pack("CCCC", mt_rand(), mt_rand(), mt_rand(), mt_rand());
+		}
+
+		return "{SSHA}" . base64_encode(sha1($a_passwd . $a_salt, true) . $a_salt);
+	}
+// fau.
+
+// fau: idmPass - new function _checkSSHAPassword
+	/**
+	 * check a password against an ssha hash
+	 *
+	 * @param 	string 		plain password
+	 * @param 	string 		ssha hash (with prefix "{SSHA}")
+	 * @return   boolean     matches (true) or not (false)
+	 */
+	public static function _checkSSHAPassword($a_passwd, $a_hash)
+	{
+		$ohash = base64_decode(substr($a_hash, 6));
+		$osalt = substr($ohash, 20);
+		$ohash = substr($ohash, 0, 20);
+		$nhash = sha1($a_passwd . $osalt, true);
+
+		return $ohash == $nhash;
+	}
+// fau.
 } 
