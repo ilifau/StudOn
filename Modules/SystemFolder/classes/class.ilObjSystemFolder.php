@@ -198,10 +198,7 @@ class ilObjSystemFolder extends ilObject
 	{
 		$ilDB = $this->db;
 		$ilUser = $this->user;
-		
-// fau: rootAsLogin - use ilUser here to allow a static call from login screen
-		global $ilUser;
-		
+
 		$id = ilObjSystemFolder::_getId();
 
 		$q = "SELECT title,description FROM object_translation ".
@@ -225,7 +222,6 @@ class ilObjSystemFolder extends ilObject
 		}
 
 		return $description;
-// fau.
 	}
 
 } // END class.ilObjSystemFolder

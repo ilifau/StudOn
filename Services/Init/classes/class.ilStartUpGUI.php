@@ -1542,7 +1542,7 @@ class ilStartUpGUI
 	{
 		global $tpl, $ilSetting, $lng, $ilIliasIniFile;
 
-		// fau: rootAsLogin - jump to root as login page when being logged out
+// fau: rootAsLogin - jump to root as login page when being logged out
 
 		if (ilCust::get("ilias_root_as_login"))
 		{

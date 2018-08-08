@@ -37,14 +37,6 @@ include_once "Services/Context/classes/class.ilContext.php";
 class ilInitialisation
 {
 	/**
-	* fim: [general] support authentication
-	* @var boolean
-	*/
-	static $support_auth = false;
-	// fim.
-
-
-	/**
 	 * Remove unsafe characters from GET
 	 */
 	protected static function removeUnsafeCharacters()
@@ -725,7 +717,7 @@ class ilInitialisation
 	 *
 	 * @param	bool	$a_authentified 	The user is already authentified
 	 */
-	public static function initUserAccount()
+	public static function initUserAccount($a_authentified = true)
 	{
 		/**
 		 * @var $ilUser ilObjUser
@@ -824,13 +816,6 @@ class ilInitialisation
 			$session_destroyed = true;
 			ilSession::setClosingContext(ilSession::SESSION_CLOSE_EXPIRE);
 		}
-// fau: rootAsLogin - process a manual logout by the user
-//		elseif($GLOBALS['DIC']['ilAuthSession']->isClosedByUser())
-//		{
-//			$session_destroyed = true;
-//			ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);
-//		}
-// fau.
 		if(!$GLOBALS['DIC']['ilAuthSession']->isAuthenticated())
 		{
 			$session_destroyed = true;
