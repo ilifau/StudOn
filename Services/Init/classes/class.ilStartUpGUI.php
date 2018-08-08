@@ -164,6 +164,24 @@ class ilStartUpGUI
 		$this->showLoginPage();
 	}
 
+// fau: rootAsLogin - new function shownRootPage
+	/**
+	 * Show the repository root page without redirection
+	 * @throws ilCtrlException
+	 */
+	protected function showRootPage()
+	{
+		global $DIC;
+
+		$_GET['ref_id'] = ROOT_FOLDER_ID;
+
+		$ilCtrl = $DIC->ctrl();
+		$ilCtrl->initBaseClass('ilrepositorygui');
+		$ilCtrl->getCallStructure('ilrepositorygui');
+		$ilCtrl->setCmd('frameset');
+		return $ilCtrl->callBaseClass();
+	}
+// fau.
 
 	/**
 	 * @todo check for forced authentication like ecs, ...
@@ -172,6 +190,15 @@ class ilStartUpGUI
 	protected function showLoginPage(ilPropertyFormGUI $form = null)
 	{
 		global $tpl, $ilSetting;
+
+// fau: rootAsLogin - show the root page instead of the login page
+		global $DIC;
+		$ilAccess = $DIC->access();
+		if (ilCust::get('ilias_root_as_login') && $ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
+		{
+			return $this->showRootPage();
+		}
+// fau.
 
 		$this->getLogger()->debug('Showing login page');
 
@@ -452,25 +479,6 @@ class ilStartUpGUI
 		    $success = $lng->txt("auth_account_code_used");
 		}
 		
-
-// fau: rootAsLogin - show root page instead of login page
-		global $ilCtrl;
-		if (ilCust::get("ilias_root_as_login"))
-		{
-			if ($failure)
-			{
-				ilInitialisation::goToPublicSection($status, $failure, "failure");
-			}
-			elseif ($success)
-			{
-				ilInitialisation::goToPublicSection($status, $success, "success");
-			}
-			else
-			{
-				ilInitialisation::goToPublicSection($status, $lng->txt("login_required_for_object"), "failure");
-			}
-		}
-// fau.
 
 		// --- render
 		
@@ -1542,15 +1550,7 @@ class ilStartUpGUI
 	{
 		global $tpl, $ilSetting, $lng, $ilIliasIniFile;
 
-// fau: rootAsLogin - jump to root as login page when being logged out
-
-		if (ilCust::get("ilias_root_as_login"))
-		{
-			ilInitialisation::goToPublicSection(AUTH_USER_MANUAL_LOGOUT, $lng->txt("logout_text"), "success");
-		}
-// fau.
-
-		ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);		
+		ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);
 		$GLOBALS['DIC']['ilAuthSession']->logout();
 
 		$GLOBALS['ilAppEventHandler']->raise(
@@ -1569,6 +1569,16 @@ class ilStartUpGUI
 		{
 			ilUtil::redirect('saml.php?action=logout&logout_url=' . urlencode(ILIAS_HTTP_PATH . '/login.php'));
 		}
+
+// fau: rootAsLogin - show the root page instead of the logout page
+		global $DIC;
+		$ilAccess = $DIC->access();
+		if (ilCust::get('ilias_root_as_login') && $ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
+		{
+			ilUtil::sendSuccess($lng->txt("logout_text"));
+			return $this->showRootPage();
+		}
+// fau.
 
 		//instantiate logout template
 		self::initStartUpTemplate("tpl.logout.html");

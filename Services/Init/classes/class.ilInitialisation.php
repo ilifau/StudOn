@@ -793,15 +793,12 @@ class ilInitialisation
 		}
 	}
 
-// fau: rootAsLogin - added parameters to show a message on starting page
 	/**
 	 * go to public section
 	 *
-	 * @param string $a_message
-	 * @param string $a_message_type
+	 * @param int $a_auth_stat
 	 */
-	public static function goToPublicSection($a_message = "", $a_message_type = "info")
-// fau.
+	public static function goToPublicSection()
 	{
 		global $ilAuth;
 				
@@ -829,26 +826,8 @@ class ilInitialisation
 		
 		self::initUserAccount();
 
-// fau: rootAsLogin - optionally show a failure message, then don't go to the target directly
-		if (strlen($a_message))
-		{
-			switch ($a_message_type)
-			{
-				case "failure":
-					ilUtil::sendFailure($a_message, true);
-					break;
-
-				case "success":
-					ilUtil::sendSuccess($a_message, true);
-					break;
-
-				default:
-					ilUtil::sendInfo($a_message, true);
-					break;
-			}
-		}
 		// if target given, try to go there
-		elseif(strlen($_GET["target"]))
+		if(strlen($_GET["target"]))
 		{
 			// when we are already "inside" goto.php no redirect is needed
 			$current_script = substr(strrchr($_SERVER["PHP_SELF"], "/"), 1);	
@@ -859,7 +838,7 @@ class ilInitialisation
 			// goto will check if target is accessible or redirect to login
 			self::redirect("goto.php?target=".$_GET["target"]);
 		}
-// fau.
+
 		// check access of root folder otherwise redirect to login
 		#if(!$GLOBALS['DIC']->rbac()->system()->checkAccess('read', ROOT_FOLDER_ID))
 		#{
@@ -869,22 +848,9 @@ class ilInitialisation
 		// we do not know if ref_id of request is accesible, so redirecting to root
 		$_GET["ref_id"] = ROOT_FOLDER_ID;
 		$_GET["cmd"] = "frameset";
-
-// fau: rootAsLogin - redirect to the root page if message should be shown or no target is given
-		global $DIC;
-		$lng = $DIC->language();
-
-		if ($_GET['lang']) {
-			$lang = $_GET['lang'];
-		}
-		elseif (isset($lng))
-		{
-			$lang = $lng->getLangKey();
-		}
-
-		self::redirect("ilias.php?baseClass=ilrepositorygui&reloadpublic=1&cmd=".
-			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]."&lang=".$lang."&login_target=".$_GET["target"]);
-// fau.
+		self::redirect(
+			"ilias.php?baseClass=ilrepositorygui&reloadpublic=1&cmd=".
+			$_GET["cmd"]."&ref_id=".$_GET["ref_id"]);
 	}
 
 	/**
@@ -1850,7 +1816,7 @@ class ilInitialisation
 		}
 		
 // fau: rootAsLogin - indicate that root folder is showing login form
-		if(strtolower($_REQUEST["baseClass"]) == "ilrepositorygui" && $_GET["ref_id"] == 1)
+		if(ilCust::get('ilias_root_as_login') && strtolower($_REQUEST["baseClass"]) == "ilrepositorygui" && $_GET["ref_id"] == 1)
 		{
 			return true;
 		}

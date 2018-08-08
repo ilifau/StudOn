@@ -93,22 +93,15 @@ class ilCustomLoginGUI
 	 */
 	static function getLoginBlockLocal()
 	{
-		global $ilCtrl, $ilSetting, $lng, $https;
+		global $DIC;
 
-		if ($_GET["cookies"] == "nocookies")
-		{
-			ilUtil::sendFailure(sprintf('%s<br /><a href="%s" target="_blank">%s</a>', 
-				$lng->txt("err_no_cookies"),
-				"ilias.php?baseClass=ilStartUpGUI&amp;cmd=showNoCookiesScreen",
-				$lng->txt("cookies_howto")
-			));
-		}
-			
-		$action =  "login.php?"
-					. "lang=".$lng->getLangKey()
-					. "&amp;client_id=".CLIENT_ID
-					. "&amp;target=".$_GET["login_target"];
-		
+		$ilCtrl = $DIC->ctrl();
+		$ilSetting = $DIC->settings();
+		$lng = $DIC->language();
+
+		$ilCtrl->saveParameterByClass('ilStartUpGUI', 'login_target');
+		$action = $ilCtrl->getFormActionByClass(['ilStartupGUI', 'ilStartUpGUI']);
+
 		$tpl = new ilTemplate("tpl.custom_login.html", true, true, "Services/Init");
 		$tpl->setVariable("FORMACTION", $action);
 		$tpl->setVariable("LOGIN_TITLE", $lng->txt("local_login_to_ilias"));
@@ -153,9 +146,8 @@ class ilCustomLoginGUI
 	 */
 	static function getLoginBlockLogout()
 	{
-		global $lng;
-
-		require_once "Services/User/classes/class.ilUserUtil.php";
+		global $DIC;
+		$lng = $DIC->language();
 
 		$tpl = new ilTemplate("tpl.custom_logout.html", true, true, "Services/Init");
 		$tpl->setVariable("TXT_LOGGED_IN", $lng->txt("logged_in_to_ilias"));
