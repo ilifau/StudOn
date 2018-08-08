@@ -765,7 +765,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			$ilErr->appendMessage($this->lng->txt(self::ERR_WRONG_REG_TIME_LIMIT));
 		}
 		*/
-		}
+
 
 // fau: fairSub - validate subscription times
 		if($this->isMembershipLimited() && $this->getMaxMembers() > 0 &&
