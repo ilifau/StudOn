@@ -47,15 +47,19 @@ class ilCust
 	{
 		global $DIC;
 
-		/** @var ilIniFile $ilClientIniFile */
-		$ilClientIniFile = $DIC['ilClientIniFile'];
+		// read the client settings if available
+		if ($DIC->offsetExists('ilClientIniFile'))
+		{
+			/** @var ilIniFile $ilClientIniFile */
+			$ilClientIniFile = $DIC['ilClientIniFile'];
+			$this->client_settings = $ilClientIniFile->readGroup("customize");
+		}
 
-        $ini = new ilIniFile("./Customizing/customize.ini.php");
+		// read the default settings
+		$ini = new ilIniFile("./Customizing/customize.ini.php");
 		$ini->read();
-		
-		// settings will be looked up in the following order
-		$this->client_settings = $ilClientIniFile->readGroup("customize");
 		$this->default_settings = $ini->readGroup("default");
+
 	}
 
 	/**

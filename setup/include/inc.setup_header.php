@@ -55,6 +55,10 @@ require_once "./Services/Xml/classes/class.ilSaxParser.php";
 require_once "./include/inc.ilias_version.php";
 include_once './Services/Logging/classes/public/class.ilLogLevel.php';
 
+// fau: customSettings - include ilCust for setup
+require_once 'Customizing/classes/class.ilCust.php';
+// fau.
+
 // include error_handling
 require_once "./setup/classes/class.ilSetupErrorHandling.php";
 
