@@ -179,7 +179,7 @@ class ilStartUpGUI
 		$ilCtrl->initBaseClass('ilrepositorygui');
 		$ilCtrl->getCallStructure('ilrepositorygui');
 		$ilCtrl->setCmd('frameset');
-		return $ilCtrl->callBaseClass();
+		$ilCtrl->callBaseClass();
 	}
 // fau.
 
@@ -196,7 +196,14 @@ class ilStartUpGUI
 		$ilAccess = $DIC->access();
 		if (ilCust::get('ilias_root_as_login') && $ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
 		{
-			return $this->showRootPage();
+			// check expired session and send message
+			if($GLOBALS['DIC']['ilAuthSession']->isExpired())
+			{
+				ilUtil::sendFailure($GLOBALS['lng']->txt('auth_err_expired'));
+			}
+
+			$this->showRootPage();
+			return;
 		}
 // fau.
 
@@ -1573,10 +1580,16 @@ class ilStartUpGUI
 // fau: rootAsLogin - show the root page instead of the logout page
 		global $DIC;
 		$ilAccess = $DIC->access();
+		$ilCtrl = $DIC->ctrl();
+		$ilUser = $DIC->user();
 		if (ilCust::get('ilias_root_as_login') && $ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
 		{
+			$GLOBALS['DIC']['ilAuthSession']->init();
+			$GLOBALS['DIC']['ilAuthSession']->setAuthenticated(true, ANONYMOUS_USER_ID);
+			ilInitialisation::initUserAccount();
 			ilUtil::sendSuccess($lng->txt("logout_text"));
-			return $this->showRootPage();
+			$this->showRootPage();
+			return;
 		}
 // fau.
 
