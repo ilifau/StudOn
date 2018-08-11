@@ -98,8 +98,6 @@ class ilObjGroupGUI extends ilContainerGUI
 				$this->ctrl->forwardCommand($mem_gui);
 				break;
 
-
-		{
 			// fim: [memcond] add command class
 			case 'ilsubscribersstudycondgui':
 				include_once("./Services/Membership/classes/class.ilSubscribersStudyCondGUI.php");
@@ -577,7 +575,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			global $rbacsystem;
 			if($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID))
 			{
-				$this->object->setImportId(ilUtil::stripSlashes($form->getInput('import_id'));
+				$this->object->setImportId(ilUtil::stripSlashes($form->getInput('import_id')));
 			}
 			// fim.
 			$this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
@@ -648,7 +646,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			// check a deactivation of the fair period done in db
 			if ($this->object->getSubscriptionFair() >= 0)
 			{
-				$sub_fair = $a_form->getItemByPostVar("subscription_fair");
+				$sub_fair = $form->getItemByPostVar("subscription_fair");
 				$this->object->setSubscriptionFair($sub_fair->getDate()->get(IL_CAL_UNIX));
 			}
 // fau.
@@ -1342,7 +1340,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		if ($ilAccess->checkAccess('join','join', $this->object->getRefId()))
 		{
 			// no specific command: initial join
-			$tabs_gui->addTab('join',
+			$this->tabs_gui->addTab('join',
 				$this->lng->txt('join'),
 				$this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
 			);
@@ -1350,7 +1348,7 @@ class ilObjGroupGUI extends ilContainerGUI
 		elseif ($ilAccess->checkAccess('join','leave', $this->object->getRefId()))
 		{
 			// leave command: edit membership request
-			$tabs_gui->addTab('join',
+			$this->tabs_gui->addTab('join',
 				$this->lng->txt('mem_edit_request'),
 				$this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
 			);

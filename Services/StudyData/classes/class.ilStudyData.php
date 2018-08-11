@@ -20,7 +20,7 @@ class ilStudyData
 	 * 
 	 * @return boolean	study data visible to the current user (true false)
 	 */
-	function _getStudyDataVisibility()
+	static function _getStudyDataVisibility()
 	{
 		global $rbacsystem;
 
@@ -48,7 +48,7 @@ class ilStudyData
 	 * @param	integer		school id
 	 * @return 	string		school title
 	 */
-	function _lookupSchool($a_school_id)
+	static function _lookupSchool($a_school_id)
 	{
 		global $ilDB;
 		
@@ -66,7 +66,7 @@ class ilStudyData
 	 * 
 	 * @return array	school_id => school_title
 	 */
-	function _getSchoolSelectOptions()
+	static function _getSchoolSelectOptions()
 	{
 		global $ilDB, $lng;
 		$query = "SELECT school_id, school_title FROM study_schools"
@@ -87,7 +87,7 @@ class ilStudyData
 	 * @param	integer		subject id
 	 * @return 	string		subject title
 	 */
-	function _lookupSubject($a_subject_id)
+	static function _lookupSubject($a_subject_id)
 	{
 		global $ilDB;
 
@@ -105,7 +105,7 @@ class ilStudyData
 	 * 
 	 * @return array	subject_id => subject_title
 	 */
-	function _getSubjectSelectOptions()
+	static function _getSubjectSelectOptions()
 	{
 		global $ilDB, $lng;
 		$query = "SELECT subject_id, subject_title FROM study_subjects"
@@ -126,7 +126,7 @@ class ilStudyData
 	 * @param	integer		degree id
 	 * @return 	string		degree title
 	 */
-	function _lookupDegree($a_degree_id)
+	static function _lookupDegree($a_degree_id)
 	{
 		global $ilDB;
 
@@ -145,7 +145,7 @@ class ilStudyData
 	 * 
 	 * @return array	degree_id => degree_title
 	 */
-	function _getDegreeSelectOptions()
+	static function _getDegreeSelectOptions()
 	{
 		global $ilDB, $lng;
 		$query = "SELECT degree_id, degree_title FROM study_degrees"
@@ -166,7 +166,7 @@ class ilStudyData
 	 * 
 	 * @return array	semester code (e.g. 20112) => semester title (2011 SS)
 	 */
-	function _getSemesterSelectOptions()
+	static function _getSemesterSelectOptions()
 	{
 	    global $lng;
 	
@@ -185,7 +185,7 @@ class ilStudyData
 	 * 
 	 * @return string	multi-line description
 	 */
-	function _getStudyDataText($a_user_id)
+	static function _getStudyDataText($a_user_id)
 	{
 		$data = self::_readStudyData($a_user_id);
         return self::_getStudyDataTextForData($data);
@@ -198,7 +198,7 @@ class ilStudyData
      * @param   array   study data
      * @return string	multi-line description
      */
-    function _getStudyDataTextForData($a_data)
+	static function _getStudyDataTextForData($a_data)
     {
         global $lng;
 
@@ -232,7 +232,7 @@ class ilStudyData
 	 * @param 	string	semester specification (e.g. 20112)
 	 * @return 	string	textual description 
 	 */
-	function _getRefSemesterText($a_ref_semester)
+	static function _getRefSemesterText($a_ref_semester)
 	{
 		global $lng;
 		
@@ -260,7 +260,7 @@ class ilStudyData
 	 * @return 	array		list of assoc study data arrays with nested subject ids
 	 * @see		ilStudyAccess::_getStudyData 
 	 */
-	function _readStudyData($a_user_id)
+	static function _readStudyData($a_user_id)
 	{
 		// don't use the cache
 		return ilStudyAccess::_getStudyData($a_user_id, false);

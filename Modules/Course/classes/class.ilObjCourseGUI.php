@@ -1126,7 +1126,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$this->object->setSubscriptionMaxMembers((int) $form->getInput('subscription_max'));
 		$this->object->setSubscriptionMinMembers((int) $form->getInput('subscription_min'));
 		// fim: [meminf] set show_mem_limit
-		$this->object->setShowMemLimit((int) form->getInput('crs_show_mem_limit'));
+		$this->object->setShowMemLimit((int) $form->getInput('crs_show_mem_limit'));
 		// fim.
 		$old_autofill = $this->object->hasWaitingListAutoFill();
 // fau: fairSub - save the fair period and waiting list options

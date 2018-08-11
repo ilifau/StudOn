@@ -101,7 +101,7 @@ class ilPrivacySettings
     /**
      * fim: [privacy] check the general right for extended access to user data
     */
-    public function _checkExtendedAccess()
+    public static function _checkExtendedAccess()
     {
         global $rbacsystem;
 
