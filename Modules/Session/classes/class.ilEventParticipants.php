@@ -411,7 +411,7 @@ class ilEventParticipants
 
 
 	// fim: [memsess] _deleteByUserAndParent()
-	function _deleteByUserAndParent($a_usr_id, $a_parent_ref_id)
+	public static function _deleteByUserAndParent($a_usr_id, $a_parent_ref_id)
 	{
 		global $ilDB, $tree;
 

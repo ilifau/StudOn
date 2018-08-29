@@ -325,7 +325,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 // fau: fairSub - getter / setter
 	public function getSubscriptionFair()
 	{
-		return $this->subscription_fair ? $this->subscription_fair : $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds();
+		if ($this->subscription_fair) {
+			return $this->subscription_fair;
+		}
+		if ($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) {
+			return $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds();
+
+		}
+		return 0;
 	}
 	public function setSubscriptionFair($a_value)
 	{
@@ -391,6 +398,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			return false;
 		}
 		elseif($a_time > $this->getSubscriptionFair())
+		{
+			return false;
+		}
+		elseif (empty($this->getRegistrationStart()) || $this->getRegistrationStart()->isNull())
 		{
 			return false;
 		}
@@ -768,8 +779,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
 
 // fau: fairSub - validate subscription times
-		if($this->isMembershipLimited() && $this->getMaxMembers() > 0 &&
-			$this->getRegistrationEnd()->get(IL_CAL_UNIX) < $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds())
+		if($this->isMembershipLimited() && $this->getMaxMembers() > 0
+			&& !empty($this->getRegistrationStart()) && !$this->getRegistrationStart()->isNull()
+			&& !empty($this->getRegistrationEnd()) && !$this->getRegistrationEnd()->isNull()
+			&& $this->getRegistrationEnd()->get(IL_CAL_UNIX) < $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds())
 		{
 			$ilErr->appendMessage(sprintf($this->lng->txt("sub_fair_subscription_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
 		}
@@ -786,8 +799,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 				$deny_regstart_from = new ilDateTime($deny_regstart_from, IL_CAL_DATETIME);
 				$deny_regstart_to = new ilDateTime($deny_regstart_to, IL_CAL_DATETIME);
 
-				if(ilDateTime::_before($deny_regstart_from, $this->getRegistrationStart())
-					and ilDateTime::_after($deny_regstart_to, $this->getRegistrationStart()))
+				if( !empty($this->getRegistrationStart()) && !$this->getRegistrationStart()->isNull()
+					&& !empty($this->getRegistrationEnd()) && !$this->getRegistrationEnd()->isNull()
+					&& ilDateTime::_before($deny_regstart_from, $this->getRegistrationStart())
+					&& ilDateTime::_after($deny_regstart_to, $this->getRegistrationStart()))
 				{
 					$ilErr->appendMessage(sprintf($this->lng->txt('deny_regstart_message'),
 						ilDatePresentation::formatDate($deny_regstart_from),

@@ -164,7 +164,7 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 		$olp = ilObjectLP::getInstance($this->object->getId());
 		if ($olp->isActive())
 		{
-			$lng->loadLanguageModule('trac');
+			$this->lng->loadLanguageModule('trac');
 			$vars["COURSE_USER_MARK"] =  $this->lng->txt('learning_progress'). ' / ' . $this->lng->txt('trac_mark');
 			$vars["COURSE_USER_COMMENT"] = $this->lng->txt('learning_progress') . ' / ' . $this->lng->txt('trac_comment');
 		}
@@ -175,7 +175,7 @@ class ilCourseCertificateAdapter extends ilCertificateAdapter
 			$name = str_replace('[', '(', $field->getName());
 			$name = str_replace(']', ')', $name);
 
-			$vars[$name] = $lng->txt('crs_custom_user_fields');
+			$vars[$name] = $this->lng->txt('crs_custom_user_fields');
 		}
 // fau.
 

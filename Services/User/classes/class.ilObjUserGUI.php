@@ -84,7 +84,7 @@ class ilObjUserGUI extends ilObjectGUI
 			// fim: [studydata] show StudyDataGUI
 			case "ilstudydatagui":
 				include_once './Services/StudyData/classes/class.ilStudyDataGUI.php';
-				$new_gui =& new ilStudyDataGUI($this->object);
+				$new_gui = new ilStudyDataGUI($this->object);
 				$this->ctrl->forwardCommand($new_gui);
 				break;
 			// fim.
@@ -183,7 +183,7 @@ class ilObjUserGUI extends ilObjectGUI
 
 		// fim: [studydata] add studydata tab
 		$this->lng->loadLanguageModule("registration");
-		$tabs_gui->addTarget('study_data',
+		$this->tabs_gui->addTarget('study_data',
 				$this->ctrl->getLinkTargetByClass('ilstudydatagui',''),
 							 '',
 							'ilstudydatagui');
