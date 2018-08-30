@@ -652,7 +652,14 @@ class ilLearningProgressBaseGUI
 		}
 	}
 
+// fau: lmQStat - provide static version of the legend
 	function __getLegendHTML()
+	{
+		return self::__getLegendHTMLStatic();
+	}
+
+	static function __getLegendHTMLStatic()
+// fau.
 	{
 		global $lng;
 		
