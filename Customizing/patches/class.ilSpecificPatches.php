@@ -9,14 +9,10 @@ class ilSpecificPatches
 	 */
 	public function addOnlineHelpToRepository($params = array('obj_id'=>null, 'parent_ref_id'=> null))
 	{
-		if ($help_obj = ilObjectFactory::getInstanceByObjId($params['obj_id']))
-		{
-			if (!$help_obj->getRefId())
-			{
-				$help_obj->createReference();
-			}
-			$help_obj->putInTree($params['parent_ref_id']);
-		}
+		$help_obj = new ilObject();
+		$help_obj->setId($params['obj_id']);
+		$help_obj->createReference();
+		$help_obj->putInTree($params['parent_ref_id']);
 	}
 
     /**

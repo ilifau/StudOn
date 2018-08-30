@@ -8,6 +8,7 @@
 chdir(dirname(__FILE__)."/..");
 include_once("./Customizing/classes/class.ilPatchUtils.php");
 $p = new ilPatchUtils();
+$p->login();
 
 /*******************
  * Studydata actions
@@ -21,7 +22,7 @@ $p = new ilPatchUtils();
 * Specific actions
 ******************/
 
-//$p->applyPatch('ilSpecificPatches.addOnlineHelpToRepository', array('obj_id'=>1372742, 'parent_ref_id'=>23071));
+//$p->applyPatch('ilSpecificPatches.addOnlineHelpToRepository', array('obj_id'=>19093, 'parent_ref_id'=>97));
 //$p->applyPatch('ilSpecificPatches.replacePageTexts', array('parent_id'=>1436623, 'search'=>'131.188.192.86', 'replace'=> '131.188.103.103'));
 //$p->applyPatch('ilSpecificPatches.mergeQuestionPoolsAsTaxonomy', array('containerRefId' => 1187922, 'targetRefId' => 1307954, 'navTax' =>'Thema', 'randomTax' => "Verwendung", 'randomNodes' => array('Übung'=> 0.75, 'Klausur' => 1)));
 //$p->applyPatch('ilSpecificPatches.compareAccountingQuestionResults');
@@ -76,3 +77,5 @@ $p = new ilPatchUtils();
 //$p->applyPatch('ilPermissionPatches51.initInteractiveVideo');
 //$p->applyPatch('ilPermissionPatches51.initCombiSubscription');
 //$p->applyPatch('ilPermissionPatches51.initAdobeConnect');
+
+$p->logout();

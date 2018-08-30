@@ -4,32 +4,43 @@
  */
 class ilPatchUtils
 {
+	protected $cron;
+
 	public function __construct()
 	{
 		// set error reporting
 		error_reporting (E_ALL ^E_STRICT ^E_NOTICE);
 		ini_set("display_errors","on");
 
-
-		include_once "Services/Context/classes/class.ilContext.php";
-		ilContext::init(ilContext::CONTEXT_CRON);
-
-		include_once 'Services/Authentication/classes/class.ilAuthFactory.php';
-		ilAuthFactory::setContext(ilAuthFactory::CONTEXT_CRON);
-
-		$_COOKIE["ilClientId"] = $_SERVER['argv'][3];
-		$_POST['username'] = $_SERVER['argv'][1];
-		$_POST['password'] = $_SERVER['argv'][2];
-
-		if($_SERVER['argc'] < 3)
-		{
-			die("Usage: apply_patches.php username password client\n");
-		}
-
-		require_once("Services/Init/classes/class.ilInitialisation.php");
-		ilInitialisation::initILIAS();
+		include_once './Services/Cron/classes/class.ilCronStartUp.php';
+		$this->cron = new ilCronStartUp($_SERVER['argv'][3], $_SERVER['argv'][1], $_SERVER['argv'][2]);
 	}
 
+	/**
+	 * Login
+	 */
+	public function login()
+	{
+		try {
+			$this->cron->initIlias();
+			$this->cron->authenticate();
+		}
+		catch(Exception $e)
+		{
+			$this->cron->logout();
+
+			echo $e->getMessage()."\n";
+			exit(1);
+		}
+	}
+
+	/**
+	 * Logout
+	 */
+	public function logout()
+	{
+		$this->cron->logout();
+	}
 
 	/**
 	 * Apply a patch given by its function name
