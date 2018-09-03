@@ -331,11 +331,12 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 	public function hasUniqueOriginalQuestions()
 	{
 		$res = $this->db->query("
-				SELECT COUNT(DISTINCT original_id) AS orig_count, COUNT(DISTINCT question_id) AS question_count
-				FROM qpl_questions q
-				WHERE obj_fi = " . $this->db->quote($this->testOBJ->getId(), 'integer')
-		);
-		$row = $this->db->fetchAssoc($res);
+                                SELECT COUNT(DISTINCT original_id) AS orig_count, COUNT(DISTINCT question_id) AS question_count
+                                FROM qpl_questions q
+                                INNER JOIN tst_rnd_cpy c ON c.qst_fi = q.question_id
+                                WHERE q.obj_fi = " . $this->db->quote($this->testOBJ->getId(), 'integer') . "
+                                AND c.tst_fi = ". $this->db->quote($this->testOBJ->getTestId(), 'integer')
+		);		$row = $this->db->fetchAssoc($res);
 
 		return ($row['orig_count'] == $row['question_count']);
 	}
