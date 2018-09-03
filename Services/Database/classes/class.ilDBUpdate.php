@@ -397,7 +397,11 @@ class ilDBUpdate
 
 		//search for desired $nr
 		reset($this->filecontent);
-		
+
+// fau: logSetupTimes - set starttime for step
+		$starttime = time();
+// fau.
+
 		if (!$hotfix && !$custom_update)
 		{
 			$this->setRunningStatus($nr);
@@ -506,7 +510,14 @@ class ilDBUpdate
 			$this->clearRunningStatus();
 		}
 		//$this->currentVersion = $ilias->getSetting("db_version");
-		
+
+// fau: logSetupTimes - log time taken
+		$time_taken = time() - $starttime;
+		$type = ($hotfix ? 'hotfix' : ($custom_update ? 'custom' : 'update'));
+		$entry = $type. ' #'.$nr.' '.$time_taken." sec\n";
+		file_put_contents(CLIENT_DATA_DIR.'/setup.log', $entry, FILE_APPEND);
+// fau.
+
 		return true;
 		
 	}
