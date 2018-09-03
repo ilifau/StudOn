@@ -513,9 +513,9 @@ class ilDBUpdate
 
 // fau: logSetupTimes - log time taken
 		$time_taken = time() - $starttime;
-		$type = ($hotfix ? 'hotfix' : ($custom_update ? 'custom' : 'update'));
-		$entry = $type. ' #'.$nr.' '.$time_taken." sec\n";
-		file_put_contents(CLIENT_DATA_DIR.'/setup.log', $entry, FILE_APPEND);
+		$filename = ($hotfix ? 'hotfix.log' : ($custom_update ? 'custom.log' : 'update.log'));
+		$entry = date("Y-m-d H:i:s") . ' #'.$nr.' '.$time_taken." sec\n";
+		file_put_contents(CLIENT_DATA_DIR. '/'.$filename, $entry, FILE_APPEND);
 // fau.
 
 		return true;
