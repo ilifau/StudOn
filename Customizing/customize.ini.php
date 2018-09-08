@@ -68,10 +68,8 @@ ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to cop
 ilias_root_as_login = "0"               ;use the root folder as login page
 ilias_repository_cat_id = "0"           ;category id to use for the repository link in the menu
 
-local_auth_support = "0"                ;allow local login for support
 local_auth_external = "0"               ;allow local login with external account 
 local_auth_matriculation = "0"          	;allow local login with matriculation number
-local_auth_matriculation_as_username = "0" 	;allow local login with matriculation number as username
 
 lp_refreshes_limit = "0"				;fau: lpRefreshesLimit - limit allowed status refreshes when learning progress is shown
 

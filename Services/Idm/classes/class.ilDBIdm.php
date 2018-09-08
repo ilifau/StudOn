@@ -3,14 +3,12 @@
 
 /* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once ("./Services/Database/classes/class.ilDBInnoDB.php");
-
 /**
 * MySQL Wrapper for a connection to the idm database
 *
 * This class extends the main ILIAS database wrapper ilDB.
 */
-class ilDBIdm extends ilDBInnoDB
+class ilDBIdm extends ilDBPdoMySQLInnoDB
 {
 
 	/** @var  ilDBIdm $instance */
@@ -33,7 +31,6 @@ class ilDBIdm extends ilDBInnoDB
 			if (!isset(self::$instance))
 			{
 				$instance = new ilDBIdm;
-				$instance->setSubType("mysqli");
 
 				$instance->setDBHost(ilCust::get('idm_host'));
 				$instance->setDBPort(ilCust::get('idm_port'));
