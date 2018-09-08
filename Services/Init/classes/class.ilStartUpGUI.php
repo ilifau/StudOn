@@ -428,11 +428,7 @@ class ilStartUpGUI
 
 					session_destroy();				
 
-// fau: loginFailed - get a better message for inactive users
-					global $ilUser;
-					$failure = $lng->txt($ilUser->getInactiveMessageVar())
-							 . $lng->txt("err_inactive_contact");
-// fau.
+					$failure = $lng->txt("time_limit_reached");
 					break;	
 					
 				case AUTH_USER_INACTIVE:
@@ -440,11 +436,7 @@ class ilStartUpGUI
 					$ilAuth->logout();
 					session_destroy();
 					
-// fau: loginFailed - get a better message for inactive users
-					global $ilUser;
-					$failure = $lng->txt($ilUser->getInactiveMessageVar())
-							 . $lng->txt("err_inactive_contact");
-// fau.
+					$failure = $lng->txt("err_inactive");
 					break;
 
 				// special cases end
@@ -452,23 +444,6 @@ class ilStartUpGUI
 				
 				case AUTH_WRONG_LOGIN:					
 				default:
-//fau: loginFailed - get the inactive message also for wrong logins
-// This prevents guessing passwords by checking the failure message.
-// After X failed logins the deactivation message will always come,
-// independent from the correctness of the password.
-//
-// This requires an initialized user account also for wrong passwords
-// see: ilInitialisation::authenticate()
-// see: ilInitialisation::initUserAccount()
-// see: ilObjUser::getLoginFromAuth()
-					global $ilUser;
-					if ($var = $ilUser->getInactiveMessageVar())
-					{
-						$failure = $lng->txt($var) . $lng->txt("err_inactive_contact");
-						break;
-					}
-// fau.
-
 					$add = "";
 					$auth_error = $ilias->getAuthError();
 					if (is_object($auth_error))
@@ -973,7 +948,19 @@ class ilStartUpGUI
 					return $GLOBALS['ilCtrl']->redirect($this, 'showAccountMigration');
 
 				case ilAuthStatus::STATUS_AUTHENTICATION_FAILED:
-					ilUtil::sendFailure($status->getTranslatedReason());
+// fau: loginFailed - add contact and sso message
+					$message = $status->getTranslatedReason();
+					$message .= '<p class="small">'.$this->lng->txt('err_inactive_contact').'</p>';
+					if ($GLOBALS['DIC']['ilSetting']->get("shib_active"))
+					{
+						if (ilObjUser::_checkExternalAuthAccount('shibboleth', $credentials->getUsername()))
+						{
+							$message .= '<p class="small">'.$this->lng->txt('err_inactive_sso').'</p>';
+						}
+					}
+
+					ilUtil::sendFailure($message);
+// fau.
 					return $this->showLoginPage($form);
 			}
 

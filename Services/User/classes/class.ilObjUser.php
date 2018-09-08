@@ -2628,14 +2628,6 @@ class ilObjUser extends ilObject
 		{
 			$login = self::toUsernameWithoutDomain($login);
 		}
-// fau: loginFailed - get also the username of users with wrong password
-// this allows to check the activation status of accounts with wrong password
-// and show a message if their trial limit is exceeded
-		if ($login == '' and $_REQUEST["username"] !== '')
-		{
-			$login = $_REQUEST["username"];
-		}
-// fau.
 		return $login;
 	}
 
@@ -5708,66 +5700,6 @@ class ilObjUser extends ilObject
 	{
 		return (bool)$this->getPref("delete_flag");
 	}
-
-// fau: loginFailed - new function getInactiveMessageVar
-	/**
-	 *  Get the language var for showing an inactive failure message
-	 *
-	 *  @return string	language variable or empty string, is user is active
-	 */
-	public function getInactiveMessageVar()
-	{
-		// user account not found
-		// should not create an inactive message
-		// instead ilStartupGUI::showLogin() will create an err_wrong_login message
-		if (!$this->getId())
-		{
-			return "";
-		}
-
-		// time limit reached (independent from activation status)
-		if (!$this->checkTimeLimit())
-		{
-			return "err_inactive_time_limit";
-		}
-
-		// user is active => no message
-		if ($this->getActive())
-		{
-			return "";
-		}
-
-		// too many wrong logins
-		require_once 'Services/PrivacySecurity/classes/class.ilSecuritySettings.php';
-		$security = ilSecuritySettings::_getInstance();
-
-		if ($security->getLoginMaxAttempts() > 0 and $security->getLoginMaxAttempts() <= $this->getLoginAttempts())
-		{
-			return "err_inactive_wrong_logins";
-		}
-
-		// user has not yet been logged
-		if (!$this->getLastLogin())
-		{
-			return "err_inactive_new";
-		}
-
-		// last login before one year
-		include_once('./Services/Calendar/classes/class.ilDateTime.php');
-		$check = new ilDateTime(time(),IL_CAL_UNIX);
-		$check->increment(IL_CAL_YEAR, -1);
-		$last = new ilDateTime($this->getLastLogin(),IL_CAL_DATETIME);
-
-		if (ilDate::_before($last, $check))
-		{
-			return "err_inactive_too_long";
-		}
-
-		// user has been set to inactive for any other reason
-		return "err_inactive_set";
-	}
-// fau.
-
 
 	/**
 	 * @param bool $status

@@ -136,10 +136,11 @@ common#:#dummy_user_email_mycampus#:#noreply@fim.uni-erlangen.de
 common#:#dummy_user_firstname_mycampus#:#mein campus
 common#:#dummy_user_lastname_mycampus#:#Course registration
 common#:#duration#:#Duration
-common#:#err_inactive_contact#:#<br/>Please contact <a href="mailto:studon@fau.de">studon@fau.de</a> to get your account activated.
+common#:#err_inactive_contact#:#Please contact <a href="mailto:studon@fau.de">studon@fau.de</a> to get your account activated.
+common#:#err_inactive_sso#:#If your FAU account is active, please try to login via <a href="saml_login.php">Single Sign-On</a>, to reactivate your StudOn account.
 common#:#err_inactive_new#:#Your account is not yet active.
 common#:#err_inactive_set#:#Your account is deactivated.
-common#:#err_inactive_time_limit#:#The time limit of your account is exceeded.
+common#:#err_inactive_time_limit#:#The time limit of your account is exceeded or not yet active.
 common#:#err_inactive_too_long#:#Your account hasn't been used for over one year and is deactivated.
 common#:#err_inactive_wrong_logins#:#Your account had too many failed login attempts and was deactivated.
 common#:#eval_mark_for_evaluation#:#Mark for lecture evaluation

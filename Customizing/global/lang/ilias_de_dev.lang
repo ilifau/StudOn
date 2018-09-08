@@ -134,10 +134,11 @@ common#:#docorder_err_wrong_request#:#Diese Anfrage wurde nicht erkannt!
 common#:#dummy_user_firstname_mycampus#:#mein campus
 common#:#dummy_user_lastname_mycampus#:#Kursanmeldung
 common#:#duration#:#Dauer
-common#:#err_inactive_contact#:#<br/>Bitte wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a>, um das Benutzerkonto aktivieren zu lassen.
+common#:#err_inactive_contact#:#Bitte wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a>, um das Benutzerkonto aktivieren zu lassen.
+common#:#err_inactive_sso#:#Wenn Ihr FAU-Benutzerakonto aktiv ist, können Sie auch das Login per <a href="saml_login.php">Single Sign-On</a> verwenden, um Ihr StudOn-Benutzerkonto wieder zu aktivieren.
 common#:#err_inactive_new#:#Das Benutzerkonto wurde noch nicht aktiviert.
 common#:#err_inactive_set#:#Das Benutzerkonto wurde deaktiviert.
-common#:#err_inactive_time_limit#:#Ihr zeitlich befristeter Zugang ist abgelaufen.
+common#:#err_inactive_time_limit#:#Ihr zeitlich befristeter Zugang ist abgelaufen oder noch nicht aktiv.
 common#:#err_inactive_too_long#:#Das Benutzerkonto wurde länger als ein Jahr nicht mehr verwendet und daher deaktiviert.
 common#:#err_inactive_wrong_logins#:#Das Benutzerkonto wurde wegen zu vieler Fehlversuche deaktiviert.
 common#:#eval_mark_for_evaluation#:#Zur Lehrevaluation vorsehen

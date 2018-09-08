@@ -250,7 +250,9 @@ class ilAuthFrontend
 			$this->getLogger()->info('Authentication failed for inactive user with id and too may login attempts: ' . $this->getStatus()->getAuthenticatedUserId());
 			$this->getStatus()->setStatus(ilAuthStatus::STATUS_AUTHENTICATION_FAILED);
 			$this->getStatus()->setAuthenticatedUserId(0);
-			$this->getStatus()->setReason('err_inactive_login_attempts');
+// fau: loginFailed - use same message for exceeded login attempts as with wrong password (security)
+			$this->getStatus()->setReason('auth_err_login_attempts_deactivation');
+// fau.
 			return false;
 		}
 
@@ -259,7 +261,24 @@ class ilAuthFrontend
 			$this->getLogger()->info('Authentication failed for inactive user with id: ' . $this->getStatus()->getAuthenticatedUserId());
 			$this->getStatus()->setStatus(ilAuthStatus::STATUS_AUTHENTICATION_FAILED);
 			$this->getStatus()->setAuthenticatedUserId(0);
-			$this->getStatus()->setReason('err_inactive');
+
+// fau: loginFailed - get separate reason when login is deactivated due to long inactive time
+			$check = new ilDateTime(time(),IL_CAL_UNIX);
+			$check->increment(IL_CAL_YEAR, -1);
+			$last = new ilDateTime($user->getLastLogin(),IL_CAL_DATETIME);
+			if (ilDate::_before($last, $check))
+			{
+				$this->getStatus()->setReason('err_inactive_too_long');
+			}
+			elseif (!$user->getLastLogin())
+			{
+				$this->getStatus()->setReason('err_inactive_new');
+			}
+			else
+			{
+				$this->getStatus()->setReason('err_inactive_set');
+			}
+// fau.
 			return false;
 		}
 		
@@ -279,7 +298,9 @@ class ilAuthFrontend
 				$this->getStatus()->setStatus(ilAuthStatus::STATUS_AUTHENTICATION_FAILED);
 				$this->getStatus()->setAuthenticatedUserId(0);
 			}
-			$this->getStatus()->setReason('time_limit_reached');
+// fau: loginFailed - get a better time limit message
+			$this->getStatus()->setReason('err_inactive_time_limit');
+// fau.
 			return false;
 		}
 		

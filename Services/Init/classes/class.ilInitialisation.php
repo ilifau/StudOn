@@ -1415,7 +1415,8 @@ class ilInitialisation
 				and (!$ilUser->isCurrentUserActive() or !$ilUser->checkTimeLimit())
 				and ($ilUser->getAuthMode() == "shibboleth" or $is_local_student))
 			{
-				$msg = $ilUser->getInactiveMessageVar();
+				// removed
+				//$msg = $ilUser->getInactiveMessageVar();
 
 		        $ilAuth->setAuth('anonymous');
 	        	ilSession::set("AccountId", ANONYMOUS_USER_ID);
