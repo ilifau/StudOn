@@ -631,7 +631,7 @@ class ilObjExercise extends ilObject
 		$excel->setCell($row, $col++, $this->lng->txt("exc_total_exc"));
 		$excel->setCell($row, $col++, $this->lng->txt("exc_mark"));
 		$excel->setCell($row++, $col, $this->lng->txt("exc_comment_for_learner"));
-		$excel->setBold("A1:".$excel->getColumnCoord($col_cnt)."1");
+		$excel->setBold("A1:".$excel->getColumnCoord($col)."1");
 		// fim.
 		
 		// data rows
@@ -659,7 +659,7 @@ class ilObjExercise extends ilObject
 			$col = 0;
 
 			// login
-			$excel->setCell($row, $col++ $d["login"]);
+			$excel->setCell($row, $col++, $d["login"]);
 			// name
 			$excel->setCell($row, $col++, $d["lastname"].", ".$d["firstname"]." [".$d["login"]."]");
 			// matriculation
@@ -720,7 +720,7 @@ class ilObjExercise extends ilObject
 
 			// fim: [exercise] add extra fields to row
 			// login
-			$excel->setCell($row, $col++ $d["login"]);
+			$excel->setCell($row, $col++, $d["login"]);
 			// name
 			$d = ilObjUser::_lookupName($user_id);
 			$excel->setCell($row, $col++, $d["lastname"].", ".$d["firstname"]." [".$d["login"]."]");
