@@ -709,15 +709,10 @@ class ilInitialisation
 		}
 	}
 
-// fau: ssoCheck - add parameter to indicate a successful authentication
-// 					This allows to init accounts for users that are not successfully authentified
-//					e.g. to show a better better message based on their activation status
 	/**
 	 * Init user with current account id
-	 *
-	 * @param	bool	$a_authentified 	The user is already authentified
 	 */
-	public static function initUserAccount($a_authentified = true)
+	public static function initUserAccount()
 	{
 		/**
 		 * @var $ilUser ilObjUser
@@ -734,7 +729,7 @@ class ilInitialisation
 			include_once './Services/Logging/classes/public/class.ilLoggerFactory.php';
 			ilLoggerFactory::getInstance()->initUser($ilUser->getLogin());
 		}
-		elseif ($a_authentified)
+		else
 		{
 			if(is_object($GLOBALS['ilLog']))
 			{
@@ -743,7 +738,6 @@ class ilInitialisation
 			self::abortAndDie("Init user account failed");
 		}
 	}
-// fau.
 
 // fau: customSettings - new function initCust()
 	/**
@@ -1333,20 +1327,12 @@ class ilInitialisation
 
 		if($ilAuth->getAuth() && $ilAuth->getStatus() == '')
 		{
-// fau: ssoCheck - init user and check auth mode for successful authentication
-			self::initUserAccount(true);
-			self::checkStudOnAuthMode(true);
-// fau.
+			self::initUserAccount();
 			
 			self::handleAuthenticationSuccess();
 		}			
 		else 
 		{
-// fau: ssoCheck - init user and check auth mode for failed authentication
-			self::initUserAccount(false);
-			self::checkStudOnAuthMode(false);
-// fau.
-
 			if (!self::showingLoginForm($current_script))
 			{								
 				// :TODO: should be moved to context?!
@@ -1365,90 +1351,6 @@ class ilInitialisation
 			}		
 		}					
 	}
-
-// fau: ssoCheck - new function checkStudOnAuthMode
-	/**
-	* Check the authentication mode of the current user account
-	* and redirect to the conversion or info screen
-	*
-	* called for local authentication from self::authenticate()
-	* called for saml authentication from ilSimpleSamlAuthStudOn::login()
-	*
-	* This function should always have an initialized ilUser available
-	*
-	* @access 	static
-	* @param    bool	$a_authentified		successful authentication
-	* @param    int     $a_auth_mode		(default: current auth mode)
-	*/
-	static function checkStudOnAuthMode($a_authentified, $a_auth_mode = AUTH_CURRENT)
-	{
-	    global $ilAuth, $ilUser;
-
-		// no check of the authentication mode needed
-		if ($_SESSION["SHIBBOLETH_CONVERSION"]
-			or $a_auth_mode == 0
-			or $ilUser->getId() == ANONYMOUS_USER_ID
-			or !ilCust::get('shib_check_auth_mode'))
-		{
-	        return;
-		}
-
-		// base link to the shibboleth related pages
-		$link = "ilias.php?baseClass=ilStartUpGUI&cmdclass=ilstartupgui";
-		if ($_GET["target"])
-		{
-	        $link .= "&target=" . $_GET["target"];
-		}
-
-		// criterion for local students
-		if ($ilUser->getMatriculation() != ''
-			and strpos($ilUser->getMatriculation(),'X') ===  false
-			and strpos($ilUser->getLogin(), ".") === false)
-		{
-	        $is_local_student = true;
-	    }
-
-	    if (!$a_authentified)
-	    {
-			// inactive users with possibility to use SSO
-			if ($a_auth_mode == AUTH_LOCAL
-				and (!$ilUser->isCurrentUserActive() or !$ilUser->checkTimeLimit())
-				and ($ilUser->getAuthMode() == "shibboleth" or $is_local_student))
-			{
-				// removed
-				//$msg = $ilUser->getInactiveMessageVar();
-
-		        $ilAuth->setAuth('anonymous');
-	        	ilSession::set("AccountId", ANONYMOUS_USER_ID);
-
-	 			ilUtil::redirect($link."&cmd=shibInactiveMessage&msg=".$msg);
-			}
-	    }
-	    elseif (ilContext::getType() == ilContext::CONTEXT_WEB)
-	    {
-			// local login of shibboleth users
-			if ($a_auth_mode == AUTH_LOCAL
-				    and $ilUser->getAuthMode() == "shibboleth")
-			{
-				ilUtil::redirect($link."&cmd=shibReminder");
-			}
-			// local login of local students
-			elseif ($a_auth_mode == AUTH_LOCAL
-					and $is_local_student)
-			{
-				ilUtil::redirect($link."&cmd=shibRecommendation");
-			}
-
-			// shibboleth login of non converted users
-			elseif ($a_auth_mode == AUTH_SHIBBOLETH
-					and $ilUser->getAuthMode() != "shibboleth")
-			{
-				ilUtil::redirect($link."&cmd=shibConversion");
-	        }
-	    }
-	}
-// fau.
-
 
 	/**
 	 * @static
