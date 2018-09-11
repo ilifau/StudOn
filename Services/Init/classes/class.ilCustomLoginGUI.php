@@ -59,7 +59,7 @@ class ilCustomLoginGUI
 		global $ilSetting, $lng;
 
 		// prepare the shibboleth link
-		$shib_link = 'saml_login.php';
+		$shib_link = 'saml.php';
 		if ($_GET["login_target"])
 		{
 			$shib_link .= "?target=" . $_GET["login_target"];

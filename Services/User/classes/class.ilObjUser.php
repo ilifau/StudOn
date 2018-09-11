@@ -706,7 +706,7 @@ class ilObjUser extends ilObject
 	}
 
 // fau: samlAuth - new function _findLoginByField
-	function _findLoginByField($fieldname, $value)
+	static function _findLoginByField($fieldname, $value)
 	{
 		global $ilDB;
 

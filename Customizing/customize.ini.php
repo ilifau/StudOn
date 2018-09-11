@@ -117,7 +117,6 @@ tex_cache = "1"							;reuse previously generated images
 shib_allow_create = "1"                 ;allow the creation of user accounts by shibboleth
 shib_create_limited = ""				;time limit for shib created accounts, e.g. 2015-10-01
 shib_log_accounts = ""                  ;comma separated list of accounts for which a shibboleth login should be logged
-shib_check_auth_mode = 0                ;check the authentication mode and show reminders
 shib_login_help_url = ""				;link to a help page for the shibboleth login
 shib_devmode_identity = ""              ;force an identity at shibboleth authentication in devmode (to fetch idm data)
 shib_devmode_login = ""                 ;force a login at shibboleth authentication in devmode (to get a studon user)

@@ -612,10 +612,11 @@ class ilUserProfile
 							$ti->setDisabled($ilSetting->get("usr_settings_disable_".$f));
 						}
 
-// fau: samlAuth - disable changing firstname and lastname if sso is standard
-						if ($f == 'firstname' or $f == 'lastname')
+// fau: samlAuth - disable also changing firstname and lastname if password modification is not allowed
+						if ($f == 'firstname' || $f == 'lastname')
 						{
-							if ($a_user and $a_user->getAuthMode(true) == AUTH_SHIBBOLETH)
+							/** @var ilObjUser $a_user */
+							if (isset($a_user) && !ilAuthUtils::isPasswordModificationEnabled($a_user->getAuthMode()))
 							{
 								$ti->setDisabled(true);
 								$ti->setInfo($lng->txt('shib_updated_field'));

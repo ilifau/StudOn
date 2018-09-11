@@ -356,7 +356,6 @@ class ilUserUtil
 
 
 // fau: samlAuth - get the logout link dependent from authentication
-
 	/**
 	 * Get the logout link
 	 * for simpleSAML authentified users this will return a single log out link
@@ -365,16 +364,15 @@ class ilUserUtil
 	 */
 	public static function _getLogoutLink($a_mode = 'auto')
 	{
-		global $ilUser;
+		global $DIC;
 
-		// the saml_logout_url is stored by ilSimpleSamlAuthStudOn::login()
-		if ($_SESSION['saml_logout_url'] and $a_mode != 'local')
+		if(ilSession::get('used_external_auth'))
 		{
-			return $_SESSION['saml_logout_url'];
+			return 'saml.php?action=logout&logout_url=' . urlencode(ILIAS_HTTP_PATH . '/index.php');
 		}
 		else
 		{
-			return ILIAS_HTTP_PATH."/logout.php?lang=".$ilUser->getCurrentLanguage();
+			return ILIAS_HTTP_PATH."/logout.php?lang=".$DIC->user()->getCurrentLanguage();
 		}
 	}
 // fau.
