@@ -167,13 +167,13 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 		include_once('./Services/Calendar/classes/class.ilDateTime.php');
 		$now = new ilDateTime(time(),IL_CAL_UNIX,'UTC');
 
-		// fim: [campus] no registration period for subscription by my campus
+// fau: campusSub - no registration period for subscription by my campus
 		if ($this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
 			or $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
 		{
 			return true;
 		}
-		// fim.
+// fau.
 
 // fau: objectSub - no registration period for subscription by object
 		if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT)
@@ -271,14 +271,14 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 	protected function fillMaxMembers()
 	{
 		global $ilUser;
-		
-		// fim: [campus] no membership info for subscription by my campus
+
+// fau: campusSub - no membership info for subscription by my campus
 		if ($this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
 			or $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
 		{
 			return true;
 		}
-		// fim.
+// fau.
 
 // fau: objectSub - no max members for subscription by object
 		if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT)
@@ -411,7 +411,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 	{
 		global $ilUser;
 
-		// fim: [campus] handle subscription by my campus
+// fau: campusSub - handle subscription by my campus
 		if($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
 			or $this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
 		{
@@ -427,7 +427,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 			$this->enableRegistration(false);
 			return true;
 		}
-		// fim.
+// fau.
 
 // fau: objectSub - fill registration by separate object
 		if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT)

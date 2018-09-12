@@ -1,13 +1,10 @@
 <?php
+// fau: campusGrades - new class ilTestMyCampusTools.
+
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [exam] Tools for my campus export of test results.
-*
-* @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
-* @version $Id$
-*
-* @ingroup ModulesTest
+* Tools for my campus export of test results.
 */
 class ilTestMyCampusTools
 {

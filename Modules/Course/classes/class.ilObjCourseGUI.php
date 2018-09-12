@@ -495,11 +495,11 @@ class ilObjCourseGUI extends ilContainerGUI
 				$txt = $this->lng->txt("crs_info_reg_deactivated");
 				break;
 
-			// fim: [campus] show subscription type mycampus
+// fau: campusSub - show subscription type mycampus
 			case IL_CRS_SUBSCRIPTION_MYCAMPUS:
 				$txt = $this->lng->txt("crs_subscription_mycampus");
 				break;
-			// fim.
+// fau.
 
 			default:
 // fau: objectSub - add info about subscription in separate object
@@ -563,10 +563,10 @@ class ilObjCourseGUI extends ilContainerGUI
 		$info->addProperty($this->lng->txt("crs_info_reg"),$subscription_text.$txt);
 		// fim.
 
-// fim: [campus] don't show subscription period for mycampus
+// fau: campusSub - don't show subscription period for mycampus
 		if($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED
 			&& $this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_MYCAMPUS)
-// fim.
+// fau.
 		{
 			if($this->object->getSubscriptionUnlimitedStatus())
 			{
@@ -1088,14 +1088,14 @@ class ilObjCourseGUI extends ilContainerGUI
 		$sub_period = $form->getItemByPostVar('subscription_period');
 		
 		$this->object->setSubscriptionType($sub_type);
-		// fim: [campus] set subscription by my campus
+// fau: campusSub - set subscription by my campus
 		if ($sub_type == IL_CRS_SUBSCRIPTION_MYCAMPUS)
 		{
 			$this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_MYCAMPUS);  // see ilObjCourse::__createDefaultSettings()
 			$this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_MYCAMPUS);
 		}
 		elseif($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED)
-		// fim.
+// fau.
 		{
 			if($sub_period->getStart() && $sub_period->getEnd())
 			{
@@ -1529,7 +1529,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		$form->addItem($section);
 		
 		$reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'),'subscription_type');
-		// fim: [campus] respect also the subscription limitation type for my campus
+// fau: campusSub - respect also the subscription limitation type for my campus
 		// this us used in studon versions up to 4.3
 		if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS)
 		{
@@ -1542,10 +1542,10 @@ class ilObjCourseGUI extends ilContainerGUI
 					? $this->object->getSubscriptionType()
 					: IL_CRS_SUBSCRIPTION_DEACTIVATED);
 		}
-		// fim.
+// fau.
 		// $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
-		// fim: [campus] add option for my campus subscription
+// fau: campusSub - add option for my campus subscription
 
 		if (ilCust::get('mycampus_enabled'))
 		{
@@ -1558,7 +1558,7 @@ class ilObjCourseGUI extends ilContainerGUI
 			$opt->setInfo($this->lng->txt('crs_subscription_mycampus_info'));
 			$reg_proc->addOption($opt);
 		}
-		// fim.
+// fau.
 
 // fau: objectSub - add option for reference to subscription object
 		require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
@@ -2465,92 +2465,6 @@ class ilObjCourseGUI extends ilContainerGUI
 		}
 	}
 
-	// fim: [campus] new function syncMyCampusObject()
-	public function syncMyCampusObject()
-	{
-		global $lng, $ilSetting;
-
-		require_once('Services/MyCampus/classes/class.ilMyCampusClient.php');
-		require_once('Services/User/classes/class.ilUserUtil.php');
-		require_once('Services/UnivIS/classes/class.ilUnivis.php');
-
-		$ids = array(ilUnivis::_getUnivisIdForObjectId($this->object->getId()));
-		$ids = array_merge($ids, ilUnivis::_getAdditionalUnivisIdsForObjectId($this->object->getId()));
-
-		$campus = ilMyCampusClient::_getInstance();
-		if ($campus->login() === false)
-		{
-			ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_connect'));
-			return $this->membersObject();
-		}
-
-		$participants = array();
-		foreach ($ids as $univis_id)
-		{
-			$result = $campus->getParticipants($univis_id);
-			if (!is_array($result))
-			{
-				ilUtil::sendFailure($this->lng->txt('crs_sync_my_campus_failure_participants'));
-				return $this->membersObject();
-			}
-
-			$participants = array_merge($participants, $result);
-		}
-
-		if (!count($participants))
-		{
-			ilUtil::sendInfo($this->lng->txt('crs_sync_my_campus_empty'));
-			return $this->membersObject();
-		}
-
-		include_once "./Modules/Course/classes/class.ilCourseParticipants.php";
-		$members_obj = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
-
-		$added = array();
-		$waiting = array();
-		foreach ($participants as $part)
-		{
-			$identity = $part[1];
-
-			if ($part[2] == "SUBSCRIBED")
-			{
-				$user_id = ilObjUser::_findUserIdByAccount($identity);
-				if (!$user_id)
-				{
-					$user_id = ilUserUtil::_createDummyAccount(
-						$identity,
-						$lng->txt('dummy_user_firstname_mycampus'),
-						$lng->txt('dummy_user_lastname_mycampus'),
-						$ilSetting->get('mail_external_sender_noreply'));
-				}
-				if (!$members_obj->isAssigned($user_id))
-				{
-					$members_obj->add($user_id,IL_CRS_MEMBER);
-					$added[] = $identity;
-				}
-			}
-			elseif ($part[2] == "WAITINGLIST")
-			{
-				$waiting[] = $identity;
-			}
-		}
-		if (count($added))
-		{
-			ilUtil::sendSuccess(sprintf($this->lng->txt('crs_sync_my_campus_added'), implode(', ', $added)));
-		}
-		else
-		{
-			ilUtil::sendSuccess($this->lng->txt('crs_sync_my_campus_ok'));
-		}
-
-		if (count($waiting))
-		{
-			ilUtil::sendInfo(sprintf($this->lng->txt('crs_sync_my_campus_waiting'), implode(', ', $waiting)));
-		}
-		return $this->membersObject();
-	}
-	// fim.
-
 
 	function autoFillObject()
 	{
@@ -2846,7 +2760,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		if ($ilAccess->checkAccess('join','', $this->ref_id))
 		{
 			// no specific command: initial join
-			$tabs_gui->addTab('join',
+			$this->tabs_gui->addTab('join',
 				$this->lng->txt('join'),
 				$this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "show")
 			);
@@ -2854,7 +2768,7 @@ class ilObjCourseGUI extends ilContainerGUI
 		elseif ($ilAccess->checkAccess('join','leave', $this->ref_id))
 		{
 			// leave command: edit membership request
-			$tabs_gui->addTab('join',
+			$this->tabs_gui->addTab('join',
 				$this->lng->txt('mem_edit_request'),
 				$this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leave")
 			);

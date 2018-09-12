@@ -1,12 +1,11 @@
 <?php
+// fau: campusSub - new class ilMyCampusSynchronisation.
+
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /** 
-* fim: [campus] class to synchronizes course and group registrations from my campus.
+* Class to synchronizes course and group registrations from my campus.
 * Adds dummy accounts for non-existing users identified by their matriculation
-* 
-* @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
-* @version $Id$
 */
 class ilMyCampusSynchronisation
 {

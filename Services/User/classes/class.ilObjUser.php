@@ -731,7 +731,7 @@ class ilObjUser extends ilObject
 	* @param  	string  account name
 	* @return   int     user id
 	*/
-	function _findUserIdByAccount($account)
+	static function _findUserIdByAccount($account)
 	{
 		global $ilDB;
 

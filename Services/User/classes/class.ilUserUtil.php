@@ -257,9 +257,9 @@ class ilUserUtil
 	// fim.
 
 
-
+// fau: campusSub - new function _createDummyAccount
 	/**
-	* fim: [campus] create a dummy account for course registration
+	* Create a dummy account for course registration
 	*
 	* Account is created as inactive user user role
 	* Final user data will be set when user logs in by SSO
@@ -315,15 +315,16 @@ class ilUserUtil
 		// return the user id
 		return $userObj->getId();
 	}
-	// fim.
+// fau.
 
-
+// fau: campusSub - new function _setNewLogin
 	/**
-	 * fim: [campus] set a new login for a user
+	 * Set a new login for a user
 	 *
 	 * @param	integer		usr_id
 	 * @param	string		new login
 	 * @param	string		new external account
+	 * @return bool
 	 */
 	static function _setNewLogin($a_usr_id, $a_new_login, $a_new_external_account = null)
 	{
@@ -352,7 +353,7 @@ class ilUserUtil
 
         return true;
 	}
-	// fim.
+// fau.
 
 
 // fau: samlAuth - get the logout link dependent from authentication

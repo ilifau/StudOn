@@ -1,16 +1,14 @@
 <?php
+// fau: campusGrades - new class ilTestMyCampusGUI.
+
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 include_once "./Modules/Test/classes/class.ilTestServiceGUI.php";
 include_once "./Modules/Test/classes/class.ilTestMyCampusTools.php";
 
 /**
-* fim: [exam] Class for my campus export of test results.
+* Class for my campus export of test results.
 *
-* @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
-* @version $Id$
-*
-* @ingroup ModulesTest
 * @ilCtrl_isCalledBy ilTestMyCampusGUI: ilObjTestGUI
 * @extends ilTestServiceGUI
 */

@@ -437,10 +437,10 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 
 		switch($type)
 		{
-			// fim: [campus] set registration enabled if type is mycampus
+// fau: campusSub - set registration enabled if type is mycampus
 			case IL_CRS_SUBSCRIPTION_MYCAMPUS:
 				return true;
-			// fim.
+// fau.
 
 			case IL_CRS_SUBSCRIPTION_UNLIMITED:
 				return true;

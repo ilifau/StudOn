@@ -138,7 +138,7 @@ class ilCronCheck
 				'ilCronValidator::check'
 		);
 
-        // fim: [campus] synchronize course registrations from mein campus
+// fau: campusSub - synchronize course registrations from mein campus
 
 		$this->possible_tasks = array(
 
@@ -148,7 +148,7 @@ class ilCronCheck
 				'location'		=> 'Services/MyCampus',
 				'condition'		=> ilCust::get('mycampus_sync_enabled')
 			),
-		// fim.
+// fau.
 
 			// Start System Check
 				'ilCronValidator::check' => array(

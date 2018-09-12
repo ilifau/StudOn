@@ -90,22 +90,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
 	 	$this->setDefaultOrderField('sub_time');
 // fau.
 
-// fau: fairSub - adjust waiting list commands
-		if ($a_parent_obj->object->getType() == 'sess')
-		{
-			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('assign'));
-			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
-			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
-		}
-		else
-		{
-			$this->addMultiCommand('confirmAcceptOnList',$this->lng->txt('sub_confirm_requests'));
-			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('sub_assign_waiting'));
-			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
-			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
-		}
-// fau.
-
 		$this->setPrefix('waiting');
 		$this->setSelectAllCheckbox('waiting');
 		$this->setRowTemplate("tpl.show_waiting_list_row.html","Services/Membership");
@@ -130,8 +114,72 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		
 		include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
 		self::$has_odf_definitions = ilCourseDefinedFieldDefinition::_hasFields($this->getRepositoryObject()->getId());
-		
+
+// fau: fairSub - adjust waiting list commands
+		if ($this->getRepositoryObject()->getType() == 'sess')
+		{
+			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('assign'));
+			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
+			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
+		}
+		else
+		{
+			$this->addMultiCommand('confirmAcceptOnList',$this->lng->txt('sub_confirm_requests'));
+			$this->addMultiCommand('confirmAssignFromWaitingList',$this->lng->txt('sub_assign_waiting'));
+			$this->addMultiCommand('confirmRefuseFromList',$this->lng->txt('sub_remove_waiting'));
+			$this->addMultiCommand('sendMailToSelectedUsers',$this->lng->txt('crs_mem_send_mail'));
+		}
+
+		$this->addToDos();
+// fau.
 	}
+
+
+// fau: fair sub - new function addToDos
+	/**
+	 * add messages and fill button to admin
+	 */
+	protected function addToDos()
+	{
+		switch ($this->getRepositoryObject()->getType())
+		{
+			case "crs":
+				/** @var ilObjCourse $object */
+				$object =  $this->getRepositoryObject();
+				$max = $object->getSubscriptionMaxMembers();
+				$members = ilCourseParticipants::lookupNumberOfMembers($object->getRefId());
+				$limited = $object->isSubscriptionMembershipLimited();
+				break;
+
+			case 'grp':
+				/** @var ilObjGroup $object */
+				$object =  $this->getRepositoryObject();
+				$max = $object->getMaxMembers();
+				$members = ilGroupParticipants::lookupNumberOfMembers($object->getRefId());
+				$limited = $object->isMembershipLimited();
+				break;
+
+			default:
+				return;
+		}
+
+		$todo_messages = array();
+		if ($this->getWaitingList()->getCountToConfirm() > 0)
+		{
+			$todo_messages[] = $this->lng->txt('sub_to_confirm_message');
+		}
+
+		// check if places are free and can be filled (fair time is over)
+		if (!$object->inSubscriptionFairTime() &&
+			(!$limited || empty($max) || $max > $members))
+		{
+			$todo_messages[] = $this->lng->txt('sub_to_fill_message');
+			$this->addCommandButton('confirmFillFreePlaces', $this->lng->txt('sub_fill_free_places'));
+		}
+
+		ilUtil::sendInfo(implode('<br />', $todo_messages));
+	}
+// fau.
 
 	/**
 	 * @return \ilWaitingList
@@ -259,7 +307,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
 // fau: fairSub - show date of registrations in fair time
 		$time = ilDatePresentation::formatDate(new ilDateTime($a_set['sub_time'],IL_CAL_UNIX));
-		if ($a_set['sub_time'] == $this->getParentObject()->object->getSubscriptionFair())
+		if ($a_set['sub_time'] == $this->getRepositoryObject()->getSubscriptionFair())
 		{
 			$time = '<em>'.sprintf($this->lng->txt('sub_fair_time_before'), $time).'</em>';
 		}

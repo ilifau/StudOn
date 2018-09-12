@@ -28,13 +28,13 @@ class ilTestExportGUI extends ilExportGUI
 		$this->addFormat('xmlres', $a_parent_gui->lng->txt('ass_create_export_file_with_results'), $this, 'createTestExportWithResults');
 		$this->addFormat('csv', $a_parent_gui->lng->txt('ass_create_export_test_results'), $this, 'createTestResultsExport');
 
-        // fim: [exam] Button to export test results for my campus
+// fau: campusGrades - button to export test results for my campus
 
         if (ilCust::get('tst_export_mycampus'))
         {
             $this->addFormat('prf', $a_parent_gui->lng->txt('ass_create_export_mycampus'), $this, 'createTestResultsMyCampus');
         }
-        // fim.
+// fau.
 
 
 		$pl_names = $ilPluginAdmin->getActivePluginsForSlot(IL_COMP_MODULE, 'Test', 'texp');
@@ -103,13 +103,13 @@ class ilTestExportGUI extends ilExportGUI
 		$ilCtrl->redirectByClass('iltestexportgui');
 	}
 
-	// fim: [campus] create test results for my campus
+// fau: campusGrades - create test results for my campus
 	public function createTestResultsMyCampus()
 	{
 		global $ilCtrl;
 		$ilCtrl->redirectByClass("iltestmycampusgui");
 	}
-	// fim.
+// fau.
 
 	function createTestArchiveExport()
 	{
@@ -213,9 +213,9 @@ class ilTestExportGUI extends ilExportGUI
 				array_push($data, array(
 					'file'      => $exp_file,
 					'size'      => filesize($export_dir . "/" . $exp_file),
-                    // fim: [campus] support export files with other naming scheme
+// fau: campusGrades - support export files with other naming scheme
 					'timestamp' => filemtime($export_dir . "/" . $exp_file)
-                    // fim.
+// fau.
 				));
 			}
 		}

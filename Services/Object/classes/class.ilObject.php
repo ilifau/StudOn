@@ -1014,7 +1014,7 @@ class ilObject
 	* @param	int		$a_object_id		object id
 	* @return	string	id                  import_id
 	*/
-	function _getImportIdForObjectId($a_obj_id)
+	public static function _getImportIdForObjectId($a_obj_id)
 	{
 		global $ilDB;
 

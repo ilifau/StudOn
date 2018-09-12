@@ -1312,6 +1312,7 @@ class ilMembershipGUI
 	 */
 	protected function parseWaitingListTable()
 	{
+		/** @var ilWaitingList $wait */
 		$wait = $this->initWaitingList();
 		
 		$wait_users = $this->filterUserIdsByRbacOrPositionOfCurrentUser($wait->getUserIds());
@@ -1330,7 +1331,175 @@ class ilMembershipGUI
 		
 		return $waiting_table;
 	}
-	
+
+// fau: fairSub - new function confirmAcceptOnListObject()
+	/**
+	 * Confirm to accept subscription requests on the waiting list
+	 */
+	public function confirmAcceptOnList()
+	{
+		if (!empty($_GET['member_id']))
+		{
+			$_POST["waiting"] = array($_GET['member_id']);
+		}
+
+		/** @var ilWaitingList $wait */
+		$wait = $this->initWaitingList();
+
+		$requests = array();
+		foreach ((array) $_POST["waiting"] as $user_id)
+		{
+			if ($wait->isToConfirm($user_id))
+			{
+				$requests[] = (int) $user_id;
+			}
+		}
+
+		if(empty($requests))
+		{
+			ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
+			$this->ctrl->redirect($this, 'participants');
+		}
+
+		$c_gui = new ilConfirmationGUI();
+
+		// set confirm/cancel commands
+		$c_gui->setFormAction($this->ctrl->getFormAction($this, "acceptOnList"));
+		$c_gui->setHeaderText($this->lng->txt("sub_confirm_request_question"));
+		$c_gui->setCancel($this->lng->txt("cancel"), "participants");
+		$c_gui->setConfirm($this->lng->txt("confirm"), "acceptOnList");
+
+		foreach($requests as $waiting)
+		{
+			$name = ilObjUser::_lookupName($waiting);
+
+			$c_gui->addItem('waiting[]',
+				$name['user_id'],
+				$name['lastname'].', '.$name['firstname'].' ['.$name['login'].']',
+				ilUtil::getImagePath('icon_usr.svg'));
+		}
+
+		$this->tpl->setContent($c_gui->getHTML());
+	}
+// fau.
+
+
+// fau: fairSub - accept subscription request on the waiting list
+	/**
+	 * Accept subscription request(s) on the waiting list
+	 * try to fill free places with these users
+	 */
+	public function acceptOnList()
+	{
+		if(!count($_POST['waiting']))
+		{
+			ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
+			$this->ctrl->redirect($this, 'participants');
+			return false;
+		}
+
+		// accept users, but keep them on the waiting list
+		/** @var ilWaitingList $waiting_list */
+		$waiting_list = $this->initWaitingList();
+		$accepted = array();
+		foreach($_POST["waiting"] as $user_id)
+		{
+			$waiting_list->acceptOnList($user_id);
+			$accepted[] = $user_id;
+
+		}
+
+		// try to fill free places free places from the waiting list
+		// call it with 'manual' mode to suppress the sending of admin notifications
+		$added = array();
+		if ($this instanceof ilCourseMembershipGUI)
+		{
+			/** @var ilObjCourse $course */
+			$course = $this->getParentObject();
+			if ($course->isSubscriptionMembershipLimited() && $course->hasWaitingListAutoFill()
+				&& (empty($course->getCancellationEnd()) || $course->getCancellationEnd() > time()))
+			{
+				$added = $course->handleAutoFill(true);
+			}
+			$mail = new ilCourseMembershipMailNotification();
+			$mail->setType(ilCourseMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
+		}
+
+		if ($this instanceof ilGroupMembershipGUI)
+		{
+			/** @var ilObjGroup $group */
+			$group = $this->getParentObject();
+			if ($group->isMembershipLimited() && $group->hasWaitingListAutoFill()
+				&& (empty($group->getCancellationEnd()) || $group->getCancellationEnd()->get(IL_CAL_UNIX) > time()))
+			{
+				$added = $group->handleAutoFill(true);
+			}
+			$mail = new ilGroupMembershipMailNotification();
+			$mail->setType(ilGroupMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
+		}
+
+		// notify all users that were accepted but kept on the waiting list
+		$accepted_waiting = array_diff($accepted, $added);
+		if (!empty($accepted_waiting) && isset($mail))
+		{
+			$mail->setRefId($this->getParentObject()->getRefId());
+			$mail->setWaitingList($waiting_list);
+			$mail->setRecipients($accepted_waiting);
+			$mail->send();
+		}
+
+		// show success about accepted and added users
+		$messages = array();
+		$messages[] = sprintf($this->lng->txt(count($accepted) == 1 ? 'sub_confirmed_request' : 'sub_confirmed_requests'), count($accepted));
+		if (!empty($added))
+		{
+			$messages[] = sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added));
+		}
+		ilUtil::sendSuccess(implode('<br />', $messages), true);
+		$this->ctrl->redirect($this, 'participants');
+	}
+// fau.
+
+// fau: fairSub - new function confirmFillFreePlacesObject
+	/**
+	 * Confirm to fill the free places
+	 */
+	public function confirmFillFreePlaces()
+	{
+		$c_gui = new ilConfirmationGUI();
+		$c_gui->setFormAction($this->ctrl->getFormAction($this, "fillFreePlaces"));
+		$c_gui->setHeaderText($this->lng->txt('sub_fill_free_places_question'));
+		$c_gui->setCancel($this->lng->txt("cancel"), "participants");
+		$c_gui->setConfirm($this->lng->txt("confirm"), "fillFreePlaces");
+
+		$this->tpl->setContent($c_gui->getHTML());
+	}
+// fau.
+
+
+// fau: fairSub - new function fillFreePlacesObject()
+	/**
+	 * Fill free places from the waiting list
+	 */
+	public function fillFreePlaces()
+	{
+		/** @var ilObjCourse|ilObjGroup $object */
+		$object = $this->getParentObject();
+		$added = $object->handleAutoFill(true);
+
+		if (count($added))
+		{
+			ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
+			$this->ctrl->redirect($this, 'participants');
+		}
+		else
+		{
+			ilUtil::sendFailure($this->lng->txt('sub_no_member_added'), true);
+			$this->ctrl->redirect($this, 'participants');
+		}
+	}
+// fau.
+
 	/**
 	 * Assign from waiting list (confirmatoin) 
 	 * @return boolean
@@ -1349,7 +1518,23 @@ class ilMembershipGUI
 
 		// set confirm/cancel commands
 		$c_gui->setFormAction($this->ctrl->getFormAction($this, "assignFromWaitingList"));
-		$c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
+// fau: fairSub - add message about fairness for adding members directly from waiting list
+		if ($this instanceof ilCourseMembershipGUI || $this instanceof ilGroupMembershipGUI)
+		{
+			$grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->getParentObject());
+			$question = $this->lng->txt("info_assign_sure");
+			$question .= '<br /><span class="small">' .$this->lng->txt('sub_assign_waiting_fair_info') . '</span>';
+			if (!empty($grouping_ref_ids))
+			{
+				$question .= '<br /><span class="small">'. $this->lng->txt('sub_assign_waiting_groupings_info') . '</span>';
+			}
+			$c_gui->setHeaderText($question);
+		}
+		else
+		{
+			$c_gui->setHeaderText($this->lng->txt("info_assign_sure"));
+		}
+// fau.
 		$c_gui->setCancel($this->lng->txt("cancel"), "participants");
 		$c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 
@@ -1381,6 +1566,14 @@ class ilMembershipGUI
 		}
 		
 		$waiting_list = $this->initWaitingList();
+
+// fau: fairSub - get the reference ids of grouped objects
+		if ($this instanceof ilCourseMembershipGUI || $this instanceof ilGroupMembershipGUI)
+		{
+			// ilObjCourseGrouping is used for courses and groups
+			$grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this->getParentObject());
+		}
+// fau.
 
 		$added_users = 0;
 		foreach($_POST["waiting"] as $user_id)
@@ -1421,6 +1614,16 @@ class ilMembershipGUI
 			}
 			
 			$waiting_list->removeFromList($user_id);
+
+// fau: fairSub - remove user from waiting lists of grouped objects
+			if (is_array($grouping_ref_ids))
+			{
+				foreach ($grouping_ref_ids as $ref_id)
+				{
+					ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
+				}
+			}
+// fau.
 			++$added_users;
 		}
 
@@ -1442,6 +1645,13 @@ class ilMembershipGUI
 	 */
 	public function confirmRefuseFromList()
 	{
+// fau: fairSub - allow a single user being refused from the waiting list
+		if (!empty($_GET['member_id']))
+		{
+			$_POST["waiting"] = array($_GET['member_id']);
+		}
+// fau.
+
 		if(!is_array($_POST["waiting"]))
 		{
 			ilUtil::sendFailure($this->lng->txt("no_checkbox"),true);

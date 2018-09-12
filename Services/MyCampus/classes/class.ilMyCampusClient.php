@@ -1,16 +1,14 @@
 <?php
+// fau: campusSub - new class ilMyCampusClient.
+
+
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-
 
 include_once 'Services/WebServices/SOAP/classes/class.ilSoapClient.php';
 
 /**
-* fim: [campus] Client to call a my campus installation
-*
-* @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
-* @version $Id: $
-*/
+ * Client to call a my campus installation
+ */
 class ilMyCampusClient extends ilSoapClient
 {
 
@@ -22,14 +20,14 @@ class ilMyCampusClient extends ilSoapClient
 	var $sid = false;
 
 	/**
-	* singleton method
-	*/
+	 * singleton method
+	 * @return self
+	 */
 	public static function _getInstance()
 	{
 	   if (!isset(self::$instance))
 		{
-	       $c = __CLASS__;
-	       self::$instance = new $c;
+	       self::$instance = new self;
 	   }
 
 	   return self::$instance;
@@ -38,17 +36,15 @@ class ilMyCampusClient extends ilSoapClient
 	/**
 	* private constructor
 	*/
-	private function __construct()
+	public function __construct($a_uri = '')
 	{
-
-
 		$this->user = ilCust::get('mycampus_soap_user');
 		$this->password = ilCust::get('mycampus_soap_password');
 		$this->client_id = ilCust::get('mycampus_soap_client');
 
-		$this->ilSoapClient(ilCust::get('mycampus_soap_url'));
-		$this->setTimeout(DEFAULT_TIMEOUT);
-		$this->setResponseTimeout(DEFAULT_RESPONSE_TIMEOUT);
+		parent::__construct(ilCust::get('mycampus_soap_url'));
+		$this->setTimeout(self::DEFAULT_CONNECT_TIMEOUT);
+		$this->setResponseTimeout(self::DEFAULT_RESPONSE_TIMEOUT);
 		$this->enableWSDL(true);
 	}
 
