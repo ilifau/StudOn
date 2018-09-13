@@ -1080,7 +1080,18 @@ class ilMembershipGUI
 		}
 		
 		include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
-		if(ilPrivacySettings::_getInstance()->checkExportAccess($this->getParentObject()->getRefId()))
+		// fim: [privacy] show export tab even if general export permission is not given to the user (permission is handled on the tab)
+		global $DIC;
+		$privacy = ilPrivacySettings::_getInstance();
+		if ($this->getParentObject() instanceof ilObjCourse)
+		{
+			$enabled = $privacy->enabledCourseExport();
+		}
+		if ($this->getParentObject() instanceof ilObjGroup)
+		{
+			$enabled = $privacy->enabledGroupExport();
+		}
+		if($enabled && $DIC->access()->checkAccess('manage_members','',$this->getParentObject()->getRefId()))
 		{
 			$tabs->addSubTabTarget(
 				'export_members',
@@ -1089,6 +1100,7 @@ class ilMembershipGUI
 				'ilmemberexportgui'
 			);
 		}
+		// fim.
 	}
 	
 	/**

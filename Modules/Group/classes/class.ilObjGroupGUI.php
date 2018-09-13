@@ -1763,6 +1763,14 @@ class ilObjGroupGUI extends ilContainerGUI
 		// fim.
 
 		$form = $this->initDidacticTemplate($form);
+
+		// fim: [rights] show info about rights of group admins
+		$grp_type = $form->getItemByPostVar('didactic_type');
+		if ($grp_type instanceof ilRadioGroupInputGUI)
+		{
+			$grp_type->setInfo($this->lng->txt('grp_type_info_'.$a_mode));
+		}
+		// fim.
 		
 		if($a_mode == 'edit')
 		{

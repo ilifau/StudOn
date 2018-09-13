@@ -27,6 +27,10 @@ include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition
 include_once('Services/User/classes/class.ilUserDefinedData.php');
 include_once('Services/User/classes/class.ilUserFormSettings.php');
 
+// fim: [export] includes needed for additional export data
+include_once('Services/StudyData/classes/class.ilStudyData.php');
+// fim.
+
 define("IL_MEMBER_EXPORT_CSV_FIELD_SEPERATOR",',');
 define("IL_MEMBER_EXPORT_CSV_STRING_DELIMITER",'"');
 
@@ -440,13 +444,11 @@ class ilMemberExport
 		}
 
 		// fim: [export] add events in header row
-		$relative = ilDatePresentation::useRelativeDates();
 		ilDatePresentation::setUseRelativeDates(false);
 		foreach ($this->events as $event_obj)
 		{
 			$this->addCol($event_obj->getTitle().' ('.$event_obj->getFirstAppointment()->appointmentToString().')', $row, $col++);
 		}
-		ilDatePresentation::setUseRelativeDates($relative);
 		// fim.
 
 		// fim: [export] add groups in header row
@@ -466,8 +468,6 @@ class ilMemberExport
 
 		#$this->csv->addRow();
 		$this->addRow();
-
-
 		// Add user data
 		foreach($this->user_ids as $usr_id)
 		{
@@ -564,7 +564,8 @@ class ilMemberExport
 					case 'registration':
 						if ($this->agreement[$usr_id]['acceptance_time'])
 						{
-							$this->addCol(ilFormat::formatUnixTime($this->agreement[$usr_id]['acceptance_time'],true),$row,$col++);
+							ilDatePresentation::setUseRelativeDates(false);
+							$this->addCol(ilDatePresentation::formatDate(new ilDateTime($this->agreement[$usr_id]['acceptance_time'], IL_CAL_UNIX)),$row,$col++);
 						}
 						else
 						{
@@ -925,7 +926,6 @@ class ilMemberExport
 
 
 			// get title of sessions
-			$relative = ilDatePresentation::useRelativeDates();
 			ilDatePresentation::setUseRelativeDates(false);
 			if ($data['type'] == 'sess' and $data['title'] == '')
 			{
@@ -933,7 +933,6 @@ class ilMemberExport
 				$data['title'] = $tmp_sess->getTitle() .' ('.$tmp_sess->getFirstAppointment()->appointmentToString().')';
 				unset($tmp_sess);
 			}
-			ilDatePresentation::setUseRelativeDates($relative);
 
 			if ($this->settings->enabled($data['type']. '_marks') || $this->settings->enabled($data['type']. '_comments'))
 			{

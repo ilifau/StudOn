@@ -55,14 +55,14 @@ class ilAttendanceList
 		$this->waiting_list = $a_waiting_list;
 
 		// always available
-		$this->presets['name'] = array($lng->txt('name'), true);
-		$this->presets['login'] = array($lng->txt('login'), true);
+		$this->presets['name'] = array($DIC->language()->txt('name'), true);
+		$this->presets['login'] = array($DIC->language()->txt('login'), true);
 
 		// fim: [privacy] show email only with extended export rights
 		include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
 		if (ilPrivacySettings::_checkExtendedAccess())
 		{
-			$this->presets['email'] = array($lng->txt('email'));
+			$this->presets['email'] = array($DIC->language()->txt('email'));
 		}
 		// fim.
 		

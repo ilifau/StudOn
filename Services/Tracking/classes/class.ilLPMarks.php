@@ -174,7 +174,7 @@ class ilLPMarks
 	 * @param int 		obj_id
 	 * @param array		usr_id => mark data
 	 */
-	function _getMarkDataOfObject($a_obj_id)
+	public static function _getMarkDataOfObject($a_obj_id)
 	{
 		global $ilDB;
 

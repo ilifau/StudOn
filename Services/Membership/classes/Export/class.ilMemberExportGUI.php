@@ -115,16 +115,16 @@ class ilMemberExportGUI
 
 
 		include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-		// fim: [export] jump to export request form if not granted
+		// fim: [privacy] jump to export request form if not granted
 		$privacy = ilPrivacySettings::_getInstance();
 		$enabled = $this->type == 'crs' ? $privacy->enabledCourseExport() : $privacy->enabledGroupExport();
 
-		if(!$ilAccess->checkAccess('write','',$this->ref_id) or !$enabled)
+		if(!$ilAccess->checkAccess('manage_members','',$this->ref_id) or !$enabled)
 		{
 			ilUtil::sendFailure($this->lng->txt('permission_denied'),true);
 			$this->ctrl->returnToParent($this);
 		}
-		elseif (!$rbacsystem->checkAccess('export_member_data',$privacy->getPrivacySettingsRefId()))
+		elseif (!ilPrivacySettings::_checkExtendedAccess())
 		{
 			ilUtil::redirect("goto.php?target=studon_exportrequest");
 		}
