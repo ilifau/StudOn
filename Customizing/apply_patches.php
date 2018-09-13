@@ -33,14 +33,14 @@ $p = new ilPatchUtils();
 /***********
  * Cleanups
  **********/
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,crsr,dcl,exc,feed,frm,glo,htlm,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xflc,xlvo,xpdl,xvid,xxco', 'deleted_before' => '2018-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2018-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2018-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2018-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2018-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2018-01-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2018-01-01 00:00:00'));
-//$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2018-01-01 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,crsr,dcl,exc,feed,frm,glo,htlm,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xflc,xlvo,xpdl,xvid,xxco', 'deleted_before' => '2018-07-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2018-07-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2018-07-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2018-07-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2018-07-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2018-07-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2018-07-01 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2018-07-01 00:00:00'));
 
 
 /*******************
