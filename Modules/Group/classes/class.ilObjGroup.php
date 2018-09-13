@@ -297,7 +297,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		return $this->reg_start;
 	}
-	
+
 
 	/**
 	 * set registration end
@@ -310,7 +310,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 	{
 		$this->reg_end = $a_end;
 	}
-	
+
 	/**
 	 * get registration end
 	 *
@@ -325,14 +325,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 // fau: fairSub - getter / setter
 	public function getSubscriptionFair()
 	{
-		if ($this->subscription_fair) {
-			return $this->subscription_fair;
-		}
-		if ($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) {
-			return $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds();
-
-		}
-		return 0;
+		return (int) $this->subscription_fair;
 	}
 	public function setSubscriptionFair($a_value)
 	{
@@ -826,11 +819,16 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 				$ilErr->appendMessage($this->lng->txt(self::ERR_WRONG_MIN_MAX_MEMBERS));
 			}
 		}
-		if(
-			($this->getRegistrationStart() && !$this->getRegistrationEnd()) ||
-			(!$this->getRegistrationStart() && $this->getRegistrationEnd()) ||
-			$this->getRegistrationEnd() <= $this->getRegistrationStart()
+// fau: fairSub - fixed check for wrong registration period
+		$has_regstart = $this->getRegistrationStart() instanceof ilDateTime && !$this->getRegistrationStart()->isNull();
+		$has_regend = $this->getRegistrationEnd() instanceof ilDateTime && !$this->getRegistrationEnd()->isNull();
+
+		if (
+			($has_regstart && !$has_regend) ||
+			(!$has_regstart && $has_regend) ||
+			($has_regstart && $has_regend && ilDateTime::_before($this->getRegistrationEnd(), $this->getRegistrationStart()))
 		)
+// fau.
 		{
 			$ilErr->appendMessage($this->lng->txt((self::ERR_WRONG_REGISTRATION_LIMITED)));
 		}

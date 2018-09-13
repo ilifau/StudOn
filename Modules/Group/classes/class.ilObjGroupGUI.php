@@ -552,9 +552,6 @@ class ilObjGroupGUI extends ilContainerGUI
 			// handle group type settings
 			include_once './Services/DidacticTemplate/classes/class.ilDidacticTemplateObjSettings.php';
 			$old_type = ilDidacticTemplateObjSettings::lookupTemplateId($this->object->getRefId());
-// fau: fairSub - remember the old fair period
-			$old_subscription_fair = $this->object->getSubscriptionFair();
-// fau.
 
 			$modified = false;
 			$new_type_info = $form->getInput('didactic_type');
@@ -614,17 +611,26 @@ class ilObjGroupGUI extends ilContainerGUI
 
 			$cancel_end = $form->getItemByPostVar("cancel_end");
 			$this->object->setCancellationEnd($cancel_end->getDate());
+// fau: fairSub - save the fair period and waiting list options
+			$old_subscription_fair = $this->object->getSubscriptionFair();
+			// check a deactivation of the fair period done in db
+			if ($old_subscription_fair >= 0)
+			{
+				/** @var ilDateTime $sub_fair */
+				$sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+				$this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+			}
 
-			switch($_POST['waiting_list'])
+			switch((string) $_POST['waiting_list'])
 			{
 				case 'auto':
-					$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
+					$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
 					$this->object->enableWaitingList(true);
 					$this->object->setWaitingListAutoFill(true);
 					break;
 
 				case 'auto_manu':
-					$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
+					$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
 					$this->object->enableWaitingList(true);
 					$this->object->setWaitingListAutoFill(false);
 					break;
@@ -636,18 +642,10 @@ class ilObjGroupGUI extends ilContainerGUI
 					break;
 
 				default:
-					$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
+					$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
 					$this->object->enableWaitingList(false);
 					$this->object->setWaitingListAutoFill(false);
 					break;
-			}
-
-// fau: fairSub - save the fair period
-			// check a deactivation of the fair period done in db
-			if ($this->object->getSubscriptionFair() >= 0)
-			{
-				$sub_fair = $form->getItemByPostVar("subscription_fair");
-				$this->object->setSubscriptionFair($sub_fair->getDate()->get(IL_CAL_UNIX));
 			}
 // fau.
 
@@ -1974,7 +1972,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			}
 
 
-			$fair_date->setInfo($fair_date_info . (ilCust::get('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
+			$fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
 			$lim->addSubItem($fair_date);
 
 			$wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
@@ -1989,7 +1987,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			{
 				$wait->setValue('auto');
 			}
-			else if($this->object->getSubscriptionAutoFill() && $this->object->isWaitingListEnabled())
+			elseif($this->object->getSubscriptionAutoFill() && $this->object->isWaitingListEnabled())
 			{
 				$wait->setValue('auto_manu');
 			}

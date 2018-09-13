@@ -338,7 +338,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 // fau: fairSub - getter / setter
 	public function getSubscriptionFair()
 	{
-		return $this->subscription_fair ? $this->subscription_fair : $this->getSubscriptionStart() + $this->getSubscriptionMinFairSeconds();
+		return (int) $this->subscription_fair;
 	}
 	public function setSubscriptionFair($a_value)
 	{
@@ -488,7 +488,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
 		{
 			return false;
 		}
-		elseif ($a_time < $this->getSubscriptionStart())
+		elseif ($a_time < (int) $this->getSubscriptionStart())
 		{
 			return false;
 		}

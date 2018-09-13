@@ -1131,16 +1131,24 @@ class ilObjCourseGUI extends ilContainerGUI
 		$old_autofill = $this->object->hasWaitingListAutoFill();
 // fau: fairSub - save the fair period and waiting list options
 		$old_subscription_fair = $this->object->getSubscriptionFair();
-		switch((int) $form->getInput('waiting_list'))
+		// check a deactivation of the fair period done in db
+		if ($old_subscription_fair >= 0)
+		{
+			/** @var ilDateTime $sub_fair */
+			$sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+			$this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+		}
+
+		switch((string) $form->getInput('waiting_list'))
 		{
 			case 'auto':
-				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
+				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(true);
 				break;
 
 			case 'auto_manu':
-				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
+				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
 				$this->object->enableWaitingList(true);
 				$this->object->setWaitingListAutoFill(false);
 				break;
@@ -1151,18 +1159,12 @@ class ilObjCourseGUI extends ilContainerGUI
 				$this->object->setWaitingListAutoFill(false);
 				break;
 
+			case 'no_list':
 			default:
-				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() > 0);
+				$this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
 				$this->object->enableWaitingList(false);
 				$this->object->setWaitingListAutoFill(false);
 				break;
-		}
-
-		// check a deactivation of the fair period done in db
-		if ($old_subscription_fair >= 0)
-		{
-			$sub_fair = $form->getItemByPostVar("subscription_fair");
-			$this->object->setSubscriptionFair($sub_fair->getDate()->get(IL_CAL_UNIX));
 		}
 // fau.
 
@@ -1784,7 +1786,7 @@ class ilObjCourseGUI extends ilContainerGUI
 			);
 		}
 
-		$fair_date->setInfo($fair_date_info . (ilCust::get('deactivate_fair_time_is_allowed') ? $fair_date_link : ''));
+		$fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
 		$lim->addSubItem($fair_date);
 
 		$wait = new ilRadioGroupInputGUI($this->lng->txt('crs_waiting_list'), 'waiting_list');
