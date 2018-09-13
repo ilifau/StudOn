@@ -10160,14 +10160,14 @@ rbac#:#blog_contribute#:#A felhasználó blogbejegyzést írhat és tehet közz�
 blog#:#blog_contribute_other_roles#:#A 'Blogszerzők' szerepkör mellett a következő szerepek tagjai is hozhatnak létre új bejegyzéseket: %s.
 dcl#:#dcl_no_content_warning#:#Figyelem, az adatgyűjtés online, de még nincs tartalma!
 dcl#:#dcl_visible#:#Az összes felhasználó láthatja 
-dcl#:#dcl_empty_view#:#Ezen nézet törlése
+dcl#:#dcl_empty_detailed_view#:#Ezen nézet törlése
 dcl#:#dcl_activate_view#:#Nézet bekapcsolása
 dcl#:#dcl_deactivate_view#:#Nézet kikapcsolása
 dcl#:#dcl_confirm_delete_field#:#Biztos, hogy törli ezt a mezőt?
 dcl#:#dcl_table_info_title#:#Információ
-dcl#:#dcl_confirm_delete_view_title#:#Biztos, hogy törli ezt a nézetet?
-dcl#:#dcl_confirm_delete_view_text#:#A tábla bejegyzéseinek nézetsablonját véglegesen eltávolítja, de a tábla rekordjai és a mezői nem módosulnak.
-dcl#:#dcl_empty_view_success#:#A nézetsablont sikeresen törölte.
+dcl#:#dcl_confirm_delete_detailed_view_title#:#Biztos, hogy törli ezt a nézetet?
+dcl#:#dcl_confirm_delete_detailed_view_text#:#A tábla bejegyzéseinek nézetsablonját véglegesen eltávolítja, de a tábla rekordjai és a mezői nem módosulnak.
+dcl#:#dcl_empty_detailed_view_success#:#A nézetsablont sikeresen törölte.
 dcl#:#dcl_permissions_form#:#Felhasználói műveletek
 rating#:#rating_number_votes#:#%s értékelés
 administration#:#system_check_no_owner#:#Tulajdonos nélküli objektumok
@@ -14190,3 +14190,12 @@ file#:#file_suffix_custom_white_info#:#Ezeket a kiterjesztéseket hozzáadjuk az
 file#:#file_suffix_overall_white#:#Engedélyezett kiterjesztések összesítő listája
 file#:#file_suffix_overall_white_info#:#Az elfogadható fájlkiterjesztések összesítő felsorolása.
 wiki#:#wiki_change_notification_body_new#:#az alábbi wikioldal jött létre
+assessment#:#tst_answer_aggr_answer_header#:#Answer###29 08 2018 new variable
+assessment#:#tst_answer_aggr_frequency_header#:#Frequency###29 08 2018 new variable
+content#:#cont_resource_size_info#:#Without size declaration the size can be controlled by the content style. If neither a size is declared nor the content style contains a rule that determines the size, only images will be displayed in their default size.###29 08 2018 new variable
+mail#:#mail_system_usr_from_addr_info#:#Please enter the e-mail address to be put in the 'FROM' header. The 'FROM' header is used to display the sender in the recipient e-mail client. The e-mail address of the user sending an e-mail via ILIAS will be automatically put in the 'Reply-To' header.<br /><br />Examples: <span style="font-style: italic">info@institution.de</span> or <span style="font-style: italic">no-reply@institution.de</span>###29 08 2018 new variable
+mail#:#mail_system_sys_from_addr_info#:#Please enter the e-mail address to be put in the 'FROM' header. The 'FROM' header is used to display the sender in the recipient e-mail client.<br /><br />Examples: <span style="font-style: italic">info@institution.de</span> or <span style="font-style: italic">no-reply@institution.de</span>###29 08 2018 new variable
+cron#:#cro_job_rc_job_no_result#:#Cron job did not return a proper result###29 08 2018 new variable
+dcl#:#dcl_title_standardview#:#Standard View###29 08 2018 new variable
+chatroom#:#chat_osc_search_modal_info#:#Here you can search for users you would like to add to a conversation. If the search dialogue was opened within a group chat, the new user will be added to this chat. If you started the search within a 1:1 chat, a new group chat window will be opened. ###29 08 2018 new variable
+mob#:#mob_no_fixed_size_map_editing#:#Please define a fixed size for your image before using map areas. If your image is scaled by content style or other CSS rules, your map areas will not fit anymore.###29 08 2018 new variable

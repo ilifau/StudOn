@@ -382,7 +382,7 @@ class ilSoapAdministration
 	}
 
 	public function getInstallationInfoXML() 
-	{		
+	{
 		include_once "Services/Context/classes/class.ilContext.php";
 		ilContext::init(ilContext::CONTEXT_SOAP_WITHOUT_CLIENT);
 		
@@ -397,7 +397,7 @@ class ilSoapAdministration
 		{		
 			foreach ($clientdirs as $clientdir) 
 			{				
-				if (is_object($clientInfo= $this->getClientInfo($init, $clientdir)))
+				if (is_object($clientInfo= $this->getClientInfo(null, $clientdir)))
 				{
 					$writer->addClient ($clientInfo);
 				}
@@ -422,7 +422,7 @@ class ilSoapAdministration
 		$writer->setExportAdvancedMetaDataDefinitions (true);
 		$writer->setExportUDFDefinitions (true);
 		$writer->start();
-		if (is_object($client = $this->getClientInfo($init, $clientdir)))
+		if (is_object($client = $this->getClientInfo(null, $clientdir)))
 		{
 			$writer->addClient($client);
 		}
@@ -434,7 +434,7 @@ class ilSoapAdministration
 	
 	private function getClientInfo ($init, $client_dir) 
 	{
-		global $ilDB;
+		global $DIC;
 
 // fau: customClientIni - read naming of the client.ini.php from the ilias.ini.php
 		global $ilIliasIniFile;
@@ -466,11 +466,14 @@ class ilSoapAdministration
 		$ilDB->initFromIniFile($ilClientIniFile);			
 		if ($ilDB->connect(true)) 
 		{
-			$GLOBALS['ilDB'] = $ilDB;
-	
+			unset($DIC['ilDB']);
+			$DIC['ilDB'] = $ilDB;
+
 			require_once("Services/Administration/classes/class.ilSetting.php");
+
 			$settings = new ilSetting();
-			$GLOBALS["ilSetting"] = $settings;
+			unset($DIC["ilSetting"]);
+			$DIC["ilSetting"] = $settings;
 			// workaround to determine http path of client
 			define ("IL_INST_ID",  $settings->get("inst_id",0));
 			$settings->access = $ilClientIniFile->readVariable("client", "access");

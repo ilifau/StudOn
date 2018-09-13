@@ -7247,8 +7247,8 @@ dcl#:#dcl_confirm_delete_fields#:#本当にこのフィールドを削除しま�
 dcl#:#dcl_confirm_delete_record#:#このレコードを削除しますか?
 dcl#:#dcl_confirm_delete_records#:#このレコードを本当に削除しますか?
 dcl#:#dcl_confirm_delete_table#:#内容や階層の含まれるこのテーブルを本当に削除しますか?
-dcl#:#dcl_confirm_delete_view_text#:#このテーブルのエントリーのビュー定義が非可逆的に削除されても、レコードとフィールド自体は変わりません。
-dcl#:#dcl_confirm_delete_view_title#:#このビューを本当に削除しますか?
+dcl#:#dcl_confirm_delete_detailed_view_text#:#このテーブルの記録ビュー定義は非可逆的に削除されても、レコードとフィールド自体は変わりません。
+dcl#:#dcl_confirm_delete_detailed_view_title#:#このビューを本当に削除しますか?
 dcl#:#dcl_confirm_storing_records#:#有効にして入力を確認して下さい。
 dcl#:#dcl_confirm_storing_records_no_permission#:#以降は記録を変更する権利がありません。
 dcl#:#dcl_copy#:#データ収集を作成
@@ -7283,8 +7283,8 @@ dcl#:#dcl_edit_perm#:#アクセス権変更エントリ
 dcl#:#dcl_edit_record#:#レコードを編集
 dcl#:#dcl_edit_table#:#テーブル設定を編集
 dcl#:#dcl_editable_in_table_gui#:#テーブルビューへ投票してください。
-dcl#:#dcl_empty_view#:#このビューを削除
-dcl#:#dcl_empty_view_success#:#ビュー定義は正しく削除されました。
+dcl#:#dcl_empty_detailed_view#:#このビューを削除
+dcl#:#dcl_empty_detailed_view_success#:#ビュー定義は正しく削除されました。
 dcl#:#dcl_err_formula_field_not_found#:#タイトル'%s'のフィールドが見つかりませんでした
 dcl#:#dcl_error_parsing_expression#:#構文解析式エラー
 dcl#:#dcl_export_enabled#:#全ユーザへエクスポート機能を許可する
@@ -14190,3 +14190,12 @@ dcl#:#dcl_change_notification_dcl_delete_record#:#The following data record has 
 chatroom#:#chatroom_client_name#:#Name###25 07 2018 new variable
 chatroom#:#chatroom_client_name_info#:#Please enter a name for this ILIAS client. The entered string must be globally unique. Initially this value is set to the client id of the ILIAS client. If changed, the chat server must be restarted.###25 07 2018 new variable
 wiki#:#wiki_change_notification_body_new#:#the following wiki page was created###25 07 2018 new variable
+assessment#:#tst_answer_aggr_answer_header#:#Answer###29 08 2018 new variable
+assessment#:#tst_answer_aggr_frequency_header#:#Frequency###29 08 2018 new variable
+content#:#cont_resource_size_info#:#Without size declaration the size can be controlled by the content style. If neither a size is declared nor the content style contains a rule that determines the size, only images will be displayed in their default size.###29 08 2018 new variable
+mail#:#mail_system_usr_from_addr_info#:#Please enter the e-mail address to be put in the 'FROM' header. The 'FROM' header is used to display the sender in the recipient e-mail client. The e-mail address of the user sending an e-mail via ILIAS will be automatically put in the 'Reply-To' header.<br /><br />Examples: <span style="font-style: italic">info@institution.de</span> or <span style="font-style: italic">no-reply@institution.de</span>###29 08 2018 new variable
+mail#:#mail_system_sys_from_addr_info#:#Please enter the e-mail address to be put in the 'FROM' header. The 'FROM' header is used to display the sender in the recipient e-mail client.<br /><br />Examples: <span style="font-style: italic">info@institution.de</span> or <span style="font-style: italic">no-reply@institution.de</span>###29 08 2018 new variable
+cron#:#cro_job_rc_job_no_result#:#Cron job did not return a proper result###29 08 2018 new variable
+dcl#:#dcl_title_standardview#:#Standard View###29 08 2018 new variable
+chatroom#:#chat_osc_search_modal_info#:#Here you can search for users you would like to add to a conversation. If the search dialogue was opened within a group chat, the new user will be added to this chat. If you started the search within a 1:1 chat, a new group chat window will be opened. ###29 08 2018 new variable
+mob#:#mob_no_fixed_size_map_editing#:#Please define a fixed size for your image before using map areas. If your image is scaled by content style or other CSS rules, your map areas will not fit anymore.###29 08 2018 new variable

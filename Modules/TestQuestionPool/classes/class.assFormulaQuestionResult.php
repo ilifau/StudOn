@@ -304,7 +304,7 @@ class assFormulaQuestionResult
 		}
 
 		$math                  = new EvalMath();
-		$math->suppress_errors = false;
+		$math->suppress_errors = true;
 // fau: formulaQuestionAtan2 - use ';' as delimiter of function arguments
 		$formula = str_replace(",", ".", $formula);
 		$formula = str_replace(";", ",", $formula);
