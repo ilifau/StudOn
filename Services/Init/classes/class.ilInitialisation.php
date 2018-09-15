@@ -379,6 +379,9 @@ class ilInitialisation
 			// to do: ilias ini raus nehmen
 			$client_id = $ilIliasIniFile->readVariable("clients","default");
 			ilUtil::setCookie("ilClientId", $client_id);
+// fau: shortRssLink - set default client when called from context without cookies
+			$_GET['client_id'] = $client_id;
+// fau.
 		}
 		if (!defined("IL_PHPUNIT_TEST") && ilContext::supportsPersistentSessions())
 		{
@@ -1056,7 +1059,11 @@ class ilInitialisation
 		{
 			self::initClient();
 			self::initFileUploadService($GLOBALS["DIC"]);
-			self::initSession();
+			if (ilContext::supportsPersistentSessions())
+			{
+				self::initSession();
+			}
+
 
 			if (ilContext::hasUser())
 			{						
@@ -1509,7 +1516,7 @@ class ilInitialisation
 // fau: rootAsLogin - adjust target only if user is authentified
 //					(start page may also be shown if authentication has failed)
 
-			if ($GLOBALS['DIC']['ilAuthSession']->isAuthenticated())
+			if (ilContext::doAuthentication() && $GLOBALS['DIC']['ilAuthSession']->isAuthenticated())
 			{
 				require_once 'Services/User/classes/class.ilUserRequestTargetAdjustment.php';
 				$request_adjuster = new ilUserRequestTargetAdjustment($ilUser, $GLOBALS['DIC']['ilCtrl']);
