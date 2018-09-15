@@ -237,6 +237,10 @@ class ilMembershipGUI
 				if(
 					!(
 						$this->getParentObject()->getMailToMembersType() == ilCourseConstants::MAIL_ALLOWED_ALL ||
+// fau: mailToMembers - allow tutors or upper admins to send an email to members
+						ilParticipants::_isTutor($this->getParentObject()->getRefId(), $ilUser->getId()) ||
+						ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $ilUser->getId()) ||
+// fau.
 						$ilAccess->checkAccess('manage_members',"",$this->getParentObject()->getRefId())
 					) ||  !$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId())
 				)
@@ -929,11 +933,15 @@ class ilMembershipGUI
 		$mail = new ilMail($ilUser->getId());
 
 		if(
-			($this->getParentObject()->getMailToMembersType() == 1) ||
+// fau: mailToMembers - visibility of the mail button
+			$GLOBALS['rbacsystem']->checkAccess('internal_mail',$mail->getMailObjectReferenceId ()) &&
 			(
-				$ilAccess->checkAccess('manage_members',"",$this->getParentObject()->getRefId()) &&
-				$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId())
+				($this->getParentObject()->getMailToMembersType() == 1) ||
+				$ilAccess->checkAccess('manage_members',"",$this->getParentObject()->getRefId()) ||
+				ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId()) ||
+				ilParticipants::_isTutor($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId())
 			)
+// fau.
 		)
 		{
 
@@ -999,9 +1007,14 @@ class ilMembershipGUI
 			);
 		}
 		elseif(
-			$this->getParentObject()->getMailToMembersType() == 1 &&
+// fau: mailToMembers - show mail to members tab to users
 			$GLOBALS['rbacsystem']->checkAccess('internal_mail',$mail->getMailObjectReferenceId ()) &&
-			$a_is_participant
+			(
+				($this->getParentObject()->getMailToMembersType() == 1 && $a_is_participant) ||
+				ilParticipants::_isTutor($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId()) ||
+				ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId())
+			)
+// fau.
 		)
 		{
 			$tabs->addTab(

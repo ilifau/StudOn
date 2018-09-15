@@ -259,30 +259,28 @@ class ilObjGroupGUI extends ilContainerGUI
 				$this->ctrl->forwardCommand($service);
 				break;
 
-			case 'ilmailmembersearchgui':
-				include_once 'Services/Mail/classes/class.ilMail.php';
-				$mail = new ilMail($ilUser->getId());
-// fau: mailToMembers - allow mail for local or upper group admins without write access
-				if(!($ilAccess->checkAccess('manage_members','',$this->object->getRefId()) ||
-					$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL  ||
-						ilParticipants::_isLocalOrUpperAdmin($this->object->getRefId(), $ilUser->getId())) &&
-					$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
-				{
-					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
-				}
+// fau: mailToMembers - unused forward
+//			case 'ilmailmembersearchgui':
+//				include_once 'Services/Mail/classes/class.ilMail.php';
+//				$mail = new ilMail($ilUser->getId());
+//
+//				if(!($ilAccess->checkAccess('manage_members','',$this->object->getRefId()) ||
+//					$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL) &&
+//					$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
+//				{
+//					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
+//				}
+//
+//				$this->tabs_gui->setTabActive('members');
+//
+//				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
+//				include_once './Services/Contact/classes/class.ilMailMemberGroupRoles.php';
+//
+//				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberGroupRoles());
+//				$mail_search->setObjParticipants(ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
+//				$this->ctrl->forwardCommand($mail_search);
+//				break;
 // fau.
-				$this->tabs_gui->setTabActive('members');
-				
-				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
-				include_once './Services/Contact/classes/class.ilMailMemberGroupRoles.php';
-
-				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberGroupRoles());
-// fau: mailToMembers - include correct class
-				$mail_search->setObjParticipants(ilGroupParticipants::_getInstanceByObjId($this->object->getId()));
-// fau.
-				$this->ctrl->forwardCommand($mail_search);
-				break;
-
 			case 'ilbadgemanagementgui':
 				$this->tabs_gui->setTabActive('obj_tool_setting_badges');
 				include_once 'Services/Badge/classes/class.ilBadgeManagementGUI.php';

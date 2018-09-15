@@ -3151,29 +3151,30 @@ class ilObjCourseGUI extends ilContainerGUI
 				$this->ctrl->forwardCommand($result_view);
 				break;
 
-			case 'ilmailmembersearchgui':
-				include_once 'Services/Mail/classes/class.ilMail.php';
-				$mail = new ilMail($ilUser->getId());
-
-				if(
-					!($this->object->getMailToMembersType() == ilCourseConstants::MAIL_ALLOWED_ALL ||
-					$ilAccess->checkAccess('manage_members',"",$this->object->getRefId())) &&
-					$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
-				{
-					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
-				}
-				
-				$this->tabs_gui->setTabActive('members');
-
-				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
-				include_once './Services/Contact/classes/class.ilMailMemberCourseRoles.php';
-				
-				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberCourseRoles());
-				$mail_search->setObjParticipants(
-					ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
-				$this->ctrl->forwardCommand($mail_search);
-				break;
-
+// fau: mailToMembers: unused forrwad
+//			case 'ilmailmembersearchgui':
+//				include_once 'Services/Mail/classes/class.ilMail.php';
+//				$mail = new ilMail($ilUser->getId());
+//
+//				if (
+//					!($this->object->getMailToMembersType() == ilCourseConstants::MAIL_ALLOWED_ALL ||
+//					$ilAccess->checkAccess('manage_members',"",$this->object->getRefId())) &&
+//					$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
+//				{
+//					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
+//				}
+//
+//				$this->tabs_gui->setTabActive('members');
+//
+//				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
+//				include_once './Services/Contact/classes/class.ilMailMemberCourseRoles.php';
+//
+//				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberCourseRoles());
+//				$mail_search->setObjParticipants(
+//					ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
+//				$this->ctrl->forwardCommand($mail_search);
+//				break;
+// fau.
 			case 'ilbadgemanagementgui':
 				$this->tabs_gui->setTabActive('obj_tool_setting_badges');
 				include_once 'Services/Badge/classes/class.ilBadgeManagementGUI.php';

@@ -268,7 +268,23 @@ abstract class ilParticipants
         return $rbacreview->isAssignedToAtLeastOneGivenRole($a_usr_id, $local_roles);
 	}
 
-// fau: mailToMembers - check if user is local or upper admin
+// fau: mailToMembers - new function _isTutor()
+	/**
+	 * Static function to check if a user is tutor of a course
+	 * This is used for the special case where course tutors should be allowed to send a mail to the members
+	 * @param int $a_ref_id
+	 * @param int $a_usr_id
+	 * @return bool
+	 */
+	public static function _isTutor($a_ref_id, $a_usr_id)
+	{
+		global $DIC;
+		$assigned_tutor_roles = $DIC->rbac()->review()->getRolesByFilter(0, $a_usr_id, 'il_crs_tutor_'.$a_ref_id);
+		return !empty($assigned_tutor_roles);
+	}
+// fau.
+
+// fau: mailToMembers - new function _isLocalOrUpperAdmin()
 	/**
 	 * Static function to check if the user has an admin role of this or an upper course/group
 	 * This is used for the special case of nested groups where admins should see the member gallery
@@ -280,11 +296,10 @@ abstract class ilParticipants
 	 */
 	public static function _isLocalOrUpperAdmin($a_ref_id, $a_usr_id)
 	{
-		/** @var ilRbacReview $rbacreview */
-		global $rbacreview;
-
+		global $DIC;
+		$rbacreview = $DIC->rbac()->review();
 		/** @var ilTree $tree */
-		global $tree;
+		$tree = $DIC['tree'];
 
 		// check objects from current object upwards
 		$path_ids  = array_reverse($tree->getPathId($a_ref_id));
