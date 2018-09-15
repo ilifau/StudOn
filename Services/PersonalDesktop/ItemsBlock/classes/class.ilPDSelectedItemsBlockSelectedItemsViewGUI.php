@@ -56,10 +56,20 @@ class ilPDSelectedItemsBlockSelectedItemsViewGUI extends ilPDSelectedItemsBlockV
 		$tpl->setVariable("TXT_INTRO_1", sprintf($this->lng->txt('pdesk_intro2'), $this->lng->txt('to_desktop')));
 		
 		require_once 'Services/Link/classes/class.ilLink.php';
+// fau: rootIsReduced - get customized repository entry for desktop message
+		if ($rep_id = ilCust::get('ilias_repository_cat_id'))
+		{
+			$link = ilLink::_getStaticLink($rep_id,'cat',true);
+		}
+		else
+		{
+			$link = ilLink::_getStaticLink(1,'root',true);
+		}
 		$tpl->setVariable('TXT_INTRO_2', sprintf(
 			$this->lng->txt('pdesk_intro3'),
-			'<a href="' . ilLink::_getStaticLink(1,'root', true) . '">' . $this->getRepositoryTitle() . '</a>'
+			'<a href="' . $link . '">' . $this->getRepositoryTitle() . '</a>'
 		));
+// fau.
 		$tpl->setVariable('TXT_INTRO_3', $this->lng->txt('pdesk_intro4'));
 
 		return $tpl->get();

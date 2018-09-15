@@ -151,7 +151,17 @@ abstract class ilPDSelectedItemsBlockViewGUI
 	 */
 	protected function getRepositoryTitle()
 	{
-		$nd    = $this->tree->getNodeData($this->tree->getRootId());
+// fau: rootIsReduced - get customized repository entry for desktop message
+		if ($rep_id = ilCust::get('ilias_repository_cat_id'))
+		{
+			$nd = $this->tree->getNodeData($rep_id);
+		}
+		else
+		{
+			$this->tree->getNodeData($this->tree->getRootId());
+		}
+// fau.
+
 		$title = $nd['title'];
 
 		if($title == 'ILIAS')
