@@ -1819,10 +1819,6 @@ return;
 		}
 		else
 		{
-// fau: linkInSameWindow - include link class before xsl transformation
-			require_once ('./Services/Link/classes/class.ilLink.php');
-// fau.
-
 			$xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
 
 			$this->log->debug("Calling XSLT, content: ".substr($content, 0, 100));

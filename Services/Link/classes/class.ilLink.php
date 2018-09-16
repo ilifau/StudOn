@@ -132,6 +132,11 @@ class ilLink
 	public static function _isLocalLink($link = '')
 	{
 		$link_host = strtolower(parse_url($link, PHP_URL_HOST));
+		if (empty($link_host))
+		{
+			return true;
+		}
+
 		$link_host = str_replace('uni-erlangen','fau', $link_host);
 		$link_host = str_replace('www.','', $link_host);
 
