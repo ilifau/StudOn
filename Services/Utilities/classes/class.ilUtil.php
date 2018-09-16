@@ -1653,8 +1653,13 @@ class ilUtil
 	 */
 	public static function rCopy ($a_sdir, $a_tdir, $preserveTimeAttributes = false)
 	{
-		$a_sdir = realpath($a_sdir); // See https://www.ilias.de/mantis/view.php?id=23056
-		$a_tdir = realpath($a_tdir); // See https://www.ilias.de/mantis/view.php?id=23056
+// fau: fixRCopy - 	apply a simplified path cleanup instead of using realpath()
+//					The	LegacyPathHelper does not handle absolute paths for the web filesystem correctly
+//					Additionally, on some installations the web data dir is a symlink pointing outside the web space
+//					This is not easily compared to ILIAS_ABSOLUTE_PATH plus ILIAS_WEB_DIR
+		$a_sdir = self::simplifyPath($a_sdir); // See https://www.ilias.de/mantis/view.php?id=23056
+		$a_tdir = self::simplifyPath($a_tdir); // See https://www.ilias.de/mantis/view.php?id=23056
+// fau.
 		try {
 			$sourceFS = LegacyPathHelper::deriveFilesystemFrom($a_sdir);
 			$targetFS = LegacyPathHelper::deriveFilesystemFrom($a_tdir);
@@ -1676,16 +1681,46 @@ class ilUtil
 					continue;
 
 				$itemPath = $targetDir . '/' . substr($item->getPath(), strlen($sourceDir));
+// fau: fixRCopy - 	delete an existing target file, otherwise an exception would be thrown by writeStream()
+// 					Copied test questions may share the same media object - their file is copied twice at pool export
+				if ($targetFS->has($itemPath))
+				{
+					$targetFS->delete($itemPath);
+				}
+// fau.
 				$stream = $sourceFS->readStream($item->getPath());
 				$targetFS->writeStream($itemPath, $stream);
 			}
 			return true;
 		}
 		catch (\Exception $exception) {
-			return false;
+// fau: fixRCopy -  show copy errors instead of silently ignoring them
+//					Most calls of ilUtil::rCopy() don't check the return value
+			$message = "Error when coypying $a_sdir to $a_tdir with the following message: " . $exception->getMessage();
+			throw new Exception($message);
+// fau.
 		}
 	}
 
+// fau: fixRCopy - new function to simplify a path
+	/**
+	 * Remove parent and self steps from a path (without using realpath)
+	 * @param string $path
+	 * @return string
+	 */
+	private static function simplifyPath($path)
+	{
+		do {
+			$orig = $path;
+			$path = preg_replace('/\/[^\/]*\/\.\.\//', '/', $path);    		// apply back step
+			$path = str_replace('/./', '/', $path);                    			// omit self step
+			$path = str_replace('//', '/', $path);                    			// omit empty step
+			$path = substr($path, 0, 2) === './' ? substr($path, 2) : $path;  // omit self step at the beginning
+		} while ($orig != $path);
+
+		return $path;
+	}
+// fau.
 
 	/**
 	 * get webspace directory
