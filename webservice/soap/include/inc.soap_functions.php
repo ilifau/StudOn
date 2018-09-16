@@ -475,7 +475,7 @@ class ilSoapFunctions {
 	{
 		include_once './webservice/soap/classes/class.ilSoapUtils.php';
 
-		$sou =& new ilSoapUtils();
+		$sou = new ilSoapUtils();
 		$sou->disableSOAPCheck();
 		$sou->ignoreUserAbort();
 
