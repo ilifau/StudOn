@@ -48,33 +48,30 @@ idm_name = ""                           ;name of database used for looking up id
 idm_user = ""                           ;database user for looking up idm data
 idm_pass = ""                           ;password for looking up idm data
 
-ilias_show_template_history = "none"   	;possible values: "none", "page", "source"
-ilias_student_role_id = "4"				;Role Id of Students
 ilias_guest_role_id = "5"				;Role Id of Guests
-ilias_show_roles_info = "0"             ;Show roles with permissions on info screen
-ilias_trace_redirects = "0"             ;show redirect info instead of redirecting 
 
 ilias_deny_regstart_from = ""			;start time of denial period for registration starts
 ilias_deny_regstart_to = ""				;end time of denial period for registration starts
-
-ilias_login_help_url = ""				;link for local login help button
 
 ilias_footer_type = "studon"            ;possible values: "", "studon", "exam"
 ilias_footer_contact_url = ""			;contact URL un footer
 ilias_footer_imprint_url = ""			;imprint url in footer
 ilias_footer_privacy_url = ""           ;privacy url in footer
- 
-ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
-ilias_root_as_login = "0"               ;use the root folder as login page
-ilias_repository_cat_id = "0"           ;category id to use for the repository link in the menu
 
-local_auth_external = "0"               ;allow local login with external account 
-local_auth_matriculation = "0"          	;allow local login with matriculation number
+ilias_login_help_url = ""				;link for local login help button
+
+ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
+ilias_repository_cat_id = "0"           ;category id to use for the repository link in the menu
+ilias_root_as_login = "0"               ;use the root folder as login page
+ilias_show_roles_info = "0"             ;Show roles with permissions on info screen
+ilias_trace_redirects = "0"             ;show redirect info instead of redirecting
+
+local_auth_external = "0"               ;allow local login with external account
+local_auth_matriculation = "0"          ;allow local login with matriculation number
 
 lp_refreshes_limit = "0"				;fau: lpRefreshesLimit - limit allowed status refreshes when learning progress is shown
 
 mail_by_soap = "1"						;fau: mailBySoap - switch sending of external mails in the background
-media_player_version = ""               ;customized version of the media element player, e.g. 2_9_5
 
 mycampus_enabled = "0"                  ;enable my campus registration
 mycampus_reg_url = ""                   ;my campus registration url (univis id is included by %s)
@@ -92,8 +89,6 @@ pdf_engine = "tcpdf"					;engine for generation pdf files (tcpdf|phantomjs)
 pdf_server = ""							;url of the phantomjs pdf server
 pdf_timeout = "30"						;timeout for getting results from the server (seconds)
 
-reg_generate_login = "0"				;generate login at self registration
-
 remote_soap_server = ""                 ;soap url of a remote installation
 remote_soap_client_id = ""              ;soap client id of the remote server
 remote_soap_user = ""                   ;soap user of a remote installation
@@ -108,12 +103,6 @@ rpl_period_of_check_after = "1800"		;period of time in seconds to check how many
 
 search_enable_autocomplete = "1"        ;enable auto-complete in object search field
 
-tex_server = ""							;url of the mathjax server to generate images from tex
-tex_timeout = "5"						;timeout (seconds) for getting results from the server
-tex_output = "svg"						;output format of the generated images (png|svg)
-tex_embed = "1"							;embed generated images in the html code (instead of referring)
-tex_cache = "1"							;reuse previously generated images
-
 shib_allow_create = "1"                 ;allow the creation of user accounts by shibboleth
 shib_create_limited = ""				;time limit for shib created accounts, e.g. 2015-10-01
 shib_log_accounts = ""                  ;comma separated list of accounts for which a shibboleth login should be logged
@@ -122,6 +111,12 @@ shib_devmode_identity = ""              ;force an identity at shibboleth authent
 shib_devmode_login = ""                 ;force a login at shibboleth authentication in devmode (to get a studon user)
 
 studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are checked (comma-separated without spaces)
+
+tex_server = ""							;url of the mathjax server to generate images from tex
+tex_timeout = "5"						;timeout (seconds) for getting results from the server
+tex_output = "svg"						;output format of the generated images (png|svg)
+tex_embed = "1"							;embed generated images in the html code (instead of referring)
+tex_cache = "1"							;reuse previously generated images
 
 tst_notify_remote = "0"                 ;send mails to users at remote installation (for exam)
 tst_export_mycampus = "0"               ;enable the export of test results for my campus
@@ -138,4 +133,3 @@ univis_semester = ""                    ;set a specific semester for the import 
 univis_noimports = ""                   ;don't show imported lectures (1)
             
 webdav_show_warnings = "1"				;show warnings about locking and invisible names for webdav
-webform_log = ""						;log to be written for a webform saving
