@@ -427,7 +427,7 @@ class ilRegistrationCode
 		if ($row = $ilDB->fetchAssoc($result))
 		{
 			$this->code_id = (int) $row['code_id'];
-			$this->generated = new ilDateTime($row['generated'],IL_CAL_UNIX);
+			$this->generated = new ilDateTime($row['generated_on'],IL_CAL_UNIX);
 			$this->title = (string) $row['title'];
 			$this->description = (string) $row['description'];
 			$this->use_limit = (int) $row['use_limit'];
@@ -504,7 +504,7 @@ class ilRegistrationCode
 			),
 			array(
 				'code' => array('text',$this->code),
-				'generated' => array('integer', $this->generated->get(IL_CAL_UNIX)),
+				'generated_on' => array('integer', $this->generated->get(IL_CAL_UNIX)),
 				'title' => array('text', $this->title),
 				'description' => array('text', $this->description),
 				'use_limit' => array('integer', $this->use_limit),

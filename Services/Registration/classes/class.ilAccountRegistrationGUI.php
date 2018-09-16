@@ -1039,11 +1039,14 @@ class ilAccountRegistrationGUI
 			ilSession::set('registered_user', $this->userObj->getId());
 
 			$this->tpl->setCurrentBlock('activation');
-// fau: regCodes - merge the username in the welcome text
-			$this->tpl->setVariable("TXT_REGISTERED", sprintf($lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
-// fau.
+// fau: regCodes - merge the username  and password in the welcome text and set formaction to login script
+			$this->tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
+			$this->tpl->setVariable('USERNAME', $this->userObj->getLogin());
+			$this->tpl->setVariable('PASSWORD', $password);
 
-			$action = $GLOBALS['DIC']->ctrl()->getFormAction($this, 'login').'&target='. ilUtil::stripSlashes($_GET['target']);
+			$this->ctrl->setParameterByClass('ilStartUpGUI', 'login_target', ilUtil::stripSlashes($_GET['target']));
+			$action = $this->ctrl->getFormActionByClass(['ilStartupGUI', 'ilStartUpGUI']);
+// fau.
 			$this->tpl->setVariable('FORMACTION', $action);
 
 // fau: samlAuth - changed language var for local login
@@ -1057,7 +1060,6 @@ class ilAccountRegistrationGUI
 		}
 // fau: regCodes show info about confirmation mail also for code - don't redirect automatically
 		else if($this->registration_settings->activationEnabled())
-
 		{
 			$login_url = './login.php?cmd=force_login&lang=' . $this->userObj->getLanguage();
 			$this->tpl->setVariable('TXT_REGISTERED', sprintf($lng->txt('reg_confirmation_link_successful'), $login_url));
@@ -1065,7 +1067,7 @@ class ilAccountRegistrationGUI
 // fau.
 		else
 		{
-			$this->tpl->setVariable('TXT_REGISTERED', $lng->txt('txt_registered_passw_gen'));
+			$this->tpl->setVariable('TXT_REGISTERED', $this->lng->txt('txt_registered_passw_gen'));
 		}
 	}
 

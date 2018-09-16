@@ -2,12 +2,11 @@
 	<p>{TXT_WELCOME}<br />{TXT_REGISTERED}</p>
 	<!-- BEGIN activation -->
 	<form action="{FORMACTION}" {TARGET} method="post">
-<!-- fau: regCodes - allow a direct log in (password has been manually entered) -->
-	<input type="hidden" name="sendLogin" value="1" />
-<!-- fau. -->
+<!-- fau: regCodes - allow a direct log in  -->
 	<input type="hidden" name="password" value="{PASSWORD}" />
 	<input type="hidden" name="username" value="{USERNAME}" />
-	<input class="btn btn-default" type="submit" value="{TXT_LOGIN}" />
+	<input class="btn btn-default" name="cmd[doStandardAuthentication]" type="submit" value="{TXT_LOGIN}" />
+<!-- fau. -->
 	</form>
 	<!-- END activation -->
 	<!-- BEGIN redirect -->
