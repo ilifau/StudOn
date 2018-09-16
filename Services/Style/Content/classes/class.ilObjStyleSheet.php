@@ -632,6 +632,40 @@ class ilObjStyleSheet extends ilObject
 		return $this->scope;
 	}
 
+// fau: customCss - set/get/ lookup custom css
+	/**
+	 * Set custom css code
+	 */
+	function setCustomCss($a_css)
+	{
+		$this->custom_css = $a_css;
+	}
+
+	/**
+	 * Get custom CSS code
+	 */
+	function getCustomCss()
+	{
+		return $this->custom_css;
+	}
+
+	/**
+	 * Lookup the custom css (for export)
+	 */
+	static function lookupCustomCss($a_id)
+	{
+		global $DIC;
+		$ilDB = $DIC->database();
+
+		$q = "SELECT custom_css FROM style_data ".
+			" WHERE id = ".$ilDB->quote($a_id, "integer");
+		$res = $ilDB->query($q);
+		$sty = $ilDB->fetchAssoc($res);
+
+		return (string) $sty["custom_css"];
+	}
+// fau.
+
 	/**
 	* Write up to date
 	*/
@@ -973,13 +1007,22 @@ class ilObjStyleSheet extends ilObject
 					$ilDB->quote($char["characteristic"], "text").")";
 				$ilDB->manipulate($q);
 			}
-			
-			// add style_data record
-			$q = "INSERT INTO style_data (id, uptodate, category) VALUES ".
-				"(".$ilDB->quote($this->getId(), "integer").", 0,".
-				$ilDB->quote((int) $this->getScope(), "integer").")";
-			$ilDB->manipulate($q);
-			
+
+// fau: customCss - add style_data record with custom css
+			$q = "SELECT * FROM style_data WHERE id = ".
+				$ilDB->quote($a_from_style, "integer");
+			$data_set = $ilDB->query($q);
+			$data_rec = $ilDB->fetchAssoc($data_set);
+			$this->setCustomCss($data_rec['custom_css']);
+
+			$ilDB->insert("style_data", array(
+					"id" => array("integer", $this->getId()),
+					"uptodate" => array("integer", 0),
+					"category" => array("integer", $this->getScope()),
+					"custom_css" => array("clob", $this->getCustomCss())
+				)
+			);
+// fau.
 			// copy images
 			$this->createImagesDirectory();
 			ilUtil::rCopy($from_style->getImagesDirectory(),
@@ -1214,6 +1257,9 @@ class ilObjStyleSheet extends ilObject
 		$new_obj->setTitle($this->getTitle()." (".$lng->txt("sty_acopy").")");
 		$new_obj->setType($this->getType());
 		$new_obj->setDescription($this->getDescription());
+// fau: customCss - clone custom css
+		$new_obj->setCustomCss($this->getCustomCss());
+// fau.
 		$new_obj->create($this->getId());
 		
 		$new_obj->writeStyleSetting("disable_auto_margins",
@@ -1597,6 +1643,9 @@ class ilObjStyleSheet extends ilObject
 		$sty = $ilDB->fetchAssoc($res);
 		$this->setUpToDate((boolean) $sty["uptodate"]);
 		$this->setScope($sty["category"]);
+// fau: customCss - read custom css from database
+		$this->setCustomCss($sty["custom_css"]);
+// fau.
 
 		// get style characteristics records
 		$this->chars = array();
@@ -1794,11 +1843,41 @@ class ilObjStyleSheet extends ilObject
 				fwrite ($css_file, "}\n");
 			}
 		}
+
+// fau: customCss - write custom css to css file
+		$custom = $this->getCustomCss();
+
+		foreach ($this->getImages() as $image)
+		{
+			$custom = str_replace("!".$image["entry"], "../sty/sty_".$this->getId()."/images/".$image["entry"], $custom);
+		}
+
+		foreach ($this->getColors() as $color)
+		{
+			$custom = preg_replace_callback('/!('.$color['name'].')(\(\-?[0-9]+\))?/', array($this,'replaceColorNameCallback'), $custom);
+		}
+
+		if (!empty($custom))
+		{
+			fwrite ($css_file, "\n". $custom);
+		}
+// fau.
 		fclose($css_file);
 //	exit;
 		$this->setUpToDate(true);
 		$this->_writeUpToDate($this->getId(), true);
 	}
+
+// fau: customCss - new function replaceColorNameCallback
+	/**
+	 * Callback function to replace color names
+	 * @param $matches
+	 * @return string
+	 */
+	function replaceColorNameCallback($matches) {
+		return $this->getColorCodeForName($matches[1].$matches[2]);
+	}
+// fau.
 
 	/**
 	* Get effective Style Id
@@ -1935,13 +2014,22 @@ class ilObjStyleSheet extends ilObject
 		$ilDB = $this->db;
 		
 		parent::update();
+// fau: customCss - update custom css in database
+		$custom_css = $this->getCustomCss();
 		$this->read();				// this could be done better
+		$this->setCustomCss($custom_css);
 		$this->writeCSSFile();
-		
-		$q = "UPDATE style_data ".
-			"SET category = ".$ilDB->quote((int) $this->getScope(), "integer").
-			" WHERE id = ".$ilDB->quote($this->getId(), "integer");
-		$ilDB->manipulate($q);
+
+		$ilDB->update("style_data",
+			array(
+				"category" => array("integer", (int) $this->getScope()),
+				"custom_css" => array("clob", $this->getCustomCss())
+			),
+			array (
+				"id" => array("integer", $this->getId())
+			)
+		);
+// fau.
 	}
 
 	/**
@@ -2105,8 +2193,14 @@ class ilObjStyleSheet extends ilObject
 				$xml.="</StyleTemplate>\n";
 			}
 		}
-		
-		
+
+// fau: customCss - write custom css to xml
+		if ($this->getCustomCss())
+		{
+			$xml.="<CustomCss><![CDATA[".$this->getCustomCss()."]]></CustomCss>";
+		}
+// fau.
+
 		$xml.= "</StyleSheet>";
 //echo "<pre>".htmlentities($xml)."</pre>"; exit;
 		return $xml;
