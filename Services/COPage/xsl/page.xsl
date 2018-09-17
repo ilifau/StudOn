@@ -87,9 +87,9 @@
 <xsl:param name="current_ts"/>
 <xsl:param name="enable_html_mob"/>
 <xsl:param name="page_perma_link"/>
-<!-- fim: [exam] add parameter to show fullscreen media with colorbox -->
+<!-- fau: imageBox - add parameter to show fullscreen media with colorbox -->
 <xsl:param name="fullscreen_in_colorbox"/>
-<!-- fim. -->
+<!-- fau. -->
 
 
 <xsl:template match="PageObject">
@@ -3135,11 +3135,11 @@
 		</xsl:when>
 		<xsl:otherwise>
 			<a target="_blank">
-			<!-- fim: [exam] open fullscreen media in colorbox -->
+			<!-- fau: imageBox - open fullscreen media in colorbox -->
  			<xsl:if test="$fullscreen_in_colorbox">
 				<xsl:attribute name="onclick">$.colorbox({width:window.innerWidth-100, height:window.innerHeight-100, iframe:true, href:'<xsl:value-of select="$fullscreen_link"/>&amp;mob_id=<xsl:value-of select="substring-after($cmobid,'mob_')"/>&amp;pg_id=<xsl:value-of select="$pg_id"/>'});return false;</xsl:attribute>
 			</xsl:if>
-			<!-- fim. -->
+			<!-- fau. -->
 			<xsl:attribute name="href"><xsl:value-of select="$fullscreen_link"/>&amp;mob_id=<xsl:value-of select="substring-after($cmobid,'mob_')"/>&amp;pg_id=<xsl:value-of select="$pg_id"/></xsl:attribute>
 			<img border="0" align="right">
 			<xsl:attribute name="src"><xsl:value-of select="$enlarge_path"/></xsl:attribute>

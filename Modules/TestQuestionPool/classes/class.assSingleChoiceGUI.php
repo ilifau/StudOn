@@ -376,11 +376,11 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 	
 	public function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		$keys = $this->getChoiceKeys();
 		
@@ -462,11 +462,11 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 	function getTestOutput($active_id, $pass, $is_postponed = FALSE, $use_post_solutions = FALSE, $show_feedback = FALSE)
 	// hey.
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		$keys = $this->getChoiceKeys();
 

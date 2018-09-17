@@ -445,11 +445,11 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 		$show_question_text = TRUE
 	)
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		// generate the question output
 		include_once "./Services/UICore/classes/class.ilTemplate.php";
@@ -627,11 +627,11 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	{
 		$solutions = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
 
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		if($GLOBALS['ilBrowser']->isMobile() || $GLOBALS['ilBrowser']->isIpad())
 		{
@@ -807,11 +807,11 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	function getTestOutput($active_id, $pass, $is_postponed = FALSE, $user_post_solution = FALSE, $inlineFeedback = false)
 	// hey.
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		if($GLOBALS['ilBrowser']->isMobile() || $GLOBALS['ilBrowser']->isIpad())
 		{

@@ -113,8 +113,10 @@ class iljQueryUtil {
 		return "./libs/bower/bower_components/maphilight/jquery.maphilight.min.js";
 	}
 
-	// fim: [exam] init the colorbox functionality
-	// fim: [trash] ignore missing template (cron job line)
+// fau: imageBox - new function initColorbox()
+	/**
+	 * Add the colorbox functionality to the current template
+	 */
 	static function initColorbox()
 	{
 		if (!ilContext::usesTemplate())
@@ -129,6 +131,6 @@ class iljQueryUtil {
 		$tpl->addJavaScript("./Services/jQuery/js/colorbox/jquery.colorbox-min.js", true, 1);
 		$tpl->addCss("./Services/jQuery/js/colorbox/example4/colorbox.css");
 	}
-	// fim.
+// fau.
 
 }

@@ -449,11 +449,11 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 	
 	function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		$user_solution = is_object($this->getPreviewSession()) ? (array)$this->getPreviewSession()->getParticipantsSolution() : array();
 
@@ -567,11 +567,11 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
 		$show_feedback = FALSE
 	)
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		// shuffle output
 		$keys = $this->getChoiceKeys();

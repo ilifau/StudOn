@@ -540,11 +540,11 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	
 	function getPreview($show_question_only = FALSE, $showInlineFeedback = false)
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		if( $this->getPreviewSession() && $this->getPreviewSession()->hasParticipantSolution() )
 		{
@@ -585,11 +585,11 @@ class assOrderingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
 	public function getTestOutput($activeId, $pass, $isPostponed = FALSE, $userSolutionPost = FALSE, $inlineFeedback = false)
 	// hey.
 	{
-		// fim: [exam] init colorbox
+// fau: imageBox - init colorbox
 		include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
 		iljQueryUtil::initjQuery();
 		iljQueryUtil::initColorbox();
-		// fim.
+// fau.
 
 		// hey: prevPassSolutions - fixed variable type, makes phpstorm stop crying
 		$userSolutionPost = is_array($userSolutionPost) ? $userSolutionPost : array();
