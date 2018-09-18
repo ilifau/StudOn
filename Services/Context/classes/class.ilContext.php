@@ -2,6 +2,10 @@
 
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+// fau: customSettings - require ilCust as early as possible (for plugins), settings are lazy loaded
+require_once 'Customizing/classes/class.ilCust.php';
+// fau.
+
 /** 
  * Service context (factory) class
  * 

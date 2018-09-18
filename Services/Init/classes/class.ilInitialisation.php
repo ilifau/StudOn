@@ -82,9 +82,6 @@ class ilInitialisation
 		require_once "./Services/Calendar/classes/class.ilDatePresentation.php";														
 		require_once "include/inc.ilias_version.php";
 
-// fau: customSettings - require ilCust, settings are lazy loaded
-		require_once './Customizing/classes/class.ilCust.php';
-// fau.
 
 		include_once './Services/Authentication/classes/class.ilAuthUtils.php';
 

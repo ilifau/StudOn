@@ -60,7 +60,7 @@ class ilCust
 		if (!$this->client_settings_loaded)
 		{
 			// read the client settings if available
-			if ($DIC->offsetExists('ilClientIniFile'))
+			if (isset($DIC) && $DIC->offsetExists('ilClientIniFile'))
 			{
 				/** @var ilIniFile $ilClientIniFile */
 				$ilClientIniFile = $DIC['ilClientIniFile'];
