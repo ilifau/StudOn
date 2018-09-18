@@ -978,6 +978,12 @@ class ilTemplate extends HTML_Template_ITX
 		
 // fau: ownFooter - fill the footer
 
+		// prevent errors - liveVoting Style does not support ilUtil::getImagePath()
+		if (class_exists('LiveVoting\Context\xlvoContext', false))
+		{
+			return;
+		}
+
 		$lng->loadLanguageModule("common");
 		$ftpl->setVariable("FAU_LOGO", ilUtil::getImagePath("studon/fau-white.svg"));
 		$ftpl->setVariable("ILI_LOGO", ilUtil::getImagePath("studon/ili-white.svg"));
