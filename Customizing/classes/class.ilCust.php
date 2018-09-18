@@ -25,41 +25,58 @@ class ilCust
 	static $instance;
 
 	/**
+	 * Flag for lazy-loading of the client settings
+	 * @var bool
+	 */
+	private $default_settings_loaded = false;
+
+	/**
+	 * Flag for lazy-loading of the default settings
+	 * @var bool
+	 */
+	private $client_settings_loaded = false;
+
+	/**
 	* Array with default settings
 	* @var array
-	* @access private
 	*/
-	var $default_settings = array();
+	private $default_settings = array();
 
 
 	/**
 	* Array with client dependent settings
 	* @var array
-	* @access private
 	*/
-	var $client_settings = array();
+	private $client_settings = array();
 
 
 	/**
-	 * Constructor
+	 * Lazy loading of the settings when they are neaded
 	 */
-	private function __construct()
+	private function loadSettings()
 	{
 		global $DIC;
 
-		// read the client settings if available
-		if ($DIC->offsetExists('ilClientIniFile'))
+		if (!$this->client_settings_loaded)
 		{
-			/** @var ilIniFile $ilClientIniFile */
-			$ilClientIniFile = $DIC['ilClientIniFile'];
-			$this->client_settings = $ilClientIniFile->readGroup("customize");
+			// read the client settings if available
+			if ($DIC->offsetExists('ilClientIniFile'))
+			{
+				/** @var ilIniFile $ilClientIniFile */
+				$ilClientIniFile = $DIC['ilClientIniFile'];
+				$this->client_settings = $ilClientIniFile->readGroup("customize");
+				$this->client_settings_loaded = true;
+			}
 		}
 
-		// read the default settings
-		$ini = new ilIniFile("./Customizing/customize.ini.php");
-		$ini->read();
-		$this->default_settings = $ini->readGroup("default");
-
+		if (!$this->default_settings_loaded)
+		{
+			// read the default settings
+			$ini = new ilIniFile("./Customizing/customize.ini.php");
+			$ini->read();
+			$this->default_settings = $ini->readGroup("default");
+			$this->default_settings_loaded = true;
+		}
 	}
 
 	/**
@@ -70,6 +87,8 @@ class ilCust
 	 */
 	private function getSetting($a_setting)
 	{
+		$this->loadSettings();
+
 		if (isset($this->client_settings[$a_setting]))
 		{
 			return $this->client_settings[$a_setting];

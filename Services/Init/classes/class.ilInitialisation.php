@@ -81,7 +81,11 @@ class ilInitialisation
 		require_once "./Services/Utilities/classes/class.ilUtil.php";
 		require_once "./Services/Calendar/classes/class.ilDatePresentation.php";														
 		require_once "include/inc.ilias_version.php";
-		
+
+// fau: customSettings - require ilCust, settings are lazy loaded
+		require_once './Customizing/classes/class.ilCust.php';
+// fau.
+
 		include_once './Services/Authentication/classes/class.ilAuthUtils.php';
 
 		self::initGlobal("ilBench", "ilBenchmark", "./Services/Utilities/classes/class.ilBenchmark.php");
@@ -492,7 +496,7 @@ class ilInitialisation
 		$ilGlobalCacheSettings = new ilGlobalCacheSettings();
 		$ilGlobalCacheSettings->readFromIniFile($ilClientIniFile);
 		ilGlobalCache::setup($ilGlobalCacheSettings);
-		
+
 		return true;
 	}
 
@@ -741,17 +745,6 @@ class ilInitialisation
 			self::abortAndDie("Init user account failed");
 		}
 	}
-
-// fau: customSettings - new function initCust()
-	/**
-	 * initialize customizations
-	 * must be done after client ini is read(settings are takem from there)
-	 */
-	protected static function initCust()
-	{
-		require_once("Customizing/classes/class.ilCust.php");
-	}
-// fau.
 
 	/**
 	 * Init Locale
@@ -1059,11 +1052,12 @@ class ilInitialisation
 		{
 			self::initClient();
 			self::initFileUploadService($GLOBALS["DIC"]);
+// fau: shortRssLink - prevent a logout of the user when private RSS link is opened in the same browser
 			if (ilContext::supportsPersistentSessions())
 			{
 				self::initSession();
 			}
-
+// fau.
 
 			if (ilContext::hasUser())
 			{						
@@ -1177,12 +1171,6 @@ class ilInitialisation
 		self::bootstrapFilesystems();
 
 		self::initClientIniFile();
-
-// fau: customSettings - init client related customizations
-        // StudOn defines them in client.ini.php
-        // They should be available for authentication
-        self::initCust();
-// fau.
 
 
 		// --- needs client ini
@@ -1694,10 +1682,11 @@ class ilInitialisation
 			ilLoggerFactory::getLogger('auth')->debug('Blocked authentication for baseClass: ' . $_GET['baseClass']);
 			return true;
 		}
-
+// fau: rootAsLogin init user account when terms of service are only shown
 		if($a_current_script == 'goto.php' && in_array($_GET['target'], array(
 			'usr_registration', 'usr_nameassist', 'usr_pwassist', 'usr_agreement'
 		)))
+// fau.
 		{
 			ilLoggerFactory::getLogger('auth')->debug('Blocked authentication for goto target: ' . $_GET['target']);
 			return true;
