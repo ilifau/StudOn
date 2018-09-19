@@ -537,6 +537,7 @@ class ilContainer extends ilObject
 	*
 	* @param	int		$a_id		container object id
 	* @param	string	$a_size		"big" | "small" | "tiny"
+	* @return string
 	*/
 	static function _lookupIconPath($a_id, $a_size = "big")
 	{
@@ -593,15 +594,15 @@ class ilContainer extends ilObject
 	}
 // fau.
 
-// fau: copyContainerIcon - new function to copy the container icon and its settings
+// fau: legacyIcons - copy also png and jpg icons when container is copied
 	/**
 	 * Copy the container icon to the clone
 	 * @param ilContainer $a_new_obj
 	 */
 	function copyIcon(ilContainer $a_new_obj)
 	{
-		/* @var ilDB */
-		global $ilDB;
+		global $DIC;
+		$ilDB = $DIC->database();
 
 		$q = "
 			REPLACE INTO container_settings (id, keyword, value)
@@ -725,22 +726,11 @@ class ilContainer extends ilObject
 			if($keyword == "icon_custom" && 
 				$value)
 			{
-				// see saveIcons()
-				$new_obj->createContainerDirectory();
-				$tgt_dir = $new_obj->getContainerDirectory();
-				$src_dir = $this->getContainerDirectory();				
-				$file = "icon_custom.svg";
-				$src_file = $src_dir."/".$file;
-				if(file_exists($src_file))
-				{
-					copy($src_file, $tgt_dir."/".$file);
-				}
+// fau: legacyIcons - use own copy function
+				$this->copyIcon($new_obj);
+// fau.
 			}
 		}
-
-// fau: copyContainerIcon - copy icon when container is copied
-		$this->copyIcon($new_obj);
-// fau.
 
 
 		return $new_obj;
