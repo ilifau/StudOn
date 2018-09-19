@@ -1204,8 +1204,8 @@ class ilObjectCopyGUI
 
 
 // fau: copyBySoap - show in message if mail will be sent
-		global $ilCtrl;
-		if ($ilCtrl->getCmd() == 'copyContainerWithMail')
+		global $DIC;
+		if ($DIC->ctrl()->getCmd() == 'copyContainerWithMail')
 		{
 			ilUtil::sendInfo($this->lng->txt("object_copy_in_progress_with_mail"));
 		}
@@ -1238,7 +1238,7 @@ class ilObjectCopyGUI
 		exit;
 	}
 
-// fau: copyBySoap - wrapper function for command with mail
+// 	fau: copyBySoap - wrapper function for command with mail
 	protected function copyContainerWithMail()
 	{
 		$this->copyContainerToTargets();

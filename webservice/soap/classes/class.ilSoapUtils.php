@@ -327,10 +327,9 @@ class ilSoapUtils extends ilSoapAdministration
 					$mappings = $cp_options->getMappings();
 					if (isset($mappings[$root_id]))
 					{
-						global $ilUser, $lng;
-						include_once './Services/Locator/classes/class.ilLocatorGUI.php';
-						include_once './Services/Link/classes/class.ilLink.php';
-						include_once './Services/Mail/classes/class.ilMail.php';
+						global $DIC;
+						$ilUser = $DIC->user();
+						$lng = $DIC->language();
 
 						$target_id = $mappings[$root_id];
 						$obj_id = ilObject::_lookupObjId($target_id);
