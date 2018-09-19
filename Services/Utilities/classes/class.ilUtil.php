@@ -1722,6 +1722,68 @@ class ilUtil
 	}
 // fau.
 
+// fau: fixRCopy - provide the old implementation
+	/**
+	 * Copies content of a directory $a_sdir recursively to a directory $a_tdir
+	 * @param	string	$a_sdir		source directory
+	 * @param	string	$a_tdir		target directory
+	 * @param 	boolean $preserveTimeAttributes	if true, ctime will be kept.
+	 *
+	 * @return	boolean	TRUE for sucess, FALSE otherwise
+	 * @access	public
+	 * @static
+	 *
+	 */
+	public static function rCopyOld ($a_sdir, $a_tdir, $preserveTimeAttributes = false)
+	{
+		// check if arguments are directories
+		if (!@is_dir($a_sdir) or
+			!@is_dir($a_tdir))
+		{
+			return FALSE;
+		}
+
+		// read a_sdir, copy files and copy directories recursively
+		$dir = opendir($a_sdir);
+
+		while($file = readdir($dir))
+		{
+			if ($file != "." and
+				$file != "..")
+			{
+				// directories
+				if (@is_dir($a_sdir."/".$file))
+				{
+					if (!@is_dir($a_tdir."/".$file))
+					{
+						if (!ilUtil::makeDir($a_tdir."/".$file))
+							return FALSE;
+
+						//chmod($a_tdir."/".$file, 0775);
+					}
+
+					if (!ilUtil::rCopyOld($a_sdir."/".$file,$a_tdir."/".$file))
+					{
+						return FALSE;
+					}
+				}
+
+				// files
+				if (@is_file($a_sdir."/".$file))
+				{
+					if (!copy($a_sdir."/".$file,$a_tdir."/".$file))
+					{
+						return FALSE;
+					}
+					if ($preserveTimeAttributes)
+						touch($a_tdir."/".$file, filectime($a_sdir."/".$file));
+				}
+			}
+		}
+		return TRUE;
+	}
+// fau.
+
 	/**
 	 * get webspace directory
 	 *
