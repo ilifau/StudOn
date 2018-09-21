@@ -177,7 +177,10 @@ class ilImport
 		}
 		else
 		{
-			ilUtil::moveUploadedFile($a_tmp_file, $a_filename, $tmpdir."/".$a_filename);
+// fau: fixRCopy - file import
+			move_uploaded_file($a_tmp_file,$tmpdir."/".$a_filename);
+//			ilUtil::moveUploadedFile($a_tmp_file, $a_filename, $tmpdir."/".$a_filename);
+// fau.
 		}
 
 		$this->log->debug("unzip: ".$tmpdir."/".$a_filename);
