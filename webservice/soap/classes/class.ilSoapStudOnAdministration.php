@@ -13,9 +13,9 @@ include_once './webservice/soap/classes/class.ilSoapAdministration.php';
 
 class ilSoapStudOnAdministration extends ilSoapAdministration
 {
-	function ilSoapStudOnAdministration()
+	function __construct($use_nusoap = true)
 	{
-		parent::ilSoapAdministration();
+		parent::__construct($use_nusoap);
 	}
 
 	

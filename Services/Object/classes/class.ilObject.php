@@ -968,7 +968,7 @@ class ilObject
 	 *						ilike:	case insensitive pattern matching
 	 * @return   array		arrays of object data (ref_id, obj_id, title, ...)
 	*/
-	function _getUntrashedObjectsForImportId($a_import_id, $a_matching = 'exact')
+	static function _getUntrashedObjectsForImportId($a_import_id, $a_matching = 'exact')
 	{
 	    global $ilDB;
 
