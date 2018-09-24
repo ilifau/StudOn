@@ -17,9 +17,9 @@ class ilVhbCourseListGUI extends ilObjectListGUI
 	/**
 	* constructor
 	*/
-	function ilVhbCourseListGUI()
+	function __construct($a_context = self::CONTEXT_REPOSITORY)
 	{
-		$this->ilObjectListGUI();
+		parent::__construct($a_context);
 	}
 
 	/**

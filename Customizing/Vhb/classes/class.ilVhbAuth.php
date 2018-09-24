@@ -38,14 +38,16 @@ class ilVhbAuth
 	 */
 	function __construct()
 	{
-		global $ilAuth;
+		global $DIC;
+		/** @var ilAuthSession $ilAuthSession */
+		$ilAuthSession = $DIC['ilAuthSession'];
 
 		$this->user_obj = new ilObjUser();
 
-		if (empty($_SESSION['AccountId']))
+		if (!$ilAuthSession->isAuthenticated())
 		{
-			$ilAuth->setAuth('anonymous');
-			$_SESSION['AccountId'] = ANONYMOUS_USER_ID;
+			$ilAuthSession->setAuthenticated(true, ANONYMOUS_USER_ID);
+			//$_SESSION['AccountId'] = ANONYMOUS_USER_ID;
 		}
 
 		$this->readSessionData();
@@ -489,11 +491,12 @@ class ilVhbAuth
 
 	private function initUserSession($a_user_id)
 	{
-		global $ilAuth;
+		global $DIC;
+		/** @var ilAuthSession $ilAuthSession */
+		$ilAuthSession = $DIC['ilAuthSession'];
 
-		ilInitialisation::setSessionHandler();
-        $ilAuth->setAuth(ilObjUser::_lookupLogin($a_user_id));
-        $_SESSION['AccountId'] = $a_user_id;
+		$ilAuthSession->setAuthenticated(true, $a_user_id);
+        //$_SESSION['AccountId'] = $a_user_id;
 		ilInitialisation::initUserAccount();
 	}
 
