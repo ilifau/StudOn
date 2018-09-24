@@ -485,7 +485,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 				$mdtab = $mdgui->getTab();
 				if($mdtab)
 				{								
-					$tabs_gui->addTab("meta_data",
+					$this->tabs_gui->addTab("meta_data",
 						$this->lng->txt("meta_data"),
 						$mdtab);
 				}
