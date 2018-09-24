@@ -128,8 +128,8 @@ class ilBenchmark
 						$ilDB->insert("benchmark", array(
 							"id" => array("integer", $id),
 							"duration" => array("float", $this->microtimeDiff($b["start"], $b["stop"])),
-							"sql_stmt" => array("clob", $b["sql"]),
-							"backtrace" => array("clob", $b["backtrace"])
+							"sql_stmt" => array("text", $b["sql"]),
+							"backtrace" => array("text", $b["backtrace"])
 						));
 					}
 				}
@@ -363,7 +363,7 @@ class ilBenchmark
 			{
 				$ilSetting->set("db_bench_user", $a_user);
 			}
-			$ilias->setSetting("enable_db_bench_instant", $instant);
+			$ilSetting->set("enable_db_bench_instant", $instant);
 			$this->clearData();
 		}
 		else
@@ -438,8 +438,8 @@ class ilBenchmark
 				$ilDB->insert("benchmark", array(
 					"id" => array("integer", $id),
 					"duration" => array("float", $this->microtimeDiff($this->start,  microtime())),
-					"sql_stmt" => array("clob", $this->sql),
-					"backtrace" => array("clob", $backtrace)
+					"sql_stmt" => array("text", $this->sql),
+					"backtrace" => array("text", $backtrace)
 				));
 			}
 

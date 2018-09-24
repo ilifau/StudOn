@@ -952,3 +952,28 @@
     }
     // fau.
 ?>
+<#58>
+<?php
+/**
+ * fau: extendBenchmark - Add backtrace info to the benchmark data
+ */
+if (!$ilDB->tableColumnExists('benchmark', 'backtrace'))
+{
+	$ilDB->addTableColumn('benchmark', 'backtrace',
+		array('type' => 'clob', 'notnull' => false)
+	);
+}
+?>
+<#58>
+<#59>
+<?php
+/**
+ * fau: extendBenchmark - Add backtrace info to the benchmark data
+ */
+if (!$ilDB->tableColumnExists('benchmark', 'backtrace'))
+{
+	$ilDB->addTableColumn('benchmark', 'backtrace',
+		array('type' => 'clob', 'notnull' => false)
+	);
+}
+?>
