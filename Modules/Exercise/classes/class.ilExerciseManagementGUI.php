@@ -88,7 +88,7 @@ class ilExerciseManagementGUI
 		
 		switch($class)
 		{
-			// fim: [exercise] call calculation GUI
+// fau: exManCalc - call calculation GUI
 			case "ilexcalculategui":
 				include_once("./Modules/Exercise/classes/class.ilExCalculateGUI.php");
 				$calc_gui = new ilExCalculateGUI($this->exercise);
@@ -96,7 +96,7 @@ class ilExerciseManagementGUI
 				$this->ctrl->setReturn($this,'showGradesOverview');
 				$this->ctrl->forwardCommand($calc_gui);
 				break;
-			// fim.
+// fau.
 
 			case "ilfilesystemgui":
 				$ilTabs->clearTargets();				
@@ -459,12 +459,12 @@ class ilExerciseManagementGUI
 				$marks_obj->setMark(ilUtil::stripSlashes($_POST["mark"][$k]));
 				$marks_obj->update();
 
-				// fim: [exercise] save the status in manual mode
+// fau: exManCalc - save the status in manual mode
 				if ($this->exercise->getPassMode() == "man")
 				{
 					ilExerciseMembers::_writeStatus($this->exercise->getId(), $k, $_POST["status"][$k]);
 				}
-				// fim.
+// fau.
 			}
 		}
 		ilUtil::sendSuccess($lng->txt("exc_msg_saved_grades"), true);
@@ -747,13 +747,13 @@ class ilExerciseManagementGUI
 			$ilToolbar->addButton($lng->txt("exc_export_excel"),
 				$ilCtrl->getLinkTarget($this, "exportExcel"));
 
-			// fim: [exercise] add button to calculate the grades
+// fau: exManCalc - add button to calculate the grades
 			if ($this->exercise->getPassMode() == "man")
 			{
 				$ilToolbar->addButton($lng->txt("exc_calculate_overall_results"),
 					$ilCtrl->getLinkTargetByClass("ilExCalculateGUI"));
 			}
-			// fim.
+// fau.
 		}
 		
 		$this->ctrl->setParameter($this, "vw", self::VIEW_GRADES);
@@ -1062,11 +1062,6 @@ class ilExerciseManagementGUI
 
 			$data[-1][$user_id] = array(
 				"status" => ilUtil::stripSlashes($_POST["status"][$user_id])
-				// fim: [bugfix] allow html special chars in notice
-				// todo: notice and mark are no more added in 5.3
-				,"notice" => ilUtil::stripSlashes($_POST["notice"][$user_id], false)
-				,"mark" => ilUtil::stripSlashes($_POST["mark"][$user_id])
-				// fim.
 			);
 
 			if(array_key_exists("mark", $_POST))
@@ -1177,9 +1172,9 @@ class ilExerciseManagementGUI
 					if(in_array($user_id, $all_members))
 					{
 						$member_status = $this->assignment->getMemberStatus($user_id);
-						// fim: [bugfix] allow html special chars in comment
+// fau: exFeedbackHtml - allow html special chars in comment
 						$member_status->setComment(ilUtil::stripSlashes($comment, false));
-						// fim.
+// fau.
 						$member_status->setFeedback(true);
 						$member_status->update();
 						

@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * fim: [exercise] calculation of overall results.
+ * fau: exManCalc - new class for result calculation.
  *
  * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
  * @version $Id$

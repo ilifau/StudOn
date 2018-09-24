@@ -4,10 +4,9 @@
 include_once "./Modules/Exercise/classes/class.ilExCalculate.php";
 
 /**
- * fim: [exercise] new GUI class for exercise calculations
+ * fau: exManCalc new GUI class for result calculations.
  *
  * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
- * @version $Id$
  * 
  * @ilCtrl_IsCalledBy ilExCalculateGUI: ilExerciseManagementGUI
  *

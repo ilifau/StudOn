@@ -335,7 +335,9 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
 			$lcomment_form->setPreventDoubleSubmission(false);
 
 			$lcomment = new ilTextAreaInputGUI($this->lng->txt("exc_comment_for_learner"), "lcomment_".$a_ass->getId()."_".$a_user_id);
-			$lcomment->setInfo($this->lng->txt("exc_comment_for_learner_info"));
+// fau: exResTime - adapt description of feedback input
+			$lcomment->setInfo($this->lng->txt($a_ass->getResultTime() <= time() ? "exc_comment_for_learner_info": "exc_comment_for_learner_info_nosend"));
+// fau.
 			$lcomment->setValue($a_row["comment"]);
 			$lcomment->setCols(45);
 			$lcomment->setRows(10);			
@@ -516,7 +518,9 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
 		}
 		
 		// feedback mail
-		if($this->exc->hasTutorFeedbackMail())
+// fau: exResTime - provide mail button only if result time is reached
+		if($this->exc->hasTutorFeedbackMail() && $a_ass->getResultTime() <= time())
+// fau.
 		{
 			$actions->addItem(
 				$this->lng->txt("exc_tbl_action_feedback_mail"),

@@ -325,11 +325,11 @@ class ilExerciseMembers
 		return false;
 	}
 
-// fim: [exercise] new function lookupStatusTime
+// fau: exManCalc - new function lookupStatusTime
 	/**
 	 * Get time when exercise has been set to solved.
 	 */
-	function _lookupStatusTime($exc_id, $member_id)
+	static function _lookupStatusTime($exc_id, $member_id)
 	{
 
 		global $ilDB, $lng;
@@ -345,7 +345,7 @@ class ilExerciseMembers
 			return ilUtil::getMySQLTimestamp($rec["status_time"]);
 		}
 	}
-// fim.
+// fau.
 
 	/**
 	 * Write user status
