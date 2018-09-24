@@ -82,7 +82,6 @@ class ilInitialisation
 		require_once "./Services/Calendar/classes/class.ilDatePresentation.php";														
 		require_once "include/inc.ilias_version.php";
 
-
 		include_once './Services/Authentication/classes/class.ilAuthUtils.php';
 
 		self::initGlobal("ilBench", "ilBenchmark", "./Services/Utilities/classes/class.ilBenchmark.php");
@@ -1050,7 +1049,7 @@ class ilInitialisation
 			self::initClient();
 			self::initFileUploadService($GLOBALS["DIC"]);
 // fau: shortRssLink - prevent a logout of the user when private RSS link is opened in the same browser
-			if (ilContext::supportsPersistentSessions())
+			if (ilContext::getType() != ilContext::CONTEXT_RSS &&  ilContext::getType() != ilContext::CONTEXT_RSS_AUTH)
 			{
 				self::initSession();
 			}
@@ -1500,8 +1499,8 @@ class ilInitialisation
 
 // fau: rootAsLogin - adjust target only if user is authentified
 //					(start page may also be shown if authentication has failed)
-
-			if (ilContext::doAuthentication() && $GLOBALS['DIC']['ilAuthSession']->isAuthenticated())
+			global $DIC;
+			if (ilContext::doAuthentication() && $DIC->offsetExists('ilAuthSession') && $DIC['ilAuthSession']->isAuthenticated())
 			{
 				require_once 'Services/User/classes/class.ilUserRequestTargetAdjustment.php';
 				$request_adjuster = new ilUserRequestTargetAdjustment($ilUser, $GLOBALS['DIC']['ilCtrl']);
