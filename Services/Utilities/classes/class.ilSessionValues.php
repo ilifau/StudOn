@@ -117,40 +117,6 @@ class ilSessionValues
 
 
 	/**
-	* Get a  date object from the session variables
-	* The session value is an array as saved from a DateTimeInput field
-	*
-	* @param    string      name of the section in session values
-	* @param    string      name of the variable
-	* @param    integer     default date (unix timestamp)
-	* @return
-	*/
-	function getSessionDateValue($a_section, $a_name, $a_default_timestamp = 0)
-	{
-		global $ilUser;
-
-		include_once('./Services/Calendar/classes/class.ilDateTime.php');
-
-		$value = $this->getSessionValue($a_section, $a_name);
-
-		if (!is_array($value))
-		{
-			return new ilDateTime($a_default_timestamp, IL_CAL_UNIX);
-	    }
-		else
-		{
-			$dt['year'] = (int) $value['date']['y'];
-			$dt['mon'] = (int) $value['date']['m'];
-			$dt['mday'] = (int) $value['date']['d'];
-			$dt['hours'] = (int) $value['time']['h'];
-			$dt['minutes'] = (int) $value['time']['m'];
-			$dt['seconds'] = (int) $value['time']['s'];
-
-			return new ilDateTime($dt,IL_CAL_FKT_GETDATE,$ilUser->getTimeZone());
-		}
-	}
-
-	/**
 	 * Get a start date object from the session variables
 	 * The session value is an array as saved from a DurationInput field
 	 *
@@ -167,20 +133,13 @@ class ilSessionValues
 
 		$value = $this->getSessionValue($a_section, $a_name);
 
-		if (!is_array($value))
+		if (true || !is_array($value))
 		{
 			return new ilDateTime($a_default_timestamp, IL_CAL_UNIX);
 		}
 		else
 		{
-			$dt['year'] = (int) $value['start']['date']['y'];
-			$dt['mon'] = (int) $value['start']['date']['m'];
-			$dt['mday'] = (int) $value['start']['date']['d'];
-			$dt['hours'] = (int) $value['start']['time']['h'];
-			$dt['minutes'] = (int) $value['start']['time']['m'];
-			$dt['seconds'] = (int) $value['start']['time']['s'];
-
-			return new ilDateTime($dt,IL_CAL_FKT_GETDATE,$ilUser->getTimeZone());
+			return new ilDateTime($value['start'],IL_CAL_FKT_DATE ,$ilUser->getTimeZone());
 		}
 	}
 
@@ -201,20 +160,13 @@ class ilSessionValues
 
 		$value = $this->getSessionValue($a_section, $a_name);
 
-		if (!is_array($value))
+		if (true||!is_array($value))
 		{
 			return new ilDateTime($a_default_timestamp, IL_CAL_UNIX);
 		}
 		else
 		{
-			$dt['year'] = (int) $value['end']['date']['y'];
-			$dt['mon'] = (int) $value['end']['date']['m'];
-			$dt['mday'] = (int) $value['end']['date']['d'];
-			$dt['hours'] = (int) $value['end']['time']['h'];
-			$dt['minutes'] = (int) $value['end']['time']['m'];
-			$dt['seconds'] = (int) $value['end']['time']['s'];
-
-			return new ilDateTime($dt,IL_CAL_FKT_GETDATE,$ilUser->getTimeZone());
+			return new ilDateTime($value['end'],IL_CAL_DATETIME ,$ilUser->getTimeZone());
 		}
 	}
 

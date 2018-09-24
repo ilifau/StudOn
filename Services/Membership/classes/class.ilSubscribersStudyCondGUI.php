@@ -33,10 +33,10 @@ class ilSubscribersStudyCondGUI
 	{
 		global $ilCtrl, $tpl, $lng;
 
-		$this->ctrl =& $ilCtrl;
-		$this->tpl =& $tpl;
-		$this->lng =& $lng;
-		$this->parent_gui =& $a_parent_gui;
+		$this->ctrl = $ilCtrl;
+		$this->tpl = $tpl;
+		$this->lng = $lng;
+		$this->parent_gui = $a_parent_gui;
 		$this->parent_obj_id = $this->parent_gui->object->getId();
 		$this->parent_ref_id = $this->parent_gui->object->getRefId();
 
@@ -50,7 +50,7 @@ class ilSubscribersStudyCondGUI
 	* Execute a command (main entry point)
 	* @access public
 	*/
-	public function &executeCommand()
+	public function executeCommand()
 	{
 		global $ilAccess, $ilErr;
 

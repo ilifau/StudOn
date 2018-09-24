@@ -256,7 +256,7 @@ class ilUnivisTerm extends ilUnivisData
 	* @param 	string      semester
 	* @return   array       list of term objects
 	*/
-	function _getTermsOfLecture($a_lecture_key, $a_semester)
+	static function _getTermsOfLecture($a_lecture_key, $a_semester)
 	{
 	    global $ilDB;
 

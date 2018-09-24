@@ -15,7 +15,7 @@ class ilUnivisDepartment extends ilUnivisData
 	*
 	* @return 	array       orgnr => name
 	*/
-	function _getOptionsForLectureSearch($a_add_default = false)
+	static function _getOptionsForLectureSearch($a_add_default = false)
 	{
 	    global $lng, $ilDB;
 

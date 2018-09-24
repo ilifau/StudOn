@@ -8,9 +8,9 @@ require_once './Services/UnivIS/parser/modules/generic_module.php';
 
 class DepartmentsModule extends GenericModule
 {
-    function DepartmentsModule($module)
+    function __construct($module)
     {
-	$this->module = $module;
+		parent::__construct($module);
     }
 
     function getUrl($uConf)

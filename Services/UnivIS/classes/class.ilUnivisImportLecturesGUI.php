@@ -643,8 +643,9 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 
 	/**
 	* show the form for import conditions
+	 * @return ilPropertyFormGUI
 	*/
-	protected function showConditionsForm()
+	protected function initConditionsForm()
 	{
 		require_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
 		$this->conditions_form = new ilPropertyFormGUI();
@@ -853,9 +854,9 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 				include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";
 				$dur = new ilDateDurationInputGUI($this->lng->txt('rep_time_period'), "access_period");
 				$dur->setShowTime(true);
-				$dur->setStart($this->values->getSessionDurationStart('conditions_form','access_period', time()));
+				$dur->setStart(new ilDateTime($this->values->getSessionValue('conditions_form', 'access_start', time()), IL_CAL_UNIX));
 				$dur->setStartText($this->lng->txt('rep_activation_limited_start'));
-				$dur->setEnd($this->values->getSessionDurationEnd('conditions_form','access_period', mktime(0,0,0,12,31,date("Y",time())+1)));
+				$dur->setEnd(new ilDateTime($this->values->getSessionValue('conditions_form','access_end', mktime(0,0,0,12,31,date("Y",time())+1)), IL_CAL_UNIX));
 				$dur->setEndText($this->lng->txt('rep_activation_limited_end'));
 				$act_type->addSubItem($dur);
 
@@ -875,31 +876,30 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 		$item->setChecked($this->values->getSessionValue('conditions_form','set_registration','0'));
 
 			// registration type
-			$reg_type = new ilRadioGroupInputGUI($this->lng->txt('crs_reg_period'),'subscription_limitation_type');
+			$reg_type = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_limited'),'subscription_limitation_type');
 			$reg_type->setValue($this->values->getSessionValue('conditions_form','subscription_limitation_type',IL_CRS_SUBSCRIPTION_UNIVIS));
 
 				$opt = new ilRadioOption($this->lng->txt('crs_reg_univis'),IL_CRS_SUBSCRIPTION_UNIVIS);
 				$opt->setInfo($this->lng->txt('crs_reg_univis_info'));
 				$reg_type->addOption($opt);
 			
-				$opt = new ilRadioOption($this->lng->txt('crs_reg_deactivated'),IL_CRS_SUBSCRIPTION_DEACTIVATED);
+				$opt = new ilRadioOption($this->lng->txt('crs_reg_no_selfreg'),IL_CRS_SUBSCRIPTION_DEACTIVATED);
 				$opt->setInfo($this->lng->txt('crs_registration_deactivated'));
 				$reg_type->addOption($opt);
 
-				$opt = new ilRadioOption($this->lng->txt('crs_registration_unlimited'),IL_CRS_SUBSCRIPTION_UNLIMITED);
-				$opt->setInfo($this->lng->txt('crs_reg_unlim_info'));
+				$opt = new ilRadioOption($this->lng->txt('mem_unlimited'),IL_CRS_SUBSCRIPTION_UNLIMITED);
 				$reg_type->addOption($opt);
 
 				$opt = new ilRadioOption($this->lng->txt('crs_registration_limited'),IL_CRS_SUBSCRIPTION_LIMITED);
-				$opt->setInfo($this->lng->txt('crs_reg_lim_info'));
 
 					$this->tpl->addJavaScript('./Services/Form/js/date_duration.js');
 					include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";
 					$dur = new ilDateDurationInputGUI($this->lng->txt('crs_registration_period'), "subscription_period");
 					$dur->setShowTime(true);
-					$dur->setStart($this->values->getSessionDurationStart('conditions_form','subscription_period', time()));
+
+					$dur->setStart(new ilDateTime($this->values->getSessionValue('conditions_form','subscription_start', time()), IL_CAL_UNIX));
 					$dur->setStartText($this->lng->txt('crs_start'));
-					$dur->setEnd($this->values->getSessionDurationEnd('conditions_form','subscription_period', mktime(0,0,0,12,31,date("Y",time())+1)));
+					$dur->setEnd(new ilDateTime($this->values->getSessionValue('conditions_form','subscription_end', mktime(0,0,0,12,31,date("Y",time())+1)),IL_CAL_UNIX));
 					$dur->setEndText($this->lng->txt('crs_end'));
 					// fim: [memad] show deny time for registration
 
@@ -922,7 +922,6 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 			// registration procedure
 			$reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'),'subscription_type');
 			$reg_proc->setValue($this->values->getSessionValue('conditions_form','subscription_type',IL_CRS_SUBSCRIPTION_CONFIRMATION));
-			$reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
 
 				$opt = new ilRadioOption($this->lng->txt('crs_subscription_options_confirmation'),IL_CRS_SUBSCRIPTION_CONFIRMATION);
 				$reg_proc->addOption($opt);
@@ -987,15 +986,30 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 			$this->conditions_form->addItem($eval);
 		}
 		// fim.
-        
-		return $this->output($this->conditions_form->getHTML());
+
+
+		return $this->conditions_form;
 	}
+
+	/**
+	 * Show the import conditions form
+	 */
+	protected function showConditionsForm()
+	{
+		$form = $this->initConditionsForm();
+		return $this->output($form->getHTML());
+	}
+
 
 	/**
 	* submit the form for import conditions
 	*/
 	protected function submitConditionsForm()
 	{
+		$form = $this->initConditionsForm();
+		$form->checkInput();
+		//$form->setValuesByPost();
+
 	    $request_names = array (
 	        'set_title',
 			'set_title_short',
@@ -1024,11 +1038,9 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 			'set_activation',
 		    'activation_online',
 			'activation_type',
-		    'access_period',
 		    'activation_visibility',
 			'set_registration',
 			'subscription_limitation_type',
-			'subscription_period',
 			'subscription_type',
 			'subscription_password',
 			'set_membership_limitation',
@@ -1040,6 +1052,29 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 		{
             $this->values->saveRequestValue('conditions_form', $name);
   		}
+
+  		/** @var ilDateDurationInputGUI $access_period */
+  		$access_period = $form->getItemByPostVar('access_period');
+  		if (!empty($access_period->getStart()))
+		{
+			$this->values->setSessionValue('conditions_form', 'access_start', $access_period->getStart()->get(IL_CAL_UNIX));
+		}
+		if (!empty($access_period->getEnd()))
+		{
+			$this->values->setSessionValue('conditions_form', 'access_end', $access_period->getEnd()->get(IL_CAL_UNIX));
+		}
+
+		/** @var ilDateDurationInputGUI $subscription_period */
+		$subscription_period = $form->getItemByPostVar('subscription_period');
+		if (!empty($subscription_period->getStart()))
+		{
+			$this->values->setSessionValue('conditions_form', 'subscription_start', $subscription_period->getStart()->get(IL_CAL_UNIX));
+		}
+		if (!empty($subscription_period->getEnd()))
+		{
+			$this->values->setSessionValue('conditions_form', 'subscription_end', $subscription_period->getEnd()->get(IL_CAL_UNIX));
+		}
+
 
 		// retry if checks failes
 		$retry = false;
@@ -1327,8 +1362,9 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 			{
 				$crs->setActivationType((bool) $cond['activation_type'] ? IL_CRS_ACTIVATION_LIMITED : IL_CRS_ACTIVATION_UNLIMITED);
 				$crs->setOfflineStatus(!(bool) $cond['activation_online']);
-				$crs->setActivationStart($this->values->getSessionDurationStart('conditions_form','access_period')->get(IL_CAL_UNIX));
-				$crs->setActivationEnd($this->values->getSessionDurationEnd('conditions_form','access_period')->get(IL_CAL_UNIX));
+
+				$crs->setActivationStart($this->values->getSessionValue('conditions_form','access_start', time()));
+				$crs->setActivationEnd($this->values->getSessionValue('conditions_form','access_end', mktime(0,0,0,12,31,date("Y",time())+1)));
 				$crs->setActivationVisibility((bool)$cond['activation_visibility']);
 	        }
 
@@ -1344,19 +1380,19 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 				 {
 				 	// get registration period from univis
 		            $crs->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_LIMITED);
-				 	$start = $lecture->getRegStart();
-				 	$end = $lecture->getRegEnd();	
+				 	$start = $lecture->getRegStart()->get(IL_CAL_UNIX);
+				 	$end = $lecture->getRegEnd()->get(IL_CAL_UNIX);
 				 }
 				 else
 				 {
 				 	// get registration period from the form
 		            $crs->setSubscriptionLimitationType($cond['subscription_limitation_type']);
-					$start = $this->values->getSessionDurationStart('conditions_form','subscription_period');
-					$end = $this->values->getSessionDurationEnd('conditions_form','subscription_period');
+					$start = $this->values->getSessionValue('conditions_form','subscription_start', time());
+					$end = $this->values->getSessionValue('conditions_form','subscription_end', mktime(0,0,0,12,31,date("Y",time())+1));
 				 }	
-				 
-				$crs->setSubscriptionStart($start->get(IL_CAL_UNIX));
-				$crs->setSubscriptionEnd($end->get(IL_CAL_UNIX));
+
+				$crs->setSubscriptionStart($start);
+				$crs->setSubscriptionEnd($end);
 				$crs->setSubscriptionType($cond['subscription_type']);
 	            $crs->setSubscriptionPassword($cond['subscription_password']);
 				 
@@ -1365,10 +1401,10 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
 			{
 				// no manual setting of registration
 				// take subscription limitation from univis
-	            $start = $lecture->getRegStart();
-			 	$end = $lecture->getRegEnd();
-			 	$crs->setSubscriptionStart($start->get(IL_CAL_UNIX));
-				$crs->setSubscriptionEnd($end->get(IL_CAL_UNIX));
+				$start = $lecture->getRegStart()->get(IL_CAL_UNIX);
+				$end = $lecture->getRegEnd()->get(IL_CAL_UNIX);
+			 	$crs->setSubscriptionStart($start);
+				$crs->setSubscriptionEnd($end);
 	            $crs->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_LIMITED);
 				$crs->setSubscriptionType(IL_CRS_SUBSCRIPTION_DIRECT);
 			}

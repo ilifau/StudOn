@@ -557,7 +557,7 @@ class ilUnivisLecture extends ilUnivisData
    /**
 	* Get a link for looking up the data in univis
 	*/
-	function _getLinkForIliasImportId($import_id)
+	static function _getLinkForIliasImportId($import_id)
 	{
 		$parts = self::_splitIliasImportId($import_id);
 

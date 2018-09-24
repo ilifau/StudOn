@@ -122,7 +122,7 @@ class ilUnivisOfficehour extends ilUnivisData
 	* @param 	string      person key
 	* @return   array       list of officehour objects
 	*/
-	function _getOfficehoursOfPerson($a_person_key)
+	static function _getOfficehoursOfPerson($a_person_key)
 	{
 	    global $ilDB;
 

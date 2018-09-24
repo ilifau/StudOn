@@ -133,7 +133,7 @@ class ilUnivisPerson extends ilUnivisData
 	* @param    boolean     add default entry for selection
 	* @return 	array       lecturer search pattern => name
 	*/
-	function _getOptionsForLectureSearch($a_add_default = false)
+	static function _getOptionsForLectureSearch($a_add_default = false)
 	{
 	    global $lng, $ilDB;
 

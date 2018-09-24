@@ -84,7 +84,7 @@ class ilUnivisStudy extends ilUnivisData
 	* @param 	string      semester
 	* @return   array       list of study objects
 	*/
-	function _getStudiesOfLecture($a_lecture_key, $a_semester)
+	static function _getStudiesOfLecture($a_lecture_key, $a_semester)
 	{
 	    global $ilDB;
 

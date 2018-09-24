@@ -33,9 +33,9 @@ class LecturesModule extends GenericModule
 	* @param    array   first semester ('year' => (integer), 'sem' => (string))
 	* @param    array   last semester ('year' => (integer), 'sem' => (string))
 	*/
-    function LecturesModule($module, $a_first_semester = null, $a_last_semester = null)
+    function __construct($module, $a_first_semester = null, $a_last_semester = null)
     {
-		$this->module = $module;
+		parent::__construct($module);
 
 		// starting semester for fetching univis data
 		if (is_array($a_first_semester))

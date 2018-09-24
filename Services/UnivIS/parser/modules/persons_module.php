@@ -6,13 +6,13 @@
 
 require_once './Services/UnivIS/parser/modules/generic_module.php';
 
-class PersonsModule
+class PersonsModule extends GenericModule
 {
     var $module;
 
-    function PersonsModule($module)
+    function __construct($module)
     {
-	$this->module = $module;
+		parent::__construct($module);
     }
 
     function getUrl($uConf)

@@ -8,12 +8,12 @@ class GenericModule
 {
     var $module;
 
-    function GenericModule($module)
+    function __construct($module)
     {
 		$this->module = $module;
     }
 
-    function getUrl(&$uConf)
+    function getUrl($uConf)
     {
 		return $uConf['prg_url']
 			. 'search='.$this->module

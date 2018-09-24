@@ -68,7 +68,7 @@ class ilUnivisLocation extends ilUnivisData
 	* @param 	string      lperson key
 	* @return   array       list of location objects
 	*/
-	function _getLocationsOfPerson($a_person_key)
+	static function _getLocationsOfPerson($a_person_key)
 	{
 	    global $ilDB;
 
