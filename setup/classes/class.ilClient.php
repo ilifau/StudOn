@@ -26,7 +26,7 @@ class ilClient
 	 */
 	public $error = '';
 	/**
-	 * @var ilDBInterface
+	 * @var ilDB
 	 */
 	public $db;
 	/**
@@ -90,11 +90,6 @@ class ilClient
 
 			return false;
 		}
-
-// fau: globalCache - make client.ini globally available in setup
-		global $ilClientIniFile;
-		$ilClientIniFile = $this->ini;
-// fau.
 
 		// only for ilias main
 		define("CLIENT_WEB_DIR", ILIAS_ABSOLUTE_PATH . "/" . ILIAS_WEB_DIR . "/" . $this->getId());

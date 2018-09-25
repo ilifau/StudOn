@@ -183,10 +183,7 @@ class ilGlobalCache {
 	 */
 	protected static function generateServiceId() {
 		if (! isset(self::$unique_service_id)) {
-// fau: globalCache - make clients recognizable by prefix
-			// self::$unique_service_id = substr(md5('il_' . CLIENT_ID), 0, 6);
-			self::$unique_service_id = CLIENT_ID;
-// fau.
+			self::$unique_service_id = substr(md5('il_' . CLIENT_ID), 0, 6);
 		}
 	}
 
