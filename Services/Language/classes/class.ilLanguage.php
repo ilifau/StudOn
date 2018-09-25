@@ -285,10 +285,12 @@ class ilLanguage
 
 		if ($translation == "")
 		{
-			if (ILIAS_LOG_ENABLED && is_object($this->log))
-			{
-				$this->log->writeLanguageLog($a_topic,$this->lang_key);
-			}
+// fau: preventLanguageLog - don't write log for missing entries
+//			if (ILIAS_LOG_ENABLED && is_object($this->log))
+//			{
+//				$this->log->writeLanguageLog($a_topic,$this->lang_key);
+//			}
+// fau.
 			return "-".$a_topic."-";
 		}
 		else
