@@ -395,13 +395,6 @@ class ilTestRandomQuestionSetConfig extends ilTestQuestionSetConfig
 		return $questionSetBuilder->checkBuildable();
 	}
 
-//fau: fixRandomTestBuildable - function to get messages
-	public function getBuildableMessages()
-	{
-		return $this->buildableMessages;
-	}
-// fau.
-
 	public function doesQuestionSetRelatedDataExist()
 	{
 		if( $this->dbRecordExists($this->testOBJ->getTestId()) )

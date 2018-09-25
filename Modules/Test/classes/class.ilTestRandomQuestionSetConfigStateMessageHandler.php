@@ -242,6 +242,15 @@ class ilTestRandomQuestionSetConfigStateMessageHandler
 			$this->addValidationReport( implode('<br />', $this->questionSetConfig->getBuildableMessages()) );
 			//fau.
 		}
+// fau: fixRandomTestDoubleOriginals - show message if the test has double originals
+		elseif (!$this->questionSetConfig->hasUniqueOriginalQuestions())
+		{
+			$this->setValidationFailed(true);
+			$this->addValidationReport( $this->lng->txt('tst_msg_rand_quest_set_has_double_originals') );
+			$this->addValidationReport( "<br />{$this->buildQuestionStageRebuildLink()}" );
+			$this->addValidationReport( "<br><small>".$this->lng->txt('tst_msg_rand_quest_set_sync_duration')."</small>" );
+		}
+// fau.
 		else
 		{
 			//fau: fixRandomTestBuildable - show the messages if set is buildable but messages exist
