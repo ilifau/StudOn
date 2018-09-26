@@ -2737,6 +2737,10 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 // fau: testNav - new function populateNavWhenChangedModal
 	protected function populateNavWhenChangedModal()
 	{
+	    // fau: testPreventNavModal always suppress the modal
+        return;
+        // fau.
+
 		if (!empty($_SESSION['save_on_navigation_prevent_confirmation']))
 		{
 			return;
