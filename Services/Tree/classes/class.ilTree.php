@@ -1048,14 +1048,26 @@ class ilTree
 		}
 		$inClause .= ')';
 
+// fau: treeQuery53 - don't use tree_id for repository tree
+// this has bad performance on our MariaDB 10.1
+// deleted subtrees may have negative tree_id, but the given childs are already primary keys
+		if ($this->table_tree == 'tree' && $this->tree_id == 1)
+		{
+            $treeClause = '';
+		}
+		else
+		{
+			$treeClause = 'AND '.$this->table_tree.'.'.$this->tree_pk.' = '.$this->ilDB->quote($this->tree_id,'integer').' ';
+		}
+
 		$q = 'SELECT * '.
 			'FROM '.$this->table_tree.' '.
             $this->buildJoin().' '.
 			'WHERE '.$inClause.' '.
-            'AND '.$this->table_tree.'.'.$this->tree_pk.' = '.$this->ilDB->quote($this->tree_id,'integer').' '.
+            $treeClause.
 			'ORDER BY depth';
 		$r = $ilDB->query($q);
-
+// fau.
 		$pathFull = array();
 		while ($row = $r->fetchRow(ilDBConstants::FETCHMODE_ASSOC))
 		{
@@ -1086,11 +1098,23 @@ class ilTree
 		{
 			return;
 		}
+// fau: treeQuery53 - don't use tree_id for repository tree
+// this has bad performance on our MariaDB 10.1
+// deleted subtrees may have negative tree_id, but the given childs are already primary keys
+        if ($this->table_tree == 'tree' && $this->tree_id == 1)
+        {
+            $treeClause = '';
+        }
+        else
+        {
+            $treeClause = ' AND '.$this->tree_pk.' = '.$ilDB->quote($this->tree_id, "integer");
+        }
 
 		$res = $ilDB->query('SELECT t.depth, t.parent, t.child '.
 			'FROM '.$this->table_tree.' t '.
 			'WHERE '.$ilDB->in("child", $a_node_ids, false, "integer").
-			'AND '.$this->tree_pk.' = '.$ilDB->quote($this->tree_id, "integer"));
+			$treeClause);
+// fau.
 		while ($row = $ilDB->fetchAssoc($res))
 		{
 			$this->depth_cache[$row["child"]] = $row["depth"];
