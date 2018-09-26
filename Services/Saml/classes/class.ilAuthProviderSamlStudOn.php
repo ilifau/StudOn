@@ -124,10 +124,13 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 		}
 
 		// Try the matriculation number
-		if ($login = ilObjUser::_findLoginByField('matriculation', $this->data->matriculation))
-		{
-			return $login;
-		}
+        if (!empty($this->data->matriculation))
+        {
+            if ($login = ilObjUser::_findLoginByField('matriculation', $this->data->matriculation))
+            {
+                return $login;
+            }
+        }
 
 		// use the identity directly if no account is found
 		// a new account will be created with this identity as login
