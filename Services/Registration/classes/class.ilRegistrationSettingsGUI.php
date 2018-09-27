@@ -1089,8 +1089,8 @@ class ilRegistrationSettingsGUI
 		switch($this->form_gui->getInput("reg_limit"))
 		{
 			case "absolute":
-				$date = $this->form_gui->getInput("abs_date");
-				$date = $date["date"];
+                $date_input = $this->form_gui->getItemByPostVar("abs_date");
+                $date = $date_input->getDate()->get(IL_CAL_DATE);
 				if($date < date("Y-m-d"))
 				{
 					return false;
@@ -1171,9 +1171,10 @@ class ilRegistrationSettingsGUI
 		switch($this->form_gui->getInput("reg_limit"))
 		{
 			case "absolute":
-				$date = $this->form_gui->getInput("abs_date");
+                $date_input = $this->form_gui->getItemByPostVar("abs_date");
+                $date = $date_input->getDate();
 				$codeObj->limit_type = "absolute";
-				$codeObj->limit_date = new ilDateTime($date["date"],IL_CAL_DATE);
+				$codeObj->limit_date = $date;
 				$codeObj->limit_duration = array();
 				break;
 

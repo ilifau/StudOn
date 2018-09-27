@@ -509,7 +509,7 @@ class ilRegistrationCode
 				'description' => array('text', $this->description),
 				'use_limit' => array('integer', $this->use_limit),
 				'use_count' => array('integer', $this->use_count),
-				'used' =>array('integer', $this->last_use->get(IL_CAL_UNIX)),
+				'used' =>array('integer', (int) $this->last_use->get(IL_CAL_UNIX)),
 				'role' => array('integer', $this->global_role),
 				'role_local' => array('text', implode(';', $this->local_roles)),
 				'alimit' => array('text', $this->limit_type),

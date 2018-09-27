@@ -260,7 +260,8 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 			$rawdata['mail']                        = $this->attributes['urn:mace:dir:attribute-def:mail'][0];
 			$rawdata['schac_gender']                = $this->attributes['urn:mace:terena.org:attribute-def:schacGender'][0];
 			$rawdata['unscoped_affiliation']        = implode(';',$this->attributes['urn:mace:dir:attribute-def:eduPersonAffiliation']);
-			$rawdata['user_password']               = $this->attributes['urn:mace:dir:attribute-def:userPassword'][0];
+            // Passwords by SSO have {CRYPT} prefix - not yet supported by StudOn
+			//$rawdata['user_password']               = $this->attributes['urn:mace:dir:attribute-def:userPassword'][0];
 			$rawdata['schac_personal_unique_code']  = $this->attributes['urn:mace:terena.org:attribute-def:schacPersonalUniqueCode'][0];
 			$rawdata['fau_features_of_study']       = '';
 			$rawdata['fau_employee']                = null;
