@@ -1807,6 +1807,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			$opt_obj->addSubItem($rep_sel);
 			if ($ref_id = $this->object->getRegistrationRefId())
 			{
+                $rep_sel->setValue($ref_id);
 				require_once('Services/Locator/classes/class.ilLocatorGUI.php');
 				$locator = new ilLocatorGUI();
 				$locator->setTextOnly(true);

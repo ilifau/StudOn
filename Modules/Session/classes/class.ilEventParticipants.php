@@ -207,7 +207,7 @@ class ilEventParticipants
 	}
 
 	// fim: [memsess] _getRegistrationsOfUserAndParent()
-	function _getRegistrationsOfUserAndParent($a_user_id, $a_parent_ref_id)
+	static function _getRegistrationsOfUserAndParent($a_user_id, $a_parent_ref_id)
 	{
 		global $tree;
 
