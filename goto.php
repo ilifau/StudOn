@@ -53,6 +53,14 @@ if (substr($_GET['target'], 0, 6) == 'lcode_')
 }
 // fau.
 
+// fau: numericLink - lookup the type when only the ref_id is given
+if (is_numeric($_GET['target']))
+{
+    $type = ilObject::_lookupType((int) $_GET['target'], true);
+    $_GET['target'] = $type . '_' . (int) $_GET['target'];
+}
+// fau.
+
 $r_pos = strpos($_GET["target"], "_");
 $rest = substr($_GET["target"], $r_pos+1);
 $target_arr = explode("_", $_GET["target"]);
