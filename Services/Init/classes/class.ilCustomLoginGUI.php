@@ -60,10 +60,14 @@ class ilCustomLoginGUI
 
 		// prepare the shibboleth link
 		$shib_link = 'saml.php';
-		if ($_GET["login_target"])
+		if (!empty($_GET["login_target"]))
 		{
 			$shib_link .= "?target=" . $_GET["login_target"];
 	    }
+	    elseif (!empty($_GET["target"]))
+        {
+            $shib_link .= "?target=" . $_GET["target"];
+        }
 
 		$tpl = new ilTemplate("tpl.custom_sso.html", true, true, "Services/Init");
 		if ($ilSetting->get("shib_login_instructions"))
@@ -99,7 +103,14 @@ class ilCustomLoginGUI
 		$ilSetting = $DIC->settings();
 		$lng = $DIC->language();
 
-		$ilCtrl->saveParameterByClass('ilStartUpGUI', 'login_target');
+		if (!empty($_GET['login_target']))
+        {
+            $ilCtrl->setParameterByClass('ilStartUpGUI', 'target', $_GET['login_target']);
+        }
+        elseif (!empty($_GET['target']))
+        {
+            $ilCtrl->setParameterByClass('ilStartUpGUI', 'target', $_GET['target']);
+        }
 		$action = $ilCtrl->getFormActionByClass(['ilStartupGUI', 'ilStartUpGUI']);
 
 		$tpl = new ilTemplate("tpl.custom_login.html", true, true, "Services/Init");

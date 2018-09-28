@@ -1609,7 +1609,7 @@ class ilObjGroupGUI extends ilContainerGUI
 			include_once('Services/User/classes/class.ilUserUtil.php');
 			include_once('Modules/Group/classes/class.ilGroupParticipants.php');
 
-			if (empty($_SESSION["AccountId"]) or $_SESSION["AccountId"] == ANONYMOUS_USER_ID)
+			if ($ilUser->getId() == ANONYMOUS_USER_ID)
 			{
 	           	ilUtil::sendInfo($lng->txt('join_grp_needs_login'), true);
 				ilUtil::redirect(ilUtil::_getRootLoginLink('crs_'.$a_target.'_join'));

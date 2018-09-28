@@ -304,8 +304,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 		}
 
 		// fim: [univis] don't allow 'join' command for anonymous users
-		if ($t_arr[2] == 'join'
-			and (empty($_SESSION["AccountId"]) or $_SESSION["AccountId"] == ANONYMOUS_USER_ID))
+		if ($t_arr[2] == 'join' && $ilUser->getId() == ANONYMOUS_USER_ID)
 		{
 	        global $lng;
 

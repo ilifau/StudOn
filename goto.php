@@ -44,7 +44,7 @@ if (is_object($ilPluginAdmin))
 	}
 }
 
-// fau: relativeLink - goto hook for rewritingthe target
+// fau: relativeLink - goto hook for rewriting the target
 if (substr($_GET['target'], 0, 6) == 'lcode_')
 {
 	require_once("Services/RelativeLink/classes/class.ilRelativeLinkGUI.php");
