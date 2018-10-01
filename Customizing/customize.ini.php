@@ -2,24 +2,15 @@
 
 ; fau: customSettings - local customizations of the ILIAS user interface
 ;
-; This file is read by class.ilCustomize.php
-; Settings can be used with ilCust->getSetting("setting")
+; This file is read by class.ilCust.php
+; Settings can be used with ilCust::get("setting")
 ;
-; Some dynamic settings are based on dynamic criteria (e.g. role dependent).
-; All other settings are looked up in the following ini files:
+; Settings are looked up in the following ini files:
 ;
-; 0. [admin] section in Customizing/customize.ini.php if administration is visible
-; 1. [norep] section in Customizing/customize.ini.php if repository is not visible
-; 2. [user skin] section in Customizing/customize.ini.php
-; 3. [customize] section in data/<client>/client.ini.php
-; 4. [customize] section in ilias.ini.php
-; 5. [default]   section in Customizing/customize.ini.php
+; 1. [customize] section in data/<client>/client.ini.php
+; 2. [default]   section in Customizing/customize.ini.php
 ;
-; The current skin's section corresponds to the directory name of the skin.
-; The client and ilias settings can differ between a development
-; and a production installation of ILIAS.
-;
-; Each non-dynamic setting should have at least a definition
+; Each setting should have at least a definition
 ; in the default section of customize.ini.php (last lookup).
 ; The default setting should correspond to a non-customized ILIAS.
 ;
@@ -123,7 +114,6 @@ tst_export_mycampus = "0"               ;enable the export of test results for m
 tst_prevent_image_drag = "0"			;prevent the dragging of images an links to texts fields in tests
 tst_prevent_image_validate = "0"        ;fau: preventQtiImageValidate - prevent validation of images at test/pool import
 tst_prevent_media_player = "0"			;prevent the embedding of the media element player
-tst_prevent_nav_modal = "0"             ;prevent the navigation modal
 
 univis_server = ""                      ;only the server name, e.g. univis.uni-erlangen.de
 univis_port = ""                        ;port sor testing socket connection in univis2mysql
