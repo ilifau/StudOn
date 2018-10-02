@@ -964,7 +964,6 @@ if (!$ilDB->tableColumnExists('benchmark', 'backtrace'))
 	);
 }
 ?>
-<#58>
 <#59>
 <?php
 /**
