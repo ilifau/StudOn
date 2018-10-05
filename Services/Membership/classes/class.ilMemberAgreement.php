@@ -126,9 +126,11 @@ class ilMemberAgreement
 	{
 		global $ilDB;
 		
+// fau: fixHasAgreementsQuery - prevent memory overflow when checking for agreements
 		$query = "SELECT * FROM member_agreement ".
-			"WHERE accepted = 1";
-		
+			"WHERE accepted = 1 LIMIT 1";
+// fau.
+
 		$res = $ilDB->query($query);
 		return $res->numRows() ? true : false;
 	}
