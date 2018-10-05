@@ -1790,7 +1790,7 @@ class ilObjGlossaryGUI extends ilObjectGUI
 	{
 		$glo_ref_id = (int) $_GET["glo_ref_id"];
 		$glo_id = ilObject::_lookupObjId($glo_ref_id);
-		$this->object->autoLinkGlossaryTerms($glo_id);
+		$this->object->autoLinkGlossaryTerms($glo_ref_id);
 		$this->selectGlossary();
 	}
 

@@ -1637,69 +1637,58 @@ class ilUtil
 		return $attribs;
 	}
 
+
 	/**
 	 * Copies content of a directory $a_sdir recursively to a directory $a_tdir
-	 * @param	string	$a_sdir		source directory
-	 * @param	string	$a_tdir		target directory
-	 * @param 	boolean $preserveTimeAttributes	if true, ctime will be kept.
 	 *
-	 * @return	boolean	TRUE for sucess, FALSE otherwise
-	 * @access	public
+	 * @param    string  $a_sdir                 source directory
+	 * @param    string  $a_tdir                 target directory
+	 * @param    boolean $preserveTimeAttributes if true, ctime will be kept.
+	 *
+	 * @return    boolean    TRUE for sucess, FALSE otherwise
+	 * @throws \ILIAS\Filesystem\Exception\DirectoryNotFoundException
+	 * @throws \ILIAS\Filesystem\Exception\FileNotFoundException
+	 * @throws \ILIAS\Filesystem\Exception\IOException
+	 * @access     public
 	 * @static
 	 *
 	 * @deprecated in favour of Filesystem::copyDir() located at the filesystem service.
-	 * @see Filesystem::copyDir()
-	 *
+	 * @see        Filesystem::copyDir()
 	 */
-	public static function rCopy ($a_sdir, $a_tdir, $preserveTimeAttributes = false)
-	{
+	public static function rCopy($a_sdir, $a_tdir, $preserveTimeAttributes = false) {
+
 // fau: fixRCopy - 	apply a simplified path cleanup instead of using realpath()
-//					The	LegacyPathHelper does not handle absolute paths for the web filesystem correctly
-//					Additionally, on some installations the web data dir is a symlink pointing outside the web space
-//					This is not easily compared to ILIAS_ABSOLUTE_PATH plus ILIAS_WEB_DIR
 		$a_sdir = self::simplifyPath($a_sdir); // See https://www.ilias.de/mantis/view.php?id=23056
-		$a_tdir = self::simplifyPath($a_tdir); // See https://www.ilias.de/mantis/view.php?id=23056
+		 $a_tdir = self::simplifyPath($a_tdir); // See https://www.ilias.de/mantis/view.php?id=23056
 // fau.
-		try {
-			$sourceFS = LegacyPathHelper::deriveFilesystemFrom($a_sdir);
-			$targetFS = LegacyPathHelper::deriveFilesystemFrom($a_tdir);
 
-			$sourceDir = LegacyPathHelper::createRelativePath($a_sdir);
-			$targetDir = LegacyPathHelper::createRelativePath($a_tdir);
+		$sourceFS = LegacyPathHelper::deriveFilesystemFrom($a_sdir);
+		$targetFS = LegacyPathHelper::deriveFilesystemFrom($a_tdir);
 
-			// check if arguments are directories
-			if (!$sourceFS->hasDir($sourceDir))
-			{
-				return false;
+		$sourceDir = LegacyPathHelper::createRelativePath($a_sdir);
+		$targetDir = LegacyPathHelper::createRelativePath($a_tdir);
+
+		// check if arguments are directories
+		if (!$sourceFS->hasDir($sourceDir)) {
+			return false;
+		}
+
+		$sourceList = $sourceFS->listContents($sourceDir, true);
+
+		foreach ($sourceList as $item) {
+			if ($item->isDir()) {
+				continue;
 			}
-
-			$sourceList = $sourceFS->listContents($sourceDir, true);
-
-			foreach($sourceList as $item)
-			{
-				if($item->isDir())
-					continue;
-
+			try {
 				$itemPath = $targetDir . '/' . substr($item->getPath(), strlen($sourceDir));
-// fau: fixRCopy - 	delete an existing target file, otherwise an exception would be thrown by writeStream()
-// 					Copied test questions may share the same media object - their file is copied twice at pool export
-				if ($targetFS->has($itemPath))
-				{
-					$targetFS->delete($itemPath);
-				}
-// fau.
 				$stream = $sourceFS->readStream($item->getPath());
 				$targetFS->writeStream($itemPath, $stream);
+			} catch (\ILIAS\Filesystem\Exception\FileAlreadyExistsException $e) {
+				// Do nothing with that type of exception
 			}
-			return true;
 		}
-		catch (\Exception $exception) {
-// fau: fixRCopy -  show copy errors instead of silently ignoring them
-//					Most calls of ilUtil::rCopy() don't check the return value
-			$message = "Error when coypying $a_sdir to $a_tdir with the following message: " . $exception->getMessage();
-			throw new Exception($message);
-// fau.
-		}
+
+		return true;
 	}
 
 // fau: fixRCopy - new function to simplify a path
