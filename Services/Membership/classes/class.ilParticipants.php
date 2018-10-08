@@ -1690,7 +1690,7 @@ abstract class ilParticipants
 	 */
 	public function sendExternalNotifications($a_object, $a_user, $a_changed = false)
 	{
-		include_once("Modules/Course/classes/Export/class.ilCourseUserData.php");
+		global $ilSetting;
 
 		$user_data = ilCourseUserData::getFieldsWithData($a_object->getId(), $a_user->getId());
 		$notifications = array();
@@ -1711,22 +1711,16 @@ abstract class ilParticipants
 			return;
 		}
 
-		include_once('Services/Mail/classes/class.ilMail.php');
-		include_once "Services/Mail/classes/class.ilMimeMail.php";
-
 		// prepare common data
 
-		$mail = new ilMail($a_user->getId());
-		$sender = $mail->getMimeMailSender();
-		$sender_address = $sender[0];
-		$reply_address = $sender[0];
+		$sender = new ilMailMimeSenderUser($ilSetting, $a_user);
+		$sender_address = $sender->getReplyToAddress();
 		$cc_address = '';
 		foreach ($this->getNotificationRecipients() as $admin_id)
 		{
 			$address = ilObjUser::_lookupEmail($admin_id);
 			if (!empty($address)) {
 				$cc_address = $address;
-				$reply_address = $sender_address.', '.$address;
 				break;
 			}
 		}
@@ -1776,10 +1770,8 @@ abstract class ilParticipants
 			$body = str_replace('[reply-to]', $reply_link, $text) . "\n\n" . $sub_text;
 
 			$mmail = new ilMimeMail();
-			$mmail->autoCheck(false);
 			$mmail->To($to_address);
 			$mmail->From($sender);
-			$mmail->ReplyTo($reply_address);
 			$mmail->Subject($subject);
 			$mmail->Body(nl2br($body));
 			$mmail->Send();

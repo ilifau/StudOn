@@ -917,8 +917,7 @@ abstract class ilRegistrationGUI
 
 		// send email to admins
 		$mmail = new ilMimeMail();
-		$mmail->autoCheck(false);
-		$mmail->From($ilUser->getEMail());
+		$mmail->From(new ilMailMimeSenderUser($ilSetting, $ilUser));
 		$mmail->To($ilSetting->get('admin_email'));
 		$mmail->Subject($subject);
 		$mmail->Body($message);
