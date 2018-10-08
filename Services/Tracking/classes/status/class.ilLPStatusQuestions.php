@@ -32,7 +32,7 @@ class ilLPStatusQuestions extends ilLPStatus
 		
 		include_once "Modules/LearningModule/classes/class.ilLMTracker.php";
 // fau: lpLmCache - preload data for an lm and multiple users
-		ilLMTracker::preloadLMTrackingData($a_obj_id, $users);
+//		ilLMTracker::preloadLMTrackingData($a_obj_id, $users);
 // fau.
 		foreach($users as $user_id)
 		{

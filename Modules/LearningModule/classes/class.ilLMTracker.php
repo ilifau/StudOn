@@ -525,6 +525,64 @@ class ilLMTracker
 
 // fau: lpLmCache - use statically cached data
 	/**
+     * Load LM tracking data. Loaded when needed.
+     *
+     * @param
+     * @return
+     */
+	protected function loadLMTrackingDataWithPreload()
+    {
+        $ilDB = $this->db;
+
+        // we must prevent loading tracking data multiple times during a request where possible
+        // please note that the dirty flag works only to a certain limit
+        // e.g. if questions are answered the flag is not set (yet)
+        // or if pages/chapter are added/deleted the flag is not set
+        if ($this->loaded_for_node === (int) $this->getCurrentPage() && !$this->dirty)
+        {
+            return;
+        }
+
+        $this->loaded_for_node = (int) $this->getCurrentPage();
+        $this->dirty = false;
+
+        // This may already have been called for a couple of users
+        // It can be called for the user of this instance without fetching the data twice
+        self::preloadLMTrackingData($this->lm_obj_id, array($this->user_id));
+
+        // user independent lm data
+        $this->tree_arr =& self::$tree_arr_by_lm[$this->lm_obj_id];
+        $this->lm_obj_ids =& self::$lm_obj_ids_by_lm[$this->lm_obj_id];
+        $this->page_questions =& self::$page_questions_by_lm[$this->lm_obj_id];
+        $this->all_questions =& self::$all_questions_by_lm[$this->lm_obj_id];
+
+        // read events of the user
+        $this->re_arr = array();
+        if (isset(self::$read_events_by_lm[$this->lm_obj_id][$this->user_id]))
+        {
+            $this->re_arr =& self::$read_events_by_lm[$this->lm_obj_id][$this->user_id];
+        }
+
+        // answer statuses of the user
+        $this->answer_status = array();
+        if (isset(self::$answer_status_by_lm[$this->lm_obj_id][$this->user_id]))
+        {
+            $this->answer_status =& self::$answer_status_by_lm[$this->lm_obj_id][$this->user_id];
+        }
+
+        $this->has_incorrect_answers = false;
+
+        $has_pred_incorrect_answers = false;
+        $has_pred_incorrect_not_unlocked_answers = false;
+        $root_id = self::$lm_tree_root_id_by_lm[$this->lm_obj_id];
+        $this->determineProgressStatus($root_id, $has_pred_incorrect_answers, $has_pred_incorrect_not_unlocked_answers);
+
+        $this->has_incorrect_answers = $has_pred_incorrect_answers;
+    }
+// fau.
+
+
+	/**
 	 * Load LM tracking data. Loaded when needed.
 	 *
 	 * @param
@@ -546,40 +604,53 @@ class ilLMTracker
 		$this->loaded_for_node = (int) $this->getCurrentPage();
 		$this->dirty = false;
 
-		// This may already have been called for a couple of users
-		// It can be called for the user of this instance without fetching the data twice
-		self::preloadLMTrackingData($this->lm_obj_id, array($this->user_id));
+		// load lm tree in array
+		$this->tree_arr = array();
+		$nodes = $this->lm_tree->getSubTree($this->lm_tree->getNodeData($this->lm_tree->readRootId()));
+		foreach ($nodes as $node)
+		{
+			$this->tree_arr["childs"][$node["parent"]][] = $node;
+			$this->tree_arr["parent"][$node["child"]] = $node["parent"];
+			$this->tree_arr["nodes"][$node["child"]] = $node;
+		}
 
-		// user independent lm data
-		$this->tree_arr =& self::$tree_arr_by_lm[$this->lm_obj_id];
-		$this->lm_obj_ids =& self::$lm_obj_ids_by_lm[$this->lm_obj_id];
-		$this->page_questions =& self::$page_questions_by_lm[$this->lm_obj_id];
-		$this->all_questions =& self::$all_questions_by_lm[$this->lm_obj_id];
+		// load all lm obj ids of learning module
+		include_once("./Modules/LearningModule/classes/class.ilLMObject.php");
+		$this->lm_obj_ids = ilLMObject::_getAllLMObjectsOfLM($this->lm_obj_id);
 
-		// read events of the user
+		// load read event data
 		$this->re_arr = array();
-		if (isset(self::$read_events_by_lm[$this->lm_obj_id][$this->user_id]))
+		$set = $ilDB->query("SELECT * FROM lm_read_event ".
+			" WHERE ".$ilDB->in("obj_id", $this->lm_obj_ids, false, "integer").
+			" AND usr_id = ".$ilDB->quote($this->user_id, "integer"));
+		while ($rec = $ilDB->fetchAssoc($set))
 		{
-			$this->re_arr =& self::$read_events_by_lm[$this->lm_obj_id][$this->user_id];
+			$this->re_arr[$rec["obj_id"]] = $rec;
 		}
 
-		// answer statuses of the user
-		$this->answer_status = array();
-		if (isset(self::$answer_status_by_lm[$this->lm_obj_id][$this->user_id]))
+		// load question/pages information
+		$this->page_questions = array();
+		$this->all_questions = array();
+		include_once("./Modules/LearningModule/classes/class.ilLMPageObject.php");
+		$q = ilLMPageObject::queryQuestionsOfLearningModule($this->lm_obj_id, "", "", 0, 0);
+		foreach ($q["set"] as $quest)
 		{
-			$this->answer_status =& self::$answer_status_by_lm[$this->lm_obj_id][$this->user_id];
+			$this->page_questions[$quest["page_id"]][] = $quest["question_id"];
+			$this->all_questions[] = $quest["question_id"];
 		}
+
+		// load question answer information
+		include_once("./Services/COPage/classes/class.ilPageQuestionProcessor.php");
+		$this->answer_status = ilPageQuestionProcessor::getAnswerStatus($this->all_questions, $this->user_id);
 
 		$this->has_incorrect_answers = false;
 
 		$has_pred_incorrect_answers = false;
 		$has_pred_incorrect_not_unlocked_answers = false;
-		$root_id = self::$lm_tree_root_id_by_lm[$this->lm_obj_id];
-		$this->determineProgressStatus($root_id, $has_pred_incorrect_answers, $has_pred_incorrect_not_unlocked_answers);
+		$this->determineProgressStatus($this->lm_tree->readRootId(), $has_pred_incorrect_answers, $has_pred_incorrect_not_unlocked_answers);
 
 		$this->has_incorrect_answers = $has_pred_incorrect_answers;
 	}
-// fau.
 
 	/**
 	 * Have all questoins been answered correctly (and questions exist)?
@@ -858,10 +929,10 @@ class ilLMTracker
 			return true;
 		}
 // fau: lpLmCache - cache node visibilities
-		if (isset(self::$lm_node_visible[$a_node["child"]]))
-		{
-			return self::$lm_node_visible[$a_node["child"]];
-		}
+//		if (isset(self::$lm_node_visible[$a_node["child"]]))
+//		{
+//			return self::$lm_node_visible[$a_node["child"]];
+//		}
 
 		$lm_set = new ilSetting("lm");
 		$active = ilPageObject::_lookupActive($a_node["child"], "lm",
@@ -873,18 +944,18 @@ class ilLMTracker
 			if ($act_data["show_activation_info"] &&
 				(ilUtil::now() < $act_data["activation_start"]))
 			{
-				self::$lm_node_visible[$a_node["child"]] = true;
+//				self::$lm_node_visible[$a_node["child"]] = true;
 				return true;
 			}
 			else
 			{
-				self::$lm_node_visible[$a_node["child"]] = false;
+//				self::$lm_node_visible[$a_node["child"]] = false;
 				return false;
 			}
 		}
 		else
 		{
-			self::$lm_node_visible[$a_node["child"]] = true;
+//			self::$lm_node_visible[$a_node["child"]] = true;
 			return true;
 		}
 // fau.
