@@ -931,10 +931,8 @@ class ilObjStyleSheet extends ilObject
 				
 				// copy images from basic style
 				$this->createImagesDirectory();
-// fau: fixRCopy - use the old implementation for copying default style images (see #23326)
-				ilUtil::rCopyOld(self::$basic_style_image_dir,
+				ilUtil::rCopy(self::$basic_style_image_dir,
 					$this->getImagesDirectory());
-// fau.
 			}
 			else
 			{

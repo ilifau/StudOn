@@ -412,12 +412,9 @@ class ilObjLanguageExtGUI extends ilObjectGUI
 		{
 			$file = ilUtil::ilTempnam();
 
-// fau: fixRCopy - language file import
-			if (move_uploaded_file($_FILES['userfile']['tmp_name'], $file))
-//			if (ilUtil::moveUploadedFile($_FILES['userfile']['tmp_name'],
-//									 	 $_FILES['userfile']['name'],
-//									 	 $file))
-// fau.
+			if (ilUtil::moveUploadedFile($_FILES['userfile']['tmp_name'],
+									 	 $_FILES['userfile']['name'],
+									 	 $file))
 			{
 				$this->object->importLanguageFile($file,$_POST['mode_existing']);
 				ilUtil::sendSuccess(sprintf($this->lng->txt("language_file_imported"), $_FILES['userfile']['name']) , true);

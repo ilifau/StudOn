@@ -1656,12 +1656,6 @@ class ilUtil
 	 * @see        Filesystem::copyDir()
 	 */
 	public static function rCopy($a_sdir, $a_tdir, $preserveTimeAttributes = false) {
-
-// fau: fixRCopy - 	apply a simplified path cleanup instead of using realpath()
-		$a_sdir = self::simplifyPath($a_sdir); // See https://www.ilias.de/mantis/view.php?id=23056
-		 $a_tdir = self::simplifyPath($a_tdir); // See https://www.ilias.de/mantis/view.php?id=23056
-// fau.
-
 		$sourceFS = LegacyPathHelper::deriveFilesystemFrom($a_sdir);
 		$targetFS = LegacyPathHelper::deriveFilesystemFrom($a_tdir);
 
@@ -1690,26 +1684,6 @@ class ilUtil
 
 		return true;
 	}
-
-// fau: fixRCopy - new function to simplify a path
-	/**
-	 * Remove parent and self steps from a path (without using realpath)
-	 * @param string $path
-	 * @return string
-	 */
-	private static function simplifyPath($path)
-	{
-		do {
-			$orig = $path;
-			$path = preg_replace('/\/[^\/]*\/\.\.\//', '/', $path);    		// apply back step
-			$path = str_replace('/./', '/', $path);                    			// omit self step
-			$path = str_replace('//', '/', $path);                    			// omit empty step
-			$path = substr($path, 0, 2) === './' ? substr($path, 2) : $path;  // omit self step at the beginning
-		} while ($orig != $path);
-
-		return $path;
-	}
-// fau.
 
 // fau: fixRCopy - provide the old implementation
 	/**

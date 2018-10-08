@@ -391,9 +391,7 @@ class ilContObjParser extends ilMDSaxParser
 				if (@is_dir($target_dir))
 				{
 					ilLoggerFactory::getLogger("mob")->debug("s:-$source_dir-,t:-$target_dir-");
-// fau: fixRCopy - don't appy realpath
-					ilUtil::rCopy($source_dir, $target_dir);
-//	fau.
+					ilUtil::rCopy(realpath($source_dir), realpath($target_dir));
 				}
 			}
 		}
@@ -427,9 +425,7 @@ class ilContObjParser extends ilMDSaxParser
 
 				if (@is_dir($target_dir))
 				{
-// fau: fixRCopy - don't apply realpath
-					ilUtil::rCopy($source_dir, $target_dir);
-//	fau.
+					ilUtil::rCopy(realpath($source_dir), realpath($target_dir));
 				}
 			}
 			$test = $file_obj->determineFilesize();
