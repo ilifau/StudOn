@@ -2332,7 +2332,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 			FROM grp_settings s
 			INNER JOIN object_reference r ON r.obj_id = s.obj_id
 			WHERE r.deleted IS NULL
-			AND s.grp_type IN (2, 3)
+			AND s.grp_type <> 1
 			AND registration_mem_limit > 0 
 			AND registration_max_members > 0
 			AND s.sub_auto_fill > 0
