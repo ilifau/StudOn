@@ -838,8 +838,10 @@ class ilObjStyleSheet extends ilObject
 		$ilDB = $DIC->database();
 		
 		$clonable_styles = array();
-		
-		$q = "SELECT * FROM style_data";
+
+// fau: styleCloneQuery - allow only standard styles being cloned
+		$q = "SELECT * FROM style_data where standard = 1";
+// fau.
 		$style_set = $ilDB->query($q);
 		while($style_rec = $ilDB->fetchAssoc($style_set))
 		{
