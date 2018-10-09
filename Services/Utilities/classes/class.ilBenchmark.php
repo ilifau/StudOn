@@ -34,6 +34,21 @@ class ilBenchmark
 	protected $db_enabled_user;
 
 
+// fau: extendBenchmark - variables for instant saving
+    /**
+	 * Instant saving of benchmark to DB should be enabled
+     * @var boolean
+     */
+	protected $db_enabled_instant = false;
+
+
+    /**
+	 * Benchmark is currently saved to DB
+     * @var boolean
+     */
+	protected $db_saving_benchmark = false;
+// fau.
+
 	/**
 	 * Constructor
 	 */
@@ -433,6 +448,9 @@ class ilBenchmark
 
 			if ($this->db_enabled_instant)
 			{
+				// prevent infinite recursion
+				$this->db_bench_stop_rec = true;
+
 				$ilDB = $DIC->database();
 				$id = $ilDB->nextId('benchmark');
 				$ilDB->insert("benchmark", array(
@@ -441,6 +459,8 @@ class ilBenchmark
 					"sql_stmt" => array("text", $this->sql),
 					"backtrace" => array("text", $backtrace)
 				));
+
+				$this->db_bench_stop_rec  = false;
 			}
 
 			$this->db_bench[] = array(
