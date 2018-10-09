@@ -27,12 +27,12 @@ class ilTestMyCampusGUI extends ilTestServiceGUI
 	*
 	* The constructor takes the test object reference as parameter 
 	*
-	* @param object associated ilObjTest class
+	* @param ilObjTest $a_object
 	* @access public
 	*/
-	function ilTestMyCampusGUI($a_object)
+	function __construct(ilObjTest $a_object)
   	{
-		parent::ilTestServiceGUI($a_object);
+		parent::__construct($a_object);
 		$this->tools = new ilTestMyCampusTools($a_object);
 	}
 	
