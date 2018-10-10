@@ -1238,6 +1238,15 @@ class ilContainer extends ilObject
 			$pg->update(true, true);
 			foreach ($mapping as $old_ref_id => $new_ref_id)
 			{
+// fau: fixCopyContainerWithGlossary - ignore glossary term mappings
+// 		new ref_id is array of term_ids if old_ref_id is like 12345_glo_terms
+//		this would cause an illegal offset type error in ilObject::_lookupType()
+				if (is_array($new_ref_id))
+				{
+					continue;
+				}
+// fau.
+
 				$type = ilObject::_lookupType($new_ref_id, true);
 				$class = "il".$obj_definition->getClassName($type)."PageCollector";
 				$loc = $obj_definition->getLocation($type);
