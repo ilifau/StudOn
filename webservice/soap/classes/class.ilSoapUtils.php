@@ -318,7 +318,7 @@ class ilSoapUtils extends ilSoapAdministration
 		{
 // fau: copyBySoap - send a system message when the copy process is finished
 			$mail_options =  $cp_options->getOptions(ilCopyWizardOptions::SEND_MAIL);
-			if ($cp_options->isSOAPEnabled() and !empty($mail_options))
+			if (ilCust::get('ilias_copy_always_mail') || ($cp_options->isSOAPEnabled() and !empty($mail_options)))
 			{
 				$root_options = $cp_options->getOptions(ilCopyWizardOptions::ROOT_NODE);
 				if (count($root_options))

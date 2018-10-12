@@ -52,6 +52,7 @@ ilias_footer_privacy_url = ""           ;privacy url in footer
 ilias_login_help_url = ""				;link for local login help button
 
 ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
+ilias_copy_always_mail ="0"             ;fau: copyBySoap - always send an e-mail confirmation
 ilias_repository_cat_id = "0"           ;category id to use for the repository link in the menu
 ilias_root_as_login = "0"               ;use the root folder as login page
 ilias_show_roles_info = "0"             ;Show roles with permissions on info screen
