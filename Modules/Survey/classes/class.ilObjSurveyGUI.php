@@ -2041,9 +2041,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 				$info->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
 				$captcha_submit =
 					$tpl->get()
-					.'<div class="il_ButtonGroup il_BigButton">'
-					.'<input type="submit" class="submit il_BigButton" name="cmd['.$big_button[0].']" value="'
-					.$big_button[1].'" /></div>';
+					.'<p><input type="submit" class="btn btn-primary" name="cmd['.$big_button[0].']" value="'.$big_button[1].'" /></p><hr />';
 			}
 			else
 			{
