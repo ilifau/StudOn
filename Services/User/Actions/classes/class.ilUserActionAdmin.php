@@ -60,6 +60,36 @@ class ilUserActionAdmin
 		return (bool) self::$data[$a_context_comp][$a_context_id][$a_action_comp][$a_action_type];
 	}
 
+// fau: optimizeUserActions - check if user actions are available for context and component
+    /**
+     * Has active actions?
+     *
+     * @param string $a_context_comp
+     * @param string $a_context_id
+     * @param string $a_action_comp
+     * @return bool active true/false
+     */
+	public static function hasActiveActions($a_context_comp, $a_context_id, $a_action_comp)
+    {
+        if (!self::$loaded)
+        {
+            self::loadData();
+        }
+
+        if (is_array(self::$data[$a_context_comp][$a_context_id][$a_action_comp]))
+        {
+            foreach(self::$data[$a_context_comp][$a_context_id][$a_action_comp] as $a_action_type => $a_active)
+            {
+                if ($a_active)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+// fau.
+
 	/**
 	 * Load data
 	 *

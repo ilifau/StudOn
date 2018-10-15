@@ -74,6 +74,13 @@ class ilUserActionCollector
 		include_once("./Services/User/Actions/classes/class.ilUserActionProviderFactory.php");
 		foreach (ilUserActionProviderFactory::getAllProviders() as $prov)
 		{
+//fau: optimizeUserActions - don't collect actions if none are activated
+            if (!ilUserActionAdmin::hasActiveActions($this->action_context->getComponentId(),
+					$this->action_context->getContextId(), $prov->getComponentId()))
+            {
+                continue;
+            }
+// fau.
 			$prov->setUserId($this->user_id);
 			$coll = $prov->collectActionsForTargetUser($a_target_user);
 			foreach ($coll->getActions() as $action)
