@@ -1799,7 +1799,10 @@ class ilObjSurveyGUI extends ilObjectGUI
 
 		// already finished?
 		if(!$this->object->get360Mode() &&
-				($survey_started === 1 &&											// survey finished
+				($survey_started === 1 && // survey finished
+// fau: surveyAsForm - allow to take multiple times
+                 !$this->object->isAllowedToTakeMultipleSurveys() &&
+// fau.
 				!(!$this->object->isAccessibleWithoutCode() && !$anonymous_code && $ilUser->getId() == ANONYMOUS_USER_ID)))	// not code accessible an no anonymous code and anonymous user (see #0020333)
 		{
 			ilUtil::sendInfo($this->lng->txt("already_completed_survey"));
@@ -1889,7 +1892,13 @@ class ilObjSurveyGUI extends ilObjectGUI
 					elseif ($survey_started === FALSE)
 					{
 						$big_button = array("start", $this->lng->txt("start_survey"));
-					}																
+					}
+// fau: surveyAsForm - show start button if survey is finished
+					elseif ($this->object->isAllowedToTakeMultipleSurveys())
+                    {
+                        $big_button = array("start", $this->lng->txt("start_survey"));
+                    }
+// fau.
 				}
 				// 360°
 				else

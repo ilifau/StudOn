@@ -1107,6 +1107,25 @@ class ilObjSurvey extends ilObject
 // fau.
 	}
 
+
+// fau: surveyAsForm allow the reuse of a survey in form mode
+    /**
+     * Checks if a user is allowed to take multiple survey
+     *
+     * @param int $userid user id of the user
+     * @return boolean TRUE if the user is allowed to take the survey more than once, FALSE otherwise
+     * @access public
+     */
+    function isAllowedToTakeMultipleSurveys()
+    {
+        if ($this->getMetaIdentifier('FormMode'))
+        {
+            return true;
+        }
+        return false;
+    }
+// fau.
+
 /**
 * Loads a survey object from a database
 *
