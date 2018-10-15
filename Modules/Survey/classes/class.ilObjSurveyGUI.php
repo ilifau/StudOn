@@ -777,7 +777,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 							// parse incoming values
 							if (!$anon)
 							{			
-								if (!$codes)
+								if ($captcha)
 								{
 									$this->object->setAnonymize(ilObjSurvey::ANONYMIZE_CAPTCHA);
 								}
