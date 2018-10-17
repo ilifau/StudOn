@@ -9514,6 +9514,11 @@ footer.ilFooter .ilFooterDevmode a {
   margin-top: 25px;
 }
 @media only screen and (max-width: 767px) {
+  #devmodeBlock {
+    position: absolute;
+  }
+}
+@media only screen and (max-width: 767px) {
   #devmodeBlock table {
     table-layout: fixed;
     width: 100%;
