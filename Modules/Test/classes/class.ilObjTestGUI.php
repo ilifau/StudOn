@@ -3253,13 +3253,11 @@ class ilObjTestGUI extends ilObjectGUI
 			$soap_client = ilRemoteIliasClient::_getInstance();
 			if (!$soap_sid = $soap_client->login())
 			{
-				$error = $soap_client->client->getError();
-				ilUtil::sendInfo($this->lng->txt("ilias_remote_soap_login_failed").'<br />'.$error, TRUE);
+				ilUtil::sendInfo($this->lng->txt("ilias_remote_soap_login_failed"), TRUE);
 				$this->ctrl->redirect($this, "participants");
 			}
 	    }
 
-		include_once('Modules/Test/classes/class.ilTestParticipantData.php');
 		$parData = new ilTestParticipantData($ilDB, $this->lng);
 		$parData->load($this->object->getTestId());
 
@@ -3271,13 +3269,11 @@ class ilObjTestGUI extends ilObjectGUI
 			$uname = $parData->getFormatedFullnameByActiveId($active_id);
 			$user = new ilObjUser($user_id);
 
-			require_once 'Modules/Test/classes/class.ilTestGradingMessageBuilder.php';
 			$gradingMessageBuilder = new ilTestGradingMessageBuilder($lng, $this->object);
 			$gradingMessageBuilder->setActiveId($active_id);
 			$gradingMessageBuilder->buildMessage();
 			$message = $gradingMessageBuilder->buildGradingMarkMsg();
 
-            include_once "./Modules/Test/classes/class.ilTestSessionFactory.php";
             // create a new factory because the session is a sigleton in it
             $factory = new ilTestSessionFactory($this->object);
             $session = $factory->getSession($active_id);
@@ -3333,7 +3329,6 @@ class ilObjTestGUI extends ilObjectGUI
 			else
 			{
 				// send as mail in local platform
-                require_once("Services/Mail/classes/class.ilMail.php");
 				$mail = new ilMail(ANONYMOUS_USER_ID);
 				$error = $mail->sendMail(
 					$user->getLogin(), 		// to

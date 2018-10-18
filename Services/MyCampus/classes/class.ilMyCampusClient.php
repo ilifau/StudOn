@@ -43,9 +43,6 @@ class ilMyCampusClient extends ilSoapClient
 		$this->client_id = ilCust::get('mycampus_soap_client');
 
 		parent::__construct(ilCust::get('mycampus_soap_url'));
-		$this->setTimeout(self::DEFAULT_CONNECT_TIMEOUT);
-		$this->setResponseTimeout(self::DEFAULT_RESPONSE_TIMEOUT);
-		$this->enableWSDL(true);
 	}
 
 

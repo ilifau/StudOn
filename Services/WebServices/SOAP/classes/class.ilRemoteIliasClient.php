@@ -31,8 +31,7 @@ class ilRemoteIliasClient extends ilSoapClient
 	{
 	   if (!isset(self::$instance))
 		{
-	       $c = __CLASS__;
-	       self::$instance = new $c;
+	       self::$instance = new self;
 	   }
 
 	   return self::$instance;
@@ -41,18 +40,13 @@ class ilRemoteIliasClient extends ilSoapClient
 	/**
 	* private constructor
 	*/
-	public function __construct()
+	public function __construct($a_uri = '')
 	{
-
-
 		$this->user = ilCust::get('remote_soap_user');
 		$this->password = ilCust::get('remote_soap_password');
 		$this->client_id = ilCust::get('remote_soap_client_id');
 
-		$this->ilSoapClient(ilCust::get('remote_soap_server'));
-		$this->setTimeout(DEFAULT_TIMEOUT);
-		$this->setResponseTimeout(DEFAULT_RESPONSE_TIMEOUT);
-		$this->enableWSDL(true);
+		parent::__construct(ilCust::get('remote_soap_server'));
 	}
 
 
@@ -61,7 +55,7 @@ class ilRemoteIliasClient extends ilSoapClient
 	*
 	* @return mixed		soap session id or false
 	*/
-	function login()
+	public function login()
 	{
 		//already logged in
 		if ($this->sid)
@@ -84,7 +78,7 @@ class ilRemoteIliasClient extends ilSoapClient
 	/**
 	* logout from remote service
 	*/
-	function logout()
+	public function logout()
 	{
 		if ($this->call('logout', array($this->sid)));
 		{
