@@ -1506,20 +1506,11 @@ class ilInitialisation
 
 		self::initGlobal("tpl", $tpl);
 
-		if (ilContext::hasUser())
-		{
-
-// fau: rootAsLogin - adjust target only if user is authentified
-//					(start page may also be shown if authentication has failed)
-			global $DIC;
-			if (ilContext::doAuthentication() && $DIC->offsetExists('ilAuthSession') && $DIC['ilAuthSession']->isAuthenticated())
-			{
+		if (ilContext::hasUser()) {
 				require_once 'Services/User/classes/class.ilUserRequestTargetAdjustment.php';
 				$request_adjuster = new ilUserRequestTargetAdjustment($ilUser, $GLOBALS['DIC']['ilCtrl']);
 				$request_adjuster->adjust();
 			}
-// fau.
-		}
 
 
 		// load style sheet depending on user's settings
@@ -1690,11 +1681,10 @@ class ilInitialisation
 			ilLoggerFactory::getLogger('auth')->debug('Blocked authentication for baseClass: ' . $_GET['baseClass']);
 			return true;
 		}
-// fau: rootAsLogin init user account when terms of service are only shown
+
 		if($a_current_script == 'goto.php' && in_array($_GET['target'], array(
 			'usr_registration', 'usr_nameassist', 'usr_pwassist', 'usr_agreement'
 		)))
-// fau.
 		{
 			ilLoggerFactory::getLogger('auth')->debug('Blocked authentication for goto target: ' . $_GET['target']);
 			return true;
