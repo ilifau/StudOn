@@ -158,20 +158,23 @@ class ilObjSessionListGUI extends ilObjectListGUI
 		include_once './Modules/Session/classes/class.ilObjSession.php';
 		$session_data = new ilObjSession($this->obj_id, false);
 		include_once './Modules/Session/classes/class.ilSessionParticipants.php';
-		$part = ilSessionParticipants::getInstance($this->ref_id);
-
-		if($session_data->isRegistrationUserLimitEnabled()) {
-			if ($part->getCountMembers() <= $session_data->getRegistrationMaxUsers()) {
-				$props[] = array(
-					'alert' => false,
-					'property' => $this->lng->txt('sess_list_reg_limit_places'),
-					'value' => max(
-						0,
-						$session_data->getRegistrationMaxUsers() - $part->getCountMembers()
-					)
-				);
-			}
-		}
+// fim: [memsess] hide the wrongly calculated standard free places
+//      StudOn 5.3: the session registration with course registration does not yet add user to the new session role
+//		$part = ilSessionParticipants::getInstance($this->ref_id);
+//
+//		if($session_data->isRegistrationUserLimitEnabled()) {
+//			if ($part->getCountMembers() <= $session_data->getRegistrationMaxUsers()) {
+//				$props[] = array(
+//					'alert' => false,
+//					'property' => $this->lng->txt('sess_list_reg_limit_places'),
+//					'value' => max(
+//						0,
+//						$session_data->getRegistrationMaxUsers() - $part->getCountMembers()
+//					)
+//				);
+//			}
+//		}
+// fim.
 		
 		if($this->getDetailsLevel() == ilObjectListGUI::DETAILS_MINIMAL)
 		{
