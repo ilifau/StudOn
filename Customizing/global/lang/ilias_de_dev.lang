@@ -317,7 +317,7 @@ common#:#sub_fair_date_info#:#Bis zu diesem Zeitpunkt werden alle Anmeldungen ch
 common#:#sub_fair_date_default#:#Eine Stunde nach Anmeldebeginn (Standard)
 common#:#sub_fair_date_invalid#:#Die chancengleiche Phase muss mindestens eine Stunde dauern und spätestens mit dem Ende des Anmeldezeitraums abgeschlossen sein!
 common#:#sub_fair_autofill#:#Automatisches Auslosen und Nachrücken
-common#:#sub_fair_autofill_info#:#Nach der chancengleichen Phase werden die freien Plätze automatisch ausgelost. Wartende Anmeldungen rücken bis zum spätesten Austritt automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
+common#:#sub_fair_autofill_info#:#Nach der chancengleichen Phase werden die freien Plätze automatisch ausgelost. Wartende Anmeldungen rücken automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
 common#:#sub_fair_auto_manu#:#Automatisches Auslosen / manuelles Nachrücken
 common#:#sub_fair_auto_manu_info#:#Nach der chancengleichen Phase werden die freien Plätze einmalig automatisch ausgelost. Nachträglich frei werdende Plätze müssen in der Teilnehmerverwaltung von Hand aufgefüllt werden.
 common#:#sub_fair_waiting#:#Manuelles Auslosen und Nachrücken
@@ -325,7 +325,7 @@ common#:#sub_fair_waiting_info#:#Nach der chancengleichen Phase müssen die frei
 common#:#sub_fair_no_list#:#Automatisches Auslosen, danach Abweisung
 common#:#sub_fair_no_list_info#:#Die Warteliste wird nur in der chancengleichen Phase befüllt und die freien Plätze im Anschluss automatisch ausgelost. Sind danach keine Plätze mehr frei, werden weitere Anmeldungen abgewiesen.
 common#:#sub_fair_inactive_autofill#:#Automatisches Nachrücken
-common#:#sub_fair_inactive_autofill_info#:#Wartende Anmeldungen rücken bis zum spätesten Austritt automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
+common#:#sub_fair_inactive_autofill_info#:#Wartende Anmeldungen rücken automatisch auf frei gewordene Plätze nach. Falls freie Plätze für wartende Aufnahmeanträge benötigt würden, erhalten die Kursbetreuer eine Nachricht und die Plätze werden frei gehalten.
 common#:#sub_fair_inactive_waiting#:#Manuelles Nachrücken
 common#:#sub_fair_inactive_waiting_info#:#Nachträglich frei werdende Plätze müssen in der Teilnehmerverwaltung von Hand aufgefüllt werden.
 common#:#sub_fair_inactive_no_list#:#Abweisung
