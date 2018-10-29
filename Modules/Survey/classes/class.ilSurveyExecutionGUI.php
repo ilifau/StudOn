@@ -245,7 +245,7 @@ class ilSurveyExecutionGUI
 			$status = $this->object->isSurveyStarted($user_id, $anonymous_code, $appr_id);
 
 // fau: surveyAsForm - allow to use a form multiple times
-			if ($status === 1 || $this->object->isAllowedToTakeMultipleSurveys())
+			if ($status === 1 && $this->object->isAllowedToTakeMultipleSurveys())
 			{
 				$anonymous_code = $this->object->createNewAccessCode();
 				$this->object->saveUserAccessCode($user_id, $anonymous_code);
@@ -271,9 +271,6 @@ class ilSurveyExecutionGUI
 				}
 				else
 				{
-					//require_once ("include/inc.debug.php");
-					//show_backtrace();
-					//exit;
 					ilUtil::sendFailure($this->lng->txt("survey_use_start_button"), true);
 					$this->ctrl->redirectByClass("ilobjsurveygui", "infoScreen");
 				}
