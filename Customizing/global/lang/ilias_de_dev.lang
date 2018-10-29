@@ -597,6 +597,7 @@ style#:#sty_custom_css_color_info#:#Vordefinierte Farben werden wie in den Style
 style#:#sty_custom_css_image_info#:#Bilder werden mit vorangestelltem ! referenziert, z.B. background-image: url(!MeinHintergrund.png);
 survey#:#anonymize_survey_description#:#Die Anonymisierung entfernt alle persönlichen Daten aus der Umfragenstatistik.<ul><li>Bei öffentlichen Umfragen mit CAPTCHA muss zum Starten ein kurzer Bildtext erkannt werden, um das Ausfüllen durch Programme zu verhindern.</li><li>Bei öffentlichen Umfragen mit Zugangsschlüssel muss eine vorab verteilte fünfstellige Kennung eingegeben werden.</li></ul>Für registrierte StudOn-Nutzer wird kein CAPTCHA oder Zugangsschlüssel benötigt.
 survey#:#anonymize_with_captcha#:#Anonyme Umfrage mit CAPTCHA
+survey#:#anonymize_with_captcha_info#:#Die Umfrage kann von anonymen Benutzern nach manueller Eingabe von Zeichen aus einer generierten Grafik gestartet werden. Diese Option ist nicht mit Zugangsschlüsseln kombinierbar!
 survey#:#freetext_answers#:#Freitext-Antworten
 trac#:#lp_info_users_to_refresh#:#Es wurden soeben %s Lernfortschritte aktualisiert. Von %s Nutzern muss der Lernfortschritt noch aktualisiert werden. Bitte laden Sie die Seite gegebenenfalls neu.###fau: lpRefreshesLimit
 univis#:#crs_visibility#:#Verfügbarkeit

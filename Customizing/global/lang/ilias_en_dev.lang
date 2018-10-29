@@ -651,6 +651,7 @@ style#:#sty_custom_css_image_info#:#Images are used with ! as prefix, e.g. backg
 survey#:#freetext_answers#:#Freetext answers
 survey#:#anonymize_survey_description#:#The anonymisation deletes all personal data from the survey statistics.<ul><li>Public surveys with CAPTCHA require the recognition of a short picture text to prevent an automated fill-in.</li><li>Public surveys with access key require a short key to be entered.</li></ul>Registered StudOn users don't need a CAPTCHA or access key.
 survey#:#anonymize_with_captcha#:#Anonymous Survey with CAPTCHA
+survey#:#anonymize_with_captcha_info#:#The survey can be startet aber entering the text from an automatically generated image. This option can't be combined with access codes.
 trac#:#lp_info_users_to_refresh#:#%s learning progress data were refreshed. There are %s users remaining that need an update. Please reload this page if you need their data.###fau: lpRefreshesLimit
 univis#:#crs_visibility#:#Visibility
 univis#:#crs_visibility_unvisible#:#Not visible
