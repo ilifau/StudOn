@@ -234,9 +234,11 @@ class ilObjFile extends ilObject2 {
 	public function getDirectory($a_version = 0) {
 		$version_subdir = "";
 
+// fau: fixFileVersionDir - workaround for mantis #22761
 		if ($a_version) {
 			// BEGIN WebDAV Avoid double slash before version subdirectory
 			$version_subdir = sprintf("%03d", $a_version);
+            $version_subdir2 = sprintf("%03d", $a_version+1);
 			// END WebDAV Avoid  double slash before version subdirectory
 		}
 
@@ -246,6 +248,11 @@ class ilObjFile extends ilObject2 {
 
 		$str = $this->file_storage->getAbsolutePath() . '/' . $version_subdir;
 
+		if (!is_dir($str))
+        {
+            $str = $this->file_storage->getAbsolutePath() . '/' . $version_subdir2;
+        }
+// fau.
 		return $str;
 	}
 
