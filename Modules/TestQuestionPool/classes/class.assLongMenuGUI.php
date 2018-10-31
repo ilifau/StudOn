@@ -572,7 +572,9 @@ class assLongMenuGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjus
 			$answer_is_correct = false;
 			$user_value = '';
 			$return_value .= $value;
-			if($key < sizeof($text_array) - 1 )
+// fau: fixLongMenuMissingDef - fault tolerance if gap definition is missing
+			if($key < sizeof($text_array) - 1 && is_array($correct_answers[$key][0]))
+// fau.
 			{
 				if($correct_answers[$key][2] == assLongMenu::ANSWER_TYPE_TEXT_VAL)
 				{
