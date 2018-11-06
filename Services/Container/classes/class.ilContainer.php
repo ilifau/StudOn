@@ -276,17 +276,17 @@ class ilContainer extends ilObject
 	{
 		return $this->news_timeline;
 	}
-
+	
 	/**
 	 * Set news timeline auto entries
 	 *
-	 * @param bool $a_val include automatically created entries
+	 * @param bool $a_val include automatically created entries	
 	 */
 	function setNewsTimelineAutoEntries($a_val)
 	{
 		$this->news_timeline_auto_entries = $a_val;
 	}
-
+	
 	/**
 	 * Get news timeline auto entries
 	 *
@@ -358,13 +358,13 @@ class ilContainer extends ilObject
 	/**
 	 * Set news block activated
 	 *
-	 * @param bool $a_val news block activated
+	 * @param bool $a_val news block activated	
 	 */
 	function setNewsBlockActivated($a_val)
 	{
 		$this->news_block_activated = $a_val;
 	}
-
+	
 	/**
 	 * Get news block activated
 	 *
@@ -374,17 +374,17 @@ class ilContainer extends ilObject
 	{
 		return $this->news_block_activated;
 	}
-
+	
 	/**
 	 * Set use news
 	 *
-	 * @param bool $a_val use news system?
+	 * @param bool $a_val use news system?	
 	 */
 	function setUseNews($a_val)
 	{
 		$this->use_news = $a_val;
 	}
-
+	
 	/**
 	 * Get use news
 	 *
@@ -394,7 +394,7 @@ class ilContainer extends ilObject
 	{
 		return $this->use_news;
 	}
-
+	
 	/**
 	* Lookup a container setting.
 	*
@@ -686,7 +686,7 @@ class ilContainer extends ilObject
 		include_once('./Services/Container/classes/class.ilContainerSortingSettings.php');
 		#18624 - copy all sorting settings
 		ilContainerSortingSettings::_cloneSettings($this->getId(), $new_obj->getId());
-
+		
 		// copy content page
 		include_once("./Services/Container/classes/class.ilContainerPage.php");
 		if (ilContainerPage::_exists("cont",
@@ -731,8 +731,7 @@ class ilContainer extends ilObject
 // fau.
 			}
 		}
-
-
+		
 		return $new_obj;
 	}
 	
@@ -755,7 +754,7 @@ class ilContainer extends ilObject
 
 		// fix internal links to other objects
 		ilContainer::fixInternalLinksAfterCopy($a_target_id,$a_copy_id, $this->getRefId());
-
+		
 		// fix item group references in page content
 		include_once("./Modules/ItemGroup/classes/class.ilObjItemGroup.php");
 		ilObjItemGroup::fixContainerItemGroupRefsAfterCloning($this, $a_copy_id);
@@ -1238,15 +1237,9 @@ class ilContainer extends ilObject
 			$pg->update(true, true);
 			foreach ($mapping as $old_ref_id => $new_ref_id)
 			{
-// fau: fixCopyContainerWithGlossary - ignore glossary term mappings
-// 		new ref_id is array of term_ids if old_ref_id is like 12345_glo_terms
-//		this would cause an illegal offset type error in ilObject::_lookupType()
-				if (is_array($new_ref_id))
-				{
-					continue;
-				}
-// fau.
-
+                if (!is_int($old_ref_id) || !is_int($new_ref_id)) {
+                    continue;
+                }
 				$type = ilObject::_lookupType($new_ref_id, true);
 				$class = "il".$obj_definition->getClassName($type)."PageCollector";
 				$loc = $obj_definition->getLocation($type);
@@ -1270,6 +1263,6 @@ class ilContainer extends ilObject
 			}
 		}
 	}
-
+	
 } // END class ilContainer
 ?>
