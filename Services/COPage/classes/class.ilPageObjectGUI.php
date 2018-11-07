@@ -1828,15 +1828,25 @@ return;
 			//		echo "<b>XSLT</b>:".htmlentities($xsl).":<br>";
 			//		echo "mode:".$this->getOutputMode().":<br>";
 //			var_dump($args); exit;
-			$output = xslt_process($xh, "arg:/_xml","arg:/_xsl", NULL, $args, $params);
-			
-			if (($this->getOutputMode() == "presentation" || $this->getOutputMode() == "preview")
-				&& !$this->getAbstractOnly()
-				&& $this->obj->old_nr == 0)
+
+// fau: fixPageXslErrorMessage - show a speaking error message when an xsl error occurs
+			try
 			{
+                $output = xslt_process($xh, "arg:/_xml","arg:/_xsl", NULL, $args, $params);
+                if (($this->getOutputMode() == "presentation" || $this->getOutputMode() == "preview")
+                    && !$this->getAbstractOnly()
+                    && $this->obj->old_nr == 0)
+                {
 //echo "writerenderedcontent";
-				$this->obj->writeRenderedContent($output, $md5);
+                    $this->obj->writeRenderedContent($output, $md5);
+                }
+            }
+            catch (Exception $e)
+			{
+				ilUtil::sendFailure($this->lng->txt('page_xsl_error'), false);
 			}
+// fau.
+
 			//echo xslt_error($xh);
 			xslt_free($xh);
 		}
