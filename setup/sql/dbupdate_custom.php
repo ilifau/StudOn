@@ -976,3 +976,15 @@ if (!$ilDB->tableColumnExists('benchmark', 'backtrace'))
 	);
 }
 ?>
+<#60>
+<?php
+/**
+ * fau: lpQuestionsPercent - Add percent to
+ */
+if (!$ilDB->tableColumnExists('ut_lp_settings', 'questions_percent'))
+{
+    $ilDB->addTableColumn('ut_lp_settings', 'questions_percent',
+        array('type' => 'float', 'notnull' => true, 'default' => 100)
+    );
+}
+?>

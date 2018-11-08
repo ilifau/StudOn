@@ -601,6 +601,10 @@ survey#:#anonymize_with_captcha#:#Anonyme Umfrage mit CAPTCHA
 survey#:#anonymize_with_captcha_info#:#Die Umfrage kann von anonymen Benutzern nach manueller Eingabe von Zeichen aus einer generierten Grafik gestartet werden. Diese Option ist nicht mit Zugangsschlüsseln kombinierbar!
 survey#:#freetext_answers#:#Freitext-Antworten
 trac#:#lp_info_users_to_refresh#:#Es wurden soeben %s Lernfortschritte aktualisiert. Von %s Nutzern muss der Lernfortschritt noch aktualisiert werden. Bitte laden Sie die Seite gegebenenfalls neu.###fau: lpRefreshesLimit
+trac#:#trac_mode_questions#:#Anteil richtig beantworteter Fragen
+trac#:#trac_mode_questions_info#:#Benutzer, die einen Anteil Fragen richtig beantwortet haben, erhalten automatisch den Status 'Bearbeitet'. Bitte nutzen Sie diese Option nur, wenn auch tatsächlich Fragen im Lernmodul vorliegen.
+trac#:#trac_mode_questions_percent#:#Anteil (%)
+trac#:#trac_required_questions_percent#:#Anteil richtig beantworteter Fragen (%)
 univis#:#crs_visibility#:#Verfügbarkeit
 univis#:#crs_visibility_unvisible#:#Nicht sichtbar
 univis#:#crs_availability_unvisible_info#:#Der Kurs wird offline geschaltet

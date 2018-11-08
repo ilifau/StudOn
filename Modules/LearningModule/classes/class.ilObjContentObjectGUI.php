@@ -2530,7 +2530,7 @@ class ilObjContentObjectGUI extends ilObjectGUI implements ilLinkCheckerGUIRowHa
 		$table = new ilLMQuestionUserDetailsTableGUI($this, "listQuestionUserDetails", $this->object, $_GET['user_id']);
 
 		include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
-		$tpl->setContent($table->getHTML() . ilLearningProgressBaseGUI::__getLegendHTML());
+		$tpl->setContent($table->getHTML() . ilLearningProgressBaseGUI::__getLegendHTMLStatic());
 	}
 // fau.
 

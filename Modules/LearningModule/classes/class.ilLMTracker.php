@@ -667,6 +667,32 @@ class ilLMTracker
 		return false;
 	}
 
+// fau: lpQuestionsPercent - new function getQuestionsCorrectPercent()
+    /**
+     * Get the percentage of correctly answered questions
+     *
+     * @return float
+     */
+    function getQuestionsCorrectPercent()
+    {
+        $this->loadLMTrackingData();
+        if (!is_array($this->all_questions) || empty($this->all_questions) || !is_array($this->answer_status))
+        {
+            return 0;
+        }
+
+        $correct_answered = 0;
+        foreach ($this->all_questions as $q_id)
+        {
+            if (is_array($this->answer_status[$q_id]) && $this->answer_status[$q_id]["passed"])
+            {
+                $correct_answered++;
+            }
+        }
+
+        return 100 * $correct_answered / count($this->all_questions);
+    }
+// fau.
 
 	/**
 	 * Determine progress status of nodes
@@ -811,7 +837,15 @@ class ilLMTracker
 		{
 			return ilUtil::getImagePath('scorm/running.svg');
 		}
-		if (isset($this->tree_arr["nodes"][$a_node["child"]]))
+
+// fau: lpQuestionsPercent - show the icon for the learning module according to the generally saved status
+        if ($a_node['type'] == 'du')
+        {
+            $this->tree_arr["nodes"][$a_node["child"]]["status"] = ilLPStatus::_lookupStatus($this->lm_obj_id, $this->user_id);
+        }
+// fau.
+
+        if (isset($this->tree_arr["nodes"][$a_node["child"]]))
 		{
 			switch ($this->tree_arr["nodes"][$a_node["child"]]["status"])
 			{

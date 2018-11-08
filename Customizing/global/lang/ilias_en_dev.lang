@@ -654,6 +654,10 @@ survey#:#anonymize_survey_description#:#The anonymisation deletes all personal d
 survey#:#anonymize_with_captcha#:#Anonymous Survey with CAPTCHA
 survey#:#anonymize_with_captcha_info#:#The survey can be startet aber entering the text from an automatically generated image. This option can't be combined with access codes.
 trac#:#lp_info_users_to_refresh#:#%s learning progress data were refreshed. There are %s users remaining that need an update. Please reload this page if you need their data.###fau: lpRefreshesLimit
+trac#:#trac_mode_questions#:#Answering Questions Correctly
+trac#:#trac_mode_questions_info#:#Users who answered a certain share of questions correctly will automatically be assigned with the status ‘Completed’. Please use this setting only if there actually are questions in the learning module.
+trac#:#trac_mode_questions_percent#:#Share (%)
+trac#:#trac_required_questions_percent#:#Share of correctly answered questions (%)
 univis#:#crs_visibility#:#Visibility
 univis#:#crs_visibility_unvisible#:#Not visible
 univis#:#crs_availability_unvisible_info#:#Der Kurs ist set offline
