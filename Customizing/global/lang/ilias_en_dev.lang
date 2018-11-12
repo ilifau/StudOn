@@ -78,6 +78,7 @@ assessment#:#tst_filter_order_by_info#:#When the test doesn't shuffle the questi
 assessment#:#tst_question_browse_root_message#:#The questions are searched in the parent container of the test by default. You can change this with the filter settings.
 assessment#:#question_browse_area_info#:#Please select a search area for the questions:
 assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to confirm the adoption of the solution, if you like to use it without any change.
+assessment#:#warning_delete_scored_pass#:#WARNING: This is the scored test pass! You should delete it only in case of an error.###deleteTestPass
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.

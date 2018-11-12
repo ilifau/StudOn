@@ -77,6 +77,7 @@ assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell 
 assessment#:#tst_question_browse_root_message#:#Die Fragen werden standardmäßig im Bereich oder Ordner gesucht, in dem dieser Test liegt. Das können Sie mit den Filtereinstellungen ändern.
 assessment#:#question_browse_area_info#:#Bitte wählen Sie einen Suchbereich für die Fragen:
 assessment#:#use_previous_solution_advice#:#Die angezeigte Lösung wurde vormals von Ihnen abgegeben. Sie müssen die Übernahme dieser Lösung unterhalb der Frage bestätigen, falls Sie die Lösung ohne Änderungen übernehmen wollen.
+assessment#:#warning_delete_scored_pass#:#WARNUNG: Dies ist der bewertete Durchlauf! Sie sollten ihn nur im Fall eines Fehlers löschen.###deleteTestPass
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.
