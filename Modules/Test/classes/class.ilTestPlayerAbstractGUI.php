@@ -533,7 +533,9 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 		// hide previous results
 		if ($this->object->getNrOfTries() != 1)
 		{
-			if ($this->object->getUsePreviousAnswers() == 1)
+// fau: adoptPreviousSolutions - prevent a change when a random test without this checkbox is started
+			if ($this->object->getUsePreviousAnswers() == 1 && isset($_POST["chb_use_previous_answers"]))
+// fau.
 			{
 				if ($_POST["chb_use_previous_answers"])
 				{
@@ -1282,7 +1284,9 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 			$qstConfig->setIsUnchangedAnswerPossible($this->object->getMCScoring());
 		}
 
-		if( $qstConfig->isPreviousPassSolutionReuseAllowed() )
+// fau: adoptPreviousSolutions - prevent appearance of checkbox and message when the solution is deleted
+		if( false && $qstConfig->isPreviousPassSolutionReuseAllowed() )
+// fau.
 		{
 			$passIndex = $this->determineSolutionPassIndex($questionGui); // last pass having solution stored
 			if( $passIndex < $this->testSession->getPass() ) // it's the previous pass if current pass is higher

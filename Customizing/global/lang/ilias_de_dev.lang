@@ -78,6 +78,7 @@ assessment#:#tst_question_browse_root_message#:#Die Fragen werden standardmäßi
 assessment#:#question_browse_area_info#:#Bitte wählen Sie einen Suchbereich für die Fragen:
 assessment#:#use_previous_solution_advice#:#Die angezeigte Lösung wurde vormals von Ihnen abgegeben. Sie müssen die Übernahme dieser Lösung unterhalb der Frage bestätigen, falls Sie die Lösung ohne Änderungen übernehmen wollen.
 assessment#:#warning_delete_scored_pass#:#WARNUNG: Dies ist der bewertete Durchlauf! Sie sollten ihn nur im Fall eines Fehlers löschen.###deleteTestPass
+assessment#:#tst_use_previous_answers_authorized#:#<b>!!! NEU !!!</b> Kopiere die vorherigen Lösungen in den neuen Durchlauf. Sie sind dann bereits gespeichert, können aber noch verändert werden.###fau: adoptPreviousSolutions
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.

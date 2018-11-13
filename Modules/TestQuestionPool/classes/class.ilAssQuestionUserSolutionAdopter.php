@@ -239,12 +239,17 @@ class ilAssQuestionUserSolutionAdopter
 
 		$row = $this->db->fetchAssoc($res);
 
-		$resultId = $this->db->nextId('tst_test_result');
+// fau: adoptPreviousSolutions - fault tolerant adoption of result record
+        if (!empty($row))
+        {
+            $resultId = $this->db->nextId('tst_test_result');
 
-		$this->db->execute($this->getPreparedInsertResultRecordStatement(), array(
-			$resultId, $this->getActiveId(), $questionId, $this->getTargetPass(), time(),
-			$row['points'], $row['manual'], $row['hint_count'], $row['hint_points'], $row['answered']
-		));
+            $this->db->execute($this->getPreparedInsertResultRecordStatement(), array(
+                $resultId, $this->getActiveId(), $questionId, $this->getTargetPass(), time(),
+                (float) $row['points'], (int) $row['manual'], (int) $row['hint_count'], (float) $row['hint_points'], (int) $row['answered']
+            ));
+        }
+// fau.
 	}
 
 	protected function getPreparedDeleteSolutionRecordsStatement()

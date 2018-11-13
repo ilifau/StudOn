@@ -3971,7 +3971,9 @@ class ilObjTestGUI extends ilObjectGUI
 							{
 								$checked_previous_answers = TRUE;
 							}
-							$info->addPropertyCheckbox($this->lng->txt("tst_use_previous_answers"), "chb_use_previous_answers", 1, $this->lng->txt("tst_use_previous_answers_user"), $checked_previous_answers);
+// fau: adoptPreviousSolutions - new checkbox label on info screen
+							$info->addPropertyCheckbox($this->lng->txt("tst_use_previous_answers"), "chb_use_previous_answers", 1, $this->lng->txt("tst_use_previous_answers_authorized"), $checked_previous_answers);
+// fau.
 						}
 					}
 				}
