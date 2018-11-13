@@ -2006,7 +2006,9 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
 		if( !$this->object->isDynamicTest() && $isActivePass )
 		{
-			$this->ctrl->redirect($this, 'outUserResultsOverview');
+// fau: deletePass -  treat special case of phantom pass - allow to delete the active pass
+//			$this->ctrl->redirect($this, 'outUserResultsOverview');
+// fau.
 		}
 		
 			if( $pass == 0 && (
