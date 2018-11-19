@@ -1102,7 +1102,9 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 		case 'assImagemapQuestion': 
 			//reinit map
 			jQuery(function() {
-		  		jQuery('.cmap'+a_id).maphilight_mod({fade:true});
+// fau: fixLmImagemap - correct solution was not shown after last attempt
+//		  		jQuery('.cmap'+a_id).maphilight_mod({fade:true});
+// fau.
 			});
 			for (var i=0;i<questions[a_id].answers.length;i++) {
 				// display correct
