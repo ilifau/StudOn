@@ -152,56 +152,57 @@
 <#7>
 <?php
 	/**
-	* Create webform tables
-	*/
-	if(!$ilDB->tableExists('webform_types'))
-	{
-		$ilDB->createTable('webform_types', array(
-			'form_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'lm_obj_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'form_name' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'dataset_id' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => '0'),
-			'title' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'path' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'send_maxdate' => array('type' => 'date', 'notnull' => false, 'default' => null),
-			'solution_ref' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'solution_mode' => array('type' => 'text', 'length' => 7, 'notnull' => false, 'default' => 'checked'),
-			'solution_date' => array('type' => 'date', 'notnull' => false, 'default' => null),
-			'forum' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'forum_parent' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'forum_subject' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-		));
-		$ilDB->addPrimaryKey('webform_types',array('form_id'));
-		$ilDB->createSequence('webform_types');
-	}
-	
-	if(!$ilDB->tableExists('webform_savings'))
-	{
-		$ilDB->createTable('webform_savings', array(
-			'save_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'user_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'form_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'dataset_id' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => '0'),
-			'savedate' => array('type' => 'date', 'notnull' => false, 'default' => null),
-			'senddate' => array('type' => 'date', 'notnull' => false, 'default' => null),
-			'checkdate' => array('type' => 'date', 'notnull' => false, 'default' => null),
-			'is_forum_saving' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-		));
-		$ilDB->addPrimaryKey('webform_savings',array('save_id'));
-		$ilDB->createSequence('webform_savings');
-	}
-	
-	if(!$ilDB->tableExists('webform_entries'))
-	{
-		$ilDB->createTable('webform_entries', array(
-			'entry_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'save_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
-			'fieldname' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
-			'fieldvalue' => array('type' => 'clob', 'notnull' => false, 'default' => null),
-		));
-		$ilDB->addPrimaryKey('webform_entries',array('entry_id'));
-		$ilDB->createSequence('webform_entries');
-	}
+	 * Create webform tables
+     * Deprecated!
+	 */
+//	if(!$ilDB->tableExists('webform_types'))
+//	{
+//		$ilDB->createTable('webform_types', array(
+//			'form_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'lm_obj_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'form_name' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'dataset_id' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => '0'),
+//			'title' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'path' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'send_maxdate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'solution_ref' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'solution_mode' => array('type' => 'text', 'length' => 7, 'notnull' => false, 'default' => 'checked'),
+//			'solution_date' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'forum' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'forum_parent' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'forum_subject' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//		));
+//		$ilDB->addPrimaryKey('webform_types',array('form_id'));
+//		$ilDB->createSequence('webform_types');
+//	}
+//
+//	if(!$ilDB->tableExists('webform_savings'))
+//	{
+//		$ilDB->createTable('webform_savings', array(
+//			'save_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'user_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'form_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'dataset_id' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => '0'),
+//			'savedate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'senddate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'checkdate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'is_forum_saving' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//		));
+//		$ilDB->addPrimaryKey('webform_savings',array('save_id'));
+//		$ilDB->createSequence('webform_savings');
+//	}
+//
+//	if(!$ilDB->tableExists('webform_entries'))
+//	{
+//		$ilDB->createTable('webform_entries', array(
+//			'entry_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'save_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'fieldname' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'fieldvalue' => array('type' => 'clob', 'notnull' => false, 'default' => null),
+//		));
+//		$ilDB->addPrimaryKey('webform_entries',array('entry_id'));
+//		$ilDB->createSequence('webform_entries');
+//	}
 ?>
 <#8>
 <?php
