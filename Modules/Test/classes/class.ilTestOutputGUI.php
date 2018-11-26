@@ -878,22 +878,23 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
      */
     protected function adoptAllUserSolutionsFromPreviousPass()
     {
-        global $ilDB, $ilUser;
+        global $DIC;
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
 
         $assSettings = new ilSetting('assessment');
-
-        include_once ("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
         $isAssessmentLogEnabled = ilObjAssessmentFolder::_enabledAssessmentLogging();
 
-        require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionUserSolutionAdopter.php';
         $userSolutionAdopter = new ilAssQuestionUserSolutionAdopter($ilDB, $assSettings, $isAssessmentLogEnabled);
-
         $userSolutionAdopter->setUserId($ilUser->getId());
         $userSolutionAdopter->setActiveId($this->testSession->getActiveId());
         $userSolutionAdopter->setTargetPass($this->testSequence->getPass());
         $userSolutionAdopter->setQuestionIds($this->testSequence->getQuestionIds());
-
         $userSolutionAdopter->perform();
+
+        assQuestion::_updateTestPassResults($this->testSession->getActiveId(), $this->testSequence->getPass(), true);
+        assQuestion::_updateTestResultCache($this->testSession->getActiveId());
+        ilLPStatusWrapper::_updateStatus($this->object->getId(), $ilUser->getId());
     }
 // fau.
 
