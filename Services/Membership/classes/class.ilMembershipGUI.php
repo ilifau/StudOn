@@ -312,19 +312,21 @@ class ilMembershipGUI
 					$this->getParentObject()->getType().'_members_gallery'
 				);
 				
+// fau: mailToMembers - show member gallery to local or upper admins if enabled
 				$is_admin = (bool) $this->checkRbacOrPositionAccessBool('manage_members', 'manage_members');
+				$is_local_or_upper_admin = ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $ilUser->getId());
 				$is_participant = (bool)ilParticipants::_isParticipant($this->getParentObject()->getRefId(), $ilUser->getId());
 				if(
 					!$is_admin &&
 					(
 						$this->getParentObject()->getShowMembers() == 0 ||
-						!$is_participant
+						!($is_participant || $is_local_or_upper_admin)
 					)
 				)
 				{
 					$ilErr->raiseError($this->lng->txt('msg_no_perm_read'), $ilErr->MESSAGE);
 				}
-
+// fau.
 				$this->showMailToMemberToolbarButton($GLOBALS['ilToolbar'], 'jump2UsersGallery');
 				$this->showMemberExportToolbarButton($GLOBALS['ilToolbar'], 'jump2UsersGallery');
 
@@ -1051,7 +1053,9 @@ class ilMembershipGUI
 			'manage_members', 
 			$this->getParentObject()->getRefId()
 		);
-		
+// fau: mailToMembers - show member gallery or mail to members tab to local or upper admins
+		$is_local_or_upper_admin = ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId());
+
 		if($has_manage_members_permission)
 		{
 			$tabs->addTab(
@@ -1061,7 +1065,7 @@ class ilMembershipGUI
 			);
 		}
 		elseif(
-			(bool) $this->getParentObject()->getShowMembers() && $a_is_participant
+			(bool) $this->getParentObject()->getShowMembers() && ($a_is_participant || $is_local_or_upper_admin)
 		)
 		{
 			$tabs->addTab(
@@ -1071,12 +1075,10 @@ class ilMembershipGUI
 			);
 		}
 		elseif(
-// fau: mailToMembers - show mail to members tab to users
 			$GLOBALS['rbacsystem']->checkAccess('internal_mail',$mail->getMailObjectReferenceId ()) &&
 			(
-				($this->getParentObject()->getMailToMembersType() == 1 && $a_is_participant) ||
-				ilParticipants::_isTutor($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId()) ||
-				ilParticipants::_isLocalOrUpperAdmin($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId())
+				($this->getParentObject()->getMailToMembersType() == 1 && $a_is_participant) || $is_local_or_upper_admin ||
+				ilParticipants::_isTutor($this->getParentObject()->getRefId(), $GLOBALS['DIC']->user()->getId())
 			)
 // fau.
 		)
