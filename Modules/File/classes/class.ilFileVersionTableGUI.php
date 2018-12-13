@@ -76,7 +76,9 @@ class ilFileVersionTableGUI extends ilTable2GUI
 		if (!$this->confirmDelete)
 		{
 			$this->addMultiCommand("deleteVersions", $lng->txt("delete"));
-			$this->addMultiCommand("rollbackVersion", $lng->txt("file_rollback"));
+// fau: fixFileVersionRollback - don't provide rollback function - see Mantis #23596
+//			$this->addMultiCommand("rollbackVersion", $lng->txt("file_rollback"));
+// fau.
 		}
 		else
 		{
@@ -140,9 +142,10 @@ class ilFileVersionTableGUI extends ilTable2GUI
 		$actions->setId($hist_id);
 		$actions->setListTitle($lng->txt("actions"));
 		$actions->addItem($lng->txt("delete"), "", $ilCtrl->getLinkTarget($this->parent_obj, "deleteVersions"));
-		if ($this->current_version != $version)
-			$actions->addItem($lng->txt("file_rollback"), "", $ilCtrl->getLinkTarget($this->parent_obj, "rollbackVersion"));	
-		
+// fau: fixFileVersionRollback - don't provide rollback function - see Mantis #23596
+//		if ($this->current_version != $version)
+//			$actions->addItem($lng->txt("file_rollback"), "", $ilCtrl->getLinkTarget($this->parent_obj, "rollbackVersion"));
+// fau.
 		// reset history parameter
 		$ilCtrl->setParameter($this->parent_obj, "hist_id", "");
 		
