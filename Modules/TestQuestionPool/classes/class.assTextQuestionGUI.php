@@ -128,6 +128,9 @@ class assTextQuestionGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 		include_once "./Services/Object/classes/class.ilObject.php";
 		$obj_id = ilObject::_lookupObjectId($_GET["ref_id"]);
 		$obj_type = ilObject::_lookupType($_GET["ref_id"], TRUE);
+// fau: fixTinyInExam - avoid console error at tiny initialisation
+        $rte->setRemoveImgContextMenuItem(false);
+// fau.
 		$rte->addUserTextEditor("textinput");
 		$this->outAdditionalOutput();
 

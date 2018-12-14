@@ -317,7 +317,9 @@ class ilTinyMCE extends ilRTE
 		$template = new ilTemplate("tpl.usereditor.html", true, true, "Services/RTE");
 		$this->handleImgContextMenuItem($template);
 		$template->setCurrentBlock("tinymce");
-		$template->setVariable("JAVASCRIPT_LOCATION", "./Services/RTE/tiny_mce".$this->vd."/tiny_mce.js");
+// fau: fixTinyInExam - used patched source script instead of minified one
+		$template->setVariable("JAVASCRIPT_LOCATION", "./Services/RTE/tiny_mce".$this->vd."/tiny_mce_src.js");
+// fau.
 		include_once "./Services/Object/classes/class.ilObject.php";
 		$template->setVariable("SELECTOR", $editor_selector);
 		$template->setVariable("BLOCKFORMATS", "");
