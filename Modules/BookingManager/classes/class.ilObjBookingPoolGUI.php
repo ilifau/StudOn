@@ -154,6 +154,17 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 		return true;
 	}
 
+// fau: stornoBook - new function allowStorno()
+    /**
+     * Check if the object allows a storno
+     * @return bool
+     */
+	public function allowsStorno()
+    {
+        return $this->object->getUserStorno() || $this->checkPermissionBool('write');
+    }
+// fau.
+
 	protected function initCreationForms($a_new_type)
 	{
 		$forms = parent::initCreationForms($a_new_type);
@@ -237,8 +248,14 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 		$period->setSize(3);
 		$period->setMinValue(0);
 		$a_form->addItem($period);
-		
-		// additional features
+
+// fau: stornoBook - add setting checkbox
+        $storno = new ilCheckboxInputGUI($this->lng->txt("book_user_storno"), "storno");
+        $storno->setInfo($this->lng->txt("book_user_storno_info"));
+        $a_form->addItem($storno);
+// fau.
+
+        // additional features
 		$feat = new ilFormSectionHeaderGUI();
 		$feat->setTitle($this->lng->txt('obj_features'));
 		$a_form->addItem($feat);
@@ -252,6 +269,9 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 		$a_values["stype"] = $this->object->getScheduleType();
 		$a_values["limit"] = $this->object->getOverallLimit();		
 		$a_values["period"] = $this->object->getReservationFilterPeriod();
+// fau: stornoBook - load setting into form
+		$a_values['storno'] = $this->object->getUserStorno();
+// fau.
 	}
 
 	protected function updateCustom(ilPropertyFormGUI $a_form)
@@ -261,7 +281,11 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 		$this->object->setScheduleType($a_form->getInput('stype'));
 		$this->object->setOverallLimit($a_form->getInput('limit') ? $a_form->getInput('limit') : null);
 		$this->object->setReservationFilterPeriod(strlen($a_form->getInput('period')) ? (int)$a_form->getInput('period') : null);
-		
+
+// fau: stornoBook - save setting from form
+        $this->object->setUserStorno($a_form->getInput('storno'));
+// fau.
+
 		include_once './Services/Container/classes/class.ilContainer.php';
 		include_once './Services/Object/classes/class.ilObjectServiceSettingsGUI.php';
 		ilObjectServiceSettingsGUI::updateServiceSettingsForm(
@@ -1670,7 +1694,9 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 			{				
 				$obj = new ilBookingReservation($id);
 			
-				if (!$this->checkPermissionBool("write") && $obj->getUserId() != $ilUser->getId())
+// fau: stornoBook - check if storno is allowed
+				if (!$this->checkPermissionBool("write") && ($obj->getUserId() != $ilUser->getId() || !$this->object->getUserStorno()))
+// fau.
 				{
 					ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
 					$this->ctrl->redirect($this, 'log');

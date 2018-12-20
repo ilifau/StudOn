@@ -137,8 +137,10 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
 		{
 			$this->setExportFormats(array(self::EXPORT_CSV, self::EXPORT_EXCEL));
 		}
-		
-		if($ilUser->getId() != ANONYMOUS_USER_ID)
+
+// fau: stornoBook - check if the object allows a storno
+		if($ilUser->getId() != ANONYMOUS_USER_ID && $a_parent_obj->allowsStorno())
+// fau.
 		{			
 			/*
 			if($ilAccess->checkAccess('write', '', $this->ref_id))
@@ -473,7 +475,10 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
 		
 	    $this->tpl->setVariable("TXT_TITLE", $a_set["title"]);
 		
-		$can_be_cancelled = (($ilAccess->checkAccess('write', '', $this->ref_id) || 
+		$can_be_cancelled = (($ilAccess->checkAccess('write', '', $this->ref_id) ||
+// fau: stornoBook - check if storno is allowed
+            $this->parent_obj->allowsStorno() &&
+// fau.
 			$a_set['user_id'] == $ilUser->getId()) &&
 			$a_set["can_be_cancelled"]);
 

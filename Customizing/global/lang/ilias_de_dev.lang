@@ -102,6 +102,8 @@ auth#:#shib_recommendation_text#:#<p>Liebe Nutzerin / lieber Nutzer,<br /></p><p
 auth#:#shib_reminder_head#:#Bitte verwenden Sie das Single Sign-On
 auth#:#shib_reminder_text#:#<p>Liebe Nutzerin / lieber Nutzer,</p><p>Für Ihr StudOn-Benutzerkonto ist das <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> über den Anmeldedienst der Universität als Standard eingestellt. Bitte verwenden Sie bevorzugt diese Anmeldung.</p><p class="alert">Nur beim Single Sign-On werden Ihre Nutzerdaten automatisch aktualisiert, die Ihre Beitrittsmöglichkeit zu Kursen und Gruppen beeinflussen können.</p><p>Die lokale Anmeldung können Sie nutzen, wenn das Single-Sign-On nicht funktioniert.</p>
 auth#:#shib_to_sso#:#Zum Single Sign-On
+book#:#book_user_storno#:#Storno erlauben
+book#:#book_user_storno_info#:#Nutzer sollen ihre eigenen Buchungen stornieren können. Andernfalls können das nur Nutzer mit Schreibrecht.
 common#:#accept_updated_user_agreement#:#Die Nutzungsbedingungen wurden neu formuliert. Am Umfang des Angebots ändert sich dadurch nichts. Bitte akzeptieren Sie die Nutzungsvereinbarung am Ende dieser Seite, um das System weiter nutzen zu können.
 common#:#accept_user_agreement#:#Bitte akzeptieren Sie die Nutzungsvereinbarung am Ende dieser Seite, um das System nutzen zu können.
 common#:#archive_structure#:#Archiv-Struktur

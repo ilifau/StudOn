@@ -989,3 +989,15 @@ if (!$ilDB->tableColumnExists('ut_lp_settings', 'questions_percent'))
     );
 }
 ?>
+<#61>
+<?php
+/**
+ * fau: stornoBook - add setting to allow storno
+ */
+if (!$ilDB->tableColumnExists('booking_settings', 'user_storno'))
+{
+    $ilDB->addTableColumn('booking_settings', 'user_storno',
+        array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1)
+    );
+}
+?>

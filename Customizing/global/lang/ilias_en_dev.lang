@@ -103,6 +103,8 @@ auth#:#shib_recommendation_text#:#<p>Dear Student,</p><p>Since <strong>1. Decemb
 auth#:#shib_reminder_head#:#Single Sign-On
 auth#:#shib_reminder_text#:#<p>Dear User, </p><p>The <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> is set as the standard log-in type for your user account. Please use this log-in type in normal cases.<p><p class="alert">Your study data (subjects, semester, degree) will only be updated when you log in by single sign-on. These data may influence your chance to register for certain courses.</p><p>The <strong>local Login</strong> can be used, if single sign-on does not work. In this case use the password, that you used at the last successful single sign-on.</p>
 auth#:#shib_to_sso#:#To Single Sign-On
+book#:#book_user_storno#:#Allow Storno
+book#:#book_user_storno_info#:#Allow users to cancel their own bookings. Otherwise it's only possible with write permission.
 common#:#accept_updated_user_agreement#:#The terms of use have been reformulated. The amount of the offer did not change. Please accept the terms of use at the end of the page to still be able using the system.
 common#:#accept_user_agreement#:#Please accept the terms of use at the end of this page to still be able using the system.
 common#:#archive_structure#:#Archive Structure
