@@ -64,10 +64,12 @@
 		<p class="ilAssKprimInstruction instruction">qinstruction</p>
 	</div>
 	<div class="container-fluid ilc_answers ilAssKprimChoiceTable ilClearFloat">
-		<div class="row ilc_qanswer_Answer">
+		<!-- fau: fixKprimOptionLabel  - add class for background color -->
+		<div class="row ilc_qanswer_Answer optionLabel">
 			<div class="col-sm-1 optionLabel">{OPTION_LABEL_TRUE}</div>
 			<div class="col-sm-1 optionLabel">{OPTION_LABEL_FALSE}</div>
 		</div>
+		<!-- fau. -->
 		<div class="row ilc_qanswer_Answer answers">
 			<div class="col-sm-1 kprimInput">
 				<input class="" type="radio" name="qtrueinputname" value="{VALUE_TRUE}" />
@@ -75,7 +77,9 @@
 			<div class="col-sm-1 kprimInput" width="15">
 				<input type="radio" name="qfalseinputname" value="{VALUE_FALSE}" />
 			</div>
-			<div class="col-sm-4"><span class="answertext">qanswertext</span></div>
+			<!-- fau: fixKprimOptionLabel - increase text width -->
+			<div class="col-sm-10"><span class="answertext">qanswertext</span></div>
+			<!-- fau. -->
 		</div>
 	</div>
 <div id="feedback{VAL_ID}" style="display:none"></div>
