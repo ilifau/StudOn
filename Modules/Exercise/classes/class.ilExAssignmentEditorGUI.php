@@ -311,7 +311,11 @@ class ilExAssignmentEditorGUI
 		$desc_input = new ilTextAreaInputGUI($lng->txt("exc_instruction"), "instruction");
 		$desc_input->setRows(20);
 		$desc_input->setUseRte(true);
-		$desc_input->setRteTagSet("mini");
+// fau: exInstRte - allow latex and set the allowed tags according to the administration settings
+        $desc_input->addPlugin("latex");
+        $desc_input->addButton("latex");
+        $desc_input->setRTESupport(ilObject::_lookupObjId((int) $_GET['ref_id']), "exc", "exc_ass");
+// fau.
 		$form->addItem($desc_input);
 
 		// files

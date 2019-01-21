@@ -200,9 +200,11 @@ class ilExAssignmentGUI
 		{			
 			$inst = $a_ass->getInstruction();	
 			if(trim($inst))
-			{				
+			{
+// fau: exInstRte - process latex
+                $inst = ilUtil::prepareTextareaOutput($inst, true);
+// fau.
 				$a_info->addSection($lng->txt("exc_instruction"));
-
 				$is_html = (strlen($inst) != strlen(strip_tags($inst)));
 				if(!$is_html)
 				{
