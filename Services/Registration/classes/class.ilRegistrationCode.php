@@ -535,7 +535,7 @@ class ilRegistrationCode
 		$titles = array();
 		foreach ($this->local_roles as $role_id)
 		{
-			$titles = ilObject::_lookupTitle($role_id);
+			$titles[] = ilObject::_lookupTitle($role_id);
 		}
 		return $titles;
 	}

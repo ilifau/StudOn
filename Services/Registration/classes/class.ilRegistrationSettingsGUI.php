@@ -851,8 +851,9 @@ class ilRegistrationSettingsGUI
 		$ctab = new ilRegistrationCodesTableGUI($this, "listCodes");
 		$this->tpl->setContent($ctab->getHTML());
 
-		include_once('Services/Link/classes/class.ilLink.php');
+// fau: regCodes - chow codes info
 		ilUtil::sendInfo(str_replace('{URL}', ilLink::_getShortlinkBase(), $this->lng->txt('registration_codes_info')), false);
+// fau.
 	}
 
 // fau: regCodes - change initAddCodesForm to initCodesForm	and extend it
@@ -1021,7 +1022,12 @@ class ilRegistrationSettingsGUI
 		$local = new ilTextInputGUI($this->lng->txt("registration_codes_roles_local"), "reg_codes_local");
 		$local->setMulti(true);
 		$local->setDataSource($this->ctrl->getLinkTarget($this, "getLocalRoleAutoComplete", "", true));
-		$local->setValue($codeObj->getLocalRoleTitles());
+        $titles = $codeObj->getLocalRoleTitles();
+		$local->setMultiValues($titles);
+		if (count($titles))
+        {
+            $local->setValue($titles[0]);
+        }
 		$this->form_gui->addItem($local);
 		
 		
