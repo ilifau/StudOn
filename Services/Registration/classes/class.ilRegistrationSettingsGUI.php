@@ -856,8 +856,7 @@ class ilRegistrationSettingsGUI
 // fau.
 	}
 
-// fau: regCodes - change initAddCodesForm to initCodesForm	and extend it
-
+// fau: regCodes - change initAddCodesForm() to initCodesForm()	and extend it
 	/**
 	 * Init the registration codes form
 	 * @param ilRegistrationCode $codeObj
@@ -956,10 +955,10 @@ class ilRegistrationSettingsGUI
 		$this->form_gui->addItem($logintype);
 
 		// password generation
-		$pwgen = new ilCheckboxInputGUI($this->lng->txt('passwd_generation'), 'password_generation');
-		$pwgen->setInfo($this->lng->txt('reg_info_pwd'));
-		$pwgen->setValue(1);
-		$pwgen->setChecked($codeObj->password_generation);
+		$pwgen = new ilSelectInputGUI($this->lng->txt('passwd_generation'), 'password_generation');
+		$pwgen->setInfo($this->lng->txt('reg_pw_gen_info'));
+		$pwgen->setOptions(ilRegistrationSettings::getPasswordGenerationTypes());
+		$pwgen->setValue($codeObj->password_generation);
 		$this->form_gui->addItem($pwgen);
 
 		// captcha
@@ -1145,7 +1144,7 @@ class ilRegistrationSettingsGUI
 
 		// code options
 		$codeObj->login_generation_type = $this->form_gui->getInput('login_generation_type');
-		$codeObj->password_generation = (bool) $this->form_gui->getInput('password_generation');
+		$codeObj->password_generation = (int) $this->form_gui->getInput('password_generation');
 		$codeObj->captcha_required = (bool) $this->form_gui->getInput('captcha_required');
 		$codeObj->email_verification = (bool) $this->form_gui->getInput('email_verification');
 		$codeObj->email_verification_time = (integer) $this->form_gui->getInput('email_verification_time');

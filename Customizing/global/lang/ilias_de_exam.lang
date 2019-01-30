@@ -14,5 +14,6 @@ common#:#login_to_ilias_info#:#Bitte verwenden Sie für die Prüfung Ihre aktuel
 pdesk#:#pd_description#:#Falls Ihre Prüfung hier nicht gelistet ist, rufen Sie bitte unter Prüfungen den entsprechenden Bereich auf.
 common#:#err_inactive_contact#:#<br/>Bitte wenden Sie sich an <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>, um das Benutzerkonto aktivieren zu lassen.
 common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
+common#:#txt_registered_pw_is_login#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen/Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie von der Prüfungsaufsicht erhalten haben. Klicken Sie dann auf "Registrieren", um ihre Daten einzugeben.
-registration#:#reg_login_is_generated#:#Ihr Benutzername wir automatisch erzeugt und Ihnen nach der Registrierung angezeigt. Bitte halten sie dazu Papier und Stift bereit.
+registration#:#reg_login_is_generated#:#Ihr Benutzername wird automatisch erzeugt und Ihnen nach der Registrierung angezeigt. Bitte halten sie dazu Papier und Stift bereit.

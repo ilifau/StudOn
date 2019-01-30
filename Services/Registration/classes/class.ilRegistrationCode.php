@@ -407,7 +407,7 @@ class ilRegistrationCode
 		$this->reg_enabled = true;
 		$this->ext_enabled = false;
 		$this->login_generation_type = 'guestlistener';
-		$this->password_generation = false;
+		$this->password_generation = ilRegistrationSettings::PW_GEN_MANUAL;
 		$this->captcha_required = false;
 		$this->email_verification = false;
 		$this->email_verification_time = 1800;
@@ -457,7 +457,7 @@ class ilRegistrationCode
 			$this->reg_enabled = (bool)	$row['reg_enabled'];
 			$this->ext_enabled = (bool) $row['ext_enabled'];
 			$this->login_generation_type = (string) $row['login_generation_type'];
-			$this->password_generation = (bool) $row['password_generation'];
+			$this->password_generation = (int) $row['password_generation'];
 			$this->captcha_required = (bool) $row['captcha_required'];
 			$this->email_verification = (bool) $row['email_verification'];
 			$this->email_verification_time = (integer) $row['email_verification_time'];

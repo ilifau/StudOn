@@ -831,15 +831,22 @@ class ilUserProfile
 				case "password":
 					if (self::$mode == self::MODE_REGISTRATION)
 					{
-						if(!$registration_settings->passwordGenerationEnabled())
+// fau: regCodes - respect the password generation types
+						if($registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_MANUAL)
 						{
 							$ta = new ilPasswordInputGUI($lng->txt($lv), "usr_".$f);							
 							$ta->setRequired(true);
-// fau: regCodes - add info to choose a password
+
 							$ta->setInfo($lng->txt('reg_choose_password'));
-// fau.
+
 							// $ta->setDisabled($ilSetting->get("usr_settings_disable_".$f));
 						}
+						elseif ($registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_LOGIN)
+						{
+                            $ta = new ilNonEditableValueGUI($lng->txt($lv));
+                            $ta->setValue($lng->txt("reg_password_is_login"));
+						}
+// fau.
 						else
 						{
 							$ta = new ilNonEditableValueGUI($lng->txt($lv));

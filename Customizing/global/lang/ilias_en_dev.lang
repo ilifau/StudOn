@@ -433,6 +433,7 @@ common#:#to_home#:#Home
 common#:#to_login#:#To the Login
 common#:#tst_helptext#:#For review of the learnsuccess in your courses you can create tests, that can be composed of different questiontypes. Available are e.g. cloze-, multiple choice-, matching-, or free text-questions, but also complex tasks in flash-form can be realized.
 common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
+common#:#txt_registered_pw_is_login#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username/password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
 common#:#univis#:#UnivIS
 common#:#univis_category_course_import#:#import course as courses
 common#:#univis_category_course_update#:#update data of imported courses
@@ -647,6 +648,11 @@ registration#:#reg_login_is_generated#:#Your username is automatically generated
 registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
 registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to StudOn. You will receive a confirmation e-mail in the next minutes. Please look also in the spam folder of your post box. Confirm your registration by clicking the confirmation link in this mail.<br />After that you will receive a second e-mail with your account data. Please use the ‘Local Login’ on the StudOn start page to log in.###fau: regCodes
 registration#:#reg_mail_body_confirmation#:#To confirm this registration you have to activate it. Click the link below or copy it to the address field of your browser (ensure that it has no line break):###fau: regCodes
+registration#:#reg_password_is_login#:#Your password is identical to the username.
+registration#:#reg_pw_gen_info#:#Setting of the password for the new account.
+registration#:#reg_pw_gen_manual#:#Manual entry in the registration form
+registration#:#reg_pw_gen_auto#:#Automated generation and sending per e-nail
+registration#:#reg_pw_gen_login#:#Use the login as password (without sending)
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Special Styles
 style#:#sty_custom_css_edit#:#Edit Special Styles

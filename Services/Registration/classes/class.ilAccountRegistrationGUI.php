@@ -647,11 +647,17 @@ class ilAccountRegistrationGUI
 		$this->userObj->setTitle($this->userObj->getFullname());
 		$this->userObj->setDescription($this->userObj->getEmail());
 
-		if ($this->registration_settings->passwordGenerationEnabled())
+// fau: regCodes: respect the password generation type
+		if ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_AUTO)
 		{
 			$password = ilUtil::generatePasswords(1);
 			$password = $password[0];
 		}
+		elseif ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_LOGIN)
+        {
+            $password = $this->userObj->getLogin();
+        }
+// fau.
 		else
 		{
 			$password = $this->form->getInput("usr_password");
@@ -1040,7 +1046,14 @@ class ilAccountRegistrationGUI
 
 			$this->tpl->setCurrentBlock('activation');
 // fau: regCodes - merge the username  and password in the welcome text and set formaction to login script
-			$this->tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
+            if ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_LOGIN)
+            {
+                $this->tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered_pw_is_login"), $this->userObj->getLogin()));
+            }
+            else
+            {
+                $this->tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
+            }
 			$this->tpl->setVariable('USERNAME', $this->userObj->getLogin());
 			$this->tpl->setVariable('PASSWORD', $password);
 

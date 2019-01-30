@@ -14,5 +14,6 @@ common#:#login_to_ilias_info#:#Please use the provided login data.
 pdesk#:#pd_description#:#If your Test ist not listed here, please open the menu "Exams".
 common#:#err_inactive_contact#:#<br/>Please contact <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a> to get your account activated.
 common#:#txt_registered#:#<p>You are successfully registered in the exam platform.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Then click the button below to get into the platform.</p>
+common#:#txt_registered_pw_is_login#:#<p>You are successfully registered in the exam platform.</p><p>Please remember your username/password: <strong>%s</strong></p><p>Then click the button below to get into the platform.</p>
 registration#:#registration_code_required_info#:#Please enter first the registration code that you got from the supervisor of the exam. Then click "Register", to enter your personal data.
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration. Please have your pen and paper ready.

@@ -404,6 +404,7 @@ common#:#to_home#:#Startseite
 common#:#to_login#:#Zum Login
 common#:#tst_helptext#:#Zur Überprüfung des Lernerfolgs in Ihren Kursen können Sie Tests anlegen, die sich aus unterschiedlichen Fragetypen zusammensetzen können. Möglich sind u.a. Lückentexte, Multiple Choice-, Zuordnungs- oder Freitextfragen, aber auch komplexere Aufgaben im Flash-Format lassen sich realisieren.
 common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie sich Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>
+common#:#txt_registered_pw_is_login#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen/Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>
 common#:#univis#:#UnivIS
 common#:#univis_category_course_import#:#Lehrveranstaltungen als Kurse importieren
 common#:#univis_category_course_update#:#Daten der importierten Kurse aktualisieren
@@ -590,10 +591,15 @@ registration#:#reg_login_gen_manual#:#Manuelle Eingabe
 registration#:#reg_login_gen_first_lastname#:#Automatisch (vorname.nachname)
 registration#:#reg_login_gen_guest_listener#:#Automatisch für Gasthörer (ghs16frneuma)
 registration#:#reg_login_gen_guest_selfreg#:#Automatisch für selbstregistrierte Gäste (gsr12345)### fau.
-registration#:#reg_login_is_generated#:#Ihr Benutzername wir automatisch erzeugt und Ihnen nach der Registrierung angezeigt.
+registration#:#reg_login_is_generated#:#Ihr Benutzername wird automatisch erzeugt und Ihnen nach der Registrierung angezeigt.
 registration#:#reg_choose_password#:#Wählen Sie hier selbst ein Passwort für Ihr neues Benutzerkonto. Es muss mindestens 6 Zeichen lang sein und mindesten einen Groß- und Kleinbuchstaben, eine Ziffer und ein Sonderzeichen (_.+?#-*@!$%~/:;) enthalten. Bitte merken Sie sich dieses Passwort!
 registration#:#reg_confirmation_link_successful#:#<br />Sie haben sich erfolgreich bei StudOn registriert. Jetzt müssen Sie noch Ihr Benutzerkonto aktivieren. Dazu wurde Ihnen soeben eine E-Mail mit einem Bestätigungslink geschickt. Bitte sehen Sie auch im Spam-Ordner Ihres Postfaches nach. ob die E-Mail dort gelandet ist.<br />Klicken Sie innerhalb der nächsten Minuten auf den Bestätigungslink in der E-Mail, um Ihr Benutzerkonto zu aktivieren. Sie erhalten danach eine weitere E-Mail mit Ihren Zugangsdaten. Melden Sie sich damit auf der <a href="%s">Startseite von StudOn</a> unter „Lokale Anmeldung“ an.###fau: regCodes
 registration#:#reg_mail_body_confirmation#:#Um Ihr neues Benutzerkonto zu aktivieren, müssen Sie es zunächst freischalten. Klicken sie dazu auf den folgenden Link oder kopieren Sie ihn in die Adresszeile Ihres Browsers (achten Sie dabei darauf, dass er keinen Zeilenumbruch enthält):###fau: regCodes
+registration#:#reg_password_is_login#:#Ihr Passwort entspricht dem Benutzernamen.
+registration#:#reg_pw_gen_info#:#Festlegung des Passworts für das neue Benurterkonto.
+registration#:#reg_pw_gen_manual#:#Manuelle Eingabe bei der Registrierung
+registration#:#reg_pw_gen_auto#:#Automatische Generierung und Zusendung per E-Mail
+registration#:#reg_pw_gen_login#:#Verwendung des Logins als Passwort (ohne Zusendung)
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Spezielle Styles
 style#:#sty_custom_css_edit#:#Spezielle Styles bearbeiten

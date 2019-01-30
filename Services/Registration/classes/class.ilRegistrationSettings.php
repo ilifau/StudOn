@@ -56,6 +56,12 @@ class ilRegistrationSettings
 	const LOGIN_GEN_GUEST_SELFREG = 'guestselfreg';
 // fau.
 
+// fau: regCodes - new constants for password generation
+    const PW_GEN_MANUAL = 0;
+    const PW_GEN_AUTO = 1;
+    const PW_GEN_LOGIN = 2;
+// fau.
+
 // fau: regCodes - variable for code object
 	/** @var  ilRegistrationCode $codeObj */
 	protected $codeObj;
@@ -198,7 +204,9 @@ class ilRegistrationSettings
 // fau: regCodes - take code settings for password generation with precedence
 		if (isset($this->codeObj))
 		{
-			return $this->codeObj->password_generation;
+		    // the login generation type is treated like manual generation
+            // this will affect the page after registration but not other functionality
+			return ($this->codeObj->password_generation == self::PW_GEN_AUTO);
 		}
 // fau.
 		return $this->password_generation_enabled;
@@ -207,6 +215,36 @@ class ilRegistrationSettings
 	{
 		$this->password_generation_enabled = $a_status;
 	}
+
+// fau: regCodes - new function passwordGenerationType()
+    function passwordGenerationType()
+    {
+        if (isset($this->codeObj))
+        {
+            return ($this->codeObj->password_generation);
+        }
+        return ($this->password_generation_enabled ? self::PW_GEN_AUTO : self::PW_GEN_MANUAL);
+    }
+// fau.
+
+
+// fau: regCodes - new function getPasswordGenerationTypes
+    /**
+     * Get a list of selectable password generation types
+     * @return array
+     */
+    public static function getPasswordGenerationTypes()
+    {
+        global $lng;
+        $lng->loadLanguageModule('registration');
+
+        return array (
+            self::PW_GEN_MANUAL => $lng->txt('reg_pw_gen_manual'),
+            self::PW_GEN_AUTO => $lng->txt('reg_pw_gen_auto'),
+            self::PW_GEN_LOGIN => $lng->txt('reg_pw_gen_login'),
+        );
+    }
+// fau.
 
 	function getAccessLimitation()
 	{
