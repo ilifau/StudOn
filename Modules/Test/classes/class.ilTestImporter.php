@@ -225,6 +225,14 @@ class ilTestImporter extends ilXmlImporter
 					$definition->getMappedTaxonomyFilter()
 				)
 			);
+// fau: taxGroupFilter - remap the group filter
+			if ($definition->getMappedGroupTaxId())
+			{
+				$definition->setMappedGroupTaxId($mapping->getMapping(
+					'Services/Taxonomy', 'tax', $definition->getMappedGroupTaxId()
+				));
+			}
+// fau.
 			$definition->saveToDb();
 		}
 	}

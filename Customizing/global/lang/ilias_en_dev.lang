@@ -67,6 +67,7 @@ assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous t
 assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.
 assessment#:#tst_group_filter#:#Group Selection
 assessment#:#tst_group_filter_info#:#All questions should belong to the same taxonomy node
+assessment#:#tst_group_filter_info_warning#:#Note: A group selection rule may limit the available questions more than the check will take into account if there are enough questions available that aren't needed for other rules. Therefore, group selection may only be used in rules that do not overlap with other rules.
 assessment#:#tst_group_filter_tax#:#Group Taxonomy
 assessment#:#tst_group_filter_tax_info#:#The taxonomy must be activated as a filter. A node will be chosen from the selected ones and the questions will be drawn from there. Only nodes having enough quetions are considered.
 assessment#:#tst_filter_order_by#:#Questions Order

@@ -717,7 +717,9 @@ class ilTestRandomQuestionSetConfigGUI
 		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
 		$this->questionSetConfig->saveToDb();
 
-		$this->sourcePoolDefinitionList->saveDefinitions();
+// fau: fixRandomTestUpdateRule - prevent an overwriting with the old rule
+		//$this->sourcePoolDefinitionList->saveDefinitions();
+// fau.
 
 		$this->testOBJ->saveCompleteStatus( $this->questionSetConfig );
 

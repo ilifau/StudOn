@@ -355,7 +355,7 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
 // fau: linkRandomPool - add the link to the set data
 			$set['source_pool_link'] = $this->getPoolLink($sourcePoolDefinition->getPoolId());
 // fau.
-			// fau: taxFilter/typeFilter - get the type and taxonomy filter for display
+// fau: taxFilter/typeFilter - get the type and taxonomy filter for display
 // fau: taxGroupFilter - get group selection info
 			if ($this->showMappedTaxonomyFilter)
 			{

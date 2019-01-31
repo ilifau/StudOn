@@ -66,6 +66,7 @@ assessment#:#tst_use_previous_answer#:#Die angezeigte Lösung aus dem vorherigen
 assessment#:#tst_use_previous_answer_imagemap#:#Bitte klicken Sie erneut auf das Bild, um die Lösung aus dem vorherigen Durchgang zu übernehmen.
 assessment#:#tst_group_filter#:#Gruppenauswahl
 assessment#:#tst_group_filter_info#:#Alle Fragen sollen zum selben Taxonomieknoten gehören
+assessment#:#tst_group_filter_info_warning#:#Warnung: Eine Gruppenauswahlregel kann die zur Verfügung stehenden Fragen stärker einschränken, als bei der Prüfung beachtet wird, ob genügend Fragen zur Verfügung stehen, die nicht für andere Regeln benötigt werden. Daher darf die Gruppenauswahl nur in Regeln verwendet werden, die sich nicht mit anderen Regeln überschneiden.
 assessment#:#tst_group_filter_tax#:#Gruppen-Taxonomie
 assessment#:#tst_group_filter_tax_info#:#Die Taxonomie muss als Filter aktiviert sein. Aus ihren gewählten Knoten wird zufällig einer bestimmt und aus ihm die Fragen gezogen. Es werden nur Knoten verwendet, die genug Fragen enthalten.
 assessment#:#tst_filter_order_by#:#Reihenfolge der Fragen

@@ -255,6 +255,10 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
 				$groupFilterTax->setOptions($options);
 				$groupFilterTax->setValue($sourcePool->getOriginalGroupTaxId());
 				$groupFilter->addSubItem($groupFilterTax);
+
+				$warning = new ilNonEditableValueGUI();
+				$warning->setInfo($this->lng->txt('tst_group_filter_info_warning'));
+				$groupFilter->addSubItem($warning);
 			}
 // fau.
 
@@ -311,6 +315,9 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
 			}
 		}
 		$sourcePoolDefinition->setOriginalTaxonomyFilter($filter);
+// fau: taxGroupFilter - remember the taxonomy filter
+		$taxFilter = $filter;
+// fau.
 
 		#switch( true )
 		#{

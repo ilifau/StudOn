@@ -32,6 +32,21 @@ class ilTestRandomQuestionSetBuilderWithAmountPerPool extends ilTestRandomQuesti
 		
 		foreach($this->sourcePoolDefinitionList as $definition)
 		{
+// fau: taxGroupFilter - get a sample group and check its size
+//		Note: This does not check conflicts with other rules!
+//		Therefore auhors must ensure that group filters do not produce conflicts
+			if ($definition->getOriginalGroupTaxId())
+			{
+				$group = $this->getQuestionSetForSourcePoolDefinition($definition);
+				if ($group->isSmallerThan($definition->getQuestionAmount()))
+				{
+					$this->checkMessages[] = sprintf($lng->txt('tst_msg_rand_quest_set_pass_not_buildable_group'),
+						$definition->getSequencePosition());
+					$isBuildable = false;
+				}
+			}
+// fau.
+
 			/** @var ilTestRandomQuestionSetSourcePoolDefinition $definition */
 			
 			$quantityCalculation = $quantitiesDistribution->calculateQuantities($definition);

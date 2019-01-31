@@ -271,6 +271,18 @@ class ilObjTestXMLParser extends ilSaxParser
 		$sourcePoolDefinition->setPoolQuestionCount((int)$attr['poolQuestCount']);
 		$sourcePoolDefinition->setQuestionAmount((int)$attr['questAmount']);
 		$sourcePoolDefinition->setSequencePosition((int)$attr['position']);
+// fau: taxGroupFilter - import group filter
+		if (!empty($attr['GroupTaxId']))
+		{
+			$sourcePoolDefinition->setMappedGroupTaxId($attr['GroupTaxId']);
+		}
+// fau.
+// fau: randomSetOrder - import order
+		if (!empty($attr['orderBy']))
+		{
+			$sourcePoolDefinition->setOrderBy($attr['orderBy']);
+		}
+// fau.
 
 		// #21330
 		if( isset($attr['tax']) && isset($attr['taxNode']) )
