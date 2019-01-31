@@ -597,7 +597,7 @@ registration#:#reg_choose_password#:#Wählen Sie hier selbst ein Passwort für I
 registration#:#reg_confirmation_link_successful#:#<br />Sie haben sich erfolgreich bei StudOn registriert. Jetzt müssen Sie noch Ihr Benutzerkonto aktivieren. Dazu wurde Ihnen soeben eine E-Mail mit einem Bestätigungslink geschickt. Bitte sehen Sie auch im Spam-Ordner Ihres Postfaches nach. ob die E-Mail dort gelandet ist.<br />Klicken Sie innerhalb der nächsten Minuten auf den Bestätigungslink in der E-Mail, um Ihr Benutzerkonto zu aktivieren. Sie erhalten danach eine weitere E-Mail mit Ihren Zugangsdaten. Melden Sie sich damit auf der <a href="%s">Startseite von StudOn</a> unter „Lokale Anmeldung“ an.###fau: regCodes
 registration#:#reg_mail_body_confirmation#:#Um Ihr neues Benutzerkonto zu aktivieren, müssen Sie es zunächst freischalten. Klicken sie dazu auf den folgenden Link oder kopieren Sie ihn in die Adresszeile Ihres Browsers (achten Sie dabei darauf, dass er keinen Zeilenumbruch enthält):###fau: regCodes
 registration#:#reg_password_is_login#:#Ihr Passwort entspricht dem Benutzernamen.
-registration#:#reg_pw_gen_info#:#Festlegung des Passworts für das neue Benurterkonto.
+registration#:#reg_pw_gen_info#:#Festlegung des Passworts für das neue Benutzerkonto.
 registration#:#reg_pw_gen_manual#:#Manuelle Eingabe bei der Registrierung
 registration#:#reg_pw_gen_auto#:#Automatische Generierung und Zusendung per E-Mail
 registration#:#reg_pw_gen_login#:#Verwendung des Logins als Passwort (ohne Zusendung)
