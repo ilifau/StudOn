@@ -597,6 +597,8 @@ grp#:#grp_show_mem_limit_option#:#Show limitation and free slots by listing the 
 grp#:#grp_type_info_create#:#<span class="alert">Superior administrators can - independable of that - have access (see Info-page after creating)</span>.
 grp#:#grp_type_info_edit#:#<span class="alert">Superior administrator can - independable of that - have access (see Info-page)</span>.
 grp#:#mem_error_preconditions#:#You could not have been accepted!
+logging#:#log_error_message#:#The error was logged with the identifier %s.
+logging#:#log_error_message_send_mail#:#Please ty fist to repeat your action. Sometimes it helps to log out and log in again. If the error occurs again, please write to <a href="mailto:%s?subject=code: %s">%s</a>. Please describe in your e-mail, what you intended to do.
 mail#:#mail_from_via#:#%s via %s
 mail#:#mail_only_own_courses_info#:#Please write only to members of your own courses and groups.<br />Use course or group addresses only for important messages.</br >Anything else may be spam for the recipients!
 mail#:#mail_pear_is_automaticly_switched#:#PEAR will automaticly be activated at the mailing to course or group members where local roles exists with non-unique names.

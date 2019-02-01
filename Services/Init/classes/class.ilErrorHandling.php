@@ -376,14 +376,16 @@ class ilErrorHandling extends PEAR
 			require_once("Services/Utilities/classes/class.ilUtil.php");
 
 			$session_id = substr(session_id(),0,5);
-			$err_num = rand(1, 9999);
+// fau: logErrorFile - put errors of the same session in the same file (use session_id as file name)
+			$err_num = substr(md5($exception->getTraceAsString()), 0,5);
 			$file_name = $session_id."_".$err_num;
 
 			$logger = ilLoggingErrorSettings::getInstance();
 			if(!empty($logger->folder())) {
-				$lwriter = new ilLoggingErrorFileStorage($inspector, $logger->folder(), $file_name);
+				$lwriter = new ilLoggingErrorFileStorage($inspector, $logger->folder(), $session_id, $err_num);
 				$lwriter->write();
 			}
+// fau.
 
 			//Use $lng if defined or fallback to english
 			if($lng !== null) {

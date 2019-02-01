@@ -545,6 +545,8 @@ grp#:#grp_show_mem_limit_option#:#Begrenzung und freie Plätze bei Auflistung de
 grp#:#grp_type_info_create#:#<span class="alert">Übergeordnete Administratoren können unabhängig davon Zugriff haben (siehe Info-Seite nach dem Anlegen)</span>.
 grp#:#grp_type_info_edit#:#<span class="alert">Übergeordnete Administratoren können unabhängig davon Zugriff haben (siehe Info-Seite)</span>.
 grp#:#mem_error_preconditions#:#Sie konnten nicht aufgenommen werden!
+logging#:#log_error_message#:#Der Fehler wurde mit der Kennung %s protokolliert.
+logging#:#log_error_message_send_mail#:#Bitte versuchen Sie zunächst, die Aktion zu wiederholen. Manchmal hilft es auch, sich ab- und neu anzumelden. Sollte der Fehler dennoch wiederholt auftreten, schreiben Sie bitte an <a href="mailto:%s?subject=code: %s">%s</a>. Beschreiben Sie dabei bitte auch, was Sie gerade ausführen wollten.
 mail#:#mail_from_via#:#%s via %s
 mail#:#mail_only_own_courses_info#:#Bitte schreiben Sie nur an Mitglieder Ihrer eigenen Kurse und Gruppen.<br />Verwenden Sie die Sammeladressen von Kurse nur für wichtige Mitteilungen.</br >Alles andere wird als Spam empfunden!
 mail#:#mail_pear_is_automaticly_switched#:#PEAR mail wird bei der Mail an Kurs- oder Gruppenmitglieder automatisch aktiviert, wenn dort lokale Rollen ohne eindeutige Namen existieren.
