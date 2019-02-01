@@ -388,21 +388,22 @@ class ilErrorHandling extends PEAR
 // fau.
 
 			//Use $lng if defined or fallback to english
+// fau: logErrorFile - adjust mail hint
 			if($lng !== null) {
 				$lng->loadLanguageModule('logging');
 				$message = sprintf($lng->txt("log_error_message"), $file_name);
 
 				if($logger->mail()) {
-					$message .= " ".sprintf($lng->txt("log_error_message_send_mail"), $logger->mail(), $file_name, $logger->mail());
+					$message .= '<br /><br />'.sprintf($lng->txt("log_error_message_send_mail"), $logger->mail(), $file_name, $logger->mail());
 				}
 			} else {
 				$message = "Error ".$file_name." occurred.";
 
 				if($logger->mail()) {
-					$message .= ' '.'Please send a mail to <a href="mailto:'.$logger->mail().'?subject=code: '.$file_name.'">'.$logger->mail().'%s</a>';
+					$message .= '<br /><br />'.sprintf('Please ty fist to repeat your action. Sometimes it helps to log out and log in again. If the error occurs again, please send the code to <a href="mailto:%s?subject=code: %s">%s</a>. Please describe in your e-mail, what you intended to do.', $logger->mail(), $file_name, $logger->mail());
 				}
 			}
-
+// fau.
 			ilUtil::sendFailure($message, true);
 			ilUtil::redirect("error.php");
 		});
