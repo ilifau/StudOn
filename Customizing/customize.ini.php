@@ -86,6 +86,8 @@ remote_soap_client_id = ""              ;soap client id of the remote server
 remote_soap_user = ""                   ;soap user of a remote installation
 remote_soap_password = ""               ;soap password of a remote installation
 
+reg_code_length = "10"                  ;length of generated registration code (max. 10)
+
 rpl_warning_on = "1"					;show a warning message if registration start overlaps with many others
 rpl_warning_cat_1 = "500"				;category for many expected registrations
 rpl_warning_cat_2 = "250"				;category for medium expected registrations
