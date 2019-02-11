@@ -199,7 +199,8 @@ class ilExCalculateGUI
 	protected function processForm($a_calculate = false)
 	{
 		global $ilCtrl, $lng;
-		
+
+		/** @var ilPropertyFormGUI $form */
 		$form = $this->initForm();
 		$form->setDisableStandardMessage(true);
 

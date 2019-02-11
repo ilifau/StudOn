@@ -187,7 +187,7 @@ class ilExCalculate
 		{
 			$mandatory = $this->assignments[$result['ass_id']]['mandatory'];
 			
-			if (!isset($result['mark']))
+			if (empty($result['mark']))
 			{
 				if ($mandatory)
 				{
