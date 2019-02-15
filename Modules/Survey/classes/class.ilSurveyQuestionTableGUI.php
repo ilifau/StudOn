@@ -174,7 +174,9 @@ class ilSurveyQuestionTableGUI extends ilTable2GUI
 
 				if (!$this->read_only)
 				{
-					if ($data["obj_fi"] > 0)
+// fau: fixSurveyQuestionListEditLinks - allow editing of questions from missing pools
+					if (true)
+// fau.
 					{
 						// edit url
 						$q_gui = $data["type_tag"]."GUI";						
