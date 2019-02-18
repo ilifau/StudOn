@@ -69,14 +69,16 @@ ul.boxy li {
     background-color: #cff;
 }
 
+/* fau: avoidMatchingWordBreak - don't break words in matching questions */
 .droparea, .draggable{
-	overflow-wrap: break-word;
-	word-wrap: break-word;
-	-ms-word-break: break-all;
-	word-break: break-all;
-	word-break: break-word;
-	-ms-hyphens: auto;
-	-moz-hyphens: auto;
-	-webkit-hyphens: auto;
-	hyphens: auto;
+	overflow-wrap: normal;
+	word-wrap: normal;
+	-ms-word-break: normal;
+	word-break: normal;
+	word-break: normal;
+	-ms-hyphens: manual;
+	-moz-hyphens: manual;
+	-webkit-hyphens: manual;
+	hyphens: manual;
 }
+/* fau. */
