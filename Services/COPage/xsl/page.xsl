@@ -2913,26 +2913,28 @@
 					<p>Limit Context: <xsl:value-of select="$limit_context"/></p>
 				</xsl:when>
 				<xsl:otherwise>
-					<iframe frameborder="0">
-						<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
-						<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>
-						<xsl:attribute name="src">
-							<xsl:value-of select="concat(
-								'Services/MediaObjects/limited_player.php?cmd=show',
-								'&amp;page_id=', $pg_id,
-								'&amp;parent_id=', $parent_id,
-								'&amp;mob_id=', $cmobid,
-								'&amp;purpose=', $curPurpose,
-								'&amp;source=', $data,
-								'&amp;mode=', $mode,
-								'&amp;type=', $type,
-								'&amp;width=', $width,
-								'&amp;height=', $height,
-								'&amp;limit_count=', $limit_count,
-								'&amp;limit_context=', $limit_context)" />
-						</xsl:attribute>
-						<xsl:comment>Comment to have separate iframe ending tag</xsl:comment>
-					</iframe>
+					<div class="ilLimitedMediaPlayer">
+						<iframe frameborder="0">
+							<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>
+							<xsl:attribute name="height"><xsl:value-of select="$height"/></xsl:attribute>
+							<xsl:attribute name="src">
+								<xsl:value-of select="concat(
+									'Services/MediaObjects/limited_player.php?cmd=show',
+									'&amp;page_id=', $pg_id,
+									'&amp;parent_id=', $parent_id,
+									'&amp;mob_id=', $cmobid,
+									'&amp;purpose=', $curPurpose,
+									'&amp;source=', $data,
+									'&amp;mode=', $mode,
+									'&amp;type=', $type,
+									'&amp;width=', $width,
+									'&amp;height=', $height,
+									'&amp;limit_count=', $limit_count,
+									'&amp;limit_context=', $limit_context)" />
+							</xsl:attribute>
+							<xsl:comment>Comment to have separate iframe ending tag</xsl:comment>
+						</iframe>
+					</div>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:when>
