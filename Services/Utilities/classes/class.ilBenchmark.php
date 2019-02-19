@@ -388,6 +388,7 @@ class ilBenchmark
 			{
 				$ilSetting->set("db_bench_user", $a_user);
 			}
+			$ilSetting->set("enable_db_bench_instant", $instant);
 		}
 	}
 // fau.

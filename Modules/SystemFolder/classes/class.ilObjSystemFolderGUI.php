@@ -909,7 +909,7 @@ class ilObjSystemFolderGUI extends ilObjectGUI
 		if ($_POST["enable_db_bench"])
 		{
 // fau: extendBenchmark - save setting of instant saving
-			$ilBench->enableDbBench(true, ilUtil::stripSlashes($_POST["db_bench_user"]), $_POST["enable_db_bench_instant"]);
+			$ilBench->enableDbBench(true, ilUtil::stripSlashes($_POST["db_bench_user"]), (int) $_POST["enable_db_bench_instant"]);
 // fau.
 		}
 		else
