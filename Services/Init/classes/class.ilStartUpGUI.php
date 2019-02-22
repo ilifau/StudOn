@@ -187,18 +187,29 @@ class ilStartUpGUI
 		global $tpl, $ilSetting;
 
 // fau: rootAsLogin - show the root page instead of the login page
-		global $DIC;
-		$ilAccess = $DIC->access();
-		if (ilCust::get('ilias_root_as_login') && $ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
+
+		if (ilCust::get('ilias_root_as_login'))
 		{
+			global $DIC;
+			/** @var ilAuthSession $authSession */
+			$ilAuthSession = $DIC['ilAuthSession'];
+			$ilAccess = $DIC->access();
+
 			// check expired session and send message
-			if($GLOBALS['DIC']['ilAuthSession']->isExpired())
+			if($ilAuthSession->isExpired())
 			{
+				$ilAuthSession->logout();
+				$ilAuthSession->init();
+				$ilAuthSession->setAuthenticated(true, ANONYMOUS_USER_ID);
+				ilInitialisation::initUserAccount();
 				ilUtil::sendFailure($GLOBALS['lng']->txt('auth_err_expired'));
 			}
 
-			$this->showRootPage();
-			return;
+			if ($ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
+			{
+				$this->showRootPage();
+				return;
+			}
 		}
 // fau.
 
