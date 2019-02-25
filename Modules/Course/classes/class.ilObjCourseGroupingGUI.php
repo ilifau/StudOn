@@ -8,7 +8,8 @@ require_once "./Services/Object/classes/class.ilObjectGUI.php";
 *
 * @author your name <your email> 
 * @version $Id$
-* 
+*
+ * @ilCtrl_Calls ilObjCourseGroupingGUI: ilPropertyFormGUI
 */
 class ilObjCourseGroupingGUI
 {
@@ -42,6 +43,18 @@ class ilObjCourseGroupingGUI
 	
 	function executeCommand()
 	{
+// fau: groupingSelector - forward command to property form
+		global $DIC;
+		$class = $DIC->ctrl()->getNextClass($this);
+		switch($class)
+		{
+			case "ilpropertyformgui":
+				$form = $this->initForm(false);
+				$DIC->ctrl()->forwardCommand($form);
+				return;
+		}
+// fau.
+
 		global $ilTabs;
 
 		$ilTabs->setTabActive('crs_groupings');
