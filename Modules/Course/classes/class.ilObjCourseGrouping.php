@@ -304,9 +304,7 @@ class ilObjCourseGrouping
 	 * Returns a list of all groupings for which the current user hast write permission on all assigned objects. Or groupings
 	 * the given object id is assigned to.
 	 */
-// fau: limitSub - add mode parameter to get the visible groupings
-	public static function _getVisibleGroupings($a_obj_id, $a_mode = "writable")
-// fau.
+	public static function _getVisibleGroupings($a_obj_id)
 	{
 		global $ilObjDataCache,$ilAccess,$ilDB;
 
@@ -327,13 +325,11 @@ class ilObjCourseGrouping
 		{
 			$tmp_grouping_obj = new ilObjCourseGrouping($grouping_id);
 
-// fau: limitSub - check container type only if searching for writable
-			if($a_mode == "writable" and $tmp_grouping_obj->getContainerType() != $container_type)
+			// Check container type
+			if($tmp_grouping_obj->getContainerType() != $container_type)
 			{
 				continue;
 			}
-// fau.
-
 			// Check if container is current container
 			if($tmp_grouping_obj->getContainerObjId() == $a_obj_id)
 			{
@@ -345,25 +341,12 @@ class ilObjCourseGrouping
 			{
 				foreach($items as $condition_data)
 				{
-// fau: limitSub - respect the mode to get visible groupings
-					if ($a_mode == 'assigned')
-					{
-						if ($a_obj_id == $condition_data['target_obj_id'])
-						{
-							$visible_groupings[] = $grouping_id;
-							break;
-						}
-					}
-					elseif ($a_mode == 'writable')
-					{
 						if($ilAccess->checkAccess('write','',$condition_data['target_ref_id']))
 						{
 							$visible_groupings[] = $grouping_id;
 							break;
 						}
 					}
-// fau.
-				}
 				
 			}				
 		}

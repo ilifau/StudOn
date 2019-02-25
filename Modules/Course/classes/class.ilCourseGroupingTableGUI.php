@@ -52,9 +52,8 @@ class ilCourseGroupingTableGUI extends ilTable2GUI
 	
 	protected function getItems($a_content_obj)
 	{
-// fau: limitSub - include waiting list and set mode parameter to get the visible groupings
-		require_once("./Services/Membership/classes/class.ilWaitingList.php");
-		$items = ilObjCourseGrouping::_getVisibleGroupings($a_content_obj->getId(), 'assigned');
+// fau: groupingSelector - use simplified getting of groupings (better performance)
+		$items = ilObjCourseGrouping::_getGroupings($a_content_obj->getId());
 // fau.
 
 		$data = array();

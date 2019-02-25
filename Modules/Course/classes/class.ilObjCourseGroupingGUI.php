@@ -205,10 +205,12 @@ class ilObjCourseGroupingGUI
 // fau: groupingSelector - check if groupings can be deleted
 		foreach ($_POST['grouping'] as $grouping_id)
 		{
-			$ilErr->raiseError($this->lng->txt('permission_denied'),$ilErr->MESSAGE);
+            if (!$this->allItemsWritable($grouping_id))
+			{
+                $ilErr->raiseError($this->lng->txt('permission_denied'),$ilErr->MESSAGE);
+			}
 		}
 // fau.
-
 
 		foreach($_POST['grouping'] as $grouping_id)
 		{
