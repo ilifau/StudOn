@@ -168,8 +168,11 @@ common#:#forgot_username#:#Lokalen Benutzernamen vergessen?
 common#:#frm_helptext#:#Über Foren können Sie fachbezogene Kommunikation zwischen Lernenden und Lehrenden ermöglichen. Sie können beliebig viele Foren anlegen und darin zu Diskussionen über Fragen und Themen im Relevanzbereich Ihres Kurses anregen. Um ein neues Forum zu erstellen, müssen Sie einen ersten Beitrag zu einem bestimmten Thema verfassen.
 common#:#general_info#:#Allgemeine Informationen
 common#:#glo_helptext#:#In einem Glossar können Sie Begriffe und Definitionen zur Verfügung stellen. Auf diese Inhalte können Sie z.B. aus Lerneinheiten heraus verlinken und so häufig benötigte Informationen organisieren.
-common#:#grp_create_exco#:#Neuen externen Inhalt anlegen
-common#:#grp_create_perc#:#Neues Perception-Assessment anlegen
+common#:#groupings_assigned_obj_info_crs#:#Sie können hier Kurse auswählen, bei denen Sie Schreibrecht haben.
+common#:#groupings_assigned_obj_info_grp#:#Sie können hier Gruppen auswählen, bei denen Sie Schreibrecht haben.
+common#:#groupings_assigned_obj_not_writable_crs#:#Sie müssen bei allen zugeordneten Kursen Schreibrecht haben, um die Gruppierung zu bearbeiten oder zu löschen.
+common#:#groupings_assigned_obj_not_writable_grp#:#Sie müssen bei allen zugeordneten Gruppen Schreibrecht haben, um die Gruppierung zu bearbeiten oder zu löschen.
+common#:#groupings_of#:#Gruppierung von
 common#:#grp_helptext#:#Gruppen können im Gegensatz zu Ordnern nicht nur Sachobjekte wie Dateien, Foren oder Wikis enthalten, sondern verfügen auch über Optionen der Mitgliederverwaltung, so dass Sie Gruppen Teilnehmer zuweisen können. So können Sie z.B. getrennte Arbeitsgruppen in StudOn realisieren oder Studierenden die Möglichkeit geben, Dateien hochzuladen.
 common#:#htlm_helptext#:#Wenn Sie Lerninhalte bereits als HTML-Seiten vorliegen haben, können Sie diese als HTML-Lernmodul einbinden. Laden Sie Ihren Satz von Seiten als Zip-Archiv hoch, entpacken Sie es und legen sie eine Startseite fest.<br />Die Startseite öffnet sich beim Aufruf des Lernmoduls in einem neuen Fenster. StudOn stellt sicher, dass die Inhalte nur mit den vorgesehen Rechten aufgerufen werden können.
 common#:#icon_alert_s.gif#:#Warnung
@@ -225,6 +228,7 @@ common#:#object_copy_with_mail_suffix#:#(mit Mail-Bestätigung)###fau: copyBySoa
 common#:#object_copy_in_progress_with_mail#:#Die Kopie wird im Hintergrund durchgeführt. Sie erhalten eine Mail als Systemnachricht, wenn alle Inhalte kopiert sind.###fau: copyBySoap
 common#:#object_copy_mail_subject#:#Kopiert: %s###fau: copyBySoap
 common#:#object_copy_mail_body#:#Link zum kopierten Objekt: %s###fau: copyBySoap
+common#:#permission_denied_for#:#Die Berechtigung wurde verweigert für:
 common#:#print_pagebreaks#:#Auf Einzelseiten drucken
 common#:#privacy_note_for_authors#:#Hinweis für Bearbeiter
 common#:#privacy_object_visible_to_public#:#Dieses Objekt ist für alle Benutzer des Internet sichtbar!

@@ -170,8 +170,11 @@ common#:#forgot_username#:#Forgot your local username?
 common#:#frm_helptext#:#By forums you can give ability of communication between professors and students. You can add as many forums as you wish and encourage discussions about questions and themes in the relevant category of the course. To add a new forum you have to write a first contribution about a specific theme.
 common#:#general_info#:#General Informations
 common#:#glo_helptext#:#In a glossary you can set terms or definitions. You can refer on theses contents from e.g. courses and by that organise often required informations.
-common#:#grp_create_exco#:#Create new external content
-common#:#grp_create_perc#:#Create new Perception-Assessment
+common#:#groupings_assigned_obj_info_crs#:#You may select all courses on whichyou have write access.
+common#:#groupings_assigned_obj_info_grp#:#You may select all grups on whichyou have write access.
+common#:#groupings_assigned_obj_not_writable_crs#:#You must have write access on all assigned courses in order to edit or to delete the grouping.
+common#:#groupings_assigned_obj_not_writable_grp#:#You must have write access on all assigned groups in order to edit or to delete the grouping.
+common#:#groupings_of#:#Grouping of
 common#:#grp_helptext#:#Groups can - compared with folders - not only include files, forums or wikis, but dispose options for member management, so that you can add participants to groups. By that you can realize e.g. separated workgroups in studon or give students the ability to upload files.
 common#:#grp_status_pending#:#Request is pending
 common#:#htlm_helptext#:#If you already have your learning content as HTML-site, you can integrate it as HTML-Learnmodule. Upload your set of sites as zip-archive, unpack it and set a front page.<br />The front page opens by call of the learnmodule in a new window. StudOn assures that your contents can only be called with provided rights.
@@ -252,6 +255,7 @@ common#:#object_copy_with_mail_suffix#:#(With Email Message)###fau: copyBySoap
 common#:#object_copy_in_progress_with_mail#:#The copy is started in background. You will get a system message, when all contents are copied.###fau: copyBySoap
 common#:#object_copy_mail_subject#:#Copied: %s###fau: copyBySoap
 common#:#object_copy_mail_body#:#Link to the copied object: %s###fau: copyBySoap
+common#:#permission_denied_for#:#The permission is rejected for:
 common#:#print_pagebreaks#:#print on single pages
 common#:#privacy_note_for_authors#:#Note for authors
 common#:#privacy_object_visible_to_public#:#This object is visible to all internet users!
