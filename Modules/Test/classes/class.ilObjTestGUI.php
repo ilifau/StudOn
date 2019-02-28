@@ -3317,6 +3317,26 @@ class ilObjTestGUI extends ilObjectGUI
 					0                       // use placholders
 				));
 
+				if (!$success)
+				{
+					if ($user->getEmail())
+					{
+						$success = $soap_client->call('sendUserMail', array (
+							$soap_sid,				// session id
+							$user->getEmail(),      // to
+							"",                     // cc
+							"",                     // bcc
+							"anonymous",    		// sender
+							$subject,               // subject
+							$body,                  // message
+							"",                     // attachments (imploded with ',')
+							"system",               // type (imploded with ',')
+							0                       // use placholders
+						));
+
+					}
+				}
+
 				if ($success)
 				{
 	                $sent[] = $uname;
