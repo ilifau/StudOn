@@ -121,7 +121,7 @@ function ilTablePageSelection(el, cmd)
 	return false;
 }
 
-// fim: new function to enable previous/next navigation with POST
+// fim: [univis] new function to enable previous/next navigation with POST
 function ilTablePageNavigation(el, cmd, navParam, navValue, formname)
 {
     var input = document.createElement("input");
