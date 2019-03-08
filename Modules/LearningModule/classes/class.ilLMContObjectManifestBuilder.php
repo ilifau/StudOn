@@ -66,6 +66,14 @@ class ilLMContObjectManifestBuilder
 		$attrs["xmlns"] = "http://www.imsproject.org/xsd/imscp_rootv1p1p2";
 		$this->writer->xmlStartTag("manifest", $attrs);
 
+// fau: fixLmScormManifest - add metadatata with the SCORM schema and version
+		// @see Modules/Scorm2004/classes/class.ilContObjectManifestBuilder.php
+		$this->writer->xmlStartTag("metadata");
+		$this->writer->xmlElement("schema",null,"ADL SCORM");
+		$this->writer->xmlElement("schemaversion",null,"1.2");
+		$this->writer->xmlEndTag("metadata");
+// fau.
+
 		// organizations start tag
 		$attrs = array();
 		$this->writer->xmlStartTag("organizations", $attrs);
