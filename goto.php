@@ -53,11 +53,29 @@ if (substr($_GET['target'], 0, 6) == 'lcode_')
 }
 // fau.
 
-// fau: numericLink - lookup the type when only the ref_id is given
+// fau: numericLink - lookup the type when only the ref_id or obj_id is given
 if (is_numeric($_GET['target']))
 {
     $type = ilObject::_lookupType((int) $_GET['target'], true);
-    $_GET['target'] = $type . '_' . (int) $_GET['target'];
+
+    // check if obj_id is given
+    if (empty($type))
+    {
+        $ref_ids = ilObject::_getAllReferences($_GET['target']);
+        foreach($ref_ids as $ref_id)
+        {
+            if(!ilObject::_isInTrash($ref_id))
+            {
+            	$_GET['target'] = $ref_id;
+                $type = ilObject::_lookupType((int) $_GET['target'], true);
+            	break;
+            }
+        }
+	}
+
+    if (!empty($type)) {
+        $_GET['target'] = $type . '_' . (int) $_GET['target'];
+    }
 }
 // fau.
 
