@@ -188,7 +188,7 @@ class ilSubscribersStudyCondGUI
 	/**
 	* Save a newly entered condition
 	*/
-    private function save()
+    private function saveCond()
     {
         $this->initForm("create");
         if ($this->form_gui->checkInput())
@@ -212,7 +212,7 @@ class ilSubscribersStudyCondGUI
 	/**
 	* Update a changed condition
 	*/
-    private function update()
+    private function updateCond()
     {
 		$this->ctrl->saveParameter($this,"cond_id");
 		$this->initForm("edit");
@@ -329,13 +329,13 @@ class ilSubscribersStudyCondGUI
         if ($a_mode == "create")
         {
  			$this->form_gui->setTitle($this->lng->txt("studycond_add_condition"));
-           	$this->form_gui->addCommandButton("save", $this->lng->txt("save"));
+           	$this->form_gui->addCommandButton("saveCond", $this->lng->txt("save"));
             $this->form_gui->addCommandButton("listConditions", $this->lng->txt("cancel"));
         }
         else
         {
   			$this->form_gui->setTitle($this->lng->txt("studycond_edit_condition"));
-           $this->form_gui->addCommandButton("update", $this->lng->txt("save"));
+           $this->form_gui->addCommandButton("updateCond", $this->lng->txt("save"));
             $this->form_gui->addCommandButton("listConditions", $this->lng->txt("cancel"));
         }
 	}
