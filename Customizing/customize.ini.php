@@ -32,6 +32,7 @@ crs_enable_reg_codes = "1"				;enable the use of registration codes
 grp_enable_reg_codes = "1"				;enable the use of registration codes
 
 eval_categories = ""					;list of ref_ids for which evaluation is enabled (comma-separated without spaces)
+fair_admin_role_id = ""                 ;Role Id of users who are allowed to deactivate the fair time for registrations
 help_show_ids = "0"						;show the screen and tooltip IDs
 
 idm_host = ""                           ;host for looking up idm data

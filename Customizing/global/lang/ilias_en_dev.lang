@@ -390,6 +390,7 @@ common#:#sub_fair_inactive_message#:#This registration has no period of equal ch
 common#:#sub_fair_activate#:#Activate equal chances
 common#:#sub_fair_activated#:#The period of equal chances is activated
 common#:#sub_fair_deactivate#:#Deactivate equal chances
+common#:#sub_fair_deactivate_explanation#:#IMPORTANT: Please deactivate the period of equal chances only if you don't expect a rush on the subscription. Normally students expect to have one hour time after subscription start without loosing chances. The "first come, first served" method undermines this solution, which was developed in close consultation with student representatives.
 common#:#sub_fair_deactivate_question#:#Would you like to deactivate the period if equal chances?
 common#:#sub_fair_deactivate_in_phase#:#You can't deactivate the period of equal chances because it is running.
 common#:#sub_fair_deactivated#:#The period of equal chances is deactivated.

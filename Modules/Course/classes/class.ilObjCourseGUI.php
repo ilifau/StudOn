@@ -4218,7 +4218,8 @@ class ilObjCourseGUI extends ilContainerGUI
 		include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
 		$c_gui = new ilConfirmationGUI();
 		$c_gui->setFormAction($this->ctrl->getFormAction($this, "edit"));
-		$c_gui->setHeaderText($this->lng->txt('sub_fair_deactivate_question'));
+		$c_gui->setHeaderText($this->lng->txt('sub_fair_deactivate_question')
+			.'<p class="small">'.$this->lng->txt('sub_fair_deactivate_explanation').'</p>');
 		$c_gui->setCancel($this->lng->txt("cancel"), "edit");
 		$c_gui->setConfirm($this->lng->txt("confirm"), "deactivateSubFair");
 

@@ -361,6 +361,7 @@ common#:#sub_fair_inactive_message#:#Für diese Anmeldung gibt es keine chanceng
 common#:#sub_fair_activate#:#Chancengleiche Phase aktivieren
 common#:#sub_fair_activated#:#Die chancengleiche Phase wurde aktiviert.
 common#:#sub_fair_deactivate#:#Chancengleiche Phase deaktivieren
+common#:#sub_fair_deactivate_explanation#:#WICHTIG: Die chancengleiche Phase sollten Sie nur deaktivieren, wenn Sie keinen Andrang auf die Anmeldung erwarten. In der Regel gehen Studierende davon aus, dass sie nach Beginn der Anmeldung eine Stunde Zeit haben, ohne ihre Aussichten zu verschlechtern. Mit dem Windhundverfahren wird diese Lösung, die in enger Abstimmung mit Studierendenvertetern entstand, untergraben.
 common#:#sub_fair_deactivate_question#:#Möchten Sie die chancengleiche Phase deaktivieren?
 common#:#sub_fair_deactivate_in_phase#:#Sie können die chancengleiche Phase nicht deaktivieren, da sie gerade läuft.
 common#:#sub_fair_deactivated#:#Die chancengleiche Phase wurde deaktiviert.

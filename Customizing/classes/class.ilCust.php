@@ -181,6 +181,26 @@ class ilCust
 	 */
 	public static function deactivateFairTimeIsAllowed()
 	{
-		return self::administrationIsVisible();
+        global $DIC;
+
+        static $allowed = null;
+
+        if (!isset($allowed))
+        {
+            if (self::administrationIsVisible())
+            {
+                $allowed = true;
+            }
+            elseif ($DIC->rbac()->review()->isAssigned($DIC->user()->getId(), ilCust::get('fair_admin_role_id')))
+            {
+                $allowed = true;
+            }
+            else
+            {
+                $allowed = false;
+            }
+        }
+
+        return $allowed;
 	}
 }
