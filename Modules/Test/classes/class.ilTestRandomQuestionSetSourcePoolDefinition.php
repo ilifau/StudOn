@@ -249,6 +249,55 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 	{
 		$this->typeFilter = empty($value) ? array() : unserialize($value);
 	}
+
+// fau: typeFilter - new functions to set/get filter by type tags
+    /**
+     * Get the type filter asa list of type tags
+     * @return string[]
+     */
+	public function getTypeFilterAsTypeTags()
+    {
+        $map = array();
+        foreach (ilObjQuestionPool::_getQuestionTypes(true) as $trans => $row)
+        {
+            $map[$row['question_type_id']] = $row['type_tag'];
+        }
+
+        $tags = array();
+        foreach($this->typeFilter as $type_id)
+        {
+            if (isset($map[$type_id]))
+            {
+                $tags[] = $map[$type_id];
+            }
+        }
+
+        return $tags;
+    }
+
+    /**
+     * Set the type filter from a list of type tags
+     * @param string
+     */
+    public function setTypeFilterFromTypeTags($tags)
+    {
+        $map = array();
+        foreach (ilObjQuestionPool::_getQuestionTypes(true) as $trans => $row)
+        {
+            $map[$row['type_tag']] = $row['question_type_id'];
+        }
+
+        $this->typeFilter = array();
+        foreach($tags as $type_tag)
+        {
+            if (isset($map[$type_tag]))
+            {
+                $this->typeFilter[] = $map[$type_tag];
+            }
+        }
+    }
+// fau.
+
 	/*
 	public function setOriginalFilterTaxId($originalFilterTaxId)
 	{

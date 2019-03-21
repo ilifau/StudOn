@@ -100,6 +100,9 @@ class ilTestExportRandomQuestionSet extends ilTestExport
 				'poolQuestCount' => $definition->getPoolQuestionCount(),
 				'questAmount' => $definition->getQuestionAmount(),
 				'position' => $definition->getSequencePosition(),
+// fau: typeFilter - export type filter
+                'typeFilter' => implode(',',$definition->getTypeFilterAsTypeTags()),
+// fau.
 // fau: taxGroupFilter - export group filter
 				'GroupTaxId' => $definition->getMappedGroupTaxId(),
 // fau.
