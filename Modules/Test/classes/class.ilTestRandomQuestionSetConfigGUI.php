@@ -717,10 +717,6 @@ class ilTestRandomQuestionSetConfigGUI
 		$this->questionSetConfig->setLastQuestionSyncTimestamp(0);
 		$this->questionSetConfig->saveToDb();
 
-// fau: fixRandomTestUpdateRule - prevent an overwriting with the old rule
-		//$this->sourcePoolDefinitionList->saveDefinitions();
-// fau.
-
 		$this->testOBJ->saveCompleteStatus( $this->questionSetConfig );
 
 		ilUtil::sendSuccess($this->lng->txt("tst_msg_random_question_set_config_modified"), true);
@@ -893,14 +889,15 @@ class ilTestRandomQuestionSetConfigGUI
 				$deriver->setSourcePoolDefinitionList($this->sourcePoolDefinitionList);
 				$deriver->setTargetContainerRef($targetRef);
 				$deriver->setOwnerId($GLOBALS['DIC']['ilUser']->getId());
-				$newPoolId = $deriver->derive($lostPool);
+				$newPool = $deriver->derive($lostPool);
 				
-				$this->sourcePoolDefinitionList->updateSourceQuestionPoolId(
-					$lostPool->getId(), $newPoolId
-				);
+				$srcPoolDefinition = $this->sourcePoolDefinitionList->getDefinitionBySourcePoolId($newPool->getId());
+				$srcPoolDefinition->setPoolTitle($newPool->getTitle());
+				$srcPoolDefinition->setPoolPath($this->questionSetConfig->getQuestionPoolPathString($newPool->getId()));
+				$srcPoolDefinition->saveToDb();
 				
 				ilTestRandomQuestionSetStagingPoolQuestionList::updateSourceQuestionPoolId(
-					$this->testOBJ->getTestId(), $lostPool->getId(), $newPoolId
+					$this->testOBJ->getTestId(), $lostPool->getId(), $newPool->getId()
 				);
 			}
 			

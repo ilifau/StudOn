@@ -154,24 +154,24 @@ class ilObjExerciseGUI extends ilObjectGUI
 				$sub_gui = new ilExSubmissionGUI($this->object, $this->ass, (int)$_REQUEST["member_id"]);
 				$this->ctrl->forwardCommand($sub_gui);
 				break;
-// fau: fixExManagementCheck - improve check
+			
 			case "ilexercisemanagementgui":
 				// rbac or position access
-				if (!$GLOBALS['DIC']->access()->checkRbacOrPositionPermissionAccess(
+				if ($GLOBALS['DIC']->access()->checkRbacOrPositionPermissionAccess(
 					'edit_submissions_grades',
 					'edit_submissions_grades',
 					$this->object->getRefId()
-				))
-                {
-                    // do it like in $this->checkPermission()
-                    ilSession::clear("il_rep_ref_id");
-                    throw new ilObjectException($this->lng->txt("permission_denied"));
-                }
-// fau.
-				$ilTabs->activateTab("grades");				
-				include_once("./Modules/Exercise/classes/class.ilExerciseManagementGUI.php");
-				$mgmt_gui = new ilExerciseManagementGUI($this->object, $this->ass);
-				$this->ctrl->forwardCommand($mgmt_gui);
+					))
+				{
+					$ilTabs->activateTab("grades");
+					include_once("./Modules/Exercise/classes/class.ilExerciseManagementGUI.php");
+					$mgmt_gui = new ilExerciseManagementGUI($this->object, $this->ass);
+					$this->ctrl->forwardCommand($mgmt_gui);
+				}
+				else
+				{
+					$this->checkPermission("edit_submissions_grades");	// throw error by standard procedure
+				}
 				break;
 			
 			case "ilexccriteriacataloguegui":

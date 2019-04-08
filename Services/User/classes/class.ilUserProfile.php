@@ -102,7 +102,7 @@ class ilUserProfile
 						"group" => "personal_data"),
 		"gender" => array(
 						"input" => "radio",
-						"values" => array("f" => "gender_f", "m" => "gender_m"),
+						"values" => array("n" => "salutation_n", "f" => "salutation_f", "m" => "salutation_m"),
 						"method" => "getGender",
 						"group" => "personal_data"),
 		"upload" => array(
@@ -808,7 +808,7 @@ class ilUserProfile
 						}
 						$a_form->addItem($em);
 					}
-					break;
+					break;	
 				case "textarea":
 					if (ilUserProfile::userSettingVisible($f))
 					{
@@ -827,14 +827,15 @@ class ilUserProfile
 						$a_form->addItem($ta);
 					}
 					break;
-
+					
 				case "password":
 					if (self::$mode == self::MODE_REGISTRATION)
 					{
 // fau: regCodes - respect the password generation types
 						if($registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_MANUAL)
 						{
-							$ta = new ilPasswordInputGUI($lng->txt($lv), "usr_".$f);							
+							$ta = new ilPasswordInputGUI($lng->txt($lv), "usr_".$f);
+							$ta->setUseStripSlashes(false);
 							$ta->setRequired(true);
 
 							$ta->setInfo($lng->txt('reg_choose_password'));

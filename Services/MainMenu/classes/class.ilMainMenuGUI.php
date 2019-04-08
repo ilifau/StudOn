@@ -721,7 +721,7 @@ class ilMainMenuGUI
             if($ilSetting->get("enable_my_staff") and ilMyStaffAccess::getInstance()->hasCurrentUserAccessToMyStaff() == true)
             {
                 // my staff
-                $gl->addEntry($lng->txt("my_staff"), "ilias.php?baseClass=ilPersonalDesktopGUI&cmd=jumpToMyStaff",
+                $gl->addEntry($lng->txt("my_staff"), "ilias.php?baseClass=" . ilPersonalDesktopGUI::class . "&cmd=" . ilPersonalDesktopGUI::CMD_JUMP_TO_MY_STAFF,
                     "_top", "", "", "mm_pd_mst", ilHelp::getMainMenuTooltip("mm_pd_mst"),
                     "left center", "right center", false);
                 $separator = true;
@@ -1258,6 +1258,9 @@ fau. */
 
 		$main_tpl = $this->main_tpl;
 
+		if ($DIC->user()->isAnonymous() || (int)$DIC->user()->getId() === 0) {
+			return;
+		}
 
 		$DIC->language()->loadLanguageModule("background_tasks");
 		$factory = $DIC->ui()->factory();

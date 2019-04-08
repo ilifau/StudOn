@@ -103,12 +103,12 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 					include_once './Modules/Course/classes/class.ilObjCourse.php';
 					$limit = null;
 					if(!ilObjCourse::mayLeave($a_obj_id, $a_user_id, $limit))
-					{
-						$ilAccess->addInfoItem(IL_STATUS_MESSAGE,
+					{						
+						$ilAccess->addInfoItem(ilAccessInfo::IL_STATUS_INFO,
 							sprintf($lng->txt("crs_cancellation_end_rbac_info"), ilDatePresentation::formatDate($limit)));
 						return false;
-					}
-
+					}			
+					
 					include_once './Modules/Course/classes/class.ilCourseParticipants.php';
 					if(!$participants->isAssigned($a_user_id))
 					{
@@ -208,7 +208,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
 					return false;
 				}
 				break;
-
+				
 			case 'leave':
 				include_once './Modules/Course/classes/class.ilObjCourse.php';
 				return ilObjCourse::mayLeave($a_obj_id, $a_user_id);

@@ -68,6 +68,8 @@ class ilMail
 	/** @var string */
 	const ILIAS_HOST = 'ilias';
 
+	const MAIL_SUBJECT_PREFIX = '[ILIAS]';
+
 	/** @var ilLanguage */
 	protected $lng;
 
@@ -821,25 +823,38 @@ class ilMail
 				$user_is_active               = $tmp_user->getActive();
 				$user_can_read_internal_mails = !$tmp_user->hasToAcceptTermsOfService() && $tmp_user->checkTimeLimit();
 
-				if(in_array('system', $a_type) && !$user_can_read_internal_mails)
-				{
+				if (in_array('system', $a_type) && !$user_can_read_internal_mails) {
+					ilLoggerFactory::getLogger('mail')->debug(sprintf(
+						"Message is marked as 'system', skipped recipient with id %s (Accepted User Agreement:%s|Expired Account:%s)",
+						$id,
+						var_export(!$tmp_user->hasToAcceptTermsOfService(), 1),
+						var_export(!$tmp_user->checkTimeLimit(), 1)
+					));
 					continue;
 				}
 
 				if($user_is_active)
 				{
-					if(!$user_can_read_internal_mails
+					if(!$user_can_read_internal_mails 
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_BOTH)
 					{
-						$as_email = array_unique(array_merge(
-							ilMailOptions::getExternalEmailsByUser($tmp_user, $tmp_mail_options),
-							$as_email
-						));
+						$newEmailAddresses = ilMailOptions::getExternalEmailsByUser($tmp_user, $tmp_mail_options);
+						$as_email = array_unique(array_merge($newEmailAddresses, $as_email));
 
-						if($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL)
-						{
+						if ($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL) {
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Recipient with id %s will only receive external emails sent to: %s",
+								$id,
+								implode(', ', $newEmailAddresses)
+							));
 							continue;
+						} else {
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Recipient with id %s will additionally receive external emails sent to: %s",
+								$id,
+								implode(', ', $newEmailAddresses)
+							));
 						}
 					}
 				}
@@ -860,7 +875,7 @@ class ilMail
 
 			$to  = array();
 			$bcc = array();
-
+			
 			$as_email = array_unique($as_email);
 			if(count($as_email) == 1)
 			{
@@ -902,8 +917,13 @@ class ilMail
 				$user_is_active               = $tmp_user->getActive();
 				$user_can_read_internal_mails = !$tmp_user->hasToAcceptTermsOfService() && $tmp_user->checkTimeLimit();
 
-				if(in_array('system', $a_type) && !$user_can_read_internal_mails)
-				{
+				if (in_array('system', $a_type) && !$user_can_read_internal_mails) {
+					ilLoggerFactory::getLogger('mail')->debug(sprintf(
+						"Message is marked as 'system', skipped recipient with id %s (Accepted User Agreement:%s|Expired Account:%s)",
+						$id,
+						var_export(!$tmp_user->hasToAcceptTermsOfService(), 1),
+						var_export(!$tmp_user->checkTimeLimit(), 1)
+					));
 					continue;
 				}
 
@@ -911,15 +931,25 @@ class ilMail
 
 				if($user_is_active)
 				{
-					if(!$user_can_read_internal_mails
+					if(!$user_can_read_internal_mails 
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_BOTH)
 					{
 						$as_email[$tmp_user->getId()] = ilMailOptions::getExternalEmailsByUser($tmp_user, $tmp_mail_options);
-
-						if($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL)
-						{
+	
+						if ($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL) {
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Recipient with id %s will only receive external emails sent to: %s",
+								$id,
+								implode(', ', $as_email[$tmp_user->getId()])
+							));
 							continue;
+						} else {
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Recipient with id %s will additionally receive external emails sent to: %s",
+								$id,
+								implode(', ', $as_email[$tmp_user->getId()])
+							));
 						}
 					}
 				}
@@ -966,24 +996,37 @@ class ilMail
 
 				if($user_is_active)
 				{
-					if(in_array('system', $a_type) && !$user_can_read_internal_mails)
-					{
+					if (in_array('system', $a_type) && !$user_can_read_internal_mails) {
+						ilLoggerFactory::getLogger('mail')->debug(sprintf(
+							"Message is marked as 'system', skipped recipient with id %s (Accepted User Agreement:%s|Expired Account:%s)",
+							$id,
+							var_export(!$tmp_user->hasToAcceptTermsOfService(), 1),
+							var_export(!$tmp_user->checkTimeLimit(), 1)
+						));
 						continue;
 					}
-
-
+					
+					
 					if(!$user_can_read_internal_mails
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL
 						|| $tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_BOTH)
 					{
-						$as_email = array_unique(array_merge(
-							ilMailOptions::getExternalEmailsByUser($tmp_user, $tmp_mail_options),
-							$as_email
-						));
+						$newEmailAddresses = ilMailOptions::getExternalEmailsByUser($tmp_user, $tmp_mail_options);
+						$as_email = array_unique(array_merge($newEmailAddresses, $as_email));
 
-						if($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL)
-						{
+						if ($tmp_mail_options->getIncomingType() == ilMailOptions::INCOMING_EMAIL) {
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Recipient with id %s will only receive external emails sent to: %s",
+								$id,
+								implode(', ', $newEmailAddresses)
+							));
 							continue;
+						} else {
+							ilLoggerFactory::getLogger('mail')->debug(sprintf(
+								"Recipient with id %s will additionally receive external emails sent to: %s",
+								$id,
+								implode(', ', $newEmailAddresses)
+							));
 						}
 					}
 				}
@@ -1333,7 +1376,7 @@ class ilMail
 		$sent_folder_id = $mbox->getSentFolder();
 
 		return $this->sendInternalMail(
-			$sent_folder_id, $this->user_id, $a_attachment,
+			$sent_folder_id, $this->user_id, $a_attachment, 
 			$a_rcp_to,$a_rcp_cc, $a_rcp_bcc,
 			'read', $a_type, 0,
 			$a_m_subject, $a_m_message, $this->user_id, 0
@@ -1639,7 +1682,12 @@ class ilMail
 	{
 		global $DIC;
 
-		return $DIC->settings()->get('mail_subject_prefix', '');
+		$subjectPrefix = $DIC->settings()->get('mail_subject_prefix');
+		if (false === $subjectPrefix) {
+			$subjectPrefix = self::MAIL_SUBJECT_PREFIX;
+		}
+
+		return $subjectPrefix;
 	}
 
 	/**

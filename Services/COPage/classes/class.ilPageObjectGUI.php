@@ -326,7 +326,7 @@ class ilPageObjectGUI
 	{
 		return $this->page_config;
 	}
-
+	
 	/**
 	 * Set Page Object
 	 *
@@ -1136,7 +1136,7 @@ return;
 	 * @return
 	 */
 	function setQEditTabs($a_active)
-	{
+	{		
 		include_once("./Modules/TestQuestionPool/classes/class.assQuestion.php");
 		
 		$this->tabs_gui->clearTargets();
@@ -1735,6 +1735,7 @@ return;
 						 'img_row' => $row_path,
 						 'img_cell' => $cell_path,
 						 'img_item' => $item_path,
+			             'compare_mode' => $this->getCompareMode() ? "y" : "n",
 						 'enable_split_new' => $enable_split_new,
 						 'enable_split_next' => $enable_split_next,
 						 'link_params' => $this->link_params,
@@ -1820,15 +1821,8 @@ return;
 			$xsl = file_get_contents("./Services/COPage/xsl/page.xsl");
 
 			$this->log->debug("Calling XSLT, content: ".substr($content, 0, 100));
-			//echo $content; exit;
-
-
 			$args = array( '/_xml' => $content, '/_xsl' => $xsl );
 			$xh = xslt_create();
-			//		echo "<b>XSLT</b>:".htmlentities($xsl).":<br>";
-			//		echo "mode:".$this->getOutputMode().":<br>";
-//			var_dump($args); exit;
-
 // fau: fixPageXslErrorMessage - show a speaking error message when an xsl error occurs
 			try
 			{
@@ -1837,7 +1831,6 @@ return;
                     && !$this->getAbstractOnly()
                     && $this->obj->old_nr == 0)
                 {
-//echo "writerenderedcontent";
                     $this->obj->writeRenderedContent($output, $md5);
                 }
             }
@@ -1846,15 +1839,9 @@ return;
 				ilUtil::sendFailure($this->lng->txt('page_xsl_error'), false);
 			}
 // fau.
-
-			//echo xslt_error($xh);
 			xslt_free($xh);
 		}
 
-//$b = microtime();
-//echo "$a - $b";
-//echo "<pre>".htmlentities($output)."</pre>";
-		
 		// unmask user html
 		if (($this->getOutputMode() != "edit" ||
 				$this->user->getPref("ilPageEditor_HTMLMode") != "disable")
@@ -2023,9 +2010,9 @@ return;
 	function addActionsMenu($a_tpl, $sel_media_mode, $sel_html_mode, $sel_js_mode)
 	{
 		global $DIC;
-
+		
 		$ui = $DIC->ui();
-
+		
 		// actions
 		include_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
 
@@ -2036,7 +2023,7 @@ return;
 		$entries = false;
 		if ($this->getPageConfig()->getEnableActivation())
 		{
-
+			
 			$entries = true;
 			$captions = $this->getActivationCaptions();
 
@@ -2605,7 +2592,7 @@ return;
 		return $this->ctrl->getLinkTargetByClass(strtolower(get_class($this)), "preview");
 	}
 
-
+	
 	/**
 	 * Download file of file lists
 	 */
@@ -3049,7 +3036,7 @@ return;
 	function insertJSAtPlaceholder()
 	{
 		$tpl = $this->tpl;
-
+		
 		if ($_GET["pl_hier_id"] == "")
 		{
 			$this->obj->buildDom();
@@ -3520,8 +3507,8 @@ return;
 				IL_CAL_DATETIME));
 		}
 		
-		$this->form->getItemByPostVar("activation")->setValue($activation);
-		$this->form->getItemByPostVar("show_activation_info")->setChecked($this->getPageObject()->getShowActivationInfo());
+		$this->form->getItemByPostVar("activation")->setValue($activation);		
+		$this->form->getItemByPostVar("show_activation_info")->setChecked($this->getPageObject()->getShowActivationInfo());		
 	}
 	
 	/**
