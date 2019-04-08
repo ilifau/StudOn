@@ -1,0 +1,151 @@
+$ git merge --no-commit --no-ff ilias/release_5-3
+Auto-merging webservice/soap/classes/class.ilSoapUtils.php
+Auto-merging webservice/soap/classes/class.ilSoapAdministration.php
+Auto-merging templates/default/delos.less
+Auto-merging templates/default/delos.css
+Auto-merging setup/classes/class.ilSetup.php
+Auto-merging lang/ilias_en.lang
+CONFLICT (content): Merge conflict in lang/ilias_en.lang
+Auto-merging lang/ilias_de.lang
+Auto-merging include/inc.ilias_version.php
+CONFLICT (content): Merge conflict in include/inc.ilias_version.php
+Removing Services/WebServices/Rest/lib/Slim/View.php
+Removing Services/WebServices/Rest/lib/Slim/Slim.php
+Removing Services/WebServices/Rest/lib/Slim/Session/Handler/Cookies.php
+Removing Services/WebServices/Rest/lib/Slim/Session/Handler.php
+Removing Services/WebServices/Rest/lib/Slim/Session/Flash.php
+Removing Services/WebServices/Rest/lib/Slim/Router.php
+Removing Services/WebServices/Rest/lib/Slim/Route.php
+Removing Services/WebServices/Rest/lib/Slim/Logger.php
+Removing Services/WebServices/Rest/lib/Slim/Log.php
+Removing Services/WebServices/Rest/lib/Slim/Http/Uri.php
+Removing Services/WebServices/Rest/lib/Slim/Http/Response.php
+Removing Services/WebServices/Rest/lib/Slim/Http/Request.php
+Removing Services/WebServices/Rest/lib/Slim/Http/CookieJar.php
+Removing Services/WebServices/Rest/lib/Slim/Http/Cookie.php
+Removing Services/WebServices/Rest/lib/Slim/Exception/Stop.php
+Removing Services/WebServices/Rest/lib/Slim/Exception/RequestSlash.php
+Removing Services/WebServices/Rest/lib/Slim/Exception/Pass.php
+Removing Services/WebServices/Rest/lib/ReleaseInfo.php
+Auto-merging Services/Utilities/classes/class.ilUtil.php
+Auto-merging Services/User/classes/class.ilUserUtil.php
+Auto-merging Services/User/classes/class.ilUserProfile.php
+CONFLICT (content): Merge conflict in Services/User/classes/class.ilUserProfile.php
+Auto-merging Services/User/classes/class.ilPublicUserProfileGUI.php
+Auto-merging Services/User/classes/class.ilObjUserGUI.php
+Auto-merging Services/User/classes/class.ilObjUserFolderGUI.php
+Auto-merging Services/User/classes/class.ilObjUser.php
+Auto-merging Services/UICore/classes/class.ilTemplate.php
+Auto-merging Services/Tracking/classes/repository_statistics/class.ilTrObjectUsersPropsTableGUI.php
+Auto-merging Services/Tracking/classes/class.ilTrQuery.php
+Auto-merging Services/Tracking/classes/class.ilLPStatus.php
+Auto-merging Services/Table/classes/class.ilTable2GUI.php
+Auto-merging Services/Repository/classes/class.ilRepUtil.php
+Auto-merging Services/Registration/classes/class.ilAccountRegistrationGUI.php
+CONFLICT (content): Merge conflict in Services/Registration/classes/class.ilAccountRegistrationGUI.php
+Auto-merging Services/PersonalDesktop/classes/class.ilPersonalDesktopGUI.php
+Auto-merging Services/PermanentLink/classes/class.ilPermanentLinkGUI.php
+Auto-merging Services/Object/classes/class.ilObjectListGUI.php
+Auto-merging Services/Object/classes/class.ilObjectGUI.php
+Auto-merging Services/Object/classes/class.ilObjectDefinition.php
+Auto-merging Services/Object/classes/class.ilObjectCopyGUI.php
+Auto-merging Services/News/classes/class.ilNewsItem.php
+Removing Services/MyStaff/templates/default/tpl.show_user_container.html
+Removing Services/MyStaff/templates/default/tpl.default_row.html
+Removing Services/MyStaff/classes/class.ilMyStaffUser.php
+Auto-merging Services/MainMenu/classes/class.ilMainMenuGUI.php
+Auto-merging Services/Mail/classes/class.ilMailTemplateContext.php
+Auto-merging Services/Mail/classes/class.ilMailFormGUI.php
+CONFLICT (content): Merge conflict in Services/Mail/classes/class.ilMailFormGUI.php
+Auto-merging Services/Mail/classes/class.ilMail.php
+CONFLICT (content): Merge conflict in Services/Mail/classes/class.ilMail.php
+Auto-merging Services/LinkChecker/classes/class.ilLinkChecker.php
+Auto-merging Services/Init/classes/class.ilStartUpGUI.php
+CONFLICT (content): Merge conflict in Services/Init/classes/class.ilStartUpGUI.php
+Auto-merging Services/Init/classes/class.ilInitialisation.php
+CONFLICT (content): Merge conflict in Services/Init/classes/class.ilInitialisation.php
+Auto-merging Services/Database/classes/PDO/class.ilDBPdo.php
+Auto-merging Services/Context/classes/class.ilContext.php
+Auto-merging Services/Container/classes/class.ilContainerGUI.php
+Auto-merging Services/Container/classes/class.ilContainerByTypeContentGUI.php
+Auto-merging Services/Container/classes/class.ilContainer.php
+Auto-merging Services/COPage/xsl/page.xsl
+Auto-merging Services/COPage/classes/class.ilPageQuestionProcessor.php
+Auto-merging Services/COPage/classes/class.ilPageObjectGUI.php
+CONFLICT (content): Merge conflict in Services/COPage/classes/class.ilPageObjectGUI.php
+Auto-merging Services/Authentication/classes/class.ilSession.php
+Auto-merging Services/Authentication/classes/class.ilAuthUtils.php
+Auto-merging Services/Authentication/classes/Provider/class.ilAuthProviderDatabase.php
+CONFLICT (content): Merge conflict in Services/Authentication/classes/Provider/class.ilAuthProviderDatabase.php
+Auto-merging Services/AccessControl/classes/class.ilRbacLog.php
+Auto-merging Modules/WebResource/classes/class.ilObjLinkResourceGUI.php
+Auto-merging Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_kprim_output_solution.html
+CONFLICT (content): Merge conflict in Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_kprim_output_solution.html
+Auto-merging Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_kprim_output.html
+CONFLICT (content): Merge conflict in Modules/TestQuestionPool/templates/default/tpl.il_as_qpl_mc_kprim_output.html
+Auto-merging Modules/TestQuestionPool/templates/default/orderinghorizontal.js
+CONFLICT (content): Merge conflict in Modules/TestQuestionPool/templates/default/orderinghorizontal.js
+Auto-merging Modules/TestQuestionPool/classes/import/qti12/class.assSingleChoiceImport.php
+Auto-merging Modules/TestQuestionPool/classes/import/qti12/class.assMultipleChoiceImport.php
+Auto-merging Modules/TestQuestionPool/classes/export/qti12/class.assMatchingQuestionExport.php
+Auto-merging Modules/TestQuestionPool/classes/class.ilObjQuestionPoolGUI.php
+Auto-merging Modules/TestQuestionPool/classes/class.assSingleChoice.php
+Auto-merging Modules/TestQuestionPool/classes/class.assQuestion.php
+CONFLICT (content): Merge conflict in Modules/TestQuestionPool/classes/class.assQuestion.php
+Auto-merging Modules/TestQuestionPool/classes/class.assMatchingQuestionGUI.php
+Auto-merging Modules/TestQuestionPool/classes/class.assLongMenu.php
+Auto-merging Modules/TestQuestionPool/classes/class.assFormulaQuestion.php
+Auto-merging Modules/TestQuestionPool/classes/class.assFileUpload.php
+Auto-merging Modules/TestQuestionPool/classes/class.assClozeTestGUI.php
+Auto-merging Modules/TestQuestionPool/classes/class.assClozeTest.php
+Auto-merging Modules/Test/templates/default/ta.css
+Auto-merging Modules/Test/classes/toolbars/class.ilTestInfoScreenToolbarGUI.php
+CONFLICT (content): Merge conflict in Modules/Test/classes/toolbars/class.ilTestInfoScreenToolbarGUI.php
+Auto-merging Modules/Test/classes/forms/class.ilTestRandomQuestionSetPoolDefinitionFormGUI.php
+Auto-merging Modules/Test/classes/class.ilTestSubmissionReviewGUI.php
+CONFLICT (content): Merge conflict in Modules/Test/classes/class.ilTestSubmissionReviewGUI.php
+Auto-merging Modules/Test/classes/class.ilTestServiceGUI.php
+Auto-merging Modules/Test/classes/class.ilTestRandomQuestionSetConfigGUI.php
+CONFLICT (content): Merge conflict in Modules/Test/classes/class.ilTestRandomQuestionSetConfigGUI.php
+Auto-merging Modules/Test/classes/class.ilTestPDFGenerator.php
+Auto-merging Modules/Test/classes/class.ilTestOutputGUI.php
+Auto-merging Modules/Test/classes/class.ilTestExportGUI.php
+Auto-merging Modules/Test/classes/class.ilTestExport.php
+Auto-merging Modules/Test/classes/class.ilTestEvaluationGUI.php
+CONFLICT (content): Merge conflict in Modules/Test/classes/class.ilTestEvaluationGUI.php
+Auto-merging Modules/Test/classes/class.ilTestArchiver.php
+Auto-merging Modules/Test/classes/class.ilObjTestGUI.php
+CONFLICT (content): Merge conflict in Modules/Test/classes/class.ilObjTestGUI.php
+Auto-merging Modules/Test/classes/class.ilObjTest.php
+Auto-merging Modules/Survey/classes/class.ilSurveyExecutionGUI.php
+Auto-merging Modules/Survey/classes/class.ilObjSurvey.php
+Auto-merging Modules/Session/classes/class.ilSessionMembershipGUI.php
+Auto-merging Modules/Session/classes/class.ilObjSessionListGUI.php
+Auto-merging Modules/Session/classes/class.ilObjSessionGUI.php
+Auto-merging Modules/Scorm2004/templates/default/tpl.question_export.html
+CONFLICT (content): Merge conflict in Modules/Scorm2004/templates/default/tpl.question_export.html
+Auto-merging Modules/Scorm2004/scripts/questions/question_handling.js
+Auto-merging Modules/LearningModule/classes/class.ilObjContentObject.php
+Auto-merging Modules/LearningModule/classes/class.ilLMTracker.php
+Auto-merging Modules/LearningModule/classes/class.ilLMPresentationGUI.php
+Auto-merging Modules/LearningModule/classes/class.ilContObjParser.php
+Auto-merging Modules/Group/classes/class.ilObjGroupGUI.php
+Auto-merging Modules/Group/classes/class.ilObjGroupAccess.php
+CONFLICT (content): Merge conflict in Modules/Group/classes/class.ilObjGroupAccess.php
+Auto-merging Modules/Group/classes/class.ilObjGroup.php
+Auto-merging Modules/Glossary/classes/class.ilGlossaryTerm.php
+CONFLICT (content): Merge conflict in Modules/Glossary/classes/class.ilGlossaryTerm.php
+Auto-merging Modules/Forum/classes/class.ilObjForum.php
+Auto-merging Modules/File/classes/class.ilObjFile.php
+Auto-merging Modules/Exercise/classes/class.ilObjExerciseGUI.php
+CONFLICT (content): Merge conflict in Modules/Exercise/classes/class.ilObjExerciseGUI.php
+Auto-merging Modules/Exercise/classes/class.ilExSubmission.php
+Auto-merging Modules/Exercise/classes/class.ilExAssignmentGUI.php
+CONFLICT (content): Merge conflict in Modules/Exercise/classes/class.ilExAssignmentGUI.php
+Auto-merging Modules/Exercise/classes/class.ilExAssignment.php
+Auto-merging Modules/Course/classes/class.ilObjCourseGUI.php
+Auto-merging Modules/Course/classes/class.ilObjCourseAccess.php
+CONFLICT (content): Merge conflict in Modules/Course/classes/class.ilObjCourseAccess.php
+Removing Modules/Chatroom/chat/README.md
+Auto-merging Modules/BookingManager/classes/class.ilObjBookingPoolGUI.php
+Automatic merge failed; fix conflicts and then commit the result.

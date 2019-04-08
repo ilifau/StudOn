@@ -2201,7 +2201,7 @@ class ilStartUpGUI
 			$user = \ilObjectFactory::getInstanceByObjId($usr_id);
 			$user->setActive(true);
 
-			$oRegSettings = new \ilRegistrationSettings();
+			$oRegSettings = ilRegistrationSettings::getInstance();
 // fau.
 
 			$password = '';
