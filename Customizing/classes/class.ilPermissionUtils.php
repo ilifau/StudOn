@@ -1,8 +1,10 @@
 <?php
 /**
  * fim: [cust] Utilies for handling permission settings
- * 
- * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
+ * See also the ILIAS permission guidelines for new object types
+ *
+ * @see \ilDBUpdateNewObjectType::applyInitialPermissionGuideline
+ * @see https://www.ilias.de/docu/goto_docu_wiki_wpage_2273_1357.html
  */
 class ilPermissionUtils
 {

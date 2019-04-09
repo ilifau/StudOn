@@ -336,7 +336,9 @@ if ($media_cont_mig == 1)
 	// set the following value of $run_migration from 'true' to 'false'.
 	//
 
-	$run_migration = true;
+    // fau: skipContentStyleMigration - don't restore old media container styles
+	$run_migration = false;
+	// fau.
 
 	if ($run_migration)
 	{
