@@ -537,7 +537,9 @@ class ilUserAutoComplete
 	 */
 	protected function getOrderByPart()
 	{
-		return 'login ASC';
+// fau: userAutoCompleteOrder - order by lastname, firstname. login
+		return 'lastname ASC, firstname ASC, login ASC';
+// fau.
 	}
 
 	/**
