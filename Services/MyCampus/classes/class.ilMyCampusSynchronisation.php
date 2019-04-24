@@ -9,7 +9,13 @@
 */
 class ilMyCampusSynchronisation
 {
-	
+	protected $sum_added = 0;
+	protected $error = "";
+
+	/**
+	 * ilMyCampusSynchronisation constructor.
+	 * @throws ilLogException
+	 */
 	public function __construct()
 	{
 		global $ilUser;
@@ -33,6 +39,34 @@ class ilMyCampusSynchronisation
 			$this->mail_text = "";
 		}
 	}
+
+	/**
+	 * Get the number of added users
+	 * @return int
+	 */
+	public function getAdded()
+	{
+		return $this->sum_added;
+	}
+
+	/**
+	 * Check if the call produced an error
+	 * @return bool
+	 */
+	public function hasError()
+	{
+		return !empty($this->error);
+	}
+
+	/**
+	 * Get an error message
+	 * @return string
+	 */
+	public function getError()
+	{
+		return $this->error;
+	}
+
 	
 	/**
 	 * Start the synchronisation
@@ -50,13 +84,14 @@ class ilMyCampusSynchronisation
 				$this->logout();
 				
 				$this->message("Synchronisation finished.", true);
-				
 				$this->mailResult();
 			}
 			catch (ilException $exc)
 			{
 				$this->message($exc->getMessage(), true); 
 				$this->mailResult();
+
+				$this->error = $exc->getMessage();
 			}
 		}
 	}
@@ -178,6 +213,7 @@ class ilMyCampusSynchronisation
 			if (count($added))
 			{
 				$this->message('Added: ' . implode(', ', $added) . $info, true);
+				$this->sum_added += count($added);
 			}
 			else
 			{
@@ -187,7 +223,7 @@ class ilMyCampusSynchronisation
 			if (count($waiting))
 			{
 				$this->message('On waiting list in my campus: ' . implode(', ', $waiting) . $info);
-			}	
+			}
 		}	
 	}
 	 
@@ -200,8 +236,6 @@ class ilMyCampusSynchronisation
 	 */
 	private function message($a_message, $a_log = false)
 	{
-		echo $a_message . "\n";
-		
 		if ($a_log and isset($this->log))
 		{
 			$this->log->write($a_message);
@@ -245,8 +279,6 @@ class ilMyCampusSynchronisation
 		
 		if ($send)
 		{
-			echo "Mail Result..\n";
-			
 			$this->mail->sendMail($ilUser->getLogin(), '', '', 
 							"MyCampus Synchronisation", $this->mail_text,
 							array(), array("system"), false);

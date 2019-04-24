@@ -467,6 +467,9 @@ content#:#cont_layout_help#:#Help
 content#:#cont_layout_help_desc#:#Layout for the StudOn Help Modules
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout for 'Informations On StudOn'
+cron#:#cron_mycampus_sync#:#Synchronisation with mein campus
+cron#:#cron_mycampus_sync_info#:#Add course registrations from my campus as course members
+cron#:#cron_mycampus_sync_added#:#New course members: %s
 crs#:#crs_cancel_lot_list#:#Are you sure that you want to unsubscribe for the lottery of the course "%s"?
 crs#:#crs_choose_one_event#:#Please choose a date!
 crs#:#crs_error_preconditions#:#You could not have been accepted!
