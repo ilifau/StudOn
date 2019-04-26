@@ -454,6 +454,32 @@ class ilObjCourseGrouping
 		return $groupings ? $groupings : array();
 	}
 
+
+// fau: groupingSelector - new function getRelatedGroupings()
+	/**
+	 * Get all groupings to which the object is added
+	 * (not only the groupings created from this object)
+	 *
+	 * @param 	int     $a_obj_id
+	 * @return 	int[]   grouping ids
+	 */
+	public static function _getRelatedGroupings($a_obj_id)
+	{
+		$type = ilObject::_lookupType($a_obj_id);
+		$ref_id = current(ilObject::_getAllReferences($a_obj_id));
+		$grouping_ids = array();
+
+		foreach(ilConditionHandler::_getConditionsOfTarget($ref_id, $a_obj_id, $type) as $condition)
+		{
+			if($condition['operator'] == 'not_member')
+			{
+				$grouping_ids[] = $condition['trigger_obj_id'];
+			}
+		}
+		return $grouping_ids;
+	}
+// fau.
+
 	public static function _checkCondition($trigger_obj_id,$operator,$value,$a_usr_id = 0)
 	{
 		// in the moment i alway return true, there are some problems with presenting the condition if it fails,
