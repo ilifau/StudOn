@@ -664,6 +664,9 @@ registration#:#reg_pw_gen_info#:#Setting of the password for the new account.
 registration#:#reg_pw_gen_manual#:#Manual entry in the registration form
 registration#:#reg_pw_gen_auto#:#Automated generation and sending per e-nail
 registration#:#reg_pw_gen_login#:#Use the login as password (without sending)
+search#:#search_for_matriculations#:#Search for Matriculation Numbers
+search#:#search_matriculations#:#Matriculation Numbers
+search#:#search_matriculations_info#:#Separate the numbers by comma, semi colons oder new lines. spaces are ignored.
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Special Styles
 style#:#sty_custom_css_edit#:#Edit Special Styles

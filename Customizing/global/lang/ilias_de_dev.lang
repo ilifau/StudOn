@@ -611,6 +611,9 @@ registration#:#reg_pw_gen_info#:#Festlegung des Passworts für das neue Benutzer
 registration#:#reg_pw_gen_manual#:#Manuelle Eingabe bei der Registrierung
 registration#:#reg_pw_gen_auto#:#Automatische Generierung und Zusendung per E-Mail
 registration#:#reg_pw_gen_login#:#Verwendung des Logins als Passwort (ohne Zusendung)
+search#:#search_for_matriculations#:#Nach Matrikelnummern suchen
+search#:#search_matriculations#:#Matrikelnummern
+search#:#search_matriculations_info#:#Geben Sie die Nummern durch Komma, Semikolon oder Zeilenwechsel getrennt ein. Leerzeichen werden ignoriert.
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Spezielle Styles
 style#:#sty_custom_css_edit#:#Spezielle Styles bearbeiten
