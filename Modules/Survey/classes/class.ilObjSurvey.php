@@ -6126,7 +6126,22 @@ class ilObjSurvey extends ilObject
 	
 	public function getReminderEnd()
 	{
-		return $this->reminder_end;
+// fau: surveyReminderEnd - set default end to one month after start
+		if (isset($this->reminder_end))
+		{
+			return $this->reminder_end;
+		}
+		elseif ($this->reminder_start instanceof ilDate)
+		{
+			$end = clone $this->reminder_start;
+			$end->increment(IL_CAL_MONTH, 1);
+			return $end;
+		}
+		else
+		{
+			return null;
+		}
+// fau.
 	}
 	
 	public function setReminderEnd(ilDate $a_value = null)
@@ -6430,7 +6445,7 @@ class ilObjSurvey extends ilObject
 		if($end)
 		{
 			$end = $end->get(IL_CAL_DATE);
-		}		
+		}
 		if($today < $start ||
 			($end && $today > $end))
 		{
