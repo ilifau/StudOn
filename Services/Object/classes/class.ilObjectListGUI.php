@@ -1815,6 +1815,7 @@ class ilObjectListGUI
 		$redraw_js = "il.Object.redrawListItem(".$note_ref_id.");";
 		
 		// add common properties (comments, notes, tags)
+		require_once 'Services/Notes/classes/class.ilNote.php';
 		if ((self::$cnt_notes[$note_obj_id][IL_NOTE_PRIVATE] > 0 ||
 			self::$cnt_notes[$note_obj_id][IL_NOTE_PUBLIC] > 0 || 
 			self::$cnt_tags[$note_obj_id] > 0 ||
@@ -3686,10 +3687,12 @@ class ilObjectListGUI
 		$this->tpl->setVariable("DIV_CLASS",'ilContainerListItemOuter');
 		$this->tpl->setVariable("DIV_ID", 'id = "'.$this->getUniqueItemId(true).'"');
 		$this->tpl->setVariable("ADDITIONAL", $this->getAdditionalInformation());
-		
-		// #11554 - make sure that internal ids are reset
-		$this->ctrl->setParameter($this->getContainerObject(), "item_ref_id", "");
-		
+
+		if (is_object($this->getContainerObject())) {
+			// #11554 - make sure that internal ids are reset
+			$this->ctrl->setParameter($this->getContainerObject(), "item_ref_id", "");
+		}
+
 		return $this->tpl->get();
 	}
 	

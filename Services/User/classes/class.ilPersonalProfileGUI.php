@@ -71,7 +71,7 @@ class ilPersonalProfileGUI
 				$ilCtrl->forwardCommand($pub_profile_gui);
 				$tpl->show();
 				break;
-
+			
 			default:
 				$this->setTabs();
 				$cmd = $this->ctrl->getCmd("showPersonalData");							
@@ -651,7 +651,7 @@ class ilPersonalProfileGUI
 		$ilTabs->addTab("personal_data", 
 			$this->lng->txt("personal_data"),
 			$this->ctrl->getLinkTarget($this, "showPersonalData"));
-
+		
 		// public profile
 		$ilTabs->addTab("public_profile",
 			$this->lng->txt("public_profile"),
@@ -795,7 +795,7 @@ class ilPersonalProfileGUI
 					$ctrl->getLinkTarget($this, "showPublicProfile"));
 				$it.= "<br><br>".$DIC->ui()->renderer()->render($button);
 			}
-
+			
 			ilUtil::sendInfo(nl2br($it));
 		}
 
@@ -934,7 +934,7 @@ class ilPersonalProfileGUI
 							$value = $item->getDate();
 							$ilUser->setBirthday($value
 								? $value->get(IL_CAL_DATE)
-								: "");
+								: "");							
 							break;
 						case "second_email":
 							$ilUser->setSecondEmail($value);
@@ -1027,7 +1027,7 @@ class ilPersonalProfileGUI
 				$ilUser->setDescription($ilUser->getEmail());
 	
 				$ilUser->update();
-
+				
 				ilUtil::sendSuccess($lng->txt("msg_obj_modified"), true);
 
 				if(ilSession::get('orig_request_target'))
@@ -1264,7 +1264,7 @@ class ilPersonalProfileGUI
 					default:
 						$caption = $key;							
 				}				
-				$cb = new ilCheckboxInputGUI($this->lng->txt($caption), "chk_".$key);
+				$cb = new ilCheckboxInputGUI($this->lng->txt($caption), "chk_".$key);							
 				if ($prefs["public_".$key] == "y")
 				{
 					$cb->setChecked(true);
@@ -1308,14 +1308,14 @@ class ilPersonalProfileGUI
 				$parent->addSubItem($cb);
 			}
 		}
-
+		
 		// :TODO: badges
 		if(!$anonymized)
 		{
 			include_once "Services/Badge/classes/class.ilBadgeHandler.php";
 			$handler = ilBadgeHandler::getInstance();
 			if($handler->isActive())
-			{
+			{		
 				$badge_options = array();
 
 				include_once "Services/Badge/classes/class.ilBadgeAssignment.php";
@@ -1327,12 +1327,12 @@ class ilPersonalProfileGUI
 					{
 						$badge = new ilBadge($ass->getBadgeId());
 						$badge_options[] = $badge->getTitle();
-					}
+					}								
 				}
 
 				if(sizeof($badge_options) > 1)
 				{
-					$badge_order = new ilNonEditableValueGUI($this->lng->txt("obj_bdga"), "bpos");
+					$badge_order = new ilNonEditableValueGUI($this->lng->txt("obj_bdga"), "bpos");		
 					$badge_order->setMultiValues($badge_options);
 					$badge_order->setValue(array_shift($badge_options));
 					$badge_order->setMulti(true, true, false);
@@ -1385,7 +1385,7 @@ class ilPersonalProfileGUI
 					$ilUser->setPref("public_".$value,"n");
 				}
 			}
-
+	
 			// additional defined user data fields
 			foreach($this->user_defined_fields->getVisibleDefinitions() as $field_id => $definition)
 			{
@@ -1406,13 +1406,17 @@ class ilPersonalProfileGUI
 			$handler = ilBadgeHandler::getInstance();
 			if($handler->isActive())
 			{
-				if(sizeof($_POST["bpos"]))
-				{
-					include_once "Services/Badge/classes/class.ilBadgeAssignment.php";
-					ilBadgeAssignment::updatePositions($ilUser->getId(), $_POST["bpos"]);
+				$badgePositions = [];
+				if (isset($_POST["bpos"]) && is_array($_POST["bpos"])) {
+					$badgePositions = $_POST["bpos"];
 				}
-			}
 
+				if (count($badgePositions) > 0) {
+					include_once "Services/Badge/classes/class.ilBadgeAssignment.php";
+					ilBadgeAssignment::updatePositions($ilUser->getId(), $badgePositions);
+				}				
+			}
+			
 			// update lucene index
 			include_once './Services/Search/classes/Lucene/class.ilLuceneIndexer.php';
 			ilLuceneIndexer::updateLuceneIndex(array((int) $GLOBALS['ilUser']->getId()));
@@ -1422,9 +1426,9 @@ class ilPersonalProfileGUI
 		}
 		$this->form->setValuesByPost();
 		$tpl->showPublicProfile(true);
-
-
-
+		
+		
+		
 	}
 	
 	/**

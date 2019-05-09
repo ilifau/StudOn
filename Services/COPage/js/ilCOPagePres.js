@@ -748,10 +748,16 @@ il.COPagePres =
 	//// Audio/Video
 	////
 	
-	initAudioVideo: function () {
+	initAudioVideo: function (acc_el) {
+		var $elements;
+		if (acc_el) {
+			$elements = $(acc_el).find('video.ilPageVideo,audio.ilPageAudio');
+		} else {
+			$elements = $('video.ilPageVideo,audio.ilPageAudio');
+		}
 
-		if ($('video.ilPageVideo,audio.ilPageAudio').mediaelementplayer) {
-			$('video.ilPageVideo,audio.ilPageAudio').each(function(i, el) {
+		if ($elements.mediaelementplayer) {
+			$elements.each(function(i, el) {
 				var def, cfg;
 
 				def = $(el).find("track[default='default']").first().attr("srclang");
@@ -763,14 +769,22 @@ il.COPagePres =
 			});
 		}
 
-        // fim: [media] prevent context menu for media
-        $('video').bind('contextmenu', function(e) {
-            return false;
-        });
-        $('audio').bind('contextmenu', function(e) {
-            return false;
-        });
+		// fim: [media] prevent context menu for media
+		$('video').bind('contextmenu', function(e) {
+			return false;
+		});
+		$('audio').bind('contextmenu', function(e) {
+			return false;
+		});
         // fim.
+	},
+
+	accordionRerender: function (acc_el) {
+		$(acc_el).find('video.ilPageVideo,audio.ilPageAudio').each(function(i, el) {
+			if (el.player) el.player.remove();
+		});
+
+		il.COPagePres.initAudioVideo(acc_el);
 	}
 
 };

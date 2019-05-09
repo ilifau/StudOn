@@ -4452,6 +4452,7 @@ crs#:#crs_info_start#:#Please work through all of the course items stated below.
 crs#:#crs_item_presetting_info#:#Choose this option to offer the learners suggested editing times.
 crs#:#crs_join_request#:#Send
 crs#:#crs_lim_assigned#:#Already assigned to associated course "%s".
+grp#:#grp_lim_assigned#:#Already assigned to associated group "%s".
 crs#:#crs_mail_permanent_link#:#Click on the following link to find all of the information you need regarding the course:
 crs#:#crs_map_location#:#Course Map Location
 crs#:#crs_map_settings#:#Map
@@ -12844,7 +12845,8 @@ buddysystem#:#buddy_notification_contact_request_link#:#Approve Request:
 buddysystem#:#buddy_notification_contact_request_link_osd#:#Approve Request
 buddysystem#:#buddy_notification_contact_request_ignore#:#Ignore Request: 
 buddysystem#:#buddy_notification_contact_request_ignore_osd#:#Ignore Request
-buddysystem#:#buddy_notification_contact_request_long#:#[SALUTATION][BR][BR]the user "[REQUESTING_USER]" wants to add you to his friends list.[BR][BR][APPROVE_REQUEST_TXT] [APPROVE_REQUEST][BR][IGNORE_REQUEST_TXT] [IGNORE_REQUEST]
+buddysystem#:#buddy_notification_contact_request_long#:#[SALUTATION][BR][BR]"[REQUESTING_USER]" wants to add you to his friends list.[BR][BR]Personal Profile Link: [PERSONAL_PROFILE_LINK][BR][BR][APPROVE_REQUEST_TXT] [APPROVE_REQUEST][BR][IGNORE_REQUEST_TXT] [IGNORE_REQUEST]
+buddysystem#:#buddy_noti_cr_profile_not_published#:#Profile not published
 buddysystem#:#buddy_request_approved#:#You successfully approved the contact.
 buddysystem#:#buddy_request_ignored#:#You ignored the user.
 buddysystem#:#buddy_relation_requested#:#A request has been sent to the user.
@@ -14242,3 +14244,4 @@ user#:#obj_ref_id_not_exist#:#The entered Reference-Id does not exist
 user#:#msg_spoint_not_modified#:#Starting point not modified
 lti#:#lti_cron_title#:#LTI Outcome Service
 lti#:#lti_cron_title_desc#:#Synchronizes the learning progress of LTI users with the LTI consumer, if it supports the outcome service. This cron job is only required to transfer status updates after Learning progress settings updates.
+dateplaner#:#cal_usr_info#:#Appointment Information
