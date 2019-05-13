@@ -879,6 +879,12 @@ univis#:#univis_women_short#:#women
 univis#:#univis_ws#:#WS %s/%s
 user#:#usr_public_profile_global_alert#:#Your profile is visible to all internet users!<br /><a href="%s">Change Setting</a>
 user#:#usr_public_profile_logged_in_alert#:#Your profile is visible to registered users!<br /><a href="%s">Change Setting</a>
+user#:#show_client_info#:#Browser Information
+user#:#browser_desc#:#Broeser Description
+user#:#browser_agent#:#Browser Family
+user#:#browser_platform#:#Platform
+user#:#browser_version#:#Browser Version
+user#:#is_mobile#:#Mobile
 webform#:#webform_all_categories#:#All Categories
 webform#:#webform_all_corrected#:#corrected
 webform#:#webform_all_courses#:#All courses

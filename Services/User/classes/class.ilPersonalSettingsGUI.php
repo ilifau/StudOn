@@ -135,6 +135,11 @@ class ilPersonalSettingsGUI
 			$ilTabs->addTab("delacc", $this->lng->txt('user_delete_own_account'),
 				$this->ctrl->getLinkTarget($this, "deleteOwnAccount1"));
 		}
+
+// fau: showCLientInfo - add tab
+		$ilTabs->addTab("client_info", $this->lng->txt('show_client_info'),
+			$this->ctrl->getLinkTarget($this, "showClientInfo"));
+// fau.
 	}
 
 	/**
@@ -644,12 +649,6 @@ class ilPersonalSettingsGUI
 		$select->setInfo($lng->txt('cal_time_format_info'));
 	    $select->setValue($user_settings->getTimeFormat());
 		$this->form->addItem($select);
-		// fim: [exam] show current IP address in profile
-		$ne = new ilNonEditableValueGUI($this->lng->txt('ip_address'));
-		$ne->setValue($_SERVER['REMOTE_ADDR']);
-		$this->form->addItem($ne);
-		// fim.
-		
 		
 		// starting point	
 		include_once "Services/User/classes/class.ilUserUtil.php";
@@ -712,7 +711,58 @@ class ilPersonalSettingsGUI
 		$this->form->setFormAction($this->ctrl->getFormAction($this));
 	 
 	}
-	
+
+// fau: showClientInfo - new function
+	/**
+	 * Show information about the user client
+	 */
+	public function showClientInfo()
+	{
+		global $DIC;
+		/** @var ilBrowser $ilBrowser */
+		$ilBrowser = $DIC['ilBrowser'];
+		$ilTabs = $DIC->tabs();
+
+		$this->__initSubTabs("showPersonalData");
+		$ilTabs->activateTab("client_info");
+
+		$this->setHeader();
+
+		$this->form = new ilPropertyFormGUI();
+
+		//$this->form->setTitle($this->lng->txt('show_client_info'));
+
+		$ip = new ilNonEditableValueGUI($this->lng->txt('ip_address'));
+		$ip->setValue($_SERVER['REMOTE_ADDR']);
+		$this->form->addItem($ip);
+
+		$bi = new ilNonEditableValueGUI($this->lng->txt('browser_desc'));
+		$bi->setValue($_SERVER['HTTP_USER_AGENT']);
+		$this->form->addItem($bi);
+
+		$ba = new ilNonEditableValueGUI($this->lng->txt('browser_agent'));
+		$ba->setValue($ilBrowser->getAgent());
+		$this->form->addItem($ba);
+
+		$bv = new ilNonEditableValueGUI($this->lng->txt('browser_version'));
+		$bv->setValue(implode('.', $ilBrowser->getVersion(true)));
+		$this->form->addItem($bv);
+
+		$bp = new ilNonEditableValueGUI($this->lng->txt('browser_platform'));
+		$bp->setValue($ilBrowser->getPlatform());
+		$this->form->addItem($bp);
+
+		$im = new ilNonEditableValueGUI($this->lng->txt('is_mobile'));
+		$im->setValue($ilBrowser->isMobile() ? $this->lng->txt('yes') : $this->lng->txt('no'));
+		$this->form->addItem($im);
+
+
+		$this->tpl->setContent($this->form->getHTML());
+		$this->tpl->show();
+	}
+// fau.
+
+
 	/**
 	 * Save general settings
 	 */

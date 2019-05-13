@@ -826,6 +826,12 @@ univis#:#univis_women_short#:#Frauen
 univis#:#univis_ws#:#WS %s/%s
 user#:#usr_public_profile_global_alert#:#Ihr persönliches Profil ist für alle Benutzer des Internet sichtbar!<br /><a href="%s">Einstellung ändern</a>
 user#:#usr_public_profile_logged_in_alert#:#Ihr persönliches Profil ist für angemeldete Benutzer sichtbar!<br /><a href="%s">Einstellung ändern</a>
+user#:#show_client_info#:#Browser-Informationen
+user#:#browser_desc#:#Browser-Beschreibung
+user#:#browser_agent#:#Browser-Familie
+user#:#browser_platform#:#Betriebssystem
+user#:#browser_version#:#Browser-Version
+user#:#is_mobile#:#Mobil
 webform#:#webform_all_categories#:#Alle Bereiche
 webform#:#webform_all_corrected#:#korrigierte
 webform#:#webform_all_courses#:#Alle Kurse
