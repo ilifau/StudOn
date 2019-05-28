@@ -565,7 +565,9 @@ news#:#news_get_feed_info#:#Dieser Newsfeed enthält alle Nachrichten zu Ihren a
 news#:#news_get_priv_feed_info#:#Dieser Newsfeed enthält auch Nachrichten, die von ihren Verfassern als privat eingestuft wurden. Er ist durch ein Kennwort geschützt, welches Sie in den <a href=%s">Nachrichten-Einstellungen</a> festlegen können. Bitte ersetzen Sie in der URL die Zeichenkette PASSWORD durch Ihr Feed-Kennwort.
 news#:#news_get_priv_feed_passhash_title#:#URL Ihres Privaten Newsfeeds (alternativ)
 news#:#news_get_priv_feed_passhash_info#:#Diese Adresse können Sie verwenden, wenn Ihr RSS-Reader keine Kennwörter unterstützt. Wenn Sie in den <a href=%s">Nachrichten-Einstellungen</a> Ihr Feed-Kennwort ändern, ändert sich auch dieser Link. Bitte geben Sie ihn an keine anderen Personen weiter.
-news#:#news_get_priv_feed_disabled_info#:#Ihr privaten Newsfeed ist nicht aktiv. Sie können ihn in Ihren <a href=%s">"Nachrichten-Einstellungen"</a> aktivieren.
+news#:#news_get_priv_feed_disabled_info#:#Ihr privater Newsfeed ist nicht aktiv. Sie können ihn in Ihren <a href=%s">"Nachrichten-Einstellungen"</a> aktivieren.
+news#:#news_get_context_info#:#Dieser Newsfeed enthält alle Nachrichten aus diesem Kontext, die von ihren Verfassern als öffentlich eingestuft wurden. Er ist durch keine Authentifizierung geschützt.
+news#:#news_enable_private_feed_info#:#Aktiviert passwortgeschützte Newsfeeds mit nicht-öffentlichen Nachrichten.  Das Passwort gilt für den Newsfeed zu Nachrichten auf Ihrem Schreibtisch und für separate Newsfeeds aus den Angeboten. Wenn Sie es ändern, ändern sich auch die Feed-URLs.
 pdesk#:#pd_description#:#
 ps#:#cleanup_rbac_log#:#Rechteeinstellungs-Log bereinigen
 ps#:#cleanup_rbac_log_finished#:#Das Rechteeinstellungs-Log wurde bereinigt.

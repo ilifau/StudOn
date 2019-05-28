@@ -9,16 +9,11 @@
 */
 
 // fau: shortRssLink - process parameters from the shortened link
-if ($_GET['feed_id'] != '')
-{
-	$_GET['user_id'] = $_GET['feed_id'];	
-	unset($_GET['feed_id']);
-	
+if ($_GET['user_id'] == '0') {
+	$_GET['user_id'] = '';
 }
-if ($_GET['feed_data'] != '')
-{
-	$_GET['hash'] = $_GET['feed_data'];	
-	unset($_GET['feed_data']);
+if ($_GET['ref_id'] == '0') {
+	$_GET['ref_id'] = '';
 }
 // fau.
 

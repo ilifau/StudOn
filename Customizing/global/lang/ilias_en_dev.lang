@@ -618,6 +618,8 @@ news#:#news_get_priv_feed_info#:#This feed has additional news that were declare
 news#:#news_get_priv_feed_passhash_title#:#Personal private Feed-URL (alternative)
 news#:#news_get_priv_feed_passhash_info#:#Use this feed address when your RSS reader doesn't support passwords. When you change your feed password in the <a href=%s">news settings</a> then this link will be changed, too. Please don't send this link to other persons.
 news#:#news_get_priv_feed_disabled_info#:#Your private news feed isn't active. You can activate it in the <a href=%s">"news settings"</a>.
+news#:#news_get_context_info#:#This feed gets all news from the current context, that are declared as 'public by their authors'. It isn't protected by any authentication.
+news#:#news_enable_private_feed_info#:#Activates password protected feeds for personal news. The password is used for feeds of news on your desktop und and for separate feeds of news from the repository. When you change it, the feed urls will change, too.
 pdesk#:#pd_description#:#
 ps#:#cleanup_rbac_log#:#Cleanup Permission Log
 ps#:#cleanup_rbac_log_finished#:#Permission log cleaned.

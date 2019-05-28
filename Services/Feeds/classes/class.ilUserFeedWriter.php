@@ -54,25 +54,26 @@ class ilUserFeedWriter extends ilFeedWriter
 		}
 
 		include_once "Services/User/classes/class.ilObjUser.php";
-// fau: shortRssLink - allow shortened hashes and password hashes
-		$hash = substr(ilObjUser::_lookupFeedHash($a_user_id), 0, strlen($a_hash));
-		$p_hash = substr(ilObjUser::_getFeedPass($a_user_id), 0, strlen($a_hash));
+// fau: shortRssLink - allow shortened feed hashes and password hashes
+		if ($privFeed) {
+			// private feeds are checked by feed password
+			$hash = substr(ilObjUser::_getFeedPass($a_user_id), 0, strlen($a_hash));
+		}
+		else {
+			// public feeds are checked by feed hash
+			$hash = substr(ilObjUser::_lookupFeedHash($a_user_id), 0, strlen($a_hash));
+		}
 // fau.
-		
+
 		include_once("./Services/News/classes/class.ilNewsItem.php");
 		$rss_period = ilNewsItem::_lookupRSSPeriod();
 
-// fau: shortRssLink - allow shortened hashes and password hashes
-		if ($a_hash == $hash or $a_hash == $p_hash)
-// fau.
+		if ($a_hash == $hash)
 		{
 // fau: shortRssLink - set ChannelAbout to the shortened feed URL
-// fau: shortRssLink - set $a_only_public not for private feeds
-			require_once ('./Services/Link/classes/class.ilLink.php');
-			
 			if ($privFeed) 
 			{
-				ilNewsItem::setPrivateFeedId($a_user_id);
+				//ilNewsItem::setPrivateFeedId($a_user_id);
 				$items = ilNewsItem::_getNewsItemsOfUser($a_user_id, false, true, $rss_period);
 				$this->setChannelAbout(
 					ilLink::_getShortlinkBase('https://')
@@ -87,6 +88,7 @@ class ilUserFeedWriter extends ilFeedWriter
 					. 'feed/' . $a_user_id . '/' .$a_hash .'.rss'
 				);
 			}
+
 			if ($ilSetting->get('short_inst_name') != "")
 			{
 				$this->setChannelTitle($ilSetting->get('short_inst_name'));
@@ -95,6 +97,7 @@ class ilUserFeedWriter extends ilFeedWriter
 			{
 				$this->setChannelTitle("ILIAS");
 			}
+			//$this->setChannelAbout(ILIAS_HTTP_PATH);
 // fau.
 			$this->setChannelLink(ILIAS_HTTP_PATH);
 			//$this->setChannelDescription("ILIAS Channel Description");

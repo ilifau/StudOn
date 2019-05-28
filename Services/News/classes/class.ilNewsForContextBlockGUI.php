@@ -188,6 +188,10 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
 		{
 			case "showNews":
 			case "showFeedUrl":
+// fau: shortRssLink - show private settings on main screen
+			case "editFeedSettings":
+			case "changeFeedSettings":
+// fau.
 				return IL_SCREEN_CENTER;
 				break;
 				
@@ -296,11 +300,11 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
 			if ($enable_internal_rss)
 			{
 				include_once("./Services/News/classes/class.ilRSSButtonGUI.php");
+// fau: shortRssLink - show link URLs instead of direct link
 				$this->addBlockCommand(
-					ILIAS_HTTP_PATH."/feed.php?client_id=".rawurlencode(CLIENT_ID)."&".
-						"ref_id=".$_GET["ref_id"],
-						$lng->txt("news_feed_url"), "", "", true, false, ilRSSButtonGUI::get(ilRSSButtonGUI::ICON_RSS));
-
+					$ilCtrl->getLinkTarget($this, "showFeedUrl"),
+					$lng->txt("news_get_feed_url"), "", "", true, false, ilRSSButtonGUI::get(ilRSSButtonGUI::ICON_RSS));
+// fau.
 			}
 		}
 
@@ -1237,37 +1241,174 @@ class ilNewsForContextBlockGUI extends ilBlockGUI
 	*/
 	function showFeedUrl()
 	{
+		// fau: shortRssLink - use shortened feed urls, add url for hash
 		$lng = $this->lng;
 		$ilCtrl = $this->ctrl;
 		$ilUser = $this->user;
-		
-		include_once("./Services/News/classes/class.ilNewsItem.php");
-		
+
+		$feed_hash = ilObjUser::_lookupFeedHash($ilUser->getId(), true);
+		$feed_passwd = ilObjUser::_getFeedPass($ilUser->getId());
+
+		$public_url = ilLink::_getShortlinkBase('http://')
+			.'feed/0/0/'.$_GET['ref_id'].'.rss';
+
+		$private_url = ilLink::_getShortlinkBase('https://'. $ilUser->getLogin().":PASSWORD@")
+			.'privfeed/0/'.substr($feed_hash,0,8).'/'.$_GET['ref_id'].'.rss';
+
+		$passhash_url = ilLink::_getShortlinkBase('https://')
+			.'privfeed/'.$ilUser->getId().'/'.substr($feed_passwd,0,8).'/'.$_GET['ref_id'].'.rss';
+
+		$news_set = new ilSetting("news");
+
+		$tpl = new ilTemplate("tpl.show_priv_feed_url.html", true, true, "Services/News");
+
 		$title = ilObject::_lookupTitle($this->block_id);
-		
-		$tpl = new ilTemplate("tpl.show_feed_url.html", true, true, "Services/News");
-		$tpl->setVariable("TXT_TITLE",
-			sprintf($lng->txt("news_feed_url_for"), $title));
-		$tpl->setVariable("TXT_INFO", $lng->txt("news_get_feed_info"));
-		$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url"));
-		$tpl->setVariable("VAL_FEED_URL",
-			ILIAS_HTTP_PATH."/feed.php?client_id=".rawurlencode(CLIENT_ID)."&user_id=".$ilUser->getId().
-				"&obj_id=".$this->block_id.
-				"&hash=".ilObjUser::_lookupFeedHash($ilUser->getId(), true));
-		$tpl->setVariable("VAL_FEED_URL_TXT",
-			ILIAS_HTTP_PATH."/feed.php?client_id=".rawurlencode(CLIENT_ID)."&<br />user_id=".$ilUser->getId().
-				"&obj_id=".$this->block_id.
-				"&hash=".ilObjUser::_lookupFeedHash($ilUser->getId(), true));
-		
-		include_once("./Services/PersonalDesktop/classes/class.ilPDContentBlockGUI.php");
+
+		// public news feed
+		$tpl->setCurrentBlock('feed_block');
+		$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("icon_feed.svg"));
+		$tpl->setVariable("TXT_TITLE", sprintf($lng->txt("news_feed_url_for"), $title));
+		$tpl->setVariable("TXT_INFO", $lng->txt("news_get_context_info"));
+		$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url").':');
+		$tpl->setVariable("VAL_FEED_URL", $public_url);
+		$tpl->setVariable("VAL_FEED_URL_TXT", $public_url);
+		$tpl->parseCurrentBlock();
+
+		if ($news_set->get("enable_private_feed") and $feed_passwd)
+		{
+			// private feed with password
+			$tpl->setCurrentBlock('feed_block');
+			$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("icon_feed.svg"));
+			$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_priv_feed_title"));
+			$tpl->setVariable("TXT_INFO", sprintf($lng->txt("news_get_priv_feed_info"), $ilCtrl->getLinkTarget($this,'editFeedSettings')));
+			$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url").':');
+			$tpl->setVariable("VAL_FEED_URL", $private_url);
+			$tpl->setVariable("VAL_FEED_URL_TXT", $private_url);
+			$tpl->parseCurrentBlock();
+
+			// private feed with password hash
+			$tpl->setCurrentBlock('feed_block');
+			$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("icon_feed.svg"));
+			$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_priv_feed_passhash_title"));
+			$tpl->setVariable("TXT_INFO", sprintf($lng->txt("news_get_priv_feed_passhash_info"), $ilCtrl->getLinkTarget($this,'editFeedSettings')));
+			$tpl->setVariable("TXT_FEED_URL", $lng->txt("news_feed_url").':');
+			$tpl->setVariable("VAL_FEED_URL", $passhash_url);
+			$tpl->setVariable("VAL_FEED_URL_TXT", $passhash_url);
+			$tpl->parseCurrentBlock();
+		}
+		else
+		{
+			// info about feed activation
+			$tpl->setCurrentBlock('feed_block');
+			$tpl->setVariable("IMG_RSS", ilUtil::getImagePath("icon_feed.svg"));
+			$tpl->setVariable("TXT_TITLE", $lng->txt("news_get_priv_feed_title"));
+			$tpl->setVariable("TXT_INFO", sprintf($lng->txt("news_get_priv_feed_disabled_info"), $ilCtrl->getLinkTarget($this,'editFeedSettings')));
+			$tpl->parseCurrentBlock();
+		}
+
+
 		$content_block = new ilPDContentBlockGUI();
 		$content_block->setContent($tpl->get());
 		$content_block->setTitle($lng->txt("news_internal_news"));
-		$content_block->addHeaderCommand($ilCtrl->getParentReturn($this),
-			$lng->txt("close"), true);
-
+		$content_block->addHeaderCommand($ilCtrl->getParentReturn($this), $lng->txt("close"), true);
 		return $content_block->getHTML();
+// fau.
 	}
+
+
+// fau: shortRssLink - add functions to change the private feed settings from repository context
+
+	/**
+	 * Edit the private feed settings
+	 * @param ilPropertyFormGUI $a_form
+	 * @return string
+	 */
+	protected function editFeedSettings($a_form = null)
+	{
+		if (!isset($a_form))
+		{
+			$a_form = $this->initPrivateSettingsForm();
+		}
+		return $a_form->getHTML();
+	}
+
+	/**
+	 * Init the private feed settings form
+	 * @return ilPropertyFormGUI
+	 */
+	protected function initPrivateSettingsForm()
+	{
+		$ilCtrl = $this->ctrl;
+		$lng = $this->lng;
+		$ilUser = $this->user;
+
+		include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
+		$feed_form = new ilPropertyFormGUI();
+		$feed_form->setFormAction($ilCtrl->getFormaction($this));
+		$feed_form->setTitle($lng->txt("priv_feed_settings"));
+
+		$feed_form->setTableWidth("100%");
+
+		$enable_private_feed = new ilCheckboxInputGUI($lng->txt("news_enable_private_feed"), "enable_private_feed");
+		$enable_private_feed->setChecked($ilUser->_getFeedPass($ilUser->getId()));
+		$enable_private_feed->setInfo($lng->txt('news_enable_private_feed_info'));
+		$feed_form->addItem($enable_private_feed);
+
+		$passwd = new ilPasswordInputGUI($lng->txt("password"), "desired_password");
+		$passwd->setRequired(true);
+		$passwd->setInfo(ilUtil::getPasswordRequirementsInfo());
+		$enable_private_feed->addSubItem($passwd);
+
+		$feed_form->addCommandButton("changeFeedSettings", $lng->txt("save"));
+		$feed_form->addCommandButton("cancelSettings", $lng->txt("cancel"));
+
+		return $feed_form;
+	}
+
+	/**
+	 * Chance the private feed settings
+	 * @return string
+	 */
+	protected function changeFeedSettings()
+	{
+		$ilCtrl = $this->ctrl;
+		$lng = $this->lng;
+		$ilUser = $this->user;
+
+		$form = $this->initPrivateSettingsForm();
+		if($form->checkInput())
+		{
+			// Deactivate private Feed - just delete the password
+			if (!$form->getInput("enable_private_feed"))
+			{
+				$ilUser->_setFeedPass($ilUser->getId(), "");
+				ilUtil::sendSuccess($lng->txt("priv_feed_disabled"),true);
+				// $ilCtrl->returnToParent($this);
+				$ilCtrl->redirect($this, "showFeedUrl");
+			}
+			else
+			{
+				$passwd = $form->getInput("desired_password");
+				require_once 'Services/User/classes/class.ilUserPasswordManager.php';
+				if(ilUserPasswordManager::getInstance()->verifyPassword($ilUser, $passwd))
+				{
+					$form->getItemByPostVar("desired_password")->setAlert($lng->txt("passwd_equals_ilpasswd"));
+					ilUtil::sendFailure($lng->txt("form_input_not_valid"));
+				}
+				else
+				{
+					$ilUser->_setFeedPass($ilUser->getId(), $passwd);
+					ilUtil::sendSuccess($lng->txt("saved_successfully"),true);
+					// $ilCtrl->returnToParent($this);
+					$ilCtrl->redirect($this, "showFeedUrl");
+				}
+			}
+		}
+
+		$form->setValuesByPost();
+		return $this->editFeedSettings($form);
+	}
+// fau.
 
 	function addCloseCommand($a_content_block)
 	{
