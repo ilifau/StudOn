@@ -182,8 +182,12 @@ class ilGlobalCache {
 	 * @return string
 	 */
 	protected static function generateServiceId() {
-		if (! isset(self::$unique_service_id)) {
-			self::$unique_service_id = substr(md5('il_' . CLIENT_ID), 0, 6);
+		if (!isset(self::$unique_service_id)) {
+			$rawServiceId = '_';
+			if (defined('CLIENT_ID')) {
+				$rawServiceId .= 'il_' . CLIENT_ID;
+			}
+			self::$unique_service_id = substr(md5($rawServiceId), 0, 6);
 		}
 	}
 

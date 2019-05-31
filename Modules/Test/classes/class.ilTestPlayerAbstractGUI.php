@@ -186,7 +186,8 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 	public function removeIntermediateSolution()
 	{
 		$questionId = $this->getCurrentQuestionId();
-		return $this->getQuestionInstance($questionId)->removeIntermediateSolution(
+		
+		$this->getQuestionInstance($questionId)->removeIntermediateSolution(
 			$this->testSession->getActiveId(), $this->testSession->getPass()
 		);
 	}

@@ -359,7 +359,7 @@ class ilErrorHandling extends PEAR
 	 * @return bool
 	 */
 	protected function isDevmodeActive() {
-		return DEVMODE == 1;
+		return defined("DEVMODE") && (int)DEVMODE === 1;
 	}
 
 	/**
