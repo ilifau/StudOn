@@ -41,7 +41,10 @@ class ilCourseFile
 
 	var $course_id = null;
 	var $file_id = null;
-	
+
+	/**
+	 * @var \ilFSStorageCourse|null
+	 */
 	private $fss_storage = null;
 
 	/**
@@ -146,26 +149,33 @@ class ilCourseFile
 	{
 		return $this->error_code;
 	}
-	
+
+	/**
+	 * @return bool|string
+	 */
 	function getAbsolutePath()
 	{
-		if(is_object($this->fss_storage))
-		{
-// fau: fixCourseFileUpload - use the uploaded file extension
-			$pi = pathinfo($this->getFilename());
-			$suffix = empty($pi['extension']) ? '' : '.' . $pi['extension'];
+		// workaround for "secured" files.
+		if(!$this->fss_storage instanceof \ilFSStorageCourse) {
+			return false;
+		}
 
-			if (is_file($this->fss_storage->getInfoDirectory().'/'.$this->getFileId().$suffix))
-			{
-				// new uploads
-				return $this->fss_storage->getInfoDirectory().'/'.$this->getFileId().$suffix;
-			}
-			elseif (is_file($this->fss_storage->getInfoDirectory().'/'.$this->getFileId()))
-			{
-				// older uploads
-				return $this->fss_storage->getInfoDirectory().'/'.$this->getFileId();
-			}
+// fau: fixCourseFileUpload - try to use use the uploaded file extension
+		$pi = pathinfo($this->getFilename());
+		$suffix = empty($pi['extension']) ? '' : '.' . $pi['extension'];
+		$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId().$suffix;
+		if (file_exists($file))
+		{
+			return $file;
+		}
 // fau.
+
+		$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId();
+		if(!file_exists($file)) {
+			$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId().'.sec';
+		}
+		if(file_exists($file)) {
+			return $file;
 		}
 		return false;
 	}
@@ -235,7 +245,7 @@ class ilCourseFile
 
 		if($a_upload)
 		{
-// fau: fixCourseFileUpload - use the uploaded file extension
+// fau: fixCourseFileUpload - use the uploaded file extension for storage
 			$pi = pathinfo($this->getFilename());
 			$suffix = empty($pi['extension']) ? '' : '.' . $pi['extension'];
 
