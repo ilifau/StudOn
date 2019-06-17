@@ -160,23 +160,25 @@ class ilCourseFile
 			return false;
 		}
 
-// fau: fixCourseFileUpload - try to use use the uploaded file extension
-		$pi = pathinfo($this->getFilename());
-		$suffix = empty($pi['extension']) ? '' : '.' . $pi['extension'];
-		$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId().$suffix;
-		if (file_exists($file))
-		{
-			return $file;
+		$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId();
+
+// fau: fixCourseFileDownload - try to use use the uploaded file extension
+		$pi = pathinfo($this->getFileName());
+		$ext =  $pi['extension'];
+		$variants = [
+			$file,					// standard
+			$file . '.sec',			// standard, secured
+			$file . '.' . $ext,		// patched until 5.3.15
+			$file . $ext . '.sec',	// patched until 5.3.15, secured
+		];
+
+		foreach ($variants as $file) {
+			if(file_exists($file)) {
+				return $file;
+			}
 		}
 // fau.
 
-		$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId();
-		if(!file_exists($file)) {
-			$file = $this->fss_storage->getInfoDirectory().'/'.$this->getFileId().'.sec';
-		}
-		if(file_exists($file)) {
-			return $file;
-		}
 		return false;
 	}
 
@@ -245,15 +247,11 @@ class ilCourseFile
 
 		if($a_upload)
 		{
-// fau: fixCourseFileUpload - use the uploaded file extension for storage
-			$pi = pathinfo($this->getFilename());
-			$suffix = empty($pi['extension']) ? '' : '.' . $pi['extension'];
-
 			// now create file
 			ilUtil::moveUploadedFile($this->getTemporaryName(),
 				$this->getFileName(),
-				$this->fss_storage->getInfoDirectory().'/'.$this->getFileId().$suffix);
-// fau.
+				$this->fss_storage->getInfoDirectory().'/'.$this->getFileId());
+
 		}
 		return true;
 	}
