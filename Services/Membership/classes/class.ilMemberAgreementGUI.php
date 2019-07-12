@@ -353,9 +353,9 @@ class ilMemberAgreementGUI
 					$checkbox = new ilCheckboxInputGUI($field_obj->getName(), 'cdf_'.$field_obj->getId());
 					$checkbox->setInfo($field_obj->getDescription());
 					$checkbox->setValue(1);
-					$checkbox->setCheckRequired(true);
 					if($field_obj->isRequired())
 					{
+						$checkbox->setCheckRequired(true);
 						$checkbox->setRequired(true);
 					}
 					return $checkbox;
