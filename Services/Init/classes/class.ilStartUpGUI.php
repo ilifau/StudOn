@@ -192,18 +192,21 @@ class ilStartUpGUI
 		if (ilCust::get('ilias_root_as_login'))
 		{
 			global $DIC;
-			/** @var ilAuthSession $authSession */
+			/** @var ilAuthSession $ilAuthSession */
 			$ilAuthSession = $DIC['ilAuthSession'];
 			$ilAccess = $DIC->access();
 
 			// check expired session and send message
 			if($ilAuthSession->isExpired())
 			{
-				$ilAuthSession->logout();
+				ilUtil::sendFailure($GLOBALS['lng']->txt('auth_err_expired'));
+			}
+
+			// Ensure that an authsession exists. It may have been destroyed in showLoginPageOrStartupPage()
+			if (!$ilAuthSession->isValid()) {
 				$ilAuthSession->init();
 				$ilAuthSession->setAuthenticated(true, ANONYMOUS_USER_ID);
 				ilInitialisation::initUserAccount();
-				ilUtil::sendFailure($GLOBALS['lng']->txt('auth_err_expired'));
 			}
 
 			if ($ilAccess->checkAccess("read", "", ROOT_FOLDER_ID))
