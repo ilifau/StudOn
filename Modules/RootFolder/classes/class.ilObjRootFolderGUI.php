@@ -233,6 +233,20 @@ class ilObjRootFolderGUI extends ilContainerGUI
 	function renderObject()
 	{
 		global $ilTabs;
+
+// fau: rootAsLogin - show confirmation or failure message of a successful registration
+		if (ilCust::get("ilias_root_as_login")) {
+			if (isset($_GET['reg_confirmation_msg']) && strlen(trim($_GET['reg_confirmation_msg']))) {
+				$this->lng->loadLanguageModule('registration');
+				if($_GET['reg_confirmation_msg'] == 'reg_account_confirmation_successful') {
+					ilUtil::sendSuccess($this->lng->txt('reg_account_confirmation_successful'));
+				}
+				else {
+					ilUtil::sendFailure(trim($_GET['reg_confirmation_msg']));
+				}
+			}
+		}
+// fau.
 		
 		include_once "Services/Object/classes/class.ilObjectListGUI.php";
 		ilObjectListGUI::prepareJSLinks("", 
