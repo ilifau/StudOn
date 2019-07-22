@@ -2439,6 +2439,11 @@ class ilObjContentObject extends ilObject
 			array("source" => iljQueryUtil::getLocaljQueryPath(),
 				"target" => $a_target_dir.'/js/jquery.js',
 				"type" => "js"),
+// fau: fixLmQuestionOfflineScripts - add needed javascript for imagemap question
+			array("source" => './libs/bower/bower_components/jquery-migrate/jquery-migrate.min.js',
+				"target" => $a_target_dir.'/js/jquery-migrate.min.js',
+				"type" => "js"),
+// fau.
 			array("source" => iljQueryUtil::getLocalMaphilightPath(),
 				"target" => $a_target_dir.'/js/maphilight.js',
 				"type" => "js"),
@@ -2454,6 +2459,11 @@ class ilObjContentObject extends ilObject
 			array("source" => './Modules/Scorm2004/scripts/questions/question_handling.js',
 				"target" => $a_target_dir.'/js/question_handling.js',
 				"type" => "js"),
+// fau: fixLmQuestionOfflineScripts - add javascript for MC question
+			array("source" => './Modules/TestQuestionPool/js/ilAssMultipleChoice.js',
+				"target" => $a_target_dir.'/js/ilAssMultipleChoice.js',
+				"type" => "js"),
+// fau.
 			array("source" => './Modules/TestQuestionPool/js/ilMatchingQuestion.js',
 				"target" => $a_target_dir.'/js/ilMatchingQuestion.js',
 				"type" => "js"),
