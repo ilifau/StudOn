@@ -545,17 +545,19 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 		if ($this->object->getNrOfTries() != 1)
 		{
 // fau: adoptPreviousSolutions - prevent a change when a random test without this checkbox is started
-			if ($this->object->getUsePreviousAnswers() == 1 && isset($_POST["chb_use_previous_answers"]))
+			if ($this->object->getUsePreviousAnswers() == 1)
 // fau.
 			{
+// fau: adoptPreviousSolutions - compatibility with ilObjTest::_getUsePreviousAnswers()
 				if ($_POST["chb_use_previous_answers"])
 				{
-					$ilUser->writePref("tst_use_previous_answers", 1);
+					$ilUser->writePref("tst_use_previous_answers", TRUE);
 				}
 				else
 				{ 
-					$ilUser->writePref("tst_use_previous_answers", 0);
+					$ilUser->writePref("tst_use_previous_answers", FALSE);
 				}
+// fau.
 			}
 		}
 	}
