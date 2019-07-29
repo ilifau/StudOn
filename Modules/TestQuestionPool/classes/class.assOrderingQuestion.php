@@ -1106,7 +1106,11 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
 				if ($solution["value1"] == $idx) $worksheet->setCell($startrow + $i, 0, $solution["value2"]);
 			}
 			$element = $this->getOrderingElementList()->getElementByPosition($idx);
-			$worksheet->setCell($startrow + $i, 1, $element->getContent());
+// fau: fixOrderingExportXls - avoid error on empty elements
+			if (isset($element)) {
+				$worksheet->setCell($startrow + $i, 1, $element->getContent());
+			}
+// fau.
 			$i++;
 		}
 
