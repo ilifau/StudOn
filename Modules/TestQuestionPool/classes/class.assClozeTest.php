@@ -152,11 +152,33 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 	 */
 	public function cleanQuestiontext($text)
 	{
+// fau: fixGapReplace - mask dollars for replacement
+		$text = str_replace('$','GAPMASKEDDOLLAR', $text);
 		$text = preg_replace("/\[gap[^\]]*?\]/", "[gap]", $text);
 		$text = preg_replace("/\<gap([^>]*?)\>/", "[gap]", $text);
 		$text = str_replace("</gap>", "[/gap]", $text);
+		$text = str_replace('GAPMASKEDDOLLAR', '$', $text);
+// fau.
 		return $text;
 	}
+
+
+// fau: fixGapReplace - add function replaceFirstGap()
+	/**
+	 * Replace the first gap in a string without treating backreferences
+	 * @param string $gaptext	text with gap tags
+	 * @param string $content	content for the first gap
+	 * @return string
+	 */
+	public function replaceFirstGap($gaptext, $content)
+	{
+		$content = str_replace('$','GAPMASKEDDOLLAR', $content);
+		$output = preg_replace("/\[gap\].*?\[\/gap\]/", $content, $gaptext, 1);
+		$output = str_replace('GAPMASKEDDOLLAR', '$', $output);
+
+		return $output;
+	}
+// fau.
 
 	/**
 	 * Loads a assClozeTest object from a database
@@ -1065,7 +1087,10 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 			{
 				array_push($answers, str_replace(",", "\\,", $item->getAnswerText()));
 			}
-			$output = preg_replace("/\[gap\].*?\[\/gap\]/", "[_gap]" . $this->prepareTextareaOutput(join(",", $answers), true) . "[/_gap]", $output, 1);
+
+// fau: fixGapReplace - use replace function
+			$output = $this->replaceFirstGap($output, "[_gap]" . $this->prepareTextareaOutput(join(",", $answers), true) . "[/_gap]");
+// fau.
 		}
 		$output = str_replace("_gap]", "gap]", $output);
 		$this->cloze_text = $output;
@@ -1120,11 +1145,15 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
 				}
 				if ($replace_gap_index == $gap_index)
 				{
-					$output = preg_replace("/\[gap\].*?\[\/gap\]/", "", $output, 1);
+// fau: fixGapReplace - use replace function
+					$output = $this->replaceFirstGap($output, '');
+// fau.
 				}
 				else
 				{
-					$output = preg_replace("/\[gap\].*?\[\/gap\]/", "[_gap]" . join(",", $answers) . "[/_gap]", $output, 1);
+// fau: fixGapReplace - use replace function
+					$output = $this->replaceFirstGap($output, "[_gap]" . join(",", $answers) . "[/_gap]");
+// fau.
 				}
 			}
 			$output = str_replace("_gap]", "gap]", $output);
