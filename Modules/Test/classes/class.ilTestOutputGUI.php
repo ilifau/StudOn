@@ -669,8 +669,9 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
 
 		if ($this->saveResult == FALSE)
 		{
-			$this->ctrl->setParameter($this, "save_error", "1");
-			$_SESSION["previouspost"] = $_POST;
+// fau: fixQuestionValidateSubmit - use common function to handle a save error
+			$this->handleSaveQuestionSolutionError($questionOBJ);
+// fau.
 		}
 
 		return $this->saveResult;

@@ -384,6 +384,9 @@ il.TestPlayerQuestionEditControl = new function() {
             && id != 'tst_discard_answer_action'        // link is not the 'discard answer' button
 
             && id != 'tst_revert_changes_action'        // link is not the 'revert changes' action
+// fau: fixQuestionValidateSubmit - allow additional 'revert changes' link
+            && id != 'tst_revert_changes_link'          // link is not the 'revert changes' link
+// fau.
             && id != 'tst_discard_solution_action'      // link is not the 'discard solution' action
         ) {
             // remember the url for saveWithNavigation()

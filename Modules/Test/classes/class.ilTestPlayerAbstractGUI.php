@@ -198,6 +198,33 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 	 */
 	abstract public function saveQuestionSolution($authorized = true, $force = false);
 
+// fau: fixQuestionValidateSubmit - new function handleSaveQuestionSolutionError()
+	/**
+	 * Handle a validation error for saving a question solution
+	 * @param assQuestion $questionOBJ
+	 */
+	protected function handleSaveQuestionSolutionError($questionOBJ = null)
+	{
+		$message = '';
+		if (isset($questionOBJ)) {
+			$message = $questionOBJ->getValidateSolutionMessage();
+		}
+		if (empty($message)) {
+			$message = $this->lng->txt('validate_submit_error');
+		}
+		$message .= '<p class="small">'.$this->lng->txt('validate_submit_error_in_test_hint').'<br />'
+			.'<a id="tst_revert_changes_link" href="'.$this->ctrl->getLinkTarget($this, ilTestPlayerCommands::REVERT_CHANGES).'">'
+			.$this->lng->txt('tst_revert_changes').' &raquo;</a></p>';
+
+		ilUtil::sendFailure($message, true);
+
+		$this->ctrl->setParameter($this, "save_error", "1");
+		$this->setAnswerChangedParameter();
+		$_SESSION["previouspost"] = $_POST;
+	}
+// fau.
+
+
 	abstract protected function canSaveResult();
 
 	public function suspendTestCmd()

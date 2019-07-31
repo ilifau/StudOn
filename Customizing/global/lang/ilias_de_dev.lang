@@ -80,6 +80,9 @@ assessment#:#question_browse_area_info#:#Bitte wählen Sie einen Suchbereich fü
 assessment#:#use_previous_solution_advice#:#Die angezeigte Lösung wurde vormals von Ihnen abgegeben. Sie müssen die Übernahme dieser Lösung unterhalb der Frage bestätigen, falls Sie die Lösung ohne Änderungen übernehmen wollen.
 assessment#:#warning_delete_scored_pass#:#WARNUNG: Dies ist der bewertete Durchlauf! Sie sollten ihn nur im Fall eines Fehlers löschen.###deleteTestPass
 assessment#:#tst_use_previous_answers_authorized#:#<b>!!! NEU !!!</b> Kopiere die vorherigen Lösungen in den neuen Durchlauf. Sie sind dann bereits gespeichert, können aber noch verändert werden.###fau: adoptPreviousSolutions
+assessment#:#validate_submit_error#:#Ihre Eingabe wurde nicht angenommen!
+assessment#:#validate_submit_error_in_test_hint#:#Sie können die Frage erst verlassen, wenn Sie Ihre Eingabe korrigiert haben. Alternativ können Sie die Bearbeitung zurücknehmen.
+assessment#:#err_cloze_not_numeric#:#Sie haben Text in eine Lücke eingegeben, die einen Zahlenwert erfordert!
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.

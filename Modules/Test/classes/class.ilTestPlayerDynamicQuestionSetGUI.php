@@ -821,8 +821,12 @@ class ilTestPlayerDynamicQuestionSetGUI extends ilTestPlayerAbstractGUI
 		
 		if ($this->saveResult == FALSE)
 		{
-			$this->ctrl->setParameter($this, "save_error", "1");
-			$_SESSION["previouspost"] = $_POST;
+// fau: fixQuestionValidateSubmit - use common function to handle a save error
+			if (isset($questionGUI)) {
+				$questionOBJ = $questionGUI->object;
+			}
+			$this->handleSaveQuestionSolutionError($questionOBJ);
+// fau.
 		}
 		
 		return $this->saveResult;

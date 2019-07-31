@@ -633,8 +633,10 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
 				$failureMsg = sprintf($this->lng->txt('ass_mc_sel_lim_exhausted_hint'),
 					$this->getSelectionLimit(), $this->getAnswerCount()
 				);
-				
-				ilUtil::sendFailure($failureMsg, true);
+
+// fau: fixValidateSolutionSubmit - don't show validation message directly
+				$this->setValidateSolutionMessage($failureMsg);
+// fau.
 				return false;
 			}
 		}

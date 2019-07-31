@@ -81,6 +81,9 @@ assessment#:#question_browse_area_info#:#Please select a search area for the que
 assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to confirm the adoption of the solution, if you like to use it without any change.
 assessment#:#warning_delete_scored_pass#:#WARNING: This is the scored test pass! You should delete it only in case of an error.###deleteTestPass
 assessment#:#tst_use_previous_answers_authorized#:#<b>!!! NEW !!!</b> Copy the previous solutions to the new test pass. They are then already saved but can still be changed.###fau: adoptPreviousSolutions
+assessment#:#validate_submit_error#:#Your input is rejected!
+assessment#:#validate_submit_error_in_test_hint#:#You need to fix it to leave the question. Alteratively you can revert the edit.
+assessment#:#err_cloze_not_numeric#:#You entered text in a gap that requires numeric input!
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.
