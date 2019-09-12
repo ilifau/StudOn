@@ -65,6 +65,12 @@
         {
             if( this.options.maxSelection )
             {
+// fau: fixMcWithLimit - add check when questin is shown again
+                if( isSelectionLimitReached(this.questionId) )
+                {
+                    disableUnselectedOptions(this.questionId);
+                }
+// fau.
                 initSelectionLimitHandler(this.questionId);
             }
         }
