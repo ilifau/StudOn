@@ -529,7 +529,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 		}
 		
 		// Waiting list subscription
-		foreach($this->wait as $usr_id => $wait_usr_data)
+		foreach($this->wait as $usr_id => $usr_data)
 		{
 			if (isset($a_user_data[$usr_id])) {
 				$a_user_data[$usr_id]['sub_time'] = $wait_usr_data['time'];

@@ -371,6 +371,25 @@ class ilObjFile extends ilObject2
                 $a_name = $result->getName();
                 $this->setFileName($a_name);
 
+                // bugfix mantis 26236:
+                // ensure that version and max_version are correct to prevent the upload file from being versioned incorrectly
+                if ($this->getVersion() > 0) {
+                    $file_hist_entries = (array) ilHistory::_getEntriesForObject($this->getId(), $this->getType());
+                    $highest_version = 0;
+                    foreach ($file_hist_entries as $file_hist_entry) {
+                        $version = $this->parseInfoParams($file_hist_entry)['version'];
+                        if ($version > $highest_version) {
+                            $highest_version = $version;
+                        }
+                    }
+                    if ($this->getVersion() < $highest_version) {
+                        $this->setVersion($highest_version);
+                    }
+                    if ($this->getVersion() > $this->getMaxVersion()) {
+                        $this->setMaxVersion($this->getVersion());
+                    }
+                }
+
                 $this->setVersion($this->getMaxVersion() + 1);
                 $this->setMaxVersion($this->getMaxVersion() + 1);
 
@@ -884,6 +903,7 @@ class ilObjFile extends ilObject2
 // fau.
         }
 
+
         if ($this->file_storage->fileExists($file)) {
             global $DIC;
             $ilClientIniFile = $DIC['ilClientIniFile'];
@@ -1003,15 +1023,8 @@ class ilObjFile extends ilObject2
         ilUtil::rCopy($this->getDirectory(), $a_new_obj->getDirectory());
 
         // object created now copy other settings
-        $query = "INSERT INTO file_data (file_id,file_name,file_type,file_size,version,rating,f_mode) VALUES ("
-            . $ilDB->quote($a_new_obj->getId(), 'integer') . ","
-            . $ilDB->quote($this->getFileName(), 'text') . ","
-            . $ilDB->quote($this->getFileType(), 'text') . ","
-            . $ilDB->quote((int) $this->getFileSize(), 'integer') . ", "
-            . $ilDB->quote($this->getVersion(), 'integer') . ", "
-            . $ilDB->quote($this->hasRating(), 'integer') . ", "
-            . $ilDB->quote($this->getMode(), 'text') . ")";
-        $res = $ilDB->manipulate($query);
+        // bugfix mantis 26131
+        $DIC->database()->insert('file_data', $this->getArrayForDatabase($a_new_obj->getId()));
 
         // copy all previews
         require_once("./Services/Preview/classes/class.ilPreview.php");
@@ -1451,11 +1464,12 @@ class ilObjFile extends ilObject2
 
         // create new history entry based on the old one
         include_once("./Services/History/classes/class.ilHistory.php");
+        // bugfix mantis 26236: added rollback info to version instead of max_version to ensure compatibility with older ilias versions
         ilHistory::_createEntry($this->getId(), "rollback", $source["filename"] . ","
-            . $new_version_nr . ","
-            . $this->getMaxVersion() . "|"
+            . $new_version_nr . "|"
             . $source["version"] . "|"
-            . $ilUser->getId());
+            . $ilUser->getId() . ","
+            . $this->getMaxVersion());
 
         // get id of newest entry
         $entries = ilHistory::_getEntriesForObject($this->getId());
@@ -1557,10 +1571,11 @@ class ilObjFile extends ilObject2
         );
 
         // if rollback, the version contains the rollback version as well
+        // bugfix mantis 26236: rollback info is read from version to ensure compatibility with older ilias versions
         if ($entry["action"] == "rollback") {
-            $tokens = explode("|", $result["max_version"]);
+            $tokens = explode("|", $result["version"]);
             if (count($tokens) > 1) {
-                $result["max_version"] = $tokens[0];
+                $result["version"] = $tokens[0];
                 $result["rollback_version"] = $tokens[1];
 
                 if (count($tokens) > 2) {
@@ -1665,12 +1680,17 @@ class ilObjFile extends ilObject2
 
 
     /**
+     * @param int $file_id (part of bugfix mantis 26131)
+     *
      * @return array
      */
-    private function getArrayForDatabase()
+    private function getArrayForDatabase($file_id = 0)
     {
+        if($file_id == 0) {
+            $file_id = $this->getId();
+        }
         return [
-            'file_id'     => ['integer', $this->getId()],
+            'file_id'     => ['integer', $file_id],
             'file_name'   => ['text', $this->getFileName()],
             'file_type'   => ['text', $this->getFileType()],
             'file_size'   => ['integer', (int) $this->getFileSize()],

@@ -23101,26 +23101,26 @@ if (
 }
 
 if ($documentDirectoriesExist && !$ilSetting->get('dbupwarn_tos_migr_54x', 0)) {
-//	echo "<pre>
-//
-//		DEAR ADMINISTRATOR !!
-//
-//		Because of the ILIAS 5.4.x feature 'User: Criteria-based »User Agreement« documents'
-//		(see: https://www.ilias.de/docu/goto_docu_wiki_wpage_5225_1357.html) the file system
-//		based user agreements in '{$globalAgreementPath}' and '{$clientAgreementPath}' will
-//		be migrated according to https://www.ilias.de/docu/goto_docu_wiki_wpage_5225_1357.html#ilPageTocA27 .
-//
-//		The client-independent user agreements will be abandoned at all and migrated to
-//		client-related documents.
-//
-//		With ILIAS 5.4.x user agreement documents can be managed in the global ILIAS administration.
-//		The contents of a document can be uploaded as text or HTML file and will be stored (after purification) in the database.
-//
-//		If you reload this page (e.g. by pressing the F5 key), the migration process will be started. The agreement files will NOT be deleted.
-//		</pre>";
-//
+	echo "<pre>
+
+		DEAR ADMINISTRATOR !!
+
+		Because of the ILIAS 5.4.x feature 'User: Criteria-based »User Agreement« documents'
+		(see: https://www.ilias.de/docu/goto_docu_wiki_wpage_5225_1357.html) the file system
+		based user agreements in '{$globalAgreementPath}' and '{$clientAgreementPath}' will
+		be migrated according to https://www.ilias.de/docu/goto_docu_wiki_wpage_5225_1357.html#ilPageTocA27 .
+
+		The client-independent user agreements will be abandoned at all and migrated to
+		client-related documents.
+
+		With ILIAS 5.4.x user agreement documents can be managed in the global ILIAS administration.
+		The contents of a document can be uploaded as text or HTML file and will be stored (after purification) in the database.
+
+		If you reload this page (e.g. by pressing the F5 key), the migration process will be started. The agreement files will NOT be deleted.
+		</pre>";
+
 	$ilSetting->set('dbupwarn_tos_migr_54x', 1);
-//	exit;
+	exit;
 } elseif (!$documentDirectoriesExist) {
 	$ilSetting->set('dbupwarn_tos_migr_54x', 1);
 }
@@ -23916,7 +23916,7 @@ if($ilDB->tableExists('certificate_template')) {
 				$timestamp = $certificateFile->getMTime();
 
 				if (false !== $content) {
-					$backgroundImagePath = $relativePath . $relativePath . '/background.jpg';
+					$backgroundImagePath = $relativePath . $objectId . '/background.jpg';
 
 					$id      = $ilDB->nextId('certificate_template');
 					$columns = [
