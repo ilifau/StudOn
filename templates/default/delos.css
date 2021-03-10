@@ -14497,6 +14497,9 @@ li.smallPad {
   min-height: 200px;
   background-color: #FAFAFC;
 }
+#chat-message-controls .form-group {
+  margin-bottom: 0;
+}
 #chat_users {
   overflow: auto;
   height: 100%;
