@@ -9,10 +9,9 @@ class ilCleanupPatches
 	 */
 	public function moveDeletedMediaObjects($params = array('keep_deleted_after' => '2015-01-01 00:00:00'))
 	{
-		require_once "./Services/MediaObjects/classes/class.ilObjMediaObject.php";
 
-		$mobdir = "/nfs/iliasdata/studon/webdata/StudOn/mobs" ;
-		$movedir = "/nfs/iliasdata/studon/webdata/StudOn/mobs_deleted";
+		$mobdir = ILIAS_ABSOLUTE_PATH . "/" . ILIAS_WEB_DIR . "/"  . CLIENT_ID . "/mobs" ;
+		$movedir = ILIAS_ABSOLUTE_PATH . "/" . ILIAS_WEB_DIR . "/"  . CLIENT_ID . "/mobs_deleted" ;
 		$keep_deleted_after = $params["keep_deleted_after"];
 
 		$objects = 0;
