@@ -1,4 +1,11 @@
 <?php
+
+//include_once (__DIR__ . '/include/inc.debug.php');
+//log_request();
+//echo "Hello from ILIAS";
+//exit;
+
+
 $GLOBALS['USE_ILIAS_HTTP_PATH_FROM_INI'] = true;
 
 include_once 'Services/Context/classes/class.ilContext.php';
