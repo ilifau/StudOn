@@ -30,6 +30,7 @@ class RequestLog
     
     /**
     * singleton method
+     * @return self
     */
     public static function getInstance()
     {
@@ -49,6 +50,7 @@ class RequestLog
         $this->write($this->getNamedAssocDump($_GET, '$_GET'));
         $this->write($this->getNamedAssocDump($_POST, '$_POST'));
         $this->write($this->getNamedAssocDump($_COOKIE, '$_COOKIE'));
+        $this->write($this->getNamedAssocDump($_FILES, '$_FILES'));
         $this->write($this->getNamedAssocDump($_SERVER, '$_SERVER'));
     }
 
