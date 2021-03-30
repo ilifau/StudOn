@@ -698,18 +698,19 @@ class ilContainer extends ilObject
 
         $ilLog->write(__METHOD__ . ': Trying to call Soap client...');
         // fau: copyBySoap - customize use of SOAP for copying containers
-
         if (ilCust::get('ilias_copy_by_soap') and $soap_client->init()) {
-            // fau.
             ilLoggerFactory::getLogger('obj')->info('Calling soap clone method');
             $res = $soap_client->call('ilClone', array($new_session_id . '::' . $client_id, $copy_id));
         } else {
-            ilLoggerFactory::getLogger('obj')->warning('SOAP clone call failed. Calling clone method manually');
+            if (ilCust::get('ilias_copy_by_soap')) {
+                ilLoggerFactory::getLogger('obj')->warning('SOAP clone call failed. Calling clone method manually');
+            }
             $wizard_options->disableSOAP();
             $wizard_options->read();
             include_once('./webservice/soap/include/inc.soap_functions.php');
             $res = ilSoapFunctions::ilClone($new_session_id . '::' . $client_id, $copy_id);
         }
+        // fau.
         return array(
                 'copy_id' => $copy_id,
                 'ref_id' => (int) $res
