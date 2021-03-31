@@ -223,7 +223,7 @@ common#:#lm_helptext#:#Ein ILIAS-Lernmodul ist wie ein elektronisches Buch aufge
 common#:#local_login_help_title#:#Hilfe zur lokalen Anmeldung
 common#:#local_login_to_ilias#:#Lokale Anmeldung
 common#:#local_login_to_ilias_addition#:#(mit StudOn-Benutzerkennung)
-common#:#logged_in_to_ilias#:#<strong>Sie sind bei StudOn eingeloggt.</strong>
+common#:#logged_in_to_ilias#:#<strong>Sie sind eingeloggt.</strong>
 common#:#logged_in_to_ilias_info#:#Klicken Sie auf Abmelden, wenn Sie Ihre Sitzung schließen möchten.
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
 common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
@@ -728,7 +728,6 @@ news#:#news_get_priv_feed_passhash_info#:#Diese Adresse können Sie verwenden, w
 news#:#news_get_priv_feed_disabled_info#:#Ihr privater Newsfeed ist nicht aktiv. Sie können ihn in Ihren <a href=%s">"Nachrichten-Einstellungen"</a> aktivieren.
 news#:#news_get_context_info#:#Dieser Newsfeed enthält alle Nachrichten aus diesem Kontext, die von ihren Verfassern als öffentlich eingestuft wurden. Er ist durch keine Authentifizierung geschützt.
 news#:#news_enable_private_feed_info#:#Aktiviert passwortgeschützte Newsfeeds mit nicht-öffentlichen Nachrichten.  Das Passwort gilt für den Newsfeed zu Nachrichten auf Ihrem Schreibtisch und für separate Newsfeeds aus den Angeboten. Wenn Sie es ändern, ändern sich auch die Feed-URLs.
-pdesk#:#pd_description#:#
 ps#:#cleanup_rbac_log#:#Rechteeinstellungs-Log bereinigen
 ps#:#cleanup_rbac_log_finished#:#Das Rechteeinstellungs-Log wurde bereinigt.
 ps#:#ps_perform_export_excel#:#Excel-Export starten

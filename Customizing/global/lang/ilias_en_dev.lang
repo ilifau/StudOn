@@ -228,7 +228,7 @@ common#:#lm_helptext#:#An ILIAS-learnmodule is constructed like an electronical 
 common#:#local_login_help_title#:#Help for local login
 common#:#local_login_to_ilias#:#Local Login
 common#:#local_login_to_ilias_addition#:#(with StudOn Username)
-common#:#logged_in_to_ilias#:#You are logged in to StudOn.
+common#:#logged_in_to_ilias#:#You are logged in.
 common#:#logged_in_to_ilias_info#:#Click on logout, if you want to end your session.
 common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
 common#:#login_to_ilias_via_shibboleth_addition#:#(with FAU Username)
@@ -781,7 +781,6 @@ news#:#news_get_priv_feed_passhash_info#:#Use this feed address when your RSS re
 news#:#news_get_priv_feed_disabled_info#:#Your private news feed isn't active. You can activate it in the <a href=%s">"news settings"</a>.
 news#:#news_get_context_info#:#This feed gets all news from the current context, that are declared as 'public by their authors'. It isn't protected by any authentication.
 news#:#news_enable_private_feed_info#:#Activates password protected feeds for personal news. The password is used for feeds of news on your desktop und and for separate feeds of news from the repository. When you change it, the feed urls will change, too.
-pdesk#:#pd_description#:#
 ps#:#cleanup_rbac_log#:#Cleanup Permission Log
 ps#:#cleanup_rbac_log_finished#:#Permission log cleaned.
 ps#:#ps_export_lot#:#Lot candidates
