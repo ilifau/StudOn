@@ -2,7 +2,7 @@
 include_once("./Customizing/classes/class.ilPermissionUtils.php");
 
 /**
- * fim: [cust] permission patches for ILIAS 5.4
+ * fau: customPatches - permission patches for ILIAS 5.4
  */
 class ilPermissionPatches54
 {

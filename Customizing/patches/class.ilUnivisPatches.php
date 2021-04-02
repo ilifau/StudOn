@@ -1,6 +1,6 @@
 <?php
 /**
- * fim: [cust] local patch functions for univis interface.
+ * fau: customPatches - local patch functions for univis interface.
  */
 class ilUnivisPatches
 {

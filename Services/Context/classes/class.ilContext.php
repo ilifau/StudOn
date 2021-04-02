@@ -38,6 +38,9 @@ class ilContext
     const CONTEXT_SHIBBOLETH = 'ilContextShibboleth';
     const CONTEXT_LTI_PROVIDER = 'ilContextLTIProvider';
     const CONTEXT_SAML = 'ilContextSaml';
+    // fau: customPatches - add context for patches
+    const CONTEXT_PATCH = 'ilContextPatch';
+    // fau.
     
     
     /**

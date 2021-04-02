@@ -1,6 +1,6 @@
 <?php
 /**
- * fim: [cust] specific patches.
+ * fau: customPatches - specific patches.
  */
 class ilSpecificPatches
 {

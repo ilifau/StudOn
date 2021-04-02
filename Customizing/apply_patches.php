@@ -1,15 +1,13 @@
 <?php
 /**
- * fim: [cust] apply local patches
+ * fau: customPatches - apply local patches
  *
  * called from console: apply_patch.php username password client_id
  */
-
 chdir(dirname(__FILE__)."/..");
-include_once("./Customizing/classes/class.ilPatchUtils.php");
-$p = new ilPatchUtils();
+include_once("./Customizing/classes/class.ilPatchStartUp.php");
+$p = new ilPatchStartUp($_SERVER['argv'][3], $_SERVER['argv'][1], $_SERVER['argv'][2]);
 $p->login();
-
 
 /*****************
 * Specific actions
@@ -33,18 +31,19 @@ $p->login();
  * Cleanups
  **********/
 //$p->applyPatch('ilSpecificPatches.splitH5PPageContents');
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,copa,crsr,dcl,exc,feed,frm,glo,grpr,htlm,iass,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xhfp,xflc,xlvo,xpdl,xsrl,xvid,xxco', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'lso', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2021-03-22 00:00:00'));
-//$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2021-03-22 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,copa,crsr,dcl,exc,feed,frm,glo,grpr,htlm,iass,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xhfp,xflc,xlvo,xpdl,xsrl,xvid,xxco', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'lso', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2021-03-01 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2021-03-01 00:00:00'));
 
-//$p->applyPatch('ilCleanupPatches.deleteInactiveUsers', array('inactive_since' => '2021-03-22 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.deleteObsoleteTestAccounts', array('limit' => null));
+//$p->applyPatch('ilCleanupPatches.setOldUsersInactive', array('inactive_since' => '2020-04-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.deleteInactiveUsers', array('inactive_since' => '2019-04-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.handleObsoleteTestAccounts', array('limit' => null));
 
 /*******************
 * Patches for UnivIS
@@ -63,7 +62,6 @@ $p->login();
 //$p->applyPatch('ilPermissionPatches44.initPortfolioTemplate');
 //$p->applyPatch('ilPermissionPatches44.initGlossaryEditContent');
 //$p->applyPatch('ilPermissionPatches44.initEtherpad');
-
 
 /*******************************
  * New Permissions in ILIAS 5.0
@@ -96,4 +94,4 @@ $p->login();
 //
 //$p->applyPatch('ilPermissionPatches54.initCreatePermissions');
 
-//$p->logout();
+$p->logout();
