@@ -60,7 +60,14 @@ class ilIndividualAssessmentSettingsStorageDB implements ilIndividualAssessmentS
                     (bool) $res['file_required']
                 );
             }
-            throw new ilIndividualAssessmentException("$obj_id not in database");
+            // fau: cleanupTrash - tolerate missing settings
+            if (ilContext::getType() == ilContext::CONTEXT_PATCH) {
+                return new ilIndividualAssessmentSettings($obj);
+            }
+            else {
+                throw new ilIndividualAssessmentException("$obj_id not in database");
+            }
+            // fau.
         } else {
             return new ilIndividualAssessmentSettings($obj);
         }
@@ -106,7 +113,15 @@ class ilIndividualAssessmentSettingsStorageDB implements ilIndividualAssessmentS
                     $res['consultation_hours']
                 );
             }
-            throw new ilIndividualAssessmentException("$obj_id not in database");
+            // fau: cleanupTrash - tolerate missing settings
+            if (ilContext::getType() == ilContext::CONTEXT_PATCH) {
+                return new ilIndividualAssessmentInfoSettings($obj);
+            }
+            else {
+                throw new ilIndividualAssessmentException("$obj_id not in database");
+            }
+            // fau.
+
         } else {
             return new ilIndividualAssessmentInfoSettings($obj);
         }
