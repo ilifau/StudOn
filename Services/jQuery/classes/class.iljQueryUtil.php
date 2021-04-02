@@ -26,7 +26,7 @@ class iljQueryUtil
     public static function initjQuery($a_tpl = null)
     {
 
-// fim: [trash] ignore missing template (cron job line)
+// fau: cleanupTrash - ignore missing template (cron job line)
         if (!ilContext::usesTemplate()) {
             return;
         }
@@ -53,7 +53,7 @@ class iljQueryUtil
      */
     public static function initjQueryUI($a_tpl = null)
     {
-        // fim: [trash] ignore missing template (cron job line)
+        // fau: cleanupTrash - ignore missing template (cron job line)
         if (!ilContext::usesTemplate()) {
             return;
         }
@@ -96,7 +96,7 @@ class iljQueryUtil
      */
     public static function initMaphilight()
     {
-        // fim: [trash] ignore missing template (cron job line)
+        // fau: cleanupTrash - ignore missing template (cron job line)
         if (!ilContext::usesTemplate()) {
             return;
         }

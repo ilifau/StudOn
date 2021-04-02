@@ -1,6 +1,7 @@
 <?php
 /**
  * fau: customPatches - cleanup patches.
+ * fau: cleanupTrash - cleanup patches.
  */
 class ilCleanupPatches
 {

@@ -433,7 +433,7 @@ class ilTree
         return true;
     }
 
-    // fim: [trash] added parameter for tree join type
+    // fau: cleanupTrash - added parameter for tree join type
     /**
     * build join depending on table settings
     * @access	private
@@ -999,7 +999,7 @@ class ilTree
         
         $this->log->debug($this->tree_pk);
 
-        // fim: [trash] don't check materialized path trees that are already in trash when being deleted
+        // fau: cleanupTrash - don't check materialized path trees that are already in trash when being deleted
         if ($this->__isMainTree() and ($this->getTreeId() >= 0 or is_a($this->getTreeImplementation(), 'ilNestedSetTree'))) {
             // fim.
             // @todo normally this part is not executed, since the subtree is first
@@ -1509,7 +1509,7 @@ class ilTree
         return array();
     }
 
-    // fim: [trash] added parameter for tree join type
+    // fau: cleanupTrash - added parameter for tree join type
     /**
     * get all information of a node.
     * get data of a specific node from tree and object_data

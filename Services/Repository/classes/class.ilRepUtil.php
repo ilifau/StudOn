@@ -214,7 +214,7 @@ class ilRepUtil
         // DELETE THEM
         foreach ($a_ref_ids as $id) {
             // GET COMPLETE NODE_DATA OF ALL SUBTREE NODES
-            // fim: [trash] use left join to get node data for deleted nodes
+            // fau: cleanupTrash - use left join to get node data for deleted nodes
             // This gets the node data even if ref_id or obj_id does not exist in joined tables
             if (!$a_from_recovery_folder) {
                 $saved_tree = new ilTree(-(int) $id);
@@ -227,7 +227,7 @@ class ilRepUtil
             // fim.
 
             // BEGIN ChangeEvent: Record remove from system.
-            // fim: [trash] record write event only if ref_id exists
+            // fau: cleanupTrash - record write event only if ref_id exists
             if ($node_data['ref_id']) {
                 require_once('Services/Tracking/classes/class.ilChangeEvent.php');
                 // Record write event
@@ -264,7 +264,7 @@ class ilRepUtil
                 }
 
                 // write log entry
-                // fim: [trash] fix class in log entry
+                // fau: cleanupTrash - fix class in log entry
                 $log->write("ilRepUtil::removeFromSystemObject(), delete obj_id: " . $node_obj->getId() .
                     ", ref_id: " . $node_obj->getRefId() . ", type: " . $node_obj->getType() . ", " .
                     "title: " . $node_obj->getTitle());
@@ -292,7 +292,7 @@ class ilRepUtil
             }
 
             // write log entry
-            // fim: [trash] fix class in log entry
+            // fau: cleanupTrash - fix class in log entry
             $log->write("ilRepUtil::removeFromSystemObject(), deleted tree, tree_id: " . $node_data["tree"] .
                 ", child: " . $node_data["child"]);
             // fim.
@@ -340,7 +340,7 @@ class ilRepUtil
                 $a_checked[] = $row->tree;
 
                 $row->tree = $row->tree * (-1);
-                // fim: [trash] use left join to get node data for deleted nodes
+                // fau: cleanupTrash - use left join to get node data for deleted nodes
                 // This gets the node data even if ref_id or obj_id does not exist in joined tables
                 $del_node_data = $deleted_tree->getNodeData($row->tree, null, 'LEFT');
                 // fim.
@@ -356,7 +356,7 @@ class ilRepUtil
                             $node_obj = ilObjectFactory::getInstanceByRefId($node["ref_id"]);
 
                             // write log entry
-                            // fim: [trash] fixed class in log entry
+                            // fau: cleanupTrash - fixed class in log entry
                             $log->write("ilRepUtil::removeDeletedNodes(), delete obj_id: " . $node_obj->getId() .
                                 ", ref_id: " . $node_obj->getRefId() . ", type: " . $node_obj->getType() . ", " .
                                 "title: " . $node_obj->getTitle());
@@ -377,7 +377,7 @@ class ilRepUtil
                 $tree->deleteTree($del_node_data);
                 
                 // write log entry
-                // fim: [trash] fixed class in log entry
+                // fau: cleanupTrash - fixed class in log entry
                 $log->write("ilRepUtil::removeDeletedNodes(), deleted tree, tree_id: " . $del_node_data["tree"] .
                     ", child: " . $del_node_data["child"]);
                 // fim.

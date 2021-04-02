@@ -104,7 +104,7 @@ class ilSpecificPatches
                         $properties[$child->getAttribute('Name')] = $child->nodeValue;
                     }
 
-                    // first found content id kan be kept, remember it
+                    // first found content id can be kept, remember it
                     $content_id = $properties['content_id'];
                     if (!in_array($content_id, $found_content_ids)) {
                         // echo "\nPage " . $row['page_id'] . ": found and kept h5p id " . $content_id;

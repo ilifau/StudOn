@@ -30,7 +30,11 @@ $p->login();
 /***********
  * Cleanups
  **********/
-//$p->applyPatch('ilSpecificPatches.splitH5PPageContents');
+// This needs a query on the slave and filling a help table!
+// SELECT page_id, parent_type FROM page_object WHERE content LIKE '%H5PPageComponent%' ORDER BY page_id ASC
+// Insert the result to _page_ids
+// $p->applyPatch('ilSpecificPatches.splitH5PPageContents');
+
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,copa,crsr,dcl,exc,feed,frm,glo,grpr,htlm,iass,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xhfp,xflc,xlvo,xpdl,xsrl,xvid,xxco', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'lso', 'deleted_before' => '2021-03-01 00:00:00', 'limit' => null));
