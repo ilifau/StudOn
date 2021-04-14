@@ -399,10 +399,13 @@ class ilObjSurveyAccess extends ilObjectAccess implements ilConditionHandling
                     array($row->survey_id, $a_user_id)
                 );
             }
-            if ($result->numRows() == 1) {
-                $foundrow = $ilDB->fetchAssoc($result);
-                $finished = (int) $foundrow["state"];
+            // fau: fixSurveyAnonFinished - check all entries
+            while ($foundrow = $ilDB->fetchAssoc($result)) {
+                if ($foundrow["state"] > 0) {
+                    return (int) $foundrow["state"];
+                }
             }
+            // fau.
         }
 
         return $finished;
