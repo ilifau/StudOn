@@ -85,7 +85,7 @@ class ilExAssignmentTypes
      */
     public function isValidId($a_id)
     {
-        // fau: exAssHook - allow type ids of inaxtive plugins
+        // fau: exAssHook - allow type ids of inactive plugins
         return true;
         // return in_array($a_id, $this->getAllIds());
         // fau.
