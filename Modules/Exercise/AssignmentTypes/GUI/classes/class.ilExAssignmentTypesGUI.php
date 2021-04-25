@@ -49,11 +49,13 @@ class ilExAssignmentTypesGUI
      */
     protected function __construct()
     {
+        // fau: exAssHook - add plugins to the class names
         foreach ($this->getActivePlugins() as $plugin) {
             foreach ($plugin->getAssignmentTypeGuiClassNames() as $id => $name ) {
                 $this->class_names[$id] = $name;
             }
         }
+        // fau.
     }
 
     /**
