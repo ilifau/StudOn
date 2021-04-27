@@ -70,6 +70,21 @@ class ilExAssignmentEditorGUI
      */
     protected $types;
 
+    // fau: exAssHook - indicator that type has its own submission
+    /**
+     * @var bool
+     */
+    protected $type_has_own_submission = false;
+    // fau.
+
+
+    // fau: exAssHook - indicator that type has its own general feedback
+    /**
+     * @var bool
+     */
+    protected $type_has_own_feedback = false;
+    // fau.
+
     /**
      * Constructor
      *
@@ -96,6 +111,16 @@ class ilExAssignmentEditorGUI
         $this->types = ilExAssignmentTypes::getInstance();
         include_once("./Modules/Exercise/AssignmentTypes/GUI/classes/class.ilExAssignmentTypesGUI.php");
         $this->type_guis = ilExAssignmentTypesGUI::getInstance();
+
+        // fau: exAssHook - set type specific indicators
+        if (isset($a_ass)) {
+            $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($a_ass->getType());
+            if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface ) {
+                $this->type_has_own_submission = $type_gui->hasOwnOverviewSubmission();
+                $this->type_has_own_feedback = $type_gui->hasOwnOverviewGeneralFeedback();
+            }
+        }
+        // fau.
     }
     
     public function executeCommand()
@@ -564,7 +589,9 @@ class ilExAssignmentEditorGUI
         
 
         // max number of files
-        if ($ass_type->usesFileUpload()) {
+        // fau: exAssHook: don't add upload settings if type has its own submission
+        if ($ass_type->usesFileUpload() && ! $this->type_has_own_submission) {
+            // fau.
             $sub_header = new ilFormSectionHeaderGUI();
             $sub_header->setTitle($ass_type->getTitle());
             $form->addItem($sub_header);
@@ -606,12 +633,16 @@ class ilExAssignmentEditorGUI
         
         $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
         $form->addItem($fb);
-        
-        $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
-        $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
-        // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
-        $fb->addSubItem($fb_file);
-        
+
+        // fau: exAssHook - don't add feedback upload if type has its own feedback
+        if (!$this->type_has_own_feedback) {
+            $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
+            $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
+            // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
+            $fb->addSubItem($fb_file);
+        }
+        // fau.
+
         $fb_date = new ilRadioGroupInputGUI($lng->txt("exc_global_feedback_file_date"), "fb_date");
         $fb_date->setRequired(true);
         $fb_date->addOption(new ilRadioOption($lng->txt("exc_global_feedback_file_date_deadline"), ilExAssignment::FEEDBACK_DATE_DEADLINE));
@@ -700,10 +731,12 @@ class ilExAssignmentEditorGUI
                     $protected_peer_review_groups = true;
                 }
             }
-            
-            if ($this->assignment->getFeedbackFile()) {
+
+            // fau: exAssHook - change feedback upload only if it is included
+            if ($this->assignment->getFeedbackFile() && !empty($a_form->getItemByPostVar("fb_file"))) {
                 $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
             }
+            // fau.
         }
         
         $valid = $a_form->checkInput();
@@ -1067,7 +1100,7 @@ class ilExAssignmentEditorGUI
             $a_ass->setPeerReviewText(true);
             $a_ass->setPeerReviewRating(true);
         }
-        
+
         if ($a_input["fb"]) {
             $a_ass->setFeedbackCron($a_input["fb_cron"]); // #13380
             $a_ass->setFeedbackDate($a_input["fb_date"]);
@@ -1323,7 +1356,11 @@ class ilExAssignmentEditorGUI
         // fau.
         
         // global feedback
-        if ($this->assignment->getFeedbackFile()) {
+        // fau: exAssHook - don't check feedback file it type has its own general feedback
+        if ($this->type_has_own_feedback) {
+            $a_form->getItemByPostVar("fb")->setChecked(true);
+        }
+        elseif ($this->assignment->getFeedbackFile()) {
             $a_form->getItemByPostVar("fb")->setChecked(true);
             $a_form->getItemByPostVar("fb_file")->setValue(basename($this->assignment->getGlobalFeedbackFilePath()));
             $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
@@ -1333,6 +1370,7 @@ class ilExAssignmentEditorGUI
                 $lng->txt("download") . '</a>'
             );
         }
+        // fau.
         $a_form->getItemByPostVar("fb_cron")->setChecked($this->assignment->hasFeedbackCron());
         $a_form->getItemByPostVar("fb_date")->setValue($this->assignment->getFeedbackDate());
                         
