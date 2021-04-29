@@ -513,6 +513,10 @@ class ilExAssignmentGUI
         // fau: exAssHook - add own submission section
         if ($this->type_gui instanceof ilExAssignmentTypeExtendedGUIInterface && $this->type_gui->hasOwnOverviewSubmission()) {
             $this->type_gui->getOverviewSubmission($a_info, $submission);
+            if ($submission->hasSubmitted()) {
+                // needed for $show_global_feedback below
+                $last_sub = $submission->getLastSubmission();
+            }
         }
         else {
             include_once "Modules/Exercise/classes/class.ilExSubmissionGUI.php";
