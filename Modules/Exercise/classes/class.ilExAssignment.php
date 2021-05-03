@@ -219,8 +219,9 @@ class ilExAssignment
         return $data;
     }
 
-    // fau: exGradeTime - new function getInstancesForGrading()
+    // fau: exAssHook - new function getInstancesForGrading()
     // fau: exAssTest - new function getInstancesForGrading()
+    // fau: exGradeTime - new function getInstancesForGrading()
     /**
      * Get the assignments that are allowed for grading
      * @param int $a_exc_id
@@ -231,14 +232,13 @@ class ilExAssignment
         $assignments = self::getInstancesByExercise($a_exc_id);
         $allowed = [];
         foreach ($assignments as $ass) {
-            if (ilObjExerciseAccess::checkExtendedGradingAccess($a_exc_id, false)) {
-                $allowed[] = $ass;
+
+            $type = $ass->getAssignmentType();
+            if ($type instanceof ilExAssignmentTypeExtendedInterface && !$type->isManualGradingSupported($ass)) {
+                    continue;
             }
-            elseif ($ass->getAssignmentType() instanceof ilExAssTypeTestResult ||
-                    $ass->getAssignmentType() instanceof ilExAssTypeTestResultTeam) {
-                continue;
-            }
-            elseif ($ass->checkInGradeTime()) {
+
+            if ($ass->checkInGradeTime() ||ilObjExerciseAccess::checkExtendedGradingAccess($a_exc_id, false)) {
                 $allowed[] = $ass;
             }
         }

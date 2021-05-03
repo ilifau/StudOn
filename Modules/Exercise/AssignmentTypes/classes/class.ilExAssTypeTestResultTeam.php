@@ -1,11 +1,11 @@
 <?php
 // fau: exAssTest - new assignment type for test results
 
-include_once("./Modules/Exercise/AssignmentTypes/classes/interface.ilExAssignmentTypeInterface.php");
+include_once("./Modules/Exercise/AssignmentTypes/classes/interface.ilExAssignmentTypeExtendedInterface.php");
 /**
  * ILIAS test result as assignment type type
  */
-class ilExAssTypeTestResultTeam implements ilExAssignmentTypeInterface
+class ilExAssTypeTestResultTeam implements ilExAssignmentTypeExtendedInterface
 {
     /**
      * @var ilLanguage
@@ -88,4 +88,13 @@ class ilExAssTypeTestResultTeam implements ilExAssignmentTypeInterface
         $targetTest->setTestRefId($sourceTest->getTestRefId());
         $targetTest->save();
     }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function isManualGradingSupported($a_ass): bool {
+        return ilObjExerciseAccess::checkExtendedGradingAccess($a_ass->getExerciseId(), false);
+    }
+
 }

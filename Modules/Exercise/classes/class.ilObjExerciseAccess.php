@@ -154,6 +154,14 @@ class ilObjExerciseAccess extends ilObjectAccess implements ilConditionHandling
         return false;
     }
 
+
+    // fau: exAssHook - new function checkExtendedGradingAccess()
+    // fau: exAssTest - new function checkExtendedGradingAccess()
+    // fau: exGradeTime - new function checkExtendedGradingAccess()
+    // fau: exMemDelete - new function checkExtendedGradingAccess()
+    // gau: exPlag - new function checkExtendedGradingAccess()
+    // fau: exTeamRemove - new function checkExtendedGradingAccess()
+    // fau: exTeamSingles - new function checkExtendedGradingAccess()
     /**
      * Check if a user has extended grading access to the exercise
      * @param  int  $a_id
@@ -179,6 +187,7 @@ class ilObjExerciseAccess extends ilObjectAccess implements ilConditionHandling
         }
         return false;
     }
+    // fau.
 
     /**
      * @param ilWACPath $ilWACPath
