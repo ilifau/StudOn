@@ -53,4 +53,11 @@ interface ilExAssignmentTypeExtendedGUIInterface extends ilExAssignmentTypeGUIIn
      * @param ilExAssignment $_assignment
      */
     public function getOverviewGeneralFeedback(ilInfoScreenGUI $a_info, ilExAssignment $_assignment);
+
+    /**
+     * Modify the actions available in a submission table under submissions and grades
+     * @param ilExSubmission             $a_submission
+     * @param ilAdvancedSelectionListGUI $a_actions
+     */
+    public function modifySubmissionTableActions(ilExSubmission $a_submission, ilAdvancedSelectionListGUI $a_actions);
 }

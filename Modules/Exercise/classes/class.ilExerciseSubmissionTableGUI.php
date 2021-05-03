@@ -649,6 +649,13 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                 $ilCtrl->getLinkTargetByClass("ilExSubmissionTeamGUI", "showTeamLog")
             );
         }
+
+        // fau: exAssHook - add action item so submissions table
+        $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($a_ass->getType());
+        if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface) {
+            $type_gui->modifySubmissionTableActions($a_row['submission_obj'], $actions);
+        }
+        // fau.
         
         $this->tpl->setVariable("ACTIONS", $actions->getHTML());
     }
