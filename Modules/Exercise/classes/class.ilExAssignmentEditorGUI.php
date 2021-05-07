@@ -473,6 +473,7 @@ class ilExAssignmentEditorGUI
         $desc_input->addPlugin("latex");
         $desc_input->addButton("latex");
         $desc_input->setRTESupport(ilObject::_lookupObjId((int) $_GET['ref_id']), "exc", "exc_ass");
+        $desc_input->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("exc_ass"));
         // fau.
         $form->addItem($desc_input);
 
