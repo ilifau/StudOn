@@ -444,10 +444,12 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
         $this->createTargetDirectory();
 
         //Collect submission files if needed by assignment type.
-        if (in_array($assignment_type, $this->ass_types_with_files)) {
+        // fau: exAssHook - use hasFiles() function
+        if ($this->assignment->getAssignmentType()->hasFiles()) {
             $this->createSubmissionsDirectory();
             $this->collectSubmissionFiles();
         }
+        // fau.
 
         if ($this->assignment->getPeerReview()) {
             $ass_has_feedback = true;
@@ -539,7 +541,9 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
                     $this->excel->setCell($row, self::PARTICIPANT_LOGIN_COLUMN, $participant_name['login']);
 
                     //Get the submission Text
-                    if (!in_array($assignment_type, $this->ass_types_with_files)) {
+                    // fau: exAssHook: use function hasFiles()
+                    if (!$this->assignment->getAssignmentType()->hasFiles()) {
+                        // fau.
                         foreach ($submission_files as $submission_file) {
                             $this->excel->setCell($row, self::SUBMISSION_DATE_COLUMN, $submission_file['timestamp']);
                             $this->excel->setCell($row, self::FIRST_DEFAULT_SUBMIT_COLUMN, $submission_file['atext']);

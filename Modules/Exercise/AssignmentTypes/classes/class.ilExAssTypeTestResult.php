@@ -1,12 +1,10 @@
 <?php
 // fau: exAssTest - new assignment type for test results
 
-include_once("./Modules/Exercise/AssignmentTypes/classes/interface.ilExAssignmentTypeExtendedInterface.php");
-
 /**
  * ILIAS test result as assignment type type
  */
-class ilExAssTypeTestResult implements ilExAssignmentTypeExtendedInterface
+class ilExAssTypeTestResult implements ilExAssignmentTypeInterface
 {
     /**
      * @var ilLanguage
@@ -42,6 +40,13 @@ class ilExAssTypeTestResult implements ilExAssignmentTypeExtendedInterface
     {
         return false;
     }
+
+    // fau: exAssHook - new function hasFiles()
+    public function hasFiles()
+    {
+        return false;
+    }
+    // fau.
 
     /**
      * @inheritdoc

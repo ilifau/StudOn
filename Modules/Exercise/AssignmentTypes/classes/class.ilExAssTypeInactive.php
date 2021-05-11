@@ -44,6 +44,13 @@ class ilExAssTypeInactive implements ilExAssignmentTypeInterface
         return false;
     }
 
+    // fau: exAssHook - new function hasFiles()
+    public function hasFiles()
+    {
+        return false;
+    }
+    // fau.
+
     /**
      * @inheritdoc
      */
@@ -84,4 +91,14 @@ class ilExAssTypeInactive implements ilExAssignmentTypeInterface
     public function cloneSpecificProperties(ilExAssignment $source, ilExAssignment $target)
     {
     }
+
+    // fau: exAssHook - new function isManualGradingSupported()
+    /**
+     * @inheritdoc
+     */
+    public function isManualGradingSupported($a_ass) : bool
+    {
+        return false;
+    }
+    //fau.
 }

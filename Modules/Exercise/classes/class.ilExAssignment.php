@@ -234,7 +234,7 @@ class ilExAssignment
         foreach ($assignments as $ass) {
 
             $type = $ass->getAssignmentType();
-            if ($type instanceof ilExAssignmentTypeExtendedInterface && !$type->isManualGradingSupported($ass)) {
+            if (!$type->isManualGradingSupported($ass)) {
                     continue;
             }
 

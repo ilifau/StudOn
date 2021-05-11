@@ -46,6 +46,13 @@ class ilExAssTypeWikiTeam implements ilExAssignmentTypeInterface
         return true;
     }
 
+    // fau: exAssHook - new function hasFiles()
+    public function hasFiles()
+    {
+        return true;
+    }
+    // fau.
+
     /**
      * @inheritdoc
      */
@@ -176,4 +183,15 @@ class ilExAssTypeWikiTeam implements ilExAssignmentTypeInterface
         $target_ar->setContainerRefId($source_ar->getContainerRefId());
         $target_ar->save();
     }
+
+
+    // fau: exAssHook - new function isManualGradingSupported()
+    /**
+     * @inheritdoc
+     */
+    public function isManualGradingSupported($a_ass) : bool
+    {
+        return true;
+    }
+    //fau.
 }
