@@ -120,9 +120,6 @@ class ilSoapStudOnAdministration extends ilSoapAdministration
         if (!$univis_id) {
             return $this->__raiseError('No univis_id given.', 'univis_id');
         }
-        if (!$this->checkPermission('studonGetMembers')) {
-            return $this->__raiseError('No permision.', 'permission');
-        }
 
         // Find object and reference
         require_once './Services/UnivIS/classes/class.ilUnivis.php';
@@ -136,6 +133,11 @@ class ilSoapStudOnAdministration extends ilSoapAdministration
         $obj_id = $object['obj_id'];
         $ref_id = $object['ref_id'];
         $obj_type = $object['type'];
+
+        if (!$this->checkPermission('studonGetMembers', $ref_id)) {
+            return $this->__raiseError('No permision.', 'permission');
+        }
+
 
         switch ($obj_type) {
             // Course
@@ -876,10 +878,15 @@ class ilSoapStudOnAdministration extends ilSoapAdministration
     *  currently checked for read permission in the user folder
     *  (may be set with a local role)
     */
-    private function checkPermission($a_function = '')
+    private function checkPermission($a_function = '', $a_ref_id = null)
     {
         global $rbacsystem;
-        
+
+        switch ($a_function) {
+            case 'studonGetMembers':
+                return $rbacsystem->checkAccess('manage_members', $a_ref_id);
+        }
+
         return $rbacsystem->checkAccess('read', USER_FOLDER_ID);
     }
 }
