@@ -232,16 +232,31 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
             $submission->updateTutorDownloadTime();
 
             // get member object (ilObjUser)
+            // fau: exAssHook - use implementation from ilExerciseManagementGUI::downloadAllObject()
             if (ilObject::_exists($member_id)) {
+                $storage_id = "";
                 // adding file metadata
                 foreach ($submission->getFiles() as $file) {
-                    $members[$file["user_id"]]["files"][$file["returned_id"]] = $file;
-                }
+                    if ($this->assignment->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                        $storage_id = $file["team_id"];
+                    } else {
+                        $storage_id = $file["user_id"];
+                    }
 
-                $tmp_obj = &ilObjectFactory::getInstanceByObjId($member_id);
-                $members[$member_id]["name"] = $tmp_obj->getFirstname() . " " . $tmp_obj->getLastname();
+                    $members[$storage_id]["files"][$file["returned_id"]] = $file;
+                }
+                if ($this->assignment->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                    $name = "Team " . $submission->getTeam()->getId();
+                } else {
+                    $tmp_obj = ilObjectFactory::getInstanceByObjId($member_id);
+                    $name = $tmp_obj->getFirstname() . " " . $tmp_obj->getLastname();
+                }
+                if ($storage_id > 0) {
+                    $members[$storage_id]["name"] = $name;
+                }
                 unset($tmp_obj);
             }
+            // fau.
         }
 
         ilExSubmission::downloadAllAssignmentFiles($this->assignment, $members, $this->submissions_directory);
