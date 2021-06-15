@@ -1054,8 +1054,20 @@ class ilExSubmission
         // fau: exStatusFile - save the file status file in submissions
         // must be done here before directory is changed
         // otherwise autoloader of phpspreadsheet fails
+        if ($a_ass->getAssignmentType()->isSubmissionAssignedToTeam()) {
+
+            $user_ids = [];
+            foreach (array_keys($members) as $team_id) {
+                $team = new ilExAssignmentTeam($team_id);
+                $user_ids = array_merge($user_ids, $team->getMembers());
+            }
+        }
+        else {
+            $user_ids = array_keys($members);
+        }
+
         $status_file = $a_ass->getStatusFile();
-        $status_file->init($a_ass, array_keys($members));
+        $status_file->init($a_ass, $user_ids);
         $status_file->setFormat(ilExAssignmentStatusFile::FORMAT_XML);
         $status_file->writeToFile($tmpdir . '/'. $status_file->getFilename());
         $status_file->setFormat(ilExAssignmentStatusFile::FORMAT_CSV);
