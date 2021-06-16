@@ -558,36 +558,36 @@
     /**
      * optimize queries on page_style_usage
      */
-    if (!$ilDB->indexExistsByFields('page_style_usage', array('page_id'))) {
-        $ilDB->addIndex('page_style_usage', array('page_id'), 'i1');
-    }
+//    if (!$ilDB->indexExistsByFields('page_style_usage', array('page_id'))) {
+//        $ilDB->addIndex('page_style_usage', array('page_id'), 'i1');
+//    }
 ?>
 <#31>
 <?php
     /**
      * optimize queries on file_usage
      */
-    if (!$ilDB->indexExistsByFields('file_usage', array('usage_id'))) {
-        $ilDB->addIndex('file_usage', array('usage_id'), 'i1');
-    }
+//    if (!$ilDB->indexExistsByFields('file_usage', array('usage_id'))) {
+//        $ilDB->addIndex('file_usage', array('usage_id'), 'i1');
+//    }
 ?>
 <#32>
 <?php
     /**
      * optimize queries on event_appointment
      */
-    if (!$ilDB->indexExistsByFields('event_appointment', array('event_id'))) {
-        $ilDB->addIndex('event_appointment', array('event_id'), 'i1');
-    }
+//    if (!$ilDB->indexExistsByFields('event_appointment', array('event_id'))) {
+//        $ilDB->addIndex('event_appointment', array('event_id'), 'i1');
+//    }
 ?>
 <#33>
 <?php
     /**
      * optimize queries on frm_posts_tree
      */
-    if (!$ilDB->indexExistsByFields('frm_posts_tree', array('pos_fk'))) {
-        $ilDB->addIndex('frm_posts_tree', array('pos_fk'), 'i1');
-    }
+//    if (!$ilDB->indexExistsByFields('frm_posts_tree', array('pos_fk'))) {
+//        $ilDB->addIndex('frm_posts_tree', array('pos_fk'), 'i1');
+//    }
 ?>
 <#34>
 <?php

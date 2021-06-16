@@ -33,16 +33,26 @@ class ilDBIdm extends ilDBPdoMySQLInnoDB
 
         if (!isset(self::$instance))
         {
-            $instance = new self;
-            $instance->setDBHost($settings['host']);
-            $instance->setDBPort($settings['port']);
-            $instance->setDBUser($settings['user']);
-            $instance->setDBPassword($settings['pass']);
-            $instance->setDBName($settings['name']);
-            if (!$instance->connect(true))
-            {
+            try {
+                $instance = new self;
+                $instance->setDBHost($settings['host']);
+                $instance->setDBPort($settings['port']);
+                $instance->setDBUser($settings['user']);
+                $instance->setDBPassword($settings['pass']);
+                $instance->setDBName($settings['name']);
+                if (!$instance->connect()) {
+                    $DIC->logger()->root()->warning("can't connect to idm database");
+                    return null;
+                }
+
+                // test connection
+                $instance->query('SELECT count(*) from identities');
+            }
+            catch (Exception $e) {
+                $DIC->logger()->root()->warning($e->getMessage());
                 return null;
             }
+
             self::$instance = $instance;
         }
 
