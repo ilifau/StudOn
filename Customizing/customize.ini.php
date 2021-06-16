@@ -35,11 +35,6 @@ eval_categories = ""					;list of ref_ids for which evaluation is enabled (comma
 fair_admin_role_id = ""                 ;Role Id of users who are allowed to deactivate the fair time for registrations
 help_show_ids = "0"						;show the screen and tooltip IDs
 
-idm_host = ""                           ;host for looking up idm data
-idm_name = ""                           ;name of database used for looking up idm data
-idm_user = ""                           ;database user for looking up idm data
-idm_pass = ""                           ;password for looking up idm data
-
 ilias_guest_role_id = "5"				;Role Id of Guests
 
 ilias_deny_regstart_from = ""			;start time of denial period for registration starts
@@ -80,10 +75,6 @@ mycampus_sync_logfile = ""				;logfile to be written for mycampus synchronisatio
 mycampus_sync_mail_interval = ""		;"year", "month", "week", "day", "hour", "minute", "all"
 mycampus_sync_mail_verbose = "0"		;list all courses (not only those with errors or actions)
 
-pdf_engine = "tcpdf"					;engine for generation pdf files (tcpdf|phantomjs)
-pdf_server = ""							;url of the phantomjs pdf server
-pdf_timeout = "30"						;timeout for getting results from the server (seconds)
-
 remote_soap_server = ""                 ;soap url of a remote installation
 remote_soap_client_id = ""              ;soap client id of the remote server
 remote_soap_user = ""                   ;soap user of a remote installation
@@ -108,12 +99,6 @@ shib_devmode_identity = ""              ;force an identity at shibboleth authent
 shib_devmode_login = ""                 ;force a login at shibboleth authentication in devmode (to get a studon user)
 
 studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are checked (comma-separated without spaces)
-
-tex_server = ""							;url of the mathjax server to generate images from tex
-tex_timeout = "5"						;timeout (seconds) for getting results from the server
-tex_output = "svg"						;output format of the generated images (png|svg)
-tex_embed = "1"							;embed generated images in the html code (instead of referring)
-tex_cache = "1"							;reuse previously generated images
 
 tst_notify_remote = "0"                 ;send mails to users at remote installation (for exam)
 tst_export_mycampus = "0"               ;enable the export of test results for my campus
