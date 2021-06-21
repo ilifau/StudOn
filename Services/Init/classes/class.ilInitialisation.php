@@ -500,7 +500,14 @@ class ilInitialisation
                 "de" => "Der Server ist aufgrund von Wartungsarbeiten nicht verfügbar." .
                     " Wir bitten um Verständnis.");
             $mess_id = "init_error_maintenance";
-            
+
+            // fau: maintenanceEmergency - support specific emergency message
+            if ($ilClientIniFile->readVariable("client", "emergency")
+             && ilContext::hasHTML() && is_file("./maintenance_emergency.html")) {
+                self::redirect("./maintenance_emergency.html", $mess_id, $mess);
+            }
+            // fau.
+
             if (ilContext::hasHTML() && is_file("./maintenance.html")) {
                 self::redirect("./maintenance.html", $mess_id, $mess);
             } else {
