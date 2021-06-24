@@ -199,4 +199,29 @@ class ilPermissionPatches54
         ));
     }
 
+    /**
+     * Init EduSharing
+     */
+    public function initEduSharing()
+    {
+        $pu = new ilPermissionUtils(true);
+
+        $pu->copyDefaultPermissions(
+            array('cat','crs','grp','fold'), array(
+            array('create_lm', 'create_xesr')
+        ));
+
+        $pu->copyPermissions(
+            array('cat','crs','grp','fold'), array(
+            array('create_lm', 'create_xesr'),
+        ));
+
+
+        $pu->copyDefaultPermission('lm','visible',			    'xesr','visible');
+        $pu->copyDefaultPermission('lm','read',			    'xesr','read');
+        $pu->copyDefaultPermission('lm','copy',				    'xesr','copy');
+        $pu->copyDefaultPermission('lm','write',				'xesr','write');
+        $pu->copyDefaultPermission('lm','delete',				'xesr','delete');
+        $pu->copyDefaultPermission('lm','edit_permission',	    'xesr','edit_permission');
+    }
 }

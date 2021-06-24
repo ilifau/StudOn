@@ -97,5 +97,6 @@ $p->login();
 //$p->applyPatch('ilPermissionPatches54.initGroupReference');
 //
 //$p->applyPatch('ilPermissionPatches54.initCreatePermissions');
+//$p->applyPatch('ilPermissionPatches54.initEduSharing');
 
 $p->logout();
