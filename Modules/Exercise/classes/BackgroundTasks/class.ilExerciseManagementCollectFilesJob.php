@@ -131,11 +131,13 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
         return $out;
     }
 
+    // fau: exPeerFeedbackDownload - create and return a unique filename
     /**
      * Copy a file in the Feedback_files directory
      * TODO use the new filesystem.
      * @param $a_directory string
      * @param $a_file string
+     * @return string the copied filename
      */
     public function copyFileToSubDirectory($a_directory, $a_file)
     {
@@ -145,13 +147,27 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
             ilUtil::createDirectory($dir);
         }
 
-        copy($a_file, $dir . "/" . basename($a_file));
+        $counter = 0;
+        $target_file = basename($a_file);
+        $parts = pathinfo($target_file);
+        $filename =  $parts['filename'];
+        $extension = (empty($parts['extension']) ? '' : '.' . $parts['extension']);
+
+        while (file_exists($dir . "/" . $target_file)) {
+            $counter++;
+            $target_file = $filename . '_' . $counter . $extension;
+        }
+
+        copy($a_file, $dir . "/" . $target_file);
+
+        return $target_file;
 
         /*global $DIC;
         $fs = $DIC->filesystem();
 
         $fs->storage()->copy($a_file, $this->temp_dir."/".basename($a_file));*/
     }
+    // fau.
 
     /**
      * @inheritdoc
@@ -364,9 +380,15 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
                             $this->title_columns[] = $crit_title . "_" . $extra_crit_column;
                         }
                         $extra_crit_column++;
-                        $this->copyFileToSubDirectory(self::FBK_DIRECTORY, $file);
-                        $this->excel->setCell($row, $col, "./" . self::FBK_DIRECTORY . DIRECTORY_SEPARATOR . basename($file));
-                        $this->excel->addLink($row, $col, './' . self::FBK_DIRECTORY . DIRECTORY_SEPARATOR . basename($file));
+                        // fau: exPeerFeedbackDownload - add directories for users and use returned filename for excel
+                        $userdir = ilExSubmission::getDirectoryNameFromUserData($participant_id);
+                        $fbk_subdir = self::FBK_DIRECTORY . DIRECTORY_SEPARATOR . $userdir;
+                        ilUtil::makeDirParents($this->target_directory . DIRECTORY_SEPARATOR . $fbk_subdir);
+
+                        $saved_file = $this->copyFileToSubDirectory($fbk_subdir, $file);
+                        $this->excel->setCell($row, $col, "./" . $fbk_subdir . DIRECTORY_SEPARATOR . $saved_file);
+                        $this->excel->addLink($row, $col, './' . $fbk_subdir . DIRECTORY_SEPARATOR . $saved_file);
+                        // fau.
                         $this->excel->setColors($this->excel->getCoordByColumnAndRow($col, $row), self::BG_COLOR, self::LINK_COLOR);
                     }
                     break;
