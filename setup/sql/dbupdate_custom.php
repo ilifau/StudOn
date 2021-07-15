@@ -1473,3 +1473,16 @@ if (!$ilDB->indexExistsByFields('ut_count_online', ['check_hour', 'check_minute'
     $ilDB->addIndex('ut_count_online', ['check_hour', 'check_minute'], 'i2');
 }
 ?>
+<#89>
+<?php
+/**
+ * fau: loginLog - add field for browser
+ */
+if (!$ilDB->tableColumnExists('ut_auth', 'user_agent')) {
+    $ilDB->addTableColumn(
+        'ut_auth',
+        'user_agent',
+        array('type' => 'text', 'length' => 250, 'notnull' => false, 'default' => null)
+    );
+}
+?>
