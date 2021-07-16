@@ -5,7 +5,7 @@ class RequestLog
 {
     private static $instance;
 
-    public $log_dir = "data/logs";
+    public $log_dir = __DIR__ . "/../data/logs";
     
     public $filename = "";
 
@@ -19,17 +19,31 @@ class RequestLog
 
 
     /**
-    * A private constructor; prevents direct creation of object
+     * Constructor
+     * @param string optional sub directory
     */
-    private function __construct()
+    public function __construct($subdir = null)
     {
+        if (!is_dir($this->log_dir)) {
+            mkdir($this->log_dir);
+        }
+
+        if (isset($subdir)) {
+            $subdir = preg_replace('[^a-zA-Z0-9]','_', $subdir);
+            $this->log_dir .= '/' . $subdir;
+
+            if (!is_dir($this->log_dir)) {
+                mkdir($this->log_dir);
+            }
+        }
+
         list($usec, $sec) = explode(" ", microtime());
         $this->filename = date("d-m-Y_H-i-s", $sec) . "_" . substr($usec, 2) . ".html";
     }
     
     
     /**
-    * singleton method
+    * Get instance of the standard request log
      * @return self
     */
     public static function getInstance()

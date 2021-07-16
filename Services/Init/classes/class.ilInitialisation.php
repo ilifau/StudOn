@@ -1013,6 +1013,25 @@ class ilInitialisation
             include_once "include/inc.debug.php";
         }
     }
+
+    // fau: requestLog - new function handleRequestLog()
+    /**
+     * Optionally log Requests if declared for IP in
+     */
+    protected static function handleRequestLog()
+    {
+        $ips = ilCust::get('ilias_log_request_ips');
+        if (!empty($ips)) {
+            foreach (explode(',', $ips) as $ip) {
+                if ($_SERVER['REMOTE_ADDR'] == trim($ip)) {
+                    require_once "./include/inc.log_request.php";
+                    $RequestLog = new RequestLog(trim($ip));
+                    $RequestLog->writeRequestLog();
+                }
+            }
+        }
+    }
+    // fau.
     
     protected static $already_initialized;
 
@@ -1180,13 +1199,16 @@ class ilInitialisation
                 
         
         // --- needs client ini
-        
+
         $ilias->client_id = CLIENT_ID;
         
         if (DEVMODE) {
             self::handleDevMode();
         }
-    
+
+        // fau: requestLog - call handleRequestLog
+        self::handleRequestLog();
+        // fau.
 
         self::handleMaintenanceMode();
 
