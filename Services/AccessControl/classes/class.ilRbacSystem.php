@@ -229,7 +229,8 @@ class ilRbacSystem
                 // e.g. in update steps #4894 or #4915
                 if ($operation == 'copy') {
                     $ref_type = ilObject::_lookupType($a_ref_id, true);
-                    if (!in_array($ops_id, $DIC->rbac()->review()->getOperationsOnTypeString($ref_type))) {
+                    $type_operations = $DIC->rbac()->review()->getOperationsOnTypeString($ref_type);
+                    if (!is_array($type_operations) || !in_array($ops_id, $type_operations)) {
                         $write_id = ilRbacReview::_getOperationIdByName('write');
                         if (in_array($write_id, (array) $ops)) {
                             continue;
