@@ -892,6 +892,9 @@ class ilObjMediaObjectGUI extends ilObjectGUI
         include_once("./Services/MediaObjects/classes/class.ilMediaSvgSanitizer.php");
         ilMediaSvgSanitizer::sanitizeDir($mob_dir);	// see #20339
         $a_mob->update();
+        // fau: videoPreviewPic - generate preview from creation form
+        $a_mob->generatePreviewPic(320, 240);
+        // fau.
     }
 
     // fau: uploadZippedHtmlMedia - new function uploadZippedHtmlMedia()
@@ -975,10 +978,59 @@ class ilObjMediaObjectGUI extends ilObjectGUI
         $this->setPropertiesSubTabs("general");
 
         $this->initForm("edit");
+        // fau: videoPreviewPic - add the toolbar
+        $this->addGeneratePreviewToolbar();
+        // fau.
         $this->getValues();
         $tpl->setContent($this->form_gui->getHTML());
     }
 
+    // fau: videoPreviewPic - new function addGeneratePreviewToolbar()
+    /**
+     * Add Toolbar item to generate a preview image
+     */
+    public function addGeneratePreviewToolbar()
+    {
+        $this->lng->loadLanguageModule('mcst');
+        include_once("./Services/MediaObjects/classes/class.ilFFmpeg.php");
+        if (ilFFmpeg::enabled()) {
+
+            $med = $this->object->getMediaItem("Standard");
+            if (is_object($med)) {
+                if (ilFFmpeg::supportsImageExtraction($med->getFormat())) {
+                    // second
+                    include_once("./Services/Form/classes/class.ilTextInputGUI.php");
+                    $ni = new ilTextInputGUI($this->lng->txt("seconds"), "sec");
+                    $ni->setMaxLength(4);
+                    $ni->setSize(4);
+                    $ni->setValue(1);
+                    $this->toolbar->addInputItem($ni, true);
+
+                    $this->toolbar->addFormButton($this->lng->txt("mob_extract_preview_image"), "extractPreviewImage");
+                    $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+                }
+            }
+        }
+    }
+    // fau.
+
+    // fau: videoPreviewPic - new function extractPreviewImage()
+    /**
+     * Extract a preview image
+     */
+    public function extractPreviewImageObject()
+    {
+        $this->lng->loadLanguageModule('mcst');
+        if ($this->object->generatePreviewPic(320, 240, (float) $_POST['sec'])) {
+            ilUtil::sendSuccess($this->lng->txt("mob_preview_image_extracted") . '<p class="small">' . $this->lng->txt('mob_preview_image_upload_info') . '</p>', true);
+        }
+        else {
+            ilUtil::sendFailure($this->lng->txt("mob_no_extraction_possible") . '<p class="small">' . $this->lng->txt('mob_preview_image_upload_info') . '</p>', true);
+        }
+
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
 
     /**
     * resize images to specified size

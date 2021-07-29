@@ -14,7 +14,9 @@
 	<!-- info on video preload attribute: http://www.stevesouders.com/blog/2013/04/12/html5-video-preload/ -->
 	<div id="player_{PLAYER_NR}_vtwrap" {STYLE} class="{WRAP_CLASS}">
 		<div>
-			<video id="player_{PLAYER_NR}" style="max-width: 100%;" controls="controls" preload="none" class="{CLASS}">
+			<!-- fau: videoPreviewPic - add poster attribute -->
+			<video id="player_{PLAYER_NR}" style="max-width: 100%;" poster="{PREVIEW_PIC}" controls="controls" preload="none" class="{CLASS}">
+			<!-- fau. -->
 				<!-- BEGIN source --><source src="{FILE}" type="{MIME}" /><!-- END source -->
 				<object type="application/x-shockwave-flash" data="{SWF_FILE}">
 					<param name="movie" value="{SWF_FILE}" />

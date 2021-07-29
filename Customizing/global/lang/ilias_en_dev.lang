@@ -774,6 +774,10 @@ mail#:#mail_pear_is_automaticly_switched#:#PEAR will automaticly be activated at
 mail#:#mail_salutation_f#:#Dear Mrs.
 mail#:#mail_salutation_m#:#Dear Mr.
 mail#:#mail_smtp_not_allowed#:#You can only write to users in the system, not to general e-mail-adresses!
+mob#:#mob_extract_preview_image#:#Extract Preview Image
+mob#:#mob_preview_image_extracted#:#The preview image was extracted from the video. Please reload the page with the video to get the image updated.
+mob#:#mob_no_extraction_possible#:#The preview image couldn't be extracted.
+mob#:#mob_preview_image_upload_info#:#Alternatively you can upload the preview image on the "Files" tab. It must have the filename 'mob_vpreview.png'.
 news#:#news_get_feed_info#:#This feed has all news to your selected items that were declared as public by their authos. It is not protected by any authentication.
 news#:#news_get_priv_feed_info#:#This feed has additional news that were declared as private. It is protected by a password defined by you in the <a href=%s">news settings</a>. Please replace the pattern PASSWORD in the URL with your feed password.
 news#:#news_get_priv_feed_passhash_title#:#Personal private Feed-URL (alternative)

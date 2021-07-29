@@ -1960,7 +1960,9 @@ class ilObjMediaObject extends ilObject
      * @param
      * @return
      */
-    public function generatePreviewPic($a_width, $a_height)
+    // fau: videoPreviewPic - add parameter for seconds)
+    public function generatePreviewPic($a_width, $a_height, $sec = 1)
+    // fau.
     {
         $item = $this->getMediaItem("Standard");
 
@@ -1977,6 +1979,47 @@ class ilObjMediaObject extends ilObject
                 }
             }
         }
+
+        // fau: videoPreviewPic - generate preview pic for videos in media objects (taken from ILIAS 7)
+        if ($item->getLocationType() == "LocalFile" &&
+            is_int(strpos($item->getFormat(), "video/")) && ilFFmpeg::enabled())
+        {
+            try {
+                if ($sec < 0) {
+                    $sec = 1;
+                 }
+
+                if ($this->getVideoPreviewPic() != "") {
+                    $this->removeAdditionalFile($this->getVideoPreviewPic(true));
+                }
+                $med = $this->getMediaItem("Standard");
+                $mob_file = ilObjMediaObject::_getDirectory($this->getId()) . "/" . $med->getLocation();
+
+                ilFFmpeg::extractImage(
+                    $mob_file,
+                    "mob_vpreview.png",
+                    ilObjMediaObject::_getDirectory($this->getId()),
+                    $sec
+                );
+            } catch (ilException $e) {
+                $ret = ilFFmpeg::getLastReturnValues();
+
+                $message = '';
+                if (is_array($ret) && count($ret) > 0) {
+                    $message = "\n" . implode("\n", $ret);
+                }
+
+                /** @var ilLogger $logger */
+                $logger = $GLOBALS['DIC']->logger()->mob();
+                $logger->warning($e->getMessage() . $message);
+                $logger->logStack(ilLogLevel::WARNING);
+
+                return false;
+            }
+        }
+
+        return true;
+        // fau.
     }
 
     /**

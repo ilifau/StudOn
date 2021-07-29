@@ -721,6 +721,10 @@ mail#:#mail_pear_is_automaticly_switched#:#PEAR mail wird bei der Mail an Kurs- 
 mail#:#mail_salutation_f#:#Sehr geehrte Frau
 mail#:#mail_salutation_m#:#Sehr geehrter Herr
 mail#:#mail_smtp_not_allowed#:#Sie können nur an Benutzer im System schreiben, nicht an allgemeine E-Mail-Adressen!
+mob#:#mob_extract_preview_image#:#Vorschaubild erzeugen
+mob#:#mob_preview_image_extracted#:#Das Vorschaubild wurde aus den Video erzeugt. Laden Sie die Seite mit dem Video neu, um das Bild zu aktualisieren.
+mob#:#mob_no_extraction_possible#:#Das Vorschaubild konnte nicht erzeugt werden.
+mob#:#mob_preview_image_upload_info#:#Sie können das Vorschaubild auch auf dem Reiter "Dateien" selbst hochladen. Es muss den Dateinamen 'mob_vpreview.png' haben.
 news#:#news_get_feed_info#:#Dieser Newsfeed enthält alle Nachrichten zu Ihren ausgewählten Angeboten, die von ihren Verfassern als öffentlich eingestuft wurden. Er ist durch keine Authentifizierung geschützt.
 news#:#news_get_priv_feed_info#:#Dieser Newsfeed enthält auch Nachrichten, die von ihren Verfassern als privat eingestuft wurden. Er ist durch ein Kennwort geschützt, welches Sie in den <a href=%s">Nachrichten-Einstellungen</a> festlegen können. Bitte ersetzen Sie in der URL die Zeichenkette PASSWORD durch Ihr Feed-Kennwort.
 news#:#news_get_priv_feed_passhash_title#:#URL Ihres Privaten Newsfeeds (alternativ)

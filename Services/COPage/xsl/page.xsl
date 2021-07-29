@@ -1279,6 +1279,14 @@
 				</xsl:if>
 			</xsl:variable>
 
+			<!-- fau: videoPreviewPic - determine preview -->
+			<xsl:variable name="preview">
+				<xsl:if test="$curType = 'LocalFile'">
+					<xsl:value-of select="$webspace_path"/>mobs/mm_<xsl:value-of select="substring-after($cmobid,'mob_')"/>/mob_vpreview.png
+				</xsl:if>
+			</xsl:variable>
+			<!-- fau. -->
+
 			<!-- determine size mode (alias, mob or none) -->
 			<xsl:variable name="sizemode">mob</xsl:variable>
 
@@ -1294,6 +1302,9 @@
 
 			<xsl:call-template name="MOBTag">
 				<xsl:with-param name="data" select="$data" />
+				<!-- fau: videoPreviewPic - set preview parameter -->
+				<xsl:with-param name="preview" select="$preview" />
+				<!-- fau. -->
 				<xsl:with-param name="type" select="$mtype" />
 				<xsl:with-param name="width" select="$width" />
 				<xsl:with-param name="height" select="$height" />
@@ -2259,6 +2270,15 @@
 			</xsl:choose>
 		</xsl:variable>
 
+		<!-- fau: videoPreviewPic determine preview -->
+		<xsl:variable name="preview">
+			<xsl:if test="$curType = 'LocalFile'">
+				<xsl:value-of select="$webspace_path"/>mobs/mm_<xsl:value-of select="substring-after($cmobid,'mob_')"/>/mob_vpreview.png
+			</xsl:if>
+		</xsl:variable>
+		<!-- fau. -->
+
+
 		<!-- determine size mode (alias, mob or none) -->
 		<xsl:variable name="sizemode">
 			<xsl:choose>
@@ -2345,6 +2365,9 @@
 
 				<xsl:call-template name="MOBTag">
 					<xsl:with-param name="data" select="$data" />
+					<!-- fau: videoPreviewPic - set parameter -->
+					<xsl:with-param name="preview" select="$preview" />
+					<!-- fau. -->
 					<xsl:with-param name="type" select="$type" />
 					<xsl:with-param name="width" select="$width" />
 					<xsl:with-param name="height" select="$height" />
@@ -2542,6 +2565,9 @@
 <!-- MOBTag: display media object tag -->
 <xsl:template name="MOBTag">
 	<xsl:param name="data"/>
+	<!-- fau: videoPreviewPic - add parameter -->
+	<xsl:param name="preview"/>
+	<!-- fau. -->
 	<xsl:param name="type"/>
 	<xsl:param name="width"/>
 	<xsl:param name="height"/>
@@ -3030,6 +3056,11 @@
 					//MediaObject[@Id=$cmobid]/MediaItem[@Purpose=$curPurpose]/Parameter[@Name = 'autostart']/@Value = 'true'))">
 					<xsl:attribute name="autoplay">true</xsl:attribute>
 				</xsl:if>
+				<!-- fau: videoPreviewPic - add poster attribute -->
+				<xsl:if test = "$preview != ''">
+					<xsl:attribute name="poster"><xsl:value-of select="$preview"/></xsl:attribute>
+				</xsl:if>
+				<!-- fau. -->
 				<xsl:choose>
 					<xsl:when test = "$type = 'video/mp4'">
 						<source type="video/mp4">
