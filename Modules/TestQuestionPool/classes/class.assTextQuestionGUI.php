@@ -138,6 +138,16 @@ class assTextQuestionGUI extends assQuestionGUI implements ilGuiQuestionScoringA
     }
 
     /**
+     * Question type specific support of intermediate solution output
+     * The function getSolutionOutput respects getUseIntermediateSolution()
+     * @return bool
+     */
+    public function supportsIntermediateSolutionOutput()
+    {
+        return true;
+    }
+
+    /**
     * Get the question solution output
     *
     * @param integer $active_id The active user id
@@ -259,17 +269,6 @@ class assTextQuestionGUI extends assQuestionGUI implements ilGuiQuestionScoringA
         return $solutionoutput;
     }
 
-    // fau: testShowAutoSave - enable support
-    /**
-     * Question type specific support of intermediate solution output
-     * The function getSolutionOutput respects getUseIntermediateSolution()
-     * @return bool
-     */
-    public function supportsIntermediateSolutionOutput()
-    {
-        return true;
-    }
-    // fau.
 
     private function getBestAnswer($asHtml)
     {
@@ -320,9 +319,7 @@ class assTextQuestionGUI extends assQuestionGUI implements ilGuiQuestionScoringA
     private function getUserAnswer($active_id, $pass)
     {
         $user_solution = "";
-        // fau: testShowAutoSave - use intermediate sulution,
         $solutions = $this->object->getSolutionValues($active_id, $pass, !$this->getUseIntermediateSolution());
-        // fau.
         foreach ($solutions as $idx => $solution_value) {
             $user_solution = $solution_value["value1"];
         }
@@ -406,6 +403,7 @@ class assTextQuestionGUI extends assQuestionGUI implements ilGuiQuestionScoringA
             $template->setVariable("CHARACTERS", $this->lng->txt("characters"));
             $template->parseCurrentBlock();
         }
+
         $template->setVariable("QID", $this->object->getId());
         $template->setVariable("ESSAY", ilUtil::prepareFormOutput($user_solution));
         $questiontext = $this->object->getQuestion();

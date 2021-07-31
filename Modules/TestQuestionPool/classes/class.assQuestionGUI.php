@@ -105,13 +105,11 @@ abstract class assQuestionGUI
      */
     protected $editForm;
 
-    // fau: testShowAutoSave - class variable
     /**
      * Prefer the intermediate solution for solution output
      * @var bool
      */
     protected $use_intermediate_solution = false;
-    // fau.
 
     /**
     * assQuestionGUI constructor
@@ -147,7 +145,7 @@ abstract class assQuestionGUI
         
         $this->navigationGUI = null;
     }
-
+    
     /**
      * this method can be overwritten per question type
      *
@@ -157,7 +155,7 @@ abstract class assQuestionGUI
     {
         return false;
     }
-
+    
     public function addHeaderAction()
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
@@ -166,7 +164,7 @@ abstract class assQuestionGUI
             "HEAD_ACTION",
             $this->getHeaderAction()
         );
-
+        
         $notesUrl = $this->ctrl->getLinkTargetByClass(
             array("ilcommonactiondispatchergui", "ilnotegui"),
             "",
@@ -174,28 +172,28 @@ abstract class assQuestionGUI
             true,
             false
         );
-
+        
         ilNoteGUI::initJavascript($notesUrl, IL_NOTE_PUBLIC, $DIC->ui()->mainTemplate());
-
+        
         $redrawActionsUrl = $DIC->ctrl()->getLinkTarget($this, 'redrawHeaderAction', '', true);
         $DIC->ui()->mainTemplate()->addOnLoadCode("il.Object.setRedrawAHUrl('$redrawActionsUrl');");
     }
-
+    
     public function redrawHeaderAction()
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         echo $this->getHeaderAction() . $DIC->ui()->mainTemplate()->getOnLoadCodeForAsynch();
         exit;
     }
-
+    
     public function getHeaderAction()
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         /* @var ilObjectDataCache $ilObjDataCache */
         $ilObjDataCache = $DIC['ilObjDataCache'];
-
+        
         $parentObjType = $ilObjDataCache->lookupType($this->object->getObjId());
-
+        
         $dispatcher = new ilCommonActionDispatcherGUI(
             ilCommonActionDispatcherGUI::TYPE_REPOSITORY,
             $DIC->access(),
@@ -203,21 +201,21 @@ abstract class assQuestionGUI
             $_GET["ref_id"],
             $this->object->getObjId()
         );
-
+        
         $dispatcher->setSubObject("quest", $this->object->getId());
-
+        
         $ha = $dispatcher->initHeaderAction();
         $ha->enableComments(true, false);
-
+        
         return $ha->getHeaderAction($DIC->ui()->mainTemplate());
     }
-
+    
     public function getNotesHTML()
     {
         $notesGUI = new ilNoteGUI($this->object->getObjId(), $this->object->getId(), 'quest');
         $notesGUI->enablePublicNotes(true);
         $notesGUI->enablePublicNotesDeletion(true);
-
+        
         return $notesGUI->getNotesHTML();
     }
 
@@ -674,7 +672,7 @@ abstract class assQuestionGUI
             if ($inlineFeedbackEnabled && $this->hasInlineFeedback()) {
                 $html = $this->buildFocusAnchorHtml() . $html;
             }
-
+            
             $page_gui->setQuestionHTML(array($this->object->getId() => $html));
         }
 
@@ -2128,7 +2126,6 @@ abstract class assQuestionGUI
         $show_question_text = true
     );
 
-    // fau: testShowAutoSave - aditional functions
     /**
      * Question type specific support of intermediate solution output
      * The function getSolutionOutput respects getUseIntermediateSolution()
@@ -2168,8 +2165,7 @@ abstract class assQuestionGUI
     {
         return (bool) $this->use_intermediate_solution;
     }
-    // fau.
-    
+
     protected function hasCorrectSolution($activeId, $passIndex)
     {
         $reachedPoints = $this->object->getAdjustedReachedPoints($activeId, $passIndex, true);
@@ -2349,7 +2345,7 @@ abstract class assQuestionGUI
         $errors = $this->editQuestion(true); // TODO bheyser: editQuestion should be added to the abstract base class with a unified signature
         return $this->editForm;
     }
-
+    
     /**
      * @return string
      */
@@ -2357,22 +2353,22 @@ abstract class assQuestionGUI
     {
         return '<div id="focus"></div>';
     }
-
+    
     public function isAnswerFreuqencyStatisticSupported()
     {
         return true;
     }
-
+    
     public function getSubQuestionsIndex()
     {
         return array(0);
     }
-
+    
     public function getAnswersFrequency($relevantAnswers, $questionIndex)
     {
         return array();
     }
-
+    
     /**
      * @param $parentGui
      * @param $parentCmd
@@ -2383,29 +2379,29 @@ abstract class assQuestionGUI
     public function getAnswerFrequencyTableGUI($parentGui, $parentCmd, $relevantAnswers, $questionIndex)
     {
         require_once 'Modules/TestQuestionPool/classes/tables/class.ilAnswerFrequencyStatisticTableGUI.php';
-
+        
         $table = new ilAnswerFrequencyStatisticTableGUI($parentGui, $parentCmd, $this->object);
         $table->setQuestionIndex($questionIndex);
         $table->setData($this->getAnswersFrequency($relevantAnswers, $questionIndex));
         $table->initColumns();
-
+        
         return $table;
     }
-
+    
     /**
      * @param ilPropertyFormGUI $form
      */
     public function prepareReprintableCorrectionsForm(ilPropertyFormGUI $form)
     {
     }
-
+    
     /**
      * @param ilPropertyFormGUI $form
      */
     public function populateCorrectionsFormProperties(ilPropertyFormGUI $form)
     {
     }
-
+    
     /**
      * @param ilPropertyFormGUI $form
      */

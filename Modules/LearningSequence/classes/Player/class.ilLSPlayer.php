@@ -92,6 +92,17 @@ class ilLSPlayer
             $current_item = $prev_item;
         }
 
+        $command = $_GET[self::PARAM_LSO_COMMAND];
+        $param = (int) $_GET[self::PARAM_LSO_PARAMETER];
+
+        while ($current_item->getAvailability() !== \ILIAS\UI\Component\Listing\Workflow\Step::AVAILABLE) {
+            $prev_item = $this->getNextItem($current_item, -1);
+            if ($prev_item === $current_item) {
+                throw new \Exception("Cannot view first LSO-item", 1);
+            }
+            $current_item = $prev_item;
+        }
+
         $view = $this->view_factory->getViewFor($current_item);
         $state = $current_item->getState();
         $state = $this->updateViewState($state, $view, $get, $post);

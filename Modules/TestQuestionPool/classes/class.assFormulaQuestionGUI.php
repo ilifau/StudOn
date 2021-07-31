@@ -93,7 +93,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
             }
             // edit question properties
             $ilTabs->addTarget(
-                "edit_properties",
+                "edit_question",
                 $url,
                 array(
                     "editQuestion", "save", "cancel", "addSuggestedSolution",
@@ -894,6 +894,17 @@ class assFormulaQuestionGUI extends assQuestionGUI
     }
 
     /**
+     * Question type specific support of intermediate solution output
+     * The function getSolutionOutput respects getUseIntermediateSolution()
+     * @return bool
+     */
+    public function supportsIntermediateSolutionOutput()
+    {
+        return true;
+    }
+
+
+    /**
      * Get the question solution output
      * @param integer $active_id             The active user id
      * @param integer $pass                  The test pass
@@ -928,7 +939,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
             }
             $user_solution["active_id"] = $active_id;
             $user_solution["pass"] = $pass;
-            $solutions = $this->object->getSolutionValues($active_id, $pass);
+            $solutions = $this->object->getSolutionValues($active_id, $pass, !$this->getUseIntermediateSolution());
             foreach ($solutions as $idx => $solution_value) {
                 if (preg_match("/^(\\\$v\\d+)$/", $solution_value["value1"], $matches)) {
                     $user_solution[$matches[1]] = $solution_value["value2"];
@@ -978,7 +989,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
                 $this->hasCorrectSolution($active_id, $pass) ?
                 ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
             );
-
+            
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
             $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
         }
@@ -1019,10 +1030,10 @@ class assFormulaQuestionGUI extends assQuestionGUI
                 }
             }
         }
-
+        
         if (!$this->object->hasRequiredVariableSolutionValues($user_solution)) {
             $user_solution = $this->object->getInitialVariableSolutionValues();
-
+            
             if (is_object($this->getPreviewSession())) {
                 $this->getPreviewSession()->setParticipantsSolution($user_solution);
             }
@@ -1058,13 +1069,13 @@ class assFormulaQuestionGUI extends assQuestionGUI
                 require_once 'Modules/Test/classes/class.ilObjTest.php';
                 $actualPassIndex = ilObjTest::_getPass($active_id);
             }
-
+            
             foreach ($solutions as $idx => $solution_value) {
                 if (preg_match("/^(\\\$v\\d+)$/", $solution_value["value1"], $matches)) {
                     if ($this->object->getTestPresentationConfig()->isSolutionInitiallyPrefilled()) {
                         $this->object->saveCurrentSolution($active_id, $actualPassIndex, $matches[1], $solution_value["value2"], true);
                     }
-
+                    
                     $user_solution[$matches[1]] = $solution_value["value2"];
                 } elseif (preg_match("/^(\\\$r\\d+)$/", $solution_value["value1"], $matches)) {
                     if (!array_key_exists($matches[1], $user_solution)) {
@@ -1092,7 +1103,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
             }
         }
         // fau.
-
+        
         if (!$this->object->hasRequiredVariableSolutionValues($user_solution)) {
             foreach ($this->object->getInitialVariableSolutionValues() as $val1 => $val2) {
                 $this->object->saveCurrentSolution($active_id, $pass, $val1, $val2, true);

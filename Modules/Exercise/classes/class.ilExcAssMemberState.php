@@ -654,5 +654,4 @@ class ilExcAssMemberState
 
         return $access;
     }
-
 }

@@ -359,7 +359,7 @@ class ilAccountRegistrationGUI
 
         $this->__initForm();
         $form_valid = $this->form->checkInput();
-
+        
         // custom validation
         $valid_code = $valid_role = false;
                 
@@ -496,8 +496,7 @@ class ilAccountRegistrationGUI
         } else {
             $password = $this->__createUser($valid_role);
             $this->__distributeMails($password);
-            $this->login($password);
-            return true;
+            return $this->login();
         }
 
         $this->form->setValuesByPost();
@@ -528,7 +527,7 @@ class ilAccountRegistrationGUI
         
 
         $this->userObj = new ilObjUser();
-
+        
         $up = new ilUserProfile();
         $up->setMode(ilUserProfile::MODE_REGISTRATION);
 
@@ -834,8 +833,13 @@ class ilAccountRegistrationGUI
     /**
      * @param string $password
      */
-    public function login($password)
+    // fau: regCodes - optional password parameter
+    public function login($password = '')
+    // fau.
     {
+        global $DIC;
+        $f = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
 
         ilStartUpGUI::initStartUpTemplate(array('tpl.usr_registered.html', 'Services/Registration'), false);
         $this->tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
@@ -892,13 +896,14 @@ class ilAccountRegistrationGUI
      */
     protected function showLogin()
     {
+        global $DIC;
         /**
          * @var ilAuthSession
          */
-        $auth_session = $GLOBALS['DIC']['ilAuthSession'];
+        $auth_session = $DIC['ilAuthSession'];
         $auth_session->setAuthenticated(
             true,
-            ilSession::get('registered_user')
+            $DIC->user()->getId()
         );
         ilInitialisation::initUserAccount();
         return ilInitialisation::redirectToStartingPage();
@@ -908,7 +913,7 @@ class ilAccountRegistrationGUI
     {
         $field_id = (string) $_REQUEST["f"];
         $term = (string) $_REQUEST["term"];
-
+                
         $result = ilPublicUserProfileGUI::getAutocompleteResult($field_id, $term);
         if (sizeof($result)) {
             echo ilJsonUtil::encode($result);

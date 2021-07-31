@@ -31,7 +31,7 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
     
     // needs PH P5.6 for array support
     protected $cols_mandatory = array("name", "status");
-    protected $cols_default = array("login", "submission_date", "idl", "calc_deadline");
+    protected $cols_default = array("login", "submission", "idl", "calc_deadline");
     // fau: exMaxPoints - put max_points in cols order
     // fau: exPlag - put plagiarism in cols order
     protected $cols_order = array("image", "name", "login", "team_members",
@@ -62,7 +62,7 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         $this->exc = $a_exc;
         
         $this->initMode($a_item_id);
-        
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
         
         $this->setShowTemplates(true);
@@ -192,7 +192,6 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                 );
             }
         }
-        
         return $cols;
     }
             
@@ -221,7 +220,7 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
             $cols["comment"] = array($this->lng->txt("exc_tbl_comment"), "comment");
         }
         
-        $cols["notice"] = array($this->lng->txt("exc_tbl_notice"), "note");
+        $cols["notice"] = array($this->lng->txt("exc_tbl_notice"), "notice");
 
         // fau: exPlag - parse column
         $cols['plagiarism'] = array($this->lng->txt('exc_plagiarism'), "plagiarism");
@@ -507,7 +506,7 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                         break;
                     }
                     // fallthrough
-
+                
                     // no break
                 default:
                     $this->tpl->setVariable("VAL_" . strtoupper($col), $a_row[$col]
@@ -656,7 +655,7 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
             $type_gui->modifySubmissionTableActions($a_row['submission_obj'], $actions);
         }
         // fau.
-        
+
         $this->tpl->setVariable("ACTIONS", $actions->getHTML());
     }
         

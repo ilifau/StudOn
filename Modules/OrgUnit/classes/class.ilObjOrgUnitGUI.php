@@ -102,7 +102,11 @@ class ilObjOrgUnitGUI extends ilContainerGUI
         $this->tpl->addCss('./Modules/OrgUnit/templates/default/orgu.css');
     }
 
-
+    /**
+     * @throws ilCtrlException
+     * @throws ilException
+     * @throws ilRepositoryException
+     */
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd();
@@ -741,17 +745,18 @@ class ilObjOrgUnitGUI extends ilContainerGUI
         return parent::__initTableGUI();
     }
 
-
     /**
      * confirmed deletion of org units -> org units are deleted immediately, without putting them to the trash
+     * @throws ilRepositoryException
      */
     public function confirmedDeleteObject()
     {
-        if (count($_POST['id']) > 0) {
-            foreach ($_POST['id'] as $ref_id) {
-                $il_obj_orgunit = new ilObjOrgUnit($ref_id);
-                $il_obj_orgunit->delete();
-            }
+        global $DIC;
+
+        $ids = filter_input(INPUT_POST, 'id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        if (count($ids) > 0) {
+            ilRepUtil::removeObjectsFromSystem($ids);
+            ilUtil::sendSuccess($DIC->language()->txt("info_deleted"), true);
         }
         $this->ctrl->returnToParent($this);
     }
@@ -771,7 +776,7 @@ class ilObjOrgUnitGUI extends ilContainerGUI
 
         $arr_ref_ids = [];
         //Delete via Manage (more than one)
-        if (count($_POST['id']) > 0) {
+        if (is_array($_POST['id']) && count($_POST['id']) > 0) {
             $arr_ref_ids = $_POST['id'];
         } elseif ($_GET['item_ref_id'] > 0) {
             $arr_ref_ids = [$_GET['item_ref_id']];

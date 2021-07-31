@@ -194,10 +194,10 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
                 $resObjects[] = $this->getResult($resultKey);
             }
         }
-
+        
         return $resObjects;
     }
-
+    
     /**
      * @param string $questionText
      * @return assFormulaQuestionVariable[] $varObjects
@@ -206,16 +206,16 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
     {
         $varObjects = array();
         $matches = null;
-
+        
         if (preg_match_all("/(\\\$v\\d+)/ims", $questionText, $matches)) {
             foreach ($matches[1] as $variableKey) {
                 $varObjects[] = $this->getVariable($variableKey);
             }
         }
-
+        
         return $varObjects;
     }
-
+    
     /**
      * @param array $userSolution
      * @return bool
@@ -226,15 +226,15 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
             if (!isset($userSolution[$varObj->getVariable()])) {
                 return false;
             }
-
+            
             if (!strlen($userSolution[$varObj->getVariable()])) {
                 return false;
             }
         }
-
+        
         return true;
     }
-
+    
     /**
      * @return array $initialVariableSolutionValues
      */
@@ -245,14 +245,14 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
         }
 
         $variableSolutionValues = array();
-
+        
         foreach ($this->fetchAllVariables($this->getQuestion()) as $varObj) {
             $variableSolutionValues[$varObj->getVariable()] = $varObj->getValue();
         }
-
+        
         return $variableSolutionValues;
     }
-
+    
     /**
      * @param array $userdata
      * @param bool $graphicalOutput
@@ -268,7 +268,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
         }
         
         $text = $this->getQuestion();
-
+        
         foreach ($this->fetchAllVariables($this->getQuestion()) as $varObj) {
             if (isset($userdata[$varObj->getVariable()]) && strlen($userdata[$varObj->getVariable()])) {
                 $varObj->setValue($userdata[$varObj->getVariable()]);
@@ -276,10 +276,10 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
 
             $unit = (is_object($varObj->getUnit())) ? $varObj->getUnit()->getUnit() : "";
             $val = (strlen($varObj->getValue()) > 8) ? strtoupper(sprintf("%e", $varObj->getValue())) : $varObj->getValue();
-
+            
             $text = preg_replace("/\\$" . substr($varObj->getVariable(), 1) . "(?![0-9]+)/", $val . " " . $unit . "\\1", $text);
         }
-
+        
         if (preg_match_all("/(\\\$r\\d+)/ims", $this->getQuestion(), $rmatches)) {
             foreach ($rmatches[1] as $result) {
                 $resObj = $this->getResult($result);
@@ -901,11 +901,11 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
         
         return $this->ensureNonNegativePoints($reachedPoints);
     }
-
+    
     protected function isValidSolutionResultValue($submittedValue)
     {
         $submittedValue = str_replace(',', '.', $submittedValue);
-
+        
         if (is_numeric($submittedValue)) {
             return true;
         }
@@ -913,10 +913,9 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
         if (preg_match('/^[-+]{0,1}\d+\/\d+$/', $submittedValue)) {
             return true;
         }
-
+        
         return false;
     }
-
 
     /**
      * Saves the learners input of the question to the database
@@ -936,7 +935,7 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
         }
 
         $entered_values = false;
-
+        
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (&$entered_values, $ilDB, $active_id, $pass, $authorized) {
             $solutionSubmit = $this->getSolutionSubmit();
             foreach ($solutionSubmit as $key => $value) {
