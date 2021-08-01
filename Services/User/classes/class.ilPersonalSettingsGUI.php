@@ -248,7 +248,7 @@ class ilPersonalSettingsGUI
             //)
             $pw_info_set = false;
 
-            // fau: pwChangeForm - show username, add button and info for "password assistancen
+            // fau: pwChangeForm - show username, add button and info for "password assistance
             $login = new ilNonEditableValueGUI($lng->txt('login'), 'login');
             $login->setValue($ilUser->getLogin());
             $this->form->addItem($login);
@@ -266,6 +266,8 @@ class ilPersonalSettingsGUI
                 if ($ilUser->getPasswd()) {
                     $cpass->setRequired(true);
                     $cpass->setInfo($lng->txt('current_password_info'));
+                    // the info text is replaces, so show it for the inputs belo
+                    $pw_info_set = false;
                 }
                 $this->form->addItem($cpass);
 
