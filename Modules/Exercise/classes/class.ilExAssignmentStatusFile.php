@@ -284,9 +284,18 @@ class ilExAssignmentStatusFile extends ilExcel
             $logins = [];
             $member = [];
             foreach ($team->getMembers() as $usr_id) {
-                $logins[] = $this->members[$usr_id]['login'];
-                // the last wins, but all should have the same value
-                $member = $this->members[$usr_id];
+
+                if (isset($this->members[$usr_id])) {
+                    $logins[] = $this->members[$usr_id]['login'];
+                    // the last wins, but all should have the same value
+                    $member = $this->members[$usr_id];
+                }
+                else {
+                    // user may not be in the list of members
+                    // if init() gets a filtered list of user_ids
+                    // e.g. ilExSubmission::downloadAllAssingmentFiles provides only user_ids with own submissions
+                    $logins[] = ilobjUser::_lookupLogin($usr_id);
+                }
             }
 
             $col = 0;
