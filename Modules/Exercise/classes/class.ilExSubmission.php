@@ -1415,7 +1415,13 @@ class ilExSubmission
         $ilCtrl->setParameterByClass("ilexsubmissionfilegui", "member_id", $this->getUserId());
         
         // assignment type specific
-        switch ($this->assignment->getType()) {
+        // fau: exAssHook - provide download for plugin types with file upload
+        $check_type = $this->assignment->getType();
+        if ($this->assignment->getAssignmentType()->usesFileUpload()) {
+            $check_type = ilExAssignment::TYPE_UPLOAD;
+        }
+        switch ($check_type) {
+        // fau.
             case ilExAssignment::TYPE_UPLOAD_TEAM:
                 // data is merged by team - see above
                 // fallthrough
