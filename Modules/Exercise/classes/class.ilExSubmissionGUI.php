@@ -122,16 +122,31 @@ class ilExSubmissionGUI
 
                 // forward to type gui
                 // fau: exAssTest - don't shw submission tab for test results
+                // fau: exAssHook - get an own submission tab
                 if ($this->submission->getSubmissionType() != ilExSubmission::TYPE_REPO_OBJECT
                     && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT
                     && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT_TEAM) {
-                    // fau.
-                    $this->tabs_gui->addTab(
-                        "submission",
-                        $this->lng->txt("exc_submission"),
-                        $this->ctrl->getLinkTargetByClass("ilexsubmission" . $this->submission->getSubmissionType() . "gui", "")
-                    );
+
+                    $type_gui = $this->type_guis->getById($this->assignment ->getType());
+                    if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface
+                        && $type_gui->hasOwnSubmissionScreen()) {
+
+                        $this->tabs_gui->addTab(
+                            "submission",
+                            $this->lng->txt("exc_submission"),
+                            $type_gui->getSubmissionScreenLinkTarget()
+                        );
+                    }
+                    else {
+                        $this->tabs_gui->addTab(
+                            "submission",
+                            $this->lng->txt("exc_submission"),
+                            $this->ctrl->getLinkTargetByClass("ilexsubmission" . $this->submission->getSubmissionType() . "gui", "")
+                        );
+                    }
                 }
+                // fau.
+
 
                 include_once "Modules/Exercise/classes/class.ilExSubmissionTeamGUI.php";
                 $gui = new ilExSubmissionTeamGUI($this->exercise, $this->submission);

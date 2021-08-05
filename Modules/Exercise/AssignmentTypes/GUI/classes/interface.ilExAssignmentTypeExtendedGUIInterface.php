@@ -31,6 +31,18 @@ interface ilExAssignmentTypeExtendedGUIInterface extends ilExAssignmentTypeGUIIn
      */
     public function getOverviewSubmission(ilInfoScreenGUI $a_info, ilExSubmission $a_submission);
 
+    /**
+     * Indicate that the standard submission screen should not be shown
+     * @return bool
+     */
+    public function hasOwnSubmissionScreen() : bool;
+
+    /**
+     * Get the link target to view the submission screen
+     * @return string
+     */
+    public function getSubmissionScreenLinkTarget() : string;
+
 
     /**
      * Get additional tutor feedback for the submission
