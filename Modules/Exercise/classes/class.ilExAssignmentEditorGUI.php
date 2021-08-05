@@ -631,12 +631,16 @@ class ilExAssignmentEditorGUI
         
         
         // global feedback
-        
-        $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
-        $form->addItem($fb);
 
         // fau: exAssHook - don't add feedback upload if type has its own feedback
-        if (!$this->type_has_own_feedback) {
+        if ($this->type_has_own_feedback) {
+            $fb = new ilNonEditableValueGUI($lng->txt("exc_global_feedback_file"), "fb");
+            $form->addItem($fb);
+        }
+        else {
+            $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
+            $form->addItem($fb);
+
             $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
             $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
             // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
@@ -1003,7 +1007,8 @@ class ilExAssignmentEditorGUI
                 }
                 
                 // global feedback
-                if ($a_form->getInput("fb")) {
+                // fau: exAssHook - allow feedback date settings if own feedback is provided
+                if ($a_form->getInput("fb") || $this->type_has_own_feedback) {
                     $res["fb"] = true;
                     $res["fb_cron"] = $a_form->getInput("fb_cron");
                     $res["fb_date"] = $a_form->getInput("fb_date");
@@ -1013,6 +1018,7 @@ class ilExAssignmentEditorGUI
                         $res["fb_file"] = $_FILES["fb_file"];
                     }
                 }
+                // fau.
                 if ($a_form->getInput("rmd_submit_status")) {
                     $res["rmd_submit_status"] = true;
                     $res["rmd_submit_start"] = $a_form->getInput("rmd_submit_start");
@@ -1102,11 +1108,13 @@ class ilExAssignmentEditorGUI
             $a_ass->setPeerReviewRating(true);
         }
 
-        if ($a_input["fb"]) {
+        // fau: exAssHook - allow feedback date settings for own feedback
+        if ($a_input["fb"] || $this->type_has_own_feedback) {
             $a_ass->setFeedbackCron($a_input["fb_cron"]); // #13380
             $a_ass->setFeedbackDate($a_input["fb_date"]);
             $a_ass->setFeedbackDateCustom($a_input["fb_date_custom"]);
         }
+        // fau.
         
         // id needed for file handling
         if ($is_create) {
@@ -1358,10 +1366,7 @@ class ilExAssignmentEditorGUI
         
         // global feedback
         // fau: exAssHook - don't check feedback file it type has its own general feedback
-        if ($this->type_has_own_feedback) {
-            $a_form->getItemByPostVar("fb")->setChecked(true);
-        }
-        elseif ($this->assignment->getFeedbackFile()) {
+        if (!$this->type_has_own_feedback && $this->assignment->getFeedbackFile()) {
             $a_form->getItemByPostVar("fb")->setChecked(true);
             $a_form->getItemByPostVar("fb_file")->setValue(basename($this->assignment->getGlobalFeedbackFilePath()));
             $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
