@@ -138,6 +138,10 @@ class ilExAssignmentTypes
      */
     public function getById($a_id)
     {
+        // fau: exAssHook - include ilExAssignmentTypeExtendedInterface
+        include_once "./Modules/Exercise/AssignmentTypes/classes/interface.ilExAssignmentTypeExtendedInterface.php";
+        // fau.
+
         switch ($a_id) {
             case ilExAssignment::TYPE_UPLOAD:
                 include_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeUpload.php");
