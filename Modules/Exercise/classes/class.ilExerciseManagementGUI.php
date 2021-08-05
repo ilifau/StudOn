@@ -1636,6 +1636,15 @@ class ilExerciseManagementGUI
                 foreach ($group as $user_id) {
                     $team->removeTeamMember($user_id);
                 }
+
+                // fau: exAssHook - handle dissolving of old teams when new team is formed
+                $assignmentType = $this->assignment->getAssignmentType();
+                if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                    // removed members are not provided for reset, because they will be added to the new team
+                    $assignmentType->handleTeamChange($this->assignment, $team);
+                }
+                // fau.
+
             } else {
                 $new_members[] = $group;
             }
@@ -1660,6 +1669,14 @@ class ilExerciseManagementGUI
                 $submission->hasSubmitted(),
                 $submission->validatePeerReviews()
             );
+
+            // fau: exAssHook - handle the creation of the new team
+            $assignmentType = $this->assignment->getAssignmentType();
+            if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                // whole team is new, so added members are not provided
+                $assignmentType->handleTeamChange($this->assignment, $team);
+            }
+            // fau.
         }
 
         ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
@@ -1698,6 +1715,15 @@ class ilExerciseManagementGUI
                     $group,
                     false
                 );
+
+                // fau: exAssHook - handle the deletion of the team
+                $assignmentType = $this->assignment->getAssignmentType();
+                if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                    // group of removed users is provided - their status will be reset
+                    $assignmentType->handleTeamChange($this->assignment, $team, [], $group);
+                }
+                // fau.
+
             }
         }
 
@@ -1839,6 +1865,14 @@ class ilExerciseManagementGUI
                                 $team->addTeamMember($user_id);
                             }
                         }
+
+                        // fau: exAssHook - handle the creation of team from groups
+                        $assignmentType = $this->assignment->getAssignmentType();
+                        if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                            // don't provide added members - we assume that there are no submissions to cmmpare yet
+                            $assignmentType->handleTeamChange($this->assignment, $team);
+                        }
+                        // fau.
                     }
                     
                     $mess = array();
@@ -1935,6 +1969,14 @@ class ilExerciseManagementGUI
                 $submission->hasSubmitted(),
                 $submission->validatePeerReviews()
             );
+
+            // fau: exAssHook - handle creation of the single user team
+            $assignmentType = $this->assignment->getAssignmentType();
+            if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+                // single team is new  - don't provide added members
+                $assignmentType->handleTeamChange($this->assignment, $team);
+            }
+            // fau.
         }
 
         ilUtil::sendSuccess($this->lng->txt("exc_create_single_teams_finished"), true);
