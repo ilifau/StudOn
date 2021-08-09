@@ -485,6 +485,10 @@ cron#:#cron_mycampus_sync_added#:#Neue Kursmitglieder: %s
 cron#:#cron_set_last_run#:#Setze letzten Durchlauf
 cron#:#cron_set_last_run_info#:#Der nächste Start wird ausgehend vom letzten Durchlauf anhand des Zeitplans bestimmt
 cron#:#cron_last_run#:#Letzter Durchlauf
+cron#:#campo_data_update#:#Campo-Daten aktualisieren
+cron#:#campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+cron#:#fau_org_data_update#:#FAU.org-Daten aktualisieren
+cron#:#fau_org_data_update_info#:#Aktualisiert die Daten zu den FAU-Organisationseinheiten aus FAU.org
 crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
 crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!

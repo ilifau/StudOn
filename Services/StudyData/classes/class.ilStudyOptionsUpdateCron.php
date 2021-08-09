@@ -3,7 +3,7 @@
 
 include_once "Services/Cron/classes/class.ilCronJob.php";
 
-// fau: studyData - new class ilStudyOptionsUpdateCron.
+// fau: campoData - new class ilStudyOptionsUpdateCron.
 /**
  * Cron for update of option lists for the study data
  *
