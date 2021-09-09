@@ -88,6 +88,21 @@ class ilCampoDataService
         $ilDB = $DIC->database();
 
         $ilDB->dropTable('campo_event', false);
+        $ilDB->dropTable('campo_achievement', false);
+        $ilDB->dropTable('campo_cos', false);
+        $ilDB->dropTable('campo_course', false);
+        $ilDB->dropTable('campo_course_responsible', false);
+        $ilDB->dropTable('campo_event_module', false);
+        $ilDB->dropTable('campo_event_org_unit', false);
+        $ilDB->dropTable('campo_individual_date', false);
+        $ilDB->dropTable('campo_individual_date_instructor', false);
+        $ilDB->dropTable('campo_module', false);
+        $ilDB->dropTable('campo_module_restrictions', false);
+        $ilDB->dropTable('campo_planned_date', false);
+        $ilDB->dropTable('campo_planned_date_instructor', false);
+        $ilDB->dropTable('campo_requirement', false);
+        $ilDB->dropTable('campo_restriction', false);
+        $ilDB->dropTable('campo_student_cos', false);
     }
 
 
@@ -97,5 +112,20 @@ class ilCampoDataService
     public static function createStudOnDataTables()
     {
         ilCampoEvent::createTable();
+        ilCampoAchievement::createTable();
+        ilCampoCOS::createTable();
+        ilCampoCourse::createTable();
+        ilCampoCourseResponsible::createTable();
+        ilCampoEventModule::createTable();
+        ilCampoEventOrgUnit::createTable();
+        ilCampoIndividualDate::createTable();
+        ilCampoIndividualDateInstructor::createTable();
+        ilCampoModule::createTable();
+        ilCampoModuleRestrictions::createTable();
+        ilCampoPlannedDate::createTable();
+        ilCampoPlannedDateInstructor::createTable();
+        ilCampoRequirement::createTable();
+        ilCampoRestriction::createTable();
+        ilCampoStudentCOS::createTable();
     }
 }

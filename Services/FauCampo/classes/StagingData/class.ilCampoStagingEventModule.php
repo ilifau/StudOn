@@ -14,4 +14,42 @@ class ilCampoStagingEventModule extends ActiveRecord
      */
     protected $connector_container_name = 'campo_event_module';
 
+    /**
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           11
+     */
+    public $module_id;
+
+    /**
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           11
+     */
+    public $event_id;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
+    public $dip_status;
+
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    public $dip_timestamp;
+
 }

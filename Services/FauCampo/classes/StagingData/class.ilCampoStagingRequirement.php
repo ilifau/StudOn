@@ -14,4 +14,42 @@ class ilCampoStagingRequirement extends ActiveRecord
      */
     protected $connector_container_name = 'campo_requirement';
 
+
+    /**
+     * @var integer
+     * @con_has_field        true
+     * @con_is_primary       true
+     * @con_is_notnull       true
+     * @con_fieldtype        integer
+     * @con_length           4
+     */
+    public $requirement_id;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
+    public $requirement_name;
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        text
+     * @con_length           250
+     */
+    public $dip_status;
+
+
+    /**
+     * @var string
+     * @con_has_field        true
+     * @con_is_notnull       false
+     * @con_fieldtype        timestamp
+     */
+    public $dip_timestamp;
+
 }
