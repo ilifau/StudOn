@@ -17,7 +17,6 @@ class ilCampoStagingAchievement extends ActiveRecord
     /**
      * @var string
      * @con_has_field        true
-     * @con_is_primary       true
      * @con_is_notnull       true
      * @con_fieldtype        text
      * @con_length           250

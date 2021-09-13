@@ -27,7 +27,6 @@ class ilCampoStagingCourse extends ActiveRecord
     /**
      * @var integer
      * @con_has_field        true
-     * @con_is_primary       false
      * @con_is_notnull       false
      * @con_fieldtype        integer
      * @con_length           4

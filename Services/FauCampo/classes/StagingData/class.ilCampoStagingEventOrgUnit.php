@@ -28,7 +28,6 @@ class ilCampoStagingEventOrgUnit extends ActiveRecord
      * @var string
      * @con_has_field        true
      * @con_is_notnull       false
-     * @con_is_primary       true
      * @con_fieldtype        text
      * @con_length           250
      */

@@ -52,6 +52,8 @@ class ilCampoDataService
 		arConnectorMap::register(new ilCampoStagingRequirement(), $connector);
 		arConnectorMap::register(new ilCampoStagingRestriction(), $connector);
 		arConnectorMap::register(new ilCampoStagingStudentCOS(), $connector);
+
+
     }
 
     /**
