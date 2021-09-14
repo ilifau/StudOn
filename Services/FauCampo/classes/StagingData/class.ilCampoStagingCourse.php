@@ -93,7 +93,7 @@ class ilCampoStagingCourse extends ActiveRecord
      * @con_fieldtype        integer
      * @con_length           11
      */
-    public $maximum_attendees;
+    public $attendee_maximum;
 
     /**
      * @var integer

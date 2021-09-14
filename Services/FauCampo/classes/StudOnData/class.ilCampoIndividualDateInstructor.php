@@ -12,7 +12,7 @@ class ilCampoIndividualDateInstructor extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_individual_date_instructor';
+    protected $connector_container_name = 'campo_individual_instructor';
 
 
     /**

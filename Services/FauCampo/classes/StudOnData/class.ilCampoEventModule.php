@@ -12,7 +12,7 @@ class ilCampoEventModule extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_event_module';
+    protected $connector_container_name = 'campo_module';
 
     /**
      * @var integer

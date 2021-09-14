@@ -12,7 +12,7 @@ class ilCampoEventOrgUnit extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_event_org_unit';
+    protected $connector_container_name = 'campo_event_orgunit';
 
 
     /**

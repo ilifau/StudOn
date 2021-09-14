@@ -9,6 +9,12 @@ class ilCampoModule extends ActiveRecord
 {
     use ilCampoStudOnDataFunctions;
 
+
+    /**
+     * @var string
+     */
+    protected $connector_container_name = 'campo_module';
+
     /**
      * @var integer
      * @con_has_field        true
@@ -46,10 +52,6 @@ class ilCampoModule extends ActiveRecord
      */
     public $module_name;
 
-    /**
-     * @var string
-     */
-    protected $connector_container_name = 'campo_module';
 
     /**
      * Create the database table structure

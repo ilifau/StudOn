@@ -12,7 +12,7 @@ class ilCampoCOS extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_cos';
+    protected $connector_container_name = 'campo_module_cos';
 
     /**
      * Create the database table structure

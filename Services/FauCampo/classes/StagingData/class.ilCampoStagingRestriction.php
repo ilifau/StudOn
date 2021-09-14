@@ -12,7 +12,7 @@ class ilCampoStagingRestriction extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_restriction';
+    protected $connector_container_name = 'campo_restrictions';
 
     /**
      * @var string

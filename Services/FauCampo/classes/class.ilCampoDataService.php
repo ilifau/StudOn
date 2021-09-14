@@ -104,7 +104,7 @@ class ilCampoDataService
         $ilDB->dropTable('campo_planned_date_instructor', false);
         $ilDB->dropTable('campo_requirement', false);
         $ilDB->dropTable('campo_restriction', false);
-        $ilDB->dropTable('campo_student_cos', false);
+        //$ilDB->dropTable('campo_student_cos', false);
     }
 
 
@@ -128,6 +128,6 @@ class ilCampoDataService
         ilCampoPlannedDateInstructor::createTable();
         ilCampoRequirement::createTable();
         ilCampoRestriction::createTable();
-        ilCampoStudentCOS::createTable();
+        //ilCampoStudentCOS::createTable();
     }
 }

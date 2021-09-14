@@ -93,7 +93,7 @@ class ilCampoCourse extends ActiveRecord
      * @con_fieldtype        integer
      * @con_length           11
      */
-    public $maximum_attendees;
+    public $attendee_maximum;
 
     /**
      * @var integer
@@ -191,7 +191,7 @@ class ilCampoCourse extends ActiveRecord
                 'type' => 'float',
 
             ),
-            'maximum_attendees' => array(
+            'attendee_maximum' => array(
                 'type' => 'integer',
                 'length' => '11',
 

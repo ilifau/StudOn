@@ -12,7 +12,7 @@ class ilCampoStagingRequirement extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_requirement';
+    protected $connector_container_name = 'campo_module_restrictions';
 
 
     /**

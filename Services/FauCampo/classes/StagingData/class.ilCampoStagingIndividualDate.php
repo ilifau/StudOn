@@ -12,7 +12,7 @@ class ilCampoStagingIndividualDate extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_individual_date';
+    protected $connector_container_name = 'campo_individual_dates';
 
     /**
      * @var integer

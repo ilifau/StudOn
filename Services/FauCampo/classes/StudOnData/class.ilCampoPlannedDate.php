@@ -12,7 +12,7 @@ class ilCampoPlannedDate extends ActiveRecord
     /**
      * @var string
      */
-    protected $connector_container_name = 'campo_planned_date';
+    protected $connector_container_name = 'campo_planned_dates';
 
 
     /**

@@ -87,7 +87,7 @@ class ilCampoStudentCOS extends ActiveRecord
 
         if (! $ilDB->tableExists('campo_student_cos')) {
             $ilDB->createTable('campo_student_cos', $fields);
-            $ilDB->addPrimaryKey('campo_student_cos', array( 'student_cos_id' ));
+            $ilDB->addPrimaryKey('campo_student_cos', array( 'cos_id' ));
         }
     }
 }

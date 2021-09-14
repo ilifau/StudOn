@@ -139,7 +139,7 @@ class ilCampoDataUpdate
         $this->updateStudonWithStagingValues($complete, 'ilCampoStagingPlannedDateInstructor', 'ilCampoPlannedDateInstructor', 'planned_dates_id');
         $this->updateStudonWithStagingValues($complete, 'ilCampoStagingRequirement', 'ilCampoRequirement', 'requirement_id');
         $this->updateStudonWithStagingValues($complete, 'ilCampoStagingRestriction', 'ilCampoRestriction', 'restriction');
-        $this->updateStudonWithStagingValues($complete, 'ilCampoStagingStudentCOS', 'ilCampoStudentCOS', 'cos_id');
+        //$this->updateStudonWithStagingValues($complete, 'ilCampoStagingStudentCOS', 'ilCampoStudentCOS', 'cos_id');
         return true;
     }
 }
