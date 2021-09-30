@@ -275,6 +275,8 @@ common#:#object_copy_with_mail_suffix#:#(With Email Message)###fau: copyBySoap
 common#:#object_copy_in_progress_with_mail#:#The copy is started in background. You will get a system message, when all contents are copied.###fau: copyBySoap
 common#:#object_copy_mail_subject#:#Copied: %s###fau: copyBySoap
 common#:#object_copy_mail_body#:#Link to the copied object: %s###fau: copyBySoap
+common#:#object_copy_mail_error_subject#:#Error on Copy: %s###fau: copyBySoap
+common#:#object_copy_mail_error_body#:#The copy process stpped with an error. Please forward this mail to studon@fau.de.\n\Error Message:\n%s\n\nStacktrace:\n%s\n\nSource Object: %s\nTarget Object: %s\nError Object: %s###fau: copyBySoap
 common#:#permission_denied_for#:#The permission is rejected for:
 common#:#print_pagebreaks#:#print on single pages
 common#:#privacy_note_for_authors#:#Note for authors

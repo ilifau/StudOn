@@ -331,28 +331,8 @@ class ilSoapUtils extends ilSoapAdministration
         
         // Fetch first node
         if (($node = $cp_options->fetchFirstDependenciesNode()) === false) {
-            // fau: copyBySoap - send a system message when the copy process is finished
-            $mail_options = $cp_options->getOptions(ilCopyWizardOptions::SEND_MAIL);
-            if (ilCust::get('ilias_copy_always_mail') || ($cp_options->isSOAPEnabled() and !empty($mail_options))) {
-                $root_options = $cp_options->getOptions(ilCopyWizardOptions::ROOT_NODE);
-                if (count($root_options)) {
-                    $root_id = current($root_options);
-                    $mappings = $cp_options->getMappings();
-                    if (isset($mappings[$root_id])) {
-                        global $DIC;
-                        $ilUser = $DIC->user();
-                        $lng = $DIC->language();
-
-                        $target_id = $mappings[$root_id];
-                        $obj_id = ilObject::_lookupObjId($target_id);
-                        $title = ilObject::_lookupTitle($obj_id, true);
-                        $subject = sprintf($lng->txt('object_copy_mail_subject'), $title);
-                        $message = sprintf($lng->txt('object_copy_mail_body'), ilLink::_getStaticLink($target_id));
-                        $mail = new ilMail(ANONYMOUS_USER_ID);
-                        $mail->sendMail($ilUser->getLogin(), null, null, $subject, $message, null, array("system"));
-                    }
-                }
-            }
+            // fau: copyBySoap - handle a successful copy result
+            $this->handleCopyResult($cp_options);
             // fau.
             $cp_options->deleteAll();
             ilLoggerFactory::getLogger('obj')->info('Finished copy step 2. Copy completed');
@@ -362,32 +342,86 @@ class ilSoapUtils extends ilSoapAdministration
         // Check options of this node
         $options = $cp_options->getOptions($node['child']);
         $new_ref_id = 0;
-        switch ($options['type']) {
-            case ilCopyWizardOptions::COPY_WIZARD_OMIT:
-                ilLoggerFactory::getLogger('obj')->debug(': Omitting node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $this->callNextDependency($sid, $cp_options);
-                break;
-            
-            case ilCopyWizardOptions::COPY_WIZARD_LINK:
-                ilLoggerFactory::getLogger('obj')->debug(': Start cloning dependencies for node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $this->cloneDependencies($node, $cp_options);
-                $this->callNextDependency($sid, $cp_options);
-                break;
-                
-            case ilCopyWizardOptions::COPY_WIZARD_COPY:
-                ilLoggerFactory::getLogger('obj')->debug(': Start cloning dependencies: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $this->cloneDependencies($node, $cp_options);
-                $this->callNextDependency($sid, $cp_options);
-                break;
-                
-            default:
-                ilLoggerFactory::getLogger('obj')->warning('No valid action type given for node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $this->callNextDependency($sid, $cp_options);
-                break;
+
+         // fau: copyBySoap - handle a failed copy result
+         try {
+            switch ($options['type']) {
+                case ilCopyWizardOptions::COPY_WIZARD_OMIT:
+                    ilLoggerFactory::getLogger('obj')->debug(': Omitting node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $this->callNextDependency($sid, $cp_options);
+                    break;
+
+                case ilCopyWizardOptions::COPY_WIZARD_LINK:
+                    ilLoggerFactory::getLogger('obj')->debug(': Start cloning dependencies for node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $this->cloneDependencies($node, $cp_options);
+                    $this->callNextDependency($sid, $cp_options);
+                    break;
+
+                case ilCopyWizardOptions::COPY_WIZARD_COPY:
+                    ilLoggerFactory::getLogger('obj')->debug(': Start cloning dependencies: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $this->cloneDependencies($node, $cp_options);
+                    $this->callNextDependency($sid, $cp_options);
+                    break;
+
+                default:
+                    ilLoggerFactory::getLogger('obj')->warning('No valid action type given for node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $this->callNextDependency($sid, $cp_options);
+                    break;
+            }
         }
+        catch(Exception $e) {
+            $this->handleCopyResult($cp_options, $e, $node['child']);
+            return false;
+        }
+        // fau.
+
         return true;
     }
-    
+
+    // fau: copyBySoap - new function handleCopyResult
+    /**
+     * Handle the result of a copy option
+     * @param ilCopyWizardOptions $cp_options
+     * @param  Exception|null     $exception
+     * @param int                 $ref_id       ref_id of the node that caused the error
+     */
+    private function handleCopyResult(ilCopyWizardOptions $cp_options, $exception = null, $ref_id = 0)
+    {
+        global $DIC;
+        $ilUser = $DIC->user();
+        $lng = $DIC->language();
+
+        // fau: copyBySoap - send a system message when the copy process is finished
+        $mail_options = $cp_options->getOptions(ilCopyWizardOptions::SEND_MAIL);
+        if (ilCust::get('ilias_copy_always_mail') || ($cp_options->isSOAPEnabled() && (!empty($mail_options) || isset($exception)))) {
+            $root_options = $cp_options->getOptions(ilCopyWizardOptions::ROOT_NODE);
+            if (count($root_options)) {
+                $root_id = current($root_options);
+                $mappings = $cp_options->getMappings();
+                $target_id = (isset($mappings[$root_id]) ? $mappings[$root_id] : null);
+                $obj_id = ilObject::_lookupObjId($root_id);
+                $title = ilObject::_lookupTitle($obj_id);
+                if (!isset($exception)) {
+                    $subject = sprintf($lng->txt('object_copy_mail_subject'), $title);
+                    $message = sprintf($lng->txt('object_copy_mail_body'), isset($target_id) ? ilLink::_getStaticLink($target_id) : '-');
+                }
+                else {
+                    $subject = sprintf($lng->txt('object_copy_mail_error_subject'), $title);
+                    $message = sprintf(str_replace('\n', "\n", $lng->txt('object_copy_mail_error_body')),
+                        $exception->getMessage(),
+                        $exception->getTraceAsString(),
+                        ilLink::_getStaticLink($root_id),
+                        isset($target_id) ? ilLink::_getStaticLink($target_id) : '-',
+                        ilLink::_getStaticLink($ref_id));
+                }
+                $mail = new ilMail(ANONYMOUS_USER_ID);
+                $mail->sendMail($ilUser->getLogin(), null, null, $subject, $message, null, array("system"));
+            }
+        }
+    }
+    // fau.
+
+
     /**
      * Clone object
      *
@@ -431,39 +465,50 @@ class ilSoapUtils extends ilSoapAdministration
         $action = $this->rewriteActionForNode($cp_options, $node, $options);
 
         $new_ref_id = 0;
-        switch ($action) {
-            case ilCopyWizardOptions::COPY_WIZARD_OMIT:
-                ilLoggerFactory::getLogger('obj')->debug(': Omitting node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                // set mapping to zero
-                $cp_options->appendMapping($node['child'], 0);
-                $this->callNextNode($sid, $cp_options);
-                break;
-                
-            case ilCopyWizardOptions::COPY_WIZARD_COPY:
-                
-                ilLoggerFactory::getLogger('obj')->debug('Start cloning node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $new_ref_id = $this->cloneNode($node, $cp_options);
-                $this->callNextNode($sid, $cp_options);
-                break;
-            
-            case ilCopyWizardOptions::COPY_WIZARD_LINK:
-                ilLoggerFactory::getLogger('obj')->debug('Start linking node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $new_ref_id = $this->linkNode($node, $cp_options);
-                $this->callNextNode($sid, $cp_options);
-                break;
 
-            case \ilCopyWizardOptions::COPY_WIZARD_LINK_TO_TARGET:
-                ilLoggerFactory::getLogger('obj')->debug('Start creating internal link for: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $new_ref_id = $this->internalLinkNode($node, $cp_options);
-                $this->callNextNode($sid, $cp_options);
-                break;
+        // fau: copyBySoap - handle a failed copy result
+        try {
+            throw new Exception('hallo Welt');
+            switch ($action) {
+                case ilCopyWizardOptions::COPY_WIZARD_OMIT:
+                    ilLoggerFactory::getLogger('obj')->debug(': Omitting node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    // set mapping to zero
+                    $cp_options->appendMapping($node['child'], 0);
+                    $this->callNextNode($sid, $cp_options);
+                    break;
 
-            default:
-                ilLoggerFactory::getLogger('obj')->warning('No valid action type given for: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
-                $this->callNextNode($sid, $cp_options);
-                break;
-                
+                case ilCopyWizardOptions::COPY_WIZARD_COPY:
+
+                    ilLoggerFactory::getLogger('obj')->debug('Start cloning node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $new_ref_id = $this->cloneNode($node, $cp_options);
+                    $this->callNextNode($sid, $cp_options);
+                    break;
+
+                case ilCopyWizardOptions::COPY_WIZARD_LINK:
+                    ilLoggerFactory::getLogger('obj')->debug('Start linking node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $new_ref_id = $this->linkNode($node, $cp_options);
+                    $this->callNextNode($sid, $cp_options);
+                    break;
+
+                case \ilCopyWizardOptions::COPY_WIZARD_LINK_TO_TARGET:
+                    ilLoggerFactory::getLogger('obj')->debug('Start creating internal link for: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $new_ref_id = $this->internalLinkNode($node, $cp_options);
+                    $this->callNextNode($sid, $cp_options);
+                    break;
+
+                default:
+                    ilLoggerFactory::getLogger('obj')->warning('No valid action type given for: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
+                    $this->callNextNode($sid, $cp_options);
+                    break;
+
+            }
         }
+        catch (Exception $e) {
+            $this->handleCopyResult($cp_options, $e, $node['child']);
+            return false;
+        }
+        // fau.
+
         return $new_ref_id;
     }
     

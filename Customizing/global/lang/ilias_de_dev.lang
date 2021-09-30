@@ -248,6 +248,8 @@ common#:#object_copy_with_mail_suffix#:#(mit Mail-Bestätigung)###fau: copyBySoa
 common#:#object_copy_in_progress_with_mail#:#Die Kopie wird im Hintergrund durchgeführt. Sie erhalten eine Mail als Systemnachricht, wenn alle Inhalte kopiert sind.###fau: copyBySoap
 common#:#object_copy_mail_subject#:#Kopiert: %s###fau: copyBySoap
 common#:#object_copy_mail_body#:#Link zum kopierten Objekt: %s###fau: copyBySoap
+common#:#object_copy_mail_error_subject#:#Fehler beim Kopieren: %s###fau: copyBySoap
+common#:#object_copy_mail_error_body#:#Beim Kopieren ist ein Fehler aufgetreten. Bitte leiten Sie diese E-Mail an studon@fau.de weiter.\n\nFehlermeldung:\n%s\n\nStacktrace:\n%s\n\nLink zum Original: %s\nLink zum Zielobjekt: %s\nLink zum Fehlerobjekt: %s###fau: copyBySoap
 common#:#permission_denied_for#:#Die Berechtigung wurde verweigert für:
 common#:#print_pagebreaks#:#Auf Einzelseiten drucken
 common#:#privacy_note_for_authors#:#Hinweis für Bearbeiter
