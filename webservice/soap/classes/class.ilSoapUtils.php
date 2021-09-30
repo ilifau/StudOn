@@ -468,7 +468,6 @@ class ilSoapUtils extends ilSoapAdministration
 
         // fau: copyBySoap - handle a failed copy result
         try {
-            throw new Exception('hallo Welt');
             switch ($action) {
                 case ilCopyWizardOptions::COPY_WIZARD_OMIT:
                     ilLoggerFactory::getLogger('obj')->debug(': Omitting node: ' . $node['obj_id'] . ', ' . $node['title'] . ', ' . $node['type']);
