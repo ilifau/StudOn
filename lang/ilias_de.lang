@@ -1,4 +1,16 @@
-* Copyright (c)  1998-2020 ILIAS open source e-Learning e.V., Extended GPL, see docs/LICENSE */
+* This file is part of ILIAS, a powerful learning management system
+* published by ILIAS open source e-Learning e.V.
+*
+* ILIAS is licensed with the GPL-3.0,
+* see https://www.gnu.org/licenses/gpl-3.0.en.html
+* You should have received a copy of said license along with the
+* source code, too.
+*
+* If this is not the case or you just want to try ILIAS, you'll find
+* us at:
+* https://www.ilias.de
+* https://github.com/ILIAS-eLearning
+*
 /**
 * ILIAS language file (All entries)
 *
@@ -517,7 +529,7 @@ assessment#:#autocomplete_error#:#Ihre Wert für die Autovervollständigung ist 
 assessment#:#autoparticipants_subtab#:#Teilnehmer
 assessment#:#autosave#:#Automatisches Speichern
 assessment#:#autosave_failed#:#Automatisches Speichern fehlgeschlagen!
-assessment#:#autosave_info#:#Antworten werden von ILIAS automatisch gespeichert, um einen Datenverlust zu vermeiden.
+assessment#:#autosave_info#:#Die Antworten der Teilnehmenden auf die jeweils zuletzt geöffnete Frage wird von ILIAS automatisch gespeichert. Diese automatisch gespeicherten Antworten gelten <b>nicht</b> als durch den Teilnehmenden autorisierte Antworten. Sie werden daher von ILIAS bei der automatisierten Auswertung auch nicht berücksichtigt. Automatisch gespeicherte Antworten müssen immer manuell bewertet werden! Sie werden auch nicht in der Ergebnisansicht des jeweiligen Testteilnehmers angezeigt. Das automatische Speichern der Antworten ist nur für den Notfall gedacht, z. B. beim versehentlichen Schließen des Browserfensters!
 assessment#:#autosave_ival#:#Speicherintervall
 assessment#:#autosave_success#:#Automatisches Speichern erfolgreich durchgeführt...
 assessment#:#average_reached_points#:#Durchschnittlich erreichte Punktezahl
@@ -1257,6 +1269,7 @@ assessment#:#tst_corr_answ_stat_tbl_header_answer#:#Antwort
 assessment#:#tst_corr_answ_stat_tbl_header_frequency#:#Häufigkeit
 assessment#:#tst_corrections_answers_tbl#:#Antwortstatistik
 assessment#:#tst_corrections_answers_tbl_subindex#:#Antwortstatistik für %s
+assessment#:#tst_corrections_incompatible_question_set_type#:#Eine Nachkorrektur ist nur möglich, wenn der Test eine fest definierte Fragenauswahl verwendet.
 assessment#:#tst_corrections_manscore_reset_warning#:#Es liegen %s manuelle Bewertungen für die Frage "%s (ID: %s)" vor. Alle manuellen Bewertungen werden zurückgesetzt wenn die Frage gespeichert wird.
 assessment#:#tst_corrections_qst_form#:#Korrektur der Punkte
 assessment#:#tst_corrections_qst_remove_confirmation#:#Möchten Sie die Frage "%s (ID: %s)" wirklich endgültig aus dem Test entfernen?
@@ -1297,7 +1310,7 @@ assessment#:#tst_dynamic_question_set_source_questionpool_summary_string#:#%s (P
 assessment#:#tst_edit_competence_assign#:#Bearbeite Zuordnungs-Eigenschaften
 assessment#:#tst_edit_scoring#:#Ändere Bewertung
 assessment#:#tst_ending_time#:#Ende
-assessment#:#tst_ending_time_desc#:#Zeitpunkt, ab dem Teilnehmer keine Antworten mehr abgeben können. <b>Wichtig</b>: Benutzen Sie diese Option <b>nicht</b> für E-Klausuren/Fernklausuren. Verwenden Sie stattdessen die Funktion „Bearbeitungsdauer begrenzen“, siehe unten. Nur dann wird der Test serverseitig beendet und die letzte Eingabe jedes Teilnehmers automatisch gespeichert.
+assessment#:#tst_ending_time_desc#:#Zeitpunkt, ab dem Teilnehmer keine Antworten mehr abgeben können. <b>Wichtig</b>: Benutzen Sie diese Option <b>nicht</b> für E-Klausuren/Fernklausuren. Verwenden Sie stattdessen die Funktion „Bearbeitungsdauer begrenzen“, siehe unten. Nur dann wird der Test serverseitig beendet und die letzte Eingabe jedes Teilnehmers als autorisierte Antwort automatisch gespeichert.
 assessment#:#tst_enter_questionpool#:#Bitte geben Sie den Namen eines Fragenpools an, in dem die neue Frage abgelegt werden soll
 assessment#:#tst_eval_question_points#:#Fragenergebnisse für Testdurchlauf %s
 assessment#:#tst_eval_results_by_pass#:#Detaillierte Testergebnisse für Testdurchlauf %s
@@ -3637,6 +3650,7 @@ common#:#file_info#:#Dateiinformation
 common#:#file_is_infected#:#Die Datei ist von einem Virus befallen.
 common#:#file_no_valid_file_type#:#Dieser Dateityp ist nicht erlaubt.
 common#:#file_not_found#:#Datei nicht gefunden
+common#:#file_not_found_sec#:#Diese Datei wurde in ILIAS nicht gefunden oder wurde aus Sicherheitsgründen gesperrt.
 common#:#file_not_valid#:#Datei ist ungültig!
 common#:#file_notice#:#Maximal erlaubte Upload-Größe:
 common#:#file_rollback#:#Zur aktuellen Version machen
@@ -4262,6 +4276,8 @@ common#:#msg_user_last_role1#:#Die folgenden Benutzer sind nur dieser einen Roll
 common#:#msg_user_last_role2#:#Bitte löschen Sie die Benutzer oder weisen Sie ihnen einer anderen Rolle zu.
 common#:#msg_userassignment_changed#:#Benutzerzuweisung geändert
 common#:#msg_wrong_filetypes#:#Erlaubte Dateiendungen:
+common#:#msg_no_files_selected#:#Keine Dateien ausgewählt
+common#:#msg_to_many_files#:#Zu viele Dateien ausgewählt, erlaubte Anzahl Dateien:
 common#:#msg_wrong_format#:#Der Wert, den Sie eingegeben haben, erfüllt nicht das vorgegebene Format.
 common#:#my_bms#:#Meine Bookmarks
 common#:#my_certificates#:#Meine Zertifikate
@@ -15088,7 +15104,7 @@ wsp#:#wsp_type_tstv#:#Zertifikat: Test
 wsp#:#wsp_type_webr#:#Weblink
 wsp#:#wsp_type_wfld#:#Ordner
 style#:#Style#:#Style###20 03 2019 new variable
-file#:#file_upload_info_file_with_critical_unknown_extension_later_renamed_when_downloading#:#The uploaded file contains a critical or unknown file ending. The file ending will be changed to .sec for every download.###20 03 2019 new variable
+file#:#file_upload_info_file_with_critical_extension#:#The uploaded file contains a critical or unknown file ending. The file ending will be changed to .sec for every download.###20 03 2019 new variable
 content#:#cont_Attention#:#Achtung
 content#:#cont_Confirmation#:#Bestätigung
 content#:#cont_Information#:#Information

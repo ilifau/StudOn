@@ -14467,7 +14467,7 @@ file#:#file_suffix_custom_white#:#Egyénileg engedélyezett kiterjesztések
 file#:#file_suffix_custom_white_info#:#Ezeket a kiterjesztéseket hozzáadjuk az engedélyezettekhez.
 file#:#file_suffix_overall_white#:#Engedélyezett kiterjesztések összesítő listája
 file#:#file_suffix_overall_white_info#:#Az elfogadható fájlkiterjesztések összesítő felsorolása.
-file#:#file_upload_info_file_with_critical_unknown_extension_later_renamed_when_downloading#:#A feltöltött fájl kritikus vagy ismeretlen fájlvégződést tartalmaz. Minden fájl minden feltöltött példányának a végét lecseréljük '.sec'-re.
+file#:#file_upload_info_file_with_critical_extension#:#A feltöltött fájl kritikus vagy ismeretlen fájlvégződést tartalmaz. Minden fájl minden feltöltött példányának a végét lecseréljük '.sec'-re.
 common#:#obj_copa#:#Tartalomlap
 common#:#objs_copa#:#Tartalomlapok
 rbac#:#copa_visible#:#A tartalomlapok láthatóak
@@ -15149,3 +15149,4 @@ rbac#:#cld_edit_in_online_editor#:#User can open and edit files in online editor
 ldap#:#ldap_escapedn#:#Escape DN###14 05 2021 new variable
 ldap#:#ldap_escapedn_info#:#If enabled, special characters in the "Distinguished Name (DN)" of user accounts are escaped in queries for group membership.###14 05 2021 new variable
 mail#:#mail_sel_label#:#Choose the Recipients###14 05 2021 new variable
+assessment#:#tst_corrections_incompatible_question_set_type#:#Corrections are only possible if the test uses a fixed set of questions.###27 08 2021 new variable

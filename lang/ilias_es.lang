@@ -14464,7 +14464,7 @@ file#:#file_suffix_custom_white#:#Lista blanca personalizada de sufijos
 file#:#file_suffix_custom_white_info#:#Estos suficos serán añadidos a la lista blanca por defecto.
 file#:#file_suffix_overall_white#:#Lista blanca final de sufijos.
 file#:#file_suffix_overall_white_info#:#Lista final de sufijos de ficheros aceptados.
-file#:#file_upload_info_file_with_critical_unknown_extension_later_renamed_when_downloading#:#El fichero enviado contiene una extensión insegura o desconocida. La extensión se cambiará a .sec para todas las descargas.
+file#:#file_upload_info_file_with_critical_extension#:#El fichero enviado contiene una extensión insegura o desconocida. La extensión se cambiará a .sec para todas las descargas.
 common#:#obj_copa#:#Página de Contenido
 common#:#objs_copa#:#Páginas de Contenido
 rbac#:#copa_visible#:#Página de Contenido es visible
@@ -15151,3 +15151,4 @@ rbac#:#cld_edit_in_online_editor#:#User can open and edit files in online editor
 ldap#:#ldap_escapedn#:#Escape DN###14 05 2021 new variable
 ldap#:#ldap_escapedn_info#:#If enabled, special characters in the "Distinguished Name (DN)" of user accounts are escaped in queries for group membership.###14 05 2021 new variable
 mail#:#mail_sel_label#:#Choose the Recipients###14 05 2021 new variable
+assessment#:#tst_corrections_incompatible_question_set_type#:#Corrections are only possible if the test uses a fixed set of questions.###27 08 2021 new variable

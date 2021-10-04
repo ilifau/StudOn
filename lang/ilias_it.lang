@@ -8556,7 +8556,7 @@ file#:#file_suffix_default_white#:#Elenco elementi consentiti suffisso predefini
 file#:#file_suffix_default_white_info#:#Elenco predefinito di suffissi di file accettati.
 file#:#file_suffix_overall_white#:#Elenco elementi consentiti suffisso complessivo
 file#:#file_suffix_overall_white_info#:#Risultante elenco complessivo dei suffissi di file accettati.
-file#:#file_upload_info_file_with_critical_unknown_extension_later_renamed_when_downloading#:#Il file caricato contiene un terminatore critico o sconosciuto. L'estensione di file verra' cambiata in .sec per ogni download.																																																					   
+file#:#file_upload_info_file_with_critical_extension#:#Il file caricato contiene un terminatore critico o sconosciuto. L'estensione di file verra' cambiata in .sec per ogni download.
 file#:#file_uploaded_by#:#Caricato da
 file#:#generate_sanitize_report#:#Segnala file inaccessibili															 
 file#:#personal_workspace_disk_quota#:#Quota disco rigido per spazio di lavoro personale
@@ -15149,3 +15149,4 @@ rbac#:#cld_edit_in_online_editor#:#User can open and edit files in online editor
 ldap#:#ldap_escapedn#:#Escape DN###14 05 2021 new variable
 ldap#:#ldap_escapedn_info#:#If enabled, special characters in the "Distinguished Name (DN)" of user accounts are escaped in queries for group membership.###14 05 2021 new variable
 mail#:#mail_sel_label#:#Choose the Recipients###14 05 2021 new variable
+assessment#:#tst_corrections_incompatible_question_set_type#:#Corrections are only possible if the test uses a fixed set of questions.###27 08 2021 new variable
