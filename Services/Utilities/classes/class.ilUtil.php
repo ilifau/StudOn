@@ -2002,6 +2002,7 @@ class ilUtil
      */
     public static function execConvert($args)
     {
+        $args = self::escapeShellCmd($args);
         ilUtil::execQuoted(PATH_TO_CONVERT, $args);
     }
     
@@ -3697,7 +3698,6 @@ class ilUtil
         elseif ($args) {
             $cmd .= " " . $args;
         }
-
         exec($cmd, $arr);
 
         $DIC->logger()->root()->debug("ilUtil::execQuoted: " . $cmd . ".");

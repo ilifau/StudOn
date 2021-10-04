@@ -1332,17 +1332,17 @@ class ilPageObjectGUI
                 $tpl->setVariable(
                     "IL_TINY_MENU",
                     self::getTinyMenu(
-                            $this->getPageObject()->getParentType(),
-                            $cfg->getEnableInternalLinks(),
-                            $cfg->getEnableWikiLinks(),
-                            $cfg->getEnableKeywords(),
-                            $this->getStyleId(),
-                            true,
-                            true,
-                            $cfg->getEnableAnchors(),
-                            true,
-                            $cfg->getEnableUserLinks()
-                        )
+                        $this->getPageObject()->getParentType(),
+                        $cfg->getEnableInternalLinks(),
+                        $cfg->getEnableWikiLinks(),
+                        $cfg->getEnableKeywords(),
+                        $this->getStyleId(),
+                        true,
+                        true,
+                        $cfg->getEnableAnchors(),
+                        true,
+                        $cfg->getEnableUserLinks()
+                    )
                 );
                     
                 // add int link parts
@@ -1350,12 +1350,12 @@ class ilPageObjectGUI
                 $tpl->setCurrentBlock("int_link_prep");
                 $tpl->setVariable("INT_LINK_PREP", ilInternalLinkGUI::getInitHTML(
                     $this->ctrl->getLinkTargetByClass(
-                            array("ilpageeditorgui", "ilinternallinkgui"),
-                            "",
-                            false,
-                            true,
-                            false
-                        )
+                        array("ilpageeditorgui", "ilinternallinkgui"),
+                        "",
+                        false,
+                        true,
+                        false
+                    )
                 ));
                 $tpl->parseCurrentBlock();
 
@@ -1549,20 +1549,20 @@ class ilPageObjectGUI
                 $tpl->setVariable(
                     "SA_FROM",
                     ilDatePresentation::formatDate(
-                            new ilDateTime(
-                                $this->getPageObject()->getActivationStart(),
-                                IL_CAL_DATETIME
-                            )
+                        new ilDateTime(
+                            $this->getPageObject()->getActivationStart(),
+                            IL_CAL_DATETIME
                         )
+                    )
                 );
                 $tpl->setVariable(
                     "SA_TO",
                     ilDatePresentation::formatDate(
-                            new ilDateTime(
-                                $this->getPageObject()->getActivationEnd(),
-                                IL_CAL_DATETIME
-                            )
+                        new ilDateTime(
+                            $this->getPageObject()->getActivationEnd(),
+                            IL_CAL_DATETIME
                         )
+                    )
                 );
                 $tpl->parseCurrentBlock();
             }

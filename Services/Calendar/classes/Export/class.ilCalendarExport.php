@@ -192,6 +192,7 @@ class ilCalendarExport
         
         if (!$app->getStart() instanceof ilDateTime) {
             $this->logger->notice('Cannot create appointment for app_id: ' . $app->getEntryId());
+            return false;
         }
 
         $this->writer->addLine('BEGIN:VEVENT');

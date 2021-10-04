@@ -1046,7 +1046,7 @@ function startSAHS(SAHSurl, SAHStarget, SAHSopenMode, SAHSwidth, SAHSheight)
  */
 function numericInputCheck() {
 
-	const numericInput = $( '.ilcqinput_NumericInput' );
+	var numericInput = $( '.ilcqinput_NumericInput' );
 
 	// Only if present.
 	if ( numericInput.length ) {

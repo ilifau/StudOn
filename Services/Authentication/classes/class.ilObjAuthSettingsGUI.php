@@ -290,7 +290,18 @@ class ilObjAuthSettingsGUI extends ilObjectGUI
             case AUTH_SHIBBOLETH:
                 if ($this->object->checkAuthSHIB() !== true) {
                     ilUtil::sendFailure($this->lng->txt("auth_shib_not_configured"), true);
-                    ilUtil::redirect($this->getReturnLocation("authSettings", $this->ctrl->getLinkTarget($this, "editSHIB", "", false, false)));
+                    ilUtil::redirect(
+                        $this->getReturnLocation(
+                            'authSettings',
+                            $this->ctrl->getLinkTargetByClass(
+                                ilAuthShibbolethSettingsGUI::class,
+                                'settings',
+                                '',
+                                false,
+                                false
+                            )
+                        )
+                    );
                 }
                 break;
 
@@ -1257,6 +1268,12 @@ class ilObjAuthSettingsGUI extends ilObjectGUI
         return join("\n", preg_split("/[\r\n]+/", $text));
     }
 
+    public function registrationSettingsObject()
+    {
+        $registration_gui = new ilRegistrationSettingsGUI();
+        $this->ctrl->redirect($registration_gui);
+    }
+
     /**
      * @param string $a_form_id
      * @return array
@@ -1266,11 +1283,16 @@ class ilObjAuthSettingsGUI extends ilObjectGUI
         switch ($a_form_id) {
             case ilAdministrationSettingsFormHandler::FORM_ACCESSIBILITY:
                 require_once 'Services/Captcha/classes/class.ilCaptchaUtil.php';
-                $fields = array(
+                $fields_login = array(
                     'adm_captcha_anonymous_short' => array(ilCaptchaUtil::isActiveForLogin(), ilAdministrationSettingsFormHandler::VALUE_BOOL),
                 );
 
-                return array('authentication_settings' => array('authSettings', $fields));
+                $fields_registration = array(
+                    'adm_captcha_anonymous_short' => array(ilCaptchaUtil::isActiveForRegistration(), ilAdministrationSettingsFormHandler::VALUE_BOOL)
+                );
+
+
+                return array('adm_auth_login' => array('authSettings', $fields_login), 'adm_auth_reg' => array('registrationSettings', $fields_registration));
         }
     }
 } // END class.ilObjAuthSettingsGUI

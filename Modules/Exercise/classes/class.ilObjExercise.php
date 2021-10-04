@@ -40,7 +40,7 @@ class ilObjExercise extends ilObject
     /** @var bool */
     public $feedback_notification = true;
     // fau.
-    
+
     public $tutor_feedback = 7; // [int]
     
     const TUTOR_FEEDBACK_MAIL = 1;
@@ -53,7 +53,7 @@ class ilObjExercise extends ilObject
     const PASS_MODE_CALC = 'calc';
     const PASS_MODE_MANUAL = 'man';
     // fau.
-    
+
     /**
      *
      * Indicates whether completion by submission is enabled or not
@@ -313,7 +313,7 @@ class ilObjExercise extends ilObject
             $new_id = $crit_cat->cloneObject($new_obj->getId());
             $crit_cat_map[$crit_cat->getId()] = $new_id;
         }
-
+            
         // Copy assignments
         include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
         ilExAssignment::cloneAssignmentsOfExercise($this->getId(), $new_obj->getId(), $crit_cat_map);
@@ -542,10 +542,10 @@ class ilObjExercise extends ilObject
         if ($a_user_id == 0) {
             $a_user_id = $ilUser->getId();
         }
-
+        
         include_once("./Modules/Exercise/classes/class.ilExAssignment.php");
         $ass = ilExAssignment::getInstancesByExercise($this->getId());
-
+        
         $passed_all_mandatory = true;
         $failed_a_mandatory = false;
         $cnt_passed = 0;
@@ -754,7 +754,7 @@ class ilObjExercise extends ilObject
         $mem_obj = new ilExerciseMembers($this);
 
         $filtered_members = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
-            'etit_submissions_grades',
+            'edit_submissions_grades',
             'edit_submissions_grades',
             $this->getRefId(),
             (array) $mem_obj->getMembers()
@@ -821,7 +821,7 @@ class ilObjExercise extends ilObject
         $excel->setCell($row++, $cnt++, $this->lng->txt("exc_total_exc"));
         $excel->setBold("A1:" . $excel->getColumnCoord($cnt) . "1");
         // fau.
-        
+
         // data rows
         reset($mems);
         foreach ($mems as $user_id => $d) {

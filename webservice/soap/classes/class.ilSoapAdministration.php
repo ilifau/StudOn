@@ -243,7 +243,7 @@ class ilSoapAdministration
             return $this->__raiseError("Client ini is not initialized", "Server");
         }
         $auth_modes = ilAuthUtils::_getActiveAuthModes();
-        $auth_mode_default = strtoupper(ilAuthUtils::_getAuthModeName(array_shift($auth_modes)));
+        $auth_mode_default =  strtoupper(ilAuthUtils::_getAuthModeName(array_shift($auth_modes)));
         $auth_mode_names = array();
         foreach ($auth_modes as $mode) {
             $auth_mode_names[] = strtoupper(ilAuthUtils::_getAuthModeName($mode));
@@ -309,7 +309,7 @@ class ilSoapAdministration
     public static function return_bytes($val)
     {
         $val = trim($val);
-        $last = strtolower($val{strlen($val) - 1});
+        $last = strtolower($val[strlen($val)-1]);
         switch ($last) {
         // The 'G' modifier is available since PHP 5.1.0
         case 'g':
@@ -402,7 +402,7 @@ class ilSoapAdministration
         $writer->start();
         if (is_array($clientdirs)) {
             foreach ($clientdirs as $clientdir) {
-                if (is_object($clientInfo = $this->getClientInfo(null, $clientdir))) {
+                if (is_object($clientInfo= $this->getClientInfo(null, $clientdir))) {
                     $writer->addClient($clientInfo);
                 }
             }

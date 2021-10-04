@@ -246,8 +246,9 @@ class ilPersonalSettingsGUI
             //if (
             //	($ilUser->getAuthMode(true) != AUTH_SHIBBOLETH || !$ilSetting->get("shib_auth_allow_local"))
             //)
+            $pw_info_set = false;
 
-            // fau: pwChangeForm - show username, add button and info for "password assistancen
+            // fau: pwChangeForm - show username, add button and info for "password assistance
             $login = new ilNonEditableValueGUI($lng->txt('login'), 'login');
             $login->setValue($ilUser->getLogin());
             $this->form->addItem($login);
@@ -255,12 +256,18 @@ class ilPersonalSettingsGUI
             if ($ilUser->getAuthMode(true) == AUTH_LOCAL) {
                 // current password
                 $cpass = new ilPasswordInputGUI($lng->txt("current_password"), "current_password");
+                $cpass->setInfo(ilUtil::getPasswordRequirementsInfo());
                 $cpass->setRetype(false);
                 $cpass->setSkipSyntaxCheck(true);
+
+                $pw_info_set = true;
+
                 // only if a password exists.
                 if ($ilUser->getPasswd()) {
                     $cpass->setRequired(true);
                     $cpass->setInfo($lng->txt('current_password_info'));
+                    // the info text is replaces, so show it for the inputs belo
+                    $pw_info_set = false;
                 }
                 $this->form->addItem($cpass);
 
@@ -270,11 +277,13 @@ class ilPersonalSettingsGUI
                 $DIC->toolbar()->addButtonInstance($button);
             }
             // fau.
-            
+
             // new password
             $ipass = new ilPasswordInputGUI($lng->txt("desired_password"), "new_password");
+            if($pw_info_set === false) {
+                $ipass->setInfo(ilUtil::getPasswordRequirementsInfo());
+            }
             $ipass->setRequired(true);
-            $ipass->setInfo(ilUtil::getPasswordRequirementsInfo());
 
             $this->form->addItem($ipass);
             $this->form->addCommandButton("savePassword", $lng->txt("save"));
@@ -355,7 +364,7 @@ class ilPersonalSettingsGUI
         $this->ctrl->redirect($this, 'showPassword');
     }
     // fau.
-    
+
     /**
     * Check, whether password change is allowed for user
     */
@@ -753,7 +762,7 @@ class ilPersonalSettingsGUI
         $select->setInfo($lng->txt('cal_time_format_info'));
         $select->setValue($user_settings->getTimeFormat());
         $this->form->addItem($select);
-        
+
         // starting point
         include_once "Services/User/classes/class.ilUserUtil.php";
         if (ilUserUtil::hasPersonalStartingPoint()) {

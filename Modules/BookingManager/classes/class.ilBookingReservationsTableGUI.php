@@ -496,7 +496,6 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
             );
         }
 
-        // fau: fixOdfInBookingPool - add course/group defined field data correctly
         if (count($this->getSelectedUserColumns()) > 0) {
             // get additional user data
             $user_ids = array_unique(array_map(function ($d) {
@@ -508,8 +507,7 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
             foreach ($this->getSelectedUserColumns() as $field) {
                 if (substr($field, 0, 3) == 'odf') {
                     $odf_ids[] = substr($field, 4);
-                }
-                else {
+                } else {
                     $user_columns[] = $field;
                 }
             }
@@ -565,7 +563,6 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
                 }
             }
         }
-        // fau.
 
         $this->setData($data);
     }
