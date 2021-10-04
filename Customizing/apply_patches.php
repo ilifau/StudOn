@@ -45,8 +45,8 @@ $p->login();
 //$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2021-03-01 00:00:00'));
 //$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2021-03-01 00:00:00'));
 
-//$p->applyPatch('ilCleanupPatches.setOldUsersInactive', array('inactive_since' => '2020-04-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.deleteInactiveUsers', array('inactive_since' => '2019-04-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.setOldUsersInactive', array('inactive_since' => '2020-10-01 00:00:00', 'limit' => null));
+//$p->applyPatch('ilCleanupPatches.deleteInactiveUsers', array('inactive_since' => '2019-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.handleObsoleteTestAccounts', array('limit' => null));
 
 /*******************
