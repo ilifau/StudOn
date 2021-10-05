@@ -961,6 +961,9 @@ class ilTemplate extends HTML_Template_ITX
             $ftpl->setVariable("TXT_PRIVACY", $lng->txt('footer_privacy'));
             $ftpl->setVariable("URL_PRIVACY", ilCust::get("ilias_footer_privacy_url"));
 
+            $ftpl->setVariable("TXT_ACCESSIBILITY", $lng->txt('obj_accs'));
+            $ftpl->setVariable("URL_ACCESSIBILITY", ilCust::get("ilias_footer_accessibility_url"));
+
             $ftpl->setVariable("TXT_REALISED_WITH", $lng->txt('footer_realised_with'));
             $ftpl->setVariable("ILIAS_VERSION_NUMERIC", ILIAS_VERSION_NUMERIC);
         }
