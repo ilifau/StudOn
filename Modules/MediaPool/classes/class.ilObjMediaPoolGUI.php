@@ -1889,10 +1889,17 @@ class ilObjMediaPoolGUI extends ilObject2GUI
                 $format = ilObjMediaObject::getMimeType($file);
                 $location = basename($fullpath);
 
-                // set real meta and object data
-                $media_item->setFormat($format);
-                $media_item->setLocation($location);
-                $media_item->setLocationType("LocalFile");
+                // fau: uploadZippedHtmlMedia - process zip
+                if ($format == 'application/zip') {
+                    ilObjMediaObjectGUI::unzipHtmlMedia($mob_dir, $file, basename($fullpath), $media_item);
+                }
+                else {
+                    // set real meta and object data
+                    $media_item->setFormat($format);
+                    $media_item->setLocation($location);
+                    $media_item->setLocationType("LocalFile");
+                }
+                // fau.
 
                 $mob->setDescription($format);
 

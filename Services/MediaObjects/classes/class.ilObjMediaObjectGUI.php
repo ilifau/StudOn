@@ -907,7 +907,7 @@ class ilObjMediaObjectGUI extends ilObjectGUI
      * @param ilMediaItem $mediaItem
      * @throws ilException
      */
-    protected static function unzipHtmlMedia($mob_dir, $file, $file_name, $mediaItem) {
+    public static function unzipHtmlMedia($mob_dir, $file, $file_name, $mediaItem) {
         global $DIC;
         $lng = $DIC->language();
 
