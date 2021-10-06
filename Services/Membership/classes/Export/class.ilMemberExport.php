@@ -668,11 +668,11 @@ class ilMemberExport
                         break;
 
                     case 'status':
-                        if (in_array($usr_id, $this->lp_data[$key][LP_STATUS_COMPLETED])) {
+                        if (in_array($usr_id, $this->lp_data[$key][ilLPStatus::LP_STATUS_COMPLETED])) {
                             $status = ilLPStatus::LP_STATUS_COMPLETED;
-                        } elseif (in_array($usr_id, $this->lp_data[$key][LP_STATUS_FAILED])) {
+                        } elseif (in_array($usr_id, $this->lp_data[$key][ilLPStatus::LP_STATUS_FAILED])) {
                             $status = ilLPStatus::LP_STATUS_FAILED;
-                        } elseif (in_array($usr_id, $this->lp_data[$key][LP_STATUS_IN_PROGRESS])) {
+                        } elseif (in_array($usr_id, $this->lp_data[$key][ilLPStatus::LP_STATUS_IN_PROGRESS])) {
                             $status = ilLPStatus::LP_STATUS_IN_PROGRESS;
                         } else {
                             $status = ilLPStatus::LP_STATUS_NOT_ATTEMPTED;
