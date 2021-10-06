@@ -857,9 +857,9 @@ class ilMemberExport
                 $this->lp_data[$key]['lp_type'] = 'status';
                 $this->lp_data[$key]['title'] = $data['title'];
                 $this->lp_data[$key]['type'] = $data['type'];
-                $this->lp_data[$key][LP_STATUS_IN_PROGRESS] = ilLPStatusWrapper::_getInProgress($data['obj_id']);
-                $this->lp_data[$key][LP_STATUS_COMPLETED] = ilLPStatusWrapper::_getCompleted($data['obj_id']);
-                $this->lp_data[$key][LP_STATUS_FAILED] = ilLPStatusWrapper::_getFailed($data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_IN_PROGRESS] = ilLPStatusWrapper::_getInProgress($data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_COMPLETED] = ilLPStatusWrapper::_getCompleted($data['obj_id']);
+                $this->lp_data[$key][ilLPStatus::LP_STATUS_FAILED] = ilLPStatusWrapper::_getFailed($data['obj_id']);
             }
 
             if ($this->settings->enabled($data['type'] . '_comments')) {
