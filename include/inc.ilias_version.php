@@ -14,5 +14,5 @@ define("ILIAS_VERSION_NUMERIC", "5.4.23");			// must be always x.y.z: x, y and z
 
 // fau: versionSuffix - define a version with suffix for including css and js files
 // please increase a suffix number if a css or js file is locally changed!
-define("ILIAS_VERSION_SUFFIX", ILIAS_VERSION_NUMERIC . ".40");
+define("ILIAS_VERSION_SUFFIX", ILIAS_VERSION_NUMERIC . ".41");
 // fau.
