@@ -853,9 +853,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                     }
                     $gaptemplate->setVariable("PLEASE_SELECT", $this->lng->txt("please_select"));
                     $gaptemplate->setVariable("GAP_COUNTER", $gap_index);
-// fau: fixGapReplace - use replace function
+                    // fau: fixGapReplace - use replace function
                     $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
                 case CLOZE_NUMERIC:
                     $gaptemplate = new ilTemplate("tpl.il_as_qpl_cloze_question_gap_numeric.html", true, true, "Modules/TestQuestionPool");
@@ -871,9 +871,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                             $gaptemplate->setVariable("VALUE_GAP", " value=\"" . ilUtil::prepareFormOutput($val2) . "\"");
                         }
                     }
-// fau: fixGapReplace - use replace function
-                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau: fixGapReplace - use replace function
+                    $output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau.
                     break;
             }
         }
@@ -885,6 +885,16 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
             $questionoutput = $this->getILIASPage($questionoutput);
         }
         return $questionoutput;
+    }
+
+    /**
+     * Question type specific support of intermediate solution output
+     * The function getSolutionOutput respects getUseIntermediateSolution()
+     * @return bool
+     */
+    public function supportsIntermediateSolutionOutput()
+    {
+        return true;
     }
 
     /**
@@ -917,7 +927,7 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
         $user_solution = array();
         if (($active_id > 0) && (!$show_correct_solution)) {
             // get the solutions of a user
-            $user_solution = &$this->object->getSolutionValues($active_id, $pass);
+            $user_solution = $this->object->getSolutionValues($active_id, $pass, !$this->getUseIntermediateSolution());
             if (!is_array($user_solution)) {
                 $user_solution = array();
             }
@@ -1035,9 +1045,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         $solutiontext = $this-> getBestSolutionText($gap, $gap_index, $check_for_gap_combinations);
                     }
                     $this->populateSolutiontextToGapTpl($gaptemplate, $gap, $solutiontext);
-// fau: fixGapReplace - use replace function
-                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau: fixGapReplace - use replace function
+					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau.
                     break;
                 case CLOZE_SELECT:
                     $solutiontext = "";
@@ -1060,9 +1070,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         $solutiontext = $this-> getBestSolutionText($gap, $gap_index, $check_for_gap_combinations);
                     }
                     $this->populateSolutiontextToGapTpl($gaptemplate, $gap, $solutiontext);
-// fau: fixGapReplace - use replace function
-                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau: fixGapReplace - use replace function
+					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau.
                     break;
                 case CLOZE_NUMERIC:
                     $solutiontext = "";
@@ -1078,8 +1088,8 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         $solutiontext = $this-> getBestSolutionText($gap, $gap_index, $check_for_gap_combinations);
                     }
                     $this->populateSolutiontextToGapTpl($gaptemplate, $gap, $solutiontext);
-// fau: fixGapReplace - use replace function
-                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau: fixGapReplace - use replace function
+					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
 // fau.
                     break;
             }
@@ -1225,8 +1235,8 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                             $gaptemplate->setVariable("VALUE_GAP", " value=\"" . ilUtil::prepareFormOutput($solution["value2"]) . "\"");
                         }
                     }
-// fau: fixGapReplace - use replace function
-                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau: fixGapReplace - use replace function
+					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
 // fau.
                     break;
                 case CLOZE_SELECT:
@@ -1246,9 +1256,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                     }
                     $gaptemplate->setVariable("PLEASE_SELECT", $this->lng->txt("please_select"));
                     $gaptemplate->setVariable("GAP_COUNTER", $gap_index);
-// fau: fixGapReplace - use replace function
+                    // fau: fixGapReplace - use replace function
                     $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
                 case CLOZE_NUMERIC:
                     $gaptemplate = new ilTemplate("tpl.il_as_qpl_cloze_question_gap_numeric.html", true, true, "Modules/TestQuestionPool");
@@ -1265,9 +1275,9 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                             $gaptemplate->setVariable("VALUE_GAP", " value=\"" . ilUtil::prepareFormOutput($solution["value2"]) . "\"");
                         }
                     }
-// fau: fixGapReplace - use replace function
+                    // fau: fixGapReplace - use replace function
                     $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
             }
         }

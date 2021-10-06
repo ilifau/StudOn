@@ -418,25 +418,23 @@ class ilTestServiceGUI
 
                             $compare_template->setVariable('PARTICIPANT', $result_output);
                             $compare_template->setVariable('SOLUTION', $best_output);
-                            // fau: testShowAutoSave - show in test results
                             if ($question_gui->supportsIntermediateSolutionOutput() && $question_gui->hasIntermediateSolution($active_id, $pass)) {
                                 $question_gui->setUseIntermediateSolution(true);
-                                $intermediate_output = $question_gui->getSolutionOutput($active_id, $pass, $show_solutions, false, $show_question_only, $showFeedback);
-                                $compare_template->setVariable('TXT_INTERMEDIATE', $this->lng->txt('tst_intermediate_solution'));
+                                $intermediate_output = $question_gui->getSolutionOutput($active_id, $pass, $show_solutions, false, true, $showFeedback);
+                                $question_gui->setUseIntermediateSolution(false);
+                                $compare_template->setVariable('TXT_INTERMEDIATE', $this->lng->txt('autosavecontent'));
                                 $compare_template->setVariable('INTERMEDIATE', $intermediate_output);
                             }
-                            // fau.
                             $template->setVariable('SOLUTION_OUTPUT', $compare_template->get());
                         } else {
                             $result_output = $question_gui->getSolutionOutput($active_id, $pass, $show_solutions, false, $show_question_only, $showFeedback);
-                            // fau: testShowAutoSave - show in test results
                             if ($question_gui->supportsIntermediateSolutionOutput() && $question_gui->hasIntermediateSolution($active_id, $pass)) {
                                 $question_gui->setUseIntermediateSolution(true);
-                                $intermediate_output = $question_gui->getSolutionOutput($active_id, $pass, $show_solutions, false, $show_question_only, $showFeedback);
-                                $template->setVariable('TXT_INTERMEDIATE', $this->lng->txt('tst_intermediate_solution'));
+                                $intermediate_output = $question_gui->getSolutionOutput($active_id, $pass, $show_solutions, false, true, $showFeedback);
+                                $question_gui->setUseIntermediateSolution(false);
+                                $template->setVariable('TXT_INTERMEDIATE', $this->lng->txt('autosavecontent'));
                                 $template->setVariable('INTERMEDIATE', $intermediate_output);
                             }
-                            // fau.
                             $template->setVariable('SOLUTION_OUTPUT', $result_output);
                         }
 
@@ -880,6 +878,7 @@ class ilTestServiceGUI
         $template->setVariable("TEXT_HEADING", sprintf($this->lng->txt("tst_result_user_name"), $uname));
         $template->setVariable("USER_DATA", $user_data);
 
+        $this->populateExamId($template, (int) $active_id, (int) $pass);
         $this->populatePassFinishDate($template, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
 
         return $template->get();
@@ -1233,6 +1232,22 @@ class ilTestServiceGUI
         ilDatePresentation::setUseRelativeDates($oldValue);
         $tpl->setVariable("PASS_FINISH_DATE_LABEL", $this->lng->txt('tst_pass_finished_on'));
         $tpl->setVariable("PASS_FINISH_DATE_VALUE", $passFinishDate);
+    }
+
+    /**
+     * @param ilTemplate $tpl
+     * @param int $activeId
+     * @param int $pass
+     */
+    public function populateExamId(ilTemplate $tpl, int $activeId, int $pass)
+    {
+        if ($this->object->isShowExamIdInTestResultsEnabled()) {
+            $tpl->setVariable("EXAM_ID_TXT", $this->lng->txt('exam_id'));
+            $tpl->setVariable('EXAM_ID', ilObjTest::lookupExamId(
+                $activeId,
+                $pass
+            ));
+        }
     }
 }
 

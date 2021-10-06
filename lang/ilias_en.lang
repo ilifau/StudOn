@@ -1,4 +1,16 @@
-/* Copyright (c)  1998-2020 ILIAS open source eLearning e.V., Extended GPL, see docs/LICENSE */
+* This file is part of ILIAS, a powerful learning management system
+* published by ILIAS open source e-Learning e.V.
+*
+* ILIAS is licensed with the GPL-3.0,
+* see https://www.gnu.org/licenses/gpl-3.0.en.html
+* You should have received a copy of said license along with the
+* source code, too.
+*
+* If this is not the case or you just want to try ILIAS, you'll find
+* us at:
+* https://www.ilias.de
+* https://github.com/ILIAS-eLearning
+*
 /**
 * ILIAS language file
 *
@@ -100,6 +112,8 @@ auth#:#auth_oidc_role_mapping_table#:#Assignment of ILIAS Roles to OpenId Connec
 auth#:#auth_oidc_update_role_info#:#Only Apply at first Login (Automatic Synchronisation)
 content#:#cont_lpe_openid_connect_login#:#OpenId Connect Login
 common#:#msg_wrong_filetypes#:#Allowed Files-Types:
+common#:#msg_to_many_files#:#Too many files selected, allowed amount of files:
+common#:#msg_no_files_selected#:#No files selected
 common#:#obj_ltis#:#LTI
 common#:#obj_ltis_desc#:#Learning Tools Interoperability
 common#:#lti_outcome#:#LTI Lernfortschritt Benachrichtigung
@@ -312,7 +326,7 @@ administration#:#loginname_history_info#:#If activated, login name changes will 
 administration#:#nothing_to_purge#:#Nothing to purge...
 administration#:#nothing_to_remove#:#Nothing to remove...
 administration#:#nothing_to_restore#:#Nothing to restore...
-administration#:#obj_mds_desc#:#Configure Metadata and Advanced Metadata Settings
+administration#:#obj_mds_desc#:#Configure Metadata and Custom Metadata Settings
 administration#:#obj_mds#:#Metadata
 administration#:#options#:#Options
 administration#:#output_options#:#Output options
@@ -373,7 +387,7 @@ adve#:#adve_page_editor_settings#:#ILIAS Page Editor
 adve#:#adve_rte_settings#:#TinyMCE Editor
 adve#:#adve_text_content_features#:#Text Content Menu
 assessment#:#autosave#:#Automatic saving
-assessment#:#autosave_info#:#Answers are automatically saved in specified intervals to avoid data loss.
+assessment#:#autosave_info#:#The answers of the participants to the last opened question are automatically saved by ILIAS. These automatically saved answers are <b>not</b> considered to be answers authorised by the participant. Therefore, they are not taken into account by ILIAS during the automated evaluation. Automatically saved answers must always be evaluated manually! They are also not displayed in the result view of the respective test taker. The automatic saving of answers is only intended for emergencies, e.g. if the browser window is closed by mistake!
 assessment#:#autosave_ival#:#Interval
 assessment#:#for#:#for
 assessment#:#tst_presentation_settings_section#:#Presentation
@@ -386,7 +400,7 @@ assessment#:#tst_objective_oriented_test_pass_without_questions#:#The started pa
 assessment#:#tst_dyn_quest_set_pool_deleted#:#The currently configured question pool "%s" has been deleted.
 assessment#:#tst_old_style_rnd_quest_set_broken#:#This random test is in a irreparable state, because one or more connected question pools have been deleted. Therefor participants cannot take the test any longer.
 assessment#:#solution_contain_keywords#:#Score is granted based on the occurrence of the following keywords:
-assessment#:#ass_mc_sel_lim_hint#:#Please select %s of %s answers!
+assessment#:#ass_mc_sel_lim_hint#:#Please select at most %s of the %s answers!
 assessment#:#ass_mc_sel_lim_exhausted_hint#:#Please do not select more than %s of %s answers!
 assessment#:#ass_mc_sel_lim_setting#:#Answering Limitation
 assessment#:#ass_mc_sel_lim_setting_desc#:#With this setting the number of answers choosable by the participants can be limited.
@@ -404,6 +418,7 @@ assessment#:#assessment_scoring_adjust#:#Enable corrections
 assessment#:#assessment_scoring_adjust_desc#:#Enables the corrections feature to allow modifications to questions in a test.
 assessment#:#assessment_log_scoring_adjustment_activate#:#Question types available in adjustment
 assessment#:#assessment_log_scoring_adjustment_desc#:#Question types checked here are available in adjustment. This setting is regardless of the current ability of the question types, e.g. a question that does not support adjustment is still shown here.
+assessment#:#tst_corrections_incompatible_question_set_type#:#Corrections are only possible if the test uses a fixed set of questions.
 assessment#:#tst_corrections_qst_remove_confirmation#:#Do you really want to finally remove the question "%s (ID: %s)" from the test?
 assessment#:#tst_corrections_tab_question#:#Question
 assessment#:#tst_corrections_tab_solution#:#Solution
@@ -522,7 +537,7 @@ assessment#:#cannot_edit_marks#:#There are already learners who ran the test. Yo
 assessment#:#cannot_edit_test#:#You do not possess sufficient permissions to edit the test!
 assessment#:#cannot_execute_test#:#You do not possess sufficient permissions to run the test!
 assessment#:#cannot_read_questionpool#:#You do not possess sufficient permissions to read the question pool data!
-assessment#:#cannot_save_metaobject#:#You do not possess sufficient permissions to save the meta data!
+assessment#:#cannot_save_metaobject#:#You do not possess sufficient permissions to save the metadata!
 assessment#:#changeSuggestedSolution#:#Select type of content for recapitulation
 assessment#:#checkbox_checked#:#Checked
 assessment#:#checkbox_unchecked#:#Unchecked
@@ -1271,7 +1286,7 @@ assessment#:#tst_questions_removed#:#Question(s) removed!
 assessment#:#tst_random_nr_of_questions#:#How many questions?
 assessment#:#tst_random_select_questionpool#:#Select the question pool to choose the questions from
 assessment#:#tst_nonpool_questions_get_lost_warning#:#<b>The current test mode includes questions in its configuration that are not assigned to any question pool. If you change the test mode, these questions will be lost permanently.</b>
-assessment#:#tst_reached_points#:#Points
+assessment#:#tst_reached_points#:#Reached Points
 assessment#:#tst_remove_mark#:#Remove this mark
 assessment#:#tst_remove_questions_and_results#:#This test was already executed by %s user(s). Removing questions from this test will remove all test results of these users. Are you sure you want to remove the following question(s) from the test?
 assessment#:#tst_remove_questions#:#Are you sure you want to remove the following questions from the test?
@@ -1389,6 +1404,7 @@ assessment#:#tst_title_output_no_title#:#Neither Question Titles nor Available P
 assessment#:#tst_title_output#:#Show Question Title
 assessment#:#tst_type#:#Test Type
 assessment#:#exam_id#:#Testpass ID:
+assessment#:#exam_id_label#:#Exam Id
 assessment#:#examid_in_test_pass#:#Display Test Pass ID
 assessment#:#examid_in_test_pass_desc#:#A test pass ID is displayed in the test. A new ID is generated for every test pass.
 assessment#:#examid_in_test_res#:#ILIAS Test Pass ID
@@ -1560,8 +1576,8 @@ assessment#:#tst_btn_show_best_solutions#:#Show Best Solutions
 assessment#:#tst_btn_hide_best_solutions#:#Hide Best Solutions
 assessment#:#tst_settings_header_intro#:#Information Before Start of Test
 assessment#:#tst_settings_header_execution#:#Administering the Test: Access
-assessment#:#tst_starting_time_desc#:#Point in time after which the test can be started by clicking the button ‚Start‘, participants can provide answers to questions.
-assessment#:#tst_ending_time_desc#:#Point in time at which the test will be finished: Participants an no longer answer questions, the test is finished by ILIAS.
+assessment#:#tst_starting_time_desc#:#Time from which the test can be started. From this moment on, clicking the button "Start test" is possible and participants can answer questions.
+assessment#:#tst_ending_time_desc#:#Time from which participants can no longer submit answers. <b>Important</b>: Do <b>not</b> use this option for e-exams/distance exams. Instead, use the function "Limit processing time", see below. Only then will the test be ended on the server side and each participant's last entry automatically saved as an authorised answer.
 assessment#:#tst_allowed_users_desc#:#ILIAS will monitor the number of participants taking the test at the same time. If more users than maximally allowed try to access ILIAS will prevent them from starting the test.
 assessment#:#tst_allowed_users_time_gap_desc#:#Participants that do not click in the test for the indicated amount of time will be categorized as ‚inactive‘ and removed from the test.
 assessment#:#tst_settings_header_test_run#:#Administering the Test: Test Run
@@ -1573,6 +1589,7 @@ assessment#:#sign_submission_info#:#If this is activated and a signature plugin 
 assessment#:#tst_corrections_manscore_reset_warning#:#There are %s manual scorings that have been done for the question "%s (ID: %s)". All manual scorings will be reset when saving the question.
 assessment#:#tst_qst_added_to_pool_s#:#Successfully added the question to the selected pool.
 assessment#:#tst_qst_added_to_pool_p#:#Successfully added the questions to the selected pool.
+assessment#:#autosavecontent#:#Autosave Content
 auth#:#auth_account_migration_keep#:#Migrate Existing User Account
 auth#:#auth_account_migration_name#:#Migration
 auth#:#auth_account_migration_new#:#Create New User Account
@@ -2375,6 +2392,7 @@ common#:#file_edit#:#Edit File Information
 common#:#file_info#:#File Information
 common#:#file_is_infected#:#The file is infected by a virus.
 common#:#file_not_found#:#File Not Found
+common#:#file_not_found_sec#:#This file cannot be found in ILIAS or has been blocked due to security reasons.
 common#:#file_not_valid#:#File not valid!
 common#:#file_notice#:#Maximum upload size:
 rbac#:#file_read#:#User can download file
@@ -2468,7 +2486,7 @@ common#:#gdf_add#:#Add Definition
 common#:#gdf_new#:#New Definition
 common#:#gender_f#:#Ms.
 common#:#gender_m#:#Mr.
-common#:#gender_n#:#No salutation desired
+common#:#gender_n#:#Not stated
 common#:#gender#:#Salutation
 common#:#general_settings#:#General Settings
 common#:#generate#:#Generate
@@ -3541,7 +3559,7 @@ common#:#shib_department#:#Attribute for department
 common#:#shib_email#:#Attribute for e-mail address
 common#:#shib_federation_name#:#Name of your Shibboleth federation
 common#:#shib_firstname#:#Attribute for first name
-common#:#shib_gender#:#Attribute for salutation (must be ‘m’ or ‘f’)
+common#:#shib_gender#:#Attribute for salutation (must be ‘n’, ‘m’ or ‘f’)
 common#:#shib_general_login_instructions#:#To log in via %s, please click on the login button and choose your organization of the following page.<br>If you have questions concerning this, please ask the
 common#:#shib_general_wayf_login_instructions#:#In case you are not associated with the given organizations and you need access to a course on this server, please contact the
 common#:#shib_idp_list#:#Provide a list of Identity Providers to let the user choose from on the ILIAS login page.<br>On each line there must be a comma-separated tuple for <strong>providerID of IdP</strong> (see the Shibboleth metadata file) and <strong>Name of IdP</strong> as it shall be displayed in the drop-down list.<br>As an optional third parameter you can add the <strong>location of a Shibboleth session initiator</strong> that shall be used in case your ILIAS installation is part of a multi federation setup.
@@ -5138,9 +5156,9 @@ ecs#:#ecs_imported_content#:#Imported E-Content
 ecs#:#ecs_imported_from#:#Imported From
 ecs#:#ecs_key_password#:#Key Password
 ecs#:#ecs_local_settings#:#Local Settings
-ecs#:#ecs_mapping_tbl#:#Mapping of ECS-Data to ILIAS Advanced Meta Data
+ecs#:#ecs_mapping_tbl#:#Mapping of ECS-Data to ILIAS Custom Metadata
 ecs#:#ecs_mappings#:#ECS Data Mapping
-ecs#:#ecs_meta_data#:#Meta Data
+ecs#:#ecs_meta_data#:#Metadata
 ecs#:#ecs_new_approval_subject#:#A new course has been released
 ecs#:#ecs_new_category_mapping#:#New Assignment of Course Links to Categories
 ecs#:#ecs_new_econtent_subject#:#New E-Content created
@@ -5308,6 +5326,7 @@ form#:#form_password_not_allowed_for_auth#:#It is not possible to change the pas
 form#:#form_password_required_for_auth#:#Password is required for the chosen authentication method.
 form#:#form_retype_password#:#Retype Password
 form#:#form_seconds#:#Seconds
+form#:#form_msg_max_upload#:#Maximum number of simultaneously uploadable files:
 forum#:#activate_new_posts#:#Approve Postings
 forum#:#activate_only_current#:#Approve Posting
 forum#:#activate_post_txt#:#Would you really like to approve the current posting?
@@ -5588,6 +5607,8 @@ ldap#:#ldap_deleted_rule#:#Deleted selected role assignments.
 ldap#:#ldap_dn_info#:#Enter the distinguished name of the LDAP group.
 ldap#:#ldap_edit_role_ass_rule#:#Edit Role Assignment Rule
 ldap#:#ldap_err_missing_plugin_id#:#Please enter a valid plugin id.
+ldap#:#ldap_escapedn#:#Escape DN
+ldap#:#ldap_escapedn_info#:#If enabled, special characters in the "Distinguished Name (DN)" of user accounts are escaped in queries for group membership.
 ldap#:#ldap_filter_info#:#Filter that will be added to the search filter this way: (&(userattr=username)<strong>(userfilter)</strong>).
 ldap#:#ldap_global_role_assignment#:#ILIAS-Role Assignment
 ldap#:#ldap_global_role_info#:#Please choose an ILIAS Role new users will be assigned to. <span class="asterisk">*</span> The role selection is <b>required</b> in case you chose a type of synchronisation.
@@ -6889,7 +6910,7 @@ sahs#:#sahs_unit#:#SCO
 search#:#add_members_header#:#Add Members
 search#:#search_field#:#Search Input Field
 search#:#search_dropdown#:#Open Search Form
-search#:#adv_md_search_title#:#Search in Extended Metadata
+search#:#adv_md_search_title#:#Search in Custom Metadata
 search#:#append_results#:#Append results
 search#:#last_search_result#:#Last Search Result
 search#:#lucene_activate_field#:#Activate Search
@@ -6940,7 +6961,7 @@ search#:#lucene_show_relevance#:#Show Relevance
 search#:#lucene_size_frag_info#:#Please choose the maximum size of highlighted text fragments.
 search#:#lucene_size_fragments#:#Size of Text Fragments
 search#:#lucene_tbl_create_ini#:#Create Java-Server Ini-File
-search#:#search_adv_md#:#Extended Metadata
+search#:#search_adv_md#:#Custom Metadata
 search#:#search_advanced#:#Advanced Search
 search#:#search_all_words#:#All words <small>(<i>AND</i>)</small>
 search#:#search_any_word#:#Any word <small>(<i>OR</i>)</small>
@@ -8948,7 +8969,7 @@ ecs#:#ecs_tab_import#:#Import
 ecs#:#ecs_tab_export#:#Export
 ecs#:#ecs_mapping_crs#:#Mapping for Courses
 ecs#:#ecs_mapping_rcrs#:#Mapping for ECS Courses
-ecs#:#ecs_mapping_exp_tbl#:#Mapping ILIAS Advanced Meta Data to ECS-Data
+ecs#:#ecs_mapping_exp_tbl#:#Mapping ILIAS Custom Metadata to ECS-Data
 content#:#cont_edit_personal_data#:#Edit Personal Data
 sahs#:#scorm_create_export_file_html_one#:#Create Export File (HTML, One Page, Review Mode)
 ecs#:#ecs_import_cms#:#Campus Management
@@ -9102,7 +9123,6 @@ chatroom_adm#:#chatroom_confirm_delete_smiley#:#Are you sure you want to delete 
 chatroom_adm#:#chat_smilies_dir_not_exists#:#Smilies directory does not exist.
 chatroom_adm#:#chat_smilies_initialized#:#Chat smileys initialized
 chatroom#:#auto_scroll#:#Scroll to Bottom
-chatroom#:#chat_show_auto_messages#:#Show Autogenerated Messages
 chatroom#:#public_chat_created#:#The public chat room has been added to the repository.
 chatroom#:#lost_connection#:#The connection to the chat server was interrupted.
 chatroom#:#banned#:#You have been banned from this chat room
@@ -10179,6 +10199,7 @@ content#:#cont_resources_of_type#:#Resources of Type
 content#:#cont_element_refers_removed_itgr#:#This content element refers to an item group that has been removed in the meantime.
 common#:#search_globally#:#Globally
 common#:#search_at_current_position#:#At Current Position
+common#:#label_search_options#:#Search Area
 ecs#:#ecs_crs_export#:#Course Releases
 ecs#:#ecs_crs_export_obj_settings#:#Course Release Settings
 ecs#:#ecs_crs_export_disabled#:#Do not release this Course
@@ -10707,7 +10728,7 @@ dcl#:#dcl_view_own_records_perm#:#View only own entries
 dcl#:#dcl_msg_no_perm_view#:#No permission given to view this Entry
 dcl#:#dcl_msg_no_perm_edit#:#No permission given to edit this Entry
 dcl#:#dcl_delete_fields#:#Delete fields
-dcl#:#dcl_link_detail_page#:#Link entries to detail page
+dcl#:#dcl_link_detail_page#:#Link to detailed view
 dcl#:#dcl_manage#:#Manage
 dcl#:#dcl_display_record_alt#:#Display this entry
 dcl#:#dcl_delete_records#:#Delete Entries
@@ -11131,6 +11152,8 @@ rbac#:#cld_permission#:#User can change permission settings
 rbac#:#cld_upload#:#User can upload files to the cloud object
 rbac#:#cld_download#:#User can download files from the cloud object
 rbac#:#cld_edit_permission#:#User can change permission settings
+rbac#:#edit_in_online_editor#:#Open in online editor
+rbac#:#cld_edit_in_online_editor#:#User can open and edit files in online editor
 wsp#:#wsp_shared_date#:#Date of Share
 wsp#:#wsp_shared_type#:#Shared With
 wsp#:#wsp_shared_object_type#:#Type of Resource
@@ -11400,8 +11423,8 @@ orgu#:#orgu_orgu_type#:#Organisational Unit Type
 orgu#:#orgu_type_custom_icon#:#Custom Icon for this Organisational Unit Type
 orgu#:#orgu_adv_settings#:#Advanced Settings
 orgu#:#orgu_type_msg_error_custom_icon#:#Could not save the custom icon
-orgu#:#orgu_type_available_amd_sets#:#Available Advanced Metadata sets
-orgu#:#orgu_type_assign_amd_sets#:#Assign Advanced Metadata sets
+orgu#:#orgu_type_available_amd_sets#:#Available Custom Metadata Sets
+orgu#:#orgu_type_assign_amd_sets#:#Assign Custom Metadata Sets
 orgu#:#not_movable_to_subtree#:#An organisational unit cannot be moved into its own subtree. This would create a loop.
 cld#:#cld_object_added#:#A new Cloud object has been added
 exc#:#exc_peer_review_deadline#:#Feedback Deadline
@@ -11722,6 +11745,8 @@ content#:#cont_auto_suspend_info#:#This option is for SCORM learning modules, wh
 administration#:#adm_captcha_anonymous_frm#:#Activate captcha for anonymous in forums. Please keep in mind that this may effect the accessibility of your installation.
 administration#:#adm_captcha_anonymous_auth#:#Activate captcha for anonymous in login form. Please keep in mind that this may effect the accessibility of your installation.
 administration#:#adm_captcha_anonymous_reg#:#Activate captcha for anonymous in registration form. Please keep in mind that this may effect the accessibility of your installation.
+administration#:#adm_auth_reg#:#Authentication Registration
+administration#:#adm_auth_login#:#Authentication Login
 administration#:#adm_captcha_anonymous_wiki#:#Activate captcha for anonymous in wikis. Please keep in mind that this may effect the accessibility of your installation.
 auth#:#auth_auth_settings#:#Settings
 book#:#book_reservation_failed_overbooked#:#The booking failed because the object is not available anymore.
@@ -11863,7 +11888,7 @@ skmg#:#skmg_cannot_delete_nodes_in_use#:#Some items cannot be deleted, because t
 skmg#:#skmg_status_draft#:#Draft (Offline)
 skmg#:#skmg_status_draft_info#:#Item will be hidden.
 skmg#:#skmg_status_publish#:#Published
-skmg#:#skmg_status_publish_info#:#Item can be used if all parents are published, too. Once items are used, the status cannot be set to draft anymore, neither can they be deleted.
+skmg#:#skmg_status_publish_info#:#Item can be used if all parents are published, too.
 skmg#:#skmg_status_outdated#:#Outdated
 skmg#:#skmg_status_outdated_info#:#Item cannot be newly selected by users as personal skill, or newly assigned to repository objects or skill profiles. However existing assignments and data are still presented.
 skmg#:#skmg_status#:#Status
@@ -12017,7 +12042,7 @@ assessment#:#additional_rating_info#:#Please note that the values given here are
 assessment#:#intprecision_info#:#‘Divisible by’ affects only the creation of variables, if the value for the precision is 0. In this case, you define for ‘Divisible by’ an integer value, which must be divisible by with the created variable. A value of 10 thus generates only integers that are divisible by 10. A value of 5 produces integers that are divisible by 5, etc. For a precision of 0, ‘Divisible by’ is a mandatory field and must contain a positive integer. The default value is 1 for any integers.
 assessment#:#tolerance_info#:#The tolerance specifies an allowable percentage deviation from the result value. With a tolerance of 0, only the exact result value is evaluated to be correct.
 assessment#:#result_unit_info#:#Please note that the selected result unit must also be activated in ‘Available units’.
-ecs#:#ecs_no_adv_md#:#No Advanced Meta Data available.
+ecs#:#ecs_no_adv_md#:#No Custom Metadata Available.
 poll#:#poll_comments#:#Comments
 poll#:#poll_show_results_as#:#Show Results as
 poll#:#poll_barchart#:#Bar Chart
@@ -12076,7 +12101,7 @@ survey#:#svy_mail_own_results_subject#:#Survey "%s" - Your Answers
 survey#:#svy_results_view_own#:#Participants can View Own Answers
 exercise#:#exc_to_desktop_info#:#Add exercise to desktop of participant after hand-in
 wiki#:#wiki_wpg#:#Wiki Page
-wiki#:#wiki_advmd_block_title#:#Advanced Metadata of Page
+wiki#:#wiki_advmd_block_title#:#Custom Metadata of Page
 content#:#cont_ed_insert_amd_page_list#:#Insert Page List
 content#:#cont_insert_amd_page_list#:#Insert Page List
 content#:#cont_update_amd_page_list#:#Edit Page List
@@ -12614,7 +12639,7 @@ scormtrac#:#counter#:#counter
 scormtrac#:#student_response#:#student_response: Response
 scormtrac#:#ostatus#:#Status of the objective
 prtf#:#prtf_blog_page_created#:#Blog has been added.
-wiki#:#wiki_page_list_form_info#:#Adds a list of pages of this wiki that are all assigned to the selected metadata below. Only searchable meta data fields are listed.
+wiki#:#wiki_page_list_form_info#:#Adds a list of pages of this wiki that are all assigned to the selected metadata below. Only searchable metadata fields are listed.
 content#:#cont_pc_amdpl#:#Page List
 meta#:#udf_type_selectmulti#:#Selection List (Multiple Choice)
 wiki#:#wiki_no_page_found#:#No wiki page has been found for search term '$1'.
@@ -13255,8 +13280,8 @@ prg#:#prg_adv_settings#:#Advanced Settings
 prg#:#prg_type_custom_icon#:#Custom Icons
 prg#:#prg_type_custom_icon_info#:#Custom icon info
 prg#:#prg_type_msg_error_custom_icon#:#Error while storing icon
-prg#:#prg_type_assign_amd_sets#:#Assign advanced metadata sets
-prg#:#prg_type_available_amd_sets#:#Available Advanced Metadata sets
+prg#:#prg_type_assign_amd_sets#:#Assign Custom Metadata Sets
+prg#:#prg_type_available_amd_sets#:#Available Custom Metadata Sets
 prg#:#prg_type_edit#:#Edit subtype
 prg#:#prg_type_msg_deleted#:#Deleted subtype
 prg#:#prg_type_msg_unable_delete#:#Unable to delete type because it is still assigned to the following Study Programmes: %s
@@ -13346,6 +13371,7 @@ rbac#:#feed_copy#:#User can copy webfeed
 log#:#log_level_off#:#Disabled
 log#:#log_component_root_desc#:#Leg-Level for message which are not assigned to any component.
 administration#:#adm_user_starting_point_ref_id_info#:#Open the object that you would like to use as Personal Starting Point. Please copy the number directly following "ref_id=" in the browser bar into the text input field.
+mail#:#mail_sel_label#:#Choose the Recipients
 mail#:#mail_crs_roles#:#Send Mail to Course Roles
 mail#:#mail_grp_roles#:#Send Mail to Group Roles
 mail#:#send_mail_members#:#All Members
@@ -13944,7 +13970,7 @@ iass#:#iass_internal_note#:#Internal record note
 iass#:#iass_status_completed#:#Completed
 iass#:#iass_status_failed#:#Failed
 iass#:#iass_status_pending#:#Status pending
-iass#:#iass_notify#:#Notify participant after finalization
+iass#:#iass_notify#:#Make Result available to Participant
 iass#:#iass_finalize#:#Finalize
 iass#:#il_iass_member#:#Participant
 iass#:#il_iass_members#:#Participants
@@ -14042,7 +14068,7 @@ chatroom#:#chat_osc_subs_rej_msgs_p#:#The following chat partners of your conver
 chatroom#:#chat_osc_self_rej_msgs#:#You currently cannot take part in this conversation because you suppressed receiving messages in your settings.
 chatroom#:#chat_osc_search_modal_info#:#Here you can search for users you would like to add to a conversation. If the search dialogue was opened within a group chat, the new user will be added to this chat. If you started the search within a 1:1 chat, a new group chat window will be opened.
 chatroom#:#chtr_server_status#:#Server Status
-chatroom#:#chtr_ban_actor_tbl_head#:#Akteur
+chatroom#:#chtr_ban_actor_tbl_head#:#locked by
 chatroom#:#chtr_ban_ts_tbl_head#:#Timestamp
 chatroom#:#chat_osc_head_grp_x_persons#:#%s Users
 common#:#chtr_import#:#Import Chatroom
@@ -14450,7 +14476,7 @@ sahs#:#sahs_glo_info#:#Please note that internal links in glossary terms are not
 lm#:#lm_save_titles#:#Titles saved.
 assessment#:#question_browse_area_info#:#Please select an object from which you want to import questions.
 dateplaner#:#cal_no_events_info#:#No events found for the selected time period.
-wiki#:#wiki_pg_list_no_search_fields#:#No searchable meta data fields found in the metadata sets of the wiki.
+wiki#:#wiki_pg_list_no_search_fields#:#No searchable metadata fields found in the metadata sets of the wiki.
 iass#:#iass_amend_saved#:#Amended record has been saved.
 dateplaner#:#crs_cal_start#:#Course starts
 dateplaner#:#crs_cal_end#:#Course ends
@@ -14509,7 +14535,7 @@ file#:#file_suffix_custom_white#:#Custom Suffix Whitelist
 file#:#file_suffix_custom_white_info#:#These suffixes will be added to the default whitelist.
 file#:#file_suffix_overall_white#:#Overal Suffix Whitelist
 file#:#file_suffix_overall_white_info#:#Resulting overall list of accepted file suffixes.
-file#:#file_upload_info_file_with_critical_unknown_extension_later_renamed_when_downloading#:#The uploaded file contains a critical or unknown file ending. The file ending will be changed to .sec for every download.
+file#:#file_upload_info_file_with_critical_extension#:#The uploaded file contains a critical or unknown file ending. The file ending will be changed to .sec for every download.
 common#:#obj_copa#:#Content Page
 common#:#objs_copa#:#Content Pages
 rbac#:#copa_visible#:#Content Page is visible

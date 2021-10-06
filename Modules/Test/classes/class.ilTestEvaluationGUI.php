@@ -1012,6 +1012,13 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $template->setVariable("LIST_OF_ANSWERS", $list_of_answers);
         $template->setVariable("PASS_DETAILS", $this->ctrl->getHTML($overviewTableGUI));
 
+        $data = &$this->object->getCompleteEvaluationData();
+		$result = $data->getParticipant($active_id)->getReached() . " " . strtolower($this->lng->txt("of")) . " " . $data->getParticipant($active_id)->getMaxpoints() . " (" . sprintf("%2.2f", $data->getParticipant($active_id)->getReachedPointsInPercent()) . " %" . ")";
+		$template->setCurrentBlock('total_score');
+		$template->setVariable("TOTAL_RESULT_TEXT",$this->lng->txt('tst_stat_result_resultspoints'));
+		$template->setVariable("TOTAL_RESULT",$result);
+        $template->parseCurrentBlock();
+
         if (!$this->getObjectiveOrientedContainer()->isObjectiveOrientedPresentationRequired()) {
             $template->setVariable("USER_DATA", $user_data);
             
@@ -1023,6 +1030,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         $template->setVariable("FORMACTION", $this->ctrl->getFormAction($this));
 
+        $this->populateExamId($template, (int) $active_id, (int) $pass);
         $this->populatePassFinishDate($template, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
 
         $this->tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css", "Modules/Test"), "print");
@@ -1347,6 +1355,13 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
         $overviewTableGUI->setTitle($testResultHeaderLabelBuilder->getPassDetailsHeaderLabel($pass + 1));
         $tpl->setVariable("PASS_DETAILS", $this->ctrl->getHTML($overviewTableGUI));
 
+        $data = &$this->object->getCompleteEvaluationData();
+		$result = $data->getParticipant($active_id)->getReached() . " " . strtolower($this->lng->txt("of")) . " " . $data->getParticipant($active_id)->getMaxpoints() . " (" . sprintf("%2.2f", $data->getParticipant($active_id)->getReachedPointsInPercent()) . " %" . ")";
+		$tpl->setCurrentBlock('total_score');
+		$tpl->setVariable("TOTAL_RESULT_TEXT",$this->lng->txt('tst_stat_result_resultspoints'));
+		$tpl->setVariable("TOTAL_RESULT",$result);
+        $tpl->parseCurrentBlock();
+        
         if ($this->object->canShowSolutionPrintview()) {
             $list_of_answers = $this->getPassListOfAnswers(
                 $result_array,
@@ -1377,6 +1392,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
             }
         }
 
+        $this->populateExamId($tpl, (int) $active_id, (int) $pass);
         $this->populatePassFinishDate($tpl, ilObjTest::lookupLastTestPassAccess($active_id, $pass));
         
         $this->tpl->addCss(ilUtil::getStyleSheetLocation("output", "test_print.css", "Modules/Test"), "print");

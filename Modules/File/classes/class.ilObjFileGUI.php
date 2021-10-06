@@ -582,7 +582,11 @@ class ilObjFileGUI extends ilObject2GUI
             }
 
             if ($upload_possible) {
-                $file = new ilFileStandardDropzoneInputGUI($this->lng->txt('obj_file'), 'file');
+                $file = new ilFileStandardDropzoneInputGUI(
+                    'cancel',
+                    $this->lng->txt('obj_file'),
+                    'file'
+                );
                 $file->setRequired(false);
                 $form->addItem($file);
 
@@ -1026,7 +1030,7 @@ class ilObjFileGUI extends ilObject2GUI
             foreach ($DIC->upload()->getResults() as $result) {
                 if (!ilFileUtils::hasValidExtension($result->getName())) {
                     ilUtil::sendInfo(
-                        $this->lng->txt('file_upload_info_file_with_critical_unknown_extension_later_renamed_when_downloading'),
+                        $this->lng->txt('file_upload_info_file_with_critical_extension'),
                         true
                     );
                 }

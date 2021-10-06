@@ -334,12 +334,19 @@ class ilFileXMLParser extends ilSaxParser
                     }
                 }
 
-                //$this->content = $content;
-                // see #17211
-
                 if ($this->version == $this->file->getVersion()) {
-                    if (is_file($this->tmpFilename)) {
-                        $this->file->setFileSize(filesize($this->tmpFilename)); // strlen($this->content));
+                    global $DIC;
+                    $rel = LegacyPathHelper::createRelativePath($this->tmpFilename);
+                    if ($DIC->filesystem()->temp()->has($rel)) {
+                        $this->file->setFileSize($DIC->filesystem()->temp()->getSize($rel, DataSize::Byte)->getSize());
+                    } else {
+                        $array = $DIC->filesystem()->temp()->listContents(dirname($rel));
+                        $first_file = reset($array);
+
+                        if ($first_file instanceof \ILIAS\Filesystem\DTO\Metadata) {
+                            $this->file->setFileSize($DIC->filesystem()->temp()->getSize($first_file->getPath(),
+                                DataSize::Byte)->getSize());
+                        }
                     }
 
                     // if no file type is given => lookup mime type
@@ -410,9 +417,15 @@ class ilFileXMLParser extends ilSaxParser
 
         foreach ($this->versions as $version) {
             if (!file_exists($version["tmpFilename"])) {
-                ilLoggerFactory::getLogger('file')->error(__METHOD__ . ' "' . $version["tmpFilename"] . '" file not found.');
+                // try to get first file of dir
+                $files = scandir(dirname($version["tmpFilename"]));
+                $version["tmpFilename"] = rtrim(dirname($version["tmpFilename"]),
+                        "/") . "/" . $files[2];// because [0] = "." [1] = ".."
+                if (!file_exists($version["tmpFilename"])) {
+                    ilLoggerFactory::getLogger('file')->error(__METHOD__ . ' "' . ($version["tmpFilename"]) . '" file not found.');
 
-                continue;
+                    continue;
+                }
             }
 
             if (filesize($version["tmpFilename"]) == 0) {
