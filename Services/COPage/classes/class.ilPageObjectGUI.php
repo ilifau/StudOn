@@ -1861,9 +1861,6 @@ class ilPageObjectGUI
                     $output = "<pre>".$e->getMessage()."<br>".htmlentities($content)."</pre>";
                     $is_error = true;
                 }
-                // fau: fixPageXslErrorMessage - show a speaking error message when an xsl error occurs
-                ilUtil::sendFailure($this->lng->txt('page_xsl_error'), false);
-                // fau.
             }
             if (($this->getOutputMode() == "presentation" || $this->getOutputMode() == "preview")
                 && !$this->getAbstractOnly()

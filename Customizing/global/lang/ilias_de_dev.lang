@@ -476,7 +476,6 @@ common#:#wizard_finish#:#Fertigstellen
 common#:#wizard_next#:#Weiter zu Schritt %s
 common#:#wizard_previous#:#Zurück zu Schritt %s
 common#:#wizard_step#:#Schritt %s:
-common#:#page_xsl_error#:#Beim Verarbeiten des zuletzt gespeicherten Seiteninhalts trat ein Fehler auf. Eventuell muss im Verlauf eine Vorgängerversion wiederhergestellt werden.
 content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website

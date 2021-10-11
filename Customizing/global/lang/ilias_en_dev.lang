@@ -505,7 +505,6 @@ common#:#wizard_finish#:#Finish
 common#:#wizard_next#:#Continue to step %s
 common#:#wizard_previous#:#Back to step %s
 common#:#wizard_step#:#Step %s:
-common#:#page_xsl_error#:#The processing of the page content produced an error. It may help to resore a prvious version from the history.
 content#:#cont_layout_help#:#Help
 content#:#cont_layout_help_desc#:#Layout for the StudOn Help Modules
 content#:#cont_layout_website#:#Website
