@@ -408,8 +408,13 @@ class ilIdmData
             $userObj->setDescription($userObj->getEmail());
         }
 
-        // always update external account and password
-        $userObj->setExternalAccount($this->identity);
+        // set the identity as external account for shibboleth authentication
+        // if it is not already set by another account
+        if (empty($userObj->getExternalAccount())) {
+            if (empty(ilObjUser::_findLoginByField('ext_account', $this->identity))) {
+                $userObj->setExternalAccount( $this->identity);
+            }
+        }
 
         // time limit and activation
         if ($mode == 'create') {
