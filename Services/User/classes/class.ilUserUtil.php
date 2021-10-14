@@ -260,12 +260,7 @@ class ilUserUtil
         $a_identity,
         $a_firstname = '',
         $a_lastname = '',
-        $a_email = '',
-        $a_matriculation = '',
-        $a_passwd = '',
-        $a_passwd_encoding = IL_PASSWD_PLAIN,
-        $a_auth_mode = 'shibboleth',
-        $a_external_account = ''
+        $a_email = ''
     ) {
         global $ilias, $rbacadmin;
 
@@ -273,16 +268,22 @@ class ilUserUtil
 
         // set arguments (may differ)
         $userObj->setLogin($a_identity);
-        $userObj->setExternalAccount($a_external_account);
-
         $userObj->setFirstname($a_firstname);
         $userObj->setLastname($a_lastname);
         $userObj->setEmail($a_email);
-        $userObj->setMatriculation($a_matriculation);
 
         // set authentication
-        $userObj->setPasswd($a_passwd ? $a_passwd : rand(10000, 99999), $a_passwd_encoding);
-        $userObj->setAuthMode($a_auth_mode);
+        $userObj->setPasswd(rand(10000, 99999));
+
+        // set the identity as external account for shibboleth authentication
+        // if it is not already set by another account
+        if (empty(ilObjUser::_findLoginByField('ext_account', $a_identity))) {
+            $userObj->setExternalAccount($a_identity);
+            $userObj->setAuthMode('shibboleth');
+        }
+        else {
+            $userObj->setAuthMode('local');
+        }
 
         // set dependent data
         $userObj->setFullname();
@@ -313,42 +314,6 @@ class ilUserUtil
 
         // return the user id
         return $userObj->getId();
-    }
-    // fau.
-
-    // fau: campusSub - new function _setNewLogin
-    /**
-     * Set a new login for a user
-     *
-     * @param	integer		usr_id
-     * @param	string		new login
-     * @param	string		new external account
-     * @return bool
-     */
-    public static function _setNewLogin($a_usr_id, $a_new_login, $a_new_external_account = null)
-    {
-        global $ilDB;
-
-        $query = "SELECT usr_id FROM usr_data"
-            . " WHERE login = " . $ilDB->quote($a_new_login, 'text')
-            . " AND usr_id <> " . $ilDB->quote($a_usr_id, 'integer');
-        $res = $ilDB->query($query);
-
-        if ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
-            return false;
-        }
-
-        if (isset($a_new_external_account)) {
-            $update_external_account = ", external_account =" . $ilDB->quote($a_new_external_account, 'text');
-        }
-
-        $query = "UPDATE usr_data "
-                . " SET login = " . $ilDB->quote($a_new_login, 'text')
-                . $update_external_account
-                . " WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer');
-        $ilDB->manipulate($query);
-
-        return true;
     }
     // fau.
 
