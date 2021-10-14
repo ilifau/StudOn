@@ -823,7 +823,7 @@ class ilTestRandomQuestionSetConfigGUI
                 $originalPoolData = $availablePools[$poolId];
 
                 $originalPoolData['qpl_path'] = $this->questionSetConfig->getQuestionPoolPathString($poolId);
-                $originalPoolData['qpl_ref_id'] = $this->questionSetConfig->getFirstQuestionPoolRefIdByObjId($ref_id);
+                $originalPoolData['qpl_ref_id'] = $ref_id;
 
                 return $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByOriginalPoolData($originalPoolData);
             }
