@@ -3,23 +3,19 @@
 /* Copyright (c) 1998-2018 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * fau: exAssHook - extended Interface for extended assignment type.
- *
- * Currently this interface contains team management related functions
+ * fau: exAssHook -  Extended interface for assignment type.
  *
  * @author Fred Neumann <fred.neumann@ili.fau.de>
  */
 interface ilExAssignmentTypeExtendedInterface extends ilExAssignmentTypeInterface
 {
-
     /**
-     * Handle a membership change in a team
+     * Get the handler for team changes
+     * is_management is set if the handler is used for team management by an admin
      *
-     * @param ilExAssignment     $ass
-     * @param ilExAssignmentTeam $team
-     * @param int[]              $added_users
-     * @param int[]              $removed_users
-     * @return mixed
+     * @param ilExAssignment $assignment
+     * @param bool $is_management
+     * @return ilExAssignmentTypeTeamHandlerInterface
      */
-    public function handleTeamChange(ilExAssignment $ass, ilExAssignmentTeam $team, $added_users = [], $removed_users = []);
+    public function getTeamHandler(ilExAssignment $assignment, $is_management = false): ilExAssignmentTypeTeamHandlerInterface;
 }

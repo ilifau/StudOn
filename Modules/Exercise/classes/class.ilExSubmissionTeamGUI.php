@@ -319,8 +319,7 @@ class ilExSubmissionTeamGUI
             // fau: exAssHook - handle the adding of new users to the team
             $assignmentType = $this->assignment->getAssignmentType();
             if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
-                // provide added users to check the submitted files
-                $assignmentType->handleTeamChange($this->assignment, $this->team, $new_users);
+                $assignmentType->getTeamHandler($this->assignment)->handleTeamAddedUsers($this->team, $new_users);
             }
             // fau.
 
@@ -376,7 +375,15 @@ class ilExSubmissionTeamGUI
         $cgui = new ilConfirmationGUI();
         $cgui->setFormAction($this->ctrl->getFormAction($this));
         // fau: exTeamRemove - add notice about forming of a new team
-        $cgui->setHeaderText($this->lng->txt("exc_team_member_remove_sure") . ' ' . $this->lng->txt("exc_team_member_remove_new_team"));
+        $assignmentType = $this->assignment->getAssignmentType();
+
+        if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+            $handler = $assignmentType->getTeamHandler($this->assignment);
+            $cgui->setHeaderText($handler->getRemoveUsersMessage() . ' ' . $this->lng->txt("exc_team_member_remove_new_team"));
+        }
+        else {
+            $cgui->setHeaderText($this->lng->txt("exc_team_member_remove_sure") . ' ' . $this->lng->txt("exc_team_member_remove_new_team"));
+        }
         // fau.
         $cgui->setConfirm($this->lng->txt("remove"), "removeTeamMember");
         $cgui->setCancel($this->lng->txt("cancel"), $this->submission->isTutor()
@@ -438,7 +445,7 @@ class ilExSubmissionTeamGUI
             }
         }
 
-        // fau: exTeamRemove - prevent removing of onw account with submission
+        // fau: exTeamRemove - prevent removing of own account with submission
         $items = $this->submission->getFiles();
         $remove_with_submissison_ids = [];
         foreach ($items as $item) {
@@ -456,13 +463,20 @@ class ilExSubmissionTeamGUI
         // fau.
 
 
-
         foreach ($ids as $user_id) {
             $this->team->removeTeamMember($user_id, $this->exercise->getRefId());
         }
 
-        // fau: exTeamRemove - form single user teams for all users users that have submitted something
-        // fau: exAssHook - handle the building of new single teams
+        // fau: exTeamRemove - form single user teams for all users that have submitted something
+        // fau: exAssHook - handle the remaining team and the building of new single teams
+        $assignmentType = $this->assignment->getAssignmentType();
+
+        if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
+            $handler = $assignmentType->getTeamHandler($this->assignment);
+            $handler->handleTeamRemovedUsers($this->team, $ids);
+            $remove_with_submissison_ids = $handler->getRemovedUsersWithSubmission();
+        }
+
         foreach ($remove_with_submissison_ids as $user_id) {
             $newTeam = new ilExAssignmentTeam($this->team->createTeam($this->assignment->getId(), $user_id));
             $idl = ilExcIndividualDeadline::getInstance($this->assignment->getId(), $this->team->getId(), true);
@@ -472,10 +486,8 @@ class ilExSubmissionTeamGUI
                 $newIdl->save();
             }
 
-            $assignmentType = $this->assignment->getAssignmentType();
             if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
-                // team is new, so don't provide added member
-                $assignmentType->handleTeamChange($this->assignment, $newTeam);
+                $assignmentType->getTeamHandler($this->assignment)->handleTeamCreated($newTeam);
             }
         }
         // fau.
@@ -500,15 +512,6 @@ class ilExSubmissionTeamGUI
             );
         }
 
-        // fau: exAssHook - handle the remaining team
-        $assignmentType = $this->assignment->getAssignmentType();
-        if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
-            // reset the status of removed members that haven't formed new teams
-            $assignmentType->handleTeamChange($this->assignment, $this->team, [], array_diff($ids, $remove_with_submissison_ids));
-        }
-        // fau.
-
-                
         ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
 
         // fau: exTeamRemove - return to overview if self removed and not in new team
@@ -540,7 +543,7 @@ class ilExSubmissionTeamGUI
     
     public function createSingleMemberTeamObject()
     {
-        // fau: exAssHook - handle the deletion of a team
+        // fau: exAssHook - handle the creation of a team
         $team_id = ilExAssignmentTeam::getTeamId(
             $this->assignment->getId(),
             $this->submission->getUserId(),
@@ -550,7 +553,7 @@ class ilExSubmissionTeamGUI
         $assignmentType = $this->assignment->getAssignmentType();
         if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
             $team = new ilExAssignmentTeam($team_id);
-            $assignmentType->handleTeamChange($this->assignment, $team);
+            $assignmentType->getTeamHandler($this->assignment)->handleTeamCreated($team);
         }
         // fau.
 
@@ -649,9 +652,8 @@ class ilExSubmissionTeamGUI
             // fau: exAssHook - handle the newly created team
             $assignmentType = $this->assignment->getAssignmentType();
             if ($assignmentType instanceof ilExAssignmentTypeExtendedInterface) {
-
                 $team = ilExAssignmentTeam::getInstanceByUserId($this->assignment->getId(),$ilUser->getId());
-                $assignmentType->handleTeamChange($this->assignment, $team);
+                $assignmentType->getTeamHandler($this->assignment)->handleTeamCreated($team);
             }
             // fau.
             
