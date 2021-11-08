@@ -76,8 +76,9 @@ class ilLPStatusFactory
                 return 'ilLPStatusEvent';
 
             default:
-                echo "ilLPStatusFactory: unknown type: " . $a_type;
-                exit;
+                // fau: exAssTest - throw exception instead of echo exit
+                throw new Exception("ilLPStatusFactory: unknown type " .$a_type);
+                // fau.
         }
     }
 
@@ -109,7 +110,8 @@ class ilLPStatusFactory
         }
         
         // we probably can do better
-        echo "ilLPStatusFactory: unknown type " . $a_mode;
-        exit;
+        // fau: exAssTest - throw exception instead of echo exit
+        throw new Exception("ilLPStatusFactory: unknown type " . $a_mode);
+        // fau.
     }
 }
