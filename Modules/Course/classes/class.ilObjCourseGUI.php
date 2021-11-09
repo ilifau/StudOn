@@ -3179,8 +3179,8 @@ class ilObjCourseGUI extends ilContainerGUI
                         include_once('./Modules/Course/classes/class.ilCourseRegistrationGUI.php');
                         // fim: [memfix] provide the original command for registration gui
                         // this is neded to check the permissions correctly there
-                        // but always show the registration screen for a join command
-                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI", $cmd == 'join' ? 'show' : $cmd);
+                        // but always show the registration screen for a join or view command
+                        $this->ctrl->redirectByClass("ilCourseRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
                     // fim.
                     } else {
                         $this->infoScreenObject();
