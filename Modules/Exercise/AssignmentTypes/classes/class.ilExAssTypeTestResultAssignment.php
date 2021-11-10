@@ -131,6 +131,16 @@ class ilExAssTypeTestResultAssignment extends ActiveRecord
      */
     public function submitResult($user_id, $passed, $points, $mark_short, $mark_official, $tstamp)
     {
+        // check if assignment still exists
+        // now test relationship is deleted with an assignment
+        // but formerly it may not have be cleaned up if an assignment is deleted
+        // the test queries just by its own ref id and calls submitResult for all found records
+        // a deleted assignment will result in learning progress error in status update
+        $assignment = new ilExAssignment($this->getId());
+        if (empty($assignment->getExerciseId())) {
+            return [];
+        }
+
         $state = ilExcAssMemberState::getInstanceByIds($this->getId(), $user_id);
 
         $user_ids = [];

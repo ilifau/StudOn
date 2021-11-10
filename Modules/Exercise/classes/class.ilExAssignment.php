@@ -1579,6 +1579,15 @@ class ilExAssignment
 
         $reminder = new ilExAssignmentReminder();
         $reminder->deleteReminders($this->getId());
+
+        // fau: exAssTest - cleanup test relationship
+        if ($this->getType() == self::TYPE_TEST_RESULT || $this->getType() == self::TYPE_TEST_RESULT_TEAM)
+        {
+            require_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php");
+            $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->getId());
+            $assTest->delete();
+        }
+        // fau.
     }
     
     
