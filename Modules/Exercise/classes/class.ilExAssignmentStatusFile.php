@@ -157,6 +157,15 @@ class ilExAssignmentStatusFile extends ilExcel
         }
     }
 
+    /**
+     * Don't strip the tags
+     * @param string $a_value
+     * @return string
+     */
+    protected function prepareString($a_value)
+    {
+        return $a_value;
+    }
 
     /**
      * Init the data of the exercise members
