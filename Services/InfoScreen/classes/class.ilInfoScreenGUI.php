@@ -680,7 +680,7 @@ class ilInfoScreenGUI
             }
         }
 
-        // fim: [rights] show info about users with special rights
+        // fau: showUpperPermissions - show info about users with special rights
 
         global $ilAccess, $rbacreview, $tree;
         $a_obj = $this->gui_object->object;
@@ -806,7 +806,7 @@ class ilInfoScreenGUI
                 $this->addProperty($lng->txt('administrator'), $lng->txt('info_section_studon_admins_details'));
             }
         }
-        // fim.
+        // fau.
     }
     // END ChangeEvent: Display standard object info
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * fim: [univis] selector for univis actions in a container
+ * fau: univisImport - selector for univis actions in a container.
  *
  * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
  * @version $Id: $

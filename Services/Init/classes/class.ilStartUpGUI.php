@@ -1929,12 +1929,12 @@ class ilStartUpGUI
         $t_arr = explode("_", $a_target);
         $type = $t_arr[0];
 
-        // fim: [cust] don't check goto for studon targets
-        // fim: [univis] don't check goto for univis targets
+        // fau: gotoLinks - don't check goto for studon targets
+        // fau: univisLinks don't check goto for univis targets
         if ($type == "studon" or $type == "univis") {
             return true;
         }
-        // fim.
+        // fau.
 
         if ($type == "git") {
             $type = "glo";

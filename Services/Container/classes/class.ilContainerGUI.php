@@ -547,11 +547,11 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             $lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
             $lgui->initItem($this->object->getRefId(), $this->object->getId());
 
-            // fim: [privacy] add an alert about the public vissibility of the object
+            // fau: visibilityHints - add an alert about the public vissibility of the object
             $this->tpl->setAlertProperties(
                 $this->addPublicVisibilityAlert($lgui->getAlertProperties())
             );
-            // fim.
+            // fau.
         }
     }
         
@@ -565,14 +565,14 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $gui->render();
     }
 
-    // fim: [univis] show the actions for univis import
+    // fau: univisImport - show the actions for univis import
     public function showUnivisImportActions()
     {
         include_once "Services/UnivIS/classes/class.ilUnivisImportActionsGUI.php";
         $gui = new ilUnivisImportActionsGUI($this->object);
         $gui->render();
     }
-    // fim.
+    // fau.
 
     /**
      * Get content gui object
@@ -652,12 +652,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             }
             // fau.
         
-            // fim: [univis] show link to import univis
+            // fau: univisImport - show link to import univis
 
             if (ilCust::get($this->object->getType() . '_enable_univis_import')) {
                 $this->showUnivisImportActions();
             }
-            // fim.
+            // fau.
         }
         
         // fau: rootIsReduced - don't show permanent link on root page

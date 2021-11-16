@@ -5,7 +5,7 @@ require_once("Services/Table/classes/class.ilTable2GUI.php");
 include_once 'Services/Tree/classes/class.ilPathGUI.php';
 
 /**
-* fim: [univis] table to show lectures for creating courses
+* fau: univisImport - table to show lectures for creating courses.
 *
 * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
 * @version $Id: $

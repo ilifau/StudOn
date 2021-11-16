@@ -121,7 +121,7 @@ function ilTablePageSelection(el, cmd)
 	return false;
 }
 
-// fim: [univis] new function to enable previous/next navigation with POST
+// fau: univisImport - new function to enable previous/next navigation with POST
 function ilTablePageNavigation(el, cmd, navParam, navValue, formname)
 {
     var input = document.createElement("input");
@@ -139,4 +139,4 @@ function ilTablePageNavigation(el, cmd, navParam, navValue, formname)
     document.forms[formname].submit();
     return false;
 }
-// fim.
+// fau.

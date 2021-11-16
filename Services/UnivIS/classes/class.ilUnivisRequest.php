@@ -4,7 +4,7 @@
 require_once("Services/UnivIS/classes/class.ilUnivis.php");
 
 /**
-*  fim: [univis] class for executing requests from Univis
+*  fau: univisLinks - class for executing requests from Univis.
 */
 class ilUnivisRequest
 {

@@ -17,7 +17,7 @@ require_once('./Services/UnivIS/classes/class.ilUnivisLocation.php');
 require_once('./Services/UnivIS/classes/class.ilUnivisOfficehour.php');
 
 /**
-* fim: [univis] base class for univis import
+* fau: univisImport - base class for univis import.
 *
 * This is the main class to start an import of univis data for ILIAS.
 * It calls univis2mysql from the univis partser to perform the import.

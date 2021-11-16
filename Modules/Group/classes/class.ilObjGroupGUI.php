@@ -378,11 +378,11 @@ class ilObjGroupGUI extends ilContainerGUI
                     $ilErr->raiseError($this->lng->txt("msg_no_perm_read"), $ilErr->MESSAGE);
                 }
 
-                // fim: [memad] redirect joinAsGuest
+                // fau: joinAsGuest - redirect joinAsGuest
                 if ($cmd == 'joinAsGuest') {
                     $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "joinAsGuest");
                 }
-                // fim.
+                // fau.
 
                 // #9401 - see also ilStartupGUI::_checkGoto()
                 if ($cmd == 'infoScreenGoto') {
@@ -620,12 +620,12 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
             $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
-            // fim: [univis] save univis_id if edited by global admin
+            // fau: univisAdmin - save univis_id if edited by global admin
             global $rbacsystem;
             if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
                 $this->object->setImportId(ilUtil::stripSlashes($form->getInput('import_id')));
             }
-            // fim.
+            // fau.
             $this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
             $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
             $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
@@ -1347,7 +1347,7 @@ class ilObjGroupGUI extends ilContainerGUI
         // parent tabs (all container: edit_permission, clipboard, trash
         parent::getTabs();
 
-        // fim: [memad] simlified checks for join / edit request tab
+        // fau: changeSub - simlified checks for join / edit request tab
         if ($ilAccess->checkAccess('join', 'join', $this->object->getRefId())) {
             // no specific command: initial join
             $this->tabs_gui->addTab(
@@ -1363,7 +1363,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
             );
         }
-        // fim.
+        // fau.
 
         if ($ilAccess->checkAccess('leave', '', $this->object->getRefId()) and
             $this->object->members_obj->isMember($ilUser->getId())) {
@@ -1753,7 +1753,7 @@ class ilObjGroupGUI extends ilContainerGUI
         // title/description
         $this->initFormTitleDescription($form);
 
-        // fim: [univis] make univis id editable for global admins
+        // fau: univisAdmin - make univis id editable for global admins
         global $rbacsystem;
         if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
             $import = new ilTextInputGUI($this->lng->txt('univis_id'), 'import_id');
@@ -1763,16 +1763,16 @@ class ilObjGroupGUI extends ilContainerGUI
             $import->setMaxLength(50);
             $form->addItem($import);
         }
-        // fim.
+        // fau.
 
         $form = $this->initDidacticTemplate($form);
 
-        // fim: [rights] show info about rights of group admins
+        // fau: showUpperPermissions - show info about rights of group admins
         $grp_type = $form->getItemByPostVar('didactic_type');
         if ($grp_type instanceof ilRadioGroupInputGUI) {
             $grp_type->setInfo($this->lng->txt('grp_type_info_' . $a_mode));
         }
-        // fim.
+        // fau.
 
         if ($a_mode == 'edit') {
             // group period
@@ -2300,9 +2300,9 @@ class ilObjGroupGUI extends ilContainerGUI
             return false;
         }
 
-        // fim: [export] notify first access
+        // fau: memberExport - notify first access
         ilMemberAgreement::_setFirstAccessTime($ilUser->getId(), $this->object->getId());
-        // fim.
+        // fau.
 
         return true;
     }

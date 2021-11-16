@@ -685,7 +685,7 @@ class ilRepositorySearchGUI
         }
         // fau.
 
-        // fim: [privacy] search for roles, courses and groups only with extended access
+        // fau: extendedAccess - search for roles, courses and groups only with extended access
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         if (ilPrivacySettings::_checkExtendedAccess()) {
             // Role
@@ -712,7 +712,7 @@ class ilRepositorySearchGUI
             $groups->addSubItem($group);
             $kind->addOption($groups);
         }
-        // fim.
+        // fau.
     }
 
 

@@ -210,7 +210,7 @@ class ilSetting
 
     /**
     * write one value to db-table settings
-    * fim: [cust] allow temporary settings (without writing to db)
+    * fau: tempSettings - allow temporary settings (without writing to db)
     * (needed for temporarily disabling MathJax in pdf output of tests)
     * @access	public
     * @param	string		keyword
@@ -251,7 +251,7 @@ class ilSetting
 
         return true;
     }
-    // fim.
+    // fau.
     
     public function setScormDebug($a_key, $a_val)
     {

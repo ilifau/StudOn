@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-*   fim: [univis] Storing of class dependent values in session
+*  fau: univisImport - Storing of class dependent values in session.
 */
 class ilSessionValues
 {

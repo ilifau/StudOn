@@ -29,9 +29,9 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
  * fau: studyData - added ilStudyCondGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
  * fau.
- * fim: [univis] added ilUnivisImportLecturesGUI to call structure
+ * fau: univisImport - added ilUnivisImportLecturesGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilUnivisImportLecturesGUI
- * fim.
+ * fau.
  * fau: objectSub - added ilPropertyFormGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilPropertyFormGUI
  * fau.
@@ -99,7 +99,7 @@ class ilObjCourseGUI extends ilContainerGUI
     }
 
     /**
-     * fim: [memad] set selected members to "passed'
+     * fau: setMembersPassed - set selected members to "passed'
      */
     public function setMembersPassedObject()
     {
@@ -126,7 +126,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->membersObject();
         return true;
     }
-    // fim.
+    // fau.
 
     /**
      * add course admin after import file
@@ -281,7 +281,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $info->enableNewsEditing();
         }
 
-        // fim: [univis] add link to univis
+        // fau: univisInfo - add link to univis
         if ($import_id = $this->object->getImportId()) {
             require_once('./Services/UnivIS/classes/class.ilUnivisLecture.php');
             if (ilUnivisLecture::_isIliasImportId($import_id)) {
@@ -304,10 +304,10 @@ class ilObjCourseGUI extends ilContainerGUI
         if ((strlen($univis_link))) {
             $info->addProperty($this->lng->txt('univis'), $univis_link);
         }
-        // fim.
+        // fau.
 
         if (strlen($this->object->getImportantInformation())) {
-            // fim: [univis] don't modify string if html is contained
+            // fau: univisInfo - don't modify string if html is contained
             if ($this->object->getImportantInformation() !=
                 ilUtil::secureString($this->object->getImportantInformation())
             ) {
@@ -323,10 +323,10 @@ class ilObjCourseGUI extends ilContainerGUI
                     )
                 );
             }
-            // fim.
+            // fau.
         }
         if (strlen($this->object->getSyllabus())) {
-            // fim: [univis] don't modify string if html is contained
+            // fau: univisInfo - don't modify string if html is contained
             if ($this->object->getSyllabus() !=
                 ilUtil::secureString($this->object->getSyllabus())
             ) {
@@ -339,7 +339,7 @@ class ilObjCourseGUI extends ilContainerGUI
                     ilUtil::makeClickable($this->object->getSyllabus(), true)
                 ));
             }
-            // fim.
+            // fau.
         }
         // files
         if (count($files)) {
@@ -782,7 +782,7 @@ class ilObjCourseGUI extends ilContainerGUI
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_important_info'), 'important');
 
-        // fim: [univis] use RTE / HTML for important information
+        // fau: univisInfo - use RTE / HTML for important information
         $area->setUseRTE(true);
         $area->setRTETagSet('extended');
         if ($this->object->getImportantInformation() ==
@@ -794,13 +794,13 @@ class ilObjCourseGUI extends ilContainerGUI
         } else {
             $area->setValue($this->object->getImportantInformation());
         }
-        // fim.
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_syllabus'), 'syllabus');
-        // fim: [univis] use RTE / HTML for syllabus
+        // fau: univisInfo - use RTE / HTML for syllabus
         $area->setUseRTE(true);
         $area->setRTETagSet('extended');
         if ($this->object->getSyllabus() ==
@@ -810,7 +810,7 @@ class ilObjCourseGUI extends ilContainerGUI
         } else {
             $area->setValue($this->object->getSyllabus());
         }
-        // fim.
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
@@ -886,10 +886,10 @@ class ilObjCourseGUI extends ilContainerGUI
         $file_obj->setTemporaryName($_FILES['file']['tmp_name']);
         $file_obj->setErrorCode($_FILES['file']['error']);
 
-        // fim: [univis] allow HTML in course info
+        // fau: univisInfo - allow HTML in course info
         $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important'], false));
         $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus'], false));
-        // fim.
+        // fau.
         $this->object->setContactName(ilUtil::stripSlashes($_POST['contact_name']));
         $this->object->setContactResponsibility(ilUtil::stripSlashes($_POST['contact_responsibility']));
         $this->object->setContactPhone(ilUtil::stripSlashes($_POST['contact_phone']));
@@ -1008,12 +1008,12 @@ class ilObjCourseGUI extends ilContainerGUI
 
         // check successful
 
-        // fim: [univis] save univis_id if edited by global admin
+        // fau: univisAdmin - save univis_id if edited by global admin
         global $rbacsystem;
         if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
             $this->object->setImportId(ilUtil::stripSlashes($_POST['import_id']));
         }
-        // fim.
+        // fau.
 
         // title/desc
         $this->object->setTitle($form->getInput('title'));
@@ -1243,7 +1243,7 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         // fim.
 
-        // fim: [evasys] add item for evaluation
+        // fau: evalSelect - add item for evaluation
         require_once("Services/Evaluation/classes/class.ilEvaluationData.php");
         if (ilEvaluationData::_isEvaluationActivated($this->object->getRefId())
                 and ilEvaluationData::_isObjEvaluable($this->object)) {
@@ -1391,7 +1391,7 @@ class ilObjCourseGUI extends ilContainerGUI
         // Show didactic template type
         $this->initDidacticTemplate($form);
 
-        // fim: [univis] make univis id editable for global admins
+        // fau: univisAdmin - make univis id editable for global admins
         global $rbacsystem;
         if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
             $import = new ilTextInputGUI($this->lng->txt('univis_id'), 'import_id');
@@ -1401,7 +1401,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $import->setMaxLength(50);
             $form->addItem($import);
         }
-        // fim.
+        // fau.
 
         // period
         include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";
@@ -1961,7 +1961,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $desk->setInfo($this->lng->txt('crs_add_remove_from_desktop_info'));
         $form->addItem($desk);
 
-        // fim: [evasys] add item for evaluation
+        // fau: evalSelect - add item for evaluation
         require_once("Services/Evaluation/classes/class.ilEvaluationData.php");
         if (ilEvaluationData::_isEvaluationActivated($this->object->getRefId())) {
             $eval = new ilCheckboxInputGUI($this->lng->txt('eval_mark_for_evaluation'), 'mark_for_evaluation');
@@ -1973,7 +1973,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $eval->setInfo($this->lng->txt('eval_mark_for_evaluation_info'));
             $form->addItem($eval);
         }
-        // fim.
+        // fau.
 
         // Edit ecs export settings
         include_once 'Modules/Course/classes/class.ilECSCourseSettings.php';
@@ -2639,7 +2639,7 @@ class ilObjCourseGUI extends ilContainerGUI
         }
 
         // Join/Leave
-        // fim: [memad] simlified checks for join / edit request tab
+        // fau: changeSub - simlified checks for join / edit request tab
         if ($ilAccess->checkAccess('join', '', $this->ref_id)) {
             // no specific command: initial join
             $this->tabs_gui->addTab(
@@ -2655,7 +2655,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->getLinkTargetByClass('ilcourseregistrationgui', "leave")
             );
         }
-        // fim.
+        // fau.
 
         if ($ilAccess->checkAccess('leave', '', $this->object->getRefId())
             and $this->object->getMemberObject()->isMember()) {
@@ -2742,13 +2742,13 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
 
-            // fim: [univis] call Univis Import GUI
+// fau: univisImport call Univis Import GUI
             case "ilunivisimportlecturesgui":
                 include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
                 $univis_gui = new ilUnivISImportLecturesGUI($this);
                 $this->ctrl->forwardCommand($univis_gui);
                 break;
-            // fim.
+// fau.
 
 // fau: studyCond - add command class
             case 'ilstudycondgui':
@@ -3139,11 +3139,11 @@ class ilObjCourseGUI extends ilContainerGUI
                 }
                 */
 
-                // fim: [memad] redirect joinAsGuest
+                // fau: joinAsGuest - redirect joinAsGuest
                 if ($cmd == 'joinAsGuest') {
                     $this->ctrl->redirectByClass("ilCourseRegistrationGUI", "joinAsGuest");
                 }
-                // fim.
+                // fau.
 
                 // #9401 - see also ilStartupGUI::_checkGoto()
                 if ($cmd == 'infoScreenGoto') {
@@ -3265,9 +3265,9 @@ class ilObjCourseGUI extends ilContainerGUI
             return false;
         }
 
-        // fim: [export] notify first access
+        // fau: memberExport - notify first access
         ilMemberAgreement::_setFirstAccessTime($ilUser->getId(), $this->object->getId());
-        // fim.
+        // fau.
 
         return true;
     }

@@ -64,12 +64,12 @@ class ilMemberAgreement
         
         $this->privacy = ilPrivacySettings::_getInstance();
         
-        // fim: [export] read always the agreement data (to get the registration/access time)
+        // fau: memberExport - read always the agreement data (to get the registration/access time)
         //if($this->privacy->confirmationRequired($this->type) or ilCourseDefinedFieldDefinition::_hasFields($this->obj_id))
         //{
         $this->read();
         //}
-        // fim.
+        // fau.
     }
     
     /**
@@ -273,7 +273,7 @@ class ilMemberAgreement
     }
 
     /**
-     * fim: [export] set the first access time
+     * fau: memberExport - set the first access time
      */
     public static function _setFirstAccessTime($a_usr_id, $a_obj_id)
     {
@@ -296,7 +296,7 @@ class ilMemberAgreement
             $ilDB->manipulate($query);
         }
     }
-    // fim.
+    // fau.
     
     /**
      * set accepted

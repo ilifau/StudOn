@@ -1516,7 +1516,7 @@ class ilNusoapUserAdministrationAdapter
         
 
 
-        // fim: [soap] add new soap functions for meinCampus
+        // fau: soapFunctions - add new soap functions
         $this->server->wsdl->addComplexType(
             'studonResource',
             'complexType',
@@ -1775,7 +1775,7 @@ class ilNusoapUserAdministrationAdapter
         );
 
 
-        // fim.
+        // fau.
 
                                     
         $this->server->register(

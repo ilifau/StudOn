@@ -814,9 +814,9 @@ class ilUtil
         // mask existing image tags
         $ret = str_replace('src="http://', '"***masked_im_start***', $ret);
         
-        // fim: [univis] mask existing href tags
+        // fau: univisInfo - mask existing href tags
         $ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
-        // fim.
+        // fau.
 
         include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
         $parser = new ilMWParserAdapter();
@@ -825,9 +825,9 @@ class ilUtil
         // unmask existing image tags
         $ret = str_replace('"***masked_im_start***', 'src="http://', $ret);
 
-        // fim: [univis] unmask existing href tags
+        // fau: univisInfo - unmask existing href tags
         $ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/', 'href="$1', $ret);
-        // fim.
+        // fau.
 
         // Should be Safe
 

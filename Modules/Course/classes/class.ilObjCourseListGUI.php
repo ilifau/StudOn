@@ -178,9 +178,9 @@ class ilObjCourseListGUI extends ilObjectListGUI
     public function checkCommandAccess($a_permission, $a_cmd, $a_ref_id, $a_type, $a_obj_id = "")
     {
         // Only check cmd access for cmd 'register' and 'unregister'
-        // fim: [memad] add 'join_as_guest' as possible command
+        // fau: joinAsGuest - add 'join_as_guest' as possible command
         if ($a_cmd != 'view' and $a_cmd != 'leave' and $a_cmd != 'join' and $a_cmd != 'joinAsGuest') {
-            // fim.
+            // fau.
             $a_cmd = '';
         }
 

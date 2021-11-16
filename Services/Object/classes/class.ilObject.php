@@ -129,13 +129,13 @@ class ilObject
     public $add_dots;
 
 
-    // fim: [cust] variable for meta data identifiers
+    // fau: surveyAsForm - variable for meta data identifiers
     /**
      * Storage of meta data identifiers
      * @var array|null		catalog => entry
      */
     protected $metaIdentifiers;
-    // fim.
+    // fau.
 
     /**
     * Constructor
@@ -967,7 +967,7 @@ class ilObject
 
 
     /**
-     * fim: [soap] get all untrashed objects for an import id
+     * fau: soapFunctions - get all untrashed objects for an import id
      *
      * @param   string		import id
      * @param	string		matching mode ('exact', 'like', 'ilike')
@@ -1011,11 +1011,11 @@ class ilObject
 
         return $objects;
     }
-    // fim.
+    // fau.
 
 
     /**
-    * fim: [univis] get import id for object id
+    * fau: univisImport - get import id for object id
     *
     * @param	int		$a_object_id		object id
     * @return	string	id                  import_id
@@ -1035,7 +1035,7 @@ class ilObject
             return '';
         }
     }
-    // fim.
+    // fau.
 
 
     /**
@@ -2335,7 +2335,7 @@ class ilObject
 
 
     /**
-     * fim: [cust] get a catalog entry from the meta data
+     * fau: surveyAsForm - get a catalog entry from the meta data
      *
      * @param	string 	catalog name
      * @return	string	catalog entry
@@ -2352,7 +2352,7 @@ class ilObject
         }
         return $this->metaIdentifiers[$catalog];
     }
-    // fim.
+    // fau.
 
     /**
      * Check if auto rating is active for parent group/course

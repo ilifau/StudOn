@@ -905,7 +905,7 @@ class ilSoapFunctions
         return $roa->getClientInfoXML($clientid);
     }
     
-    // fim: [soap] add new functions
+    // fau: soapFunctions - add new functions
     
     public static function studonGetResources($sid, $semester)
     {

@@ -758,9 +758,10 @@ abstract class ilParticipants
     
     
     /**
-     * fim: [memad] get the actual role id of a role type
+     * fim: [memfix] get the actual role id of a role type
      *
      * needed to check membership and count of members
+     * to avoid overbooking by heavy traffic
      *
      * @param 	integer		role type constant, e.g. IL_GRP_MEMBER
      * @return	integer		actual role id

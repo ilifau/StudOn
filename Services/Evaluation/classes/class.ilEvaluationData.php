@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [evasys] class for evaluation data
+* fau: evalSelect - class for evaluation data.
 */
 
 class ilEvaluationData

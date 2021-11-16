@@ -24,9 +24,9 @@ class Model
     public $actualParentModel;
     public $department_id;
 
-    // fim: [univis] remember last attribute name for concatenating
+    // fau: univisImport - remember last attribute name for concatenating
     public $last_name;
-    // fim.
+    // fau.
 
     public function fitsIntoDOM($curModelClass, $parModelClass)
     {
@@ -65,7 +65,7 @@ class Model
     {
         $name = Model::normalizeAttributeName($name);
         if (false !== $name) {
-            // fim: [univis] don't decode, value is already utf8 with entities decoded
+            // fau: univisImport - don't decode, value is already utf8 with entities decoded
             /*
             if (is_string($value))
             {
@@ -73,9 +73,9 @@ class Model
             }
             $value = mysql_escape_string($value);
             */
-            // fim.
+            // fau.
 
-            // fim: [univis] use different recognition for quotes
+            // fau: univisImport - use different recognition for quotes
             if ($name == $this->last_name) {
                 // mind the . (dot)!
                 $this->attributes[$name] .= $value;
@@ -83,7 +83,7 @@ class Model
                 $this->attributes[$name] = $value;
             }
             $this->last_name = $name;
-            //fim.
+            // fau.
 
             return true;
         }
@@ -120,7 +120,7 @@ class Model
         $this->attributes['department_id'] = $this->department_id;
         $this->attributes['session_id'] = session_id();
 
-        // fim: [univis] chance storing query to requirements of ILIAS
+        // fau: univisImport - chance storing query to requirements of ILIAS
         global $ilDB;
 
         // use a copy, because quoting is added
@@ -154,6 +154,6 @@ class Model
         //print $query."\n";
 
         $ilDB->manipulate($query);
-        // fim.
+        // fau.
     }
 }

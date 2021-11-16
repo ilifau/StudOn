@@ -1545,7 +1545,7 @@ class ilTable2GUI extends ilTableGUI
             return true;
         }
 
-        // fim: [univis] respect a third nav parameter set by js for previous/nect naviagetion
+        // fau: univisImport - respect a third nav parameter set by js for previous/nect naviagetion
         if ($_POST[$this->getNavParameter() . "3"]) {
             $this->nav_value = $_POST[$this->getNavParameter() . "3"];
         } elseif ($_POST[$this->getNavParameter() . "1"] != "") {
@@ -2472,7 +2472,7 @@ class ilTable2GUI extends ilTableGUI
                     $LinkBar .= $sep;
                 }
                 $prevoffset = $this->getOffset() - $this->getLimit();
-                // fim: [univis] add onclick to use POST for next link
+                // fau: univisImport - add onclick to use POST for next link
                 $onclick = sprintf(
                     "onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
                     $this->parent_cmd,
@@ -2481,7 +2481,7 @@ class ilTable2GUI extends ilTableGUI
                     $this->getFormName()
                 );
                 $LinkBar .= "<a $onclick href=\"" . $link . $prevoffset . $hash . "\">" . $layout_prev . "</a>";
-            // fim.
+            // fau.
             } else {
                 if ($LinkBar != "") {
                     $LinkBar .= $sep;
@@ -2509,7 +2509,7 @@ class ilTable2GUI extends ilTableGUI
                     $LinkBar .= $sep;
                 }
                 $newoffset = $this->getOffset() + $this->getLimit();
-                // fim: [univis] add onclick to use POST for next link
+                // fau: univisImport - add onclick to use POST for next link
                 $onclick = sprintf(
                     "onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
                     $this->parent_cmd,
@@ -2518,7 +2518,7 @@ class ilTable2GUI extends ilTableGUI
                     $this->getFormName()
                 );
                 $LinkBar .= "<a $onclick href=\"" . $link . $newoffset . $hash . "\">" . $layout_next . "</a>";
-            // fim.
+            // fau.
             } else {
                 if ($LinkBar != "") {
                     $LinkBar .= $sep;

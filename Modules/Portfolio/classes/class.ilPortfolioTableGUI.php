@@ -57,10 +57,10 @@ class ilPortfolioTableGUI extends ilTable2GUI
         
         include_once('./Services/Link/classes/class.ilLink.php');
 
-        // fim: [privacy] init access handler
+        // fau: visibilityHints - init access handler
         include_once "Modules/Portfolio/classes/class.ilPortfolioAccessHandler.php";
         $this->access_handler = new ilPortfolioAccessHandler();
-        // fim.
+        // fau.
     }
 
     protected function getItems()
@@ -91,7 +91,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
         $this->tpl->setVariable("VAL_TITLE", ilUtil::prepareFormOutput($a_set["title"]));
         $this->tpl->parseCurrentBlock();
 
-        // fim: [privacy] add better messages about public visibility
+        // fau: visibilityHints - add better messages about public visibility
         if ($this->access_handler->hasGlobalPermission($a_set["id"])) {
             $this->tpl->setCurrentBlock("shared");
             $this->tpl->setVariable("TXT_SHARED", $lng->txt("privacy_portfolio_visible_to_public"));
@@ -105,7 +105,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
             $this->tpl->setVariable("TXT_SHARED", $lng->txt("wsp_status_shared"));
             $this->tpl->parseCurrentBlock();
         }
-        // fim.
+        // fau.
 
         $this->tpl->setCurrentBlock("chck");
         $this->tpl->setVariable("VAL_ID", $a_set["id"]);

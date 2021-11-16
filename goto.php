@@ -105,7 +105,7 @@ if (!ilStartUpGUI::_checkGoto($_GET["target"])) {
 }
 
 /*
- * fim: [cust] explanation of target handling
+ * fau: gotoLinks - explanation of target handling
  *
  * target:			crs_123_join
  *
@@ -132,10 +132,11 @@ if (!ilStartUpGUI::_checkGoto($_GET["target"])) {
  * ilObjXyzGUI::_goto($rest) 					(default implementation)
  * ilObjXyzGUI::_goto($target_id, $additional)	(specific implementation)
  *
- * fim.
+ * fau.
  */
 
-// fim: [cust] studon specific goto requests
+// fau: gotoLinks - studon specific goto requests
+// fau: regCodes - add code to registration link
 if ($target_type == 'studon') {
     switch ($target_id) {
         case "exportrequest":
@@ -154,7 +155,6 @@ if ($target_type == 'studon') {
             ilUtil::redirect('ilias.php?baseClass=ilRegistrationPeriodLimiterGUI');
             break;
 
-// fau: regCodes - add code to registration link
         case "register":
             if ($additional) {
                 ilUtil::redirect('register.php?code=' . $additional);
@@ -162,12 +162,11 @@ if ($target_type == 'studon') {
                 ilUtil::redirect('register.php');
             }
             break;
-// fau.
     }
 }
-// fim.
+// fau.
 
-// fim: [univis] univis specific goto requests
+// fau: univisLinks - univis specific goto requests
 // DEPRECATED: univis links are handeled now by univis.php
 if ($target_type == 'univis') {
     // search for the course by univis_id
@@ -188,7 +187,7 @@ if ($target_type == 'univis') {
     $target_id = $ref_id;
     $rest = $target_id . '_' . $additional;
 }
-// fim.
+// fau.
 
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

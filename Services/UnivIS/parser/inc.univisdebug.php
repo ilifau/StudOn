@@ -26,7 +26,7 @@
  ***************************************************************/
 
 /**
- * fim: [univis] debug functions for univis classes
+ * fau: univisImport - debug functions for univis classes.
  *
  * Taken from the univis2typo3 project and adapted for ILIAS
  *

@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-*  fim: [univis] class for mapping univis entities to studon objects
+*  fau: univisImport - class for mapping univis entities to studon objects.
 */
 class ilUnivis
 {

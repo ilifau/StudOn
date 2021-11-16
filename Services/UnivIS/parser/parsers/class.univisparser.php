@@ -37,7 +37,7 @@ require_once('./Services/UnivIS/parser/models/job_model.php');
 require_once('./Services/UnivIS/parser/models/org_model.php');
 
 /**
- * fim: [univis] new class for parsing univis data
+ * fau: univisImport - new class for parsing univis data.
  *
  * Taken from the univis2typo3 project and adapted for ILIAS
  *
@@ -181,9 +181,9 @@ class univisparser
         if ($name == $this->tagName && $this->modelObj) {
             // debug
             U2T3_DEBUG_PARSER($this->depth, "store Object\n");
-            // fim: [univis] optionally debug parsed model befoe storing
+            // fau: univisImport - optionally debug parsed model before storing.
             // log_var($this->modelObj->attributes, get_class($this->modelObj));
-            // fim.
+            // fau.
             $this->modelObj->store();
             $this->modelObj = null;
             unset($this->modelObj);

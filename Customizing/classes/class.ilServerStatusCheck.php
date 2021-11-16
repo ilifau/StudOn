@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * fim: [cust] Class for server status checks.
+ * fau: statusCheck - Class for server status checks.
  * 
  * Currently support checks for mysql and file connections
  * Works independently from ILIAS and may be included anywhere

@@ -19,14 +19,14 @@ il.MediaObjects = {
 			il.MediaObjects.onHashChange();
 		}
 
-        // fim: [media] prevent context menu for media
+        // fau: preventContextMenu - prevent context menu for media
         $('video').bind('contextmenu', function(e) {
             return false;
         });
         $('audio').bind('contextmenu', function(e) {
             return false;
         });
-        // fim.
+        // fau.
     },
 	
 	setPlayerConfig: function (id, config) {

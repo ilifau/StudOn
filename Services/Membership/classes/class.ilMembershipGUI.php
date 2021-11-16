@@ -1142,7 +1142,7 @@ class ilMembershipGUI
         }
         
         include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
-        // fim: [privacy] show export tab even if general export permission is not given to the user (permission is handled on the tab)
+        // fau: extendedAccess - show export tab even if general export permission is not given to the user (permission is handled on the tab)
         global $DIC;
         $privacy = ilPrivacySettings::_getInstance();
         if ($this->getParentObject() instanceof ilObjCourse) {
@@ -1159,7 +1159,7 @@ class ilMembershipGUI
                 'ilmemberexportgui'
             );
         }
-        // fim.
+        // fau.
     }
     
     /**

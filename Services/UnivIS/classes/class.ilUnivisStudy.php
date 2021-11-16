@@ -4,7 +4,7 @@
 require_once('./Services/UnivIS/classes/class.ilUnivisData.php');
 
 /**
-*  fim: [uvivis] class for looking up lectures data
+*  fau: univisImport - class for looking up lectures data.
 */
 class ilUnivisStudy extends ilUnivisData
 {

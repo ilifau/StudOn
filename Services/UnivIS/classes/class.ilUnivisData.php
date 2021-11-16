@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-*  fim: [univis] base class for looking up univis data
+*  fau: univisImport - base class for looking up univis data.
 *
 *  Notes:
 *  The univis tables should only be read.

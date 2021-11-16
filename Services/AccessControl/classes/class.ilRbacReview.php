@@ -173,7 +173,7 @@ class ilRbacReview
     }
 
     /**
-     * fim: [rights] get the context roles with specific permissions on an object
+     * fau: showUpperPermissions - get the context roles with specific permissions on an object
      * The permissions are checked in order of the input array
      * If a role is found for the first permission, it is not listed for the second
      *
@@ -211,7 +211,7 @@ class ilRbacReview
         }
         return $return;
     }
-    // fim.
+    // fau.
 
 
 

@@ -3598,10 +3598,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
 
         foreach ($activeIds as $active_id) {
-            // fim: [media] remove limited media player usages
+            // fau: limitedMediaPlayer - remove limited media player usages
             require_once("./Services/MediaObjects/classes/class.ilLimitedMediaPlayerUsage.php");
             ilLimitedMediaPlayerUsage::_deleteTestPassUsages($this->getId(), $usr_id);
-            // fim.
+            // fau.
 
 
             // remove file uploads

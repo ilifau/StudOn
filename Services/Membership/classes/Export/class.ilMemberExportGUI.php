@@ -55,7 +55,7 @@ class ilMemberExportGUI
     private $exportSettings;
 
     /**
-     * fim: [export] add learning progress settings
+     * fau: memberExport - add learning progress settings
      */
     private $lp_objects = array(
         'crs' => array('status', 'marks', 'comments'),
@@ -69,7 +69,7 @@ class ilMemberExportGUI
         'sahs' => array('status'),
         // 'wiki' => array('marks', 'status') funktioniert nicht
     );
-    // fim.
+    // fau.
 
 
     /**
@@ -94,10 +94,10 @@ class ilMemberExportGUI
         $this->lng = $lng;
         $this->lng->loadLanguageModule('ps');
 
-        // fim: [export] get language vars of course and tracking
+        // fau: memberExport - get language vars of course and tracking
         $this->lng->loadLanguageModule('crs');
         $this->lng->loadLanguageModule('trac');
-        // fim.
+        // fau.
 
         $this->ref_id = $a_ref_id;
         $this->obj_id = $ilObjDataCache->lookupObjId($this->ref_id);
@@ -123,7 +123,7 @@ class ilMemberExportGUI
 
 
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-        // fim: [privacy] jump to export request form if not granted
+        // fau: extendedAccess - jump to export request form if not granted
         $privacy = ilPrivacySettings::_getInstance();
         $enabled = $this->type == 'crs' ? $privacy->enabledCourseExport() : $privacy->enabledGroupExport();
 
@@ -133,7 +133,7 @@ class ilMemberExportGUI
         } elseif (!ilPrivacySettings::_checkExtendedAccess()) {
             ilUtil::redirect("goto.php?target=studon_exportrequest");
         }
-        // fim.
+        // fau.
 
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
@@ -245,7 +245,7 @@ class ilMemberExportGUI
             $form->addItem($chours);
         }
 
-        // fim: [export] add further options for member export
+        // fau: memberExport - add further options for member export
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->lng->txt('further_informations'));
         $form->addItem($header);
@@ -282,7 +282,7 @@ class ilMemberExportGUI
                 $form->addItem($object);
             }
         }
-        // fim.
+        // fau.
 
         return $form;
     }

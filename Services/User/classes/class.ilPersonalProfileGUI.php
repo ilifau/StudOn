@@ -76,9 +76,9 @@ class ilPersonalProfileGUI
         
         $next_class = $this->ctrl->getNextClass();
 
-        // fim: [privacy]
+        // fau: visibilityHints - show alert about public visibility
         $this->alertProfileVisibility();
-        // fim.
+        // fau.
 
         switch ($next_class) {
             case "ilpublicuserprofilegui":
@@ -108,8 +108,9 @@ class ilPersonalProfileGUI
         return true;
     }
 
+    // fau: visibilityHints - new function alertProfileVisibility()
     /**
-     * fim: [privacy] show a message about the visibility of the profile
+     * Show a message about the visibility of the profile
      */
     public function alertProfileVisibility()
     {
@@ -138,7 +139,7 @@ class ilPersonalProfileGUI
             }
         }
     }
-    // fim.
+    // fau.
 
 
     /**
@@ -1165,9 +1166,9 @@ class ilPersonalProfileGUI
             "email" => $ilUser->getEmail(),
             "second_email" => $ilUser->getSecondEmail(),
             "hobby" => $ilUser->getHobby()
-            // fim: [privacy] don't add matriculation to the public profile fields
+            // fau: reduceProfile - don't add matriculation to the public profile fields
             // "matriculation" => $ilUser->getMatriculation(),
-            // fim.
+            // fau.
         );
         
         // location

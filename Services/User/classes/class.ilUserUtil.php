@@ -207,7 +207,7 @@ class ilUserUtil
     
     
     /**
-     * fim: [memad] check if user is a guest hearer
+     * fau: joinAsGuest - check if user is a guest hearer
      *
      * @param	int			user id	(or empty for current user
      * @return	boolean		user is guest hearer
@@ -246,7 +246,7 @@ class ilUserUtil
 
         return $checked[$a_user_id];
     }
-    // fim.
+    // fau.
 
 
     // fau: campusSub - new function _createDummyAccount

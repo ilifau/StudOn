@@ -1,6 +1,6 @@
 <?php
 /**
- * fim: [cust] Utilies for handling permission settings
+ * fau: customPatches - Utilities for handling permission settings.
  * See also the ILIAS permission guidelines for new object types
  *
  * @see \ilDBUpdateNewObjectType::applyInitialPermissionGuideline

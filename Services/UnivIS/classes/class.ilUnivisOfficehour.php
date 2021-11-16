@@ -4,7 +4,7 @@
 require_once('./Services/UnivIS/classes/class.ilUnivisData.php');
 
 /**
-*  fim: [uvivis] class for looking up location data
+*  fau: univisImport - class for looking up location data.
 */
 class ilUnivisOfficehour extends ilUnivisData
 {

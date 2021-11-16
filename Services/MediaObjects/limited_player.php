@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2012 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [media] new script for limited media player.
+* fau: limitedMediaPlayer - new script for limited media player.
 *
 * @author Jesus Copado <jesus.copado@fim.uni-erlangen.de>
 * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>

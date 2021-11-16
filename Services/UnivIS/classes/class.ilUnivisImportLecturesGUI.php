@@ -4,7 +4,7 @@
 require_once('./Services/Wizard/classes/class.ilWizardGUI.php');
 
 /**
-* fim: [univis] import wizard for univis lectures
+* fau: univisImport - import wizard for univis lectures.
 *
 * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
 * @version $Id: $
@@ -913,14 +913,14 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
         // fau.
         $this->conditions_form->addItem($item);
 
-        // fim: [evasys] add item for evaluation
+        // fau: evalSelect - add item for evaluation
         require_once("Services/Evaluation/classes/class.ilEvaluationData.php");
         if (ilEvaluationData::_isEvaluationActivated($this->parent_ref_id)) {
             $eval = new ilCheckboxInputGUI($this->lng->txt('eval_mark_for_evaluation'), 'mark_for_evaluation');
             $eval->setInfo($this->lng->txt('eval_mark_for_evaluation_info_import'));
             $this->conditions_form->addItem($eval);
         }
-        // fim.
+        // fau.
 
 
         return $this->conditions_form;
@@ -1324,7 +1324,7 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
             // update the course
             $crs->update();
 
-            // fim: [evasys] add course for evaluation
+            // fau: evalSelect - add course for evaluation
             if ($cond['mark_for_evaluation']) {
                 require_once("Services/Evaluation/classes/class.ilEvaluationData.php");
                 if (ilEvaluationData::_isEvaluationActivated($this->parent_ref_id)
@@ -1332,7 +1332,7 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
                     ilEvaluationData::_setObjMarkedForEvaluation($crs, true);
                 }
             }
-            // fim.
+            // fau.
                         
             if (ilChangeEvent::_isActive()) {
                 ilChangeEvent::_recordWriteEvent($crs->getId(), $ilUser->getId(), 'update');

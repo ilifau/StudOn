@@ -1,5 +1,5 @@
 <?php
-/* fim: [privacy] -  new class. */
+/* fau: extendedAccess - new class ilStudyExportRequestGUI. */
 
 /**
 * Class lStudyExportRequestGUI

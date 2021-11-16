@@ -224,9 +224,9 @@ class ilExportFieldsInfo
         $profile = new ilUserProfile();
         $profile->skipGroup('settings');
 
-        // fim: [privacy] use only the allowed profile fields
+        // fau: extendedAccess - use only the allowed profile fields
         foreach ($profile->getAllowedStandardFields() as $key => $data) {
-            // fim.
+            // fau.
             if ($this->getType() == 'crs') {
                 if (!$data['course_export_hide']) {
                     if (isset($data['course_export_fix_value']) and $data['course_export_fix_value']) {

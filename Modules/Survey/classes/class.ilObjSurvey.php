@@ -1089,7 +1089,7 @@ class ilObjSurvey extends ilObject
     }
 
 
-    // fau: surveyAsForm allow the reuse of a survey in form mode
+    // fau: surveyAsForm - allow the reuse of a survey in form mode
     /**
      * Checks if a user is allowed to take multiple survey
      *

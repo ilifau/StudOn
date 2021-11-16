@@ -392,8 +392,9 @@ class ilUserProfile
     }
 
 
+    // fau: extendedAccess - new function getAllowedStandardFields()
     /**
-     * fim: [privacy] get standard fields that are allowed to be viewed for other users
+     * Get standard fields that are allowed to be viewed for other users
      * - Users with extended access can see all standard fields
      * - Other users can see only username, firstname ans lastname
      */
@@ -414,7 +415,7 @@ class ilUserProfile
             return $fields;
         }
     }
-    // fim.
+    // fau.
 
     /**
      * Get standard user fields array

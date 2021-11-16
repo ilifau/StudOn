@@ -1,5 +1,5 @@
 <?php
-/* fim: [exco] encoding function for lecture on demand calls. */
+/* fau: lectureOnDemand - encoding function for lecture on demand calls. */
 class ilEncodingWi2
 {
 		static function encode($input) {

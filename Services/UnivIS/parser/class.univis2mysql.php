@@ -33,7 +33,7 @@ require_once('./Services/UnivIS/parser/modules/lectures_module.php');
 require_once('./Services/UnivIS/parser/modules/persons_module.php');
 
 /**
- * fim: [univis] new class for writing univis data to mysql tables
+ * fau: univisImport - new class for writing univis data to mysql tables.
  *
  * Tests connection to Univis-Server
  * Downloads content from UnivIS via PRG interface in XML
@@ -231,9 +231,9 @@ class univis2mysql
 
             // save the xml code in file
             file_put_contents($filename, $xml);
-            // fim: [univis] optionally save xml file in logs folder
+            // fau: univisImport - optionally save xml file in logs folder
             //copy($filename, ILIAS_ABSOLUTE_PATH ."/data/logs/".basename($filename));
-            // fim.
+            // fau.
         }
 
 

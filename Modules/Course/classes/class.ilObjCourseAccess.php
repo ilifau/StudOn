@@ -130,7 +130,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                 }
                 break;
 
-            // fim: [memad] check rights for guest accounts to request a join
+            // fau: joinAsGuest - check rights for guest accounts to request a join
             case 'joinAsGuest':
 
                 // don't show join_as_guest command if user is already assigned
@@ -143,7 +143,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                     return false;
                 }
                 break;
-            // fim.
+            // fau.
         }
         
         switch ($a_permission) {
@@ -233,12 +233,12 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
         // fau.
 
-        // fim: [memad] add command for guest accounts to request a join
+        // fau: joinAsGuest - add command for guest accounts to request a join
         include_once('Services/User/classes/class.ilUserUtil.php');
         if (ilUserUtil::_isGuestHearer()) {
             $commands[] = array('permission' => "visible", "cmd" => "joinAsGuest", "lang_var" => "join_as_guest");
         }
-        // fim.
+        // fau.
         
         // regualar users
         $commands[] = array('permission' => "leave", "cmd" => "leave", "lang_var" => "crs_unsubscribe");

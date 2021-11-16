@@ -136,15 +136,15 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     protected function fillInformations()
     {
         if ($this->container->getImportantInformation()) {
-            // fim: [univis] user custom input for info
+            // fau: univisInfo - user custom input for info
             $imp = new ilCustomInputGUI($this->lng->txt('crs_important_info'), "", true);
             $html = nl2br(ilUtil::makeClickable($this->container->getImportantInformation(), true));
             $imp->setHtml($html);
             $this->form->addItem($imp);
-            // fim.
+            // fau.
         }
         
-        /* fim: [univis] don't show syllabus
+        /* fau: univisInfo - don't show syllabus
         if($this->container->getSyllabus())
         {
             $syl = new ilNonEditableValueGUI($this->lng->txt('crs_syllabus'), "", true);
@@ -152,7 +152,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $syl->setValue($value);
             $this->form->addItem($syl);
         }
-        fim. */
+        fau. */
     }
     
     /**

@@ -695,10 +695,9 @@ class ilObjUser extends ilObject
     // fau.
 
 
-    // fau: videoPortal new function _findUserIdByAccount
+    // fau: videoPortal - new function _findUserIdByAccount
+    // fau: soapFunctions - new function _findUserIdByAccount
     /**
-    * fim: [soap] new function _findUserIdByAccount
-    *
     * This will first search for the external account and then for the login
     *
     * @param  	string  account name
@@ -726,7 +725,6 @@ class ilObjUser extends ilObject
             return $row['usr_id'];
         }
     }
-    // fim.
     // fau.
 
 

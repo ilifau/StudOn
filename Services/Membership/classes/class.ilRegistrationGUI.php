@@ -535,7 +535,7 @@ abstract class ilRegistrationGUI
 
         $ilUser = $DIC['ilUser'];
 
-        // fim: [export] set always the acceptance time
+        // fau: memberExport - set always the acceptance time
         include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
         include_once('Services/Membership/classes/class.ilMemberAgreement.php');
         $this->agreement = new ilMemberAgreement($ilUser->getId(), $this->container->getId());
@@ -544,7 +544,7 @@ abstract class ilRegistrationGUI
         }
         $this->agreement->setAcceptanceTime(time());
         $this->agreement->save();
-        // fim.
+        // fau.
     }
     
     /**
@@ -783,7 +783,7 @@ abstract class ilRegistrationGUI
     }
 
     /**
-     * fim: [memad] new function to confirm requests from guest users
+     * fau: joinAsGuest - new function to confirm requests from guest users
      */
     protected function joinAsGuest()
     {
@@ -809,10 +809,10 @@ abstract class ilRegistrationGUI
 
         $this->tpl->setContent($gui->getHTML());
     }
-    // fim.
+    // fau.
 
     /**
-     * fim: [memad] new function to handle join requests from guest users
+     * fau: joinAsGuest - new function to handle join requests from guest users
      *
      */
     protected function joinAsGuestConfirmed()
@@ -855,11 +855,11 @@ abstract class ilRegistrationGUI
                         case IL_CRS_SUBSCRIPTION_MYCAMPUS:
                             $message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
                             break;
-// fau: objectSub  - add info in email about guest user request
+                        // fau: objectSub  - add info in email about guest user request
                         case IL_CRS_SUBSCRIPTION_OBJECT:
                             $message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
-// fau.
-// no break
+                        // fau.
+                        // no break
                         case IL_CRS_SUBSCRIPTION_CONFIRMATION:
                             $message = str_replace('{REG_TYPE}', $this->lng->txt('crs_subscription_options_confirmation'), $message);
                             break;
@@ -886,11 +886,11 @@ abstract class ilRegistrationGUI
             case 'grp':
                 $message = str_replace('{LABEL_REG_TYPE}', $this->lng->txt('group_registration_mode'), $message);
                 switch ($this->container->getRegistrationType()) {
-// fau: objectSub  - add info in email about guest user request
+                    // fau: objectSub  - add info in email about guest user request
                     case GRP_REGISTRATION_OBJECT:
                         $message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
                         break;
-// fau.
+                    // fau.
                     case GRP_REGISTRATION_DEACTIVATED:
                         $message = str_replace('{REG_TYPE}', $this->lng->txt('grp_reg_no_selfreg'), $message);
                         break;
@@ -935,5 +935,5 @@ abstract class ilRegistrationGUI
         $ilCtrl->redirectByClass("ilrepositorygui");
         return true;
     }
-    // fim.
+    // fau.
 }

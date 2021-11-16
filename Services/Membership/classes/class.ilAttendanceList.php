@@ -58,12 +58,12 @@ class ilAttendanceList
         $this->presets['name'] = array($DIC->language()->txt('name'), true);
         $this->presets['login'] = array($DIC->language()->txt('login'), true);
 
-        // fim: [privacy] show email only with extended export rights
+        // fau: extendedAccess - show email only with extended export rights
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         if (ilPrivacySettings::_checkExtendedAccess()) {
             $this->presets['email'] = array($DIC->language()->txt('email'));
         }
-        // fim.
+        // fau.
         
         // add exportable fields
         $this->readOrderedExportableFields();

@@ -15,9 +15,9 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
 * @ilCtrl_Calls ilObjCategoryGUI: ilInfoScreenGUI, ilObjStyleSheetGUI, ilCommonActionDispatcherGUI, ilObjectTranslationGUI
 * @ilCtrl_Calls ilObjCategoryGUI: ilColumnGUI, ilObjectCopyGUI, ilUserTableGUI, ilDidacticTemplateGUI, ilExportGUI
 * @ilCtrl_Calls ilObjCategoryGUI: ilObjTaxonomyGUI, ilObjectMetaDataGUI, ilContainerNewsSettingsGUI
-* * fim: [univis] add UnivIS import to the control structure
+* fau: univisImport - add UnivIS import to the control structure
 * @ilCtrl_Calls ilObjCategoryGUI: ilUnivisImportLecturesGUI
-* fim.
+* fau.
 *
 * @ingroup ModulesCategory
 */
@@ -112,14 +112,14 @@ class ilObjCategoryGUI extends ilContainerGUI
         $this->showRepTree();
         
         switch ($next_class) {
-            // fim: [univis] call Univis Import GUI
+            // fau: univisImport - call Univis Import GUI
             case "ilunivisimportlecturesgui":
                 $this->prepareOutput();
                 include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
                 $this->gui_obj = new ilUnivISImportLecturesGUI($this);
                 $ret = &$this->ctrl->forwardCommand($this->gui_obj);
                 break;
-            // fim.
+            // fau.
 
             case "ilobjusergui":
                 include_once('./Services/User/classes/class.ilObjUserGUI.php');

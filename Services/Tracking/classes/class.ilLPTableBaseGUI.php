@@ -844,9 +844,9 @@ class ilLPTableBaseGUI extends ilTable2GUI
         $up->skipGroup("preferences");
         $up->skipGroup("settings");
         $up->skipGroup("interests");
-        // fim: [privacy] use only the allowed profile fields
+        // fau: extendedAccess - use only the allowed profile fields
         $ufs = $up->getAllowedStandardFields();
-        // fim.
+        // fau.
 
         // default fields
         $cols["login"] = array(

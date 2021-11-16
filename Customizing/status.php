@@ -1,6 +1,6 @@
 <?php
 /**
- * StudOn web server status check
+     * fau: statusCheck - StudOn web server status check.
  *
  * Define here all necessary status checks
  * All checks are applied if status.php is called without parameter

@@ -680,7 +680,7 @@ abstract class ilParticipant
     // fim.
 
     /**
-     * fim: [memad] new function to get the number of subscribers (with caching)
+     * fim: [meminf] new function to get the number of subscribers (with caching)
      * This is used for object listing
      */
     public function getNumberOfSubscribers()

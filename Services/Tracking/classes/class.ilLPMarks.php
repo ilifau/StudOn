@@ -206,7 +206,7 @@ class ilLPMarks
     }
 
     /**
-     * fim: [export] get the LP marks of an object
+     * fau: memberExport - get the LP marks of an object
      *
      * @param int        obj_id
      * @param array        usr_id => mark data
@@ -228,7 +228,7 @@ class ilLPMarks
         }
         return $marks;
     }
-    // fim.
+    // fau.
 
     public static function _lookupComment($a_usr_id, $a_obj_id)
     {

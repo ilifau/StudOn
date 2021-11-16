@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
- * fim: [univis] Handle a request from UnivIS
+ * fau: univisLinks - Handle a request from UnivIS.
  *
  * @author	Fred Neumann <fred.neumann@fim.uni-erlangen.de>
  * @version $Id: $

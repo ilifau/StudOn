@@ -1231,9 +1231,9 @@ class ilObjUserFolderGUI extends ilObjectGUI
                 $this->tpl->setCurrentBlock("inform_user");
                 $this->tpl->setVariable("TXT_ACCOUNT_MAIL", $lng->txt("mail_account_mail"));
                 if (true) {
-                    // fim: [admin] don't check sending of notification by default
-                // $this->tpl->setVariable("SEND_MAIL", " checked=\"checked\"");
-                // fim.
+                    // fau: checkUserAdminMail - don't check sending of notification by default
+                    // $this->tpl->setVariable("SEND_MAIL", " checked=\"checked\"");
+                    // fau.
                 }
                 $this->tpl->setVariable(
                     "TXT_INFORM_USER_MAIL",

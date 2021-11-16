@@ -50,9 +50,9 @@ class PersonModel extends Model
             'name' => '',
             'current' => '',
             'gender' => '',
-            // fim: [univis] added fields
+            // fau: univisImport - added fields
             'orgname' => ''
-            // fim.
+            // fau.
             );
 }
 

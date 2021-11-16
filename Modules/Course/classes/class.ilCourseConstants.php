@@ -34,9 +34,9 @@ define('IL_CRS_SUBSCRIPTION_LIMITED', 2);
 // fau: campusSub - add constant for mycampus subscription
 define('IL_CRS_SUBSCRIPTION_MYCAMPUS', 9);
 // fau.
-// fim: [univis] add constant for taking subscription type from univis
+// fau: univisImport - add constant for taking subscription type from univis
 define('IL_CRS_SUBSCRIPTION_UNIVIS', 10);
-// fim.
+// fau.
 // fau: objectSub - add constant for subscription via object
 define('IL_CRS_SUBSCRIPTION_OBJECT', 11);
 // fau.

@@ -1213,9 +1213,9 @@ class ilObjectListGUI
 
             // BEGIN WebDAV Display locking information
             require_once('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
-            // fim: [webdav] customize visibility of locking info and warnings
+            // fau: hideWebdav - customize visibility of locking info and warnings
             if (ilDAVActivationChecker::_isActive() && ilCust::get('webdav_show_warnings')) {
-                // fim.
+                // fau.
                 // Show lock info
                 require_once('Services/WebDAV/classes/lock/class.ilWebDAVLockBackend.php');
                 $webdav_lock_backend = new ilWebDAVLockBackend();
@@ -2465,10 +2465,10 @@ class ilObjectListGUI
             $this->ctrl->setParameterByClass('ilobjectactivationgui', 'ref_id', $this->reference_ref_id);
         }
 
-        // fim: [rights] write permission to parent is not enough to set availability
+        // fau: restrictAvailabilityChange - write permission to parent is not enough to set availability
         if ( // $this->checkCommandAccess('write','',$parent_ref_id,$parent_type) ||
             $this->checkCommandAccess('write', '', $this->ref_id, $this->type)) {
-            // fim.
+            // fau.
             $this->ctrl->setParameterByClass(
                 'ilobjectactivationgui',
                 'cadh',
@@ -2561,7 +2561,7 @@ class ilObjectListGUI
                             ? $command["txt"]
                             : $this->lng->txt($command["lang_var"]);
 
-                        // fim: [webdav] don't show webfolder command
+                        // fau: hideWebdav - don't show webfolder command
                         if ($command["cmd"] != "mount_webfolder") {
                             $this->insertCommand(
                                 $cmd_link,
@@ -2571,7 +2571,7 @@ class ilObjectListGUI
                                 $command["cmd"]
                             );
                         }
-                        // fim.
+                        // fau.
                     }
                 } else {
                     $this->default_command = $this->createDefaultCommand($command);

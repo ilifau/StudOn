@@ -27,9 +27,9 @@ include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition
 include_once('Services/User/classes/class.ilUserDefinedData.php');
 include_once('Services/User/classes/class.ilUserFormSettings.php');
 
-// fim: [export] includes needed for additional export data
+// fau: memberExport - includes needed for additional export data
 include_once('Services/StudyData/classes/class.ilStudyAccess.php');
-// fim.
+// fau.
 
 define("IL_MEMBER_EXPORT_CSV_FIELD_SEPERATOR", ',');
 define("IL_MEMBER_EXPORT_CSV_STRING_DELIMITER", '"');
@@ -71,9 +71,9 @@ class ilMemberExport
     private $privacy;
     
 
-    // fim: [export] flag for needed agreement
+    // fau: memberExport - flag for needed agreement
     private $agreement_needed = false;
-    // fim.
+    // fau.
 
     /**
      * Constructor
@@ -103,19 +103,19 @@ class ilMemberExport
         $this->settings = new ilUserFormSettings('memexp');
         $this->privacy = ilPrivacySettings::_getInstance();
 
-        // fim: [export] init flag for needed agreement
+        // fau: memberExport - init flag for needed agreement
         $this->agreement_needed = $this->privacy->confirmationRequired($this->type)
                         or ilCourseDefinedFieldDefinition::_getFields($this->obj_id);
-        // fim.
+        // fau.
 
-        // fim: [export] initialize arrays for events, groups and learning progress
+        // fau: memberExport - initialize arrays for events, groups and learning progress
         $this->events = array();
         $this->groups = array();
         $this->group_members = array();
         $this->group_waiting = array();
         $this->lp_data = array();
         $this->lp_keys = array();
-        // fim.
+        // fau.
     }
     
 
@@ -194,7 +194,7 @@ class ilMemberExport
     {
         $this->fetchUsers();
 
-        // fim: [export] fetch events, groups and exercises
+        // fau: memberExport - fetch events, groups and exercises
         if ($this->settings->enabled('events')) {
             $this->fetchEvents();
         }
@@ -207,7 +207,7 @@ class ilMemberExport
         }
 
         $this->fetchLPData();
-        // fim.
+        // fau.
 
 
         // DONE: Switch different export types
@@ -321,17 +321,17 @@ class ilMemberExport
         $fields[] = 'role';
         // Append agreement info
         $privacy = ilPrivacySettings::_getInstance();
-        // fim: [export] add registration field if agreement is not needed
+        // fau: memberExport - add registration field if agreement is not needed
         if ($this->agreement_needed) {
             $fields[] = 'agreement';
         } else {
             $fields[] = 'registration';
         }
-        // fim.
+        // fau.
 
-        // fim: [export] add subscription message as field
+        // fau: memberExport - add subscription message as field
         $fields[] = 'submessage';
-        // fim.
+        // fau.
 
 
         foreach ($field_info->getExportableFields() as $field) {
@@ -388,17 +388,17 @@ class ilMemberExport
                     $this->addCol($this->lng->txt('org_units'), $row, $col++);
                     break;
 
-                // fim: [export] add registration header if agreement is not needed
+                // fau: memberExport - add registration header if agreement is not needed
                 case 'registration':
                     $this->addCol($this->lng->txt('mem_registration_access_time'), $row, $col++);
                     break;
-                // fim.
+                // fau.
 
-                // fim: [export] add subscription message header
+                // fau: memberExport - add subscription message header
                 case 'submessage':
                     $this->addCol($this->lng->txt('message'), $row, $col++);
                     break;
-                // fim.
+                // fau.
 
                 default:
                     if (substr($field, 0, 4) == 'udf_') {
@@ -422,24 +422,24 @@ class ilMemberExport
             }
         }
 
-        // fim: [export] add events in header row
+        // fau: memberExport - add events in header row
         ilDatePresentation::setUseRelativeDates(false);
         foreach ($this->events as $event_obj) {
             $this->addCol($event_obj->getTitle() . ' (' . $event_obj->getFirstAppointment()->appointmentToString() . ')', $row, $col++);
         }
-        // fim.
+        // fau.
 
-        // fim: [export] add groups in header row
+        // fau: memberExport - add groups in header row
         foreach ($this->groups as $group_obj) {
             $this->addCol($group_obj->getTitle(), $row, $col++);
         }
-        // fim.
+        // fau.
 
-        // fim: [export] add learning progress titles in header row
+        // fau: memberExport - add learning progress titles in header row
         foreach ($this->lp_keys as $key) {
             $this->addCol($this->lp_data[$key]['title'], $row, $col++);
         }
-        // fim.
+        // fau.
 
 
         #$this->csv->addRow();
@@ -495,7 +495,7 @@ class ilMemberExport
                                 $this->addCol($this->lng->txt($this->getType() . '_subscriber'), $row, $col++);
                                 break;
 
-                            // fim: [export] add waiting list as specific role
+                            // fau: memberExport - add waiting list as specific role
                             case 'waiting_list':
                                 $this->addCol($this->lng->txt('crs_waiting_list'), $row, $col++);
                                 break;
@@ -504,7 +504,7 @@ class ilMemberExport
                                 #$this->csv->addColumn($this->lng->txt('crs_waiting_list'));
                                 $this->addCol('', $row, $col++);
                                 break;
-                            // fim.
+                            // fau.
                         }
                         break;
                     
@@ -524,7 +524,7 @@ class ilMemberExport
                         }
                         break;
 
-                    // fim: [export] add registration column if agreement is not needed
+                    // fau: memberExport - add registration column if agreement is not needed
                     case 'registration':
                         if ($this->agreement[$usr_id]['acceptance_time']) {
                             ilDatePresentation::setUseRelativeDates(false);
@@ -533,13 +533,13 @@ class ilMemberExport
                             $this->addCol('', $row, $col++);
                         }
                         break;
-                    // fim.
+                    // fau.
 
-                    // fim: [export] add subscription message column
+                    // fau: memberExport - add subscription message column
                     case 'submessage':
                         $this->addCol($this->user_course_data[$usr_id]['submessage'], $row, $col++);
                         break;
-                    // fim.
+                    // fau.
 
                     // These fields are always enabled
                     case 'username':
@@ -589,7 +589,7 @@ class ilMemberExport
                         break;
 
 
-                    // fim: [export] add studydata
+                    // fau: memberExport - add studydata
                     case 'studydata':
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
                             $studydata = ilStudyAccess::_getDataText($usr_id);
@@ -605,13 +605,13 @@ class ilMemberExport
                             $this->addCol('', $row, $col++);
                         }
                         break;
-                    // fim.
+                    // fau.
 
                     default:
                         // Check aggreement
-                        // fim: [export] use prechecked requirement for agreement
+                        // fau: memberExport - use prechecked requirement for agreement
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
-                            // fim.
+                            // fau.
                             #$this->csv->addColumn($this->user_profile_data[$usr_id][$field]);
                             $this->addCol($this->user_profile_data[$usr_id][$field], $row, $col++);
                         } else {
@@ -623,7 +623,7 @@ class ilMemberExport
                 }
             }
 
-            // fim: [export] add user participation for events
+            // fau: memberExport - add user participation for events
             foreach ($this->events as $event_obj) {
                 $event_part = new ilEventParticipants((int) $event_obj->getId());
 
@@ -637,9 +637,9 @@ class ilMemberExport
                                         $this->lng->txt('event_not_participated'), $row, $col++);
                 }
             }
-            // fim.
+            // fau.
 
-            // fim: [export] add user participation for groups
+            // fau: memberExport - add user participation for groups
             foreach ($this->groups as $group_obj) {
                 $member = $this->group_members[$group_obj->getId()];
                 $waiting = $this->group_waiting[$group_obj->getId()];
@@ -658,9 +658,9 @@ class ilMemberExport
                     $this->addCol($this->lng->txt('event_not_registered'), $row, $col++);
                 }
             }
-            // fim.
+            // fau.
 
-            // fim: [export] add learning progress data in header row
+            // fau: memberExport - add learning progress data in header row
             foreach ($this->lp_keys as $key) {
                 switch ($this->lp_data[$key]['lp_type']) {
                     case 'marks':
@@ -689,7 +689,7 @@ class ilMemberExport
                         break;
                 }
             }
-            // fim.
+            // fau.
 
 
             #$this->csv->addRow();
@@ -736,9 +736,9 @@ class ilMemberExport
                 } else {
                     $this->readCourseData(array($tmp_id), 'waiting_list');
                 }
-                // fim: [export] get subscription message
+                // fau: memberExport - get subscription message
                 $this->user_course_data[$tmp_id]['submessage'] = $waiting_list->getSubject($tmp_id);
-                // fim.
+                // fau.
             }
             // fau.
         }
@@ -752,7 +752,7 @@ class ilMemberExport
     }
     
 
-    // fim: [export] new function fetchEvents
+    // fau: memberExport - new function fetchEvents
     private function fetchEvents()
     {
         global $ilAccess, $tree;
@@ -771,9 +771,9 @@ class ilMemberExport
         ksort($events);
         $this->events = array_values($events);
     }
-    // fim.
+    // fau.
 
-    // fim: [export] new function fetchGroups
+    // fau: memberExport - new function fetchGroups
     private function fetchGroups()
     {
         global $ilAccess, $tree;
@@ -798,10 +798,10 @@ class ilMemberExport
             $this->group_waiting[$group->getId()] = $waiting;
         }
     }
-    // fim.
+    // fau.
 
 
-    // fim: [export] new function fetchExercises
+    // fau: memberExport - new function fetchExercises
     private function fetchLPData()
     {
         global $ilAccess, $tree;
@@ -874,7 +874,7 @@ class ilMemberExport
         ksort($this->lp_data);
         $this->lp_keys = array_keys($this->lp_data);
     }
-    // fim.
+    // fau.
 
 
     /**
@@ -894,9 +894,9 @@ class ilMemberExport
             } elseif ($this->members->isMember($user_id)) {
                 $this->user_course_data[$user_id]['role'] = $this->getType() == 'crs' ? IL_CRS_MEMBER : IL_GRP_MEMBER;
             } else {
-                // fim: [export] use the parameter as default status
+                // fau: memberExport - use the parameter as default status
                 $this->user_course_data[$user_id]['role'] = $a_status;
-                // fim.
+                // fau.
             }
         }
     }
@@ -928,9 +928,9 @@ class ilMemberExport
         if (substr($a_field, 0, 4) != 'cdf_') {
             return false;
         }
-        // fim: [export] use prechecked requirement for agreement
+        // fau: memberExport - use prechecked requirement for agreement
         if (!$this->agreement_needed or $this->agreement[$a_usr_id]['accepted']) {
-            // fim.
+            // fau.
             $field_info = explode('_', $a_field);
             $field_id = $field_info[1];
             $value = $this->user_course_fields[$a_usr_id][$field_id];
@@ -957,9 +957,9 @@ class ilMemberExport
             return false;
         }
 
-        // fim: [export] use prechecked requirement for agreement
+        // fau: memberExport - use prechecked requirement for agreement
         if (!$this->agreement_needed or $this->agreement[$udf_data->getUserId()]['accepted']) {
-            // fim.
+            // fau.
             $field_info = explode('_', $a_field);
             $field_id = $field_info[1];
             $value = $udf_data->get('f_' . $field_id);

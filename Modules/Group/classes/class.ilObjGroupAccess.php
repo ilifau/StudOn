@@ -100,7 +100,7 @@ class ilObjGroupAccess extends ilObjectAccess
                 }
                 break;
 
-            // fim: [memad] check rights for guest accounts to request a join
+            // fau: joinAsGuest - check rights for guest accounts to request a join
             case 'joinAsGuest':
 
                 include_once './Modules/Group/classes/class.ilGroupParticipants.php';
@@ -115,7 +115,7 @@ class ilObjGroupAccess extends ilObjectAccess
                     return false;
                 }
                 break;
-            // fim.
+            // fau.
 
 
         }
@@ -162,12 +162,12 @@ class ilObjGroupAccess extends ilObjectAccess
         $commands[] = array('permission' => "join", "cmd" => "leave", "lang_var" => "mem_edit_request");
         // fau.
 
-        // fim: [memad] add command for guest accounts to request a join
+        // fau: joinAsGuest - add command for guest accounts to request a join
         include_once('Services/User/classes/class.ilUserUtil.php');
         if (ilUserUtil::_isGuestHearer()) {
             $commands[] = array('permission' => "visible", "cmd" => "joinAsGuest", "lang_var" => "join_as_guest");
         }
-        // fim.
+        // fau.
         
         // regualar users
         $commands[] = array('permission' => "leave", "cmd" => "leave", "lang_var" => "grp_btn_unsubscribe");

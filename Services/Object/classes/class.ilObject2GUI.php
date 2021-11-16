@@ -973,9 +973,9 @@ abstract class ilObject2GUI extends ilObjectGUI
         }
     }
     
-    
-    /** fim: [privacy] get the message about public visibility of the object
-     *
+    // fau: visibilityHints - new function getPublicVisibilityMessage()
+    /**
+     * Get the message about public visibility of the object
      * special implementation for object in workspace
      * see ilObject::getPublicVisibilityMessage() for other objects
      *
@@ -1011,5 +1011,5 @@ abstract class ilObject2GUI extends ilObjectGUI
             }
         }
     }
-    // fim.
+    // fau.
 }

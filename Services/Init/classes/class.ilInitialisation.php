@@ -367,7 +367,7 @@ class ilInitialisation
 
         // fau: shortRssLink - set default client when called from context without cookies
         // fau: videoPortal - set default client when called from context without cookies
-        // fim: [univis] set default client when called from context without cookies
+        // fau: univisLinks - set default client when called from context without cookies
         if (!empty($_GET['client_id'])) {
             $clientId = ilUtil::getClientIdByString((string) $_GET['client_id'])->toString();
             $_GET['client_id'] = $clientId;

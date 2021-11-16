@@ -2954,7 +2954,7 @@
 			</iframe>
 		</xsl:when>
 
-		<!-- fim: [media] embed limited media player -->
+		<!-- fau: limitedMediaPlayer - embed limited media player -->
 		<xsl:when test = "../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'limit_starts']/@Value = 'true'">
 			<xsl:variable name="limit_count"><xsl:value-of select="../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'limit_starts_count']/@Value"/></xsl:variable>
 			<xsl:variable name="limit_context"><xsl:value-of select="../MediaAliasItem[@Purpose = $curPurpose]/Parameter[@Name = 'limit_starts_context']/@Value"/></xsl:variable>

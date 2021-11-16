@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [soap] Soap administration methods for StudOn.
+* fau: soapFunctions - Soap administration methods for StudOn.
 *
 * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>
 * @version $Id: class.ilSoapStudOnAdministration.php $

@@ -445,7 +445,7 @@
 <#22>
 <?php
     /**
-    * fim: [media] add table for the limited media player
+    * fau: limitedMediaPlayer - add table for the limited media player.
     */
     if (!$ilDB->tableExists('lmpy_uses')) {
         $fields = array(

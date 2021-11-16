@@ -26,7 +26,7 @@
  ***************************************************************/
 
 /**
- * fim: [univis] new class for maintaining univis data tables schema
+ * fau: univisImport - new class for maintaining univis data tables schema.
  *
  * Taken from the univis2typo3 project and adapted for ILIAS
  *

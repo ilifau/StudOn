@@ -6,7 +6,7 @@
 require_once("./Services/MediaObjects/classes/class.ilLimitedMediaPlayerUsage.php");
 
 /**
- * fim: [media] GUI class for limited media player.
+ * fau: limitedMediaPlayer - GUI class for limited media player.
  *
  * @author Jesus Copado <jesus.copado@fim.uni-erlangen.de>
  * @author Fred Neumann <fred.neumann@fim.uni-erlangen.de>

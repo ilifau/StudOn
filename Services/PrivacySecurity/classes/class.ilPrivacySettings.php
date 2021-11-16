@@ -116,7 +116,7 @@ class ilPrivacySettings
 
 
     /**
-     * fim: [privacy] check the general right for extended access to user data
+     * fau: extendedAccess - check the general right for extended access to user data
     */
     public static function _checkExtendedAccess()
     {
@@ -125,7 +125,7 @@ class ilPrivacySettings
         $privacy = self::_getInstance();
         return $rbacsystem->checkAccess('export_member_data', $privacy->getPrivacySettingsRefId());
     }
-    // fim.
+    // fau.
 
 
     /**

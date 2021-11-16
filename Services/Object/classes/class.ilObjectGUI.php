@@ -457,15 +457,16 @@ class ilObjectGUI
         $lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
         $lgui->initItem($this->object->getRefId(), $this->object->getId());
         
-        // fim: [privacy] add an alert about the public vissibility of the object
+        // fau: visibilityHints - add an alert about the public vissibility of the object
         $this->tpl->setAlertProperties(
             $this->addPublicVisibilityAlert($lgui->getAlertProperties())
         );
-        // fim.
+        // fau.
     }
-    
+
+    // fau: visibilityHints - new function addPublicVisibilityAlert()
     /**
-     * fim: [privacy] add an alert about the public visibility of the object
+     * Add an alert about the public visibility of the object
      *
      * @param	array	existing alerts
      * @return  array	alerts with additional message
@@ -485,10 +486,11 @@ class ilObjectGUI
         
         return $a_alerts;
     }
-    // fim.
-    
-    /** fim: [privacy] get the message about public visibility of the object
-     *
+    // fau.
+
+    // fau: visibilityHints - new function getPublicVisibilityMessage()
+    /**
+     * Get the message about public visibility of the object
      * Default implementation for repository objects (using ilAccess)
      * see ilObject2GUI::getPublicVisibilityMessage() for workspace related implementation
      *
@@ -527,7 +529,7 @@ class ilObjectGUI
             }
         }
     }
-    // fim.
+    // fau.
     
     /**
      * Add header action menu
