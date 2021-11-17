@@ -1725,9 +1725,9 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
                     array(
                         'qid' => $question_id,
                         'question_title' => $question_title,
-                        // fim: [exam] add question description to table
+                        // fau: questionDesc - add question description to table
                         'question_description' => $question_object->getComment(),
-                        // fim.
+                        // fau.
                         'number_of_answers' => $answered,
                         'output' => "<a href=\"" . $this->ctrl->getLinkTarget($this, "exportQuestionForAllParticipants") . "\">" . $this->lng->txt("pdf_export") . "</a>",
                         'file_uploads' => $download

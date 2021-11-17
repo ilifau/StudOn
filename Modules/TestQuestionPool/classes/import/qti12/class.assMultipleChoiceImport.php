@@ -217,9 +217,9 @@ class assMultipleChoiceImport extends assQuestionImport
         $this->object->saveToDb();
         foreach ($answers as $answer) {
             if (is_array($answer["imagefile"]) && (count($answer["imagefile"]) > 0)) {
-                // fim: [bugfix] set singleline mode for answers if image exists
+                // fau: fixScMcImport - set singleline mode for answers if image exists
                 $this->object->isSingleline = true;
-                // fim.
+                // fau.
                 
                 $image = &base64_decode($answer["imagefile"]["content"]);
                 $imagepath = $this->object->getImagePath();
@@ -234,9 +234,9 @@ class assMultipleChoiceImport extends assQuestionImport
                     $imagefile = fwrite($fh, $image);
                     fclose($fh);
                 }
-                // fim: [bugfix] rebuild the answer thumbnail
+                // fau: fixScMcImport - rebuild the answer thumbnail
                 $this->object->generateThumbForFile($this->object->getImagePath(), $answer["imagefile"]["label"]);
-                // fim.
+                // fau.
             }
         }
 

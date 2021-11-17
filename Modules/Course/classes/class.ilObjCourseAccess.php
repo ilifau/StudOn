@@ -418,9 +418,9 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
      * @param int $a_obj_id
      * @return array
      */
-    // fim: [meminf] add ref_id as parameter for checking write access
+    // fau: showMemLimit - add ref_id as parameter for checking write access
     public static function lookupRegistrationInfo($a_obj_id, $a_ref_id = 0)
-    // fim.
+    // fau.
     {
         global $DIC;
 
@@ -428,7 +428,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         $ilUser = $DIC['ilUser'];
         $lng = $DIC['lng'];
 
-        // fim: [meminf] query for showing membership limitation
+        // fau: showMemLimit - query for showing membership limitation
         // fau: fairSub - query for fair period
         $query = 'SELECT sub_limitation_type, sub_start, sub_end, sub_mem_limit, sub_max_members, show_mem_limit, sub_fair FROM crs_settings ' .
             'WHERE obj_id = ' . $ilDB->quote($a_obj_id);
@@ -445,7 +445,6 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
             $info['reg_info_sub_fair'] = $row->sub_fair;
         }
         // fau.
-        // fim.
 
         $registration_possible = true;
 
@@ -457,7 +456,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                 if ($info['reg_info_sub_fair'] < 0) {
                     $fair_suffix = " - <b>" . $lng->txt('sub_fair_inactive_short') . "</b>";
                 }
-                //				elseif (time() < $info['reg_info_sub_fair'])
+//	            elseif (time() < $info['reg_info_sub_fair'])
 //				{
 //					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
 //						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
@@ -481,13 +480,13 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
             $registration_possible = true;
         } else {
             $registration_possible = false;
-// fim: [meminf] hide registration info if registration is not possible (exam platforms)
-//            $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg');
-//            $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
-// fim.
+            // fau: showRegLimit - hide registration info if registration is not possible (exam platforms)
+            // $info['reg_info_list_prop']['property'] = $lng->txt('crs_list_reg');
+            // $info['reg_info_list_prop']['value'] = $lng->txt('crs_list_reg_noreg');
+            // fau.
         }
 
-        // fim: [meminf] get info about membership limitations and subscription status
+        // fau: showMemLimit - get info about membership limitations and subscription status
         global $ilAccess;
         include_once './Modules/Course/classes/class.ilCourseParticipant.php';
         include_once './Modules/Course/classes/class.ilCourseWaitingList.php';
@@ -546,7 +545,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
             $info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
             $info['reg_info_list_prop_status']['value'] = $status;
         }
-        // fim.
+        // fau.
 
         return $info;
     }

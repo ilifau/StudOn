@@ -513,9 +513,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         return true;
     }
 
+    // fau: heavySub - avoid failures on heavy concurrency
     // fau: fairSub - add subscription requests and requests in fair time to waiting list
     // fau: studyCond - use condition based subscription type
-    // fim: [memfix] avoid failures on heavy concurrency
     /**
      * add user
      *
@@ -533,7 +533,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         $lng = $DIC['lng'];
         $ilCtrl = $DIC['ilCtrl'];
         
-        // set aggreement accepted
+        // set agreement accepted
         $this->setAccepted(true);
 
         // get the membership role id
@@ -670,9 +670,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                     ilGroupMembershipMailNotification::TYPE_SUBSCRIBE_MEMBER,
                     $ilUser->getId()
                 );
-// fau: courseUdf - send external notifications
+                // fau: courseUdf - send external notifications
                 $this->participants->sendExternalNotifications($this->container, $ilUser);
-// fau.
+                // fau.
 
                 include_once './Modules/Forum/classes/class.ilForumNotification.php';
                 ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
@@ -692,9 +692,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 if ($this->registration_type == GRP_REGISTRATION_REQUEST) {
                     $this->participants->sendSubscriptionRequestToAdmins($ilUser->getId());				// mail to admins
                 }
-// fau: courseUdf - send external notifications
+                // fau: courseUdf - send external notifications
                 $this->participants->sendExternalNotifications($this->container, $ilUser);
-// fau.
+                // fau.
 
                 $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($ilUser->getId()));
                 ilUtil::sendSuccess($info, true);
@@ -712,9 +712,9 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 break;
 
             case 'showAddedToWaitingListFair':
-// fau: courseUdf - send external notifications
+                // fau: courseUdf - send external notifications
                 $this->participants->sendExternalNotifications($this->container, $ilUser);
-// fau.
+                // fau.
                 ilUtil::sendSuccess($this->lng->txt("sub_fair_added_to_waiting_list"), true);
                 $ilCtrl->redirectByClass("ilrepositorygui");
                 break;
@@ -733,7 +733,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 break;
         }
     }
-    // fim.
     // fau.
     
     /**

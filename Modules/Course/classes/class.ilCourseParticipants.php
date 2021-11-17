@@ -97,7 +97,7 @@ class ilCourseParticipants extends ilParticipants
     }
 
     /**
-    * fim: [memsess] set the assigned course (needed to get course settings for session info)
+    * fau: sessionSub - set the assigned course (needed to get course settings for session info)
     *
     * @param 	object  course object
     */
@@ -105,10 +105,10 @@ class ilCourseParticipants extends ilParticipants
     {
         $this->course_obj = $a_course_obj;
     }
-    // fim.
+    // fau.
 
     /**
-    * fim: [memsess] get the assigned course (needed to get course settings for session info)
+    * fau: sessionSub - get the assigned course (needed to get course settings for session info)
     *
     * @return 	object  course object
     */
@@ -119,7 +119,7 @@ class ilCourseParticipants extends ilParticipants
         }
         return $this->course_obj;
     }
-    // fim.
+    // fau.
 
     /**
      * Get member roles
@@ -300,12 +300,12 @@ class ilCourseParticipants extends ilParticipants
         $mail = new ilCourseMembershipMailNotification();
         $mail->forceSendingMail($a_force_sending_mail);
 
-        // fim: [memsess] get info about subscription to events
+        // fau: sessionSub - get info about subscription to events
         $course = $this->getCourseObject();
         if ($course->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF) {
             $subscribe_to_events = true;
         }
-        // fim.
+        // fau.
 
         switch ($a_type) {
             case $this->NOTIFY_DISMISS_SUBSCRIBER:
@@ -319,9 +319,9 @@ class ilCourseParticipants extends ilParticipants
                 $mail->setType(ilCourseMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER);
                 $mail->setRefId($this->ref_id);
                 $mail->setRecipients(array($a_usr_id));
-                // fim: [memsess] add event reminder
+                // fau: sessionSub - add event reminder
                 $mail->setSubscribeToEvents($subscribe_to_events);
-                // fim.
+                // fau.
                 $mail->send();
                 break;
 
@@ -350,9 +350,9 @@ class ilCourseParticipants extends ilParticipants
                 $mail->setType(ilCourseMembershipMailNotification::TYPE_ADMISSION_MEMBER);
                 $mail->setRefId($this->ref_id);
                 $mail->setRecipients(array($a_usr_id));
-                // fim: [memsess] add event reminder
+                // fau: sessionSub - add event reminder
                 $mail->setSubscribeToEvents($subscribe_to_events);
-                // fim.
+                // fau.
                 $mail->send();
                 break;
 

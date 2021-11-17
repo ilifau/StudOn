@@ -33,15 +33,15 @@ include_once './Services/Object/classes/class.ilObjectAccess.php';
 
 class ilObjSessionAccess extends ilObjectAccess
 {
-    // fim: [memsess] initialize cache for registration settings
+    // fau: sessionSub - initialize cache for registration settings
     protected static $registrations = array();
-    // fim.
+    // fau.
     protected static $registered = null;
 
-    // fim: [memsess] cache checked course conditions
+    // fau: sessionSub - cache checked course conditions
     // array($course_ref_id => true|false)
     protected static $course_checks = array();
-    // fim.
+    // fau.
 
     /**
      * get list of command/permission combinations
@@ -91,9 +91,9 @@ class ilObjSessionAccess extends ilObjectAccess
 
         switch ($a_cmd) {
             case 'register':
-                // fim: [memsess] add ref_id as parameter
+                // fau: sessionSub - add ref_id as parameter
                 if (!self::_lookupRegistration($a_obj_id, $a_ref_id)) {
-                    // fim.
+                    // fau.
                     return false;
                 }
                 if ($ilUser->isAnonymous()) {
@@ -109,7 +109,7 @@ class ilObjSessionAccess extends ilObjectAccess
                 if (ilSessionWaitingList::_isOnList($a_user_id, $a_obj_id)) {
                     return false;
                 }
-                // fim: [memsess] extened check for session registration
+                // fau: sessionSub - extened check for session registration
                 if ($max_participants = self::_lookupMaxParticipants($a_obj_id)) {
                     $registrations = self::_lookupRegisteredUsers($a_obj_id);
                     if ($registrations >= $max_participants) {
@@ -117,14 +117,14 @@ class ilObjSessionAccess extends ilObjectAccess
                     }
                 }
                 return self::_checkCourseRegistrationSetting($a_ref_id, $a_user_id);
-                // fim.
+                // fau.
 
                 break;
                 
             case 'unregister':
-                // fim: [memsess] add ref_id as parameter
+                // fau: sessionSub - add ref_id as parameter
                 if (self::_lookupRegistration($a_obj_id, $a_ref_id) && $a_user_id != ANONYMOUS_USER_ID) {
-                    // fim.
+                    // fau.
                     return self::_lookupRegistered($a_user_id, $a_obj_id);
                 }
                 return false;
@@ -154,7 +154,7 @@ class ilObjSessionAccess extends ilObjectAccess
         return false;
     }
     
-    // fim: [memsess] check if registration is allowed by parent course
+    // fau: sessionSub - check if registration is allowed by parent course
     public static function _checkCourseRegistrationSetting($a_ref_id, $a_usr_id)
     {
         global $tree;
@@ -177,9 +177,9 @@ class ilObjSessionAccess extends ilObjectAccess
 
         return self::$course_checks[$crs_ref_id];
     }
-    // fim.
+    // fau.
 
-    // fim: [memsess] _lookupMaxParticipants()
+    // fau: sessionSub - _lookupMaxParticipants()
     public static function _lookupMaxParticipants($a_obj_id)
     {
         global $ilDB;
@@ -190,9 +190,9 @@ class ilObjSessionAccess extends ilObjectAccess
             return $row->reg_limit_users;
         }
     }
-    // fim.
+    // fau.
 
-    // fim: [memsess] _lookupRegisteredUsers()
+    // fau: sessionSub - _lookupRegisteredUsers()
     public static function _lookupRegisteredUsers($a_obj_id)
     {
         global $ilDB;
@@ -204,9 +204,9 @@ class ilObjSessionAccess extends ilObjectAccess
             return $row->users;
         }
     }
-    // fim.
+    // fau.
 
-    //fim: [memsess] add parameter to look only for registrations at the same level
+    //fau: sessionSub - add parameter to look only for registrations at the same level
     /**
      * lookup registrations
      *
@@ -252,7 +252,7 @@ class ilObjSessionAccess extends ilObjectAccess
         }
         return self::$registrations[$a_obj_id];
     }
-    // fim.
+    // fau.
 
 
     /**
@@ -275,10 +275,10 @@ class ilObjSessionAccess extends ilObjectAccess
         $ilDB = $DIC['ilDB'];
         $ilUser = $DIC['ilUser'];
 
-        // fim: [bugfix] take the user parameter instead of ilUser
+        // fau: fixSessionRegistered - take the user parameter instead of ilUser
         $a_usr_id = $a_usr_id ? $a_usr_id : $ilUser->getId();
         $query = "SELECT event_id, registered FROM event_participants WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer');
-        // fim.
+        // fau.
         $res = $ilDB->query($query);
         self::$registered[$a_usr_id] = array();
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {

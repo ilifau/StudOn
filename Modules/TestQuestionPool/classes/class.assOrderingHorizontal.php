@@ -338,9 +338,9 @@ class assOrderingHorizontal extends assQuestion implements ilObjQuestionScoringA
 
             $entered_values = false;
             if (strlen($solutionSubmit)) {
-                // fim: [bugfix] revert encodings to allow a correct tex processing
+                // fau: fixOrderingAnswerTex - revert encodings to allow a correct tex processing
                 $this->saveCurrentSolution($active_id, $pass, ilUtil::revertFormOutput($_POST['orderresult']), null, $authorized);
-                // fim.
+                // fau.
                 $entered_values = true;
             }
         });

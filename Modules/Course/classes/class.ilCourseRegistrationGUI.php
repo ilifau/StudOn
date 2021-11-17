@@ -63,7 +63,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $ilUser = $DIC['ilUser'];
         
         
-        // fim: [memfix] do the permission check with a fitting command
+        // fau: changeSub - do the permission check with a fitting command
+        // fau: joinAsGuest - do the permission check with a fitting command
         $cmd = $this->ctrl->getCmd("show");
         switch ($cmd) {
             case 'joinAsGuest':
@@ -104,7 +105,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 $this->$cmd();
                 break;
         }
-        // fim.
+        // fau.
         return true;
     }
     
@@ -506,7 +507,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         return true;
     }
     
-    // fim: [memsess] new function fillEventRegistration()
+    // fau: sessionSub - new function fillEventRegistration()
     protected function fillEventRegistration()
     {
         switch ($this->container->getSubscriptionWithEvents()) {
@@ -624,7 +625,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $this->form->addItem($item);
         }
     }
-    // fim.
+    // fau.
 
 
     /**
@@ -689,7 +690,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         //		}
         // fau.
 
-        // fim: [memsess] check event registration
+        // fau: sessionSub - check event registration
         if ($this->container->getSubscriptionWithEvents() != IL_CRS_SUBSCRIPTION_EVENTS_OFF
         and $this->subscription_type != IL_CRS_SUBSCRIPTION_CONFIRMATION) {
             if (!is_array($_POST["events"])) {
@@ -724,7 +725,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 return false;
             }
         }
-        // fim.
+        // fau.
 
         if (!$this->validateAgreement()) {
             $this->join_error = $this->lng->txt('crs_agreement_required');
@@ -734,9 +735,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         return true;
     }
 
+    // fau: heavySub - avoid failures on heavy concurrency
     // fau: fairSub - add subscription requests and requests in fair time to waiting list
     // fau: studyCond - use condition based subscription type
-    // fim: [memfix] avoid failures on heavy concurrency
     /**
      * add user
      *
@@ -887,20 +888,20 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             case 'notifyAdded':
                 $this->setAccepted(true);
 
-                // fim: [memsess] subscribe to events
+                // fau: sessionSub - subscribe to events
                 require_once("./Modules/Session/classes/class.ilEventParticipants.php");
                 foreach ((array) $_POST["events"] as $event_id) {
                     if ($event_id) {
                         ilEventParticipants::_register($ilUser->getId(), $event_id);
                     }
                 }
-                // fim.
+                // fau.
 
                 $this->participants->sendNotification($this->participants->NOTIFY_ADMINS, $ilUser->getId());
                 $this->participants->sendNotification($this->participants->NOTIFY_REGISTERED, $ilUser->getId());
-//fau: courseUdf - send external notifications
+                //fau: courseUdf - send external notifications
                 $this->participants->sendExternalNotifications($this->container, $ilUser);
-// fau.
+                // fau.
                 include_once './Modules/Forum/classes/class.ilForumNotification.php';
                 ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
                                 
@@ -925,9 +926,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 if ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) {
                     $this->participants->sendSubscriptionRequestToAdmins($ilUser->getId());				// mail to admins
                 }
-// fau: courseUdf - send external notifications
+                // fau: courseUdf - send external notifications
                 $this->participants->sendExternalNotifications($this->container, $ilUser);
-// fau.
+                // fau.
 
                 $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($ilUser->getId()));
                 ilUtil::sendSuccess($info, true);
@@ -946,9 +947,9 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
             case 'showAddedToWaitingListFair':
                 $this->setAccepted(true);
-// fau: courseUdf - send external notifications
+                // fau: courseUdf - send external notifications
                 $this->participants->sendExternalNotifications($this->container, $ilUser);
-// fau.
+                // fau.
 
                 ilUtil::sendSuccess($this->lng->txt("sub_fair_added_to_waiting_list"), true);
                 $ilCtrl->redirectByClass("ilrepositorygui");
@@ -968,7 +969,6 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 break;
         }
     }
-    // fim.
     // fau.
     
     /**

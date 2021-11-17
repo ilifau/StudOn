@@ -2786,9 +2786,9 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
     */
     public function getReportingDate()
     {
-        // fim: [bugfix] fix wrongly saved reporting date
+        // fau: fixTestReportingDate - fix wrongly saved reporting date
         return (strlen($this->reporting_date) and $this->reporting_date != '000000000000') ? $this->reporting_date : null;
-        // fim.
+        // fau.
     }
 
     /**

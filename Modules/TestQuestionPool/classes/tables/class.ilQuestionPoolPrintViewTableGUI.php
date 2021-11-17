@@ -128,12 +128,12 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
     {
         ilDatePresentation::setUseRelativeDates(false);
 
-        // fim: [exam] add page break
+        // fau: questionPrint - add page break
         if ($_POST['pagebreak']) {
             $this->tpl->touchBlock('pagebreak');
             $this->tpl->setVariable("STYLE_PAGEBREAK", "page-break-before:always");
         }
-        // fim.
+        // fau.
 
         $this->tpl->setVariable("TITLE", ilUtil::prepareFormOutput($data['title']));
         foreach ($this->getSelectedColumns() as $c) {
@@ -169,7 +169,7 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
             }
         }
 
-        // fim: [exam] optionally show the scoring
+        // fau: questionPrint - optionally show the scoring
         $scoring = (strcmp($this->outputmode, "detailed_scoring") == 0);
         if ((strcmp($this->outputmode, "detailed") == 0)
         || (strcmp($this->outputmode, "detailed_scoring") == 0)
@@ -192,7 +192,7 @@ class ilQuestionPoolPrintViewTableGUI extends ilTable2GUI
             }
             $this->tpl->parseCurrentBlock();
         }
-        // fim.
+        // fau.
 
         ilDatePresentation::setUseRelativeDates(true);
     }

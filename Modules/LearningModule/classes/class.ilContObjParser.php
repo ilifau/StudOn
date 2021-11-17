@@ -346,13 +346,13 @@ class ilContObjParser extends ilMDSaxParser
             }*/
 
             $obj_dir = $origin_id;
-            // fim: [bugfix] fixed mantis #8976 (still needed in 5.0 when importing container with question pools)
+            // fau: fixQplContainerImport - fixed mantis #8976 (still needed in 5.0 when importing container with question pools)
             if (strpos($imp_dir, $this->subdir) === false) {
                 $source_dir = $imp_dir . "/" . $this->subdir . "/objects/" . $obj_dir;
             } else {
                 $source_dir = $imp_dir . "/objects/" . $obj_dir;
             }
-            // fim.
+            // fau.
             $target_dir = ilUtil::getWebspaceDir() . "/mobs/mm_" . $mob_id;
 
             if (@is_dir($source_dir)) {

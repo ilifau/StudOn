@@ -127,7 +127,7 @@ class ilObjGroupListGUI extends ilObjectListGUI
         // END WebDAV get parent properties
 
 
-        // fim: [meminf] adapted info about refistration, membership limit and status
+        // fau: showMemLimit - adapted info about registration, membership limit and status
         include_once './Modules/Group/classes/class.ilObjGroupAccess.php';
         $info = ilObjGroupAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
         if ($info['reg_info_list_prop']) {
@@ -156,7 +156,7 @@ class ilObjGroupListGUI extends ilObjectListGUI
                 'value' => $info['reg_info_list_prop_status']['value']
             );
         }
-        // fim.
+        // fau.
 
         // course period
         $info = ilObjGroupAccess::lookupPeriodInfo($this->obj_id);

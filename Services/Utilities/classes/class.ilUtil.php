@@ -3039,7 +3039,7 @@ class ilUtil
     }
 
     /**
-     * fim: [bugfix] revert the replacements done in ilUtil::prepareFormOutput
+     * fau: fixOrderingAnswerTex - revert the replacements done in ilUtil::prepareFormOutput
      * @param	string
      * @return	string
      */
@@ -3050,7 +3050,7 @@ class ilUtil
         $a_str = str_replace("&#92;", "\\", $a_str);
         return $a_str;
     }
-    // fim.
+    // fau.
 
     /**
      * Prepare secure href attribute
@@ -3533,7 +3533,7 @@ class ilUtil
 
 
     /**
-     * fim: [bugfix] add parameter to redirect by html page istead http header
+     * fau: redirectByHtml - add parameter to redirect by html page instead http header
      *		this is needed for the join links of courses and groups
      *		if they are not called from the browser
      * @param	string		$a_script		target script
@@ -3542,7 +3542,7 @@ class ilUtil
      * @deprecated Use $DIC->ctrl()->redirectToURL() instead
      */
     public static function redirect($a_script, $a_html_redirect = false)
-    // fim.
+    // fau.
     {
         global $DIC;
 

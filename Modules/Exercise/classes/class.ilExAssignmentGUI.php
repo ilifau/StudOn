@@ -596,10 +596,11 @@ class ilExAssignmentGUI
             if ($lpcomment != "") {
                 $a_info->addProperty(
                     $lng->txt("exc_comment"),
-                    // fim: [bugfix] allow html special chars in comment
+                    // fau: exFeedbackHtml - allow html special chars in the output
                     nl2br(ilUtil::prepareFormOutput($lpcomment))
+                    // fau.
                 );
-                // fim.
+
             }
             if ($mark != "") {
                 $a_info->addProperty(

@@ -25,7 +25,7 @@ interface ilExAssignmentTypeInterface
 
     // fau: exAssHook - new function hasFiles()
     /**
-     * Has files for a submission (oploaded or generated)
+     * Has files for a submission (uploaded or generated)
      *
      * @return bool
      */

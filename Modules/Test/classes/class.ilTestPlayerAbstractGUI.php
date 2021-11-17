@@ -1947,7 +1947,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
             'Modules/Test'
         );
 
-        // fim: [exam] prevent dragging of images into text boxes during test (would display the image name which could be a hint)
+        // fau: preventImageDrag - prevent dragging of images into text boxes during test (would display the image name which could be a hint)
 
         if (ilCust::get("tst_prevent_image_drag")) {
             require_once("Services/jQuery/classes/class.iljQueryUtil.php");
@@ -1955,7 +1955,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
             $this->tpl->addOnLoadCode("$('img').bind('dragstart', function(event) { event.preventDefault(); });");
             $this->tpl->addOnLoadCode("$('a').bind('dragstart', function(event) { event.preventDefault(); });");
         }
-        // fim.
+        // fau.
     }
     
     protected function populateKioskHead()

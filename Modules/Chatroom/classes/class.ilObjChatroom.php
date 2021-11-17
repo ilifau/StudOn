@@ -213,12 +213,12 @@ class ilObjChatroom extends ilObject
         $objId = $newObj->getId();
 
         
-        // fim: [bugfix] check existence of original room
+        // fau: fixCopyChat - check existence of original room
         if (is_object($original_room)) {
             $original_settings = $original_room->getSettings();
         }
         $room = new ilChatroom();
-        // fim.
+        // fau.
 
         $original_settings['object_id'] = $objId;
 

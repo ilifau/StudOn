@@ -1076,9 +1076,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->enableSubscriptionMembershipLimitation((int) $form->getInput('subscription_membership_limitation'));
         $this->object->setSubscriptionMaxMembers((int) $form->getInput('subscription_max'));
         $this->object->setSubscriptionMinMembers((int) $form->getInput('subscription_min'));
-        // fim: [meminf] set show_mem_limit
+        // fau: showMemLimit - set show_mem_limit
         $this->object->setShowMemLimit((int) $form->getInput('crs_show_mem_limit'));
-        // fim.
+        // fau.
         $old_autofill = $this->object->hasWaitingListAutoFill();
         // fau: fairSub - save the fair period and waiting list options
         $old_subscription_fair = $this->object->getSubscriptionFair();
@@ -1117,9 +1117,9 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         // fau.
 
-        // fim: [memsess] set subscription_with_events
+        // fau: sessionSub - set subscription_with_events
         $this->object->setSubscriptionWithEvents((int) $_POST['subscription_with_events']);
-        // fim.
+        // fau.
 
         // title icon visibility
         $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTitleIconVisibility();
@@ -1523,7 +1523,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $form->addItem($reg_proc);
 
-        // fim: [memfix] customize use of registration codes
+        // fau: courseGroupRegCodes - customize use of registration codes
 
         if (ilCust::get('crs_enable_reg_codes')) {
             // Registration codes
@@ -1556,7 +1556,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
             $form->addItem($reg_code);
         }
-        // fim.
+        // fau.
 
         // time limit
         include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";
@@ -1656,13 +1656,13 @@ class ilObjCourseGUI extends ilContainerGUI
         $wait->addSubItem($auto);
         */
 
-        // fim: [meminf] add show mem limit checkbox
+        // fau: showMemLimit - add show mem limit checkbox
         $showlim = new ilCheckboxInputGUI($this->lng->txt('crs_show_mem_limit_label'), 'crs_show_mem_limit');
         $showlim->setValue(1);
         $showlim->setInfo($this->lng->txt('crs_show_mem_limit_option'));
         $showlim->setChecked($this->object->getShowMemLimit());
         $lim->addSubItem($showlim);
-        // fim.
+        // fau.
 
         // fau: fairSub - add fair date and arrange and explain options for waiting list
         if ($this->object->getSubscriptionFair() < 0) {
@@ -1713,7 +1713,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $form->addItem($lim);
 
-        // fim: [memsess] subscription_with event settings
+        // fau: sessionSub - subscription_with event settings
         $subev = new ilRadioGroupInputGUI($this->lng->txt("crs_subscription_with_events"), 'subscription_with_events');
         $subev->setValue($this->object->getSubscriptionWithEvents());
         $subev->setInfo($this->lng->txt('crs_subscription_with_events_info'));
@@ -1727,7 +1727,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $opt = new ilRadioOption($this->lng->txt('crs_subscription_with_events_multiple'), IL_CRS_SUBSCRIPTION_EVENTS_MULTIPLE);
         $subev->addOption($opt);
         $form->addItem($subev);
-        // fim.
+        // fau.
 
 
         $pres = new ilFormSectionHeaderGUI();
@@ -2790,9 +2790,9 @@ class ilObjCourseGUI extends ilContainerGUI
                 include_once('./Modules/Course/classes/class.ilCourseRegistrationGUI.php');
                 $registration = new ilCourseRegistrationGUI($this->object, $this);
                 $this->ctrl->forwardCommand($registration);
-                // fim: [bugfix] return here to avoid inclusion of header commands
+                // fau: fixCourseRegHeader - return here to avoid inclusion of header commands
                 return true;
-                // fim.
+                // fau.
                 break;
                 
             case 'ilobjectcustomuserfieldsgui':
@@ -3177,11 +3177,12 @@ class ilObjCourseGUI extends ilContainerGUI
                     if ($rbacsystem->checkAccess('join', $this->object->getRefId()) &&
                         !ilCourseParticipants::_isParticipant($this->object->getRefId(), $ilUser->getId())) {
                         include_once('./Modules/Course/classes/class.ilCourseRegistrationGUI.php');
-                        // fim: [memfix] provide the original command for registration gui
-                        // this is neded to check the permissions correctly there
-                        // but always show the registration screen for a join or view command
+                        // fau: changeSub - provide the original command for registration gui
+                        // fau: joinAsGuest - provide the original command for registration gui
+                        //      this is needed to check the permissions correctly there
+                        //      but always show the registration screen for a join or view command
                         $this->ctrl->redirectByClass("ilCourseRegistrationGUI", ($cmd == 'join' || $cmd == 'view') ? 'show' : $cmd);
-                    // fim.
+                        // fau.
                     } else {
                         $this->infoScreenObject();
                         break;
@@ -3722,13 +3723,13 @@ class ilObjCourseGUI extends ilContainerGUI
     {
         $link = chr(13) . chr(10) . chr(13) . chr(10);
         $link .= $this->lng->txt('crs_mail_permanent_link');
-        // fim: [meminf] add title and use static link for mail signature
+        // fau: autoMailSignature - add title and use static link for mail signature
         $link .= chr(13) . chr(10);
         $link .= $this->object->getTitle();
         $link .= chr(13) . chr(10);
         include_once './Services/Link/classes/class.ilLink.php';
         $link .= ilLink::_getStaticLink($this->object->getRefId());
-        // fim.
+        // fau.
 
         return rawurlencode(base64_encode($link));
     }

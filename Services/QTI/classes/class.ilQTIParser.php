@@ -1021,7 +1021,7 @@ class ilQTIParser extends ilSaxParser
                 $this->in_itemmetadata = false;
                 break;
 
-            // fim: [bugfix] allow metadata fields being indeded
+            // fau: fixQtiMetaIndent - allow metadata fields being indented in XML
             case "fieldlabel":
                 $this->metadata["label"] = $this->characterbuffer;
                 $this->characterbuffer = "";
@@ -1030,7 +1030,7 @@ class ilQTIParser extends ilSaxParser
                 $this->metadata["entry"] = $this->characterbuffer;
                 $this->characterbuffer = "";
                 break;
-            // fim.
+            // fau.
 
 
             case "qtimetadatafield":
@@ -1306,14 +1306,6 @@ class ilQTIParser extends ilSaxParser
                 }
                 $this->mattext = null;
                 break;
-            // fim: [exam] add support for matbreak element
-            case "matbreak":
-                $this->mattext = new ilQTIMattext();
-                $this->mattext->setContent('<br />');
-                $this->material->addMattext($this->mattext);
-                $this->mattext = null;
-                break;
-            // fim.
             case "matapplet":
                 if ($this->material != null) {
                     $this->material->addMatapplet($this->matapplet);

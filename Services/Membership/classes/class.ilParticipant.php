@@ -57,10 +57,10 @@ abstract class ilParticipant
     private $participants_status = array();
 
 
-    // fim: [meminf] cache variables for subscriber info
+    // fau: showMemLimit - cache variables for subscriber info
     private $isSubscriber = null;
     private $numSubscribers = null;
-    // fim.
+    // fau.
 
 
     /**
@@ -659,7 +659,7 @@ abstract class ilParticipant
 
     
     /**
-     * fim: [meminf] new function to check if user is subscriber (with caching)
+     * fau: showMemLimit - new function to check if user is subscriber (with caching)
      * This is used for object listing
      */
     public function isSubscriber($a_usr_id)
@@ -677,10 +677,10 @@ abstract class ilParticipant
 
         return $this->isSubscriber;
     }
-    // fim.
+    // fau.
 
     /**
-     * fim: [meminf] new function to get the number of subscribers (with caching)
+     * fau: showMemLimit - new function to get the number of subscribers (with caching)
      * This is used for object listing
      */
     public function getNumberOfSubscribers()
@@ -697,5 +697,5 @@ abstract class ilParticipant
 
         return $this->numSubscribers;
     }
-    // fim.
+    // fau.
 }

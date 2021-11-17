@@ -40,9 +40,9 @@ abstract class ilWaitingList
     // fau.
 
     private $db = null;
-    // fim: [bugfix] change to protected
+    // fau: fixWaitingListProperty - change to protected
     protected $obj_id = 0;
-    // fim.
+    // fau.
     private $user_ids = array();
     private $users = array();
     

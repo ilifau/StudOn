@@ -1,6 +1,3 @@
-bugfix	40
-debug	3   - only STACK
-exam	30
-memfix	18
-meminf	31
-memsess	46
+debug	2
+memfix	4
+univis	1

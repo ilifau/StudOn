@@ -1798,11 +1798,11 @@ class ilTemplate extends HTML_Template_ITX
         if (count((array) $this->title_alerts)) {
             foreach ($this->title_alerts as $alert) {
                 $this->setCurrentBlock('header_alert');
-                // fim: [meminf] show alert property name only if it exists
+                // fau: showMemLimit - show alert property name only if it exists
                 if ($alert['property'] != '' and !($alert['propertyNameVisible'] === false)) {
                     $this->setVariable('H_PROP', $alert['property'] . ':');
                 }
-                // fim.
+                // fau.
                 $this->setVariable('H_VALUE', $alert['value']);
                 $this->parseCurrentBlock();
             }

@@ -753,9 +753,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         }
         
         // delete import directory
-        // fim: [bugfix] cleanup import sub directoy
+        // fau: fixTestImportDirectory - cleanup import sub directoy
         unset($_SESSION["qpl_import_subdir"]);
-        // fim.
+        // fau.
         include_once "./Services/Utilities/classes/class.ilUtil.php";
         ilUtil::delDir(dirname(ilObjQuestionPool::_getImportDirectory()));
 
@@ -770,9 +770,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
     
     public function cancelImportObject()
     {
-        // fim: [bugfix] cleanup import sub directoy
+        // fau: fixTestImportDirectory - cleanup import sub directoy
         unset($_SESSION["qpl_import_subdir"]);
-        // fim.
+        // fau.
 
         if ($_POST["questions_only"] == 1) {
             $this->ctrl->redirect($this, "questions");
@@ -1250,9 +1250,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         $mode->setOptions(array(
             'overview' => $this->lng->txt('overview'),
             'detailed' => $this->lng->txt('detailed_output_solutions'),
-            // fim: [exam] add option for detailed view with scoring
+            // fau: questionPrint - add option for detailed view with scoring
             'detailed_scoring' => $this->lng->txt('detailed_output_scoring'),
-            // fim.
+            // fau.
             'detailed_printview' => $this->lng->txt('detailed_output_printview')
         ));
         $mode->setValue(ilUtil::stripSlashes($_POST['output']));
@@ -1260,12 +1260,12 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         $ilToolbar->setFormName('printviewOptions');
         $ilToolbar->addInputItem($mode, true);
 
-        // fim: [exam] add pagebreak option
+        // fau: questionPrint - add pagebreak option
         require_once 'Services/Form/classes/class.ilCheckboxInputGUI.php';
         $break = new ilCheckboxInputGUI($this->lng->txt("print_pagebreaks"), 'pagebreak');
         $break->setChecked($_POST['pagebreak']);
         $ilToolbar->addInputItem($break, true);
-        // fim.
+        // fau.
 
         $ilToolbar->addFormButton($this->lng->txt('submit'), 'print');
 

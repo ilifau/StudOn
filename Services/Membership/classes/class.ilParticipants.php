@@ -758,7 +758,7 @@ abstract class ilParticipants
     
     
     /**
-     * fim: [memfix] get the actual role id of a role type
+     * fau: heavySub - get the actual role id of a role type
      *
      * needed to check membership and count of members
      * to avoid overbooking by heavy traffic
@@ -770,7 +770,7 @@ abstract class ilParticipants
     {
         return $this->role_data[$a_role_type];
     }
-    // fim.
+    // fau.
     
     
     /**
@@ -893,10 +893,10 @@ abstract class ilParticipants
             $rbacadmin->deassignUser($role_id, $a_usr_id);
         }
 
-        // fim: [memsess] delete event participations of the removed user
+        // fau: sessionSub - delete event participations of the removed user
         include_once './Modules/Session/classes/class.ilEventParticipants.php';
         ilEventParticipants::_deleteByUserAndParent($a_usr_id, $this->ref_id);
-        // fim.
+        // fau.
         
         $query = "DELETE FROM obj_members " .
             "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
@@ -1116,7 +1116,7 @@ abstract class ilParticipants
     
 
     /**
-     * fim: [memfix] Add user to a role with limited members
+     * fau: heavySub - Add user to a role with limited members
      *
      * @access public
      * @param 	int 		user id
@@ -1159,7 +1159,7 @@ abstract class ilParticipants
         }
         return true;
     }
-    // fim.
+    // fau.
     
 
     /**

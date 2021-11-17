@@ -577,9 +577,9 @@ class ilObjTestGUI extends ilObjectGUI
 
                 $page_gui->setHeader($question->getTitle());
                 $page_gui->setFileDownloadLink($this->ctrl->getLinkTarget($this, "downloadFile"));
-                // fim: [bugfix] fix fullscreen link in question page view
+                // fau: fixFullscreenLink - fix fullscreen link in question page view
                 // $page_gui->setFullscreenLink($this->ctrl->getLinkTarget($this, "fullscreen"));
-                // fim.
+                // fau.
                 $page_gui->setSourcecodeDownloadScript($this->ctrl->getLinkTarget($this));
                 $page_gui->setPresentationTitle($question->getTitle() . ' [' . $this->lng->txt('question_id_short') . ': ' . $question->getId() . ']');
                 $ret = &$this->ctrl->forwardCommand($page_gui);
@@ -619,7 +619,7 @@ class ilObjTestGUI extends ilObjectGUI
                 $forwarder->forward();
                 break;
 
-            // fim: [exam] handle commands for my campus
+            // fau: campusGrades - handle commands for my campus
             case 'iltestmycampusgui':
                 global $ilTabs;
                 $this->prepareOutput();
@@ -628,7 +628,7 @@ class ilObjTestGUI extends ilObjectGUI
                 $new_gui = new ilTestMyCampusGUI($this->object);
                 $this->ctrl->forwardCommand($new_gui);
                 break;
-            // fim.
+            // fau.
 
 
             case 'ilassspecfeedbackpagegui':
@@ -958,14 +958,14 @@ class ilObjTestGUI extends ilObjectGUI
     */
     protected function importFileObject($parent_id = null, $a_catch_errors = true)
     {
-        //fim: [bugfix] set new type parameter before form is initialized
+        // fau: fixTestImportType - set new type parameter before form is initialized
         $this->ctrl->setParameter($this, "new_type", $this->type);
         $form = $this->initImportForm($_REQUEST["new_type"]);
         if ($form->checkInput()) {
             $this->ctrl->setParameter($this, "new_type", $this->type);
             $this->uploadTstObject();
         }
-        // fim.
+        // fau.
 
         // display form to correct errors
         $form->setValuesByPost();
@@ -1216,9 +1216,9 @@ class ilObjTestGUI extends ilObjectGUI
         // create new questionpool object
         $newObj = new ilObjTest(0, true);
         // set type of questionpool object
-        // fim: [bugfix] use the fixed type 'tst' for a new test
+        // fau: fixTestImportType - use the fixed type 'tst' for a new test
         $newObj->setType('tst');
-        // fim.
+        // fau.
         // set title of questionpool object to "dummy"
         $newObj->setTitle("dummy");
         // set description of questionpool object
@@ -1288,22 +1288,22 @@ class ilObjTestGUI extends ilObjectGUI
         
         
         // delete import directory
-        // fim: [bugfix] cleanup import subdirectory
+        // fau: fixTestImportDirectory - cleanup import subdirectory
         unset($_SESSION["tst_import_subdir"]);
-        // fim.
+        // fau.
         ilUtil::delDir(ilObjTest::_getImportDirectory());
 
         ilUtil::sendSuccess($this->lng->txt("object_imported"), true);
         ilUtil::redirect("ilias.php?ref_id=" . $newObj->getRefId() . "&baseClass=ilObjTestGUI");
     }
 
-    // fim: [bugfix] cleanup import sub directoy
+    // fau: fixTestImportDirectory - cleanup import sub directoy
     public function cancelImportObject()
     {
         unset($_SESSION["qpl_import_subdir"]);
         $this->cancelObject();
     }
-    // fim.
+    // fau.
 
     /**
     * display status information or report errors messages
@@ -2382,7 +2382,7 @@ class ilObjTestGUI extends ilObjectGUI
             $template->parseCurrentBlock();
 
             $template->setCurrentBlock("navigation_buttons");
-            // fim: [exam] add page breaks button
+            // fau: questionPrint - add page breaks button
             $this->ctrl->setParameter($this, "break", "none");
             $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
             $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
@@ -2391,7 +2391,7 @@ class ilObjTestGUI extends ilObjectGUI
             $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
             $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
             $this->ctrl->setParameter($this, "break", "");
-            // fim.
+            // fau.
             $template->parseCurrentBlock();
         }
         // prepare generation before contents are processed (for mathjax)
@@ -2418,11 +2418,11 @@ class ilObjTestGUI extends ilObjectGUI
 
         foreach ($this->object->questions as $question) {
             $template->setCurrentBlock("question");
-            // fim: [exam] handle page breaks
+            // fau: questionPrint - handle page breaks
             if ($_GET['break'] == 'questions') {
                 $template->setVariable("STYLE_PRINT_PAGEBREAKS", "page-break-before:always;");
             }
-            // fim.
+            // fau.
             $question_gui = $this->object->createQuestionGUI("", $question);
             
             if ($isPdfDeliveryRequest) {
@@ -2443,11 +2443,11 @@ class ilObjTestGUI extends ilObjectGUI
             $max_points += $question_gui->object->getMaximumPoints();
         }
 
-        // fim: [exam] handle page breaks
+        // fau: questionPrint - handle page breaks
         if ($_GET['break']) {
             $template->touchBlock('print');
         }
-        // fim.
+        // fau.
 
         $template->setVariable("TITLE", ilUtil::prepareFormOutput($this->object->getTitle()));
         $template->setVariable("PRINT_TEST", ilUtil::prepareFormOutput($this->lng->txt("tst_print")));
@@ -2545,7 +2545,7 @@ class ilObjTestGUI extends ilObjectGUI
 
             $template->setCurrentBlock("navigation_buttons");
 
-            // fim: [exam] add page breaks button
+            // fau: questionPrint - add page breaks button
             $this->ctrl->setParameter($this, "break", "none");
             $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
             $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
@@ -2554,7 +2554,7 @@ class ilObjTestGUI extends ilObjectGUI
             $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
             $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
             $this->ctrl->setParameter($this, "break", "");
-            // fim.
+            // fau.
 
             $template->parseCurrentBlock();
             

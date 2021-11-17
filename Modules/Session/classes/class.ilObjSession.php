@@ -428,7 +428,7 @@ class ilObjSession extends ilObject
         return $this->reg_type != ilMembershipRegistrationSettings::TYPE_NONE;
     }
 
-    // fim: [memsess] new function registrationPossible()
+    // fau: sessionSub - new function registrationPossible()
     public function registrationPossible()
     {
         if (!$this->enabledRegistration()) {
@@ -445,7 +445,7 @@ class ilObjSession extends ilObject
             }
         }
     }
-    // fim.
+    // fau.
 
     /**
      * get appointments
@@ -1024,7 +1024,7 @@ class ilObjSession extends ilObject
         return false;
     }
 
-    // fim: [memsess] _getSessions() get child sessions of an object
+    // fau: sessionSub - _getSessions() get child sessions of an object
     // sessions are ordered by date and title
     public static function _getSessions($a_parent_ref_id, $a_for_registration = false)
     {
@@ -1048,5 +1048,5 @@ class ilObjSession extends ilObject
         ksort($sessions);
         return array_values($sessions);
     }
-    // fim.
+    // fau.
 }

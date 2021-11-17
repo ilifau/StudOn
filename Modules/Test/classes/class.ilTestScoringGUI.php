@@ -261,7 +261,7 @@ class ilTestScoringGUI extends ilTestServiceGUI
         
         $maxPointsByQuestionId = array();
         $maxPointsExceeded = false;
-        // fim: [exam] collect messages for maxpointsExceeded
+        // fau: manScoring - collect messages for maxpointsExceeded
         $maxPointExceededMessages = "";
         foreach ($questionGuiList as $questionId => $questionGui) {
             $reachedPoints = $form->getItemByPostVar("question__{$questionId}__points")->getValue();
@@ -288,7 +288,7 @@ class ilTestScoringGUI extends ilTestServiceGUI
             $this->showManScoringParticipantScreen($form);
             return false;
         }
-        // fim.
+        // fau.
 
         include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
         
@@ -464,9 +464,9 @@ class ilTestScoringGUI extends ilTestServiceGUI
 
             $area = new ilTextAreaInputGUI($lng->txt('set_manual_feedback'), "question__{$questionId}__feedback");
             $area->setUseRTE(true);
-            // fim: [exam] add backcolor to RTE buttons
+            // fau: manScoring - add backcolor to RTE buttons
             $area->addButton('backcolor');
-            // fim.
+            // fau.
             if ($initValues) {
                 $area->setValue($this->object->getManualFeedback($activeId, $questionId, $pass));
             }

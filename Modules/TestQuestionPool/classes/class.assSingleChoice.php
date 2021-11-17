@@ -148,9 +148,9 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     /*
     * Rebuild the thumbnail images with a new thumbnail size
     */
-    // fim: [bugfix] make public to allow a call from import
+    // fau: fixScMcImport - make public to allow a call from import
     public function rebuildThumbnails()
-    // fim.
+    // fau.
     {
         if ($this->isSingleline && ($this->getThumbSize())) {
             foreach ($this->getAnswers() as $answer) {
@@ -166,9 +166,9 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         return "thumb.";
     }
     
-    // fim: [bugfix] make public to allow a call from import
+    // fau: fixScMcImport - make public to allow a call from import
     public function generateThumbForFile($path, $file)
-    // fim.
+    // fau.
     {
         $filename = $path . $file;
         if (@file_exists($filename)) {

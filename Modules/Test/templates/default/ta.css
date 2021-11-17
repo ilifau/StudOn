@@ -144,12 +144,12 @@ div.ilc_Question {
 	margin-top: 1em;
 }
 
-/* fim: [exam] new style for solution (needed here and in test_print)*/
+/* fau: showBestSolutionBelow  - new style for solution (needed here and in test_print)*/
 .questionPrintviewCorrectSolution {
 	border-left: 3px dotted green;
 	padding-left:10px;
 }
-/* fim. */
+/* fau. */
 
 .solutionbox {
 	color: black;

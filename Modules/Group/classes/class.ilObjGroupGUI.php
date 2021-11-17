@@ -136,9 +136,9 @@ class ilObjGroupGUI extends ilContainerGUI
                 include_once('./Modules/Group/classes/class.ilGroupRegistrationGUI.php');
                 $registration = new ilGroupRegistrationGUI($this->object);
                 $this->ctrl->forwardCommand($registration);
-                // fim: [bugfix] return here to avoid inclusion of header commands
+                // fau: fixCourseRegHeader - return here to avoid inclusion of header commands
                 return true;
-                // fim.
+                // fau.
                 break;
 
             case 'ilpermissiongui':
@@ -633,9 +633,9 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->object->enableMembershipLimitation((bool) $form->getInput('registration_membership_limited'));
             $this->object->setMinMembers((int) $form->getInput('registration_min_members'));
             $this->object->setMaxMembers((int) $form->getInput('registration_max_members'));
-            // fim: [meminf] set show_mem_limit
+            // fau: showMemLimit - set show_mem_limit
             $this->object->setShowMemLimit((int) $_POST['grp_show_mem_limit']);
-            // fim.
+            // fau.
             $this->object->enableRegistrationAccessCode((bool) $form->getInput('reg_code_enabled'));
             $this->object->setRegistrationAccessCode($form->getInput('reg_code'));
             $this->object->setViewMode($form->getInput('view_mode'));
@@ -1838,7 +1838,7 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
-            // fim: [memfix] customize use of registration codes
+            // fau: courseGroupRegCodes - customize use of registration codes
             if (ilCust::get('grp_enable_reg_codes')) {
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
@@ -1846,10 +1846,10 @@ class ilObjGroupGUI extends ilContainerGUI
             $reg_code->setValue(1);
             $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
             }
-            // fim.
+            // fau.
             $form->addItem($reg_type);
 
-            // fim: [memfix] customize use of registration codes
+            // fau: courseGroupRegCodes - customize use of registration codes
             if (ilCust::get('grp_enable_reg_codes')) {
                 // Registration codes
                 if (!$this->object->getRegistrationAccessCode()) {
@@ -1867,7 +1867,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 $reg_code->addSubItem($link);
                 $form->addItem($reg_code);
             }
-            // fim.
+            // fau.
 
             // time limit
             $this->lng->loadLanguageModule('dateplaner');
@@ -1926,13 +1926,13 @@ class ilObjGroupGUI extends ilContainerGUI
             $max->setInfo($this->lng->txt('grp_reg_max_members_info'));
             $lim->addSubItem($max);
 
-            // fim: [meminf] add show mem limit checkbox
+            // fau: showMemLimit - add show mem limit checkbox
             $showlim = new ilCheckboxInputGUI($this->lng->txt('grp_show_mem_limit_label'), 'grp_show_mem_limit');
             $showlim->setValue(1);
             $showlim->setInfo($this->lng->txt('grp_show_mem_limit_option'));
             $showlim->setChecked($this->object->getShowMemLimit());
             $lim->addSubItem($showlim);
-            // fim.
+            // fau.
 
             /*
             $wait = new ilCheckboxInputGUI($this->lng->txt('grp_waiting_list'),'waiting_list');
@@ -2339,13 +2339,13 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $link = chr(13) . chr(10) . chr(13) . chr(10);
         $link .= $this->lng->txt('grp_mail_permanent_link');
-        // fim: [meminf] add title and use static link for mail signature
+        // fau: showMemLimit - add title and use static link for mail signature
         $link .= chr(13) . chr(10);
         $link .= $this->object->getTitle();
         $link .= chr(13) . chr(10);
         include_once 'Services/Link/classes/class.ilLink.php';
         $link .= ilLink::_getStaticLink($this->object->getRefId());
-        // fim.
+        // fau.
         return rawurlencode(base64_encode($link));
     }
     

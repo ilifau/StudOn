@@ -249,7 +249,7 @@ class ilEventParticipants
         return $user_ids ? $user_ids : array();
     }
 
-    // fim: [memsess] _getRegistrationsOfUserAndParent()
+    // fau: sessionSub - _getRegistrationsOfUserAndParent()
     public static function _getRegistrationsOfUserAndParent($a_user_id, $a_parent_ref_id)
     {
         global $tree;
@@ -263,7 +263,7 @@ class ilEventParticipants
         }
         return $event_ids;
     }
-    // fim.
+    // fau.
     
     public static function _hasParticipated($a_usr_id, $a_event_id)
     {
@@ -427,7 +427,7 @@ class ilEventParticipants
     }
 
 
-    // fim: [memsess] _deleteByUserAndParent()
+    // fau: sessionSub - _deleteByUserAndParent()
     public static function _deleteByUserAndParent($a_usr_id, $a_parent_ref_id)
     {
         global $ilDB, $tree;

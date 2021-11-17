@@ -347,9 +347,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
      */
     public function readUserData()
     {
-        // fim: [bugfix] set external segmentation for waiting list table
+        // fau: fixWaitingListSegmentation - set external segmentation for waiting list table
         $this->setExternalSegmentation(true);
-        // fim.
+        // fau.
         $this->determineOffsetAndOrder();
 
         include_once './Services/User/classes/class.ilUserQuery.php';

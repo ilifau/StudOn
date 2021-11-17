@@ -346,9 +346,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         // fau.
         $page_gui->setTemplateTargetVar("ADM_CONTENT");
         $page_gui->setFileDownloadLink("");
-        // fim: [bugfix] use default fullscreen link on container pages
+        // fau: fixFullscreenLink - use default fullscreen link on container pages
         // $page_gui->setFullscreenLink($this->ctrl->getLinkTarget($this, "showMediaFullscreen"));
-        // fim.
+        // fau.
         //$page_gui->setLinkParams($this->ctrl->getUrlParameterString()); // todo
         $page_gui->setPresentationTitle("");
         $page_gui->setTemplateOutput(false);

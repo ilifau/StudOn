@@ -334,13 +334,13 @@ abstract class ilRegistrationGUI
     
 
     /**
-     * fim: [memsess] new function fillEventRegistration()
+     * fau: sessionSub - new function fillEventRegistration()
      * this function is overwritten in courses
      */
     protected function fillEventRegistration()
     {
     }
-    // fim.
+    // fau.
 
     /**
      * Show user agreement
@@ -663,11 +663,11 @@ abstract class ilRegistrationGUI
         if ($this->isRegistrationPossible()) {
             $this->fillMaxMembers();
         }
-        // fim: [memsess] add event registration to the form
+        // fau: sessionSub - add event registration to the form
         if ($this->isRegistrationPossible()) {
             $this->fillEventRegistration();
         }
-        // fim.
+        // fau.
         if ($this->isRegistrationPossible()) {
             $this->fillAgreement();
         }

@@ -58,9 +58,9 @@ class ilObjGroupAccess extends ilObjectAccess
                 }
 
                 include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-                // fim: [memfix] use $a_user_id parameter to query waiting list
+                // fau: changeSub - use $a_user_id parameter to query waiting list
                 if (ilGroupWaitingList::_isOnList($a_user_id, $a_obj_id)) {
-                    // fim.
+                    // fau.
                     return false;
                 }
 
@@ -92,9 +92,9 @@ class ilObjGroupAccess extends ilObjectAccess
                 // Waiting list
                 if ($a_permission == 'join') {
                     include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-                    // fim: [memfix] use $a_user_id parameter to query waiting list
+                    // fau: changeSub - use $a_user_id parameter to query waiting list
                     if (!ilGroupWaitingList::_isOnList($a_user_id, $a_obj_id)) {
-                        // fim.
+                        // fau.
                         return false;
                     }
                 }
@@ -222,11 +222,8 @@ class ilObjGroupAccess extends ilObjectAccess
         }
         // fau.
 
-        // fim: [bugfix] omit checking read access (bug 5323)(see ilObjCourseAccess::_checkGoto)
-        if ($ilAccess->checkAccess("visible", "", $t_arr[1])) {
-            //		if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
-            //		$ilAccess->checkAccess("visible", "", $t_arr[1]))
-            // fim.
+        if ($ilAccess->checkAccess("read", "", $t_arr[1]) ||
+            $ilAccess->checkAccess("visible", "", $t_arr[1])) {
             return true;
         }
         return false;
@@ -298,9 +295,9 @@ class ilObjGroupAccess extends ilObjectAccess
      * @param int $a_obj_id
      * @return array
      */
-    // fim: [meminf] add ref_id as parameter for checking write access
+    // fau: showMemLimit - add ref_id as parameter for checking write access
     public static function lookupRegistrationInfo($a_obj_id, $a_ref_id = 0)
-    // fim.
+    // fau.
     {
         global $DIC;
 
@@ -308,7 +305,7 @@ class ilObjGroupAccess extends ilObjectAccess
         $ilUser = $DIC['ilUser'];
         $lng = $DIC['lng'];
 
-        // fim: [meminf] query for showing memmbership limitation
+        // fau: showMemLimit - query for showing membership limitation
         // fau: fairSub - query for fair period
         $query = 'SELECT registration_type, registration_enabled, registration_unlimited,  registration_start, ' .
             'registration_end, registration_mem_limit, registration_max_members, show_mem_limit, sub_fair FROM grp_settings ' .
@@ -334,7 +331,6 @@ class ilObjGroupAccess extends ilObjectAccess
             $info['reg_info_sub_fair'] = $row->sub_fair;
         }
         // fau.
-        // fim.
 
         $registration_possible = $info['reg_info_enabled'];
 
@@ -375,8 +371,8 @@ class ilObjGroupAccess extends ilObjectAccess
             }
         }
 
-        // fim: [meminf] get info about membership limitations and subscription status
-        // fau: fairSub - always query for the free places - info is also used on subscription plage
+        // fau: showMemLimit - get info about membership limitations and subscription status
+        // fau: fairSub - always query for the free places - info is also used on subscription page
         global $ilAccess;
         include_once './Modules/Group/classes/class.ilGroupParticipant.php';
         include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
@@ -433,7 +429,6 @@ class ilObjGroupAccess extends ilObjectAccess
             $info['reg_info_list_prop_status']['property'] = $lng->txt('member_status');
             $info['reg_info_list_prop_status']['value'] = $status;
         }
-        // fim.
         // fau.
 
         return $info;

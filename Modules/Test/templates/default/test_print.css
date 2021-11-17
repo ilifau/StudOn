@@ -216,9 +216,9 @@ table.freefield_bottom {
 }
 
 
-/* fim: [exam] new style for solution (needed here and in ta.css)*/
+/* fau: showBestSolutionBelow  - new style for solution (needed here and in ta.css)*/
 .questionPrintviewCorrectSolution {
 	border-left: 3px dotted green;
 	padding-left:10px;
 }
-/* fim. */
+/* fau. */

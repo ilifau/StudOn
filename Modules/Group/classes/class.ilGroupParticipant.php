@@ -24,9 +24,9 @@
 include_once('./Services/Membership/classes/class.ilParticipant.php');
 
 /**
-* fim: [meminf] new class, copied from ilCourseParticipant
- *
-* @ingroup ModulesGroup
+ * fau: fairSub - new class ilGroupParticipant
+ * copied from ilCourseParticipant, used to query the free places.
+ * @ingroup ModulesGroup
 */
 
 class ilGroupParticipant extends ilParticipant

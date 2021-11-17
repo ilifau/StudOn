@@ -235,7 +235,7 @@ class ilSetting
         }
 
         if ($a_write) {
-            // fim: [bugfix] change delete/insert to replace
+            // fau: fixSettingSave - change delete/insert to replace
             $ilDB->replace(
                 "settings",
                 array(	"module" => array("text", $this->module),
@@ -244,7 +244,7 @@ class ilSetting
                 array(	"value" => array(self::$value_type, $a_val)
                 )
             );
-            // fim.
+            // fau.
         }
 
         $this->setting[$a_key] = $a_val;

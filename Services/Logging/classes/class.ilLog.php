@@ -245,9 +245,9 @@ class ilLog
                 //die("Logfile: cannot open file. Please give Logfile Writepermissions.");
             }
 
-            // fim: [bugfix] avoud php warnings when log cannnot be written
+            // fau: fixLogfileWrite - avoid php warnings when log cannnot be written
             if (@fwrite($this->fp, $this->getLogFormat() . $a_msg . "\n") == -1) {
-                // fim.
+                // fau.
                 //die("Logfile: cannot write to file. Please give Logfile Writepermissions.");
             }
             

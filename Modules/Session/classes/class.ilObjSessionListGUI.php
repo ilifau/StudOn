@@ -92,14 +92,6 @@ class ilObjSessionListGUI extends ilObjectListGUI
     public function getTitle()
     {
         $app_info = $this->getAppointmentInfo();
-
-        // fim: [memsess] don't display the date if title exists
-        //		if(strlen($this->title))
-        //		{
-        //			return $this->title;
-        //		}
-        // fim.
-
         $title = strlen($this->title) ? (': ' . $this->title) : '';
         return ilSessionAppointment::_appointmentToString($app_info['start'], $app_info['end'], $app_info['fullday']) . $title;
     }
@@ -164,7 +156,7 @@ class ilObjSessionListGUI extends ilObjectListGUI
         include_once './Modules/Session/classes/class.ilObjSession.php';
         $session_data = new ilObjSession($this->obj_id, false);
         include_once './Modules/Session/classes/class.ilSessionParticipants.php';
-        // fim: [memsess] hide the wrongly calculated standard free places
+        // fau: sessionSub - hide the wrongly calculated standard free places
 //      StudOn 5.3: the session registration with course registration does not yet add user to the new session role
         //		$part = ilSessionParticipants::getInstance($this->ref_id);
 //
@@ -180,7 +172,7 @@ class ilObjSessionListGUI extends ilObjectListGUI
         //				);
         //			}
         //		}
-        // fim.
+        // fau.
         
         if ($this->getDetailsLevel() == ilObjectListGUI::DETAILS_MINIMAL) {
             if ($items = self::lookupAssignedMaterials($this->obj_id)) {
@@ -240,7 +232,7 @@ class ilObjSessionListGUI extends ilObjectListGUI
             }
         }
 
-        // fim: [memsess] display information about registered users and registration status
+        // fau: sessionSub - display information about registered users and registration status
         include_once('./Modules/Session/classes/class.ilObjSessionAccess.php');
         if (ilObjSessionAccess::_lookupRegistration($this->obj_id, $this->ref_id)) {
             $max_participants = ilObjSessionAccess::_lookupMaxParticipants($this->obj_id);
@@ -274,7 +266,7 @@ class ilObjSessionListGUI extends ilObjectListGUI
                     'value' => $this->lng->txt("event_not_registered"));
             }
         }
-        // fim.
+        // fau.
 
         return $props;
     }

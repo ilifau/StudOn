@@ -2,7 +2,7 @@
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
-* fim: [bugfix] allow a use of the deprecated repository.php
+* fau: fixRepositoryScript - allow a use of the deprecated repository.php.
 *
 * If you want to use this script your base class must be declared
 * within modules.xml.

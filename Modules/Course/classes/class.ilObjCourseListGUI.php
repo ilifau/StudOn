@@ -109,7 +109,7 @@ class ilObjCourseListGUI extends ilObjectListGUI
                 "value" => $lng->txt("crs_status_blocked"));
         }
 
-        // fim: [meminf] adapted info about registration, membership limit and status
+        // fau: showMemLimit - adapted info about registration, membership limit and status
         include_once './Modules/Course/classes/class.ilObjCourseAccess.php';
         $info = ilObjCourseAccess::lookupRegistrationInfo($this->obj_id, $this->ref_id);
         if ($info['reg_info_list_prop']) {
@@ -138,7 +138,7 @@ class ilObjCourseListGUI extends ilObjectListGUI
                 'value' => $info['reg_info_list_prop_status']['value']
             );
         }
-        // fim.
+        // fau.
 
 
         // course period

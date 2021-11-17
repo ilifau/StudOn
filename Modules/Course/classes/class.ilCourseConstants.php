@@ -57,11 +57,11 @@ define('IL_CRS_VIEW_TIMING_RELATIVE', 1);
 define('IL_CRS_ARCHIVE_DOWNLOAD', 3);
 define('IL_CRS_ARCHIVE_NONE', 0);
 
-// fim: [memsess] constants for event registration
+// fau: sessionSub - constants for event registration
 define('IL_CRS_SUBSCRIPTION_EVENTS_OFF', 0);
 define('IL_CRS_SUBSCRIPTION_EVENTS_UNIQUE', 1);
 define('IL_CRS_SUBSCRIPTION_EVENTS_MULTIPLE', 2);
-// fim.
+// fau.
 
 class ilCourseConstants
 {

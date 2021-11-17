@@ -255,7 +255,7 @@ class ilRbacAdmin
     }
 
     /**
-     * fim: [memfix] Assigns a user to a role with a limit of maximum members
+     * fau: heavySub - Assigns a user to a role with a limit of maximum members
      * @access	public
      * @param	integer		object_id of role
      * @param	integer		object_id of user
@@ -315,7 +315,7 @@ class ilRbacAdmin
         $mapping->assign($a_role_id, $a_usr_id);
         return true;
     }
-    // fim.
+    // fau.
 
 
     /**

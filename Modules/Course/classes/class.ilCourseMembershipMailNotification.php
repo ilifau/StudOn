@@ -76,7 +76,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     }
 
     /**
-    * fim: [memsess] set reminder about subscription to events
+    * fau: sessionSub - set reminder about subscription to events
     *
     * @param    boolean     reminder (true / false)
     */
@@ -84,7 +84,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     {
         $this->subscribe_to_events = $a_subscribe;
     }
-    // fim.
+    // fau.
 
 
     // fau: fairSub - get/set waiting list object for detailed information in the mails
@@ -156,12 +156,12 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                     $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
                     $this->appendBody("\n\n");
                     $this->appendBody($this->createPermanentLink());
-                    // fim: [memsess] add event reminder
+                    // fau: sessionSub - add event reminder
                     if ($this->subscribe_to_events) {
                         $this->appendBody("\n\n");
                         $this->appendBody($this->getLanguageText('crs_mail_subscribe_to_events'));
                     }
-                    // fim.
+                    // fau.
                     $this->getMail()->appendInstallationSignature(true);
                                         
                     $this->sendMail(array($rcp), array('system'));
@@ -186,12 +186,12 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                     $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
                     $this->appendBody("\n\n");
                     $this->appendBody($this->createPermanentLink());
-                    // fim: [memsess] add event reminder
+                    // fau: sessionSub - add event reminder
                     if ($this->subscribe_to_events) {
                         $this->appendBody("\n\n");
                         $this->appendBody($this->getLanguageText('crs_mail_subscribe_to_events'));
                     }
-                    // fim.
+                    // fau.
                     $this->getMail()->appendInstallationSignature(true);
                                         
                     $this->sendMail(array($rcp), array('system'));

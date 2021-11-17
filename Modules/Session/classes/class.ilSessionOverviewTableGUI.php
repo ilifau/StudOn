@@ -78,21 +78,21 @@ class ilSessionOverviewTableGUI extends ilTable2GUI
                 continue;
             }
             // sort by date of 1st appointment
-            // fim: [memsess] add title to sorting criteria
+            // fau: sessionOverview - add title to sorting criteria
             $events[$tmp_event->getFirstAppointment()->getStartingTime() . '_' . $tmp_event->getTitle() . '_' . $tmp_event->getId()] = $tmp_event;
-            // fim.
+            // fau.
         }
         
         ksort($events);
         return array_values($events);
     }
 
-    // fim: [memsess] allow to get the gathered events to show a legend
+    // fau: sessionOverview - allow to get the gathered events to show a legend
     public function getEvents()
     {
         return $this->events;
     }
-    // fim.
+    // fau.
 
     protected function getItems(array $a_events, array $a_members)
     {

@@ -510,7 +510,7 @@ class ilTabsGUI
 
         $i = 0;
         
-        // fim: [bugfix] add scrren id for hidden single tab
+        // fau: fixSingleTabScreenId - add screen id for hidden single tab
         if (count($targets) == 1 and !$this->getSetupMode()) {
             $target = current($targets);
             if ($a_get_sub_tabs) {
@@ -520,7 +520,7 @@ class ilTabsGUI
             }
             $ilHelp->setDefaultScreenId($part, $target["id"]);
         }
-        // fim.
+        // fau.
 
         // do not display one tab only
         if ((count($targets) > 1 || $this->force_one_tab) || ($this->back_title != "" && !$a_get_sub_tabs)

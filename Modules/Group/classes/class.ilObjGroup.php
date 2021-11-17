@@ -84,9 +84,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     protected $start = null;
     protected $end = null;
 
-    // fim: [meminf] class variable for showimg mem limit
+    // fau: showMemLimit - class variable for showing mem limit
     protected $show_mem_limit = true;
-    // fim.
+    // fau.
 
     // Map
     private $latitude = '';
@@ -523,7 +523,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         return (bool) $this->auto_fill_from_waiting;
     }
 
-    // fim: [meminf] new functions get/setShowMemLimit()
+    // fau: showMemLimit - new functions get/setShowMemLimit()
     public function getShowMemLimit()
     {
         return $this->show_mem_limit;
@@ -532,7 +532,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     {
         $this->show_mem_limit = $a_value;
     }
-    // fim.
+    // fau.
 
     /**
     * Set Latitude.
@@ -843,7 +843,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
         // fau: objectSub - add sub_ref_id
         // fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
-        // fim: [meminf] add show_mem_limit to create
+        // fau: showMemLimit - add show_mem_limit to create
         $query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,sub_ref_id,registration_enabled," .
             "registration_unlimited,registration_start,registration_end,sub_fair,sub_auto_fill,sub_last_fill,registration_password,registration_mem_limit," .
             "registration_max_members,waiting_list,show_mem_limit,latitude,longitude,location_zoom,enablemap,reg_ac_enabled,reg_ac,view_mode,mail_members_type," .
@@ -880,7 +880,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $ilDB->quote($this->getStart() instanceof ilDate ? $this->getStart()->get(IL_CAL_UNIX) : null, 'integer') . ', ' .
             $ilDB->quote($this->getEnd() instanceof ilDate ? $this->getEnd()->get(IL_CAL_UNIX) : null, 'integer') . ' ' .
             ")";
-        // fim.
         // fau.
         $res = $ilDB->manipulate($query);
 
@@ -909,19 +908,18 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             return false;
         }
 
-        // fim: [meminf] update show_mem_limit
         $query = "UPDATE grp_settings " .
             "SET information = " . $ilDB->quote($this->getInformation(), 'text') . ", " .
             "grp_type = " . $ilDB->quote((int) $this->getGroupType(), 'integer') . ", " .
             "registration_type = " . $ilDB->quote($this->getRegistrationType(), 'integer') . ", " .
-// fau: objectSub - save sub_ref_id
+            // fau: objectSub - save sub_ref_id
             "sub_ref_id = " . $ilDB->quote($this->getRegistrationRefId(), 'integer') . ", " .
-// fau.
-// fau: fairSub - save sub_fair, sub_auto_fill and sub_last_fill
+            // fau.
+            // fau: fairSub - save sub_fair, sub_auto_fill and sub_last_fill
             "sub_fair = " . $ilDB->quote($this->getSubscriptionFair(), 'integer') . ", " .
             "sub_auto_fill = " . $ilDB->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
             "sub_last_fill = " . $ilDB->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
-// fau.
+            // fau.
             "registration_enabled = " . $ilDB->quote($this->isRegistrationEnabled() ? 1 : 0, 'integer') . ", " .
             "registration_unlimited = " . $ilDB->quote($this->isRegistrationUnlimited() ? 1 : 0, 'integer') . ", " .
             "registration_start = " . $ilDB->quote(($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) ? $this->getRegistrationStart()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
@@ -931,7 +929,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             "registration_mem_limit = " . $ilDB->quote((int) $this->isMembershipLimited(), 'integer') . ", " .
             "registration_max_members = " . $ilDB->quote($this->getMaxMembers(), 'integer') . ", " .
             "waiting_list = " . $ilDB->quote($this->isWaitingListEnabled() ? 1 : 0, 'integer') . ", " .
+            // fau: showMemLimit - update setting
             "show_mem_limit = " . $ilDB->quote($this->getShowMemLimit() ? 1 : 0, 'integer') . ", " .
+            // fau.
             "latitude = " . $ilDB->quote($this->getLatitude(), 'text') . ", " .
             "longitude = " . $ilDB->quote($this->getLongitude(), 'text') . ", " .
             "location_zoom = " . $ilDB->quote($this->getLocationZoom(), 'integer') . ", " .
@@ -1038,9 +1038,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $this->enableMembershipLimitation((bool) $row->registration_mem_limit);
             $this->setMaxMembers($row->registration_max_members);
             $this->enableWaitingList($row->waiting_list);
-            // fim: [meminf] read show_mem_limit
+            // fau: showMemLimit - read show_mem_limit
             $this->setShowMemLimit($row->show_mem_limit);
-            // fim.
+            // fau.
             $this->setLatitude($row->latitude);
             $this->setLongitude($row->longitude);
             $this->setLocationZoom($row->location_zoom);
@@ -1098,9 +1098,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $new_obj->enableWaitingList($this->isWaitingListEnabled());
         $new_obj->setShowMembers($this->getShowMembers());
 
-        // fim: [meminf] clone showMemLimit
+        // fau: showMemLimit - clone showMemLimit
         $new_obj->setShowMemLimit($this->getShowMemLimit());
-        // fim.
+        // fau.
         // fau: objectSub - clone sub_ref_id
         $new_obj->setRegistrationRefId($this->getRegistrationRefId());
         // fau.

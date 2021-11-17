@@ -83,7 +83,7 @@ class ilCourseParticipant extends ilParticipant
     }
 
     /**
-    * fim: [memsess] set the assigned course (needed to get course settings for session info)
+    * fau: sessionSub - set the assigned course (needed to get course settings for session info)
     *
     * @param 	object  course object
     */
@@ -91,5 +91,5 @@ class ilCourseParticipant extends ilParticipant
     {
         $this->course_obj = $a_course_obj;
     }
-    // fim.
+    // fau.
 }
