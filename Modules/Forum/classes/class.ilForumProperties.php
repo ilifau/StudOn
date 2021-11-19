@@ -121,6 +121,8 @@ class ilForumProperties
     /** @var bool */
     private $exists = false;
 
+    protected int $styleId = 0;
+
     protected function __construct($a_obj_id = 0)
     {
         global $DIC;
@@ -175,6 +177,7 @@ class ilForumProperties
                 $this->thread_sorting = $row->thread_sorting == 1 ? true : false;
                 $this->setIsThreadRatingEnabled((bool) $row->thread_rating);
                 $this->file_upload_allowed = $row->file_upload_allowed == 1 ? true : false;
+                $this->setStyleSheetId((int) $row->stylesheet);
 
                 $this->exists = true;
                 return true;
@@ -204,6 +207,7 @@ class ilForumProperties
                     'notification_type' => array('text', $this->notification_type),
                     'mark_mod_posts' => array('integer', $this->mark_mod_posts),
                     'thread_sorting' => array('integer', $this->thread_sorting),
+                    'stylesheet' => array('integer', $this->styleId),
                     'thread_rating' => array('integer', $this->isIsThreadRatingEnabled()),
                     'file_upload_allowed' => array('integer', $this->file_upload_allowed)
                 )
@@ -237,6 +241,7 @@ class ilForumProperties
                     'notification_type' => array('text', $this->notification_type),
                     'mark_mod_posts' => array('integer', $this->mark_mod_posts),
                     'thread_sorting' => array('integer', $this->thread_sorting),
+                    'stylesheet' => array('integer', $this->styleId),
                     'thread_rating' => array('integer', $this->isIsThreadRatingEnabled()),
                     'file_upload_allowed' => array('integer', $this->file_upload_allowed)
                 ),
@@ -252,6 +257,14 @@ class ilForumProperties
     public function copy($a_new_obj_id)
     {
         if ($a_new_obj_id) {
+            $copy_style_id = 0;
+            if ($this->styleId > 0 && !ilObjStyleSheet::_lookupStandard($this->styleId)) {
+                $style = ilObjectFactory::getInstanceByObjId($this->styleId, false);
+                if ($style) {
+                    $copy_style_id = $style->ilClone();
+                }
+            }
+
             $this->db->update(
                 'frm_settings',
                 array(
@@ -266,6 +279,7 @@ class ilForumProperties
                     'notification_type' => array('text', $this->notification_type),
                     'mark_mod_posts' => array('integer', $this->mark_mod_posts),
                     'thread_sorting' => array('integer', $this->thread_sorting),
+                    'stylesheet' => array('integer', $copy_style_id),
                     'thread_rating' => array('integer', $this->isIsThreadRatingEnabled()),
                     'file_upload_allowed' => array('integer', $this->file_upload_allowed)
                 ),
@@ -273,10 +287,36 @@ class ilForumProperties
                     'obj_id' => array('integer', $a_new_obj_id)
                 )
             );
+
             return true;
         }
 
         return false;
+    }
+
+    public function getStyleSheetId() : int
+    {
+        return $this->styleId;
+    }
+
+    /**
+     * Note: A typehint cannot be be used here, because the consumer passes a string
+     * @param int $styleId
+     */
+    public function setStyleSheetId($styleId) : void
+    {
+        $this->styleId = (int) $styleId;
+    }
+
+    public function writeStyleSheetId(int $styleId) : void
+    {
+        $this->db->manipulateF(
+            'UPDATE frm_settings SET stylesheet = %s WHERE obj_id = %s',
+            ['integer', 'integer'],
+            [$styleId, $this->getObjId()]
+        );
+
+        $this->setStyleSheetId($styleId);
     }
 
     /**

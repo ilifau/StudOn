@@ -11,10 +11,10 @@ use ILIAS\UI\Renderer;
  * @ilCtrl_Calls ilObjForumGUI: ilPermissionGUI, ilForumExportGUI, ilInfoScreenGUI
  * @ilCtrl_Calls ilObjForumGUI: ilColumnGUI, ilPublicUserProfileGUI, ilForumModeratorsGUI, ilRepositoryObjectSearchGUI
  * @ilCtrl_Calls ilObjForumGUI: ilObjectCopyGUI, ilExportGUI, ilCommonActionDispatcherGUI, ilRatingGUI
- * @ilCtrl_Calls ilObjForumGUI: ilForumSettingsGUI, ilContainerNewsSettingsGUI
+ * @ilCtrl_Calls ilObjForumGUI: ilForumSettingsGUI, ilContainerNewsSettingsGUI, ilForumPageGUI
  * @ingroup      ModulesForum
  */
-class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
+class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling, ilForumObjectConstants
 {
     /** @var array */
     private $viewModeOptions = [
@@ -134,6 +134,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
         parent::__construct($a_data, $a_id, $a_call_by_reference, false);
 
         $this->lng->loadLanguageModule('forum');
+        $this->lng->loadLanguageModule('content');
 
         $this->initSessionStorage();
 
@@ -339,8 +340,46 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
         }
 
         switch ($next_class) {
+            case strtolower(ilForumPageGUI::class):
+                if (in_array(strtolower($cmd), array_map('strtolower', [
+                    self::UI_CMD_COPAGE_DOWNLOAD_FILE,
+                    self::UI_CMD_COPAGE_DISPLAY_FULLSCREEN,
+                    self::UI_CMD_COPAGE_DOWNLOAD_PARAGRAPH,
+                ]), true)
+                ) {
+                    if (!$this->checkPermissionBool('read')) {
+                        $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
+                    }
+                } elseif (!$this->checkPermissionBool('write') || $this->user->isAnonymous()) {
+                    $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->MESSAGE);
+                }
+
+                $this->tpl->setVariable(
+                    'LOCATION_CONTENT_STYLESHEET',
+                    ilObjStyleSheet::getContentStylePath($this->objProperties->getStyleSheetId())
+                );
+                $this->tpl->setCurrentBlock('SyntaxStyle');
+                $this->tpl->setVariable('LOCATION_SYNTAX_STYLESHEET', ilObjStyleSheet::getSyntaxStylePath());
+                $this->tpl->parseCurrentBlock();
+
+                $forwarder = new ilForumPageCommandForwarder(
+                    $this->http,
+                    $this->ctrl,
+                    $this->tabs,
+                    $this->lng,
+                    $this->object,
+                    $this->objProperties,
+                    $this->user
+                );
+
+                $pageContent = $forwarder->forward();
+                if ($pageContent !== '') {
+                    $this->tpl->setContent($pageContent);
+                }
+                break;
+
             case 'ilforumsettingsgui':
-                $forum_settings_gui = new ilForumSettingsGUI($this);
+                $forum_settings_gui = new ilForumSettingsGUI($this, $this->objProperties);
                 $this->ctrl->forwardCommand($forum_settings_gui);
                 break;
 
@@ -442,7 +481,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
                 break;
 
             case "ilcontainernewssettingsgui":
-                $forum_settings_gui = new ilForumSettingsGUI($this);
+                $forum_settings_gui = new ilForumSettingsGUI($this, $this->objProperties);
                 $forum_settings_gui->settingsTabs();
 
                 $this->lng->loadLanguageModule('cont');
@@ -487,7 +526,13 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
         }
 
         // suppress for topic level
-        if ($cmd != 'viewThreadObject' && $cmd != 'showUserObject') {
+        if (
+            $cmd != 'viewThreadObject' && $cmd != 'showUserObject' && !in_array(
+                strtolower($next_class),
+                array_map('strtolower', [ilForumPageGUI::class]),
+                true
+            )
+        ) {
             $this->addHeaderAction();
         }
     }
@@ -507,7 +552,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
      */
     protected function initEditCustomForm(ilPropertyFormGUI $a_form)
     {
-        $this->forum_settings_gui = new ilForumSettingsGUI($this);
+        $this->forum_settings_gui = new ilForumSettingsGUI($this, $this->objProperties);
         $this->forum_settings_gui->getCustomForm($a_form);
     }
 
@@ -703,6 +748,16 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
             $this->ctrl->clearParameters($this);
         }
 
+        if (!$this->user->isAnonymous() && $this->access->checkAccess('write', '', $this->ref_id)) {
+            $this->lng->loadLanguageModule('cntr');
+            $this->toolbar->addComponent(
+                $this->uiFactory->button()->standard(
+                    $this->lng->txt('cntr_text_media_editor'),
+                    $this->ctrl->getLinkTargetByClass(ilForumPageGUI::class, 'edit')
+                )
+            );
+        }
+
         if (\ilForumPostDraft::isSavePostDraftAllowed()) {
             $drafts = \ilForumPostDraft::getThreadDraftData(
                 $this->user->getId(),
@@ -747,7 +802,33 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
 
         $this->tpl->setPermanentLink($this->object->getType(), $this->object->getRefId(), '', '_top');
 
-        $this->tpl->setContent($threadsTemplate->get());
+        $this->initStyleSheets();
+
+        $forwarder = new ilForumPageCommandForwarder(
+            $GLOBALS['DIC']['http'],
+            $this->ctrl,
+            $this->tabs,
+            $this->lng,
+            $this->object,
+            $this->objProperties,
+            $this->user
+        );
+        $forwarder->setPresentationMode(ilForumPageCommandForwarder::PRESENTATION_MODE_PRESENTATION);
+
+        $this->tpl->setContent($forwarder->forward('') . $threadsTemplate->get());
+    }
+
+    protected function initStyleSheets() : void
+    {
+        $this->tpl->setVariable(
+            'LOCATION_CONTENT_STYLESHEET',
+            ilObjStyleSheet::getContentStylePath(
+                $this->objProperties->getStyleSheetId()
+            )
+        );
+        $this->tpl->setCurrentBlock('SyntaxStyle');
+        $this->tpl->setVariable('LOCATION_SYNTAX_STYLESHEET', ilObjStyleSheet::getSyntaxStylePath());
+        $this->tpl->parseCurrentBlock();
     }
 
     /**
@@ -1210,7 +1291,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
             $this->ref_id
         )) {
             $this->tabs->addTarget(
-                'forums_threads',
+                self::UI_TAB_ID_THREADS,
                 $this->ctrl->getLinkTarget($this, 'showThreads'),
                 $this->ctrl->getCmd(),
                 get_class($this),
@@ -1227,7 +1308,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
         )) {
             $force_active = ($this->ctrl->getNextClass() == 'ilinfoscreengui' || strtolower($_GET['cmdClass']) == 'ilnotegui') ? true : false;
             $this->tabs->addTarget(
-                'info_short',
+                self::UI_TAB_ID_INFO,
                 $this->ctrl->getLinkTargetByClass(array('ilobjforumgui', 'ilinfoscreengui'), 'showSummary'),
                 array('showSummary', 'infoScreen'),
                 '',
@@ -1239,7 +1320,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
         if ($this->access->checkAccess('write', '', $this->ref_id)) {
             $force_active = ($this->ctrl->getCmd() == 'edit') ? true : false;
             $this->tabs->addTarget(
-                'settings',
+                self::UI_TAB_ID_SETTINGS,
                 $this->ctrl->getLinkTarget($this, 'edit'),
                 'edit',
                 get_class($this),
@@ -1250,7 +1331,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
 
         if ($this->access->checkAccess('write', '', $this->ref_id)) {
             $this->tabs->addTarget(
-                'frm_moderators',
+                self::UI_TAB_ID_MODERATORS,
                 $this->ctrl->getLinkTargetByClass('ilForumModeratorsGUI', 'showModerators'),
                 'showModerators',
                 get_class($this)
@@ -1269,7 +1350,7 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
             if ($hasStatisticsAccess) {
                 $force_active = ($this->ctrl->getCmd() == 'showStatistics') ? true : false;
                 $this->tabs->addTarget(
-                    'frm_statistics',
+                    self::UI_TAB_ID_STATS,
                     $this->ctrl->getLinkTarget($this, 'showStatistics'),
                     'showStatistics',
                     get_class($this),
@@ -1280,12 +1361,12 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling
         }
 
         if ($this->access->checkAccess('write', '', $this->object->getRefId())) {
-            $this->tabs->addTarget('export', $this->ctrl->getLinkTargetByClass('ilexportgui', ''), '', 'ilexportgui');
+            $this->tabs->addTarget(self::UI_TAB_ID_EXPORT, $this->ctrl->getLinkTargetByClass('ilexportgui', ''), '', 'ilexportgui');
         }
 
         if ($this->access->checkAccess('edit_permission', '', $this->ref_id)) {
             $this->tabs->addTarget(
-                'perm_settings',
+                self::UI_TAB_ID_PERMISSIONS,
                 $this->ctrl->getLinkTargetByClass(array(get_class($this), 'ilpermissiongui'), 'perm'),
                 array('perm', 'info', 'owner'),
                 'ilpermissiongui'
