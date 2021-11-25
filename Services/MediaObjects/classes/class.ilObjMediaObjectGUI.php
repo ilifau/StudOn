@@ -761,7 +761,8 @@ class ilObjMediaObjectGUI extends ilObjectGUI
             else {
                 // resize standard images
                 if ($_POST["standard_size"] != "original" &&
-                    is_int(strpos($format, "image"))) {
+                    is_int(strpos($format, "image")) &&
+                    !($format == 'image/svg+xml')) {
                     $location = ilObjMediaObject::_resizeImage(
                         $file,
                         (int) $_POST["standard_width_height"]["width"],
