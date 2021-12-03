@@ -192,23 +192,23 @@ class ilCronManager implements \ilCronManagerInterface
                 " WHERE job_id = " . $ilDB->quote($a_job_data["job_id"], "text"));
 
             $ts_in = self::getMicrotime();
-            try {
+//            try {
                 $result = $a_job->run();
-            } catch (\Exception $e) {
-                $result = new \ilCronJobResult();
-                $result->setStatus(\ilCronJobResult::STATUS_CRASHED);
-                $result->setMessage(sprintf("Exception: %s", $e->getMessage()));
-
-                $ilLog->error($e->getMessage());
-                $ilLog->error($e->getTraceAsString());
-            } catch (\Throwable $e) { // Could be appended to the catch block with a | in PHP 7.1
-                $result = new \ilCronJobResult();
-                $result->setStatus(\ilCronJobResult::STATUS_CRASHED);
-                $result->setMessage(sprintf("Exception: %s", $e->getMessage()));
-
-                $ilLog->error($e->getMessage());
-                $ilLog->error($e->getTraceAsString());
-            }
+//            } catch (\Exception $e) {
+//                $result = new \ilCronJobResult();
+//                $result->setStatus(\ilCronJobResult::STATUS_CRASHED);
+//                $result->setMessage(sprintf("Exception: %s", $e->getMessage()));
+//
+//                $ilLog->error($e->getMessage());
+//                $ilLog->error($e->getTraceAsString());
+//            } catch (\Throwable $e) { // Could be appended to the catch block with a | in PHP 7.1
+//                $result = new \ilCronJobResult();
+//                $result->setStatus(\ilCronJobResult::STATUS_CRASHED);
+//                $result->setMessage(sprintf("Exception: %s", $e->getMessage()));
+//
+//                $ilLog->error($e->getMessage());
+//                $ilLog->error($e->getTraceAsString());
+//            }
             $ts_dur = self::getMicrotime() - $ts_in;
 
             // no proper result
