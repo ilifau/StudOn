@@ -496,7 +496,10 @@ class ilAccountRegistrationGUI
         } else {
             $password = $this->__createUser($valid_role);
             $this->__distributeMails($password);
-            return $this->login();
+            // fau: regCodes - call login with password
+            $this->login($password);
+            return true;
+            // fau.
         }
 
         $this->form->setValuesByPost();
