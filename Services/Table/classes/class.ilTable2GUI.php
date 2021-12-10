@@ -1428,6 +1428,13 @@ class ilTable2GUI extends ilTableGUI
                 );
             }
 
+            // fau: selectAllInfo - don't show "select all" checkbox on top if table has more pages
+//            if ($this->max_count > $this->getLimit() || $this->custom_prev_next) {
+//                $this->select_all_on_top = false;
+//            }
+            // fau.
+
+
             if ($column['is_checkbox_action_column'] && $this->select_all_on_top) {
                 $this->tpl->setCurrentBlock('tbl_header_top_select_all');
                 $this->tpl->setVariable("HEAD_SELECT_ALL_TXT_SELECT_ALL", $lng->txt("select_all"));
