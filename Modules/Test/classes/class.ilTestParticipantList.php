@@ -347,6 +347,10 @@ class ilTestParticipantList implements Iterator
                 $row['passed_status'] = $participant->getScoring()->isPassed();
                 $row['final_mark'] = $participant->getScoring()->getFinalMark();
 
+                // fau: testParticipantsResultsTable - add the max pass
+                $row['max_pass'] = ilObjTest::_getMaxPass($participant->getActiveId());
+                // fau.
+
                 $row['pass_finished'] = ilObjTest::lookupLastTestPassAccess(
                     $participant->getActiveId(),
                     $participant->getScoring()->getScoredPass()

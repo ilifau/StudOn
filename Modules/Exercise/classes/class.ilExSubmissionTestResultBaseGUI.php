@@ -120,6 +120,8 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
 
         $assTest =  $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->assignment->getId());
         $testObj = new ilObjTest($assTest->getTestRefId());
+        $sessionFactory = new ilTestSessionFactory($testObj);
+
         $partList = $testObj->getActiveParticipantList();
         $members = new ilExerciseMembers($this->exercise);
 
@@ -127,24 +129,20 @@ abstract class ilExSubmissionTestResultBaseGUI extends ilExSubmissionBaseGUI
 
         $synced = [];
         foreach ($users as $user_id) {
-            $results = $testObj->getResultsForActiveId($partList->getParticipantByUsrId($user_id)->getActiveId());
+            $active_id = $partList->getParticipantByUsrId($user_id)->getActiveId();
+            $sessionObj = $sessionFactory->getSession($active_id);
+            $tstamp = (int) $sessionObj->getSubmittedTimestamp();
 
             // check if user is already synced by a team member, keep a newer result time
-            if (isset($synced[$user_id]) && $synced[$user_id] > $results['tstamp']) {
+            if (isset($synced[$user_id]) && $synced[$user_id] > $tstamp) {
                 continue;
             }
 
-            $affected = $assTest->submitResult($user_id,
-                $results['passed'],
-                $results['reached_points'],
-                $results['mark_short'],
-                $results['mark_official'],
-                $results['tstamp']
-            );
+            $affected = $assTest->storeResult($testObj, $sessionObj);
 
             // store the result time for check with other team members
             foreach ($affected as $affected_id) {
-                $synced[$affected_id] = $results['tstamp'];
+                $synced[$affected_id] = $tstamp;
             }
         }
 

@@ -94,6 +94,8 @@ assessment#:#tst_info_section_requirements#:#Requirements
 assessment#:#tst_authorship_statement#:#Statement of Authorship
 assessment#:#tst_msg_authorship_statement_required#:#Please read and confirm the statement of authorship!
 assessment#:#tst_intermediate_solution#:#Last Auto Save###fau: testShowAutoSave
+assessment#:#tst_tbl_col_pass_finished#:#Last Scored Accessf###fau: testParticipantsResultsTable
+assessment#:#tst_tbl_col_started_passes#:#Started Passes###fau: testParticipantsResultsTable
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.
@@ -736,6 +738,10 @@ exc#:#exc_require_authorship_statement_default#:#An authorship statement is requ
 exc#:#exc_accept_authorship_statement#:#Accept Statement
 exc#:#exc_revoke_authorship_statement#:#Revoke Statement
 exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
+exc#:#label_scored_participant#:#Participant: ###fau: exAssTest
+exc#:#label_scored_pass#:#Scored Pass: ###fau: exAssTest
+exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
+exc#:#label_finished_pass#:#LastFinished Pass: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#crs_grp_info_reg_lot#:#You can only become a member of the following courses, but register for any. So the first assigned membership becomes valid.

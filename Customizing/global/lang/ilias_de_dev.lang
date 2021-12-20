@@ -93,6 +93,8 @@ assessment#:#tst_info_section_requirements#:#Voraussetzung zum Teststart
 assessment#:#tst_authorship_statement#:#Selbstständigkeitserklärung
 assessment#:#tst_msg_authorship_statement_required#:#Bitte lesen und bestätigen Sie die Selbständigkeitserklärung!
 assessment#:#tst_intermediate_solution#:#Letzte automatische Speicherung###fau: testShowAutoSave
+assessment#:#tst_tbl_col_pass_finished#:#Letzter bewerteter Zugriff###fau: testParticipantsResultsTable
+assessment#:#tst_tbl_col_started_passes#:#Gestartete Durchläufe###fau: testParticipantsResultsTable
 auth#:#shib_continue#:#Weiter zu StudOn
 auth#:#shib_continue_local#:#Weiter zu StudOn
 auth#:#shib_convert_accept#:#Ich bin mit den Änderungen einverstanden.
@@ -699,6 +701,10 @@ exc#:#exc_require_authorship_statement_default#:#Bei neuen Übungseinheiten ist 
 exc#:#exc_accept_authorship_statement#:#Erklärung bestätigen
 exc#:#exc_revoke_authorship_statement#:#Erklärung zurückziehen
 exc#:#exc_authorship_statement_accepted_at#:#Erklärung bestätigt: %s
+exc#:#label_scored_participant#:#Teilnehmer: ###fau: exAssTest
+exc#:#label_scored_pass#:#Bewerteter Durchlauf: ###fau: exAssTest
+exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
+exc#:#label_finished_pass#:#Letzter beendeter Durchlauf: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>

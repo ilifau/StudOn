@@ -118,19 +118,16 @@ class ilExAssTypeTestResultAssignment extends ActiveRecord
         $this->test_ref_id = $test_ref_id;
     }
 
+
     /**
-     * Submit a test result
-     *
-     * @param int $user_id
-     * @param bool $passed
-     * @param float $points
-     * @param string $mark_short
-     * @param string $mark_official
-     * @param int $tstamp
-     * @return array    affected user ids
+     * Store the result of a test
      */
-    public function submitResult($user_id, $passed, $points, $mark_short, $mark_official, $tstamp)
+    public function storeResult(ilObjTest $test, ilTestSession $session)
     {
+        global $DIC;
+        $lng = $DIC->language();
+        $lng->loadLanguageModule('exc');
+
         // check if assignment still exists
         // now test relationship is deleted with an assignment
         // but formerly it may not have be cleaned up if an assignment is deleted
@@ -141,35 +138,80 @@ class ilExAssTypeTestResultAssignment extends ActiveRecord
             return [];
         }
 
-        $state = ilExcAssMemberState::getInstanceByIds($this->getId(), $user_id);
+        $state = ilExcAssMemberState::getInstanceByIds($this->getId(), $session->getUserId());
 
         $user_ids = [];
-//        if ($state->isSubmissionAllowed()) {
+        if ($state->isInTeam()) {
+            $user_ids = $state->getTeamObject()->getMembers();
+        }
+        elseif (!empty($state->getTeamObject())) {
+            $user_ids = [];
+        }
+        else {
+            $user_ids = [$session->getUserId()];
+        }
 
-            if ($state->isInTeam()) {
-                $user_ids = $state->getTeamObject()->getMembers();
-            }
-            elseif (!empty($state->getTeamObject())) {
-                $user_ids = [];
-            }
-            else {
-                $user_ids = [$user_id];
-            }
+        $results = $test->getResultsForActiveId($session->getActiveId());
 
-            foreach ($user_ids as $user_id) {
-                $status = new ilExAssignmentMemberStatus($this->getId(), $user_id);
-                $status->setStatus($passed ? 'passed' : 'failed');
-                $status->setReturned(1);
-                $status->setMark($points);
-                $status->setComment($mark_official);
-                $status->setNotice($mark_official);
-                if ($status->getFeedback() == null) {
-                    $status->setFeedback(0);
-                }
-                $status->update();
+        $comments = [];
+
+        if (!empty($state->getTeamObject())) {
+            $comments[] = $lng->txt('label_scored_participant'). ilObjUser::_lookupFullname($session->getUserId());
+        }
+
+        $comments[] = $lng->txt('label_scored_pass') . $this->getPassNumber(ilObjTest::_getResultPass($session->getActiveId()));
+        $comments[] = $lng->txt('label_started_pass') . $this->getPassNumber($session->getLastStartedPass());
+        $comments[] = $lng->txt('label_finished_pass') . $this->getPassNumber($session->getLastFinishedPass());
+
+        foreach ($user_ids as $user_id) {
+            $status = new ilExAssignmentMemberStatus($this->getId(), $user_id);
+            $status->setStatus($results['passed'] ? 'passed' : 'failed');
+            $status->setReturned(1);
+            $status->setMark($results['reached_points']);
+            $status->setComment(implode(' | ', $comments));
+            $status->setNotice($results['mark_official']);
+            if ($status->getFeedback() == null) {
+                $status->setFeedback(0);
             }
-//        }
+            $status->update();
+        }
 
         return $user_ids;
+    }
+
+    /**
+     * Update the related assignments with the results of a test session
+     * @param ilObjTest     $test
+     * @param ilTestSession $session
+     */
+    public static function updateAssignments(ilObjTest $test, ilTestSession $session)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $ref_ids = ilObject::_getAllReferences($test->getId());
+
+        /** @var  self[] $assTests */
+        $assTests = self::where($db->in('test_ref_id', $ref_ids, false, 'integer'))->get();
+
+        if (!empty($assTests)) {
+            foreach ($assTests as $assTest) {
+                $assTest->storeResult($test, $session);
+            }
+        }
+    }
+
+    /**
+     * Get the numbr of a test pass for display
+     * @param null $pass
+     */
+    protected function getPassNumber($pass = null)
+    {
+        if (!isset($pass) || $pass < 0) {
+            return '-';
+        }
+        else {
+            return (int) $pass + 1;
+        }
     }
 }

@@ -85,30 +85,9 @@ class ilTestPassFinishTasks
      */
     public function updateExerciseSubmissionsAfterPassFinishedIsWritten()
     {
-        global $DIC;
-        $db = $DIC->database();
-
         require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
-
-        $ref_ids = ilObject::_getAllReferences($this->obj_id);
-
-        /** @var  ilExAssTypeTestResultAssignment[] $assTests */
-        $assTests = ilExAssTypeTestResultAssignment::where($db->in('test_ref_id', $ref_ids, false, 'integer'))->get();
-
-        if (!empty($assTests)) {
-            $test = new ilObjTest();
-            $results = $test->getResultsForActiveId($this->active_id);
-
-            foreach ($assTests as $assTest) {
-                $assTest->submitResult($this->testSession->getUserId(),
-                    $results['passed'],
-                    $results['reached_points'],
-                    $results['mark_short'],
-                    $results['mark_official'],
-                    $results['tstamp']
-                );
-            }
-        }
+        $test = new ilObjTest($this->obj_id, false);
+        ilExAssTypeTestResultAssignment::updateAssignments($test, $this->testSession);
     }
     // fau.
 

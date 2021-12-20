@@ -79,17 +79,10 @@ class ilTestScoring
     // fau: exAssTest - update the result of connected exercise assignments
     public function recalculateSolutions($a_active_ids = null)
     {
-        global $DIC;
-        $db = $DIC->database();
-
         $participants = $this->test->getCompleteEvaluationData(false)->getParticipants();
         if (is_array($participants)) {
 
-            $ref_ids = ilObject::_getAllReferences($this->test->getId());
-
-            require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
-            /** @var  ilExAssTypeTestResultAssignment[] $assTests */
-            $assTests = ilExAssTypeTestResultAssignment::where($db->in('test_ref_id', $ref_ids, false, 'integer'))->get();
+            $factory = new ilTestSessionFactory($this->test);
 
             foreach ($participants as $active_id => $userdata) {
                 if (isset($a_active_ids) && !in_array($active_id, $a_active_ids)) {
@@ -105,18 +98,8 @@ class ilTestScoring
                 include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
                 ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
 
-                if (!empty($assTests)) {
-                    $results = $this->test->getResultsForActiveId($active_id);
-                    foreach ($assTests as $assTest) {
-                        $assTest->submitResult($userdata->getUserID(),
-                            $results['passed'],
-                            $results['reached_points'],
-                            $results['mark_short'],
-                            $results['mark_official'],
-                            $results['tstamp']
-                        );
-                    }
-                }
+                require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
+                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $factory->getSession($active_id));
             }
         }
     }
