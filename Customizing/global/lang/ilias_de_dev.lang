@@ -701,6 +701,7 @@ exc#:#exc_require_authorship_statement_default#:#Bei neuen Übungseinheiten ist 
 exc#:#exc_accept_authorship_statement#:#Erklärung bestätigen
 exc#:#exc_revoke_authorship_statement#:#Erklärung zurückziehen
 exc#:#exc_authorship_statement_accepted_at#:#Erklärung bestätigt: %s
+exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exc#:#label_scored_participant#:#Teilnehmer: ###fau: exAssTest
 exc#:#label_scored_pass#:#Bewerteter Durchlauf: ###fau: exAssTest
 exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest

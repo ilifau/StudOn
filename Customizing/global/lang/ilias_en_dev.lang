@@ -738,6 +738,7 @@ exc#:#exc_require_authorship_statement_default#:#An authorship statement is requ
 exc#:#exc_accept_authorship_statement#:#Accept Statement
 exc#:#exc_revoke_authorship_statement#:#Revoke Statement
 exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
+exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exc#:#label_scored_participant#:#Participant: ###fau: exAssTest
 exc#:#label_scored_pass#:#Scored Pass: ###fau: exAssTest
 exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest

@@ -154,6 +154,10 @@ class ilExAssTypeTestResultAssignment extends ActiveRecord
         $results = $test->getResultsForActiveId($session->getActiveId());
 
         $comments = [];
+        $time = new ilDateTime(time(), IL_CAL_UNIX);
+        ilDatePresentation::setUseRelativeDates(false);
+        $comments[] = $lng->txt('label_time_transfer'). ilDatePresentation::formatDate($time);
+
 
         if (!empty($state->getTeamObject())) {
             $comments[] = $lng->txt('label_scored_participant'). ilObjUser::_lookupFullname($session->getUserId());
