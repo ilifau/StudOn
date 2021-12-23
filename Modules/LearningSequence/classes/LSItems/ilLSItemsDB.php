@@ -44,7 +44,7 @@ class ilLSItemsDB
 
     public function getLSItems(int $ref_id) : array
     {
-        // fau: fixLlsoCronConditionCheck - omit style usage for call in cron jobs
+        // fau: fixLsoCronConditionCheck - omit style usage for call in cron jobs
         global $DIC;
         $style_available = $DIC->isDependencyAvailable("systemStyle");
 

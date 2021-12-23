@@ -56,7 +56,7 @@ abstract class ilWaitingList
 
     public static $is_on_list = array();
 
-    // fau: fair sub - static array variable for confirmation status
+    // fau: fairSub - static array variable for confirmation status
     public static $to_confirm = array();
     // fau.
 

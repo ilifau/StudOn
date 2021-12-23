@@ -4242,7 +4242,7 @@ class ilUtil
         }
 
         // fau: treeQuery - respect the root id parameter
-        // fau: optimizeRandomRuleSelects - check for node and grand childs
+        // fau: optimizeRandomRuleSelect - check for node and grand childs
         if ($a_root_id) {
             $where .= ' AND (tree.child = ' . $ilDB->quote((int) $a_root_id, 'integer') . ' OR ' . $tree->getGrandChildCondition((int) $a_root_id) . ")  ";
 

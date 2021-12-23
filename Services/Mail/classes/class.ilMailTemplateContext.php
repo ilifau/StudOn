@@ -173,7 +173,7 @@ abstract class ilMailTemplateContext
                 break;
 
             case 'ilias_url' == $placeholder_id:
-// fau: shortInstallationSignature - use short link also in template
+// fau: linkPermaShort - use short link also in template
                 $resolved = ILIAS_HTTP_PATH;
 // fau.
                 break;

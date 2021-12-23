@@ -1168,7 +1168,7 @@ class ilTestEvaluationGUI extends ilTestServiceGUI
 
         if (array_key_exists("pdf", $_GET) && ($_GET["pdf"] == 1)) {
             //$this->object->deliverPDFfromHTML($template->get(), $this->object->getTitle());
-            // fau: fixAnomymousTestPdf - don't show the user name in the PDF file name
+            // fau: fixAnonymousTestPdf - don't show the user name in the PDF file name
             if ($this->object->getAnonymity()) {
                 $filename = $this->lng->txt('anonymous') . '__' . $this->object->getTitleFilenameCompliant();
             } else {

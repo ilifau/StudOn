@@ -151,7 +151,7 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         $this->stagingPoolQuestionList->setSelectSize($definition->getQuestionAmount());
         // fau.
 
-        // fau: randomOrder - set order information
+        // fau: randomSetOrder - set order information
         $this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
         // fau.
 

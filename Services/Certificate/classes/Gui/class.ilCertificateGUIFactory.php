@@ -71,7 +71,7 @@ class ilCertificateGUIFactory
             case 'crs':
                 $adapter = new ilCourseCertificateAdapter($object);
                 $placeholderDescriptionObject = new ilCoursePlaceholderDescription();
-// fau: courseDataCert - add custom fields as placeholders
+// fau: courseCertData - add custom fields as placeholders
                 $placeholderDescriptionObject->addMoreCourseData($objectId);
 // fau.
                 $placeholderValuesObject = new ilCoursePlaceholderValues();

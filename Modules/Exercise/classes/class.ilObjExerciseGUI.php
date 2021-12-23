@@ -412,7 +412,7 @@ class ilObjExerciseGUI extends ilObjectGUI
         }
     }
 
-    // fau: editDidacticTemplaceChoice - new function getEditFormValues()
+    // fau: editDidacticTemplateChoice - new function getEditFormValues()
     /**
      * Add the didactic template setting to the form values
      * @see ilContainerGUI
@@ -519,7 +519,7 @@ class ilObjExerciseGUI extends ilObjectGUI
         );
     }
 
-    // fau: editDidacticTemplaceChoice - new function afterUpdate()
+    // fau: editDidacticTemplateChoice - new function afterUpdate()
     /**
      * Set the didactic template aftern an update without confirmat
      * @see ilContainerGUI

@@ -352,7 +352,7 @@ class ilTestRandomQuestionSetPoolDefinitionFormGUI extends ilPropertyFormGUI
             }
             // fau.
         }
-        // fau: ramdomSetOrder - submit order_by
+        // fau: randomSetOrder - submit order_by
         $orderByItem = $this->getItemByPostVar('tst_filter_order_by');
         if (is_object($orderByItem) && !empty($orderByItem->getValue())) {
             $sourcePoolDefinition->setOrderBy($orderByItem->getValue());

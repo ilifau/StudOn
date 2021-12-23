@@ -417,16 +417,7 @@
 ?>
 <#20>
 <?php
-    /**
-     * fau: testImportResults - add the column "old_id" to the table of matching terms.
-     */
-    if (!$ilDB->tableColumnExists('qpl_a_mterm', 'old_id')) {
-        $ilDB->addTableColumn(
-            'qpl_a_mterm',
-            'old_id',
-            array('type' => 'integer', 'length' => 4)
-        );
-    }
+/** obsolete */
 ?>
 <#21>
 <?php
@@ -713,7 +704,7 @@
 <#41>
 <?php
     /**
-     * fau: exeResTime - add column for results availability date
+     * fau: exResTime - add column for results availability date
      */
     if (!$ilDB->tableColumnExists('exc_assignment', 'res_time')) {
         $ilDB->addTableColumn(
@@ -987,14 +978,8 @@
     // fau.
 ?>
 <#57>
-    <?php
-
-    // fau: testImportResults - remove the column "old_id" to the table of matching terms.
-    // This patch is obsolete with future ilias versions
-    if ($ilDB->tableColumnExists('qpl_a_mterm', 'old_id')) {
-        $ilDB->dropTableColumn('qpl_a_mterm', 'old_id');
-    }
-    // fau.
+<?php
+/* obsolete */
 ?>
 <#58>
 <?php

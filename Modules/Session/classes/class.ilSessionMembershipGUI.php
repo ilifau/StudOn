@@ -57,7 +57,7 @@ class ilSessionMembershipGUI extends ilMembershipGUI
     
     /**
      * init waiting list
-     * @return ilGroupWaitingList
+     * @return ilSessionWaitingList
      */
     protected function initWaitingList()
     {

@@ -49,7 +49,7 @@ class ilCoursePlaceholderDescription implements ilCertificatePlaceholderDescript
         $this->placeholder['DATETIME_COMPLETED'] = ilUtil::prepareFormOutput($language->txt('certificate_ph_datetime_completed'));
     }
 
-    // fau: courseDataCert - new function addMoreCourseData
+    // fau: courseCertData - new function addMoreCourseData
     /**
      * @param $objId
      */

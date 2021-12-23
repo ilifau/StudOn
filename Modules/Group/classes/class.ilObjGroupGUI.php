@@ -2457,7 +2457,7 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $this->ctrl->redirectByClass('ilUsersGalleryGUI');
     }
-    // fau: subFair - activation and deactivation of the fair period
+    // fau: fairSub - activation and deactivation of the fair period
     public function activateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {

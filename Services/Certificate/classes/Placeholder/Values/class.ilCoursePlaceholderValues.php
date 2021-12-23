@@ -142,7 +142,7 @@ class ilCoursePlaceholderValues implements ilCertificatePlaceholderValues
         $placeholders['COURSE_TITLE'] = $this->ilUtilHelper->prepareFormOutput($courseObject->getTitle());
 
 
-        // fau: courseDataCert - add custom fields for presentation
+        // fau: courseCertData - add custom fields for presentation
         $olp = ilObjectLP::getInstance($objId);
         if ($olp->isActive()) {
             $mark = new ilLPMarks($objId, $userId);

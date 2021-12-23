@@ -391,7 +391,7 @@ class ilRepositorySelectorExplorerGUI extends ilTreeExplorerGUI
         return $this->highlighted_node;
     }
 
-    // fau: courseGrouping - getter/setter for write_required
+    // fau: groupingSelector - getter/setter for write_required
     /**
      * Set if write permission is required for selecting nodes
      * @param bool $a_required
@@ -490,7 +490,7 @@ class ilRepositorySelectorExplorerGUI extends ilTreeExplorerGUI
     protected function isNodeSelectable($a_node)
     {
         if (count($this->getSelectableTypes())) {
-            // fau: courseGrouping - check for write permission, if required
+            // fau: groupingSelector - check for write permission, if required
             if (!in_array($a_node['type'], $this->getSelectableTypes())) {
                 return false;
             } elseif (!$this->getWriteRequired()) {

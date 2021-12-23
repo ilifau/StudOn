@@ -89,8 +89,11 @@ il.CharSelector = new function() {
         else {
             self.closePanel();
         }
+
 		$('.ilCharSelectorToggle').mousedown(function(){return false;});
-		$('.ilCharSelectorToggle').click(self.togglePanel); $('.ilCharSelectorMenuToggle').mousedown(function(){return false;});
+		$('.ilCharSelectorToggle').click(self.togglePanel);
+
+        $('.ilCharSelectorMenuToggle').mousedown(function(){return false;});
         $('.ilCharSelectorMenuToggle').click(self.togglePanelFromMenu);
 // fau.
 	};

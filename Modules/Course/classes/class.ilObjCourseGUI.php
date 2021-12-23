@@ -4017,7 +4017,7 @@ class ilObjCourseGUI extends ilContainerGUI
 
         $ilUser = $DIC['ilUser'];
         return ilCourseParticipant::_getInstanceByObjId($this->object->getId(), $ilUser->getId())->isAdmin()
-// fau: tweakCoursAdminPermission - allow access to course administrators if write end manage_members permission is given
+// fau: tweakCourseAdminPermission - allow access to course administrators if write end manage_members permission is given
         or ($this->checkPermissionBool('write') && $this->checkPermissionBool('manage_members'))
 // fau.
         or $this->checkPermissionBool('edit_permission');
@@ -4032,7 +4032,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->ctrl->redirectByClass('ilUsersGalleryGUI');
     }
 
-    // fau: subFair - activation and deactivation of the fair period
+    // fau: fairSub - activation and deactivation of the fair period
     public function activateSubFairObject()
     {
         if (!ilCust::deactivateFairTimeIsAllowed()) {

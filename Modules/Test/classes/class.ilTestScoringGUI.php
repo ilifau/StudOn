@@ -350,7 +350,7 @@ class ilTestScoringGUI extends ilTestServiceGUI
         require_once './Modules/Test/classes/class.ilTestScoring.php';
         $scorer = new ilTestScoring($this->object);
         $scorer->setPreserveManualScores(true);
-        // fau: fixParalleManScoring - add active id as parameter
+        // fau: fixParallelManScoring - add active id as parameter
         $scorer->recalculateSolutions([$activeId]);
         // fau.
 

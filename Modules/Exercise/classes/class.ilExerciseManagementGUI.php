@@ -469,7 +469,7 @@ class ilExerciseManagementGUI
             }
             // fau.
 
-            // fau: exMultiFeedbackStucture - allow multi feedback for teams
+            // fau: exMultiFeedbackStructure - allow multi feedback for teams
             if ($this->exercise->hasTutorFeedbackFile()) {
                 // if (!$this->assignment->getAssignmentType()->usesTeams()) {
                     // multi-feedback

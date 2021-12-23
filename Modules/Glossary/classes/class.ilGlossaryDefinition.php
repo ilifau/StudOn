@@ -552,7 +552,7 @@ class ilGlossaryDefinition
         $glo_id = ilGlossaryTerm::_lookGlossaryID($this->getTermId());
         $md = new ilMD($glo_id, $this->getId(), $this->getType());
         $md_gen = $md->getGeneral();
-        // fau: fixMissingGloDefMetaGeneral - add General section if it is missing
+        // fau: fixCloneMd - add General section if it is missing
         if (!$md_gen) {
             $md_gen = $md->addGeneral();
         }
