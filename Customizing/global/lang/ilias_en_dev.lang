@@ -558,7 +558,7 @@ crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus lo
 crs#:#crs_subscription_options_direct_studycond#:#Direct joining (otherwise application for admission) for following students:<p class="small">%s</p>
 crs#:#crs_subscription_options_password_studycond#:#Joining with short password (otherwise application for admission) for following students:<p class="small">%s</p>
 crs#:#crs_subscription_with_events#:#Session Registration
-crs#:#crs_subscription_with_events_info#:#Choose here if the registration for sessions should be on the join page of the course. This is only possible for joining directly or with course password.
+crs#:#crs_subscription_with_events_info#:#Choose here if the registration for sessions should be on the join page of the course. This is only possible for joining directly or with course password.<p><strong>Note: This feature will be removed with the update to ILAS 7 in March.</strong></p>Please use groups with membership limitation or a combined subscription for the sessions instead.
 crs#:#crs_subscription_with_events_multiple#:#In at least one of the sessions
 crs#:#crs_subscription_with_events_off#:#without session registration
 crs#:#crs_subscription_with_events_unique#:#In exactly one of the sessions

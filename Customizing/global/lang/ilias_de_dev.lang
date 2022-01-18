@@ -522,7 +522,7 @@ crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus lo
 crs#:#crs_subscription_options_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 crs#:#crs_subscription_options_password_studycond#:#Beitritt mit Kurspasswort (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 crs#:#crs_subscription_with_events#:#Sitzungsanmeldung
-crs#:#crs_subscription_with_events_info#:#Wählen Sie hier, ob die Anmeldung zu den Sitzungen bereits bei der Kursanmeldung stattfinden soll. Das ist nur beim direkten Beitritt oder Beitritt mit Passwort ohne begrenzte Teilnehmerzahl im Kurs möglich.
+crs#:#crs_subscription_with_events_info#:#Wählen Sie hier, ob die Anmeldung zu den Sitzungen bereits bei der Kursanmeldung stattfinden soll. Das ist nur beim direkten Beitritt oder Beitritt mit Passwort ohne begrenzte Teilnehmerzahl im Kurs möglich. <p><strong>Achtung: dieses Feature wird ab der Umstellung auf ILIAS 7 im März nicht mehr verfügbar sein!</strong></p>Verwenden Sie stattdessen Gruppen mit Mitgliedschaftsbeschränkung oder eine kombinierte Anmeldung für die Sitzungen.
 crs#:#crs_subscription_with_events_multiple#:#In mindestens einer der Sitzungen
 crs#:#crs_subscription_with_events_off#:#Ohne Sitzungsanmeldung
 crs#:#crs_subscription_with_events_unique#:#In genau einer der Sitzungen
