@@ -32,8 +32,11 @@ class ilSpecificPatches
     {
         global  $ilDB;
 
-        $query1 = "SELECT * FROM page_object WHERE parent_id=".$ilDB->quote($params['parent_id'], 'integer')
-            . " AND content LIKE " . $ilDB->quote("%".$params['search']."%", 'text');
+        $query1 = "SELECT * FROM page_object WHERE content LIKE " . $ilDB->quote("%".$params['search']."%", 'text');
+
+        if ($params['parent_id'] > 0) {
+            $query1 .= " AND parent_id=".$ilDB->quote($params['parent_id'], 'integer');
+        }
 
         $result = $ilDB->query($query1);
 
