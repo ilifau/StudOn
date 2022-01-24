@@ -799,7 +799,7 @@ class SurveyQuestion
     public function saveMaterial()
     {
         $ilDB = $this->db;
-        
+
         $this->log->debug("DELETE: svy_material question_fi=" . $this->getId());
 
         $affectedRows = $ilDB->manipulateF(
@@ -1099,8 +1099,14 @@ class SurveyQuestion
             $mob_obj = new ilObjMediaObject($mob);
             $mob_obj->delete();
         }
-        
-        ilSurveySkill::handleQuestionDeletion($question_id, $obj_id);
+
+        // fau: fixRemoveTrashed - fault tolerant deletion of survey questions
+        try {
+            ilSurveySkill::handleQuestionDeletion($question_id, $obj_id);
+        }
+        catch (ilException $e) {
+        }
+        // fau.
 
         $this->log->debug("UPDATE svy_question");
 

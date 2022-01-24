@@ -32,6 +32,24 @@
  */
 class ilExcAssMemberState
 {
+    // fau: exMemStateCache - cache variables
+    /**
+     * @var array  ass_id => user_id => ilExcAssMemberState
+     */
+    protected static $state_cache = [];
+
+    /**
+     * @var array  ass_id => user_id => ilExAssignment
+     */
+    protected static $ass_cache = [];
+
+    /**
+     * @var array  user_id => ilObjUser
+     */
+    protected static $user_cache = [];
+    // fau.
+
+
     /**
      * @var int
      */
@@ -46,6 +64,13 @@ class ilExcAssMemberState
      * @var ilExAssignment
      */
     protected $assignment;
+
+    // fau: exAssTest - class variable for team
+    /**
+     * @var ilExAssignmentTeam|null
+     */
+    protected $team;
+    // fau.
 
     /**
      * @var int either user id or team id, if this is a team assignment and the user is member of a team, in this case is_team is true
@@ -79,7 +104,9 @@ class ilExcAssMemberState
 
         // check team status
         $this->is_team = false;
-        if ($this->assignment->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {
+        // fau: exAssTest - newer check for teams, set team property
+        if ($this->assignment->getAssignmentType()->usesTeams() && isset($a_team)) {
+            $this->team = $a_team;
             if ($a_team->getId()) {
                 $this->member_id = $a_team->getId();
                 $this->team_id = $a_team->getId();
@@ -90,28 +117,55 @@ class ilExcAssMemberState
         $this->idl = $a_idl;
     }
 
+    // fau: exMemStateCache - use cache by default
     /**
      * Get instance by IDs (recommended for consumer code)
      *
      * @param int $a_ass_id assignment id
      * @param int $a_user_id user id
+     * @param bool $use_cache use the cache
      * @return ilExcAssMemberState
      */
-    public static function getInstanceByIds($a_ass_id, $a_user_id = 0)
+    public static function getInstanceByIds($a_ass_id, $a_user_id = 0, $use_cache = true)
     {
         global $DIC;
 
-        $lng = $DIC->language();
-        $user = ($a_user_id > 0)
-            ? new ilObjUser($a_user_id)
-            : $DIC->user();
+        if ($use_cache && isset(self::$state_cache[$a_ass_id][$a_user_id])) {
+            return self::$state_cache[$a_ass_id][$a_user_id];
+        }
 
-        $ass = new ilExAssignment($a_ass_id);
+        $lng = $DIC->language();
+
+        if ($use_cache && isset(self::$user_cache[$a_user_id])) {
+            $user = self::$user_cache[$a_user_id];
+        }
+        else {
+            $user = ($a_user_id > 0)
+                ? new ilObjUser($a_user_id)
+                : $DIC->user();
+
+            if ($use_cache) {
+               self::$user_cache[$a_user_id] = $user;
+            }
+        }
+
+        if ($use_cache && isset(self::$ass_cache[$a_ass_id])) {
+            $ass = self::$ass_cache[$a_ass_id];
+        }
+        else {
+            $ass = new ilExAssignment($a_ass_id);
+
+            if ($use_cache) {
+                self::$ass_cache[$a_ass_id] = $ass;
+            }
+        }
 
         $member_id = $user->getId();
         $is_team = false;
         $team = null;
-        if ($ass->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {		// better move this to ilExcIndividualDeadline
+        // fau: exAssTest - newer check for teams
+        if ($ass->getAssignmentType()->usesTeams()) {		// better move this to ilExcIndividualDeadline
+        // fau.
             $team = ilExAssignmentTeam::getInstanceByUserId($a_ass_id, $user->getId());
             if ($team->getId()) {
                 $member_id = $team->getId();
@@ -122,8 +176,14 @@ class ilExcAssMemberState
         // note: team may be not null, but is_team still false
         $idl = ilExcIndividualDeadline::getInstance($a_ass_id, $member_id, $is_team);
 
-        return self::getInstance($ass, $user, $idl, time(), $lng, $team);
+        $instance = self::getInstance($ass, $user, $idl, time(), $lng, $team);
+
+        if ($use_cache) {
+            self::$state_cache[$a_ass_id][$a_user_id] = $instance;
+        }
+        return $instance;
     }
+    // fau.
 
     /**
      * Get instance by dependencies.
@@ -144,8 +204,27 @@ class ilExcAssMemberState
     {
         return $this->idl;
     }
-    
-    
+
+    // fau: exAssTest - new function to tet the team from the member state
+    /**
+     * Check if user is in team
+     * @return bool
+     */
+    public function isInTeam()
+    {
+        return !empty($this->team_id);
+    }
+
+    /**
+     * Get the team object
+     * @return ilExAssignmentTeam | null
+     */
+    public function getTeamObject()
+    {
+        return $this->team;
+    }
+    // fau.
+
     /**
      * Get general start
      *

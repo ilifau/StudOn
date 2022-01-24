@@ -386,6 +386,7 @@ class ilTestQuestionHeaderBlockBuilder implements ilQuestionHeaderBlockBuilder
 
         $headerBlock .= $this->buildQuestionRelatedObjectivesString();
 
+
         return $headerBlock;
     }
 }

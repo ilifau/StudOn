@@ -115,6 +115,12 @@ class ilIniFile
 
         //check if groups are filled
         if ($this->GROUPS == false) {
+            // fau: fixIniFile - don't try to fix the ini file !
+            // this may increase the size of the file each time called
+            // when the problem is not caused by the php tag
+            return false;
+            // fau.
+            
             // second try
             $this->fixIniFile();
             

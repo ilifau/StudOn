@@ -84,7 +84,7 @@ class ilSessionOverviewTableGUI extends ilTable2GUI
         ksort($events);
         return array_values($events);
     }
-    
+
     protected function getItems(array $a_events, array $a_members)
     {
         $data = array();

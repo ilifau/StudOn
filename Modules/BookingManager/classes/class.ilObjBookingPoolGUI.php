@@ -229,7 +229,7 @@ class ilObjBookingPoolGUI extends ilObjectGUI
                 $this->ctrl->forwardCommand($gui);
                 break;
 
-            
+
             default:
                 if (!in_array($cmd, ["create", "save", "infoScreen"])) {
                     $this->checkPermission('read');
@@ -243,6 +243,17 @@ class ilObjBookingPoolGUI extends ilObjectGUI
         $this->addHeaderAction();
         return true;
     }
+
+    // fau: stornoBook - new function allowStorno()
+    /**
+     * Check if the object allows a storno
+     * @return bool
+     */
+    public function allowsStorno()
+    {
+        return $this->object->getUserStorno() || $this->checkPermissionBool('write');
+    }
+    // fau.
 
     protected function initCreationForms($a_new_type)
     {
@@ -362,6 +373,12 @@ class ilObjBookingPoolGUI extends ilObjectGUI
         $public->setInfo($this->lng->txt("book_public_log_info"));
         $a_form->addItem($public);
 
+        // fau: stornoBook - add setting checkbox
+        $storno = new ilCheckboxInputGUI($this->lng->txt("book_user_storno"), "storno");
+        $storno->setInfo($this->lng->txt("book_user_storno_info"));
+        $a_form->addItem($storno);
+        // fau.
+
         // presentation
         $pres = new ilFormSectionHeaderGUI();
         $pres->setTitle($this->lng->txt('obj_presentation'));
@@ -389,6 +406,9 @@ class ilObjBookingPoolGUI extends ilObjectGUI
         if ($this->object->getPreferenceDeadline() > 0) {
             $a_values["pref_deadline"] = new ilDateTime($this->object->getPreferenceDeadline(), IL_CAL_UNIX);
         }
+        // fau: stornoBook - load setting into form
+        $a_values['storno'] = $this->object->getUserStorno();
+        // fau.
     }
 
     protected function updateCustom(ilPropertyFormGUI $a_form)
@@ -412,6 +432,10 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 
         // tile image
         $obj_service->commonSettings()->legacyForm($a_form, $this->object)->saveTileImage();
+
+        // fau: stornoBook - save setting from form
+        $this->object->setUserStorno($a_form->getInput('storno'));
+        // fau.
 
         ilObjectServiceSettingsGUI::updateServiceSettingsForm(
             $this->object->getId(),
@@ -438,7 +462,7 @@ class ilObjBookingPoolGUI extends ilObjectGUI
 
         /** @var ilObjBookingPool $pool */
         $pool = $this->object;
-        
+
         if (in_array($this->ctrl->getCmd(), array("create", "save")) && !$this->ctrl->getNextClass()) {
             return;
         }
@@ -462,7 +486,7 @@ class ilObjBookingPoolGUI extends ilObjectGUI
                     );
                 }
             }
-        
+
             $this->tabs_gui->addTab(
                 "info",
                 $this->lng->txt("info_short"),
@@ -607,7 +631,7 @@ class ilObjBookingPoolGUI extends ilObjectGUI
             return $ilCtrl->getHTML($info);
         }
     }
-    
+
 
     public function showProfileObject()
     {
@@ -617,7 +641,7 @@ class ilObjBookingPoolGUI extends ilObjectGUI
         $this->tabs_gui->clearTargets();
         
         $user_id = $this->profile_user_id;
-        
+
         $profile = new ilPublicUserProfileGUI($user_id);
         $profile->setBackUrl($this->ctrl->getLinkTarget($this, 'log'));
         $tpl->setContent($ilCtrl->getHTML($profile));

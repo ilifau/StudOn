@@ -1274,7 +1274,9 @@ class ilObjQuestionPool extends ilObject
     * @return array The available question pools
     * @access public
     */
-    public static function _getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $showPath = false, $with_questioncount = false, $permission = "read", $usr_id = "")
+    // fau: testQuestionBrowserRoot - add root id as param to find question pools
+    public static function _getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $showPath = false, $with_questioncount = false, $permission = "read", $usr_id = "", $root_id = 0)
+// fau.
     {
         global $DIC;
         $ilUser = $DIC['ilUser'];
@@ -1283,7 +1285,9 @@ class ilObjQuestionPool extends ilObject
 
         $result_array = array();
         $permission = (strlen($permission) == 0) ? "read" : $permission;
-        $qpls = ilUtil::_getObjectsByOperations("qpl", $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1);
+        // fau: testQuestionBrowserRoot - use root id param to find question pools
+        $qpls = ilUtil::_getObjectsByOperations("qpl", $permission, (strlen($usr_id)) ? $usr_id : $ilUser->getId(), -1, $root_id);
+        // fau.
         $obj_ids = array();
         foreach ($qpls as $ref_id) {
             $obj_id = ilObject::_lookupObjId($ref_id);
@@ -1564,6 +1568,13 @@ class ilObjQuestionPool extends ilObject
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
+
+        // fau: fixQuestionCountUpdate - prevent slow query for ilObjQuestionPool::_updateQuestionCount(0)
+        // 		e.g. when a question is inserted to a learnimg module page
+        if ($object_id == 0) {
+            return;
+        }
+        // fau.
         $result = $ilDB->manipulateF(
             "UPDATE qpl_questionpool SET questioncount = %s, tstamp = %s WHERE obj_fi = %s",
             array('integer','integer','integer'),
@@ -1582,7 +1593,6 @@ class ilObjQuestionPool extends ilObject
         /* @var ilPluginAdmin $ilPluginAdmin */
         global $DIC;
         $ilPluginAdmin = $DIC['ilPluginAdmin'];
-        
         $plugins = $ilPluginAdmin->getActivePluginsForSlot(IL_COMP_MODULE, "TestQuestionPool", "qst");
         foreach ($plugins as $pluginName) {
             if ($pluginName == $questionType) { // plugins having pname == qtype

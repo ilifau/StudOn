@@ -214,7 +214,11 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI
 
             default:
                 try {
-                    $res = explode('-', $this->ctrl->getCmd(), 2);
+                    // fau: toggleChatMessages  - Whitelist  command, because we don't have a dynamically create CSRF token for the toggle request
+                    $res = explode('-', $this->ctrl->getCmd('', [
+                        'view-toggleAutoMessageDisplayState'
+                    ]), 2);
+                    // fau.
                     $result = $this->dispatchCall($res[0], isset($res[1]) ? $res[1] : '');
                     if (!$result && method_exists($this, $this->ctrl->getCmd() . 'Object')) {
                         $this->prepareOutput();

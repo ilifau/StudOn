@@ -31,16 +31,27 @@ class ilLPStatusQuestions extends ilLPStatus
         $users = ilChangeEvent::lookupUsersInProgress($a_obj_id);
         
         include_once "Modules/LearningModule/classes/class.ilLMTracker.php";
+        // fau: lpLmCache - preload data for an lm and multiple users
+        //		ilLMTracker::preloadLMTrackingData($a_obj_id, $users);
+        // fau.
+
+        // fau: lpQuestionsPercent - calculate completed status by correct percent
+        $required_percent = ilLPObjSettings::_lookupQuestionsPercent($a_obj_id);
         foreach ($users as $user_id) {
             // :TODO: this ought to be optimized
             $tracker = ilLMTracker::getInstanceByObjId($a_obj_id, $user_id);
-            if ($tracker->getAllQuestionsCorrect()) {
+            $correct_percent = $tracker->getQuestionsCorrectPercent() + 0.0000001;
+            if ($correct_percent >= $required_percent) {
                 $usr_ids[] = $user_id;
             }
         }
+        // fau.
 
         return $usr_ids;
     }
+
+
+
 
     /**
      * Determine status
@@ -60,9 +71,14 @@ class ilLPStatusQuestions extends ilLPStatus
             
             include_once "Modules/LearningModule/classes/class.ilLMTracker.php";
             $tracker = ilLMTracker::getInstanceByObjId($a_obj_id, $a_user_id);
-            if ($tracker->getAllQuestionsCorrect()) {
+
+            // fau: lpQuestionsPercent - determine status by correct percent
+            $required_percent = ilLPObjSettings::_lookupQuestionsPercent($a_obj_id);
+            $correct_percent = $tracker->getQuestionsCorrectPercent() + 0.0000001;
+            if ($correct_percent >= $required_percent) {
                 $status = self::LP_STATUS_COMPLETED_NUM;
             }
+            // fau.
         }
     
         return $status;

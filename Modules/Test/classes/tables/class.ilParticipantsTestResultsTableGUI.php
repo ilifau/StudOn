@@ -123,7 +123,11 @@ class ilParticipantsTestResultsTableGUI extends ilTable2GUI
         
         $this->addColumn($this->lng->txt("name"), 'name');
         $this->addColumn($this->lng->txt("login"), 'login');
-        
+
+        // fau: testParticipantsResultsTable - add column for started ppasses
+        $this->addColumn($this->lng->txt("tst_tbl_col_started_passes"), 'max_pass');
+        // fau.
+
         $this->addColumn($this->lng->txt("tst_tbl_col_scored_pass"), 'scored_pass');
         $this->addColumn($this->lng->txt("tst_tbl_col_pass_finished"), 'pass_finished');
         
@@ -148,6 +152,12 @@ class ilParticipantsTestResultsTableGUI extends ilTable2GUI
         }
         
         if ($this->isManageResultsCommandsEnabled()) {
+            // fau: sendSimpleResults - add command to send simple results to participants
+            $this->addMultiCommand('sendSimpleResultsToParticipants', $this->lng->txt('send_simple_results_to_participants'));
+            // fau.
+            // fau: provideRecalc - add recalc command
+            $this->addMultiCommand('recalcSelectedTestResults', $this->lng->txt('tst_recalculate_solutions'));
+            // fau.
             $this->addMultiCommand('deleteSingleUserResults', $this->lng->txt('delete_user_data'));
         }
     }
@@ -179,7 +189,11 @@ class ilParticipantsTestResultsTableGUI extends ilTable2GUI
         $this->tpl->setVariable("ROW_KEY", $data['active_id']);
         $this->tpl->setVariable("LOGIN", $data['login']);
         $this->tpl->setVariable("FULLNAME", $data['name']);
-        
+
+        // fau: testParticipantsResultsTable - fill column for started passes
+        $this->tpl->setVariable("STARTED_PASSES", isset($data['max_pass']) ? $data['max_pass'] + 1 : 0);
+        // fau.
+
         $this->tpl->setVariable("SCORED_PASS", $this->buildScoredPassString($data));
         $this->tpl->setVariable("PASS_FINISHED", $this->buildPassFinishedString($data));
 

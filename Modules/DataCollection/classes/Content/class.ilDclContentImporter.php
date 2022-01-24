@@ -18,7 +18,10 @@ class ilDclContentImporter
     /**
      * @var int
      */
-    protected $max_imports = 100;
+    // fau: dcImportLimit - raise limit to 1000
+    protected $max_imports = 1000;
+    // fau.
+
     /**
      * @var array
      */
@@ -163,7 +166,9 @@ class ilDclContentImporter
                     }
                 }
                 if (($i - 1) - $records_failed > $this->max_imports) {
-                    $this->warnings[] = $this->lng->txt("dcl_max_import") . (count($sheet_data) - 1) . " > " . $this->max_imports;
+                    // fau: dcImportLimit - merge numbers in message
+                    $this->warnings[] = sprintf($this->lng->txt($simulate? "dcl_max_import_simulate" : "dcl_max_import_done"), count($sheet_data) - 1, $this->max_imports);
+                    // fau.
                     break;
                 }
             }

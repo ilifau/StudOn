@@ -303,6 +303,9 @@ class ilMainMenuGUI
             } else {
                 $this->tpl->setCurrentBlock("userisloggedin");
                 $this->tpl->setVariable("TXT_LOGIN_AS", $lng->txt("login_as"));
+                // fau: wcag - add title
+                $this->tpl->setVariable("USER_MENU_TITLE", $lng->txt("user_menu"));
+                // fau.
                 $user_img_src = $ilUser->getPersonalPicturePath("small", true);
                 $user_img_alt = $ilUser->getFullname();
                 $this->tpl->setVariable("USER_IMG", ilUtil::img($user_img_src, $user_img_alt));
@@ -311,7 +314,9 @@ class ilMainMenuGUI
                 $this->tpl->setVariable("USR_LINK_SETTINGS", "ilias.php?baseClass=ilDashboardGUI&cmd=jumpToSettings");
                 $this->tpl->setVariable("USR_TXT_SETTINGS", $lng->txt("personal_settings"));
                 $this->tpl->setVariable("TXT_LOGOUT2", $lng->txt("logout"));
-                $this->tpl->setVariable("LINK_LOGOUT2", $link_dir . "logout.php?lang=" . $ilUser->getCurrentLanguage());
+                // fau: samlAuth - use different logout link if authentified by SSO
+                $this->tpl->setVariable("LINK_LOGOUT2", ilUserUtil::_getLogoutLink());
+                // fau.
                 $this->tpl->setVariable("USERNAME", $ilUser->getFullname());
                 $this->tpl->setVariable("LOGIN", $ilUser->getLogin());
                 $this->tpl->setVariable("MATRICULATION", $ilUser->getMatriculation());
@@ -351,6 +356,9 @@ class ilMainMenuGUI
         if ($this->getMode() == self::MODE_FULL) {
             // $this->tpl->setVariable("TXT_LOGOUT", $lng->txt("logout"));
             $this->tpl->setVariable("HEADER_URL", $this->getHeaderURL());
+            // fau: wcag -  add title
+            $this->tpl->setVariable("HEADER_URL_TITLE", $lng->txt('to_home'));
+            // fau.
             $this->tpl->setVariable("HEADER_ICON", ilUtil::getImagePath("HeaderIcon.svg"));
             $this->tpl->setVariable("HEADER_ICON_RESPONSIVE", ilUtil::getImagePath("HeaderIconResponsive.svg"));
         }
@@ -446,7 +454,9 @@ class ilMainMenuGUI
         $main_tpl = $this->main_tpl;
 
         // screen id
-        if ((defined("OH_REF_ID") && OH_REF_ID > 0) || DEVMODE == 1) {
+        // fau - showHelpIds -  make showing of ids independent from author mode
+        if (ilCust::get("help_show_ids")) {
+            // fau.
             if ($ilHelp->getScreenId() != "") {
                 if ($this->getMode() == self::MODE_FULL) {
                     $this->tpl->setCurrentBlock("screen_id");

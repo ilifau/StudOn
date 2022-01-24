@@ -56,7 +56,12 @@ class ilPlayerUtil
      */
     public static function getCssFilePaths()
     {
-        return array(self::getLocalMediaElementCssPath());
+        // fau: jumpMedia - included plugin for jump forward and back links
+        return array(self::getLocalMediaElementCssPath(),
+            "./Customizing/libs/mediaelement_plugins/dist/skip-back/skip-back.min.css",
+            "./Customizing/libs/mediaelement_plugins/dist/jump-forward/jump-forward.min.css"
+        );
+        // fau.
     }
     
     /**
@@ -67,7 +72,12 @@ class ilPlayerUtil
      */
     public static function getJsFilePaths()
     {
-        return array(self::getLocalMediaElementJsPath());
+        // fau: jumpMedia - included plugin for jump forward and back links
+        return array(self::getLocalMediaElementJsPath(),
+            "./Customizing/libs/mediaelement_plugins/dist/skip-back/skip-back.min.js",
+            "./Customizing/libs/mediaelement_plugins/dist/jump-forward/jump-forward.js"
+        );
+        // fau.
     }
     
 

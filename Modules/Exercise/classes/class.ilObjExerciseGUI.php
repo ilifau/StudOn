@@ -232,7 +232,20 @@ class ilObjExerciseGUI extends ilObjectGUI
                 $md_gui = new ilObjectMetaDataGUI($this->object);
                 $this->ctrl->forwardCommand($md_gui);
                 break;
-                
+
+            //  fau: exCalc - delegate command to calculation gui
+            case "ilexcalculategui":
+                $this->checkPermission("write");
+                require_once("./Modules/Exercise/classes/class.ilExCalculateGUI.php");
+                $ilTabs->activateTab("settings");
+                $this->setSettingsSubTabs();
+                $ilTabs->activateSubTab("result_calculation");
+                $gui = new ilExCalculateGUI($this->object, ilExCalculateGUI::PARENT_SETTINGS);
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($gui);
+                break;
+            // fau.
+
             default:
                 if (!$cmd) {
                     $cmd = "infoScreen";
@@ -282,6 +295,10 @@ class ilObjExerciseGUI extends ilObjectGUI
     */
     protected function initEditCustomForm(ilPropertyFormGUI $a_form)
     {
+        // fau: editDidacticTemplateChoice - add the form properties for didactic templates
+        $this->initDidacticTemplate($a_form);
+        // fau.
+
         $obj_service = $this->getObjectService();
 
         $service = $this->getService();
@@ -302,7 +319,8 @@ class ilObjExerciseGUI extends ilObjectGUI
 
         // pass mode
         $radg = new ilRadioGroupInputGUI($this->lng->txt("exc_pass_mode"), "pass_mode");
-    
+
+        // fau: exCalc - use constants and add new pass modes
         $op1 = new ilRadioOption(
             $this->lng->txt("exc_pass_all"),
             ilObjExercise::PASS_MODE_ALL,
@@ -342,6 +360,21 @@ class ilObjExerciseGUI extends ilObjectGUI
 
         $radg->addOption($op3);
 
+        $op3 = new ilRadioOption(
+            $this->lng->txt("exc_pass_calc"),
+            ilObjExercise::PASS_MODE_CALC,
+            $this->lng->txt("exc_pass_calc_info")
+        );
+        $radg->addOption($op3);
+
+        $op4 = new ilRadioOption(
+            $this->lng->txt("exc_pass_manual"),
+            ilObjExercise::PASS_MODE_MANUAL,
+            $this->lng->txt("exc_pass_manual_info")
+        );
+        $radg->addOption($op4);
+        // fau.
+
         // minimum number of assignments to pass
         $ni = new ilNumberInputGUI($this->lng->txt("exc_min_nr"), "pass_nr");
         $ni->setSize(4);
@@ -354,6 +387,14 @@ class ilObjExerciseGUI extends ilObjectGUI
         $op2->addSubItem($ni);
 
         $a_form->addItem($radg);
+
+
+        // fau: exCalc - add instruction for calculation
+        $instruction = new ilTextAreaInputGUI($this->lng->txt("description"), "instruction");
+        $instruction->setInfo($this->lng->txt("exc_pass_description"));
+        $a_form->addItem($instruction);
+        // fau.
+
 
         // completion by submission
         $subcompl = new ilRadioGroupInputGUI($this->lng->txt("exc_passed_status_determination"), "completion_by_submission");
@@ -376,7 +417,8 @@ class ilObjExerciseGUI extends ilObjectGUI
         $cb = new ilCheckboxInputGUI($this->lng->txt("exc_show_submissions"), "show_submissions");
         $cb->setInfo($this->lng->txt("exc_show_submissions_info"));
         $a_form->addItem($cb);
-        
+
+        // fau: exNotify - add form control for feedback notification
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('exc_notification'));
         $a_form->addItem($section);
@@ -385,8 +427,14 @@ class ilObjExerciseGUI extends ilObjectGUI
         $cbox = new ilCheckboxInputGUI($this->lng->txt("exc_submission_notification"), "notification");
         $cbox->setInfo($this->lng->txt("exc_submission_notification_info"));
         $a_form->addItem($cbox);
-        
-        
+
+        // feedback notifications
+        $cbox = new ilCheckboxInputGUI($this->lng->txt("exc_feedback_notification"), "feedback_notification");
+        $cbox->setInfo($this->lng->txt("exc_feedback_notification_info"));
+        $cbox->setChecked(true);
+        $a_form->addItem($cbox);
+        // fau.
+
         // feedback settings
         
         $section = new ilFormSectionHeaderGUI();
@@ -426,7 +474,22 @@ class ilObjExerciseGUI extends ilObjectGUI
             $features
         );
     }
-    
+
+    // fau: editDidacticTemplateChoice - new function getEditFormValues()
+    /**
+     * Add the didactic template setting to the form values
+     * @see ilContainerGUI
+     * @return array
+     */
+    protected function getEditFormValues()
+    {
+        $values = parent::getEditFormValues();
+        $values['didactic_type'] =
+            'dtpl_' . ilDidacticTemplateObjSettings::lookupTemplateId($this->object->getRefId());
+        return $values;
+    }
+    // fau.
+
     /**
     * Get values for properties form
     */
@@ -440,15 +503,22 @@ class ilObjExerciseGUI extends ilObjectGUI
         if ($a_values["pass_mode"] == "nr") {
             $a_values["pass_nr"] = $this->object->getPassNr();
         }
+        // fau: exCalc - get value of instruction
+        $a_values["instruction"] = $this->object->getInstruction();
+        // fau.
 
         $a_values["nr_random_mand"] = $this->object->getNrMandatoryRandom();
-        
+
         $a_values["notification"] = ilNotification::hasNotification(
             ilNotification::TYPE_EXERCISE_SUBMISSION,
             $ilUser->getId(),
             $this->object->getId()
         );
-                
+
+        // fau: exNotify - get the form values
+        $a_values['feedback_notification'] = $this->object->hasFeedbackNotification();
+        // fau.
+
         $a_values['completion_by_submission'] = (int) $this->object->isCompletionBySubmissionEnabled();
         
         $tfeedback = array();
@@ -487,6 +557,9 @@ class ilObjExerciseGUI extends ilObjectGUI
         if ($this->object->getPassMode() == ilObjExercise::PASS_MODE_RANDOM) {
             $this->object->setNrMandatoryRandom($a_form->getInput("nr_random_mand"));
         }
+        // fau: exCalc - set the instruction for pass calculation
+        $this->object->setInstruction($a_form->getInput("instruction"));
+        // fau.
 
         $this->object->setCompletionBySubmission($a_form->getInput('completion_by_submission') == 1 ? true : false);
         
@@ -494,13 +567,17 @@ class ilObjExerciseGUI extends ilObjectGUI
         $this->object->setTutorFeedback(is_array($feedback)
             ? array_sum($feedback)
             : null);
-        
+
         ilNotification::setNotification(
             ilNotification::TYPE_EXERCISE_SUBMISSION,
             $ilUser->getId(),
             $this->object->getId(),
             (bool) $a_form->getInput("notification")
         );
+
+        // fau: exNotify - update the feedback notification
+        $this->object->setFeedbackNotification($a_form->getInput('feedback_notification'));
+        // fau.
 
         // tile image
         $obj_service->commonSettings()->legacyForm($a_form, $this->object)->saveTileImage();
@@ -514,7 +591,28 @@ class ilObjExerciseGUI extends ilObjectGUI
             )
         );
     }
-  
+
+    // fau: editDidacticTemplateChoice - new function afterUpdate()
+    /**
+     * Set the didactic template aftern an update without confirmat
+     * @see ilContainerGUI
+     */
+    protected function afterUpdate()
+    {
+        // check if template is changed
+        $current_tpl_id = (int) ilDidacticTemplateObjSettings::lookupTemplateId(
+            $this->object->getRefId()
+        );
+        $new_tpl_id = (int) $this->getDidacticTemplateVar('dtpl');
+
+        if ($new_tpl_id != $current_tpl_id) {
+            ilDidacticTemplateUtils::switchTemplate($this->object->getRefId(), $new_tpl_id);
+        }
+        parent::afterUpdate();
+    }
+    // fau.
+
+
     /**
      * Add subtabs of content view
      *
@@ -599,7 +697,7 @@ class ilObjExerciseGUI extends ilObjectGUI
         $save_sort_by = $_GET["sort_by"];			// must not be forwarded to learning progress
         $save_offset = $_GET["offset"];
         $_GET["offset"] = $_GET["sort_by"] = $_GET["sort_order"] = "";
-        
+
         if (ilLearningProgressAccess::checkAccess($this->object->getRefId())) {
             $this->tabs_gui->addTab(
                 'learning_progress',
@@ -734,16 +832,69 @@ class ilObjExerciseGUI extends ilObjectGUI
                 $lng->txt("exc_msg_all_mandatory_ass")
             );
         }
+        // fau: exCalc - get the instruction text from the object
+        elseif ($this->object->getPassMode() == ilObjExercise::PASS_MODE_CALC ||
+                $this->object->getPassMode() == ilObjExercise::PASS_MODE_MANUAL) {
+            $instruction_text = $this->object->getInstructionDisplayText();
+            if (!empty($instruction_text)) {
+                $info->addProperty($lng->txt("exc_pass_mode"), $instruction_text);
+            }
+        }
+        // fau.
 
         // feedback from tutor
         if ($this->checkPermissionBool("read")) {
+            // fau: exCalc - determine status of user before mark is looked up
+            // fau: exResTime - show info about open result time and preliminary result
+            // fau: exResTime - show mark and status even if not graded
+            // fau: exResTime - tweak labels, add info only for corresponding pass modes
+            $st = $this->object->determinStatusOfUser($ilUser->getId());
+
             $lpcomment = ilLPMarks::_lookupComment($ilUser->getId(), $this->object->getId());
             $mark = ilLPMarks::_lookupMark($ilUser->getId(), $this->object->getId());
-            //$status = ilExerciseMembers::_lookupStatus($this->object->getId(), $ilUser->getId());
-            $st = $this->object->determinStatusOfUser($ilUser->getId());
-            $status = $st["overall_status"];
-            if ($lpcomment != "" || $mark != "" || $status != "notgraded") {
+
+            if ($st['result_time_open']) {
+                $status = "incomplete";
+            }
+            else {
+                $status = $st["overall_status"];
+            }
+
+            if ($lpcomment != "" || $mark != "" || $status != "") {
+
                 $info->addSection($this->lng->txt("exc_feedback_from_tutor"));
+
+                if ($st['result_time_open']) {
+                    $info->addProperty(
+                        '',
+                        '<div class="alert alert-info">' . $this->lng->txt('exc_result_time_open_info') . ' ' . $this->lng->txt('exc_preliminary_info') . '</div>'
+                    );
+                }
+
+                if ($status != "") {
+                    $img = '<img src="' . ilUtil::getImagePath("scorm/" . ($status == 'notgraded' ? "running" : $status) . ".svg") . '" ' .
+                        ' alt="' . $lng->txt("exc_" . $status) . '" title="' . $lng->txt("exc_" . $status) .
+                        '" />';
+
+                    $add = "";
+                    if ($st["failed_a_mandatory"] && $this->object->getPassMode() == ilObjExercise::PASS_MODE_ALL) {
+                        $add = " (" . $lng->txt("exc_msg_failed_mandatory") . ")";
+                    } elseif ($status == "failed" && $this->object->getPassMode() == ilObjExercise::PASS_MODE_NR) {
+                        $add = " (" . $lng->txt("exc_msg_missed_minimum_number") . ")";
+                    }
+                    $info->addProperty(
+                        $this->lng->txt("status"),
+                        $img . " " . $this->lng->txt("exc_" . $status) . $add
+                    );
+                }
+
+                if ($st['result_time_open'] && $st["preliminary_status"]) {
+                    $info->addProperty(
+                        $this->lng->txt('exc_preliminary_status'),
+                        $this->lng->txt("exc_" . $st["preliminary_status"])
+                    );
+                }
+
                 if ($lpcomment != "") {
                     $info->addProperty(
                         $this->lng->txt("exc_comment"),
@@ -752,7 +903,7 @@ class ilObjExerciseGUI extends ilObjectGUI
                 }
                 if ($mark != "") {
                     $info->addProperty(
-                        $this->lng->txt("exc_mark"),
+                        $this->lng->txt($st['result_time_open'] ? "exc_preliminary_mark" : "exc_mark"),
                         $mark
                     );
                 }
@@ -763,29 +914,14 @@ class ilObjExerciseGUI extends ilObjectGUI
                 //		$this->lng->txt("message_no_delivered_files"));
                 //}
                 //else
-                if ($status != "notgraded") {
-                    $img = '<img src="' . ilUtil::getImagePath("scorm/" . $status . ".svg") . '" ' .
-                        ' alt="' . $lng->txt("exc_" . $status) . '" title="' . $lng->txt("exc_" . $status) .
-                        '" />';
-
-                    $add = "";
-                    if ($st["failed_a_mandatory"]) {
-                        $add = " (" . $lng->txt("exc_msg_failed_mandatory") . ")";
-                    } elseif ($status == "failed") {
-                        $add = " (" . $lng->txt("exc_msg_missed_minimum_number") . ")";
-                    }
-                    $info->addProperty(
-                        $this->lng->txt("status"),
-                        $img . " " . $this->lng->txt("exc_" . $status) . $add
-                    );
-                }
             }
+            // fau.
         }
         
         // forward the command
         $this->ctrl->forwardCommand($info);
     }
-    
+
     public function editObject()
     {
         $this->setSettingsSubTabs();
@@ -800,12 +936,25 @@ class ilObjExerciseGUI extends ilObjectGUI
             $this->lng->txt("general_settings"),
             $this->ctrl->getLinkTarget($this, "edit")
         );
-        
+
         $this->tabs_gui->addSubTab(
             "crit",
             $this->lng->txt("exc_criteria_catalogues"),
             $this->ctrl->getLinkTargetByClass("ilexccriteriacataloguegui", "")
         );
+
+
+        // fau: exCalc - add tab for calculation settings
+        /** @var ilObjExercise $object */
+        $object = $this->object;
+        if (isset($object) && ($object->getPassMode() == ilObjExercise::PASS_MODE_CALC || $object->getPassMode() == ilObjExercise::PASS_MODE_MANUAL)) {
+            $this->tabs_gui->addSubTab(
+                "result_calculation",
+                $this->lng->txt("exc_pass_result_calculation"),
+                $this->ctrl->getLinkTargetByClass(['ilobjexercisegui','ilexcalculategui'])
+            );
+        }
+        // fau.
 
         $validator = new ilCertificateActiveValidator();
         if (true === $validator->validate()) {
@@ -945,14 +1094,14 @@ class ilObjExerciseGUI extends ilObjectGUI
         }
 
         $tpl->addJavaScript("./Modules/Exercise/js/ilExcPresentation.js");
-        
+
         ilLearningProgress::_tracProgress(
             $ilUser->getId(),
             $this->object->getId(),
             $this->object->getRefId(),
             'exc'
         );
-        
+
 
         if ($this->certificateDownloadValidator->isCertificateDownloadable((int) $ilUser->getId(), (int) $this->object->getId())) {
             $ilToolbar->addButton(
@@ -962,7 +1111,7 @@ class ilObjExerciseGUI extends ilObjectGUI
         }
 
         $ass_gui = new ilExAssignmentGUI($this->object, $this->getService());
-                
+
         $acc = new ilAccordionGUI();
         $acc->setId("exc_ow_" . $this->object->getId());
 
@@ -996,9 +1145,58 @@ class ilObjExerciseGUI extends ilObjectGUI
         $mtpl = new ilTemplate("tpl.exc_ass_overview.html", true, true, "Modules/Exercise");
         $mtpl->setVariable("CONTENT", $acc->getHTML());
 
+        // fau: exCalc - add instruction text to the assignments overview
+        $instruction_text = $this->object->getInstructionDisplayText();
+        if (!empty($instruction_text)) {
+            $mtpl->setVariable("TXT_INSTRUCTION", $instruction_text);
+        }
+        // fau.
+
+
         $tpl->setContent($mtpl->get());
     }
-    
+
+    // fau: exStatement - new function acceptAuthorshipStatementObject()
+    public function acceptAuthorshipStatementObject()
+    {
+        $this->checkPermission("read");
+
+        if (isset($this->ass)) {
+            $members = new ilExerciseMembers($this->object);
+            if (!$members->isAssigned($this->user->getId())) {
+                $members->assignMember($this->user->getId());
+            }
+
+            $state = $this->ass->getMemberStatus();
+            $state->setAuthorshipStatement(true);
+            $state->update();
+            $this->ctrl->setParameter($this, 'ass_id_goto', $this->ass->getId());
+        }
+        $this->ctrl->redirect($this, 'showOverview');
+    }
+    // fau.
+
+    // fau: exStatement - new function revokeAuthorshipStatementObject()
+    public function revokeAuthorshipStatementObject()
+    {
+        $this->checkPermission("read");
+
+        if (isset($this->ass)) {
+            $members = new ilExerciseMembers($this->object);
+            if (!$members->isAssigned($this->user->getId())) {
+                $members->assignMember($this->user->getId());
+            }
+
+            $state = $this->ass->getMemberStatus();
+            $state->setAuthorshipStatement(false);
+            $state->update();
+            $this->ctrl->setParameter($this, 'ass_id_goto', $this->ass->getId());
+        }
+        $this->ctrl->redirect($this, 'showOverview');
+    }
+    // fau.
+
+
     public function certificateObject()
     {
         $this->setSettingsSubTabs();

@@ -31,6 +31,16 @@ class ilStrictCliCronManager implements \ilCronManagerInterface
         ];
     }
 
+    // fau: singleCronJob - new  function runSingleJob()
+    /**
+     * @inheritdoc
+     */
+    public function runSingleJob($job_id)
+    {
+        $this->cronManager->runSingleJob($job_id);
+    }
+    // fau.
+
     /**
      * @inheritdoc
      */

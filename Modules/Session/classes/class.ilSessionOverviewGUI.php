@@ -109,7 +109,7 @@ class ilSessionOverviewGUI
         );
         
         include_once 'Modules/Session/classes/class.ilSessionOverviewTableGUI.php';
-        
+
         $part = $this->members_obj->getParticipants();
         $part = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
             'manage_members',
@@ -117,7 +117,7 @@ class ilSessionOverviewGUI
             $this->course_ref_id,
             $part
         );
-        
+
         $tbl = new ilSessionOverviewTableGUI($this, 'listSessions', $this->course_ref_id, $part);
         $this->tpl->setContent($tbl->getHTML());
     }
@@ -155,17 +155,17 @@ class ilSessionOverviewGUI
             }
             $events[] = $tmp_event;
         }
-        
+
         $this->csv = new ilCSVWriter();
         $this->csv->addColumn($this->lng->txt("lastname"));
         $this->csv->addColumn($this->lng->txt("firstname"));
         $this->csv->addColumn($this->lng->txt("login"));
-        
+
         foreach ($events as $event_obj) {
             // TODO: do not export relative dates
             $this->csv->addColumn($event_obj->getTitle() . ' (' . $event_obj->getFirstAppointment()->appointmentToString() . ')');
         }
-        
+
         $this->csv->addRow();
         
         foreach ($members as $user_id) {
@@ -182,7 +182,7 @@ class ilSessionOverviewGUI
                                         $this->lng->txt('event_participated') :
                                         $this->lng->txt('event_not_participated'));
             }
-            
+
             $this->csv->addRow();
         }
         $date = new ilDate(time(), IL_CAL_UNIX);

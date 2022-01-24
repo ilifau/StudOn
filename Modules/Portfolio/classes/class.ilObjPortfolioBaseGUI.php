@@ -147,11 +147,13 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
         $page_gui = $this->getPageGUIInstance($this->page_id);
         
         // needed for editor
+        // fau: inheritContentStyle - add ref_id
         $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
             $this->object->getStyleSheetId(),
-            $this->getType()
+            $this->getType(),
+            $this->object->getRefId()
         ));
-        
+        // fau.
         $ret = $this->ctrl->forwardCommand($page_gui);
 
         if ($ret != "" && $ret !== true) {
@@ -995,10 +997,18 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
         }
 
         $ctpl->setCurrentBlock("ContentStyle");
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $ctpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->object->getStyleSheetId(),
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                )
+            )
         );
+        // fau.
         $ctpl->parseCurrentBlock();
     }
     
@@ -1065,7 +1075,18 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
                 $form->addCommandButton("createStyle", $this->lng->txt("sty_create_ind_style"));
             }
         }
-        
+        // fau: inheritContentStyle - add inheritance properties to the form
+        if ($style_id <= 0) {
+            $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->ref_id);
+            if (!empty($parent_usage)) {
+                $pu = new ilNonEditableValueGUI($this->lng->txt('sty_inherited_from'));
+                $pu->setInfo($this->lng->txt('sty_inherited_from_info'));
+                $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                $form->addItem($pu);
+            }
+        }
+        // fau.
+
         $form->setTitle($this->lng->txt($this->getType() . "_style"));
         $form->setFormAction($this->ctrl->getFormAction($this));
         

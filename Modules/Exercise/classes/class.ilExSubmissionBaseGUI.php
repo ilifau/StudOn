@@ -64,7 +64,7 @@ abstract class ilExSubmissionBaseGUI
         $this->assignment = $a_submission->getAssignment();
 
         $this->mandatory_manager = $DIC->exercise()->internal()->service()->getMandatoryAssignmentManager($this->exercise);
-        
+
         // :TODO:
         $this->ctrl = $ilCtrl;
         $this->tabs_gui = $ilTabs;
@@ -121,6 +121,17 @@ abstract class ilExSubmissionBaseGUI
         if ($has_submitted &&
             !$a_no_notifications) {
             $users = ilNotification::getNotificationsForObject(ilNotification::TYPE_EXERCISE_SUBMISSION, $this->exercise->getId());
+
+            // fau: fixExNotificationAccess - send notifications about exercise submission only to users with read access
+            global $ilAccess;
+            $allowed_users = array();
+            foreach ($users as $user_id) {
+                if ($ilAccess->checkAccessOfUser($user_id, 'read', '', $this->exercise->getRefId())) {
+                    $allowed_users[] = $user_id;
+                }
+            }
+            $users = $allowed_users;
+            // fau.
 
             $not = new ilExerciseMailNotification();
             $not->setType(ilExerciseMailNotification::TYPE_SUBMISSION_UPLOAD);

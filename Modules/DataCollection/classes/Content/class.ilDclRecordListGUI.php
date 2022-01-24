@@ -554,6 +554,20 @@ class ilDclRecordListGUI
         $records = $data['records'];
         $total = $data['total'];
 
+        // fau: dclPerformance - call the preload of record fields
+
+        /** @var ilDclTableView $tableview */
+        //$tableview = ilDclTableView::find($this->tableview_id);
+
+        // Tryout to preload only the visible fields
+        // Problem: visible formula fields will not work if invisible fields are excluded
+        //ilDclFieldFactory::preloadRecordFieldCache($tableview->getVisibleFields(), $records);
+
+        // Preload all record fields#
+        // This pevents single database queries for each field of each record
+        // ilDclFieldFactory::preloadRecordFieldCache($table_obj->getFields(), $records);
+        // fau.
+
         $list->setMaxCount($total);
         $list->setRecordData($records);
 

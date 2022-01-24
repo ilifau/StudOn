@@ -140,7 +140,7 @@ class ilTestRandomQuestionSetStagingPoolBuilder
             $taxFilter = $definition->getOriginalTaxonomyFilter();
             $typeFilter = $definition->getTypeFilter();
             $lifecycleFilter = $definition->getLifecycleFilter();
-            
+
             if (!empty($taxFilter)) {
                 require_once 'Services/Taxonomy/classes/class.ilObjTaxonomy.php';
                 
@@ -269,6 +269,16 @@ class ilTestRandomQuestionSetStagingPoolBuilder
                 #);
                 
                 $definition->mapTaxonomyFilter($taxonomiesKeysMap);
+                // fau.
+
+                // fau: taxGroupFilter - map the grouping taxonomy
+                if ($definition->getOriginalGroupTaxId()) {
+                    $definition->setMappedGroupTaxId(
+                        $taxonomiesKeysMap->getMappedTaxonomyId($definition->getOriginalGroupTaxId())
+                    );
+                } else {
+                    $definition->setMappedGroupTaxId(null);
+                }
                 // fau.
             }
         }

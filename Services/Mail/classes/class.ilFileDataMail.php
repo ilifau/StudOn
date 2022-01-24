@@ -634,20 +634,31 @@ class ilFileDataMail extends ilFileData
         } catch (Exception $e) {
         }
 
+        // fau: userDeleteMailAttach - first get the mail ids separately
+        // get the mail_ids of the user
+        $mail_ids = [];
+        $query = "SELECT mail_id FROM mail WHERE user_id = " . $ilDB->quote($this->user_id, 'integer');
+        $res = $ilDB->query($query);
+        while ($row = $ilDB->fetchAssoc($res)) {
+            $mail_ids[] = (int) $row['mail_id'];
+        }
+
+        // nothing to do
+        if (empty($mail_ids)) {
+            return;
+        }
+        // fau.
+
         // Select all files attached to messages which are not shared (... = 1) with other messages anymore
+        // fau: userDeleteMailAttach - query for file paths by mail ids
         $query = '
 			SELECT DISTINCT(ma1.path)
 			FROM mail_attachment ma1
-			INNER JOIN mail
-				ON mail.mail_id = ma1.mail_id
-			WHERE mail.user_id = %s
-			AND (SELECT COUNT(tmp.path) FROM mail_attachment tmp WHERE tmp.path = ma1.path) = 1
+			WHERE ' . $ilDB->in('ma1.mail_id', $mail_ids, false, 'integer') .
+			' AND (SELECT COUNT(tmp.path) FROM mail_attachment tmp WHERE tmp.path = ma1.path) = 1
 		';
-        $res = $ilDB->queryF(
-            $query,
-            array('integer'),
-            array($this->user_id)
-        );
+        $res = $ilDB->query($query);
+        // fau.
         while ($row = $ilDB->fetchAssoc($res)) {
             try {
                 $path = $this->getMailPath() . DIRECTORY_SEPARATOR . $row['path'];
@@ -672,19 +683,11 @@ class ilFileDataMail extends ilFileData
         }
 
         // Delete each mail attachment rows assigned to a message of the deleted user.
-        $ilDB->manipulateF(
-            '
-				DELETE
-				FROM mail_attachment
-				WHERE EXISTS(
-					SELECT mail.mail_id
-					FROM mail
-					WHERE mail.user_id = %s AND mail.mail_id = mail_attachment.mail_id
-				)
-				',
-            array('integer'),
-            array($this->user_id)
-        );
+        // fau: userDeleteMailAttach - query for attachments by mail ids
+        $query = 'DELETE FROM mail_attachment WHERE '
+            . $ilDB->in('mail_id', $mail_ids, false, 'integer');
+        $ilDB->manipulate ($query);
+        // fau.
     }
 
     /**

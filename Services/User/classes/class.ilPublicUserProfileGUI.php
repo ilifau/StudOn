@@ -546,14 +546,16 @@ class ilPublicUserProfileGUI
             $tpl->parseCurrentBlock();
         }
 
-        
+        // fau: reduceProfile - don't add matriculation and client IP to the public profile
         $val_arr = array(
             "getHobby" => "hobby",
             "getGeneralInterestsAsText" => "interests_general",
             "getOfferingHelpAsText" => "interests_help_offered",
             "getLookingForHelpAsText" => "interests_help_looking",
-            "getMatriculation" => "matriculation",
-            "getClientIP" => "client_ip");
+            // "getMatriculation" => "matriculation",
+            // "getClientIP" => "client_ip"
+        );
+        // fau.
             
         foreach ($val_arr as $key => $value) {
             // if value "y" show information
@@ -649,22 +651,22 @@ class ilPublicUserProfileGUI
             $button = ilBuddySystemLinkButton::getInstanceByUserId((int) $user->getId());
             $tpl->setVariable('BUDDY_HTML', $button->getHtml());
         }
-        
+
         // badges
         include_once "Services/Badge/classes/class.ilBadgeAssignment.php";
         $user_badges = ilBadgeAssignment::getInstancesByUserId($user->getId());
         if ($user_badges) {
             $has_public_badge = false;
             $cnt = 0;
-            
+
             $cut = 20;
-            
+
             include_once "Services/Badge/classes/class.ilBadgeRenderer.php";
             foreach ($user_badges as $ass) {
                 // only active
                 if ($ass->getPosition()) {
                     $cnt++;
-                    
+
                     $renderer = new ilBadgeRenderer($ass);
 
                     // limit to 20, [MORE] link
@@ -677,18 +679,18 @@ class ilPublicUserProfileGUI
                         $tpl->setVariable("BADGE_HIDDEN", $renderer->getHTML());
                         $tpl->parseCurrentBlock();
                     }
-                    
+
                     $has_public_badge = true;
                 }
             }
-            
+
             if ($cnt > $cut) {
                 $lng->loadLanguageModule("badge");
                 $tpl->setVariable("BADGE_HIDDEN_TXT_MORE", $lng->txt("badge_profile_more"));
                 $tpl->setVariable("BADGE_HIDDEN_TXT_LESS", $lng->txt("badge_profile_less"));
                 $tpl->touchBlock("badge_js_bl");
             }
-            
+
             if ($has_public_badge) {
                 $tpl->setVariable("TXT_BADGES", $lng->txt("obj_bdga"));
             }
@@ -761,8 +763,10 @@ class ilPublicUserProfileGUI
             "getZipcode" => "zipcode", "getCity" => "city", "getCountry" => "country",
             "getPhoneOffice" => "phone_office", "getPhoneHome" => "phone_home",
             "getPhoneMobile" => "phone_mobile", "getFax" => "fax", "getEmail" => "email",
-            "getHobby" => "hobby", "getMatriculation" => "matriculation",
-            "getClientIP" => "client_ip", "dummy" => "location");
+            // fau: reduceProfile - don't add matriculation and client IP to the public profile
+            "getHobby" => "hobby",
+            // fau.
+            "dummy" => "location");
 
         $org = array();
         $adr = array();

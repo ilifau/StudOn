@@ -14,12 +14,17 @@ class ilLoggingErrorFileStorage
     const KEY_SPACE = 25;
     const FILE_FORMAT = ".log";
 
-    public function __construct($inspector, $file_path, $file_name)
+
+
+    // fau: logErrorFile - add error code as parameter
+    public function __construct($inspector, $file_path, $file_name, $err_code = 'unknown')
     {
         $this->inspector = $inspector;
         $this->file_path = $file_path;
         $this->file_name = $file_name;
+        $this->err_code = $err_code;
     }
+    // fau.
 
     protected function createDir($path)
     {
@@ -41,7 +46,9 @@ class ilLoggingErrorFileStorage
         $this->createDir($this->file_path);
 
         $file_name = $this->file_path . "/" . $this->file_name . self::FILE_FORMAT;
-        $stream = fopen($file_name, 'w+');
+        // fau: logErrorFile - append to file
+        $stream = fopen($file_name, 'a+');
+        // fau.
         fwrite($stream, $this->content());
         fclose($stream);
         chmod($file_name, 0755);
@@ -54,7 +61,12 @@ class ilLoggingErrorFileStorage
      */
     protected function pageHeader()
     {
-        return "";
+        // fau: logErrorFile - use error code and date as header of an entry
+
+        return "-------------------------------\n"
+             . $this->file_name . '_' . $this->err_code . ' ' . @date('Y-m-d H:i:s') . "\n"
+             . "-------------------------------\n";
+        // fau.
     }
 
     /**

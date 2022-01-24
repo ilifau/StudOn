@@ -342,7 +342,9 @@ class ilObjMediaObjectGUI extends ilObjectGUI
         $up = new ilFileInputGUI("", "standard_file");
         $up->setSuffixes(ilObjMediaObject::getRestrictedFileTypes());
         $up->setForbiddenSuffixes(ilObjMediaObject::getForbiddenFileTypes());
-        $up->setInfo("");
+        // fau: uploadZippedHtmlMedia - add info for file upload
+        $up->setInfo($lng->txt("cont_zipped_html_info"));
+        // fau.
         if ($a_mode == "create" || $std_item->getLocationType() != "LocalFile") {
             $up->setRequired(true);
         }
@@ -757,21 +759,29 @@ class ilObjMediaObjectGUI extends ilObjectGUI
             $format = ilObjMediaObject::getMimeType($file);
             $location = $file_name;
 
-            // resize standard images
-            if ($_POST["standard_size"] != "original" &&
-                is_int(strpos($format, "image"))) {
-                $location = ilObjMediaObject::_resizeImage(
-                    $file,
-                    (int) $_POST["standard_width_height"]["width"],
-                    (int) $_POST["standard_width_height"]["height"],
-                    (boolean) $_POST["standard_width_height"]["contr_prop"]
-                );
+            // fau: uploadZippedHtmlMedia - process zip
+            if ($format == 'application/zip') {
+                self::unzipHtmlMedia($mob_dir, $file, $file_name, $media_item);
             }
+            else {
+                // resize standard images
+                if ($_POST["standard_size"] != "original" &&
+                    is_int(strpos($format, "image")) &&
+                    !($format == 'image/svg+xml')) {
+                    $location = ilObjMediaObject::_resizeImage(
+                        $file,
+                        (int) $_POST["standard_width_height"]["width"],
+                        (int) $_POST["standard_width_height"]["height"],
+                        (boolean) $_POST["standard_width_height"]["contr_prop"]
+                    );
+                }
 
-            // set real meta and object data
-            $media_item->setFormat($format);
-            $media_item->setLocation($location);
-            $media_item->setLocationType("LocalFile");
+                // set real meta and object data
+                $media_item->setFormat($format);
+                $media_item->setLocation($location);
+                $media_item->setLocationType("LocalFile");
+            }
+            // fau.
         } else {	// standard type: reference
             $format = ilObjMediaObject::getMimeType(ilUtil::stripSlashes($_POST["standard_reference"]), true);
             $media_item->setFormat($format);
@@ -888,9 +898,74 @@ class ilObjMediaObjectGUI extends ilObjectGUI
         include_once("./Services/MediaObjects/classes/class.ilMediaSvgSanitizer.php");
         ilMediaSvgSanitizer::sanitizeDir($mob_dir);	// see #20339
         $a_mob->update();
+        // fau: videoPreviewPic - generate preview from creation form
+        $a_mob->generatePreviewPic(320, 240);
+        // fau.
     }
-    
-    
+
+    // fau: uploadZippedHtmlMedia - new function uploadZippedHtmlMedia()
+
+    /**
+     * Upload a zipped hml media package
+     * @param string      $mob_dir
+     * @param string       $file
+     * @param string       $file_name
+     * @param ilMediaItem $mediaItem
+     * @throws ilException
+     */
+    public static function unzipHtmlMedia($mob_dir, $file, $file_name, $mediaItem) {
+        global $DIC;
+        $lng = $DIC->language();
+
+        if (@is_file($file)) {
+            $cur_files_r = iterator_to_array(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($mob_dir)));
+
+            // fau: fixUnzipEncoding - enable fix
+            ilUtil::enableUnzipEncodingFix();
+            // fau.
+            ilUtil::unzip($file, true);
+            unlink($file);
+
+            $new_files_r = iterator_to_array(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($mob_dir)));
+            $diff_r = array_diff($new_files_r, $cur_files_r);
+
+            // unlink forbidden file types
+            foreach ($diff_r as $f => $d) {
+                $pi = pathinfo($f);
+                if (!is_dir($f) && in_array($pi["extension"], (array)  ilObjMediaObject::getForbiddenFileTypes())) {
+                    ilUtil::sendFailure($lng->txt("file_some_invalid_file_types_removed") . " (" . $pi["extension"] . ")", true);
+                    unlink($f);
+                }
+            }
+
+        }
+        ilUtil::renameExecutables($mob_dir);
+
+        $pi = pathinfo($file_name);
+        $filename = $pi['filename'];
+
+        $mediaItem->setFormat('text/html');
+        if (is_file($mob_dir . '/index.html')) {
+            $mediaItem->setLocation('index.html');
+        }
+        else if (is_file($mob_dir . '/' . $filename . '.html')) {
+                $mediaItem->setLocation($filename . '.html');
+        }
+        else {
+            $files = glob($mob_dir. '/*.html');
+            foreach ($files as $file) {
+                if (count($files) == 1 || !strpos($file, '_player.html')) {
+                    $pi = pathinfo($file);
+                    $mediaItem->setLocation($pi['basename']);
+                    break;
+                }
+            }
+        }
+
+        $mediaItem->setLocationType("LocalFile");
+    }
+    // fau.
+
     /**
     * Cancel saving
     */
@@ -909,10 +984,59 @@ class ilObjMediaObjectGUI extends ilObjectGUI
         $this->setPropertiesSubTabs("general");
 
         $this->initForm("edit");
+        // fau: videoPreviewPic - add the toolbar
+        $this->addGeneratePreviewToolbar();
+        // fau.
         $this->getValues();
         $tpl->setContent($this->form_gui->getHTML());
     }
 
+    // fau: videoPreviewPic - new function addGeneratePreviewToolbar()
+    /**
+     * Add Toolbar item to generate a preview image
+     */
+    public function addGeneratePreviewToolbar()
+    {
+        $this->lng->loadLanguageModule('mcst');
+        include_once("./Services/MediaObjects/classes/class.ilFFmpeg.php");
+        if (ilFFmpeg::enabled()) {
+
+            $med = $this->object->getMediaItem("Standard");
+            if (is_object($med)) {
+                if (ilFFmpeg::supportsImageExtraction($med->getFormat())) {
+                    // second
+                    include_once("./Services/Form/classes/class.ilTextInputGUI.php");
+                    $ni = new ilTextInputGUI($this->lng->txt("seconds"), "sec");
+                    $ni->setMaxLength(4);
+                    $ni->setSize(4);
+                    $ni->setValue(1);
+                    $this->toolbar->addInputItem($ni, true);
+
+                    $this->toolbar->addFormButton($this->lng->txt("mob_extract_preview_image"), "extractPreviewImage");
+                    $this->toolbar->setFormAction($this->ctrl->getFormAction($this));
+                }
+            }
+        }
+    }
+    // fau.
+
+    // fau: videoPreviewPic - new function extractPreviewImage()
+    /**
+     * Extract a preview image
+     */
+    public function extractPreviewImageObject()
+    {
+        $this->lng->loadLanguageModule('mcst');
+        if ($this->object->generatePreviewPic(320, 240, (float) $_POST['sec'])) {
+            ilUtil::sendSuccess($this->lng->txt("mob_preview_image_extracted") . '<p class="small">' . $this->lng->txt('mob_preview_image_upload_info') . '</p>', true);
+        }
+        else {
+            ilUtil::sendFailure($this->lng->txt("mob_no_extraction_possible") . '<p class="small">' . $this->lng->txt('mob_preview_image_upload_info') . '</p>', true);
+        }
+
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
 
     /**
     * resize images to specified size

@@ -785,6 +785,19 @@ class ilObjContentObjectGUI extends ilObjectGUI implements ilLinkCheckerGUIRowHa
                 );
             }
         }
+
+        // fau: inheritContentStyle - add inheritance properties to the form
+        if ($style_id <= 0) {
+            $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->ref_id);
+            if (!empty($parent_usage)) {
+                $pu = new ilNonEditableValueGUI($this->lng->txt('sty_inherited_from'));
+                $pu->setInfo($this->lng->txt('sty_inherited_from_info'));
+                $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                $this->form->addItem($pu);
+            }
+        }
+        // fau.
+
         $this->form->setTitle($lng->txt("cont_style"));
         $this->form->setFormAction($ilCtrl->getFormAction($this));
     }
@@ -2191,6 +2204,42 @@ class ilObjContentObjectGUI extends ilObjectGUI implements ilLinkCheckerGUIRowHa
         $tpl->setContent($table->getHTML());
     }
 
+    // fau: lmQStat - new command functions
+
+    /**
+     * List users answering the questions
+     */
+    public function listQuestionUsers()
+    {
+        global $tpl;
+
+        $this->setTabs("questions");
+        $this->setQuestionsSubTabs("question_users");
+
+        include_once("./Modules/LearningModule/classes/class.ilLMQuestionUsersTableGUI.php");
+        $table = new ilLMQuestionUsersTableGUI($this, "listQuestionUsers", $this->object);
+        $tpl->setContent($table->getHTML());
+    }
+
+    /**
+     * List users answering the questions
+     */
+    public function listQuestionUserDetails()
+    {
+        global $tpl;
+
+        $this->setTabs("questions");
+        $this->setQuestionsSubTabs("question_users");
+        $this->ctrl->saveParameter($this, 'user_id');
+
+        include_once("./Modules/LearningModule/classes/class.ilLMQuestionUserDetailsTableGUI.php");
+        $table = new ilLMQuestionUserDetailsTableGUI($this, "listQuestionUserDetails", $this->object, $_GET['user_id']);
+
+        include_once("./Services/Tracking/classes/class.ilLearningProgressBaseGUI.php");
+        $tpl->setContent($table->getHTML() . ilLearningProgressBaseGUI::__getLegendHTMLStatic());
+    }
+    // fau.
+
     /**
      * List blocked users
      */
@@ -2424,6 +2473,14 @@ class ilObjContentObjectGUI extends ilObjectGUI implements ilLinkCheckerGUIRowHa
             $ilCtrl->getLinkTarget($this, "listQuestions")
         );
 
+        // fau: lmQStat - tab for user answers
+        // answering users
+        $ilTabs->addSubtab(
+            "question_users",
+            $lng->txt("cont_users_answered"),
+            $ilCtrl->getLinkTarget($this, "listQuestionUsers")
+        );
+        // fau.
         // blocked users
         $ilTabs->addSubtab(
             "blocked_users",

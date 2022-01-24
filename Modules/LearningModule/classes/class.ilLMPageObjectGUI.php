@@ -120,10 +120,13 @@ class ilLMPageObjectGUI extends ilLMObjectGUI
                     $view_frame
                 );
 
+                // fau: inheritContentStyle - add ref_id
                 $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
                     $this->content_object->getStyleSheetId(),
-                    "lm"
+                    "lm",
+                    $this->content_object->getRefId()
                 ));
+                // fau.
                 $page_gui->setTemplateTargetVar("ADM_CONTENT");
                 $page_gui->getPageObject()->buildDom();
                 $int_links = $page_gui->getPageObject()->getInternalLinks();
@@ -478,7 +481,7 @@ class ilLMPageObjectGUI extends ilLMObjectGUI
     {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
-    
+
         $this->form = new ilPropertyFormGUI();
     
         // default layout

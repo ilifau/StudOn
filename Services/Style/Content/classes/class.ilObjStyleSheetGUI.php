@@ -301,6 +301,45 @@ class ilObjStyleSheetGUI extends ilObjectGUI
         $this->tpl->setContent($ctpl->get());
     }
 
+    // fau: customCss - edit custom css
+    public function editCustomCssObject()
+    {
+        $this->initCustomCssForm();
+        $tpl = new ilTemplate('tpl.il_custom_css.html', true, true, "Services/Style");
+        $tpl->setVariable("DESCRIPTION", $this->lng->txt("sty_custom_css_description"));
+        $tpl->setVariable("COLOR_INFO", $this->lng->txt("sty_custom_css_color_info"));
+        $tpl->setVariable("IMAGE_INFO", $this->lng->txt("sty_custom_css_image_info"));
+        $tpl->setVariable("FORM", $this->form_gui->getHTML());
+        $this->tpl->setContent($tpl->get());
+    }
+
+    public function initCustomCssForm()
+    {
+        $this->form_gui = new ilPropertyFormGUI();
+        $this->form_gui->setTitle($this->lng->txt("sty_custom_css_edit"));
+        $this->form_gui->setFormAction($this->ctrl->getFormAction($this));
+
+        $item = new ilCustomInputGUI($this->lng->txt("sty_custom_css"));
+        $tpl = new ilTemplate('tpl.il_custom_css_input.html', true, true, "Services/Style");
+        $tpl->setVariable("CONTENT", ilUtil::prepareFormOutput($this->object->getCustomCss()));
+        $tpl->setVariable("NAME", 'custom_css');
+        $item->setHTML($tpl->get());
+        $this->form_gui->addItem($item);
+
+        if ($this->access->checkAccess("write", "", (int) $_GET["ref_id"])) {
+            $this->form_gui->addCommandButton("updateCustomCss", $this->lng->txt("save"));
+        }
+    }
+
+    public function updateCustomCssObject()
+    {
+        $this->object->setCustomCss(ilUtil::stripSlashes($_POST['custom_css']));
+        $this->object->update();
+        ilUtil::sendInfo($this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "editCustomCss");
+    }
+    // fau.
+
     /**
     * Properties
     */
@@ -1254,7 +1293,16 @@ class ilObjStyleSheetGUI extends ilObjectGUI
                 "listTemplates",
                 get_class($this)
             );
-                
+
+            // fau: customCss - tab for custom css
+            $this->tabs_gui->addTarget(
+                "sty_custom_css",
+                $this->ctrl->getLinkTarget($this, "editCustomCss"),
+                "editCustomCss",
+                get_class($this)
+            );
+            // fau.
+
             // settings
             $this->tabs_gui->addTarget(
                 "settings",
@@ -1352,7 +1400,7 @@ class ilObjStyleSheetGUI extends ilObjectGUI
             //?
         }
     }
-    
+
     /**
     * List images of style
     */

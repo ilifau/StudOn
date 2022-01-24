@@ -74,20 +74,36 @@ class ilTestScoring
     {
         $this->questionId = $questionId;
     }
-    
-    public function recalculateSolutions()
+
+    // fau: provideRecalc - add parameter for selected users, also update the learning progress
+    // fau: exAssTest - update the result of connected exercise assignments
+    public function recalculateSolutions($a_active_ids = null)
     {
         $participants = $this->test->getCompleteEvaluationData(false)->getParticipants();
         if (is_array($participants)) {
-            require_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
+
+            $factory = new ilTestSessionFactory($this->test);
+
             foreach ($participants as $active_id => $userdata) {
+                if (isset($a_active_ids) && !in_array($active_id, $a_active_ids)) {
+                    continue;
+                }
+
                 if (is_object($userdata) && is_array($userdata->getPasses())) {
                     $this->recalculatePasses($userdata, $active_id);
                 }
                 assQuestion::_updateTestResultCache($active_id);
+
+                /** @var  ilTestEvaluationUserData $userdata */
+                include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
+                ilLPStatusWrapper::_updateStatus($this->test->getId(), $userdata->getUserID());
+
+                require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
+                ilExAssTypeTestResultAssignment::updateAssignments($this->test, $factory->getSession($active_id));
             }
         }
     }
+    // fau.
 
     /**
      * Updates passed status of the Test
@@ -118,6 +134,9 @@ class ilTestScoring
             if (is_object($passdata)) {
                 $this->recalculatePass($passdata, $active_id, $pass);
                 $this->addRecalculatedPassByActive($active_id, $pass);
+                // fau: provideRecalc - always update the test pass result (manual scoring may be refreshed)
+                assQuestion::_updateTestPassResults($active_id, $pass, true);
+                // fau.
             }
         }
     }

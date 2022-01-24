@@ -64,7 +64,12 @@ class ilDclDetailedViewDefinitionGUI extends ilPageObjectGUI
         $tpl->parseCurrentBlock();
 
         $tpl->setCurrentBlock("ContentStyle");
-        $tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style for the page
+        $this->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(0, 'dcl', $_GET['ref_id']));
+        $tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(
+            $this->getStyleId()
+        ));
+        // fau.
         $tpl->parseCurrentBlock();
     }
 

@@ -121,6 +121,27 @@ class ilStr
             return (strcoll(ilStr::strToUpper($a), ilStr::strToUpper($b)) > 0);
         }
     }
+
+    // fau: sortCase - new function to compare two string case sensitive
+    /**
+     * Compare two string case sensitive
+     */
+    public static function strCmpCaseSensitive($a, $b)
+    {
+        global $DIC;
+
+        $ilCollator = null;
+        if (isset($DIC["ilCollator"])) {
+            $ilCollator = $DIC["ilCollator"];
+        }
+
+        if (is_object($ilCollator)) {
+            return ($ilCollator->compare($a, $b) > 0);
+        } else {
+            return (strcoll($a, $b) > 0);
+        }
+    }
+    // fau.
     
     /**
      * Shorten text to the given number of bytes.

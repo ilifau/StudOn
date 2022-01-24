@@ -34,15 +34,24 @@ $.fn.ilHorizontalOrderingQuestion = function(method) {
 
 				internals.storeResult.call($this);
 
+// fau: fixMultilineOrdering - allow horizontal ordering questions with multi-line texts
+                // fix the rendered with and height for li elements (including border)
+                $this.children().each(function() {
+                    $(this).css('width', ($(this).outerWidth()+2)+'px');
+                    $(this).css('height', ($(this).outerHeight()+2)+'px');
+                });
+
 				$this.sortable({
 					opacity: 0.6,
 					revert: false,
 					cursor: "move",
-					//axis: "x",
+                    // allow y moving of elements
+					axis: false,
 					stop: function() {
 						internals.storeResult.call($this);
 					}
 				}).disableSelection();
+// fau.
 			});
 		}
 	};

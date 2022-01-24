@@ -410,9 +410,81 @@ class ilObjectGUI
         include_once './Services/Object/classes/class.ilObjectListGUIFactory.php';
         $lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
         $lgui->initItem($this->object->getRefId(), $this->object->getId(), $this->object->getType());
-        $this->tpl->setAlertProperties($lgui->getAlertProperties());
+
+        // fau: visibilityHints - add an alert about the public vissibility of the object
+        $this->tpl->setAlertProperties(
+            $this->addPublicVisibilityAlert($lgui->getAlertProperties())
+        );
+        // fau.
     }
-    
+
+    // fau: visibilityHints - new function addPublicVisibilityAlert()
+    /**
+     * Add an alert about the public visibility of the object
+     *
+     * @param	array	existing alerts
+     * @return  array	alerts with additional message
+     */
+    protected function addPublicVisibilityAlert($a_alerts = array())
+    {
+        global $lng;
+
+        if ($message = $this->getPublicVisibilityMessage()) {
+            $alert = array();
+            $alert['property'] = $lng->txt('privacy_note_for_authors');
+            $alert['value'] = $message;
+            $alert['alert'] = true;
+
+            $a_alerts[] = $alert;
+        }
+
+        return $a_alerts;
+    }
+    // fau.
+
+    // fau: visibilityHints - new function getPublicVisibilityMessage()
+    /**
+     * Get the message about public visibility of the object
+     * Default implementation for repository objects (using ilAccess)
+     * see ilObject2GUI::getPublicVisibilityMessage() for workspace related implementation
+     *
+     * @return string	message about public visibility
+     */
+    protected function getPublicVisibilityMessage()
+    {
+        global $ilAccess, $lng;
+
+        $type = $this->object->getType();
+
+        if ($this->checkPermissionBool("write")
+            or ($type = "blog" and $this->checkPermissionBool("contribute"))
+            or ($type = "chtr" and $this->checkPermissionBool("moderate"))
+            or ($type = "dcl" and $this->checkPermissionBool("add_entry"))
+            or ($type = "frm" and $this->checkPermissionBool("add_reply"))
+            or ($type = "frm" and $this->checkPermissionBool("add_thread"))
+            or ($type = "frm" and $this->checkPermissionBool("moderate_frm"))
+            or ($type = "wiki" and $this->checkPermissionBool("edit_content"))
+        ) {
+            // categories
+            if ($type == "cat") {
+                // TODO: don't show message for categories without text editor content
+                return "";
+            }
+
+            if ($ilAccess->checkAccessOfUser(
+                ANONYMOUS_USER_ID,
+                "read",
+                "",
+                $this->object->getRefId(),
+                $type,
+                $this->object->getId()
+            )) {
+                return $lng->txt('privacy_object_visible_to_public');
+            }
+        }
+    }
+    // fau.
+
     /**
      * Add header action menu
      *
@@ -510,7 +582,7 @@ class ilObjectGUI
         
         exit;
     }
-    
+
 
 
     /**
@@ -1591,7 +1663,7 @@ class ilObjectGUI
         $this->checkPermission('visible') && $this->checkPermission('read');
 
         $this->tabs_gui->activateTab('view');
-        
+
         ilChangeEvent::_recordReadEvent(
             $this->object->getType(),
             $this->object->getRefId(),

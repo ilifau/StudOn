@@ -274,6 +274,52 @@ class ilForumMailNotification extends ilMailNotification
         return $posting_link;
     }
 
+    // fau: forumNotificationFooter - new function getContextLink
+    /**
+     * Get a Link for the forums context (course or group)
+     * @return string
+     */
+    private function getContextLink()
+    {
+        global $tree;
+
+        $context_link = '';
+
+        $context = array();
+        $path = $tree->getPathFull($this->provider->getRefId());
+        foreach ($path as $key => $row) {
+            if (in_array($row['type'], array('crs', 'grp'))) {
+                $context['ref_id'] = $row['child'];
+                $context['title'] = $row['title'];
+                $context['type'] = $row['type'];
+                break;
+            }
+        }
+
+        if (!empty($context)) {
+            switch ($context['type']) {
+                case 'grp':
+                    $this->getLanguage()->loadLanguageModule('grp');
+                    require_once("./Services/Link/classes/class.ilLink.php");
+                    $context_link = $this->getLanguageText("grp_mail_permanent_link") . "\n"
+                        . $context['title'] . "\n"
+                        . ilLink::_getStaticLink($context['ref_id'], $context['type'], true);
+                    break;
+
+                case 'crs':
+                    $this->getLanguage()->loadLanguageModule('crs');
+                    require_once("./Services/Link/classes/class.ilLink.php");
+                    $context_link = $this->getLanguageText("crs_mail_permanent_link") . "\n"
+                        . $context['title'] . "\n"
+                        . ilLink::_getStaticLink($context['ref_id'], $context['type'], true);
+                    break;
+            }
+        }
+
+        return $context_link;
+    }
+    // fau.
+
     /**
      * @return string
      */
@@ -426,6 +472,9 @@ class ilForumMailNotification extends ilMailNotification
     private function addLinkToMail()
     {
         $this->appendBody($this->getPermanentLink());
-        $this->appendBody(ilMail::_getInstallationSignature());
+        // fau: forumNotificationFooter - add context link instead of installation signature
+        $this->appendBody($this->getContextLink());
+        // $this->appendBody(ilMail::_getInstallationSignature());
+// fau.
     }
 }

@@ -7,6 +7,15 @@
  */
 interface ilCronManagerInterface
 {
+    // fau: singleCronJob - new interface function runSingleJob()
+    /**
+     * Run one job
+     * @param string $job_id
+     * @return mixed
+     */
+    public function runSingleJob($job_id);
+    // fau.
+
     /**
      * Run all active jobs
      */

@@ -147,6 +147,41 @@ class ilObjExerciseAccess extends ilObjectAccess implements ilConditionHandling
         return false;
     }
 
+
+    // fau: exAssHook - new function checkExtendedGradingAccess()
+    // fau: exAssTest - new function checkExtendedGradingAccess()
+    // fau: exGradeTime - new function checkExtendedGradingAccess()
+    // fau: exMemDelete - new function checkExtendedGradingAccess()
+    // gau: exPlag - new function checkExtendedGradingAccess()
+    // fau: exTeamRemove - new function checkExtendedGradingAccess()
+    // fau: exTeamSingles - new function checkExtendedGradingAccess()
+    /**
+     * Check if a user has extended grading access to the exercise
+     * @param  int  $a_id
+     * @param bool $is_reference
+     * @return bool
+     */
+    public static function checkExtendedGradingAccess($a_id, $is_reference = true)
+    {
+        global $DIC;
+
+        if ($is_reference) {
+            $refs = [$a_id];
+        }
+        else {
+            $refs = ilObject2::_getAllReferences($a_id);
+        }
+
+        foreach ($refs as $ref_id) {
+            if ($DIC->access()->checkAccess('write', '', $ref_id)
+            && $DIC->access()->checkAccess('edit_submissions_grades', '', $ref_id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    // fau.
+
     /**
      * @param ilWACPath $ilWACPath
      *

@@ -1667,12 +1667,18 @@ class ilMail
         if (!strlen($name['firstname'])) {
             return $lang->txt('mail_salutation_anonymous') . ',';
         }
-
-        return
-            $lang->txt('mail_salutation_' . $gender) . ' ' .
-            ($name['title'] ? $name['title'] . ' ' : '') .
-            ($name['firstname'] ? $name['firstname'] . ' ' : '') .
-            $name['lastname'] . ',';
+        // fau: genderSalutation - use gender specific salutation in German
+        elseif ($gender != 'n' and $lang->getLangKey() == 'de') {
+            return $lang->txt('mail_salutation_' . $gender) . ' ' .
+                ($name['title'] ? $name['title'] . ' ' : '') .
+                $name['lastname'] . ',';
+        } else {
+            return $lang->txt('mail_salutation_' . $gender) . ' ' .
+                ($name['title'] ? $name['title'] . ' ' : '') .
+                ($name['firstname'] ? $name['firstname'] . ' ' : '') .
+                $name['lastname'] . ',';
+        }
+        // fau.
     }
 
     /**

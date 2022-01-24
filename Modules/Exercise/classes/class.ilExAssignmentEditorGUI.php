@@ -1,5 +1,4 @@
 <?php
-
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 /**
@@ -79,6 +78,21 @@ class ilExAssignmentEditorGUI
      */
     protected $exc;
 
+    // fau: exAssHook - indicator that type has its own submission
+    /**
+     * @var bool
+     */
+    protected $type_has_own_submission = false;
+    // fau.
+
+
+    // fau: exAssHook - indicator that type has its own general feedback
+    /**
+     * @var bool
+     */
+    protected $type_has_own_feedback = false;
+    // fau.
+
     /**
      * Constructor
      *
@@ -108,6 +122,16 @@ class ilExAssignmentEditorGUI
         $this->random_manager = $DIC->exercise()->internal()->service()->getRandomAssignmentManager(
             $request->getRequestedExercise()
         );
+
+        // fau: exAssHook - set type specific indicators
+        if (isset($a_ass)) {
+            $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($a_ass->getType());
+            if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface ) {
+                $this->type_has_own_submission = $type_gui->hasOwnOverviewSubmission();
+                $this->type_has_own_feedback = $type_gui->hasOwnOverviewGeneralFeedback();
+            }
+        }
+        // fau.
     }
     
     public function executeCommand()
@@ -129,7 +153,7 @@ class ilExAssignmentEditorGUI
             case "ilexassignmentfilesystemgui":
                 $this->setAssignmentHeader();
                 $ilTabs->activateTab("ass_files");
-                
+
                 $fstorage = new ilFSWebStorageExercise($this->exercise_id, $this->assignment->getId());
                 $fstorage->create();
 
@@ -146,12 +170,22 @@ class ilExAssignmentEditorGUI
                     $lng->txt("back"),
                     $ilCtrl->getLinkTarget($this, "listAssignments")
                 );
-        
+
                 $peer_gui = new ilExPeerReviewGUI($this->assignment);
                 $ilCtrl->forwardCommand($peer_gui);
                 break;
             
             default:
+
+                // fau: exAssHook - forward to type gui (analogous to ilExSubmissionGUI)
+                if ($this->type_guis->isExAssTypeGUIClass($class)) {
+                    $this->setAssignmentHeader();
+                    $type_gui = $this->type_guis->getByClassName($class);
+                    $type_gui->setAssignment($this->assignment);
+                    return $ilCtrl->forwardCommand($type_gui);
+                }
+                // fau.
+
                 $this->{$cmd . "Object"}();
                 break;
         }
@@ -168,15 +202,15 @@ class ilExAssignmentEditorGUI
         $ilCtrl = $this->ctrl;
 
         $ilToolbar->setFormAction($ilCtrl->getFormAction($this, "addAssignment"));
-        
+
         $ilToolbar->addStickyItem($this->getTypeDropdown());
-        
+
         $button = ilSubmitButton::getInstance();
         $button->setCaption("exc_add_assignment");
         $button->setCommand("addAssignment");
         $ilToolbar->addStickyItem($button);
         
-        
+
         $t = new ilAssignmentsTableGUI($this, "listAssignments", $this->exercise_id);
         $tpl->setContent($t->getHTML());
     }
@@ -250,17 +284,36 @@ class ilExAssignmentEditorGUI
         $ti->setRequired(true);
         $form->addItem($ti);
 
+        // fau: exAssHook - use hidden field for inactive type
         // type
-        $ty = $this->getTypeDropdown();
-        $ty->setValue($a_type);
-        $ty->setDisabled(true);
-        $form->addItem($ty);
+        if ($ass_type->isActive()) {
+            $ty = $this->getTypeDropdown();
+            $ty->setValue($a_type);
+            $ty->setDisabled(true);
+            $form->addItem($ty);
+        }
+        else {
+            $ty = new ilHiddenInputGUI('type');
+            $ty->setValue($a_type);
+            $form->addItem($ty);
+
+            $tyi = new ilNonEditableValueGUI($lng->txt("exc_assignment_type"));
+            $tyi->setValue($lng->txt("exc_type_inactive"));
+            $tyi->setInfo($lng->txt("exc_type_inactive_info"));
+            $form->addItem($tyi);
+        }
+
 
         //
         // type specific start
         //
 
-        $ass_type_gui->addEditFormCustomProperties($form);
+        // fau: exAssHook - set assignment and exercise_id for type gui to allow form customization
+        if (isset($this->assignment)) {
+            $ass_type_gui->setAssignment($this->assignment);
+        }
+        $ass_type_gui->addEditFormCustomProperties($form, $this->exercise_id);
+        // fau.
 
         //
         // type specific end
@@ -281,6 +334,16 @@ class ilExAssignmentEditorGUI
                 ilExAssignment::TEAMS_FORMED_BY_PARTICIPANTS,
                 $lng->txt("exc_team_by_participants_info")
             );
+
+            // fau: exTeamLimit - input for maximum team members
+            $max_team_members_by_participants = new ilNumberInputGUI($lng->txt("exc_max_team_size"), "max_team_members_by_participants");
+            $max_team_members_by_participants->setSize(3);
+            $max_team_members_by_participants->setInfo($this->lng->txt('exc_max_team_size_info'));
+            $max_team_members_by_participants->setMinValue(1);
+            $max_team_members_by_participants->setRequired(false);
+            $max_team_members_by_participants->setSuffix($lng->txt("exc_participants"));
+            $radio_participants->addSubItem($max_team_members_by_participants);
+            // fau.
 
             $radio_tutors = new ilRadioOption(
                 $lng->txt("exc_team_by_tutors"),
@@ -386,6 +449,29 @@ class ilExAssignmentEditorGUI
             $form->addItem($ne);
         }
 
+        // fau: exMaxPoints - add form element
+        $max_points_tgl = new ilCheckboxInputGUI($lng->txt("exc_limit_points"), "max_points_tgl");
+        $form->addItem($max_points_tgl);
+        $max_points = new ilNumberInputGUI($lng->txt("exc_max_points"), "max_points");
+        $max_points->setInfo($lng->txt("exc_max_points_info"));
+        $max_points->setRequired(true);
+        $max_points->setSize(3);
+        $max_points_tgl->addSubItem($max_points);
+        // fau.
+
+        // fau: exStatement - add form element
+        if (!$ass_type->usesTeams()) {
+            $statement = new ilCheckboxInputGUI($this->lng->txt("exc_require_authorship_statement"), "require_authorship_statement");
+            $statement->setValue(1);
+            $statement->setInfo($this->lng->txt("exc_require_authorship_statement_desc"));
+            if ($a_mode == 'create') {
+                $exc_set = new ilSetting("excs");
+                $statement->setChecked($exc_set->get("require_authorship_statement", false));
+            }
+            $form->addItem($statement);
+        }
+        // fau.
+
         // Work Instructions
         $sub_header = new ilFormSectionHeaderGUI();
         $sub_header->setTitle($lng->txt("exc_work_instructions"), "work_instructions");
@@ -394,7 +480,12 @@ class ilExAssignmentEditorGUI
         $desc_input = new ilTextAreaInputGUI($lng->txt("exc_instruction"), "instruction");
         $desc_input->setRows(20);
         $desc_input->setUseRte(true);
-        $desc_input->setRteTagSet("mini");
+        // fau: exInstRte - allow latex and set the allowed tags according to the administration settings
+        $desc_input->addPlugin("latex");
+        $desc_input->addButton("latex");
+        $desc_input->setRTESupport(ilObject::_lookupObjId((int) $_GET['ref_id']), "exc", "exc_ass");
+        $desc_input->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("exc_ass"));
+        // fau.
         $form->addItem($desc_input);
 
         // files
@@ -434,6 +525,27 @@ class ilExAssignmentEditorGUI
         $deadline2->setShowTime(true);
         $deadline->addSubItem($deadline2);
 
+        // fau: exGradeTime - property elements for grade time
+        // grade time y/n
+        $grade_time_cb = new ilCheckboxInputGUI($lng->txt("exc_grade_time"), "grade_time_cb");
+        $grade_time_cb->setInfo($lng->txt('exc_grade_time_info'));
+        $form->addItem($grade_time_cb);
+        // grade start
+        $grade_start = new ilDateTimeInputGUI($lng->txt("exc_grade_start"), "grade_start");
+        $grade_start->setShowTime(true);
+        $grade_time_cb->addSubItem($grade_start);
+        // fau.
+
+        // fau: exResTime - property elements for result time
+        // result time y/n
+        $result_time_cb = new ilCheckboxInputGUI($lng->txt("exc_result_time"), "result_time_cb");
+        $result_time_cb->setInfo($lng->txt('exc_result_time_info'));
+        $form->addItem($result_time_cb);
+        // result time
+        $result_time = new ilDateTimeInputGUI($lng->txt("date"), "result_time");
+        $result_time->setShowTime(true);
+        $result_time_cb->addSubItem($result_time);
+        // fau.
 
         // submit reminder
         $rmd_submit = new ilCheckboxInputGUI($this->lng->txt("exc_reminder_submit_setting"), "rmd_submit_status");
@@ -496,7 +608,9 @@ class ilExAssignmentEditorGUI
 
 
         // max number of files
-        if ($ass_type->usesFileUpload()) {
+        // fau: exAssHook: don't add upload settings if type has its own submission
+        if ($ass_type->usesFileUpload() && ! $this->type_has_own_submission) {
+            // fau.
             $sub_header = new ilFormSectionHeaderGUI();
             $sub_header->setTitle($ass_type->getTitle());
             $form->addItem($sub_header);
@@ -509,6 +623,17 @@ class ilExAssignmentEditorGUI
             $max_file->setSize(3);
             $max_file->setMinValue(1);
             $max_file_tgl->addSubItem($max_file);
+
+            // fau: exFileSuffixes - add form controls
+            $file_suffixes = new ilTextInputGUI($lng->txt('exc_file_suffixes'), 'file_suffixes');
+            $file_suffixes->setInfo($lng->txt("exc_file_suffixes_info"));
+            $file_suffixes->setMaxLength(250);
+            $form->addItem($file_suffixes);
+
+            $file_suffixes_case = new ilCheckboxInputGUI($lng->txt('exc_file_suffixes_case_checked'), 'file_suffixes_case');
+            $file_suffixes_case->setChecked(isset($this->assignment) ? $this->assignment->getFileSuffixesCase() : false);
+            $file_suffixes->addSubItem($file_suffixes_case);
+            // fau.
         }
 
         // after submission
@@ -525,15 +650,23 @@ class ilExAssignmentEditorGUI
         
         
         // global feedback
-        
-        $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
-        $form->addItem($fb);
-        
-        $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
-        $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
-        // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
-        $fb->addSubItem($fb_file);
-        
+
+        // fau: exAssHook - don't add feedback upload if type has its own feedback
+        if ($this->type_has_own_feedback) {
+            $fb = new ilNonEditableValueGUI($lng->txt("exc_global_feedback_file"), "fb");
+            $form->addItem($fb);
+        }
+        else {
+            $fb = new ilCheckboxInputGUI($lng->txt("exc_global_feedback_file"), "fb");
+            $form->addItem($fb);
+
+            $fb_file = new ilFileInputGUI($lng->txt("file"), "fb_file");
+            $fb_file->setRequired(true); // will be disabled on update if file exists - see getAssignmentValues()
+            // $fb_file->setAllowDeletion(true); makes no sense if required (overwrite or keep)
+            $fb->addSubItem($fb_file);
+        }
+        // fau.
+
         $fb_date = new ilRadioGroupInputGUI($lng->txt("exc_global_feedback_file_date"), "fb_date");
         $fb_date->setRequired(true);
         $fb_date->addOption(new ilRadioOption($lng->txt("exc_global_feedback_file_date_deadline"), ilExAssignment::FEEDBACK_DATE_DEADLINE));
@@ -618,10 +751,12 @@ class ilExAssignmentEditorGUI
                     $protected_peer_review_groups = true;
                 }
             }
-            
-            if ($this->assignment->getFeedbackFile()) {
+
+            // fau: exAssHook - change feedback upload only if it is included
+            if ($this->assignment->getFeedbackFile() && !empty($a_form->getItemByPostVar("fb_file"))) {
                 $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
             }
+            // fau.
         }
         
         $valid = $a_form->checkInput();
@@ -738,6 +873,42 @@ class ilExAssignmentEditorGUI
                 }
             }
 
+            // fau: exGradeTime - checks for grading time
+            $grade_start = null;
+            if ($a_form->getInput("grade_time_cb")) {
+                $grade_start_obj = $a_form->getItemByPostVar("grade_start")->getDate();
+                if ($grade_start_obj instanceof ilDateTime) {
+                    $grade_start = $grade_start_obj->get(IL_CAL_UNIX);
+                }
+            }
+            // fau.
+
+            // fau: exResTime - checks for result time
+            if ($a_form->getInput("result_time_cb")) {
+                $result_date_obj = $a_form->getItemByPostVar("result_time")->getDate();
+                if ($result_date_obj instanceof ilDateTime) {
+                    $result_date = $a_form->getItemByPostVar("result_time")->getDate()->get(IL_CAL_UNIX);
+                }
+
+                if ($a_form->getInput("deadline_cb")) {
+                    $result_min_date = $a_form->getItemByPostVar("deadline")->getDate()->get(IL_CAL_UNIX);
+                    if ($result_date < $result_min_date) {
+                        $a_form->getItemByPostVar("result_time")
+                            ->setAlert($lng->txt("exc_result_time_should_be_after_end_date"));
+                        $valid = false;
+                    }
+                }
+
+                if ($a_form->getInput("peer")) {
+                    $a_form->getItemByPostVar("result_time_cb")
+                        ->setAlert($lng->txt("exc_result_time_not_for_peer_feedback"));
+                    $valid = false;
+                }
+            } else {
+                $result_date = null;
+            }
+            // fau.
+
             if ($ass_type->usesTeams()) {
                 if ($a_form->getInput("team_creation") == ilExAssignment::TEAMS_FORMED_BY_RANDOM &&
                     $a_form->getInput("team_creator") == ilExAssignment::TEAMS_FORMED_BY_TUTOR) {
@@ -762,18 +933,41 @@ class ilExAssignmentEditorGUI
                     "type" => $a_form->getInput("type")
                     ,"title" => trim($a_form->getInput("title"))
                     ,"instruction" => trim($a_form->getInput("instruction"))
+                    // fau: exMaxPoints - add max points to form result
+                    ,"max_points" => $a_form->getInput("max_points_tgl")
+                        ? $a_form->getInput("max_points")
+                        : null
+                    // fau.
+                    // fau: exStatement - add  requirement to form result
+                    ,"require_authorship_statement" => (bool) $a_form->getInput("require_authorship_statement")
+                    // fau.
                     // dates
                     ,"start" => $time_start
                     ,"deadline" => $time_deadline
                     ,"deadline_ext" => $time_deadline_ext
+                    // fau: exGradeTime - add grade time to form result
+                    ,"grade_start" => $grade_start
+                    // fau.
+                    // fau: exResTime - add result date to form result
+                    ,"result_time" => $result_date
+                    // fau.
                     ,"max_file" => $a_form->getInput("max_file_tgl")
                         ? $a_form->getInput("max_file")
                         : null
+                    // fau: exFileSuffixes - add file suffixes settings to form result
+                    ,"file_suffixes" => $a_form->getInput('file_suffixes')
+                    ,"file_suffixes_case" => $a_form->getInput('file_suffixes_case')
+                    // fau.
                 );
                 if (!$this->random_manager->isActivated()) {
                     $res["mandatory"] = $a_form->getInput("mandatory");
                 }
 
+                // fau: exTeamLimit - add input to form results
+                if ($a_form->getInput("team_creator") == ilExAssignment::TEAMS_FORMED_BY_PARTICIPANTS) {
+                    $res['max_team_members_by_participants'] = $a_form->getInput("max_team_members_by_participants");
+                }
+                // fau.
                 if ($a_form->getInput("team_creator") == ilExAssignment::TEAMS_FORMED_BY_TUTOR) {
                     $res['team_creator'] = $a_form->getInput("team_creator");
                     $res["team_creation"] = $a_form->getInput("team_creation");
@@ -835,7 +1029,8 @@ class ilExAssignmentEditorGUI
                 }
                 
                 // global feedback
-                if ($a_form->getInput("fb")) {
+                // fau: exAssHook - allow feedback date settings if own feedback is provided
+                if ($a_form->getInput("fb") || $this->type_has_own_feedback) {
                     $res["fb"] = true;
                     $res["fb_cron"] = $a_form->getInput("fb_cron");
                     $res["fb_date"] = $a_form->getInput("fb_date");
@@ -845,6 +1040,7 @@ class ilExAssignmentEditorGUI
                         $res["fb_file"] = $_FILES["fb_file"];
                     }
                 }
+                // fau.
                 if ($a_form->getInput("rmd_submit_status")) {
                     $res["rmd_submit_status"] = true;
                     $res["rmd_submit_start"] = $a_form->getInput("rmd_submit_start");
@@ -882,15 +1078,42 @@ class ilExAssignmentEditorGUI
             $a_ass->setMandatory($a_input["mandatory"]);
         }
 
+        // fau: exMaxPoints - set the points from the form
+        $a_ass->setMaxPoints($a_input["max_points"]);
+        // fau.
+
+        // fau: exStatement - set the requirement from the form
+        $a_ass->requireAuthorshipStatement($a_input["require_authorship_statement"]);
+        // fau.
+
         $a_ass->setStartTime($a_input["start"]);
         $a_ass->setDeadline($a_input["deadline"]);
         $a_ass->setExtendedDeadline($a_input["deadline_ext"]);
+
+        // fau: exGradeTime - set the grading time from the form
+        $a_ass->setGradeStart($a_input["grade_start"]);
+        // fau.
+
+        // fau: exResTime - set the result time from the form
+        $a_ass->setResultTime($a_input["result_time"]);
+        // fau.
         $a_ass->setDeadlineMode($a_input["deadline_mode"]);
         $a_ass->setRelativeDeadline($a_input["relative_deadline"]);
         $a_ass->setRelDeadlineLastSubmission($a_input["rel_deadline_last_subm"]);
-                                    
+
         $a_ass->setMaxFile($a_input["max_file"]);
+        // fau: exFileSuffixes - set the list of allowed file suffixes
+        $a_ass->setFileSuffixesAsList($a_input["file_suffixes"]);
+        $a_ass->setFileSuffixesCase($a_input["file_suffixes_case"]);
+        // fau.
+
         $a_ass->setTeamTutor($a_input["team_creator"]);
+
+        // fau: exTeamLimit - set the max team members
+        if ($a_input["team_creator"] == ilExAssignment::TEAMS_FORMED_BY_PARTICIPANTS) {
+           $a_ass->setMaxTeamMembers($a_input["max_team_members_by_participants"]);
+        }
+        // fau.
 
         //$a_ass->setPortfolioTemplateId($a_input['template_id']);
 
@@ -900,7 +1123,7 @@ class ilExAssignmentEditorGUI
         if (!$this->random_manager->isActivated()) {
             $a_ass->setPeerReview((bool) $a_input["peer"]);
         }
-        
+
         // peer review default values (on separate form)
         if ($is_create) {
             $a_ass->setPeerReviewMin(2);
@@ -911,13 +1134,15 @@ class ilExAssignmentEditorGUI
             $a_ass->setPeerReviewText(true);
             $a_ass->setPeerReviewRating(true);
         }
-        
-        if ($a_input["fb"]) {
+
+        // fau: exAssHook - allow feedback date settings for own feedback
+        if ($a_input["fb"] || $this->type_has_own_feedback) {
             $a_ass->setFeedbackCron($a_input["fb_cron"]); // #13380
             $a_ass->setFeedbackDate($a_input["fb_date"]);
             $a_ass->setFeedbackDateCustom($a_input["fb_date_custom"]);
         }
-        
+        // fau.
+
         // id needed for file handling
         if ($is_create) {
             $a_ass->save();
@@ -1050,6 +1275,18 @@ class ilExAssignmentEditorGUI
         $values["title"] = $this->assignment->getTitle();
         $values["mandatory"] = $this->assignment->getMandatory();
         $values["instruction"] = $this->assignment->getInstruction();
+
+        // fau: exMaxPoints - set the form values for max points
+        if ($this->assignment->getMaxPoints()) {
+            $values["max_points_tgl"] = true;
+            $values["max_points"] = $this->assignment->getMaxPoints();
+        }
+        // fau.
+
+        // fau: exStatement - set the form values for requirement
+        $values["require_authorship_statement"] = $this->assignment->isAuthorshipStatementRequired();
+        // fau.
+
         //$values['template_id'] = $this->assignment->getPortfolioTemplateId();
 
         //if($this->assignment->getPortfolioTemplateId())
@@ -1071,16 +1308,40 @@ class ilExAssignmentEditorGUI
         if ($this->assignment->getStartTime()) {
             $values["start_time"] = new ilDateTime($this->assignment->getStartTime(), IL_CAL_UNIX);
         }
-        
-        if ($this->assignment->getAssignmentType()->usesFileUpload()) {
-            if ($this->assignment->getMaxFile()) {
-                $values["max_file_tgl"] = true;
-                $values["max_file"] = $this->assignment->getMaxFile();
+
+        // fau: exGradeTime - set the checkbox for grade time
+        if ($this->assignment->getGradeStart() > 0) {
+            $values["grade_time_cb"] = true;
+        }
+        // fau.
+
+        // fau: exResTime - set the checkbox for result time
+        if ($this->assignment->getResultTime() > 0) {
+            $values["result_time_cb"] = true;
+        }
+        // fau.
+
+        if ($this->assignment->getType() == ilExAssignment::TYPE_UPLOAD ||
+            $this->assignment->getType() == ilExAssignment::TYPE_UPLOAD_TEAM) {
+            if ($this->assignment->getAssignmentType()->usesFileUpload()) {
+                if ($this->assignment->getMaxFile()) {
+                    $values["max_file_tgl"] = true;
+                    $values["max_file"] = $this->assignment->getMaxFile();
+                }
             }
         }
-                    
+
+        // fau: exFileSuffixes - set the form value
+        $values['file_suffixes'] = $this->assignment->getFileSuffixesAsList();
+        $values['file_suffixes_case'] = $this->assignment->getFileSuffixesCase();
+        // fau.
+
         if ($this->assignment->getAssignmentType()->usesTeams()) {
             $values["team_creator"] = $this->assignment->getTeamTutor();
+
+            // fau: exTeamLimit - set the form value
+            $values["max_team_members_by_participants"] = $this->assignment->getMaxTeamMembers();
+            // fau.
         }
 
         if ($this->assignment->getFeedbackDateCustom()) {
@@ -1115,9 +1376,26 @@ class ilExAssignmentEditorGUI
 
 
         $a_form->setValuesByArray($values);
-        
+
+        // fau: exGradeTime - set the data for grading time
+        if ($this->assignment->getGradeStart() > 0) {
+            $grade_start_date = new ilDateTime($this->assignment->getGradeStart(), IL_CAL_UNIX);
+            $grade_start_item = $a_form->getItemByPostVar("grade_start");
+            $grade_start_item->setDate($grade_start_date);
+        }
+        // fau.
+
+        // fau: exResTime - set the data for result time
+        if ($this->assignment->getResultTime() > 0) {
+            $edit_date = new ilDateTime($this->assignment->getResultTime(), IL_CAL_UNIX);
+            $ed_item = $a_form->getItemByPostVar("result_time");
+            $ed_item->setDate($edit_date);
+        }
+        // fau.
+
         // global feedback
-        if ($this->assignment->getFeedbackFile()) {
+        // fau: exAssHook - don't check feedback file it type has its own general feedback
+        if (!$this->type_has_own_feedback && $this->assignment->getFeedbackFile()) {
             $a_form->getItemByPostVar("fb")->setChecked(true);
             $a_form->getItemByPostVar("fb_file")->setValue(basename($this->assignment->getGlobalFeedbackFilePath()));
             $a_form->getItemByPostVar("fb_file")->setRequired(false); // #15467
@@ -1127,6 +1405,7 @@ class ilExAssignmentEditorGUI
                 $lng->txt("download") . '</a>'
             );
         }
+        // fau.
         $a_form->getItemByPostVar("fb_cron")->setChecked($this->assignment->hasFeedbackCron());
         $a_form->getItemByPostVar("fb_date")->setValue($this->assignment->getFeedbackDate());
                         
@@ -1350,6 +1629,12 @@ class ilExAssignmentEditorGUI
             $lng->txt("exc_instruction_files"),
             $ilCtrl->getLinkTargetByClass(array("ilexassignmenteditorgui", "ilexassignmentfilesystemgui"), "listFiles")
         );
+
+        // fau: exAssHook - handle the editor tabs
+        $typeGUI = $this->type_guis->getById($this->assignment->getType());
+        $typeGUI->setAssignment($this->assignment);
+        $typeGUI->handleEditorTabs($this->tabs);
+        // fau.
     }
     
     public function downloadGlobalFeedbackFileObject()
@@ -1373,7 +1658,7 @@ class ilExAssignmentEditorGUI
     {
         $ilCtrl = $this->ctrl;
         $lng = $this->lng;
-        
+
         $form = new ilPropertyFormGUI();
         $form->setTitle($lng->txt("exc_peer_review"));
         $form->setFormAction($ilCtrl->getFormAction($this));
@@ -1470,7 +1755,7 @@ class ilExAssignmentEditorGUI
         $def->addSubItem($peer_file);
                         
         // catalogues
-        
+
         $cat_objs = ilExcCriteriaCatalogue::getInstancesByParentId($this->exercise_id);
         if (sizeof($cat_objs)) {
             foreach ($cat_objs as $cat_obj) {

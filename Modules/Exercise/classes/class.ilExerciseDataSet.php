@@ -84,6 +84,9 @@ class ilExerciseDataSet extends ilDataSet
                         "NrMandatoryRandom" => "integer",
                         "ShowSubmissions" => "integer",
                         "ComplBySubmission" => "integer",
+                        // fau: exNotify - add feedback notifiction to export structure
+                        'FeedbackNotification' => "integer",
+                        // fau.
                         "Tfeedback" => "integer"
                     );
             }
@@ -146,6 +149,9 @@ class ilExerciseDataSet extends ilDataSet
                         ,"FeedbackCron" => "integer"
                         ,"FeedbackDate" => "integer"
                         ,"FeedbackDir" => "directory"
+                        // fau: exResTime - add result time to export structure
+                        ,"ResultTime" => "integer"
+                        // fau.
                     );
                     
                 case "5.1.0":
@@ -180,6 +186,9 @@ class ilExerciseDataSet extends ilDataSet
                         ,"FeedbackCron" => "integer"
                         ,"FeedbackDate" => "integer"
                         ,"FeedbackDir" => "directory"
+                        // fau: exResTime - add result time to export structure
+                        ,"ResultTime" => "integer"
+                        // fau.
                     );
                 case "5.3.0":
                     return array(
@@ -218,6 +227,25 @@ class ilExerciseDataSet extends ilDataSet
                         ,"DeadlineMode" => "integer"
                         ,"RelativeDeadline" => "integer"
                         ,"RelDeadlineLastSubm" => "integer"
+                        // fau: exGradeTime - add grade time to export structure
+                        ,"GradeStart" => "integer"
+                        // fau.
+                        // fau: exResTime - add result time to export structure
+                        ,"ResultTime" => "integer"
+                        // fau.
+                        // fau: exTeamLimit - add max team members to export structure
+                        ,"MaxTeamMembers" => "integer"
+                        // fau.
+                        // fau: exMaxPoints - add max points to export structure
+                        ,"MaxPoints" => "float"
+                        // fau.
+                        // fau: exStatement - add  requirement to export structure
+                        ,"RequireAuthorshipStatement" => "integer"
+                        // fau.
+                        // fau: exFileSuffixes - add suffix fields to export structure
+                        ,"FileSuffixes" => "text"
+                        ,"FileSuffixesCase" => "integer"
+                        // fau.
                     );
             }
         }
@@ -320,10 +348,12 @@ class ilExerciseDataSet extends ilDataSet
                 
                 case "5.2.0":
                 case "5.3.0":
+                    // fau: exNotify - query for feedback notification
                     $this->getDirectDataFromQuery("SELECT exc_data.obj_id id, title, description," .
-                        " pass_mode, pass_nr, show_submissions, compl_by_submission, tfeedback,nr_mandatory_random" .
+                        " pass_mode, pass_nr, show_submissions, compl_by_submission, feedback_notification, tfeedback,nr_mandatory_random" .
                         " FROM exc_data JOIN object_data ON (exc_data.obj_id = object_data.obj_id)" .
                         " WHERE " . $ilDB->in("exc_data.obj_id", $a_ids, false, "integer"));
+                    // fau.
                     break;
             }
         }
@@ -349,6 +379,9 @@ class ilExerciseDataSet extends ilDataSet
                     $this->getDirectDataFromQuery("SELECT id, exc_id exercise_id, type, time_stamp deadline," .
                         " instruction, title, start_time, mandatory, order_nr, peer, peer_min, peer_dl peer_deadline," .
                         " peer_file, peer_prsl peer_personal, fb_file feedback_file, fb_cron feedback_cron, fb_date feedback_date" .
+                        // fau: exResTime - query for result time at export
+                        ",res_time result_time" .
+                        // fau.
                         " FROM exc_assignment" .
                         " WHERE " . $ilDB->in("exc_id", $a_ids, false, "integer"));
                     break;
@@ -361,6 +394,25 @@ class ilExerciseDataSet extends ilDataSet
                         " peer_dl peer_deadline, peer_file, peer_prsl peer_personal, peer_char, peer_unlock, peer_valid," .
                         " peer_text, peer_rating, peer_crit_cat, fb_file feedback_file, fb_cron feedback_cron, fb_date feedback_date," .
                         " fb_date_custom, rel_deadline_last_subm, deadline_mode, relative_deadline" .
+                        // fau: exGradeTime - query for grade time at export
+                        ",grade_start" .
+                        // fau.
+                        // fau: exResTime - query for result time at export
+                        ",res_time result_time" .
+                        // fau.
+                        // fau: exTeamLimit - query for max team members at export
+                        ",max_team_members" .
+                        // fau.
+                        // fau: exMaxPoints - query for max points at export
+                        ",max_points" .
+                        // fau.
+                        // fau: exStatement - query for require at export
+                        ",require_authorship_statement" .
+                        // fau.
+                        // fau: exFileSuffixes - query for file suffixes at export
+                        ",file_suffixes" .
+                        ",file_suffixes_case" .
+                        // fau.
                         " FROM exc_assignment" .
                         " WHERE " . $ilDB->in("exc_id", $a_ids, false, "integer"));
                     break;
@@ -442,9 +494,22 @@ class ilExerciseDataSet extends ilDataSet
                 $a_set["Deadline2"] = $deadline->get(IL_CAL_DATETIME, '', 'UTC');
             }
 
+            // fau: exGradeTime - convert grade time to utc
+            if ($a_set["GradeStart"] != "") {
+                $grade_start = new ilDateTime($a_set["GradeStart"], IL_CAL_UNIX);
+                $a_set["GradeStart"] = $grade_start->get(IL_CAL_DATETIME, '', 'UTC');
+            }
+            // fau.
+
+            // fau: exResTime - convert result time to utc
+            if ($a_set["ResultTime"] != "") {
+                $result_time = new ilDateTime($a_set["ResultTime"], IL_CAL_UNIX);
+                $a_set["ResultTime"] = $result_time->get(IL_CAL_DATETIME, '', 'UTC');
+            }
+            // fau.
             $fstorage = new ilFSStorageExercise($a_set["ExerciseId"], $a_set["Id"]);
             $a_set["Dir"] = $fstorage->getPath();
-            
+
             $fstorage = new ilFSStorageExercise($a_set["ExerciseId"], $a_set["Id"]);
             $a_set["FeedbackDir"] = $fstorage->getGlobalFeedbackPath();
 
@@ -543,6 +608,9 @@ class ilExerciseDataSet extends ilDataSet
                 $newObj->setShowSubmissions($a_rec["ShowSubmissions"]);
                 $newObj->setCompletionBySubmission($a_rec["ComplBySubmission"]);
                 $newObj->setTutorFeedback($a_rec["Tfeedback"]);
+                // fau: exNotify - import feedback notification
+                $newObj->setFeedbackNotification($a_rec["FeedbackNotification"]);
+                // fau.
                 $newObj->update();
                 $newObj->saveData();
                 $this->current_exc = $newObj;
@@ -579,7 +647,19 @@ class ilExerciseDataSet extends ilDataSet
                         $deadline = new ilDateTime($a_rec["Deadline"], IL_CAL_DATETIME, "UTC");
                         $ass->setDeadline($deadline->get(IL_CAL_UNIX));
                     }
-                    
+
+                    // fau: exGradeTime - convert result time to utc
+                    if ($a_rec["GradeStart"] != "") {
+                        $grade_start = new ilDateTime($a_rec["GradeStart"], IL_CAL_DATETIME, "UTC");
+                        $ass->setGradeStart($grade_start->get(IL_CAL_UNIX));
+                    }
+                    // fau.
+                    // fau: exResTime - convert result time to utc
+                    if ($a_rec["ResultTime"] != "") {
+                        $result_time = new ilDateTime($a_rec["ResultTime"], IL_CAL_DATETIME, "UTC");
+                        $ass->setResultTime($result_time->get(IL_CAL_UNIX));
+                    }
+                    // fau.
                     $ass->setInstruction($a_rec["Instruction"]);
                     $ass->setTitle($a_rec["Title"]);
                     $ass->setMandatory($a_rec["Mandatory"]);
@@ -618,6 +698,23 @@ class ilExerciseDataSet extends ilDataSet
                     $ass->setRelDeadlineLastSubmission($a_rec["RelDeadlineLastSubm"]);
                     $ass->setDeadlineMode($a_rec["DeadlineMode"]);
                     $ass->setRelativeDeadline($a_rec["RelativeDeadline"]);
+
+                    // fau: exTeamLimit - import data
+                    $ass->setMaxTeamMembers($a_rec["MaxTeamMembers"]);
+                    // fau.
+
+                    // fau: exMaxPoints - import data
+                    $ass->setMaxPoints($a_rec["MaxPoints"]);
+                    // fau.
+
+                    // fau: exStatement - import data
+                    $ass->requireAuthorshipStatement($a_rec["RequireAuthorshipStatement"]);
+                    // fau.
+
+                    // fau: exFileSuffixes - import data
+                    $ass->setFileSuffixesAsList($a_rec["FileSuffixes"]);
+                    $ass->setFileSuffixesCase($a_rec["FileSuffixesCase"]);
+                    // fau.
 
                     // criteria catalogue
                     if ($a_rec["PeerCritCat"]) {

@@ -14,6 +14,9 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
  * @ilCtrl_Calls ilObjCategoryGUI: ilColumnGUI, ilObjectCopyGUI, ilUserTableGUI, ilDidacticTemplateGUI, ilExportGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilObjTaxonomyGUI, ilObjectMetaDataGUI, ilContainerNewsSettingsGUI, ilContainerFilterAdminGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilRepUtilGUI
+ * fau: univisImport - add UnivIS import to the control structure
+ * @ilCtrl_Calls ilObjCategoryGUI: ilUnivisImportLecturesGUI
+ * fau.
  * @ingroup      ModulesCategory
  */
 class ilObjCategoryGUI extends ilContainerGUI
@@ -87,8 +90,17 @@ class ilObjCategoryGUI extends ilContainerGUI
 
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
-        
+
         switch ($next_class) {
+            // fau: univisImport - call Univis Import GUI
+            case "ilunivisimportlecturesgui":
+                $this->prepareOutput();
+                include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
+                $this->gui_obj = new ilUnivISImportLecturesGUI($this);
+                $ret = &$this->ctrl->forwardCommand($this->gui_obj);
+                break;
+            // fau.
+
 
             case strtolower(ilRepUtilGUI::class):
                 $ru = new \ilRepUtilGUI($this);
@@ -138,10 +150,18 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $this->checkPermission("read");
                 $this->prepareOutput();
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+// fau: inheritContentStyle - get the effective content style by ref_id
                 $this->tpl->setVariable(
                     "LOCATION_CONTENT_STYLESHEET",
-                    ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+                    ilObjStyleSheet::getContentStylePath(
+                        ilObjStyleSheet::getEffectiveContentStyleId(
+                            $this->object->getStyleSheetId(),
+                            $this->object->getType(),
+                            $this->object->getRefId()
+                        )
+                    )
                 );
+// fau.
                 $this->renderObject();
                 break;
 
@@ -287,10 +307,18 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $this->prepareOutput();
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
                 if (is_object($this->object)) {
+                    // fau: inheritContentStyle - get the effective content style by ref_id
                     $this->tpl->setVariable(
                         "LOCATION_CONTENT_STYLESHEET",
-                        ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+                        ilObjStyleSheet::getContentStylePath(
+                            ilObjStyleSheet::getEffectiveContentStyleId(
+                                $this->object->getStyleSheetId(),
+                                $this->object->getType(),
+                                $this->object->getRefId()
+                            )
+                        )
                     );
+                    // fau.
                 }
 
                 if (!$cmd) {

@@ -16,11 +16,13 @@
 	<Field global="YES" store="YES" index="ANALYZED" column="file_name" type="text" name="propertyHigh">
 		<Transformer name="FilenameExtractor" />
 	</Field>
-	<DataSource type="File" action="append">
-		<PathCreator name="FileListPathCreator41" />
-		<Field store="YES" index="ANALYZED" name="content">
-			<Transformer name="LinefeedSanitizer" />
-		</Field>
-	</DataSource>
+<!-- fau: reduceIndex - don't add file
+        <DataSource type="File" action="append">
+            <PathCreator name="FileListPathCreator41" />
+            <Field store="YES" index="ANALYZED" name="content">
+                <Transformer name="LinefeedSanitizer" />
+            </Field>
+        </DataSource>
+fau. -->
 </DataSource>
  

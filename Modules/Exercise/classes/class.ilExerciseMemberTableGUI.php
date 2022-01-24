@@ -97,6 +97,13 @@ class ilExerciseMemberTableGUI extends ilExerciseSubmissionTableGUI
                 }
                                 
                 $tmp[$team_id]["team"][$item["usr_id"]] = $item["name"];
+
+                // fau: exTeamSort - provide name field for team
+                $team_names = explode("|", (string) $tmp[$team_id]['name']);
+                $team_names[] = (string) $item["name"];
+                sort($team_names);
+                $tmp[$team_id]['name'] = implode('|', $team_names);
+                // fau.
                 
                 if (is_numeric($team_id)) {
                     $idl_team_id = "t" . $team_id;
@@ -213,7 +220,9 @@ class ilExerciseMemberTableGUI extends ilExerciseSubmissionTableGUI
             $cols["name"] = array($this->lng->txt("name"), "name");
             $cols["login"] = array($this->lng->txt("login"), "login");
         } else {
-            $cols["name"] = array($this->lng->txt("exc_tbl_team"));
+            // fau: exTeamSort -make team column sortable
+            $cols["name"] = array($this->lng->txt("exc_tbl_team"),'name');
+            // fau.
         }
                 
         if ($this->ass->hasActiveIDl()) {

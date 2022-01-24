@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Files found with
+# fgrep -r -l -e 'fau:' -e 'fim:' | grep \.php$ >Customizing/found-fimfau.log
+# removed Customizing contents
+
+for file in `cat Customizing/local-changes.log`
+do
+    echo $file
+    libs/composer/vendor/bin/php-cs-fixer fix  --using-cache=no  --config=./CI/PHP-CS-Fixer/code-format.php_cs $file
+done

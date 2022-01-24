@@ -628,7 +628,9 @@ body.ilc_text_block_TableContent {
 }
 div.ilc_qtitle_Title {
   font-weight: normal;
-  font-size: 140%;
+  /* fau: contentStyle: normal question title */
+  font-size: 100%;
+  /* fau. */
   margin-bottom: 20px;
 }
 div.ilc_sco_title_Title {
@@ -671,7 +673,7 @@ div.ilc_va_icont_VAccordICont {
   background-color: #FFFFFF;
 }
 div.ilc_va_ihead_VAccordIHead {
-  text-transform: uppercase;
+  /* fau: contentStyle - avoid uppcase in accordions */
   font-size: 20px;
   padding-right: 3px;
   background-color: #f9f9f9;
@@ -1085,7 +1087,7 @@ div.ilc_va_iheada_VAccordIHeadActive {
   padding-bottom: 3px;
   color: #434343;
   background-color: #f9f9f9;
-  text-transform: uppercase;
+  /* fau: contentStyle: no uppercase in accordions. */
   padding-right: 3px;
 }
 div.ilc_va_iheada_VAccordIHeadActive:hover {

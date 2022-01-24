@@ -1060,7 +1060,7 @@ class ilCalendarCategories
                 $course_ids[] = $this->categories_info[$cat_id]['obj_id'];
             }
         }
-        
+        // fau: calQuery - omit the condition for od1.type (already checked above)
         $query = "SELECT od2.obj_id sess_id, od1.obj_id crs_id,cat_id, or2.ref_id sess_ref_id FROM object_data od1 " .
             "JOIN object_reference or1 ON od1.obj_id = or1.obj_id " .
             "JOIN tree t ON or1.ref_id = t.parent " .
@@ -1068,10 +1068,10 @@ class ilCalendarCategories
             "JOIN object_data od2 ON or2.obj_id = od2.obj_id " .
             "JOIN cal_categories cc ON od2.obj_id = cc.obj_id " .
             "WHERE " . $ilDB->in('od2.type', array('sess','exc'), false, 'text') .
-            "AND (od1.type = 'crs' OR od1.type = 'grp') " .
             "AND " . $ilDB->in('od1.obj_id', $course_ids, false, 'integer') . ' ' .
             "AND or2.deleted IS NULL";
-        
+        // fau.
+
         $res = $ilDB->query($query);
         $cat_ids = array();
         $course_sessions = array();

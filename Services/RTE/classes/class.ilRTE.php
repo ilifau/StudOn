@@ -242,11 +242,17 @@ class ilRTE
                 if (preg_match_all('/src="il_([0-9]+)_mob_([0-9]+)"/', $a_text, $matches)) {
                     foreach ($matches[2] as $idx => $mob) {
                         if (ilObject::_lookupType($mob) == "mob") {
-                            $mob_obj = new ilObjMediaObject($mob);
-                            $replace = "il_" . $matches[1][$idx] . "_mob_" . $mob;
-                            require_once('./Services/WebAccessChecker/classes/class.ilWACSignedPath.php');
-                            $path_to_file = ilWACSignedPath::signFile(ILIAS_HTTP_PATH . "/data/" . CLIENT_ID . "/mobs/mm_" . $mob . "/" . $mob_obj->getTitle());
-                            $resulttext = str_replace("src=\"$replace\"", "src=\"" . $path_to_file . "\"", $resulttext);
+                            // fau: fixRemoveTrashed  - fault tolerance for ilSurvey::loadFromDb()
+                            try {
+                                $mob_obj = new ilObjMediaObject($mob);
+                                $replace = "il_" . $matches[1][$idx] . "_mob_" . $mob;
+                                require_once('./Services/WebAccessChecker/classes/class.ilWACSignedPath.php');
+                                $path_to_file = ilWACSignedPath::signFile(ILIAS_HTTP_PATH . "/data/" . CLIENT_ID . "/mobs/mm_" . $mob . "/" . $mob_obj->getTitle());
+                                $resulttext = str_replace("src=\"$replace\"", "src=\"" . $path_to_file . "\"", $resulttext);
+                            }
+                            catch (Exception $e) {
+                            }
+                            // fau.
                         }
                     }
                 }

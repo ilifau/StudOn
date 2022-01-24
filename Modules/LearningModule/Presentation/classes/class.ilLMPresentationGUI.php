@@ -982,6 +982,12 @@ class ilLMPresentationGUI
                 $tpl_menu->setVariable("EDIT_TXT", $this->lng->txt("edit_page"));
                 $tpl_menu->setVariable("EDIT_TARGET", $buttonTarget);
                 $tpl_menu->parseCurrentBlock();
+
+                // fau: relativeLink - add to lm page if write access
+                $rlink = new ilRelativeLinkGUI();
+                $rlink->setTarget(ilRelativeLink::TYPE_LM_PAGE, $page_id);
+                $tpl_menu->setVariable("RELATIVE_LINK", $rlink->getHTML(true));
+                // fau.
             }
 
             $page_id = $this->getCurrentPageId();
@@ -1414,8 +1420,14 @@ class ilLMPresentationGUI
     protected function setContentStyles()
     {
         // content style
-
-        $this->tpl->addCss(ilObjStyleSheet::getContentStylePath($this->lm->getStyleSheetId()));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $this->tpl->addCss(ilObjStyleSheet::getContentStylePath(
+            ilObjStyleSheet::getEffectiveContentStyleId(
+                $this->lm->getStyleSheetId(),
+                $this->lm->getType(),
+                $this->lm->getRefId()
+            )));
+        // fau.
         $this->tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());
 
         /*
@@ -1596,10 +1608,13 @@ class ilLMPresentationGUI
      */
     public function basicPageGuiInit(\ilLMPageGUI $a_page_gui)
     {
+        // fau: inheritContentStyle - add ref_id
         $a_page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
             $this->lm->getStyleSheetId(),
-            "lm"
+            "lm",
+            $this->lm->getRefId()
         ));
+        // fau.
         if (!$this->offlineMode()) {
             $a_page_gui->setOutputMode("presentation");
             $this->fill_on_load_code = true;
@@ -2340,11 +2355,13 @@ class ilLMPresentationGUI
         if ($this->lm->getHeaderPage() > 0 && !$this->lm->getHideHeaderFooterPrint()) {
             if (ilLMObject::_exists($this->lm->getHeaderPage())) {
                 $page_object_gui = $this->getLMPageGUI($this->lm->getHeaderPage());
+                // fau: inheritContentStyle - add ref_id
                 $page_object_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
                     $this->lm->getStyleSheetId(),
-                    "lm"
+                    "lm",
+                    $this->lm->getRefId()
                 ));
-
+                // fau.
     
                 // determine target frames for internal links
                 $page_object_gui->setLinkFrame($this->requested_frame);
@@ -2459,11 +2476,13 @@ class ilLMPresentationGUI
                     $page_id = $node["obj_id"];
                     $page_object_gui = $this->getLMPageGUI($page_id);
                     $page_object = $page_object_gui->getPageObject();
+                    // fau: inheritContentStyle - add ref_id
                     $page_object_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
                         $this->lm->getStyleSheetId(),
-                        "lm"
+                        "lm",
+                        $this->lm->getRefId()
                     ));
-
+                    // fau.
 
                     // get lm page
                     $lm_pg_obj = new ilLMPageObject($this->lm, $page_id);

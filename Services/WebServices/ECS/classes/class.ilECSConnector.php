@@ -585,6 +585,14 @@ class ilECSConnector
             $this->curl->setOpt(CURLOPT_VERBOSE, 1);
             $this->curl->setOpt(CURLOPT_TIMEOUT_MS, 2000);
 
+            // fau: ecsProxy - use configured proxy server for ecs connections
+            if (ilProxySettings::_getInstance()->isActive()) {
+            $this->curl->setOpt(CURLOPT_HTTPPROXYTUNNEL, true);
+            $this->curl->setOpt(CURLOPT_PROXY, ilProxySettings::_getInstance()->getHost());
+            $this->curl->setOpt(CURLOPT_PROXYPORT, ilProxySettings::_getInstance()->getPort());
+            }
+            // fau.
+
             switch ($this->getServer()->getAuthType()) {
                 case ilECSSetting::AUTH_APACHE:
                     $this->curl->setOpt(CURLOPT_SSL_VERIFYPEER, 0);

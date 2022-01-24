@@ -134,7 +134,7 @@ class ilQTIParser extends ilSaxParser
     }
     
     protected $questionSetType = null;
-    
+
     /**
     * Constructor
     *
@@ -215,7 +215,7 @@ class ilQTIParser extends ilSaxParser
     {
         $this->questionSetType = $questionSetType;
     }
-    
+
     public function setTestObject(&$a_tst_object)
     {
         $this->tst_object = &$a_tst_object;
@@ -1020,6 +1020,19 @@ class ilQTIParser extends ilSaxParser
             case "itemmetadata":
                 $this->in_itemmetadata = false;
                 break;
+
+            // fau: fixQtiMetaIndent - allow metadata fields being indented in XML
+            case "fieldlabel":
+                $this->metadata["label"] = $this->characterbuffer;
+                $this->characterbuffer = "";
+                break;
+            case "fieldentry":
+                $this->metadata["entry"] = $this->characterbuffer;
+                $this->characterbuffer = "";
+                break;
+            // fau.
+
+
             case "qtimetadatafield":
                 // handle only specific ILIAS metadata
                 switch ($this->metadata["label"]) {
@@ -1419,7 +1432,7 @@ class ilQTIParser extends ilSaxParser
     public function handlerVerifyBeginTag($a_xml_parser, $a_name, $a_attribs)
     {
         $this->qti_element = $a_name;
-        
+
         switch (strtolower($a_name)) {
             case "assessment":
                 include_once("./Services/QTI/classes/class.ilQTIAssessment.php");
@@ -1611,7 +1624,7 @@ class ilQTIParser extends ilSaxParser
         } elseif ($this->verifyfieldentry == 1) {
             $this->verifyfieldentrytext = $a_data;
         }
-        
+
         switch ($this->qti_element) {
             case "fieldlabel":
                 $this->metadata["label"] = $a_data;
@@ -1733,7 +1746,7 @@ class ilQTIParser extends ilSaxParser
     {
         return $this->numImportedItems;
     }
-    
+
     protected function isMatImageAvailable()
     {
         if (!$this->material) {

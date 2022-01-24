@@ -148,6 +148,14 @@ class ilPersonalSettingsGUI
                 $this->ctrl->getLinkTarget($this, "deleteOwnAccount1")
             );
         }
+
+        // fau: showCLientInfo - add tab
+        $ilTabs->addTab(
+            "client_info",
+            $this->lng->txt('show_client_info'),
+            $this->ctrl->getLinkTarget($this, "showClientInfo")
+        );
+        // fau.
     }
 
     /**
@@ -223,6 +231,12 @@ class ilPersonalSettingsGUI
             //	($ilUser->getAuthMode(true) != AUTH_SHIBBOLETH || !$ilSetting->get("shib_auth_allow_local"))
             //)
             $pw_info_set = false;
+
+            // fau: pwChangeForm - show username, add button and info for "password assistance
+            $login = new ilNonEditableValueGUI($lng->txt('login'), 'login');
+            $login->setValue($ilUser->getLogin());
+            $this->form->addItem($login);
+
             if ($ilUser->getAuthMode(true) == AUTH_LOCAL) {
                 // current password
                 $cpass = new ilPasswordInputGUI($lng->txt("current_password"), "current_password");
@@ -233,10 +247,19 @@ class ilPersonalSettingsGUI
                 // only if a password exists.
                 if ($ilUser->getPasswd()) {
                     $cpass->setRequired(true);
+                    $cpass->setInfo($lng->txt('current_password_info'));
+                    // the info text is replaces, so show it for the inputs belo
+                    $pw_info_set = false;
                 }
                 $this->form->addItem($cpass);
+
+                $button = ilLinkButton::getInstance();
+                $button->setCaption('forgot_password', true);
+                $button->setUrl($this->ctrl->getLinkTarget($this, 'confirmPasswordAssistance'));
+                $DIC->toolbar()->addButtonInstance($button);
             }
-            
+            // fau.
+
             // new password
             $ipass = new ilPasswordInputGUI($lng->txt("desired_password"), "new_password");
             if($pw_info_set === false) {
@@ -268,7 +291,62 @@ class ilPersonalSettingsGUI
             $this->form->setFormAction($this->ctrl->getFormAction($this));
         }
     }
-    
+
+    // fau: pwChangeForm - new function confirmPasswordAssistance()
+    /**
+     * Confirm the sending of a password assistance mail
+     */
+    protected function confirmPasswordAssistance()
+    {
+        global $DIC;
+
+        // normally we should not end up here
+        if (!$this->allowPasswordChange()) {
+            $this->ctrl->redirect($this, "showPersonalData");
+            return;
+        }
+
+        $this->__initSubTabs("showPersonalData");
+        $DIC->tabs()->activateTab("password");
+        $this->setHeader();
+
+        $gui = new ilConfirmationGUI();
+        $gui->setFormAction($DIC->ctrl()->getFormAction($this));
+        $gui->setHeaderText(sprintf($this->lng->txt('confirm_password_assistance'), $DIC->user()->getEmail()));
+        $gui->addHiddenItem('username', $DIC->user()->getLogin());
+        $gui->addHiddenItem('email', $DIC->user()->getEmail());
+
+        $gui->setConfirm($this->lng->txt('ok'), 'sendPasswordAssistanceMail');
+        $gui->setCancel($this->lng->txt('cancel'), 'showPassword');
+
+
+        $this->tpl->setContent($gui->getHTML());
+        $this->tpl->show();
+    }
+    // fau.
+
+    // fau: pwChangeForm - new function sendPasswordAssistanceMail()
+    /**
+     * Send a mail for password assistance
+     */
+    protected function sendPasswordAssistanceMail()
+    {
+        global $DIC;
+        // normally we should not end up here
+        if (!$this->allowPasswordChange()) {
+            $this->ctrl->redirect($this, "showPersonalData");
+            return;
+        }
+
+        $this->lng->loadLanguageModule('pwassist');
+        $gui = new ilPasswordAssistanceGUI();
+        $gui->sendPasswordAssistanceMail($DIC->user());
+
+        ilUtil::sendSuccess(sprintf($this->lng->txt('pwassist_mail_sent'), $DIC->user()->getEmail()));
+        $this->ctrl->redirect($this, 'showPassword');
+    }
+    // fau.
+
     /**
     * Check, whether password change is allowed for user
     */
@@ -616,8 +694,7 @@ class ilPersonalSettingsGUI
         $select->setInfo($lng->txt('cal_time_format_info'));
         $select->setValue($user_settings->getTimeFormat());
         $this->form->addItem($select);
-        
-        
+
         // starting point
         include_once "Services/User/classes/class.ilUserUtil.php";
         if (ilUserUtil::hasPersonalStartingPoint()) {
@@ -674,7 +751,58 @@ class ilPersonalSettingsGUI
         $this->form->setTitle($lng->txt("general_settings"));
         $this->form->setFormAction($this->ctrl->getFormAction($this));
     }
-    
+
+    // fau: showClientInfo - new function
+    /**
+     * Show information about the user client
+     */
+    public function showClientInfo()
+    {
+        global $DIC;
+        /** @var ilBrowser $ilBrowser */
+        $ilBrowser = $DIC['ilBrowser'];
+        $ilTabs = $DIC->tabs();
+
+        $this->__initSubTabs("showPersonalData");
+        $ilTabs->activateTab("client_info");
+
+        $this->setHeader();
+
+        $this->form = new ilPropertyFormGUI();
+
+        //$this->form->setTitle($this->lng->txt('show_client_info'));
+
+        $ip = new ilNonEditableValueGUI($this->lng->txt('ip_address'));
+        $ip->setValue($_SERVER['REMOTE_ADDR']);
+        $this->form->addItem($ip);
+
+        $bi = new ilNonEditableValueGUI($this->lng->txt('browser_desc'));
+        $bi->setValue($_SERVER['HTTP_USER_AGENT']);
+        $this->form->addItem($bi);
+
+        $ba = new ilNonEditableValueGUI($this->lng->txt('browser_agent'));
+        $ba->setValue($ilBrowser->getAgent());
+        $this->form->addItem($ba);
+
+        $bv = new ilNonEditableValueGUI($this->lng->txt('browser_version'));
+        $bv->setValue(implode('.', $ilBrowser->getVersion(true)));
+        $this->form->addItem($bv);
+
+        $bp = new ilNonEditableValueGUI($this->lng->txt('browser_platform'));
+        $bp->setValue($ilBrowser->getPlatform());
+        $this->form->addItem($bp);
+
+        $im = new ilNonEditableValueGUI($this->lng->txt('is_mobile'));
+        $im->setValue($ilBrowser->isMobile() ? $this->lng->txt('yes') : $this->lng->txt('no'));
+        $this->form->addItem($im);
+
+
+        $this->tpl->setContent($this->form->getHTML());
+        $this->tpl->show();
+    }
+    // fau.
+
+
     /**
      * Save general settings
      */

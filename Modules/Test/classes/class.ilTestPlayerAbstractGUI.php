@@ -199,6 +199,31 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
      */
     abstract public function saveQuestionSolution($authorized = true, $force = false);
 
+    // fau: fixQuestionValidateSubmit - new function handleSaveQuestionSolutionError()
+    /**
+     * Handle a validation error for saving a question solution
+     * @param assQuestion $questionOBJ
+     */
+    protected function handleSaveQuestionSolutionError($questionOBJ = null)
+    {
+        $message = '';
+        if (isset($questionOBJ)) {
+            $message = $questionOBJ->getValidateSolutionMessage();
+        }
+        if (empty($message)) {
+            $message = $this->lng->txt('validate_submit_error');
+        }
+        $message .= '<p class="small">' . $this->lng->txt('validate_submit_error_in_test_hint') . '<br />'
+            . '<a id="tst_revert_changes_link" href="' . $this->ctrl->getLinkTarget($this, ilTestPlayerCommands::REVERT_CHANGES) . '">'
+            . $this->lng->txt('tst_revert_changes') . ' &raquo;</a></p>';
+
+        ilUtil::sendFailure($message, true);
+
+        $this->setAnswerChangedParameter();
+    }
+    // fau.
+
+
     abstract protected function canSaveResult();
 
     public function suspendTestCmd()
@@ -414,10 +439,18 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
     {
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
         $this->tpl->setCurrentBlock("ContentStyle");
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->tpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath(0)
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                )
+            )
         );
+        // fau.
         $this->tpl->parseCurrentBlock();
     }
 
@@ -443,6 +476,10 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
      */
     protected function startPlayerCmd()
     {
+        // fau: testStatement - call check when test is started
+        $this->checkAuthorshipStatement();
+        // fau.
+
         $testStartLock = $this->getLockParameter();
         $isFirstTestStartRequest = false;
 
@@ -518,6 +555,33 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
         $this->ctrl->redirect($this, ilTestPlayerCommands::START_TEST);
     }
 
+    // fau: testStatement - new function checkAuthorshipStatement()
+    /**
+     * Check if a needed authorship statement is checked
+     */
+    public function checkAuthorshipStatement()
+    {
+        if (empty($_POST["chb_authorship_statement"])) {
+            if ($this->testSession->hasAuthorshipStatement()) {
+                $this->testSession->setAuthorshipStatement(false);
+                $this->testSession->saveToDb();
+            }
+
+            if ($this->object->isAuthorshipStatementRequired())
+            {
+                ilUtil::sendFailure($this->lng->txt('tst_msg_authorship_statement_required'), true);
+                $this->ctrl->redirectByClass('ilobjtestgui', 'infoScreen');
+            }
+        }
+        else {
+            if (!$this->testSession->hasAuthorshipStatement()) {
+                $this->testSession->setAuthorshipStatement(true);
+                $this->testSession->saveToDb();
+            }
+        }
+    }
+    // fau.
+
     /**
      * Handles some form parameters on starting and resuming a test
      */
@@ -534,12 +598,16 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
         
         // hide previous results
         if ($this->object->getNrOfTries() != 1) {
+            // fau: adoptPreviousSolutions - prevent a change when a random test without this checkbox is started
             if ($this->object->getUsePreviousAnswers() == 1) {
+                // fau.
+                // fau: adoptPreviousSolutions - compatibility with ilObjTest::_getUsePreviousAnswers()
                 if ($_POST["chb_use_previous_answers"]) {
-                    $ilUser->writePref("tst_use_previous_answers", 1);
+                    $ilUser->writePref("tst_use_previous_answers", true);
                 } else {
-                    $ilUser->writePref("tst_use_previous_answers", 0);
+                    $ilUser->writePref("tst_use_previous_answers", false);
                 }
+                // fau.
             }
         }
     }
@@ -1259,7 +1327,9 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
             $qstConfig->setIsUnchangedAnswerPossible($this->object->getMCScoring());
         }
 
-        if ($qstConfig->isPreviousPassSolutionReuseAllowed()) {
+        // fau: adoptPreviousSolutions - prevent appearance of checkbox and message when the solution is deleted
+        if (false && $qstConfig->isPreviousPassSolutionReuseAllowed()) {
+            // fau.
             $passIndex = $this->determineSolutionPassIndex($questionGui); // last pass having solution stored
             if ($passIndex < $this->testSession->getPass()) { // it's the previous pass if current pass is higher
                 $qstConfig->setSolutionInitiallyPrefilled(true);
@@ -1672,7 +1742,18 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
         $this->tpl->setCurrentBlock("ContentStyle");
-        $this->tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $this->tpl->setVariable(
+            "LOCATION_CONTENT_STYLESHEET",
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                )
+            )
+        );
+        // fau.
         $this->tpl->parseCurrentBlock();
 
         $this->tpl->setCurrentBlock("SyntaxStyle");
@@ -1862,6 +1943,16 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
             'tpl.il_as_tst_output.html',
             'Modules/Test'
         );
+
+        // fau: preventImageDrag - prevent dragging of images into text boxes during test (would display the image name which could be a hint)
+
+        if (ilCust::get("tst_prevent_image_drag")) {
+            require_once("Services/jQuery/classes/class.iljQueryUtil.php");
+            iljQueryUtil::initjQuery();
+            $this->tpl->addOnLoadCode("$('img').bind('dragstart', function(event) { event.preventDefault(); });");
+            $this->tpl->addOnLoadCode("$('a').bind('dragstart', function(event) { event.preventDefault(); });");
+        }
+        // fau.
     }
     
     protected function populateKioskHead()
@@ -2749,7 +2840,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
         $this->tpl->parseCurrentBlock();
     }
     // fau.
-        
+    
     protected function populateNextLocksUnchangedModal()
     {
         require_once 'Modules/Test/classes/class.ilTestPlayerConfirmationModal.php';
@@ -2820,7 +2911,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
         
         return $_SESSION[self::FOLLOWUP_QST_LOCKS_PREVENT_CONFIRMATION_PARAM];
     }
-        
+    
     // fau: testNav - new function populateQuestionEditControl
     /**
      * Populate the navigation and saving control for editable questions

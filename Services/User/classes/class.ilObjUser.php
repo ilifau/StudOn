@@ -679,6 +679,57 @@ class ilObjUser extends ilObject
              " WHERE usr_id = %s", array("integer"), array($this->getId()));
     }
 
+    // fau: samlAuth - new function _findLoginByField
+    public static function _findLoginByField($fieldname, $value)
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $query = "SELECT login FROM usr_data " .
+        "WHERE " . $fieldname . " = " . $ilDB->quote($value, 'text');
+        $result = $ilDB->query($query);
+
+        // take the first found
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['login'];
+        }
+    }
+    // fau.
+
+
+    // fau: videoPortal - new function _findUserIdByAccount
+    // fau: soapFunctions - new function _findUserIdByAccount
+    /**
+    * This will first search for the external account and then for the login
+    *
+    * @param  	string  account name
+    * @return   int     user id
+    */
+    public static function _findUserIdByAccount($account)
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        // first try the external account
+        $query = "SELECT usr_id FROM usr_data " .
+        "WHERE ext_account = " . $ilDB->quote($account, 'text');
+        $result = $ilDB->query($query);
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['usr_id'];
+        }
+
+        // then try the login
+        $query = "SELECT usr_id FROM usr_data " .
+        "WHERE login = " . $ilDB->quote($account, 'text');
+        $result = $ilDB->query($query);
+
+        if ($row = $ilDB->fetchAssoc($result)) {
+            return $row['usr_id'];
+        }
+    }
+    // fau.
+
+
     /**
     * Private function for lookup methods
     */
@@ -1437,7 +1488,11 @@ class ilObjUser extends ilObject
         
         // Delete user defined field entries
         $this->deleteUserDefinedFieldEntries();
-        
+
+        // fau: studyData - delete the study data
+        ilStudyAccess::_deleteData($this->getId());
+        // fau.
+
         // Delete clipboard entries
         $this->clipboardDeleteAll();
         
@@ -3579,12 +3634,14 @@ class ilObjUser extends ilObject
         }
 
         // For compatibility, check for login (no ext_account entry given)
+        // fau: loginFallback - allow local login with different external account
         $res = $db->queryF(
             "SELECT login FROM usr_data " .
-            "WHERE login = %s AND auth_mode = %s AND (ext_account IS NULL OR ext_account = '') ",
+            "WHERE login = %s AND auth_mode = %s ",
             array("text", "text"),
             array($a_account, $a_auth)
         );
+        // fau.
         if ($usr = $db->fetchAssoc($res)) {
             return $usr['login'];
         }
@@ -4744,9 +4801,15 @@ class ilObjUser extends ilObject
             array($a_hash)
         );
         while ($row = $ilDB->fetchAssoc($res)) {
+            // fau: regCodes - inject code into registration settings
             require_once 'Services/Registration/classes/class.ilRegistrationSettings.php';
-            $oRegSettigs = new ilRegistrationSettings();
-            
+            require_once 'Services/Registration/classes/class.ilRegistrationCode.php';
+            $oRegSettigs = ilRegistrationSettings::getInstance();
+            $oRegCode = new ilRegistrationCode(self::_lookupPref($row['usr_id'], 'registration_code'));
+            if (isset($oRegCode->code_id)) {
+                $oRegSettigs->setCodeObject($oRegCode);
+            }
+            // fau.
             if ((int) $oRegSettigs->getRegistrationHashLifetime() != 0 &&
                time() - (int) $oRegSettigs->getRegistrationHashLifetime() > strtotime($row['create_date'])) {
                 require_once 'Services/Registration/exceptions/class.ilRegConfirmationLinkExpiredException.php';
@@ -4761,7 +4824,10 @@ class ilObjUser extends ilObject
                 array('text', 'integer'),
                 array('', (int) $row['usr_id'])
             );
-            
+
+            // fau: regCodes - delete registration code from preferences when it is not longer needed
+            self::_deletePref($row['usr_id'], 'registration_code');
+            // fau.
             return (int) $row['usr_id'];
         }
         

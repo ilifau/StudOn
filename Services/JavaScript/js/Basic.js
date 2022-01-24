@@ -431,7 +431,7 @@ il.UICore = {
 	is_page_visible: true,
 
 	/**
-	 * 
+	 *
 	 * @param {boolean} status
 	 */
 	setPageVisibilityStatus: function(status) {
@@ -439,7 +439,7 @@ il.UICore = {
 	},
 
 	/**
-	 * 
+	 *
 	 * @returns {boolean}
 	 */
 	isPageVisible: function() {
@@ -700,6 +700,12 @@ il.UICore = {
 	loadWrapperToRightPanel: function (wrapper_id) {
 		this.right_panel_wrapper = wrapper_id;
 		$("#" + wrapper_id).children().appendTo('#ilRightPanel');
+
+// fau: taxDesc - enable tooltips for nodes in taxonomy selector
+        if (il.Tooltip) {
+            il.Tooltip.init();
+        }
+// fau.
 	},
 	
 	// move the right panel content back to wrapper
@@ -1091,7 +1097,9 @@ function numericInputCheck() {
 
 		// Append ilcqinput_NumericInputInvalid class for visually distinguishable numeric input fields.
 		// -> Onload.
-		let value = $( numericInput ).val().toString().replace( ',', '.' );
+		// fau: fixIos9 - use var instead of let
+		var value = $( numericInput ).val().toString().replace( ',', '.' );
+		// fau.
 		if ( value && !$.isNumeric( value ) ) {
 			$( numericInput ).addClass( 'ilcqinput_NumericInputInvalid' );
 		} else {
@@ -1099,7 +1107,9 @@ function numericInputCheck() {
 		}
 		// -> OnChange.
 		$( numericInput ).on( 'change', function() {
-			let value = $( this ).val().toString().replace( ',', '.' );
+			// fau: fixIos9 - use var instead of let
+			var value = $( this ).val().toString().replace( ',', '.' );
+			// fau.
 			if ( value && !$.isNumeric( value ) ) {
 				$( this ).addClass( 'ilcqinput_NumericInputInvalid' );
 			} else {

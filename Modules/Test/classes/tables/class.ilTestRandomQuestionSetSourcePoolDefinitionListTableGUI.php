@@ -33,7 +33,7 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
      * @var boolean
      */
     private $questionAmountColumnEnabled = null;
-    
+
     // fau: taxFilter/typeFilter - flag to show the mapped taxonomy filter instead of the original
     /**
      * @var boolean
@@ -81,7 +81,7 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
     {
         return $this->questionAmountColumnEnabled;
     }
-    
+
     // fau: taxFilter - set flag to show the mapped tayonomy filter instead of original
     public function setShowMappedTaxonomyFilter($showMappedTaxonomyFilter)
     {
@@ -130,7 +130,16 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
             $this->tpl->parseCurrentBlock();
         }
 
-        $this->tpl->setVariable('SOURCE_POOL_LABEL', $set['source_pool_label']);
+        // fau: linkRandomPool - fill the link
+        $this->tpl->setVariable('SOURCE_POOL_ID', $set['source_pool_id']);
+
+        if ($set['source_pool_link']) {
+            $this->tpl->setVariable('SOURCE_POOL_LINK', $set['source_pool_link']);
+            $this->tpl->setVariable('SOURCE_POOL_LABEL_LINKED', $set['source_pool_label']);
+        } else {
+            $this->tpl->setVariable('SOURCE_POOL_LABEL_UNLINKED', $set['source_pool_label']);
+        }
+        // fau.
         // fau: taxFilter/typeFilter - set taxonomy/type filter label in a single coulumn each
         $this->tpl->setVariable('TAXONOMY_FILTER', $this->taxonomyLabelTranslater->getTaxonomyFilterLabel($set['taxonomy_filter'], '<br />'));
         #$this->tpl->setVariable('FILTER_TAXONOMY', $this->getTaxonomyTreeLabel($set['filter_taxonomy']));
@@ -138,6 +147,16 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
         $this->tpl->setVariable('LIFECYCLE_FILTER', $this->taxonomyLabelTranslater->getLifecycleFilterLabel($set['lifecycle_filter']));
         $this->tpl->setVariable('TYPE_FILTER', $this->taxonomyLabelTranslater->getTypeFilterLabel($set['type_filter']));
         // fau.
+        // fau: taxGroupFilter - set group taxonomy label
+        if ($set['group_tax_id']) {
+            $this->tpl->setVariable('GROUP_TAXONOMY', "<br />" . $this->taxonomyLabelTranslater->getGroupTaxonomyLabel($set['group_tax_id']));
+        }
+        // fau.
+        // fau: randomSetOrder - get the order criteria
+        if (!empty($set['order_by'])) {
+            $this->tpl->setVariable('ORDER_BY', $this->lng->txt('tst_filter_order_' . $set['order_by']));
+        }
+        //	fau.
     }
 
     private function getSelectionCheckboxHTML($sourcePoolDefinitionId)
@@ -275,7 +294,9 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
         $this->addColumn($this->lng->txt("qst_lifecycle"), 'tst_filter_lifecycle', '');
         $this->addColumn($this->lng->txt("tst_filter_question_type"), 'tst_filter_question_type', '');
         // fau.
-
+        // fau: randomSetOrder - add column for order
+        $this->addColumn($this->lng->txt("tst_filter_order_by"), 'tst_filter_order_by', '');
+        // fau.
         if ($this->isQuestionAmountColumnEnabled()) {
             $this->addColumn($this->lng->txt("tst_question_amount"), 'tst_question_amount', '');
         }
@@ -284,6 +305,25 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
             $this->addColumn($this->lng->txt("actions"), 'actions', '');
         }
     }
+
+    // fau: linkRandomPool - get a link to the pool
+    public function getPoolLink($a_obj_id)
+    {
+        /** @var ilAccessHandler $ilAccess */
+        global $ilAccess;
+
+        $obj_type = ilObject::_lookupType($a_obj_id);
+        $ref_ids = ilObject::_getAllReferences($a_obj_id);
+
+        foreach ($ref_ids as $ref_id) {
+            if ($ilAccess->checkAccess("read", "", $ref_id, $obj_type, $a_obj_id)) {
+                require_once('Services/Link/classes/class.ilLink.php');
+                return ilLink::_getLink($ref_id, $obj_type);
+            }
+        }
+        return '';
+    }
+    // fau.
 
     public function init(ilTestRandomQuestionSetSourcePoolDefinitionList $sourcePoolDefinitionList)
     {
@@ -297,18 +337,28 @@ class ilTestRandomQuestionSetSourcePoolDefinitionListTableGUI extends ilTable2GU
             $set['def_id'] = $sourcePoolDefinition->getId();
             $set['sequence_position'] = $sourcePoolDefinition->getSequencePosition();
             $set['source_pool_label'] = $sourcePoolDefinition->getPoolTitle();
+            // fau: linkRandomPool - add the link to the set data
+            $set['source_pool_link'] = $this->getPoolLink($sourcePoolDefinition->getPoolId());
+            // fau.
             // fau: taxFilter/typeFilter - get the type and taxonomy filter for display
+            // fau: taxGroupFilter - get group selection info
             if ($this->showMappedTaxonomyFilter) {
                 // mapped filter will be used after synchronisation
                 $set['taxonomy_filter'] = $sourcePoolDefinition->getMappedTaxonomyFilter();
+                $set['group_tax_id'] = $sourcePoolDefinition->getMappedGroupTaxId();
             } else {
                 // original filter will be used before synchronisation
                 $set['taxonomy_filter'] = $sourcePoolDefinition->getOriginalTaxonomyFilter();
+                $set['group_tax_id'] = $sourcePoolDefinition->getOriginalGroupTaxId();
             }
             #$set['filter_taxonomy'] = $sourcePoolDefinition->getMappedFilterTaxId();
             #$set['filter_tax_node'] = $sourcePoolDefinition->getMappedFilterTaxNodeId();
+            // fau.
             $set['lifecycle_filter'] = $sourcePoolDefinition->getLifecycleFilter();
             $set['type_filter'] = $sourcePoolDefinition->getTypeFilter();
+            // fau.
+            // fau: randomSetOrder - get the order criteria
+            $set['order_by'] = $sourcePoolDefinition->getOrderBy();
             // fau.
             $set['question_amount'] = $sourcePoolDefinition->getQuestionAmount();
 

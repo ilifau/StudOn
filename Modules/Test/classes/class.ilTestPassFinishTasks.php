@@ -52,6 +52,10 @@ class ilTestPassFinishTasks
         });
         
         $this->updateLearningProgressAfterPassFinishedIsWritten();
+
+        // fau: exAssTest - call update of exercise submissions
+        $this->updateExerciseSubmissionsAfterPassFinishedIsWritten();
+        // fau.
     }
 
     protected function updateLearningProgressAfterPassFinishedIsWritten()
@@ -74,7 +78,19 @@ class ilTestPassFinishTasks
             true
         );
     }
-    
+
+    // fau: exAssTest - new function updateExerciseSubmissionsAfterPassFinishedIsWritten()
+    /**
+     * Update exercise submissions assigned to this test
+     */
+    public function updateExerciseSubmissionsAfterPassFinishedIsWritten()
+    {
+        require_once ('./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php');
+        $test = new ilObjTest($this->obj_id, false);
+        ilExAssTypeTestResultAssignment::updateAssignments($test, $this->testSession);
+    }
+    // fau.
+
     protected function getCaller()
     {
         try {

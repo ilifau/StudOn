@@ -13,12 +13,19 @@ include_once('./Services/Membership/classes/class.ilWaitingList.php');
  */
 class ilSessionWaitingList extends ilWaitingList
 {
-    
+
+// fau: fairSub - add subject, to_confirm and sub_time as parameter, avoid re-reading
     /**
-     * Add to waiting list and raise event
-     * @param int $a_usr_id
+     * add to list
+     *
+     * @param 	int 		$a_usr_id
+     * @param 	string		$a_subject
+     * @param	int 		$a_to_confirm
+     * @param	int			$a_sub_time
+     * @return bool
      */
-    public function addToList($a_usr_id)
+    public function addToList($a_usr_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
+// fau.
     {
         global $DIC;
 

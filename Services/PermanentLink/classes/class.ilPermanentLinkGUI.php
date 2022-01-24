@@ -218,7 +218,7 @@ class ilPermanentLinkGUI
         }
 
         $title = '';
-        
+
         if ($this->getTitle() != "") {
             $title = $this->getTitle();
         } elseif (is_numeric($this->getId())) {
@@ -229,7 +229,11 @@ class ilPermanentLinkGUI
         $tpl->setVariable("TXT_BOOKMARK_DEFAULT", $title);
 
         $tpl->setVariable("LINK", $href);
-        
+
+        // fau: joinLink - set random ID
+        $tpl->setVariable('RAND_ID', rand(100000,999999));
+        // fau.
+
         if ($this->getAlignCenter()) {
             $tpl->setVariable("ALIGN", "center");
         } else {

@@ -156,10 +156,13 @@ class ilObjWikiGUI extends ilObjectGUI
                     $this->object->getRefId()
                 );
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+// fau: inheritContentStyle - add ref_id
                 $wpage_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
                     $this->object->getStyleSheetId(),
-                    "wiki"
+                    "wiki",
+                    $this->object->getRefId()
                 ));
+// fau.
                 $this->setContentStyleSheet();
                 if (!$ilAccess->checkAccess("write", "", $this->object->getRefId()) &&
                     (
@@ -1290,10 +1293,13 @@ class ilObjWikiGUI extends ilObjectGUI
             $this->object->getRefId()
         );
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+        // fau: inheritContentStyle - add ref_id
         $wpage_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
             $this->object->getStyleSheetId(),
-            "wiki"
+            "wiki",
+            $this->object->getRefId()
         ));
+        // fau.
 
         $this->setContentStyleSheet();
 
@@ -1508,7 +1514,7 @@ class ilObjWikiGUI extends ilObjectGUI
         // search block
         include_once './Services/Search/classes/class.ilRepositoryObjectSearchGUI.php';
         $rcontent = ilRepositoryObjectSearchGUI::getSearchBlockHTML($lng->txt('wiki_search'));
-        
+
 
         // quick navigation
         if ($a_wpg_id > 0) {
@@ -1612,12 +1618,12 @@ class ilObjWikiGUI extends ilObjectGUI
             $this->lng->txt("back"),
             $this->ctrl->getLinkTargetByClass("ilwikipagegui", "printViewSelection")
         );
-        
+
         $page_ids = $this->getPrintPageIds();
         if (!$page_ids) {
             $this->ctrl->redirect($this, "");
         }
-                                
+
         $this->setContentStyleSheet($tpl);
 
         $page_content = "";
@@ -1733,12 +1739,15 @@ class ilObjWikiGUI extends ilObjectGUI
             $tpl = $this->tpl;
         }
 
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $tpl->addCss(ilObjStyleSheet::getContentStylePath(
             ilObjStyleSheet::getEffectiveContentStyleId(
                 $this->object->getStyleSheetId(),
-                "wiki"
+                $this->object->getType(),
+                $this->object->getRefId()
             )
         ));
+        // fau.
         $tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());
     }
     
@@ -1841,6 +1850,19 @@ class ilObjWikiGUI extends ilObjectGUI
                 );
             }
         }
+
+        // fau: inheritContentStyle - add inheritance properties to the form
+        if ($style_id <= 0) {
+            $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->ref_id);
+            if (!empty($parent_usage)) {
+                $pu = new ilNonEditableValueGUI($this->lng->txt('sty_inherited_from'));
+                $pu->setInfo($this->lng->txt('sty_inherited_from_info'));
+                $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                $this->form->addItem($pu);
+            }
+        }
+        // fau.
+
         $this->form->setTitle($lng->txt("wiki_style"));
         $this->form->setFormAction($ilCtrl->getFormAction($this));
     }

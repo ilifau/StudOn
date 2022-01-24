@@ -32,6 +32,15 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     const TYPE_NOTIFICATION_REGISTRATION_REQUEST = 31;
     const TYPE_NOTIFICATION_UNSUBSCRIBE = 32;
 
+
+    // fau: fairSub - additional notification types
+    const TYPE_ACCEPTED_STILL_WAITING = 51;				//member
+    const TYPE_AUTOFILL_STILL_WAITING = 52;				//member
+    const TYPE_AUTOFILL_STILL_TO_CONFIRM = 53;			//member
+    const TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM = 63;	//admins
+// fau.
+
+
     /**
      * @var array $permanent_enabled_notifications
      * Notifications which are not affected by "mail_crs_member_notification" setting
@@ -40,9 +49,12 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     protected $permanent_enabled_notifications = array(
         self::TYPE_NOTIFICATION_REGISTRATION,
         self::TYPE_NOTIFICATION_REGISTRATION_REQUEST,
-        self::TYPE_NOTIFICATION_UNSUBSCRIBE
+        self::TYPE_NOTIFICATION_UNSUBSCRIBE,
+        // fau: fairSub - added notification to permanently enabled
+        self::TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM
+        // fau.
     );
-    
+
     private $force_sending_mail = false;
     
 
@@ -70,7 +82,7 @@ class ilCourseMembershipMailNotification extends ilMailNotification
 
         return $this->mail;
     }
-    
+
     /**
      * Force sending mail independent from global setting
      * @param type $a_status
@@ -79,7 +91,33 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     {
         $this->force_sending_mail = $a_status;
     }
-    
+
+    // fau: fairSub - get/set waiting list object for detailed information in the mails
+    /**
+     * Set the waiting list
+     * @param ilCourseWaitingList $a_waiting_list
+     */
+    public function setWaitingList($a_waiting_list = null)
+    {
+        $this->waiting_list = $a_waiting_list;
+    }
+
+    /**
+     * Get the waiting list
+     * @return ilCourseWaitingList
+     */
+    public function getWaitingList()
+    {
+        if (!isset($this->waiting_list)) {
+            include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
+            $this->waiting_list = new ilCourseWaitingList(ilObject::_lookupObjectId($this->getRefId()));
+        } else {
+            return $this->waiting_list;
+        }
+    }
+    // fau.
+
+
     /**
      * Send notifications
      * @return
@@ -400,30 +438,122 @@ class ilCourseMembershipMailNotification extends ilMailNotification
                     $this->sendMail(array($rcp));
                 }
                 break;
-                
+
+// fau: fairSub - mail to subscriber, if set on waiting list after fair time - distinct between request and subscriptions
             case self::TYPE_WAITING_LIST_MEMBER:
+                $waiting_list = $this->getWaitingList();
+
                 foreach ($this->getRecipients() as $rcp) {
+                    $to_confirm = $this->getWaitingList()->isToConfirm($rcp);
+
                     $this->initLanguage($rcp);
                     $this->initMail();
-                    $this->setSubject(
-                        sprintf($this->getLanguageText('crs_subscribe_wl'), $this->getObjectTitle(true))
-                    );
-                    
+
+                    $this->setSubject(sprintf($this->getLanguageText($to_confirm ? 'sub_mail_request_crs' : 'sub_mail_waiting_crs'), $this->getObjectTitle(true)));
+
                     $this->setBody(ilMail::getSalutation($rcp, $this->getLanguage()));
-                    
-                    $info = $this->getAdditionalInformation();
+
                     $this->appendBody("\n\n");
-                    $this->appendBody(
-                        sprintf(
-                            $this->getLanguageText('crs_subscribe_wl_body'),
-                            $this->getObjectTitle(),
-                            $info['position']
-                            )
-                    );
+                    $this->appendBody($this->getLanguageText($to_confirm ? 'sub_mail_request_added' : 'sub_mail_waiting_added'));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('mem_waiting_list_position') . ' ' . $waiting_list->getPositionInfo($rcp, $this->getLanguage()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->createPermanentLink());
+
                     $this->getMail()->appendInstallationSignature(true);
                     $this->sendMail(array($rcp));
                 }
                 break;
+// fau.
+
+// fau: fairSub - mail to subscriber with request if confirmed but still on waiting list
+            case self::TYPE_ACCEPTED_STILL_WAITING:
+                $waiting_list = $this->getWaitingList();
+
+                foreach ($this->getRecipients() as $rcp) {
+                    $this->initLanguage($rcp);
+                    $this->initMail();
+
+                    $this->setSubject(sprintf($this->getLanguageText('sub_mail_request_crs'), $this->getObjectTitle(true)));
+
+                    $this->setBody(ilMail::getSalutation($rcp, $this->getLanguage()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody(sprintf($this->getLanguageText('sub_mail_request_accepted'), $this->getObjectTitle()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('mem_waiting_list_position') . ' ' . $waiting_list->getPositionInfo($rcp, $this->getLanguage()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->createPermanentLink());
+
+
+                    $this->getMail()->appendInstallationSignature(true);
+                    $this->sendMail(array($rcp));
+                }
+                break;
+// fau.
+
+// fau: fairSub - mail to users on waiting list after course is initially filled after fair time - distinct between request and subscriptions
+            case self::TYPE_AUTOFILL_STILL_WAITING:
+                $waiting_list = $this->getWaitingList();
+
+                foreach ($this->getRecipients() as $rcp) {
+                    $to_confirm = $this->getWaitingList()->isToConfirm($rcp);
+                    $this->initLanguage($rcp);
+                    $this->initMail();
+
+                    $this->setSubject(sprintf($this->getLanguageText($to_confirm ? 'sub_mail_request_crs' : 'sub_mail_waiting_crs'), $this->getObjectTitle(true)));
+
+                    $this->setBody(ilMail::getSalutation($rcp, $this->getLanguage()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText($to_confirm ? 'sub_mail_request_autofill' : 'sub_mail_waiting_autofill'));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('mem_waiting_list_position') . ' ' . $waiting_list->getPositionInfo($rcp, $this->getLanguage()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
+                    $this->appendBody($this->createPermanentLink());
+
+
+                    $this->getMail()->appendInstallationSignature(true);
+                    $this->sendMail(array($rcp));
+                }
+                break;
+// fau.
+
+// fau: fairSub - notification to admins about remaining requests on the waiting list after auto fill
+            case self::TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM:
+
+                foreach ($this->getRecipients() as $rcp) {
+                    $this->initLanguage($rcp);
+                    $this->initMail();
+
+                    $this->setSubject(sprintf($this->getLanguageText('sub_mail_autofill_requests_crs'), $this->getObjectTitle(true)));
+
+                    $this->setBody(ilMail::getSalutation($rcp, $this->getLanguage()));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('sub_mail_autofill_requests_body'));
+
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->getLanguageText('crs_mail_permanent_link'));
+                    $this->appendBody("\n\n");
+                    $this->appendBody($this->createPermanentLink());
+
+                    $this->getMail()->appendInstallationSignature(true);
+                    $this->sendMail(array($rcp));
+                }
+                break;
+// fau.
         }
         return true;
     }
@@ -437,6 +567,9 @@ class ilCourseMembershipMailNotification extends ilMailNotification
     {
         parent::initLanguage($a_usr_id);
         $this->getLanguage()->loadLanguageModule('crs');
+        // fau: fairSub - use also the 'common' lang module for mail notifications
+        $this->getLanguage()->loadLanguageModule('common');
+        // fau.
     }
     
     /**

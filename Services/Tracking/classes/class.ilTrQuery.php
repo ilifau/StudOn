@@ -251,7 +251,6 @@ class ilTrQuery
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
         $fields = array("usr_data.usr_id", "login", "active");
         $udf = self::buildColumns($fields, $a_additional_fields);
         
@@ -373,6 +372,12 @@ class ilTrQuery
             if (isset($udf[$row["usr_id"]])) {
                 $a_result["set"][$idx] = $row = array_merge($row, $udf[$row["usr_id"]]);
             }
+
+            // fau: studyData - get studydata if allowed
+            if (!$a_check_agreement or in_array($row["usr_id"], $agreements)) {
+                $a_result["set"][$idx]['studydata'] = ilStudyAccess::_getDataText($row["usr_id"]);
+            }
+            // fau.
 
             // remove all private data - if active agreement and agreement not given by user
             if (sizeof($a_privacy_fields) && $a_check_agreement && !in_array($row["usr_id"], $agreements)) {
@@ -1133,6 +1138,11 @@ class ilTrQuery
                     }
 
                     switch ($field) {
+// fau: studyData - don't get the studydata directly from user table
+                        case "studydata":
+                            break;
+// fau.
+
                         case 'org_units':
                             break;
                         
@@ -1651,7 +1661,6 @@ class ilTrQuery
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
         $res = array();
         
         // blogs in workspace?
@@ -1678,7 +1687,6 @@ class ilTrQuery
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
         $res = array();
         
         $sql = "SELECT od.obj_id" .

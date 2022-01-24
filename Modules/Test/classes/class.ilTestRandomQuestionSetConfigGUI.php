@@ -581,11 +581,13 @@ class ilTestRandomQuestionSetConfigGUI
             self::CMD_SHOW_POOL_SELECTOR_EXPLORER,
             self::CMD_SHOW_CREATE_SRC_POOL_DEF_FORM
         );
-        
-        $selector->setAvailableQuestionPools(
-            array_keys($this->questionSetConfig->getSelectableQuestionPools())
-        );
-        
+
+        // fau: optimizeRandomRuleSelect - don't set available pools for repository explorer
+        //		$selector->setAvailableQuestionPools(
+        //			array_keys( $this->questionSetConfig->getSelectableQuestionPools() )
+        //		);
+        // fau.
+
         if ($selector->handleCommand()) {
             return;
         }
@@ -804,25 +806,32 @@ class ilTestRandomQuestionSetConfigGUI
 
     private function getSourcePoolDefinitionByAvailableQuestionPoolId($poolId)
     {
-        $availablePools = $this->testOBJ->getAvailableQuestionpools(
-            true,
-            $this->questionSetConfig->arePoolsWithHomogeneousScoredQuestionsRequired(),
-            false,
-            true,
-            true
-        );
+        // fau: optimizeRandomRuleSelect - check availability only for the selected pool, show error message
+        $ref_ids = ilObject::_getAllReferences($poolId);
+        foreach ($ref_ids as $ref_id) {
+            $availablePools = $this->testOBJ->getAvailableQuestionpools(
+                true,
+                $this->questionSetConfig->arePoolsWithHomogeneousScoredQuestionsRequired(),
+                false,
+                true,
+                true,
+                'read',
+                $ref_id
+            );
 
-        if (isset($availablePools[$poolId])) {
-            $originalPoolData = $availablePools[$poolId];
+            if (isset($availablePools[$poolId])) {
+                $originalPoolData = $availablePools[$poolId];
 
-            $originalPoolData['qpl_path'] = $this->questionSetConfig->getQuestionPoolPathString($poolId);
-            $originalPoolData['qpl_ref_id'] = $this->questionSetConfig->getFirstQuestionPoolRefIdByObjId($poolId);
+                $originalPoolData['qpl_path'] = $this->questionSetConfig->getQuestionPoolPathString($poolId);
+                $originalPoolData['qpl_ref_id'] = $ref_id;
 
-            return $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByOriginalPoolData($originalPoolData);
+                return $this->sourcePoolDefinitionFactory->getSourcePoolDefinitionByOriginalPoolData($originalPoolData);
+            }
         }
 
-        require_once 'Modules/Test/exceptions/class.ilTestQuestionPoolNotAvailableAsSourcePoolException.php';
-        throw new ilTestQuestionPoolNotAvailableAsSourcePoolException();
+        ilUtil::sendFailure($this->lng->txt('tst_msg_rand_quest_set_pool_not_available'), true);
+        $this->ctrl->redirect($this, self::CMD_SHOW_SRC_POOL_DEF_LIST);
+        // fau.
     }
     
     protected function fetchPoolIdsParameter()

@@ -203,10 +203,16 @@ class ilContentPageKioskModeView extends ilKioskModeView
     protected function renderContentStyle() : void
     {
         $this->mainTemplate->addCss(ilObjStyleSheet::getSyntaxStylePath());
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->mainTemplate->addCss(
             ilObjStyleSheet::getContentStylePath(
-                $this->contentPageObject->getStyleSheetId()
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                $this->contentPageObject->getStyleSheetId(),
+                $this->contentPageObject->getType(),
+                $this->contentPageObject->getRefId()
+            )
             )
         );
+        // fau.
     }
 }

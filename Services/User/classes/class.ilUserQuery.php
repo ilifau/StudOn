@@ -324,7 +324,14 @@ class ilUserQuery
             if (!$field) {
                 continue;
             }
-            
+
+            // fau: studyData - don't query for studydata directly, add them later
+            if ($field == 'studydata') {
+                $add_studydata = true;
+                continue;
+            }
+            // fau.
+
             if (in_array($field, $all_multi_fields)) {
                 $multi_fields[] = $field;
             } elseif (!stristr($field, ".")) {
@@ -347,19 +354,30 @@ class ilUserQuery
         $count_query = $count_query . " " .
             $join;
 
-        // filter
-        $query .= " WHERE usr_data.usr_id <> " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
+        // fau: userQuery -  build optimized user query for role
+        $role_join = '';
+        $role_cond = '';
 
-        // User filter
-        $count_query .= " WHERE 1 = 1 ";
-        $count_user_filter = "usr_data.usr_id != " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
-        if ($this->users and is_array(($this->users))) {
-            $query .= ' AND ' . $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
-            $count_user_filter = $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
+        if ($this->role > 0) {
+            $role_join = " INNER JOIN rbac_ua ON usr_data.usr_id = rbac_ua.usr_id";
+            $role_cond = " AND rbac_ua.rol_id = " . $ilDB->quote($this->role, "integer");
         }
 
-        $count_query .= " AND " . $count_user_filter . " ";
+        $query .= $role_join;
+        $count_query .= $role_join;
+
+        // apply user filter also to count query
+        // excluding anonymous user is not needed if user filter is active
+        if ($this->users and is_array(($this->users))) {
+            $where = ' WHERE ' . $ilDB->in('usr_data.usr_id', $this->users, false, 'integer');
+        } else {
+            $where = " WHERE usr_data.usr_id <> " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
+        }
+
+        $query .= $where . $role_cond;
+        $count_query .= $where . $role_cond;
         $where = " AND";
+        // fau.
 
         if ($this->first_letter != "") {
             $add = $where . " (" . $ilDB->upper($ilDB->substr("usr_data.lastname", 1, 1)) . " = " . $ilDB->upper($ilDB->quote($this->first_letter, "text")) . ") ";
@@ -432,45 +450,50 @@ class ilUserQuery
             $where = " AND";
         }
         if ($this->no_courses) {		// no courses assigned
-            $add = $where . " usr_data.usr_id NOT IN (" .
-                "SELECT DISTINCT ud.usr_id " .
-                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
-                "JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
-                "WHERE od.title LIKE 'il_crs_%')";
+            // fau: userQuery - optimize condition for 'no courses assigned'
+            $add = $where . " NOT EXISTS (" .
+                "SELECT * FROM rbac_ua INNER JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
+                "WHERE rbac_ua.usr_id = usr_data.usr_id AND od.title LIKE 'il_crs_%')";
+            // fau.
             $query .= $add;
             $count_query .= $add;
             $where = " AND";
         }
         if ($this->no_groups) {		// no groups assigned
-            $add = $where . " usr_data.usr_id NOT IN (" .
-                "SELECT DISTINCT ud.usr_id " .
-                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
-                "JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
-                "WHERE od.title LIKE 'il_grp_%')";
+            // fau: userQuery - optimize condition for 'no groups assigned'
+            $add = $where . " NOT EXISTS (" .
+                "SELECT * FROM rbac_ua INNER JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
+                "WHERE rbac_ua.usr_id = usr_data.usr_id AND od.title LIKE 'il_grp_%')";
+            // fau.
             $query .= $add;
             $count_query .= $add;
             $where = " AND";
         }
         if ($this->crs_grp > 0) {		// members of course/group
             $cgtype = ilObject::_lookupType($this->crs_grp, true);
-            $add = $where . " usr_data.usr_id IN (" .
-                "SELECT DISTINCT ud.usr_id " .
-                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
-                "JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
-                "WHERE od.title = " . $ilDB->quote("il_" . $cgtype . "_member_" . $this->crs_grp, "text") . ")";
+
+            // fau: userQuery - optimize condition for 'members of course/group'
+            $add = $where . " EXISTS (" .
+                "SELECT * FROM rbac_ua INNER JOIN object_data od ON (rbac_ua.rol_id = od.obj_id) " .
+                "WHERE rbac_ua.usr_id = usr_data.usr_id AND od.title = " . $ilDB->quote("il_" . $cgtype . "_member_" . $this->crs_grp, "text") . ")";
+            // fau.
             $query .= $add;
             $count_query .= $add;
             $where = " AND";
         }
-        if ($this->role > 0) {		// global role
-            $add = $where . " usr_data.usr_id IN (" .
-                "SELECT DISTINCT ud.usr_id " .
-                "FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) " .
-                "WHERE rbac_ua.rol_id = " . $ilDB->quote($this->role, "integer") . ")";
-            $query .= $add;
-            $count_query .= $add;
-            $where = " AND";
-        }
+
+        // fau: userQuery - omit old user query for roles
+        //		if ($this->role > 0)		// global role
+        //		{
+        //			$add = $where." usr_data.usr_id IN (".
+        //				"SELECT DISTINCT ud.usr_id ".
+        //				"FROM usr_data ud join rbac_ua ON (ud.usr_id = rbac_ua.usr_id) ".
+        //				"WHERE rbac_ua.rol_id = ".$ilDB->quote($this->role, "integer").")";
+        //			$query.= $add;
+        //			$count_query.= $add;
+        //			$where = " AND";
+        //		}
+        // fau.
         
         if ($this->user_folder) {
             $add = $where . " " . $ilDB->in('usr_data.time_limit_owner', $this->user_folder, false, 'integer');
@@ -503,7 +526,12 @@ class ilUserQuery
                     $query .= " ORDER BY ut_online.online_time ASC";
                 }
                 break;
-                
+
+// fau: studyData - don't oeder by studydata
+            case "studydata":
+                break;
+// fau.
+
             default:
                 if ($this->order_dir != "asc" && $this->order_dir != "desc") {
                     $this->order_dir = "asc";
@@ -550,7 +578,13 @@ class ilUserQuery
         $result = array();
 
         while ($rec = $ilDB->fetchAssoc($set)) {
+            // fau: studyData - optionally add the studydata
+            if ($add_studydata) {
+                $rec['studydata'] = ilStudyAccess::_getDataText($rec['usr_id']);
+            }
+            // fau.
             $result[] = $rec;
+
             if (sizeof($multi_fields)) {
                 $usr_ids[] = $rec["usr_id"];
             }

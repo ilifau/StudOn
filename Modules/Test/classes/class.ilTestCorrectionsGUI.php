@@ -252,7 +252,15 @@ class ilTestCorrectionsGUI
         $this->DIC->ui()->mainTemplate()->addCss('Modules/Test/templates/default/ta.css');
         
         $this->DIC->ui()->mainTemplate()->setCurrentBlock("ContentStyle");
-        $stylesheet = ilObjStyleSheet::getContentStylePath(0);
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $stylesheet = ilObjStyleSheet::getContentStylePath(
+            ilObjStyleSheet::getEffectiveContentStyleId(
+                0,
+                $this->testOBJ->getType(),
+                $this->testOBJ->getRefId()
+            )
+        );
+        // fau.
         $this->DIC->ui()->mainTemplate()->setVariable("LOCATION_CONTENT_STYLESHEET", $stylesheet);
         $this->DIC->ui()->mainTemplate()->parseCurrentBlock();
         

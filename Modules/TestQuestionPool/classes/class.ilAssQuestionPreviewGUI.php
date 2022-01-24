@@ -141,7 +141,18 @@ class ilAssQuestionPreviewGUI
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
         
         $this->tpl->setCurrentBlock("ContentStyle");
-        $this->tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $this->tpl->setVariable(
+            "LOCATION_CONTENT_STYLESHEET",
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    '',
+                    $_GET['ref_id']
+                )
+            )
+        );
+        // fau.
         $this->tpl->parseCurrentBlock();
 
         $this->tpl->setCurrentBlock("SyntaxStyle");
@@ -291,6 +302,9 @@ class ilAssQuestionPreviewGUI
         if ($this->saveQuestionSolution()) {
             $this->previewSession->setInstantResponseActive(true);
         } else {
+            // fau: fixValidateSolutionSubmit - show validation message for preview
+            ilUtil::sendFailure($this->questionOBJ->getValidateSolutionMessage(), true);
+            // fau.
             $this->previewSession->setInstantResponseActive(false);
         }
         
@@ -299,7 +313,12 @@ class ilAssQuestionPreviewGUI
     
     private function handleQuestionActionCmd()
     {
-        $this->questionOBJ->persistPreviewState($this->previewSession);
+        // fau: fixValidateSolutionSubmit - show validation message for preview
+        $valid = $this->questionOBJ->persistPreviewState($this->previewSession);
+        if (!$valid) {
+            ilUtil::sendFailure($this->questionOBJ->getValidateSolutionMessage(), true);
+        }
+        // fau.
         $this->ctrl->redirect($this, self::CMD_SHOW);
     }
     
@@ -514,6 +533,9 @@ class ilAssQuestionPreviewGUI
     {
         if (!$this->saveQuestionSolution()) {
             $this->previewSession->setInstantResponseActive(false);
+            // fau: fixValidateSolutionSubmit - show validation message for preview
+            ilUtil::sendFailure($this->questionOBJ->getValidateSolutionMessage(), false);
+            // fau.
             $this->showCmd();
             return;
         }
@@ -530,6 +552,9 @@ class ilAssQuestionPreviewGUI
     {
         if (!$this->saveQuestionSolution()) {
             $this->previewSession->setInstantResponseActive(false);
+            // fau: fixValidateSolutionSubmit - show validation message for preview
+            ilUtil::sendFailure($this->questionOBJ->getValidateSolutionMessage(), false);
+            // fau.
             $this->showCmd();
             return;
         }

@@ -78,6 +78,13 @@ class LSControlBuilder implements ControlBuilder
      */
     protected $start;
 
+    // fau: lsoManualRefresh - variable for refresh control
+    /**
+     * @var Component|null
+     */
+    protected $refresh;
+    // fau.
+
     /**
      * @var string | null
      */
@@ -319,7 +326,10 @@ class LSControlBuilder implements ControlBuilder
                 return "$('#{$id}').on('click', function(ev) {
 					var il_ls_win = window.open('$url');
 					window._lso_current_item_lp = -1;
-					window.setInterval(lso_checkLPOfObject, $interval);
+                    // fau: lsoManualRefresh - don't trigger lso_checkLPOfObject per timer
+					   lso_checkLPOfObject();
+                    // window.setInterval(lso_checkLPOfObject, $interval);
+                    // fau. 
 				})";
             });
 
@@ -330,6 +340,19 @@ class LSControlBuilder implements ControlBuilder
     {
         return $this->start;
     }
+
+    // fau: lsoManualRefresh - build controls for a manual refresh
+    public function refresh($label) : ControlBuilder
+    {
+        $this->refresh = $this->ui_factory->button()->standard($label,'javascript:lso_refreshPage();');
+        return $this;
+    }
+
+    public function getRefreshControl()
+    {
+        return $this->refresh;
+    }
+    // fau.
 
     public function getAdditionalJS() : string
     {
@@ -359,6 +382,13 @@ function lso_checkLPOfObject()
 		}
 	});
 }
+
+// fau: lsoManualRefresh - new function to refresh the page
+function lso_refreshPage() {
+    location.replace('$on_lp_change_url');
+}
+// fau.
+
 JS;
     }
 }

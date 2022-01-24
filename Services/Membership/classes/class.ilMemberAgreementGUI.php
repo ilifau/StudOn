@@ -201,12 +201,15 @@ class ilMemberAgreementGUI
         
         return $form;
     }
-    
+
+    // fau: courseUdf - add custom fields without parent directly
     /**
      * Add custom course fields
-     * @param type $form
-     * @param type $a_obj_id
-     * @param type $a_type
+     * @param ilPropertyFormGUI $form
+     * @param int $a_obj_id
+     * @param string $a_type
+     * @param string $a_mode
+     * @return ilPropertyFormGUI
      */
     public static function addCustomFields($form, $a_obj_id, $a_type, $a_mode = 'user')
     {
@@ -220,20 +223,60 @@ class ilMemberAgreementGUI
         if (!count($cdf_fields = ilCourseDefinedFieldDefinition::_getFields($a_obj_id))) {
             return $form;
         }
-        
+
         if ($a_mode == 'user') {
             $cdf = new ilNonEditableValueGUI($lng->txt('ps_' . $a_type . '_user_fields'));
             $cdf->setValue($lng->txt($a_type . '_ps_cdf_info'));
             $cdf->setRequired(true);
         }
-        
+
+        /** @var ilCourseDefinedFieldDefinition $field_obj */
         foreach ($cdf_fields as $field_obj) {
-            switch ($field_obj->getType()) {
+            if (empty($field_obj->getParentFieldId())) {
+                $field_gui = self::getCustomFieldGUI($field_obj, $cdf_fields);
+
+                if ($a_mode == 'user') {
+                    $cdf->addSubItem($field_gui);
+                } else {
+                    $form->addItem($field_gui);
+                }
+            }
+        }
+
+        if ($a_mode == 'user') {
+            $form->addItem($cdf);
+        }
+        return $form;
+    }
+    // fau.
+
+    // fau: courseUdf - new function getCustomFieldGUI()
+    /**
+     * Get the property form gui for a custom field
+     * This will add sub fields to the select fields
+     *
+     * @param ilCourseDefinedFieldDefinition $field_obj
+     * @param ilCourseDefinedFieldDefinition[] $cdf_fields
+     * @return ilFormPropertyGUI
+     */
+    public static function getCustomFieldGUI($field_obj, $cdf_fields)
+    {
+        global $lng;
+
+        switch ($field_obj->getType()) {
                 case IL_CDF_TYPE_SELECT:
-                    
-                    if ($field_obj->getValueOptions()) {
+
+                    $sub_fields = [];
+                    foreach ($cdf_fields as $sub_field) {
+                        if ($sub_field->getParentFieldId() == $field_obj->getId()) {
+                            $sub_fields[$sub_field->getParentValueId()][] = $sub_field;
+                        }
+                    }
+
+                    if ($field_obj->getValueOptions() || !empty($sub_field)) {
                         // Show as radio group
                         $option_radios = new ilRadioGroupInputGUI($field_obj->getName(), 'cdf_' . $field_obj->getId());
+                        $option_radios->setInfo($field_obj->getDescription());
                         if ($field_obj->isRequired()) {
                             $option_radios->setRequired(true);
                         }
@@ -248,51 +291,63 @@ class ilMemberAgreementGUI
                                 $open_answer->setRequired(true);
                                 $option_radio->addSubItem($open_answer);
                             }
-                            
+
+                            // sub fields for the radio option
+                            if (!empty($sub_fields[$key])) {
+                                foreach ($sub_fields[$key] as $sub_field) {
+                                    $sub_gui = self::getCustomFieldGUI($sub_field, $cdf_fields);
+                                    $option_radio->addSubItem($sub_gui);
+                                }
+                            }
+
                             $option_radios->addOption($option_radio);
                         }
-                        if ($a_mode == 'user') {
-                            $cdf->addSubItem($option_radios);
-                        } else {
-                            $form->addItem($option_radios);
-                        }
+                        return $option_radios;
                     } else {
+                        // Show as select box
                         $select = new ilSelectInputGUI($field_obj->getName(), 'cdf_' . $field_obj->getId());
-                        #$select->setValue(ilUtil::stripSlashes($_POST['cdf'][$field_obj->getId()]));
+                        $select->setInfo($field_obj->getDescription());
                         $select->setOptions($field_obj->prepareSelectBox());
                         if ($field_obj->isRequired()) {
                             $select->setRequired(true);
                         }
-                        if ($a_mode == 'user') {
-                            $cdf->addSubItem($select);
-                        } else {
-                            $form->addItem($select);
-                        }
+                        return $select;
                     }
                     break;
 
                 case IL_CDF_TYPE_TEXT:
                     $text = new ilTextInputGUI($field_obj->getName(), 'cdf_' . $field_obj->getId());
-                    #$text->setValue(ilUtil::stripSlashes($_POST['cdf'][$field_obj->getId()]));
+                    $text->setInfo($field_obj->getDescription());
                     $text->setSize(32);
                     $text->setMaxLength(255);
                     if ($field_obj->isRequired()) {
                         $text->setRequired(true);
                     }
-                    if ($a_mode == 'user') {
-                        $cdf->addSubItem($text);
-                    } else {
-                        $form->addItem($text);
-                    }
-                    break;
-            }
-        }
-        if ($a_mode == 'user') {
-            $form->addItem($cdf);
-        }
-        return $form;
-    }
+                    return $text;
 
+
+                case IL_CDF_TYPE_EMAIL:
+                    $email = new ilEMailInputGUI($field_obj->getName(), 'cdf_' . $field_obj->getId());
+                    $email->setInfo($field_obj->getDescription());
+                    $email->setSize(32);
+                    $email->setMaxLength(255);
+                    if ($field_obj->isRequired()) {
+                        $email->setRequired(true);
+                    }
+                    return $email;
+
+                case IL_CDF_TYPE_CHECKBOX:
+                    $checkbox = new ilCheckboxInputGUI($field_obj->getName(), 'cdf_' . $field_obj->getId());
+                    $checkbox->setInfo($field_obj->getDescription());
+                    $checkbox->setValue(1);
+                    if ($field_obj->isRequired()) {
+                        $checkbox->setCheckRequired(true);
+                        $checkbox->setRequired(true);
+                    }
+                    return $checkbox;
+            }
+    }
+    // fau.
 
     
     /**
@@ -381,6 +436,18 @@ class ilMemberAgreementGUI
                     $item = $form->getItemByPostVar('cdf_' . $field_obj->getId());
                     $item->setValue($current_value);
                     break;
+
+// fau: courseUdf - load email and checkbox values
+                case IL_CDF_TYPE_EMAIL:
+                    $item = $form->getItemByPostVar('cdf_' . $field_obj->getId());
+                    $item->setValue($current_value);
+                    break;
+
+                case IL_CDF_TYPE_CHECKBOX:
+                    $item = $form->getItemByPostVar('cdf_' . $field_obj->getId());
+                    $item->setChecked((bool) $current_value);
+                    break;
+// fau.
             }
         }
     }
@@ -399,8 +466,16 @@ class ilMemberAgreementGUI
         if (!$a_usr_id) {
             $a_usr_id = $ilUser->getId();
         }
-        
+
+        // fau: courseUdf - collect fields by id
+        $fields = array();
+        /** @var ilCourseDefinedFieldDefinition $field_obj */
         foreach (ilCourseDefinedFieldDefinition::_getFields($a_obj_id) as $field_obj) {
+            $fields[$field_obj->getId()] = $field_obj;
+        }
+        
+        foreach ($fields as $field_obj) {
+            // fau.
             switch ($field_obj->getType()) {
                 case IL_CDF_TYPE_SELECT:
                     
@@ -417,7 +492,26 @@ class ilMemberAgreementGUI
                 case IL_CDF_TYPE_TEXT:
                     $value = $form->getInput('cdf_' . $field_obj->getId());
                     break;
+
+// fau: courseUdf - save email and checkbox value from agreement
+                case IL_CDF_TYPE_EMAIL:
+                    $value = $form->getInput('cdf_' . $field_obj->getId());
+                    break;
+
+                case IL_CDF_TYPE_CHECKBOX:
+                    $value = $form->getInput('cdf_' . $field_obj->getId());
+                    break;
+// fau.
             }
+
+            // fau: courseUdf - clear value if parent option is not selected
+            if (isset($fields[$field_obj->getParentFieldId()])) {
+                list($field_id, $option_id) = explode('_', $form->getInput('cdf_' . $field_obj->getParentFieldId()));
+                if (empty($field_id) || $option_id != $field_obj->getParentValueId()) {
+                    $value = null;
+                }
+            }
+            // fau.
             
             $course_user_data = new ilCourseUserData($a_usr_id, $field_obj->getId());
             $course_user_data->setValue($value);

@@ -11,7 +11,7 @@
 class ilTestTaxonomyFilterLabelTranslater
 {
     // TODO-RND2017: rename class to ilTest>Question<FilterLabelTranslator
-    
+
     /**
      * @var ilDBInterface
      */
@@ -22,7 +22,15 @@ class ilTestTaxonomyFilterLabelTranslater
 
     private $taxonomyTreeLabels = null;
     private $taxonomyNodeLabels = null;
-    
+
+    // fau: taxDesc - class variable for node descriptions
+    private $taxonomyNodeDescriptions = null;
+    // fau.
+
+    // fau: taxDesc - class variable for parent relation
+    private $taxononyTreeParentIds = null;
+    // fau.
+
     // fau: taxFilter/typeFilter - class variable
     private $typeLabels = null;
     // fau.
@@ -39,7 +47,12 @@ class ilTestTaxonomyFilterLabelTranslater
 
         $this->taxonomyTreeLabels = array();
         $this->taxonomyNodeLabels = array();
-        
+
+        // fau: taxDesc - init node descriptions and parents
+        $this->taxonomyNodeDescriptions = array();
+        $this->taxononyTreeParentIds = array();
+        // fau.
+
         // fau: taxFilter/typeFilter - init node descriptions
         $this->loadTypeLabels();
         // fau.
@@ -57,9 +70,9 @@ class ilTestTaxonomyFilterLabelTranslater
     {
         foreach ($sourcePoolDefinitionList as $definition) {
             /** @var ilTestRandomQuestionSetSourcePoolDefinition $definition */
-            
+
             // fau: taxFilter/typeFilter - get ids from new taxonomy filter
-            
+
             // original filter will be shown before synchronisation
             foreach ($definition->getOriginalTaxonomyFilter() as $taxId => $nodeIds) {
                 $this->taxonomyTreeIds[] = $taxId;
@@ -67,7 +80,7 @@ class ilTestTaxonomyFilterLabelTranslater
                     $this->taxonomyNodeIds[] = $nodeId;
                 }
             }
-            
+
             // mapped filter will be shown after synchronisation
             foreach ($definition->getMappedTaxonomyFilter() as $taxId => $nodeIds) {
                 $this->taxonomyTreeIds[] = $taxId;
@@ -75,7 +88,7 @@ class ilTestTaxonomyFilterLabelTranslater
                     $this->taxonomyNodeIds[] = $nodeId;
                 }
             }
-            
+
             #$this->taxonomyTreeIds[] = $definition->getMappedFilterTaxId();
             #$this->taxonomyNodeIds[] = $definition->getMappedFilterTaxNodeId();
             // fau.
@@ -105,29 +118,38 @@ class ilTestTaxonomyFilterLabelTranslater
 
     private function loadTaxonomyNodeLabels()
     {
+        // fau: taxDesc - load tax node descriptions and parents for full taxonomies
+
+        $IN_tree_ids = $this->db->in('tax_tree.tax_tree_id', array_unique($this->taxonomyTreeIds), false, 'integer');
         $IN_nodeIds = $this->db->in('tax_node.obj_id', $this->taxonomyNodeIds, false, 'integer');
 
         $query = "
 					SELECT		tax_node.obj_id tax_node_id,
-								tax_node.title tax_node_title
+								tax_node.title tax_node_title,
+								tax_node.description tax_node_description,
+								tax_tree.parent tax_tree_parent
 
 					FROM		tax_node
+					INNER JOIN  tax_tree ON (tax_tree.tax_tree_id = tax_node.tax_id AND tax_tree.child = tax_node.obj_id)
 
-					WHERE		$IN_nodeIds
+					WHERE		$IN_tree_ids
 				";
 
         $res = $this->db->query($query);
 
         while ($row = $this->db->fetchAssoc($res)) {
             $this->taxonomyNodeLabels[ $row['tax_node_id'] ] = $row['tax_node_title'];
+            $this->taxonomyNodeDescription[ $row['tax_node_id'] ] = $row['tax_node_description'];
+            $this->taxononyTreeParentIds[ $row['tax_node_id'] ] = $row['tax_tree_parent'];
         }
+        // fau.
     }
-    
+
     // fau: taxFilter/typeFilter - load type labels
     private function loadTypeLabels()
     {
         $this->typeLabels = array();
-        
+
         require_once("./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php");
         foreach (ilObjQuestionPool::_getQuestionTypes(true) as $translation => $data) {
             $this->typeLabels[$data['question_type_id']] = $translation;
@@ -142,8 +164,23 @@ class ilTestTaxonomyFilterLabelTranslater
 
     public function getTaxonomyNodeLabel($taxonomyTreeId)
     {
-        return $this->taxonomyNodeLabels[$taxonomyTreeId];
+        // fau: taxDesc - get the path as taxonomy label
+        $nodeId = $taxonomyTreeId;
+        $path = [];
+        while ($parentId = $this->taxononyTreeParentIds[$nodeId]) {
+            $path[] = $this->taxonomyNodeLabels[$nodeId];
+            $nodeId = $parentId;
+        }
+        return implode(' / ', array_reverse($path));
+        // fau.
     }
+
+    // fau: taxDesc - get node description
+    public function getTaxonomyNodeDescription($taxonomyTreeId)
+    {
+        return $this->taxonomyNodeDescription[$taxonomyTreeId];
+    }
+    // fim.
 
     public function loadLabelsFromTaxonomyIds($taxonomyIds)
     {
@@ -151,7 +188,7 @@ class ilTestTaxonomyFilterLabelTranslater
 
         $this->loadTaxonomyTreeLabels();
     }
-    
+
     // fau: taxFilter/typeFilter - get a labels for filters
     /**
      * Get the label for a taxonomy filter
@@ -166,8 +203,20 @@ class ilTestTaxonomyFilterLabelTranslater
         foreach ($filter as $taxId => $nodeIds) {
             $nodes = array();
             foreach ($nodeIds as $nodeId) {
-                $nodes[] = $this->getTaxonomyNodeLabel($nodeId);
+                // fau: taxDesc - add taxonomy  description tooltip
+                $description = $this->getTaxonomyNodeDescription($nodeId);
+
+                if (!empty($description)) {
+                    require_once("Services/UIComponent/Tooltip/classes/class.ilTooltipGUI.php");
+                    ilTooltipGUI::addTooltip('ilTaxonomyNode' . $nodeId, $description);
+
+                    $nodes[] = '<span id="ilTaxonomyNode' . $nodeId . '">' . $this->getTaxonomyNodeLabel($nodeId)
+                        . ' <small><span class="glyphicon glyphicon-info-sign"></span></small></span>';
+                } else {
+                    $nodes[] = $this->getTaxonomyNodeLabel($nodeId);
+                }
             }
+            // fau.
             $labels[] .= $this->getTaxonomyTreeLabel($taxId) . $taxNodeDelimiter . implode($nodesDelimiter, $nodes);
         }
         return implode($filterDelimiter, $labels);
@@ -199,12 +248,21 @@ class ilTestTaxonomyFilterLabelTranslater
     public function getTypeFilterLabel($filter = array())
     {
         $types = array();
-        
+
         foreach ($filter as $type_id) {
             $types[] = $this->typeLabels[$type_id];
         }
         asort($types);
         return implode(', ', $types);
+    }
+    // fau.
+
+    // fau: taxGroupFilter - new function to get a label for group selection in taxonomy
+    public function getGroupTaxonomyLabel($taxId)
+    {
+        global $lng;
+
+        return $lng->txt('tst_group_filter') . ': ' . $this->getTaxonomyTreeLabel($taxId);
     }
     // fau.
 }

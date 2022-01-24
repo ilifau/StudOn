@@ -21,6 +21,11 @@ il.MediaPool = {
 		var ifr = il.Util.getRegion('#ilMepPreviewContent');
 		console.log(vp);
 		console.log(ifr);
-		$('#ilMepPreviewContent').css("height", (vp.height - ifr.top + vp.top - 60) + "px");
-	}
+
+// fau: largeMediaPoolPreview - enlarge the modal for previewing media in media pool
+		$('#ilMepPreviewContent').css("height", (vp.height - ifr.top + vp.top - 40) + "px");
+        $('#ilMepPreview .modal-dialog').css("left", ('10') + "px");
+        $('#ilMepPreview .modal-dialog').css("width", (vp.width - 100) + "px");
+    }
+// fau.
 };

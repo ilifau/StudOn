@@ -160,7 +160,18 @@ class ilAssQuestionFeedbackEditingGUI
     {
         require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
         $this->tpl->setCurrentBlock("ContentStyle");
-        $this->tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $this->tpl->setVariable(
+            "LOCATION_CONTENT_STYLESHEET",
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    '',
+                    $_GET['ref_id']
+                )
+            )
+        );
+        // fau.
         $this->tpl->parseCurrentBlock();
         
         $form = $this->buildForm();

@@ -21,6 +21,9 @@ class ilTaxonomyNode
     public $type;
     public $id;
     public $title;
+    // fau: taxDesc - class variable
+    public $description;
+    // fau.
 
     /**
      * Constructor
@@ -62,6 +65,28 @@ class ilTaxonomyNode
     {
         return $this->title;
     }
+
+    // fau: taxDesc - set/get description
+    /**
+     * Set description
+     *
+     * @param	string		$a_description	description
+     */
+    public function setDescription($a_description)
+    {
+        $this->description = $a_description;
+    }
+
+    /**
+     * Get description
+     *
+     * @return	string		description
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+    // fau.
 
     /**
      * Set type
@@ -158,6 +183,9 @@ class ilTaxonomyNode
         }
         $this->setType($this->data_record["type"]);
         $this->setTitle($this->data_record["title"]);
+        // fau: taxDesc - read description
+        $this->setDescription($this->data_record["description"]);
+        // fau.
         $this->setOrderNr($this->data_record["order_nr"]);
         $this->setTaxonomyId($this->data_record["tax_id"]);
     }
@@ -175,15 +203,18 @@ class ilTaxonomyNode
 
         // insert object data
         $id = $ilDB->nextId("tax_node");
-        $query = "INSERT INTO tax_node (obj_id, title, type, create_date, order_nr, tax_id) " .
+        // fau: taxDesc - create record with description
+        $query = "INSERT INTO tax_node (obj_id, title, description, type, create_date, order_nr, tax_id) " .
             "VALUES (" .
             $ilDB->quote($id, "integer") . "," .
             $ilDB->quote($this->getTitle(), "text") . "," .
+            $ilDB->quote($this->getDescription(), "text") . "," .
             $ilDB->quote($this->getType(), "text") . ", " .
             $ilDB->now() . ", " .
             $ilDB->quote((int) $this->getOrderNr(), "integer") . ", " .
             $ilDB->quote((int) $this->getTaxonomyId(), "integer") .
             ")";
+        // fau.
         $ilDB->manipulate($query);
         $this->setId($id);
     }
@@ -197,6 +228,9 @@ class ilTaxonomyNode
 
         $query = "UPDATE tax_node SET " .
             " title = " . $ilDB->quote($this->getTitle(), "text") .
+// fau: taxDesc - update record with description
+            " description = " . $ilDB->quote($this->getDescription(), "text") .
+// fau.
             " ,order_nr = " . $ilDB->quote((int) $this->getOrderNr(), "integer") .
             " WHERE obj_id = " . $ilDB->quote($this->getId(), "integer");
 
@@ -226,6 +260,9 @@ class ilTaxonomyNode
     {
         $taxn = new ilTaxonomyNode();
         $taxn->setTitle($this->getTitle());
+        // fau: taxDesc - copy description
+        $taxn->setDescription($this->getDescription());
+        // fau.
         $taxn->setType($this->getType());
         $taxn->setOrderNr($this->getOrderNr());
         if ($a_tax_id == 0) {
@@ -272,6 +309,21 @@ class ilTaxonomyNode
 
         return self::_lookup($a_obj_id, "title");
     }
+
+    // fau: taxDesc - function to lookup description
+    /**
+     * Lookup Description
+     *
+     * @param	int			node ID
+     * @return	string		description
+     */
+    public static function _lookupDescription($a_obj_id)
+    {
+        global $ilDB;
+
+        return self::_lookup($a_obj_id, "description");
+    }
+    // fau.
 
     /**
      * Put this node into the taxonomy tree
@@ -340,14 +392,32 @@ class ilTaxonomyNode
         global $DIC;
 
         $ilDB = $DIC->database();
-        
         $ilDB->manipulate(
             "UPDATE tax_node SET " .
             " title = " . $ilDB->quote($a_title, "text") .
             " WHERE obj_id = " . $ilDB->quote($a_node_id, "integer")
         );
     }
-    
+
+    // fau: taxDesc - statically write the description
+    /**
+     * Write description
+     *
+     * @param
+     * @return
+     */
+    public static function writeDescription($a_node_id, $a_description)
+    {
+        global $ilDB;
+
+        $ilDB->manipulate(
+            "UPDATE tax_node SET " .
+            " description = " . $ilDB->quote($a_description, "text") .
+            " WHERE obj_id = " . $ilDB->quote($a_node_id, "integer")
+        );
+    }
+    // fau.
+
     /**
      * Put this node into the taxonomy tree
      */

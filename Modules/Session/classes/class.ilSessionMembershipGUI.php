@@ -37,7 +37,12 @@ class ilSessionMembershipGUI extends ilMembershipGUI
         if (!$a_ref_id) {
             $a_ref_id = $this->getParentObject()->getRefId();
         }
-        return $this->checkPermissionBool($a_rbac_perm, $a_ref_id);
+        // fau: fixSessionManageMembersPerm - use write permission ('manage_members' not available for session), fix arguments
+        if ($a_rbac_perm == 'manage_members') {
+            $a_rbac_perm = 'write';
+        }
+        return $this->checkPermissionBool($a_rbac_perm, '', 'sess', $a_ref_id);
+        // fau.
     }
 
     
@@ -52,7 +57,7 @@ class ilSessionMembershipGUI extends ilMembershipGUI
     
     /**
      * init waiting list
-     * @return ilGroupWaitingList
+     * @return ilSessionWaitingList
      */
     protected function initWaitingList()
     {

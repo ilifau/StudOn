@@ -119,8 +119,21 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                     $opt->addSubItem($vis);
                 }
             }
+
+            // fau: lpQuestionsPercent - form input for percent
+            if ($mode_key == ilLPObjSettings::LP_MODE_QUESTIONS) {
+                $perc = new ilNumberInputGUI($this->lng->txt('trac_mode_questions_percent'), 'questions_percent');
+                $perc->setSize(5);
+                $perc->setMaxLength(5);
+                $perc->setMinValue(0);
+                $perc->setMaxValue(100);
+                $perc->setDecimals(1);
+                $perc->setRequired(true);
+                $perc->setValue($this->obj_settings->getQuestionsPercent());
+                $opt->addSubItem($perc);
+            }
         }
-        
+        // fau.
         $form->addCommandButton('saveSettings', $this->lng->txt('save'));
 
         return $form;
@@ -157,6 +170,17 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                 $old_visits = $this->obj_settings->getVisits();
                 $visits_changed = ($old_visits != $new_visits);
             }
+
+            // fau: lpQuestionsPercent - check change of questions percent
+            // questions percent
+            $new_questions_percent = null;
+            $questions_percent_changed = null;
+            if ($new_mode == ilLPObjSettings::LP_MODE_QUESTIONS) {
+                $new_questions_percent = (float) $form->getInput('questions_percent');
+                $old_questions_percent = $this->obj_settings->getQuestionsPercent();
+                $questions_percent_changed = ($new_questions_percent != $old_questions_percent);
+            }
+            // fau.
             
             if ($mode_changed) {
                 // delete existing collection
@@ -165,14 +189,19 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                     $collection->delete();
                 }
             }
-            
-            $refresh_lp = ($mode_changed || $visits_changed);
+
+            // fau: lpQuestionsPercent - refresh lp if questions percent have changed
+            $refresh_lp = ($mode_changed || $visits_changed || $questions_percent_changed);
+            // fau.
             
             // has to be done before LP refresh!
             $this->obj_lp->resetCaches();
             
             $this->obj_settings->setMode($new_mode);
             $this->obj_settings->setVisits($new_visits);
+            // fau: lpQuestionsPercent - sez the questions percent
+            $this->obj_settings->setQuestionsPercent($new_questions_percent);
+            // fau.
             $this->obj_settings->update($refresh_lp);
             
             if ($mode_changed &&

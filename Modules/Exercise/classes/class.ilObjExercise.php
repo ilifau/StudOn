@@ -31,21 +31,30 @@ class ilObjExercise extends ilObject
     public $year;
     public $instruction;
     public $certificate_visibility;
-    
+
+    // fau: exNotify - property for feedback notification
+    /** @var bool */
+    public $feedback_notification = true;
+    // fau.
+
     public $tutor_feedback = 7; // [int]
 
     /**
      * @var int number of mandatory assignments in random pass mode
      */
     protected $nr_random_mand;
-    
+
     const TUTOR_FEEDBACK_MAIL = 1;
     const TUTOR_FEEDBACK_TEXT = 2;
     const TUTOR_FEEDBACK_FILE = 4;
-
+    
     const PASS_MODE_NR = "nr";
     const PASS_MODE_ALL = "all";
     const PASS_MODE_RANDOM = "random";
+    // fau: exCalc - constants for pass mode
+    const PASS_MODE_CALC = 'calc';
+    const PASS_MODE_MANUAL = 'man';
+    // fau.
 
     /**
      *
@@ -128,7 +137,37 @@ class ilObjExercise extends ilObject
     {
         return $this->instruction;
     }
-    
+
+    // fau: exCalc - new function getInstructionDisplayText()
+    /**
+     * Get the text displayed for instructions
+     * Either the configured itext is taken or a generated text
+     */
+    public function getInstructionDisplayText()
+    {
+        if (!empty($this->getInstruction())) {
+            return $this->getInstruction();
+        }
+        switch ($this->getPassMode()) {
+            case self::PASS_MODE_ALL:
+                return $this->lng->txt("exc_msg_all_mandatory_ass");
+
+            case self::PASS_MODE_NR:
+                return sprintf($this->lng->txt("exc_msg_min_number_ass"), $this->getPassNr());
+
+            case self::PASS_MODE_MANUAL:
+            case self::PASS_MODE_CALC:
+                include_once "./Modules/Exercise/classes/class.ilExCalculate.php";
+                $exCalc = new ilExCalculate($this);
+                $text = $exCalc->getDescriptionText();
+                if (!empty($text)) {
+                    return $text;
+                }
+                return ($this->lng->txt($this->getPassMode() == self::PASS_MODE_MANUAL ? 'exc_pass_manual_info' : 'exc_pass_calc_info'));
+        }
+    }
+    // fau.
+
     /**
      * Set pass mode (all | nr)
      *
@@ -198,7 +237,7 @@ class ilObjExercise extends ilObject
     {
         $this->nr_random_mand = $a_val;
     }
-    
+
     /**
      * Get number of mandatory assignments in random pass mode
      *
@@ -208,7 +247,7 @@ class ilObjExercise extends ilObject
     {
         return $this->nr_random_mand;
     }
-    
+
 
     /*	function getFiles()
         {
@@ -263,7 +302,10 @@ class ilObjExercise extends ilObject
             "show_submissions" => array("integer", (int) $this->getShowSubmissions()),
             'compl_by_submission' => array('integer', (int) $this->isCompletionBySubmissionEnabled()),
             "certificate_visibility" => array("integer", (int) $this->getCertificateVisibility()),
-            "tfeedback" => array("integer", (int) $this->getTutorFeedback())
+            // fau: exNotify - save feedback notification
+            "feedback_notification" => array('integer', $this->hasFeedbackNotification()),
+            // fau.
+        "tfeedback" => array("integer", (int) $this->getTutorFeedback())
             ));
         return true;
     }
@@ -291,10 +333,21 @@ class ilObjExercise extends ilObject
         $new_obj->setCompletionBySubmission($this->isCompletionBySubmissionEnabled());
         $new_obj->setTutorFeedback($this->getTutorFeedback());
         $new_obj->setCertificateVisibility($this->getCertificateVisibility());
+        // fau: exNotify - clone feedback notification
+        $new_obj->setFeedbackNotification($this->hasFeedbackNotification());
+        // fau.
         $new_obj->update();
 
         $new_obj->saveCertificateVisibility($this->getCertificateVisibility());
-        
+
+        // fau: exCalc - clone calculation settings
+        include_once "./Modules/Exercise/classes/class.ilExCalculate.php";
+        $exCalc = new ilExCalculate($this);
+        /** @var ilObjExercise $new_obj */
+        $exCalc->setExercise($new_obj);
+        $exCalc->writeOptions();
+        // fau.
+
         // Copy criteria catalogues
         $crit_cat_map = array();
         foreach (ilExcCriteriaCatalogue::getInstancesByParentId($this->getId()) as $crit_cat) {
@@ -360,6 +413,12 @@ class ilObjExercise extends ilObject
 
         ilExcCriteriaCatalogue::deleteByParent($this->getId());
 
+        // fau: exCalc - delete calculation settings
+        include_once "./Modules/Exercise/classes/class.ilExCalculate.php";
+        $exCalc = new ilExCalculate($this);
+        $exCalc->deleteOptions();
+        // fau.
+
         // remove all notifications
         ilNotification::removeForObject(ilNotification::TYPE_EXERCISE_SUBMISSION, $this->getId());
             
@@ -397,6 +456,9 @@ class ilObjExercise extends ilObject
             $this->setCompletionBySubmission($row->compl_by_submission == 1 ? true : false);
             $this->setCertificateVisibility($row->certificate_visibility);
             $this->setTutorFeedback($row->tfeedback);
+            // fau: exNotify - read feedback notification
+            $this->setFeedbackNotification($row->feedback_notification);
+            // fau,
         }
         
         $this->members_obj = new ilExerciseMembers($this);
@@ -424,6 +486,9 @@ class ilObjExercise extends ilObject
             "nr_mandatory_random" => array("integer", (int) $this->getNrMandatoryRandom()),
             "show_submissions" => array("integer", (int) $this->getShowSubmissions()),
             'compl_by_submission' => array('integer', (int) $this->isCompletionBySubmissionEnabled()),
+            // fau: exNotify - save feedback notification
+            "feedback_notification" => array('integer', $this->hasFeedbackNotification()),
+            // fau.
             'tfeedback' => array('integer', (int) $this->getTutorFeedback()),
             ), array(
             "obj_id" => array("integer", $this->getId())
@@ -460,7 +525,7 @@ class ilObjExercise extends ilObject
           ? $lng->txt("exc_no_deadline_specified")
           : ilDatePresentation::formatDate(new ilDateTime($a_ass->getDeadline(), IL_CAL_UNIX));
         $body .= "\n\n";
-        
+
         $body .= ilLink::_getLink($this->getRefId(), "exc");
         
 
@@ -525,7 +590,7 @@ class ilObjExercise extends ilObject
         if ($a_user_id == 0) {
             $a_user_id = $ilUser->getId();
         }
-        
+
         $ass = ilExAssignment::getInstancesByExercise($this->getId());
         
         $passed_all_mandatory = true;
@@ -533,10 +598,19 @@ class ilObjExercise extends ilObject
         $cnt_passed = 0;
         $cnt_notgraded = 0;
 
+        // fau: exResTime - force "notgraded" status if result time is not reached
+        // fau: exPlag - use effective status
+        $result_time_open = false;
         /** @var ilExAssignment $a */
         foreach ($ass as $a) {
-            $stat = $a->getMemberStatus($a_user_id)->getStatus();
+            $stat = $a->getMemberStatus($a_user_id)->getEffectiveStatus();
             $mandatory = $mandatory_manager->isMandatoryForUser($a->getId(), $a_user_id);
+
+            if ((int) $a->getResultTime() > time()) {
+                $stat = "notgraded";
+                $result_time_open = true;
+            }
+
             if ($mandatory && ($stat == "failed" || $stat == "notgraded")) {
                 $passed_all_mandatory = false;
             }
@@ -550,12 +624,25 @@ class ilObjExercise extends ilObject
                 $cnt_notgraded++;
             }
         }
-        
+        // fau.
+
         if (count($ass) == 0) {
             $passed_all_mandatory = false;
         }
-        
-        if ($this->getPassMode() == self::PASS_MODE_ALL) {
+
+        // fau: exCalc - add status determination for calc and manual modes, use constants
+        if ($this->getPassMode() == self::PASS_MODE_CALC) {
+            // trigger a calculation
+            include_once("./Modules/Exercise/classes/class.ilExCalculate.php");
+            $calculator = new ilExCalculate($this);
+            $calculator->calculateResults([$a_user_id]);
+            // lookup the calculation result
+            $overall_stat = ilExerciseMembers::_lookupStatus($this->getId(), $a_user_id);
+        } elseif ($this->getPassMode() == self::PASS_MODE_MANUAL) {
+            // lookup the existing status (manually set or previously calculated)
+            $overall_stat = ilExerciseMembers::_lookupStatus($this->getId(), $a_user_id);
+        } elseif ($this->getPassMode() == self::PASS_MODE_ALL) {
+        // fau.
             $overall_stat = "notgraded";
             if ($failed_a_mandatory) {
                 $overall_stat = "failed";
@@ -579,12 +666,23 @@ class ilObjExercise extends ilObject
             }
         }
 
+        // fau: exResTime - provide info about open result time and preliminary status
+        $preliminary_stat = $overall_stat;
+        if ($this->getPassMode() == self::PASS_MODE_CALC) {
+            $preliminary_stat = $calculator->calculatePreliminaryStatus($a_user_id);
+        }
+        if ($result_time_open) {
+            $overall_stat = "notgraded";
+        }
         $ret = array(
+            "result_time_open" => $result_time_open,
+            "preliminary_status" => $preliminary_stat,
             "overall_status" => $overall_stat,
             "failed_a_mandatory" => $failed_a_mandatory);
         //echo "<br>p:".$cnt_passed.":ng:".$cnt_notgraded;
         //var_dump($ret); exit;
         return $ret;
+        // fau.
     }
     
     /**
@@ -592,11 +690,28 @@ class ilObjExercise extends ilObject
      */
     public function updateUserStatus($a_user_id = 0)
     {
+        // fau: exCalc - prevent an update in PASS_MODE_MANUAL
+        // in PASS_MODE_MANUAL the status is manually set in ilExerciseManagementGUI::saveGradesObject
+        if ($this->getPassMode() == self::PASS_MODE_MANUAL) {
+            return;
+        }
+        // fau.
+
         $ilUser = $this->user;
         
         if ($a_user_id == 0) {
             $a_user_id = $ilUser->getId();
         }
+
+        // fau: exCalc - call calculation directly in PASS_MODE_CALC
+        // in PASS_MODE_CALC the status is written by ilExCalculate
+        if ($this->getPassMode() == self::PASS_MODE_CALC) {
+            include_once("./Modules/Exercise/classes/class.ilExCalculate.php");
+            $calculator = new ilExCalculate($this);
+            $calculator->calculateResults([$a_user_id]);
+            return;
+        }
+        // fau.
 
         $st = $this->determinStatusOfUser($a_user_id);
 
@@ -612,11 +727,29 @@ class ilObjExercise extends ilObject
      */
     public function updateAllUsersStatus()
     {
+        // fau: exCalc - prevent an update in PASS_MODE_MANUAL
+        // in PASS_MODE_MANUAL the status is manually set in ilExerciseManagementGUI::saveGradesObject
+        if ($this->getPassMode() == self::PASS_MODE_MANUAL) {
+            return;
+        }
+        // fau.
+
         if (!is_object($this->members_obj)) {
             $this->members_obj = new ilExerciseMembers($this);
         }
         
         $mems = $this->members_obj->getMembers();
+
+        // fau: exCalc - call calculation directly in PASS_MODE_CALC
+        // in PASS_MODE_CALC the status is written by ilExCalculate
+        if ($this->getPassMode() == self::PASS_MODE_CALC) {
+            include_once("./Modules/Exercise/classes/class.ilExCalculate.php");
+            $calculator = new ilExCalculate($this);
+            $calculator->calculateResults($mems);
+            return;
+        }
+        // fau.
+
         foreach ($mems as $mem) {
             $this->updateUserStatus($mem);
         }
@@ -627,8 +760,13 @@ class ilObjExercise extends ilObject
      */
     public function exportGradesExcel()
     {
+
+// fau: exGradesExport - check whether matriculation can be exported
+        $full_data = ilCust::extendedUserDataAccess();
+        // fau.
+
         $ass_data = ilExAssignment::getInstancesByExercise($this->getId());
-        
+
         $excel = new ilExcel();
         $excel->addSheet($this->lng->txt("exc_status"));
         
@@ -638,44 +776,59 @@ class ilObjExercise extends ilObject
         //
         
         // header row
-        $row = $cnt = 1;
-        $excel->setCell($row, 0, $this->lng->txt("name"));
-        foreach ($ass_data as $ass) {
-            $excel->setCell($row, $cnt++, ($cnt / 2) . " - ". $this->lng->txt("exc_tbl_status"));
-            $excel->setCell($row, $cnt++, (($cnt - 1) / 2) . " - ". $this->lng->txt("exc_tbl_mark"));
+        // fau: exGradesExport - add extra fields to header
+        $row = 1;
+        $col = 0;
+        $excel->setCell($row, $col++, $this->lng->txt("login"));
+        $excel->setCell($row, $col++, $this->lng->txt("name"));
+        if ($full_data) {
+            $excel->setCell($row, $col++, $this->lng->txt("matriculation"));
         }
-        $excel->setCell($row, $cnt++, $this->lng->txt("exc_total_exc"));
-        $excel->setCell($row, $cnt++, $this->lng->txt("exc_mark"));
-        $excel->setCell($row++, $cnt, $this->lng->txt("exc_comment_for_learner"));
-        $excel->setBold("A1:" . $excel->getColumnCoord($cnt) . "1");
+        $ass_cnt = 1;
+        foreach ($ass_data as $ass) {
+            $excel->setCell($row, $col++, $ass_cnt++);
+        }
+        $excel->setCell($row, $col++, $this->lng->txt("exc_total_exc"));
+        $excel->setCell($row, $col++, $this->lng->txt("exc_mark"));
+        $excel->setCell($row++, $col, $this->lng->txt("exc_comment_for_learner"));
+        $excel->setBold("A1:" . $excel->getColumnCoord($col) . "1");
+        // fau.
         
         // data rows
         $mem_obj = new ilExerciseMembers($this);
-        
+
         $filtered_members = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
             'edit_submissions_grades',
             'edit_submissions_grades',
             $this->getRefId(),
             (array) $mem_obj->getMembers()
         );
-        
+
         foreach ((array) $filtered_members as $user_id) {
-            $mems[$user_id] = ilObjUser::_lookupName($user_id);
+            // fau: exGradesExport - get all user fields
+            $mems[$user_id] = ilObjUser::_lookupFields($user_id);
+            // fau.
         }
         $mems = ilUtil::sortArray($mems, "lastname", "asc", false, true);
-        
+
         foreach ($mems as $user_id => $d) {
+            // fau: exGradesExport - add extra fields to row
             $col = 0;
 
+            // login
+            $excel->setCell($row, $col++, $d["login"]);
             // name
             $excel->setCell($row, $col++, $d["lastname"] . ", " . $d["firstname"] . " [" . $d["login"] . "]");
+            // matriculation
+            if ($full_data) {
+                $excel->setCell($row, $col++, $d["matriculation"]);
+            }
+            // fau.
 
             reset($ass_data);
             foreach ($ass_data as $ass) {
-                $status = $ass->getMemberStatus($user_id)->getStatus();
-                $mark = $ass->getMemberStatus($user_id)->getMark();
+                $status = $ass->getMemberStatus($user_id)->getEffectiveStatus();
                 $excel->setCell($row, $col++, $this->lng->txt("exc_" . $status));
-                $excel->setCell($row, $col++, $mark);
             }
             
             // total status
@@ -696,26 +849,46 @@ class ilObjExercise extends ilObject
         $excel->addSheet($this->lng->txt("exc_mark"));
         
         // header row
-        $row = $cnt = 1;
-        $excel->setCell($row, 0, $this->lng->txt("name"));
+        // fau: exGradesExport -  add extra fields to header
+        $row = 1;
+        $cnt = 0;
+        $excel->setCell($row, $cnt++, $this->lng->txt("login"));
+        $excel->setCell($row, $cnt++, $this->lng->txt("name"));
+        if ($full_data) {
+            $excel->setCell($row, $cnt++, $this->lng->txt("matriculation"));
+        }
+        $ass_cnt = 1;
         foreach ($ass_data as $ass) {
-            $excel->setCell($row, $cnt++, $cnt - 1);
+            $excel->setCell($row, $cnt++, $ass_cnt++);
         }
         $excel->setCell($row++, $cnt++, $this->lng->txt("exc_total_exc"));
         $excel->setBold("A1:" . $excel->getColumnCoord($cnt) . "1");
-        
+        // fau.
+
         // data rows
         reset($mems);
         foreach ($mems as $user_id => $d) {
             $col = 0;
-            
+
+            // fau: exGradesExport - add extra fields to row
+            // login
+            $excel->setCell($row, $col++, $d["login"]);
             // name
-            $d = ilObjUser::_lookupName($user_id);
+            // fau: exGradesExport - get all user fields
+            $mems[$user_id] = ilObjUser::_lookupFields($user_id);
+            // fau.
             $excel->setCell($row, $col++, $d["lastname"] . ", " . $d["firstname"] . " [" . $d["login"] . "]");
+            // matriculation
+            if ($full_data) {
+                $excel->setCell($row, $col++, $d["matriculation"]);
+            }
+            // fau.
 
             reset($ass_data);
             foreach ($ass_data as $ass) {
-                $excel->setCell($row, $col++, $ass->getMemberStatus($user_id)->getMark());
+                // fau: exPlag - export the effective mark
+                $excel->setCell($row, $col++, $ass->getMemberStatus($user_id)->getEffectiveMark($ass->hasNumericPoints()));
+                // fau.
             }
             
             // total mark
@@ -731,11 +904,18 @@ class ilObjExercise extends ilObject
      */
     public function sendFeedbackFileNotification($a_feedback_file, $a_user_id, $a_ass_id, $a_is_text_feedback = false)
     {
+
+        // fau: exNotify - optionally prevent sending of the feedback notification
+        if (!$this->hasFeedbackNotification()) {
+            return;
+        }
+        // fau.
+
         $user_ids = $a_user_id;
         if (!is_array($user_ids)) {
             $user_ids = array($user_ids);
         }
-        
+
         $type = (bool) $a_is_text_feedback
             ? ilExerciseMailNotification::TYPE_FEEDBACK_TEXT_ADDED
             : ilExerciseMailNotification::TYPE_FEEDBACK_FILE_ADDED;
@@ -763,7 +943,39 @@ class ilObjExercise extends ilObject
     {
         return $this->completion_by_submission;
     }
-    
+
+    // fau: exMemDelete - new function isMemberDeleteAllowed()
+    /**
+     * Check if delete of members and their submissions is allowed
+     * @return bool
+     */
+    public function isMemberDeleteAllowed() {
+        return ilObjExerciseAccess::checkExtendedGradingAccess($this->getRefId(), true);
+    }
+    // fau.
+
+    // fau: exGradeTime - new function isIndividualDeadlineSettingAllowed()
+    /**
+     * Check if setting of individual deadlines is allowed
+     * @return bool
+     */
+    public function isIndividualDeadlineSettingAllowed() {
+        return ilObjExerciseAccess::checkExtendedGradingAccess($this->getRefId(), true);
+    }
+    // fau.
+
+
+    // fau: exPlag - new function isPlagiarismSettingAllowed()
+    /**
+     * Check if the flag and comment for plagiarism can be set
+     * @return bool
+     */
+    public function isPlagiarismSettingAllowed() {
+        return ilObjExerciseAccess::checkExtendedGradingAccess($this->getRefId(), true);
+    }
+    // fau.
+
+
     /**
      *
      * Enabled/Disable completion by submission
@@ -783,7 +995,7 @@ class ilObjExercise extends ilObject
     public function processExerciseStatus(ilExAssignment $a_ass, array $a_user_ids, $a_has_submitted, array $a_valid_submissions = null)
     {
         $a_has_submitted = (bool) $a_has_submitted;
-        
+
         foreach ($a_user_ids as $user_id) {
             $member_status = $a_ass->getMemberStatus($user_id);
             $member_status->setReturned($a_has_submitted);
@@ -884,4 +1096,22 @@ class ilObjExercise extends ilObject
         $exc_set = new ilSetting("excs");
         return (bool) $exc_set->get("add_to_pd", true);
     }
+
+    // fau: exNotify - getter and setter for feedback notification
+    /**
+     * @return bool
+     */
+    public function hasFeedbackNotification() : bool
+    {
+        return (bool) $this->feedback_notification;
+    }
+
+    /**
+     * @param bool $feedback_notification
+     */
+    public function setFeedbackNotification($feedback_notification)
+    {
+        $this->feedback_notification = $feedback_notification;
+    }
+    // fau.
 }

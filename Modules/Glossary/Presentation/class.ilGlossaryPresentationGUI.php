@@ -459,10 +459,13 @@ class ilGlossaryPresentationGUI
         $tpl = $this->tpl;
 
         if (!$this->offlineMode()) {
+            // fau: inheritContentStyle - get the effective content style by ref_id
             $tpl->addCss(ilObjStyleSheet::getContentStylePath(ilObjStyleSheet::getEffectiveContentStyleId(
                 $this->glossary->getStyleSheetId(),
-                "glo"
+                $this->glossary->getType(),
+                $this->glossary->getRefId()
             )));
+            // fau.
             $tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());
         } else {
             $tpl->addCss("content.css");
@@ -594,7 +597,13 @@ class ilGlossaryPresentationGUI
             $this->basicPageGuiInit($page_gui);
             $page_gui->setGlossary($this->glossary);
             $page_gui->setOutputMode($a_page_mode);
-            $page_gui->setStyleId($this->glossary->getStyleSheetId());
+            // fau: inheritContentStyle - get the effective content style for the page
+            $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
+                $this->glossary->getStyleSheetId(),
+                'glo',
+                $this->glossary->getRefId()
+            ));
+            // fau.
             $page = $page_gui->getPageObject();
 
             // internal links
@@ -767,10 +776,18 @@ class ilGlossaryPresentationGUI
     {
         $this->tpl = new ilGlobalTemplate("tpl.fullscreen.html", true, true, "Services/COPage");
         $this->tpl->setVariable("LOCATION_STYLESHEET", ilUtil::getStyleSheetLocation());
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->tpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath($this->glossary->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->glossary->getStyleSheetId(),
+                    $this->glossary->getType(),
+                    $this->glossary->getRefId()
+                )
+            )
         );
+        // fau.
 
         //$int_links = $page_object->getInternalLinks();
         $med_links = ilMediaItem::_getMapAreasIntLinks($this->requested_mob_id);
@@ -1251,7 +1268,7 @@ class ilGlossaryPresentationGUI
         $ilHelp = $this->help;
         
         $ilHelp->setScreenIdComponent("glo");
-        
+
         if (!$this->offlineMode()) {
             if ($this->ctrl->getCmd() != "listDefinitions") {
                 if ($ilAccess->checkAccess("read", "", $this->requested_ref_id)) {

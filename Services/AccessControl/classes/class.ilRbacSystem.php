@@ -70,7 +70,7 @@ class ilRbacSystem
         self::$_paCache = null;
         self::$_checkAccessOfUserCache = null;
     }
-    
+
     /**
     * checkAccess represents the main method of the RBAC-system in ILIAS3 developers want to use
     *  With this method you check the permissions a use may have due to its roles
@@ -200,6 +200,15 @@ class ilRbacSystem
 
         $operations = explode(",", $a_operations);
         foreach ($operations as $operation) {
+            // fau: studyData - add check for studydata based access
+            // a grant overrules the rbac access
+            if ($operation == "read" or $operation == "visible") {
+                if (ilStudyAccess::_checkAccess($a_ref_id, $a_user_id)) {
+                    continue;
+                }
+            }
+            // fau.
+
             if ($operation == "create") {
                 if (empty($a_type)) {
                     $this->ilErr->raiseError(
@@ -213,6 +222,23 @@ class ilRbacSystem
                 $ops_id = ilRbacReview::_getOperationIdByName($operation);
             }
             if (!in_array($ops_id, (array) $ops)) {
+
+                // fau: fixMissingCopyOperation - check write permission if copy operation is not defined for type
+                // this may be the case for some repository plugins, even if they implement a copy procedure
+                // the analogy to 'write' is also used by db update when copy operations are introduced
+                // e.g. in update steps #4894 or #4915
+                if ($operation == 'copy') {
+                    $ref_type = ilObject::_lookupType($a_ref_id, true);
+                    $type_operations = $DIC->rbac()->review()->getOperationsOnTypeString($ref_type);
+                    if (!is_array($type_operations) || !in_array($ops_id, $type_operations)) {
+                        $write_id = ilRbacReview::_getOperationIdByName('write');
+                        if (in_array($write_id, (array) $ops)) {
+                            continue;
+                        }
+                    }
+                }
+                // fau.
+
                 //$ilLog->write('PERMISSION: '.$a_ref_id.' -> '.$a_ops_id.' failed');
                 // Store negative outcome in cache.
                 // Note: we only cache up to 1000 results to avoid memory overflows
@@ -389,7 +415,7 @@ class ilRbacSystem
     {
         include_once './Services/Container/classes/class.ilMemberViewSettings.php';
         $settings = ilMemberViewSettings::getInstance();
-        
+
         // disable member view
         if (
             isset($_GET['mv']) &&
@@ -421,7 +447,7 @@ class ilRbacSystem
             $this->mem_view['active'] = true;
             $this->mem_view['items'] = $tree->getSubTreeIds($settings->getContainer());
             $this->mem_view['items'] = array_merge($this->mem_view['items'], array($settings->getContainer()));
-            
+
             include_once './Services/Membership/classes/class.ilParticipants.php';
             $this->mem_view['role'] = ilParticipants::getDefaultMemberRole($settings->getContainer());
         }

@@ -150,9 +150,11 @@ class ilLOEditorGUI
                 $pgui->setPresentationTitle(ilCourseObjective::lookupObjectiveTitle($objtv_id));
 
                 include_once('./Services/Style/Content/classes/class.ilObjStyleSheet.php');
+// fau: inheritContentStyle - add ref_id
                 $pgui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
                     $this->parent_obj->getStyleSheetId(),
-                    $this->parent_obj->getType()
+                    $this->parent_obj->getType(),
+                    $this->parent_obj->getRefId()
                 ));
 
                 // #14895
@@ -161,11 +163,13 @@ class ilLOEditorGUI
                     "LOCATION_CONTENT_STYLESHEET",
                     ilObjStyleSheet::getContentStylePath(ilObjStyleSheet::getEffectiveContentStyleId(
                         $this->parent_obj->getStyleSheetId(),
-                        $this->parent_obj->getType()
+                        $this->parent_obj->getType(),
+                        $this->parent_obj->getRefId()
                     ))
                 );
                 $GLOBALS['DIC']['tpl']->parseCurrentBlock();
-                
+// fau.
+
                 $ret = $this->ctrl->forwardCommand($pgui);
                 if ($ret) {
                     $GLOBALS['DIC']['tpl']->setContent($ret);

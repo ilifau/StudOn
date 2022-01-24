@@ -416,7 +416,10 @@ class ilMediaPlayerGUI
             $r = $mp_tpl->get();
 
             if (!$a_preview) {
-                $tpl->addOnLoadCode("new MediaElementPlayer('player_" . $this->id . "_" . $this->current_nr . "');");
+                // fau: jumpMedia - activate skipback and jumpforward links
+                $cfg = "{features: ['playpause', 'current', 'progress', 'skipback', 'jumpforward', 'volume', 'fullscreen'], skipBackInterval: 10, jumpForwardInterval: 10}";
+                $tpl->addOnLoadCode("new MediaElementPlayer('player_" . $this->id . "_" . $this->current_nr . "', $cfg);");
+                // fau.
             }
 
             //echo htmlentities($r); exit;

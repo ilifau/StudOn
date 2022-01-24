@@ -225,9 +225,11 @@ abstract class ilCronJob
      */
     public function hasCustomSettings()
     {
-        return false;
+        // fau: cronSetLastRun - enable custom settings
+        return true;
+        // fau.
     }
-    
+
     /**
      * Add custom settings to form
      *
@@ -235,6 +237,21 @@ abstract class ilCronJob
      */
     public function addCustomSettingsToForm(ilPropertyFormGUI $a_form)
     {
+        // fau: cronSetLastRun - add last run setting
+        global $DIC;
+        $lng = $DIC->language();
+
+        $setrun = new ilCheckboxInputGUI($lng->txt('cron_set_last_run'), 'set_last_run');
+        $setrun->setInfo($lng->txt('cron_set_last_run_info'));
+        $a_form->addItem($setrun);
+
+        $lastrun = new ilDateTimeInputGUI($lng->txt('cron_last_run'), 'last_run');
+        $lastrun->setShowTime(true);
+        $lastrun->setShowSeconds(false);
+        $lastrun->setMinuteStepSize(10);
+        $lastrun->setDate($this->getLastRun());
+        $setrun->addSubItem($lastrun);
+        // fau.
     }
     
     /**
@@ -245,8 +262,53 @@ abstract class ilCronJob
      */
     public function saveCustomSettings(ilPropertyFormGUI $a_form)
     {
+        // fau: cronSetLastRun - save last run setting
+        global $DIC;
+        $ilDB = $DIC->database();
+        $ilUser = $DIC->user();
+
+        if ($a_form->getInput('set_last_run')) {
+            /** @var ilDateTimeInputGUI $lastrun */
+            $lastrun = $a_form->getItemByPostVar('last_run');
+
+            /** @var ilDateTime $date */
+            $date = $lastrun->getDate();
+
+            if (isset($date)) {
+
+                $sql = "UPDATE cron_job SET ".
+                    " job_result_status = ".$ilDB->quote(null, "integer").
+                    " , job_result_user_id = ".$ilDB->quote($ilUser->getId(), "integer").
+                    " , job_result_code = ".$ilDB->quote(ilCronJobResult::CODE_MANUAL_RESET, "text").
+                    " , job_result_message = ".$ilDB->quote('', "text").
+                    " , job_result_type = ".$ilDB->quote(1, "integer").
+                    " , job_result_ts = ".$ilDB->quote($date->getUnixTime(), "integer").
+                    " , job_result_dur = ".$ilDB->quote(0, "integer").
+                    " WHERE job_id = ".$ilDB->quote($this->getId(), "text");
+                $ilDB->manipulate($sql);
+            }
+        }
+        // fau.
+
         return true;
     }
+
+    /**
+     * get the date of the last run
+     * @return ilDateTime|null
+     * @throws ilDateTimeException
+     */
+    public function getLastRun()
+    {
+        $rows = ilCronManager::getCronJobData($this->getId());
+        $ts = $rows[0]['job_result_ts'];
+
+        if ($ts > 0) {
+            return new ilDateTime($ts, IL_CAL_UNIX);
+        }
+        return null;
+    }
+
 
     /**
      * Add external settings to form

@@ -168,9 +168,17 @@ class ilLPStatusTestPassed extends ilLPStatus
 
                 if ($test_obj->getPassScoring() == SCORE_LAST_PASS) {
                     $is_finished = false;
-                    if ($rec['last_finished_pass'] != null && $rec['sequences'] - 1 == $rec['last_finished_pass']) {
+                    // fau: fixTestLpAfterManualFinish - allow lower Sequence Number
+                    if ($rec['last_finished_pass'] != null && $rec['sequences'] - 1 <= $rec['last_finished_pass']) {
                         $is_finished = true;
                     }
+//                    log_line('---');
+//                    log_line(ilObjUser::_lookupLogin($a_user_id));
+//                    log_var($a_user_id,'$a_user_id');
+//                    log_var($rec['last_finished_pass'], 'last_finished_pass');
+//                    log_var($rec['sequences'], 'sequences');
+//                    log_var($is_finished,'$is_finished');
+                    // fau.
                     $status = $this->determineStatusForScoreLastPassTests($is_finished, $is_passed);
                 } elseif ($test_obj->getPassScoring() == SCORE_BEST_PASS) {
                     $status = self::LP_STATUS_IN_PROGRESS_NUM;

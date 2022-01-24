@@ -51,11 +51,20 @@ class ilMailMemberCourseRoles extends ilAbstractMailMemberRoles
         $counter = 3;
 
         foreach ($role_ids as $role_id) {
+            // fau: mailToRoleAddress - always use the role title for standard roles
             $role_title = ilObject::_lookupTitle($role_id);
-            $mailbox = $this->getMailboxRoleAddress($role_id);
+            if (substr($role_title, 0, 7) == 'il_crs_') {
+                $mailbox = '#' . $role_title;
+            } else {
+                $mailbox = $this->getMailboxRoleAddress($role_id);
+            }
+            // fau.
 
             switch (substr($role_title, 0, 8)) {
                 case 'il_crs_a':
+// fau: mailToMembers - identify admins for mail roles
+                    $sorted_role_ids[2]['is_admin'] = true;
+// fau.
                     $sorted_role_ids[2]['role_id'] = $role_id;
                     $sorted_role_ids[2]['mailbox'] = $mailbox;
                     $sorted_role_ids[2]['form_option_title'] = $this->lng->txt('send_mail_admins');

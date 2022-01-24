@@ -29,6 +29,9 @@ class ilObjExerciseAdministrationGUI extends ilObjectGUI
         parent::__construct($a_data, $a_id, $a_call_by_reference, $a_prepare_output);
 
         $this->lng->loadLanguageModule("exercise");
+        // fau: exStatement - add language module
+        $this->lng->loadLanguageModule("exc");
+        // fau.
     }
 
     /**
@@ -119,7 +122,11 @@ class ilObjExerciseAdministrationGUI extends ilObjectGUI
         if ($form->checkInput()) {
             $exc_set = new ilSetting("excs");
             $exc_set->set("add_to_pd", (bool) $form->getInput("pd"));
-            
+
+            // fau: exStatement - checkbox for default setting
+            $exc_set->set("require_authorship_statement", (bool) $form->getInput("require_authorship_statement"));
+            // fau.
+
             ilUtil::sendSuccess($this->lng->txt("settings_saved"), true);
             $ilCtrl->redirect($this, "editSettings");
         }
@@ -163,6 +170,14 @@ class ilObjExerciseAdministrationGUI extends ilObjectGUI
         $pd->setInfo($lng->txt("exc_to_desktop_info"));
         $pd->setChecked($exc_set->get("add_to_pd", true));
         $form->addItem($pd);
+
+        // fau: exStatement - checkbox for default setting
+        $st = new ilCheckboxInputGUI($lng->txt("exc_require_authorship_statement"), "require_authorship_statement");
+        $st->setInfo($lng->txt("exc_require_authorship_statement_default"));
+        $st->setChecked($exc_set->get("require_authorship_statement", false));
+        $form->addItem($st);
+        // fau.
+
 
         return $form;
     }

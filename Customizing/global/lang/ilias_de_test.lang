@@ -1,0 +1,8 @@
+/**
+* StudOn: added German language variables for local customizations
+*
+* @version			$Id: $
+*/
+<!-- language file start -->
+common#:#local_login_to_ilias_addition#:#(Selbst registrierte Nutzer)
+common#:#login_to_ilias_via_shibboleth_addition#:#(Nutzer mit IdM-Account)

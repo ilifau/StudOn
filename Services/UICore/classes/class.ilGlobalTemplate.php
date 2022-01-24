@@ -161,14 +161,16 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
             $diff = $t2[0] - $t1[0] + $t2[1] - $t1[1];
 
             $mem_usage = array();
+            // fau: devmodeFooter - show memory usage as MB
             if (function_exists("memory_get_usage")) {
                 $mem_usage[] =
-                    "Memory Usage: " . memory_get_usage() . " Bytes";
+                    "Memory Usage: " . round(memory_get_usage() / (1024 * 1024)) . " MB";
             }
             if (function_exists("xdebug_peak_memory_usage")) {
                 $mem_usage[] =
-                    "XDebug Peak Memory Usage: " . xdebug_peak_memory_usage() . " Bytes";
+                    "XDebug Peak Memory Usage: " . round(xdebug_peak_memory_usage() / (1024 * 1024)) . " MB";
             }
+            // fau.
             $mem_usage[] = round($diff, 4) . " Seconds";
 
             if (sizeof($mem_usage)) {
@@ -453,6 +455,29 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
         }
     }
 
+    // fau: jumpMedia - new function removeJavaScript
+    /**
+     * Remove a javascript file that should not be included in the header.
+     */
+    public function removeJavaScript($a_js_file)
+    {
+        $keep = [];
+        foreach($this->js_files as $file) {
+            if ($file != $a_js_file) {
+                $keep[] = $file;
+            }
+        }
+        $this->js_files = $keep;
+
+        if (isset( $this->js_files_vp[$a_js_file])) {
+            unset($this->js_files_vp[$a_js_file]);
+        }
+        if (isset( $this->js_files_batch[$a_js_file])) {
+            unset($this->js_files_batch[$a_js_file]);
+        }
+    }
+    // fau.
+
     /**
      * Add on load code
      */
@@ -513,7 +538,9 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
         $ilSetting = $DIC->settings();
 
         if (is_object($ilSetting)) {		// maybe this one can be removed
-            $vers = "vers=" . str_replace(array(".", " "), "-", $ilSetting->get("ilias_version"));
+            // fau: versionSuffix - use the version number with own suffix
+            $vers = "vers=" . str_replace(array(".", " "), "-", $ilSetting->get("ilias_version_suffix"));
+            // fau.
 
             if (DEVMODE) {
                 $vers .= '-' . time();
@@ -601,6 +628,18 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
             $this->css_files[$a_css_file . $media] = array("file" => $a_css_file, "media" => $media);
         }
     }
+
+    // fau: jumpMedia - new function removeCss()
+    /**
+     * Remove a css file that should not be included in the header.
+     */
+    public function removeCss($a_css_file, $media = "screen") {
+        if (array_key_exists($a_css_file . $media, $this->css_files)) {
+            unset($this->css_files[$a_css_file . $media]);
+        }
+    }
+    // fau.
+
 
     // REMOVAL CANDIDATE
     // Usage locations:
@@ -985,9 +1024,11 @@ class ilGlobalTemplate implements ilGlobalTemplateInterface
         if (count((array) $this->title_alerts)) {
             foreach ($this->title_alerts as $alert) {
                 $this->setCurrentBlock('header_alert');
-                if (!($alert['propertyNameVisible'] === false)) {
+                // fau: showMemLimit - show alert property name only if it exists
+                if ($alert['property'] != '' and !($alert['propertyNameVisible'] === false)) {
                     $this->setVariable('H_PROP', $alert['property'] . ':');
                 }
+                // fau.
                 $this->setVariable('H_VALUE', $alert['value']);
                 $this->parseCurrentBlock();
             }

@@ -2,6 +2,10 @@
 
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+// fau: customSettings - require ilCust as early as possible (for plugins), settings are lazy loaded
+require_once 'Customizing/classes/class.ilCust.php';
+// fau.
+
 /**
  * Service context (factory) class
  *
@@ -34,6 +38,9 @@ class ilContext
     const CONTEXT_SHIBBOLETH = 'ilContextShibboleth';
     const CONTEXT_LTI_PROVIDER = 'ilContextLTIProvider';
     const CONTEXT_SAML = 'ilContextSaml';
+    // fau: customPatches - add context for patches
+    const CONTEXT_PATCH = 'ilContextPatch';
+    // fau.
     
     
     /**

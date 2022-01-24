@@ -198,7 +198,7 @@ class ilPageObjectGUI
         $this->lng->loadLanguageModule("copg");
 
         $this->tool_context = $DIC->globalScreen()->tool()->context();
-        
+
         $this->setTemplateOutput(false);
 
         $this->ctrl->saveParameter($this, "transl");
@@ -751,7 +751,7 @@ class ilPageObjectGUI
     {
         return $this->open_place_holder;
     }
-    
+
 
     /**
     * Get Enable page focus.
@@ -1822,6 +1822,14 @@ class ilPageObjectGUI
         // ensure no cache hit, if included files/media objects have been changed
         $params["incl_elements_date"] = $this->obj->getLastUpdateOfIncludedElements();
 
+        // fau: imageBox - init colorbox and add parameter to open fullscreen in box
+        if ($this instanceof ilAssQuestionPageGUI) {
+            iljQueryUtil::initColorbox();
+            $params["fullscreen_in_colorbox"] = true;
+        } else {
+            $params["fullscreen_in_colorbox"] = false;
+        }
+        // fau.
 
         // should be modularized
         include_once("./Services/COPage/classes/class.ilPCSection.php");
@@ -1889,8 +1897,14 @@ class ilPageObjectGUI
                 $output = $this->insertPageToc($output);
             }
 
+        // fau: shortRssLink - don't add special elements to abstract
+        if ($this->getAbstractOnly()) {
+            $output = $this->removeAdvTrigger($output);
+        } else {
             // insert advanced output trigger
             $output = $this->insertAdvTrigger($output);
+        }
+        // fau.
 
             // workaround for preventing template engine
             // from hiding paragraph text that is enclosed
@@ -2608,8 +2622,33 @@ class ilPageObjectGUI
         
         return $a_output;
     }
-    
-    
+
+    // fau: shortRssLink - new function RemoveAdvTrigger
+    /**
+     * Remove adv content trigger
+     *
+     * @param string $a_output output
+     * @return string modified output
+     */
+    public function RemoveAdvTrigger($a_output)
+    {
+        global $lng;
+
+        $a_output = str_replace(
+            "{{{{{LV_show_adv}}}}}",
+            '',
+            $a_output
+        );
+        $a_output = str_replace(
+            "{{{{{LV_hide_adv}}}}}",
+            '',
+            $a_output
+        );
+
+        return $a_output;
+    }
+    // fau.
+
     /**
      * Finalizing output processing. Maybe overwritten in derived
      * classes, e.g. in wiki module.
@@ -2618,7 +2657,7 @@ class ilPageObjectGUI
     {
         return $a_output;
     }
-    
+
 
     /**
      * Preview history
@@ -3293,7 +3332,7 @@ class ilPageObjectGUI
         if ($export) {
             $notes_gui->setExportMode();
         }
-        
+
         if ($a_callback) {
             $notes_gui->addObserver($a_callback);
         }

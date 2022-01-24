@@ -294,10 +294,14 @@ class ilObjUserFolderGUI extends ilObjectGUI
         $ilTabs = $DIC['ilTabs'];
 
         include_once("./Services/User/classes/class.ilUserTableGUI.php");
+
+        // fau: userQuery - don't load the items twice if filter is applied
         $utab = new ilUserTableGUI(
             $this,
-            "view"
-        );
+  view",
+        ilUserTableGUI::MODE_USER_FOLDER,
+        false);
+        // fau.
         $utab->resetOffset();
         $utab->writeFilterToSession();
         $this->viewObject();
@@ -1670,9 +1674,10 @@ class ilObjUserFolderGUI extends ilObjectGUI
         $this->lng->loadLanguageModule("mail");
         $amail = ilObjUserFolder::_lookupNewAccountMail($this->lng->getDefaultLanguage());
         if (trim($amail["body"]) != "" && trim($amail["subject"]) != "") {
+            // fau: checkUserAdminMail - don't check sending of notification by default
             $send_checkbox = $ui->input()->field()->checkbox($this->lng->txt("user_send_new_account_mail"))
-                                ->withValue(true);
-
+                                ->withValue(false);
+            // fau.
             $mail_section = $ui->input()->field()->section(
                 [$send_checkbox],
                 $this->lng->txt("mail_account_mail")
@@ -4194,7 +4199,7 @@ class ilObjUserFolderGUI extends ilObjectGUI
                 $fields['ps_security_protection'] = array(null, null, $subitems);
 
                 return array(array("generalSettings", $fields));
-                
+
             case ilAdministrationSettingsFormHandler::FORM_TOS:
                 return [
                     [

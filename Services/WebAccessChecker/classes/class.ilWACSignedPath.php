@@ -27,7 +27,10 @@ class ilWACSignedPath
     const WAC_TTL_ID = 'il_wac_ttl';
     const TS_SUFFIX = 'ts';
     const TTL_SUFFIX = 'ttl';
-    const MAX_LIFETIME = 600;
+    // fau: webAccessChecker - increase global limit for max lifetime of tokens
+    const MAX_LIFETIME = 7200;
+    // fau.
+
     /**
      * @var ilWACPath
      */
@@ -43,7 +46,9 @@ class ilWACSignedPath
     /**
      * @var int
      */
-    protected static $token_max_lifetime_in_seconds = 3;
+    // fau: webAccessChecker - increase default max lifetime of tokens
+    protected static $token_max_lifetime_in_seconds = 10;
+    // fau.
     /**
      * @var int
      */

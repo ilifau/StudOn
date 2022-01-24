@@ -19,7 +19,15 @@ class ilScormExportUtil
         ilUtil::makeDir($a_target_dir . "/css/images");
         
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-        $active_css = ilObjStyleSheet::getContentStylePath($a_slm_object->getStyleSheetId());
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $active_css = ilObjStyleSheet::getContentStylePath(
+            ilObjStyleSheet::getEffectiveContentStyleId(
+                $a_slm_object->getStyleSheetId(),
+                $a_slm_object->getType(),
+                $a_slm_object->getRefId()
+            )
+        );
+        // fau.
         $active_css = explode('?', $active_css);
         $css = fread(fopen($active_css[0], 'r'), filesize($active_css[0]));
         preg_match_all("/url\(([^\)]*)\)/", $css, $files);

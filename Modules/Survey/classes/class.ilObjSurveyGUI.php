@@ -565,7 +565,7 @@ class ilObjSurveyGUI extends ilObjectGUI
                         $tut_res->setAlert($this->lng->txt("svy_notification_tutor_results_alert"));
                         $valid = false;
                     }
-                    
+
                     // check if given "tutors" have write permission
                     $tut_res_ids = array();
                     $tut_logins = $form->getInput("tut_res_ids");
@@ -626,7 +626,7 @@ class ilObjSurveyGUI extends ilObjectGUI
                     } else {
                         $this->object->setTutorNotificationStatus(false);
                     }
-                    
+
                     if ($form->getInput("tut_res")) {
                         $this->object->setTutorResultsStatus(true);
                         $this->object->setTutorResultsRecipients($tut_res_ids); // see above
@@ -708,7 +708,7 @@ class ilObjSurveyGUI extends ilObjectGUI
                     }
                 }
 
-                
+
                 $introduction = $_POST["introduction"];
                 $this->object->setIntroduction($introduction);
                 $outro = $_POST["outro"];
@@ -749,6 +749,8 @@ class ilObjSurveyGUI extends ilObjectGUI
                             $hide_anon = $template_settings["anonymization_options"]["hide"];
                             if (!$hide_codes || !$hide_anon) {
                                 $current = $this->object->getAnonymize();
+                                // fau: surveyCaptcha - save the captcha option for anonymization
+                                $captcha = (bool) $_POST["captcha"];
 
                                 // get current setting if property is hidden
                                 if (!$hide_codes) {
@@ -766,13 +768,17 @@ class ilObjSurveyGUI extends ilObjectGUI
 
                                 // parse incoming values
                                 if (!$anon) {
-                                    if (!$codes) {
+                                    if ($captcha) {
+                                        $this->object->setAnonymize(ilObjSurvey::ANONYMIZE_CAPTCHA);
+                                    } elseif (!$codes) {
                                         $this->object->setAnonymize(ilObjSurvey::ANONYMIZE_OFF);
                                     } else {
                                         $this->object->setAnonymize(ilObjSurvey::ANONYMIZE_CODE_ALL);
                                     }
                                 } else {
-                                    if ($codes) {
+                                    if ($captcha) {
+                                        $this->object->setAnonymize(ilObjSurvey::ANONYMIZE_CAPTCHA);
+                                    } elseif ($codes) {
                                         $this->object->setAnonymize(ilObjSurvey::ANONYMIZE_ON);
                                     } else {
                                         $this->object->setAnonymize(ilObjSurvey::ANONYMIZE_FREEACCESS);
@@ -780,7 +786,7 @@ class ilObjSurveyGUI extends ilObjectGUI
 
                                     $this->object->setAnonymousUserList($_POST["anon_list"]);
                                 }
-
+                                // fau.
                                 // if settings were changed get rid of existing code
                                 unset($_SESSION["anonymous_id"][$this->object->getId()]);
                             }
@@ -831,7 +837,7 @@ class ilObjSurveyGUI extends ilObjectGUI
             $template_settings = $template->getSettings();
             $hide_rte_switch = $template_settings["rte_switch"]["hide"];
         }
-        
+
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
         $form->setTableWidth("100%");
@@ -844,7 +850,7 @@ class ilObjSurveyGUI extends ilObjectGUI
         
         
         // title & description (meta data)
-        
+
         $md_obj = new ilMD($this->object->getId(), 0, "svy");
         $md_section = $md_obj->getGeneral();
 
@@ -912,7 +918,7 @@ class ilObjSurveyGUI extends ilObjectGUI
         $online->setInfo($this->lng->txt('svy_activation_online_info') . $act_obj_info);
         $online->setChecked(!$this->object->getOfflineStatus());
         $form->addItem($online);
-        
+
         $dur = new ilDateDurationInputGUI($this->lng->txt('rep_visibility_until'), "access_period");
         $dur->setShowTime(true);
         $date = $this->object->getActivationStartDate();
@@ -995,6 +1001,13 @@ class ilObjSurveyGUI extends ilObjectGUI
             if (ilObjSurvey::_hasDatasets($this->object->getSurveyId())) {
                 $codes->setDisabled(true);
             }
+
+            // fau: surveyCaptcha - add captcha option to anonymizations
+            $captcha = new ilCheckboxInputGUI($this->lng->txt("anonymize_with_captcha"), "captcha");
+            $captcha->setInfo($this->lng->txt("anonymize_with_captcha_info"));
+            $captcha->setChecked($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA);
+            $form->addItem($captcha);
+            // fau.
         }
         
         
@@ -1144,12 +1157,12 @@ class ilObjSurveyGUI extends ilObjectGUI
             );
             $tut_grp_inv->setInfo(sprintf($this->lng->txt("survey_notification_target_group_invited_info"), $num_inv));
             $tut_grp->addOption($tut_grp_inv);
-            
+
             $tut_res = new ilCheckboxInputGUI($this->lng->txt("svy_notification_tutor_results"), "tut_res");
             $tut_res->setInfo($this->lng->txt("svy_notification_tutor_results_info"));
             $tut_res->setChecked($this->object->getTutorResultsStatus());
             $form->addItem($tut_res);
-            
+
             $tut_res_logins = array();
             $tuts = $this->object->getTutorResultsRecipients();
             if ($tuts) {
@@ -1381,7 +1394,7 @@ class ilObjSurveyGUI extends ilObjectGUI
         }
             
         // competence service activation for 360 mode
-        
+
         $skmg_set = new ilSkillManagementSettings();
         $svy_mode = $this->object->getMode();
         if (($svy_mode == ilObjSurvey::MODE_360 || $svy_mode == ilObjSurvey::MODE_SELF_EVAL) && $skmg_set->isActivated()) {
@@ -1500,7 +1513,7 @@ class ilObjSurveyGUI extends ilObjectGUI
     public function doAutoCompleteObject()
     {
         $fields = array('login','firstname','lastname','email');
-                
+
         $auto = new ilUserAutoComplete();
         $auto->setSearchFields($fields);
         $auto->setResultField('login');
@@ -1684,9 +1697,9 @@ class ilObjSurveyGUI extends ilObjectGUI
         }
         
         $ilTabs->activateTab("info_short");
-        
+
         $output_gui = new ilSurveyExecutionGUI($this->object);
-        
+
         $info = new ilInfoScreenGUI($this);
         $info->enablePrivateNotes();
         
@@ -1907,7 +1920,7 @@ class ilObjSurveyGUI extends ilObjectGUI
                         }
 
                         $info->addSection($this->lng->txt("survey_360_rate_other_appraisees"));
-                        
+
                         foreach ($list as $appr_id => $item) {
                             $appr_name = ilUserUtil::getNamePresentation($appr_id, false, false, "", true);
                             
@@ -1917,7 +1930,7 @@ class ilObjSurveyGUI extends ilObjectGUI
                                 $this->ctrl->setParameter($output_gui, "appr_id", $appr_id);
                                 $href = $this->ctrl->getLinkTarget($output_gui, $item[0]);
                                 $this->ctrl->setParameter($output_gui, "appr_id", "");
-                                
+
                                 $button = ilLinkButton::getInstance();
                                 $button->setCaption($item[1], false);
                                 $button->setUrl($href);
@@ -1943,16 +1956,43 @@ class ilObjSurveyGUI extends ilObjectGUI
         }
         
         if ($big_button) {
-            $ilToolbar->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
-            
-            $button = ilSubmitButton::getInstance();
-            $button->setCaption($big_button[1], false);
-            $button->setCommand($big_button[0]);
-            $button->setPrimary(true);
-            $ilToolbar->addButtonInstance($button);
-            
-            $ilToolbar->setCloseFormTag(false);
-            $info->setOpenFormTag(false);
+            // fau: surveyCaptcha - generate captcha
+            if ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA and $ilUser->getId() == ANONYMOUS_USER_ID) {
+                global $lng;
+                $lng->loadLanguageModule('cptch');
+
+                include_once("./Services/Captcha/classes/class.ilSecurImageUtil.php");
+                $tpl = new ilTemplate("tpl.prop_captchainput.html", true, true, "Services/Captcha");
+                $tpl->setVariable("IMAGE_SCRIPT", ilSecurImageUtil::getImageScript());
+                $tpl->setVariable("POST_VAR", "captcha");
+                $tpl->setVariable('CAPTCHA_ID', "captcha");
+                $tpl->setVariable('AUDIO_SCRIPT', ilSecurImageUtil::getAudioScript());
+                $tpl->setVariable('SRC_RELOAD', ilSecurImageUtil::getDirectory() . '/images/refresh.png');
+
+                $tpl->setVariable('TXT_CAPTCHA_ALT', $lng->txt('captcha_alt_txt'));
+                $tpl->setVariable('TXT_RELOAD', $lng->txt('captcha_code_reload'));
+                $tpl->setVariable('TXT_CAPTCHA_AUDIO_TITLE', $lng->txt('captcha_audio_title'));
+                $tpl->setVariable('TXT_CONSTR_PROP', $lng->txt('cont_constrain_proportions'));
+                $tpl->setVariable('TXT_CAPTCHA_INFO', $lng->txt('captcha_code_info'));
+
+
+                $info->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
+                $captcha_submit =
+                    $tpl->get()
+                    . '<p><input type="submit" class="btn btn-primary" name="cmd[' . $big_button[0] . ']" value="' . $big_button[1] . '" /></p><hr />';
+            } else {
+                $ilToolbar->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
+
+                $button = ilSubmitButton::getInstance();
+                $button->setCaption($big_button[1], false);
+                $button->setCommand($big_button[0]);
+                $button->setPrimary(true);
+                $ilToolbar->addButtonInstance($button);
+
+                $ilToolbar->setCloseFormTag(false);
+                $info->setOpenFormTag(false);
+            }
+            // fau.
         }
         /* #12016
         else
@@ -1960,16 +2000,18 @@ class ilObjSurveyGUI extends ilObjectGUI
             $info->setFormAction($this->ctrl->getFormAction($output_gui, "infoScreen"));
         }
         */
-        
+
+        // fau: surveyCaptcha - include captcha
         if (strlen($this->object->getIntroduction())) {
             $introduction = $this->object->getIntroduction();
             $info->addSection($this->lng->txt("introduction"));
             $info->addProperty("", $this->object->prepareTextareaOutput($introduction) .
-                "<br />" . $info->getHiddenToggleButton());
+                $captcha_submit . "<br />" . $info->getHiddenToggleButton());
         } else {
             $info->addSection("");
-            $info->addProperty("", $info->getHiddenToggleButton());
+            $info->addProperty("", $captcha_submit . $info->getHiddenToggleButton());
         }
+        // fau.
 
         $info->hideFurtherSections(false);
                         
@@ -1982,7 +2024,7 @@ class ilObjSurveyGUI extends ilObjectGUI
                     ? $this->lng->txt("survey_results_personalized_info")
                     : $this->lng->txt("survey_results_anonymized_info")
             );
-                    
+
             if ($this->checkPermissionBool("write") ||
                 ilObjSurveyAccess::_hasEvaluationAccess($this->object->getId(), $ilUser->getId())) {
                 $info->addProperty($this->lng->txt("evaluation_access"), $this->lng->txt("evaluation_access_info"));

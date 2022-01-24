@@ -476,7 +476,7 @@ class ilObjMediaObject extends ilObject
         if (!$a_upload) {
             $this->updateMetaData();
         }
-        
+
         // iterate all items
         $media_items = $this->getMediaItems();
 
@@ -1438,6 +1438,12 @@ class ilObjMediaObject extends ilObject
             case "mep":
                 $obj_id = $id;
                 break;
+
+            // fau: webAccessChecker - Patch for Interactive Video
+            case "xvid":
+                $obj_id = $id;
+                break;
+            // fau.
 
             // News Context Object (e.g. MediaCast)
             case "news":

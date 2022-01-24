@@ -42,8 +42,38 @@ if (is_object($ilPluginAdmin)) {
     }
 }
 
+// fau: relativeLink - goto hook for rewriting the target
+if (substr($_GET['target'], 0, 6) == 'lcode_') {
+    require_once("Services/RelativeLink/classes/class.ilRelativeLinkGUI.php");
+    $relgui = new ilRelativeLinkGUI();
+    $relgui->gotoHook();
+}
+// fau.
+
+// fau: numericLink - lookup the type when only the ref_id or obj_id is given
+if (is_numeric($_GET['target'])) {
+    $type = ilObject::_lookupType((int) $_GET['target'], true);
+
+    // check if obj_id is given
+    if (empty($type)) {
+        $ref_ids = ilObject::_getAllReferences($_GET['target']);
+        foreach ($ref_ids as $ref_id) {
+            if (!ilObject::_isInTrash($ref_id)) {
+                $_GET['target'] = $ref_id;
+                $type = ilObject::_lookupType((int) $_GET['target'], true);
+                break;
+            }
+        }
+    }
+
+    if (!empty($type)) {
+        $_GET['target'] = $type . '_' . (int) $_GET['target'];
+    }
+}
+// fau.
+
 $r_pos = strpos($_GET["target"], "_");
-$rest = substr($_GET["target"], $r_pos+1);
+$rest = substr($_GET["target"], $r_pos + 1);
 $target_arr = explode("_", $_GET["target"]);
 $target_type = $target_arr[0];
 $target_id = $target_arr[1];
@@ -69,10 +99,91 @@ if (!ilStartUpGUI::_checkGoto($_GET["target"])) {
                 ilObject::_lookupTitle(ilObject::_lookupObjId($tarr[1]))
             ), true);
         }
-    
+
         ilUtil::redirect(ilUserUtil::getStartingPointAsUrl());
     }
 }
+
+/*
+ * fau: gotoLinks - explanation of target handling
+ *
+ * target:			crs_123_join
+ *
+ * target_arr: 		array(crs, 123, join)
+ * target_type: 	crs
+ * target_id: 		123
+ * rest: 			123_join
+ * additional: 		join
+ *
+ * target: 			univis_2011s.Lecture.21152058_join
+ *
+ * target_arr: 		array(univis, 2011s.Lecture.21152058, join)
+ * target_type: 	univis
+ * target_id: 		2011s.Lecture.21152058
+ * rest: 			2011s.Lecture.21152058_join
+ * additional: 		join
+ *
+ * called from ilInitialisation:
+ * ilStartUpGUI::_checkGoto($_GET["target"])
+ * - returns true for target types 'univis' and 'studon'
+ * - returns false for join command if user is anonymous
+ *
+ * called afterwards from goto.php:
+ * ilObjXyzGUI::_goto($rest) 					(default implementation)
+ * ilObjXyzGUI::_goto($target_id, $additional)	(specific implementation)
+ *
+ * fau.
+ */
+
+// fau: gotoLinks - studon specific goto requests
+// fau: regCodes - add code to registration link
+if ($target_type == 'studon') {
+    switch ($target_id) {
+        case "exportrequest":
+            include_once 'Services/StudyData/classes/class.ilStudyExportRequestGUI.php';
+            $ilCtrl->setTargetScript("goto.php");
+            $ilCtrl->getCallStructure("ilstudyexportrequestgui");
+            $ilCtrl->setParameterByClass("ilstudyexportrequestgui", "target", "studon_exportrequest");
+            $ilCtrl->forwardCommand(new ilStudyExportRequestGUI());
+            exit;
+
+        case "agreement":
+            ilUtil::redirect('ilias.php?baseClass=ilStartUpGUI&cmd=showTermsOfService');
+            break;
+
+        case "register":
+            if ($additional) {
+                ilUtil::redirect('register.php?code=' . $additional);
+            } else {
+                ilUtil::redirect('register.php');
+            }
+            break;
+    }
+}
+// fau.
+
+// fau: univisLinks - univis specific goto requests
+// DEPRECATED: univis links are handeled now by univis.php
+if ($target_type == 'univis') {
+    // search for the course by univis_id
+    $obj_id = ilObject::_lookupObjIdByImportId($target_id);
+    if (!$obj_id) {
+        ilUtil::sendFailure($lng->txt('univis_link_object_not_found'), true);
+        ilUtil::redirect('index.php');
+    }
+    $ref_ids = ilObject::_getAllReferences($obj_id);
+    if (count($ref_ids) == 0) {
+        ilUtil::sendFailure($lng->txt('univis_link_object_not_found'), true);
+        ilUtil::redirect('index.php');
+    }
+    $ref_id = end($ref_ids);
+
+    // redefine the parameters for standard target handling
+    $target_type = ilObject::_lookupType($obj_id);
+    $target_id = $ref_id;
+    $rest = $target_id . '_' . $additional;
+}
+// fau.
 
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

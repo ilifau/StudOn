@@ -89,7 +89,7 @@ class ilObjSessionAccess extends ilObjectAccess
         
         switch ($a_cmd) {
             case 'register':
-                
+
                 if (!self::_lookupRegistration($a_obj_id)) {
                     return false;
                 }
@@ -139,7 +139,7 @@ class ilObjSessionAccess extends ilObjectAccess
         }
         return false;
     }
-    
+
     /**
      * lookup registrations
      *
@@ -165,7 +165,7 @@ class ilObjSessionAccess extends ilObjectAccess
         }
         return self::$registrations[$a_obj_id];
     }
-    
+
     /**
      * lookup if user has registered
      *
@@ -185,8 +185,11 @@ class ilObjSessionAccess extends ilObjectAccess
 
         $ilDB = $DIC['ilDB'];
         $ilUser = $DIC['ilUser'];
-        
-        $query = "SELECT event_id, registered FROM event_participants WHERE usr_id = " . $ilDB->quote($ilUser->getId(), 'integer');
+
+        // fau: fixSessionRegistered - take the user parameter instead of ilUser
+        $a_usr_id = $a_usr_id ? $a_usr_id : $ilUser->getId();
+        $query = "SELECT event_id, registered FROM event_participants WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer');
+        // fau.
         $res = $ilDB->query($query);
         self::$registered[$a_usr_id] = array();
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {

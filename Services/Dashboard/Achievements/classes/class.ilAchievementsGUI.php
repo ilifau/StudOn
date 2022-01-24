@@ -166,9 +166,12 @@ class ilAchievementsGUI
             ilAchievements::SERV_COMPETENCES => [
                 "txt" => $lng->txt("skills")
             ],
-            ilAchievements::SERV_LEARNING_PROGRESS => [
-                "txt" => $lng->txt("learning_progress")
-            ],
+// fau: hideLpOnDesktop - don't show learning progress tab in achievements
+// see https://mantis.ilias.de/view.php?id=23396
+//			ilAchievements::SERV_LEARNING_PROGRESS => [
+//				"txt" => $lng->txt("learning_progress")
+//			],
+// fau.
             ilAchievements::SERV_BADGES => [
                 "txt" => $lng->txt('obj_bdga')
             ],

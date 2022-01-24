@@ -13,7 +13,9 @@
 	<!-- info on video preload attribute: http://www.stevesouders.com/blog/2013/04/12/html5-video-preload/ -->
 	<div id="player_{PLAYER_NR}_vtwrap" {STYLE} class="{WRAP_CLASS}">
 		<div>
-			<video src="{FILE}" id="player_{PLAYER_NR}" style="max-width: 100%;" controls="controls" preload="none" class="{CLASS}"></video>
+			<!-- fau: videoPreviewPic - add poster attribute -->
+			<video src="{FILE}" id="player_{PLAYER_NR}" style="max-width: 100%;" poster="{PREVIEW_PIC}" controls="controls" preload="none" class="{CLASS}"></video>
+			<!-- fau. -->
 			<div style="padding-top: 10px; font-size: 80%; color: #808080;">
 				<a href="#" onclick="il.MediaObjects.processCloseIcon(); return false;" class="ilMediaLightboxClose">{CLOSE}</a>
 				<p>{TITLE}</p>

@@ -70,6 +70,9 @@ class ilCertificateGUIFactory
                 $hasAdditionalElements = true;
 
                 $placeholderDescriptionObject = new ilCoursePlaceholderDescription($objectId);
+                // fau: courseCertData - add custom fields as placeholders
+                $placeholderDescriptionObject->addMoreCourseData($objectId);
+                // fau.
                 $placeholderValuesObject = new ilCoursePlaceholderValues();
 
 

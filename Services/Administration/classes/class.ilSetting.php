@@ -101,7 +101,7 @@ class ilSetting
                 self::$settings_cache[$this->module] = &$this->setting;
             }
         }
-
+        
         $query = "SELECT * FROM settings WHERE module=" . $ilDB->quote($this->module, "text");
         $res = $ilDB->query($query);
 
@@ -125,7 +125,12 @@ class ilSetting
         if ($a_keyword == "ilias_version") {
             return ILIAS_VERSION;
         }
-        
+        // fau: versionSuffix - define a version suffix for including css and js files
+        if ($a_keyword == "ilias_version_suffix") {
+            return ILIAS_VERSION_SUFFIX;
+        }
+        // fau.
+
         if (isset($this->setting[$a_keyword])) {
             return $this->setting[$a_keyword];
         } else {
@@ -213,8 +218,8 @@ class ilSetting
     public function set($a_key, $a_val)
     {
         $ilDB = $this->db;
-        
-        $this->delete($a_key);
+
+        // fau: fixSettingSave - change delete/insert to replace
 
         if (!isset(self::$value_type)) {
             self::$value_type = self::_getValueType();
@@ -227,10 +232,15 @@ class ilSetting
             $a_val = substr($a_val, 0, 4000);
         }
 
-        $ilDB->insert("settings", array(
-            "module" => array("text", $this->module),
-            "keyword" => array("text", $a_key),
-            "value" => array(self::$value_type, $a_val)));
+        $ilDB->replace(
+            "settings",
+            array(	"module" => array("text", $this->module),
+                      "keyword" => array("text", $a_key)
+            ),
+            array(	"value" => array(self::$value_type, $a_val)
+            )
+        );
+        // fau.
 
         $this->setting[$a_key] = $a_val;
 

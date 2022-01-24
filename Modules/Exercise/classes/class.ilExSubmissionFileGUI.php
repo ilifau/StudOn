@@ -54,10 +54,32 @@ class ilExSubmissionFileGUI extends ilExSubmissionBaseGUI
         if (!$this->submission->canView()) {
             $this->returnToParentObject();
         }
-        
+
         $class = $ilCtrl->getNextClass($this);
         $cmd = $ilCtrl->getCmd("submissionScreen");
-        
+
+
+        // fau: exAssHook - eventually prevent standard submission
+        $this->type_guis = ilExAssignmentTypesGUI::getInstance();
+        $type_gui = $this->type_guis->getById($this->assignment ->getType());
+        if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface
+            && $type_gui->hasOwnSubmissionScreen()) {
+
+            if (in_array($cmd, [
+                'confirmDeleteDelivered',
+                'deleteDelivered',
+                'submissionScreen',
+                'uploadFile',
+                'uploadForm',
+                'uploadZipForm',
+                'uploadZip'
+            ])) {
+                $this->returnToParentObject();
+            }
+        }
+        // fau.
+
+
         switch ($class) {
             default:
                 $this->{$cmd . "Object"}();
@@ -81,8 +103,14 @@ class ilExSubmissionFileGUI extends ilExSubmissionBaseGUI
             $files_str = $lng->txt("message_no_delivered_files");
         }
 
+        // fau: exStatement - suppress submission button
+        if($a_submission->getAssignment()->isAuthorshipStatementRequired()
+            && !$a_submission->getAssignment()->getMemberStatus()->hasAuthorshipStatement()) {
+            $files_str .= "<br><br>" . '<b>' .$lng->txt('exc_msg_authorship_statement_required') . '</b>';
+        }
+        // fau.
         // no team == no submission
-        if (!$a_submission->hasNoTeamYet()) {
+        elseif (!$a_submission->hasNoTeamYet()) {
             if ($a_submission->canSubmit()) {
                 $title = (count($titles) == 0
                     ? $lng->txt("exc_hand_in")
@@ -224,6 +252,12 @@ class ilExSubmissionFileGUI extends ilExSubmissionBaseGUI
         // file input
         $fi = new ilFileWizardInputGUI($lng->txt("file"), "deliver");
         $fi->setFilenames(array(0 => ''));
+        // fau: exFileSuffixes - set the allowed suffixes in upload form
+        if (!empty($this->assignment->getFileSuffixes())) {
+            $fi->setInfo($lng->txt('exc_file_suffixes'). ': ' . $this->assignment->getFileSuffixesInfo());
+        }
+        // fau.
+
         $fi->setRequired(true);
         $form->addItem($fi);
     
@@ -248,6 +282,11 @@ class ilExSubmissionFileGUI extends ilExSubmissionBaseGUI
     
         $fi = new ilFileInputGUI($lng->txt("file"), "deliver");
         $fi->setSuffixes(array("zip"));
+        // fau: exFileSuffixes - show the allowed suffixes for the zip upload
+        if (!empty($this->assignment->getFileSuffixes())) {
+            $fi->setInfo(sprintf($lng->txt('exc_file_suffixes_in_zip'), $this->assignment->getFileSuffixesInfo()));
+        }
+        // fau.
         $fi->setRequired(true);
         $form->addItem($fi);
     
@@ -277,6 +316,25 @@ class ilExSubmissionFileGUI extends ilExSubmissionBaseGUI
             }
             
             $success = false;
+
+
+            // fau: exFileSuffixes - check uploaded files
+            $wrong_names = [];
+            if (!empty($this->assignment->getFileSuffixes())) {
+                foreach ($_FILES["deliver"]["name"] as $key => $filename) {
+                    $pi = pathinfo($filename);
+                    if (!$this->assignment->checkFileSuffix($pi["extension"])) {
+                        $wrong_names[] = $filename;
+                    }
+                }
+            }
+            if (!empty($wrong_names)) {
+                ilUtil::sendFailure(sprintf($this->lng->txt("exc_wrong_filenames"), implode(', ', $wrong_names)), true);
+                $ilCtrl->redirect($this, "submissionScreen");
+            }
+            // fau.
+
+
             foreach ($_FILES["deliver"]["name"] as $k => $v) {
                 $file = array(
                     "name" => $_FILES["deliver"]["name"][$k],

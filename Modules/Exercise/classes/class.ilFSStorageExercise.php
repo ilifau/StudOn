@@ -274,25 +274,38 @@ class ilFSStorageExercise extends ilFileSystemStorage
         return $result;
     }
 
+    // fau: exMultiFeedbackStructure - get feedback files recursively
     /**
      * Get number of feedback files
      */
-    public function getFeedbackFiles($a_user_id)
+    public function getFeedbackFiles($a_user_id, $a_subpath = '')
     {
         $files = array();
-    
-        $dir = $this->getFeedbackPath($a_user_id);
+
+        if ($a_subpath) {
+            $dir = $this->getFeedbackPath($a_user_id) . '/' . $a_subpath;
+            $prefix = $a_subpath . '/';
+        }
+        else {
+            $dir = $this->getFeedbackPath($a_user_id);
+            $prefix = '';
+        }
+
         if (@is_dir($dir)) {
             $dp = opendir($dir);
             while ($file = readdir($dp)) {
-                if (!is_dir($this->path . '/' . $file) && substr($file, 0, 1) != ".") {
-                    $files[] = $file;
+                if (is_dir($dir . '/' . $file) && substr($file, 0, 1) != "." && substr($file, 0, 1) != "..") {
+                    $files = array_merge($files, $this->getFeedbackFiles($a_user_id, $prefix . $file));
+                }
+                if (!is_dir($dir . '/' . $file) && substr($file, 0, 1) != ".") {
+                    $files[] = $prefix . $file;
                 }
             }
         }
         
         return $files;
     }
+    // fau.
     
     /**
      * Count number of feedback files for a user

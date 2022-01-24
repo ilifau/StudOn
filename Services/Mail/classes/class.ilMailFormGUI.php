@@ -633,6 +633,9 @@ class ilMailFormGUI
         $inp->setSize(50);
         $inp->setValue($mailData["rcp_to"]);
         $inp->setDataSource($dsDataLink, ",");
+        // fau: mailToRolesInfo
+        $inp->setAlert($this->lng->txt('mail_only_own_courses_info'));
+        // fau.
         $inp->setMaxLength(null);
         $form_gui->addItem($inp);
 

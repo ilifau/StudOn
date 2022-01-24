@@ -327,6 +327,59 @@ abstract class ilParticipants
         return $rbacreview->isAssignedToAtLeastOneGivenRole($a_usr_id, $local_roles);
     }
 
+    // fau: mailToMembers - new function _isTutor()
+    /**
+     * Static function to check if a user is tutor of a course
+     * This is used for the special case where course tutors should be allowed to send a mail to the members
+     * @param int $a_ref_id
+     * @param int $a_usr_id
+     * @return bool
+     */
+    public static function _isTutor($a_ref_id, $a_usr_id)
+    {
+        global $DIC;
+        $assigned_tutor_roles = $DIC->rbac()->review()->getRolesByFilter(0, $a_usr_id, 'il_crs_tutor_' . $a_ref_id);
+        return !empty($assigned_tutor_roles);
+    }
+    // fau.
+
+    // fau: mailToMembers - new function _isLocalOrUpperAdmin()
+    /**
+     * Static function to check if the user has an admin role of this or an upper course/group
+     * This is used for the special case of nested groups where admins should see the member gallery
+     * without having write access in the groups
+     *
+     * @param int $a_ref_id
+     * @param int $a_usr_id
+     * @return bool
+     */
+    public static function _isLocalOrUpperAdmin($a_ref_id, $a_usr_id)
+    {
+        global $DIC;
+        $rbacreview = $DIC->rbac()->review();
+        /** @var ilTree $tree */
+        $tree = $DIC['tree'];
+
+        // check objects from current object upwards
+        $path_ids = array_reverse($tree->getPathId($a_ref_id));
+        foreach ($path_ids as $path_id) {
+            // this gets all roles with local policies
+            // it doen't get parent roles with protected permissions
+            // so the parent objects have to be checked explictly
+            $roles = $rbacreview->getRoleListByObject($path_id);
+            foreach ($roles as $role_data) {
+                if (substr($role_data['title'], 0, 13) == 'il_grp_admin_' || substr($role_data['title'], 0, 13) == 'il_crs_admin_') {
+                    // assigned checks are cached so it doesn't matter if roles are checked twice
+                    if ($rbacreview->isAssigned($a_usr_id, $role_data['obj_id'])) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    // fau.
+
     /**
      * Lookup the number of participants (crs admins, tutors, members, grp admins, members)
      *
@@ -708,6 +761,23 @@ abstract class ilParticipants
         return $this->roles ? $this->roles : array();
     }
     
+    
+    /**
+     * fau: heavySub - get the actual role id of a role type
+     *
+     * needed to check membership and count of members
+     * to avoid overbooking by heavy traffic
+     *
+     * @param 	integer		role type constant, e.g. IL_GRP_MEMBER
+     * @return	integer		actual role id
+     */
+    public function getRoleId($a_role_type)
+    {
+        return $this->role_data[$a_role_type];
+    }
+    // fau.
+    
+    
     /**
      * Get assigned roles
      *
@@ -1044,6 +1114,53 @@ abstract class ilParticipants
         );
         return true;
     }
+    
+
+    /**
+     * fau: heavySub - Add user to a role with limited members
+     *
+     * @access public
+     * @param 	int 		user id
+     * @param 	int 		role IL_CRS_MEMBER | IL_GRP_MEMBER
+     * @param 	int 		maximum members (0 if no maximum defined)
+     * @return  boolean 	user added (true) or not (false) or already assigned (null)
+     */
+    public function addLimited($a_usr_id, $a_role, $a_max)
+    {
+        global $rbacadmin,$ilLog,$ilAppEventHandler;
+
+        if ($this->isAssigned($a_usr_id)) {
+            return null;
+        } elseif (!$rbacadmin->assignUserLimitedCust($this->role_data[$a_role], $a_usr_id, $a_max, array($this->role_data[$a_role]))) {
+            return false;
+        }
+
+        switch ($a_role) {
+            case IL_CRS_MEMBER:
+                $this->members[] = $a_usr_id;
+                break;
+
+            case IL_GRP_MEMBER:
+                $this->members[] = $a_usr_id;
+                break;
+        }
+        $this->participants[] = $a_usr_id;
+        $this->addDesktopItem($a_usr_id);
+
+        // Delete subscription request
+        $this->deleteSubscriber($a_usr_id);
+
+        include_once './Services/Membership/classes/class.ilWaitingList.php';
+        ilWaitingList::deleteUserEntry($a_usr_id, $this->obj_id);
+
+        if ($this->type == 'crs') {
+            // Add event: used for ecs accounts
+            $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addParticipant');
+            $ilAppEventHandler->raise("Modules/Course", "addParticipant", array('usr_id' => $a_usr_id,'role_id' => $a_role));
+        }
+        return true;
+    }
+    // fau.
     
 
     /**
@@ -1625,6 +1742,93 @@ abstract class ilParticipants
         }
         return true;
     }
+
+    // fau: courseUdf - new function sendExternalNotification
+
+    /**
+     * @param ilObjCourse|ilObjGroup $a_object
+     * @param ilObjUser	$a_user
+     * @param bool	$a_changed	registration is changed, not added
+     */
+    public function sendExternalNotifications($a_object, $a_user, $a_changed = false)
+    {
+        global $ilSetting;
+
+        $user_data = ilCourseUserData::getFieldsWithData($a_object->getId(), $a_user->getId());
+        $notifications = array();
+
+        /** @var ilCourseDefinedFieldDefinition $field */
+        foreach ($user_data as $data) {
+            $field = $data['field'];
+            $value = $data['value'];
+            if ($field->getType() == IL_CDF_TYPE_EMAIL && $field->getEmailAuto() && ilUtil::is_email($value)) {
+                $notifications[$value] = $field->getEmailText();
+            }
+        }
+
+        if (empty($notifications)) {
+            return;
+        }
+
+        // prepare common data
+
+        $sender = new ilMailMimeSenderUser($ilSetting, $a_user);
+        $sender_address = $sender->getReplyToAddress();
+        $cc_address = '';
+        foreach ($this->getNotificationRecipients() as $admin_id) {
+            $address = ilObjUser::_lookupEmail($admin_id);
+            if (!empty($address)) {
+                $cc_address = $address;
+                break;
+            }
+        }
+        if (!empty($cc_address)) {
+            $reply_link = '<a href="mailto:' . $sender_address . '?cc=' . $cc_address . '">' . $sender_address . ', ' . $cc_address . '</a>';
+        } else {
+            $reply_link = '<a href="mailto:' . $sender_address . '">' . $sender_address . '</a>';
+        }
+
+
+        if ($a_changed) {
+            $subject = sprintf($this->lng->txt('mem_external_notification_subject_changed'), $a_user->getFullname(), $a_object->getTitle());
+        } else {
+            $subject = sprintf($this->lng->txt('mem_external_notification_subject'), $a_user->getFullname(), $a_object->getTitle());
+        }
+
+        $sep = ":\n";
+        $list = array();
+        $list[] = $this->lng->txt('user') . $sep . $a_user->getFullname();
+        $list[] = $this->lng->txt('email') . $sep . $a_user->getEmail();
+        $list[] = $this->lng->txt('title') . $sep . $a_object->getTitle();
+        if ($a_object->getType() == 'crs' && !empty($a_object->getSyllabus())) {
+            $list[] = $this->lng->txt('crs_syllabus') . $sep . $a_object->getSyllabus();
+        }
+
+        foreach ($user_data as $data) {
+            /** @var ilCourseDefinedFieldDefinition $field */
+            $field = $data['field'];
+            if (!empty($data['value'])) {
+                $list[] = $field->getName() . $sep . $data['value'];
+            }
+        }
+
+        $sub_text = implode("\n\n", $list);
+
+
+        // send the notifications
+
+        foreach ($notifications as $to_address => $text) {
+            $body = str_replace('[reply-to]', $reply_link, $text) . "\n\n" . $sub_text;
+
+            $mmail = new ilMimeMail();
+            $mmail->To($to_address);
+            $mmail->From($sender);
+            $mmail->Subject($subject);
+            $mmail->Body(nl2br($body));
+            $mmail->Send();
+        }
+    }
+    // fau.
 
     /**
      * read subscribers

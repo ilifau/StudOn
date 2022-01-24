@@ -84,13 +84,19 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
 
 
         $this->addCommandButton('copyContainerToTargets', $this->lng->txt('obj_' . $this->type . '_duplicate'));
+        // fau: copyBySoap - add button to send an email when copying is finished
+
+        if (ilCust::get('ilias_copy_by_soap')) {
+            $this->addCommandButton('copyContainerWithMail', $this->lng->txt('obj_' . $this->type . '_duplicate') . ' ' . $this->lng->txt('object_copy_with_mail_suffix'));
+        }
+        // fau.
         if ($a_back_cmd == "") {        // see bug #25991
             $this->addCommandButton("cancel", $this->lng->txt('cancel'));
         } else {
             $this->addCommandButton($a_back_cmd, $this->lng->txt('btn_back'));
         }
     }
-    
+
     /**
      * Get object type of source
      * @return

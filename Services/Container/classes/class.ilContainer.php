@@ -83,6 +83,11 @@ class ilContainer extends ilObject
     protected $news_timeline = false;
     protected $news_timeline_auto_entries = false;
 
+    // fau: inheritContentStyle - property for inheritance
+    /** @var bool $style_inheritance */
+    protected $style_inheritance = false;
+    // fau.
+
     // container view constants
     const VIEW_SESSIONS = 0;
     const VIEW_OBJECTIVE = 1;
@@ -242,6 +247,26 @@ class ilContainer extends ilObject
     {
         $this->style_id = $a_style_id;
     }
+
+    // fau: inheritContentStyle - getter and setter for inheritance
+    /**
+     * get inheritance of the style sheet object
+     * @return bool
+     */
+    public function getStyleSheetInheritance()
+    {
+        return $this->style_inheritance;
+    }
+
+    /**
+     * set inheritance of the style sheet object
+     * @param bool $a_types
+     */
+    public function setStyleSheetInheritance($a_types)
+    {
+        $this->style_inheritance = $a_types;
+    }
+    // fau.
 
     /**
      * Set news timeline
@@ -545,6 +570,9 @@ class ilContainer extends ilObject
             } else {
                 $new_obj->setStyleSheetId($this->getStyleSheetId());
             }
+            // fau: inheritContentStyle - clone style inheritance
+            $new_obj->setStyleSheetInheritance($this->getStyleSheetInheritance());
+            // fau.
         }
 
         // #10271 - copy start objects page
@@ -570,6 +598,10 @@ class ilContainer extends ilObject
         ilBlockSetting::cloneSettingsOfBlock("news", $this->getId(), $new_obj->getId());
         $mom_noti = new ilMembershipNotifications($this->getRefId());
         $mom_noti->cloneSettings($new_obj->getRefId());
+
+        // fau: studyCond - clone conditions when container is cloned
+        ilStudyAccess::_cloneConditions($this->getId(), $new_obj->getId());
+        // fau.
 
         return $new_obj;
     }
@@ -671,16 +703,20 @@ class ilContainer extends ilObject
         $soap_client->enableWSDL(true);
 
         $ilLog->write(__METHOD__ . ': Trying to call Soap client...');
-        if ($soap_client->init()) {
+        // fau: copyBySoap - customize use of SOAP for copying containers
+        if (ilCust::get('ilias_copy_by_soap') and $soap_client->init()) {
             ilLoggerFactory::getLogger('obj')->info('Calling soap clone method');
             $res = $soap_client->call('ilClone', array($new_session_id . '::' . $client_id, $copy_id));
         } else {
-            ilLoggerFactory::getLogger('obj')->warning('SOAP clone call failed. Calling clone method manually');
+            if (ilCust::get('ilias_copy_by_soap')) {
+                ilLoggerFactory::getLogger('obj')->warning('SOAP clone call failed. Calling clone method manually');
+            }
             $wizard_options->disableSOAP();
             $wizard_options->read();
             include_once('./webservice/soap/include/inc.soap_functions.php');
             $res = ilSoapFunctions::ilClone($new_session_id . '::' . $client_id, $copy_id);
         }
+        // fau.
         return array(
                 'copy_id' => $copy_id,
                 'ref_id' => (int) $res
@@ -701,6 +737,9 @@ class ilContainer extends ilObject
         // delete translations
         $this->obj_trans->delete();
 
+        // fau: studyCond - delete conditions when the container is deleted
+        ilStudyAccess::_deleteConditions($this->getId());
+        // fau.
         return true;
     }
 
@@ -988,8 +1027,11 @@ class ilContainer extends ilObject
 
         if (((int) $this->getStyleSheetId()) > 0) {
             include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-            ilObjStyleSheet::writeStyleUsage($this->getId(), $this->getStyleSheetId());
+            // fau: inheritContentStyle - create container without style inheritance (ref_id is not yet known)
+            // ref_id is not yet known, scope will be set in putInTree
+            ilObjStyleSheet::writeStyleUsage($this->getId(), $this->getStyleSheetId(), 0);
         }
+        // fau.
 
         $log = ilLoggerFactory::getLogger("cont");
         $log->debug("Create Container, id: " . $this->getId());
@@ -1018,7 +1060,12 @@ class ilContainer extends ilObject
         if (self::_lookupContainerSetting(ilObject::_lookupObjId($a_parent_ref), "hide_top_actions")) {
             self::_writeContainerSetting($this->getId(), "hide_top_actions", true);
         }
+        // fau: inheritContentStyle - save style inheritance when ref_id is known
+        if ($this->getStyleSheetId() && $this->getStyleSheetInheritance()) {
+            ilObjStyleSheet::writeStyleUsage($this->getId(), $this->getStyleSheetId(), $this->getRefId());
+        }
     }
+    // fau.
 
     /**
     * Update
@@ -1033,8 +1080,13 @@ class ilContainer extends ilObject
         $trans->save();
 
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-        ilObjStyleSheet::writeStyleUsage($this->getId(), $this->getStyleSheetId());
-
+        // fau: inheritContentStyle - update style inheritance
+        ilObjStyleSheet::writeStyleUsage(
+            $this->getId(),
+            $this->getStyleSheetId(),
+            $this->getStyleSheetInheritance() ? $this->getRefId() : 0
+        );
+        // fau.
         $log = ilLoggerFactory::getLogger("cont");
         $log->debug("Update Container, id: " . $this->getId());
 
@@ -1065,7 +1117,9 @@ class ilContainer extends ilObject
         
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
         $this->setStyleSheetId((int) ilObjStyleSheet::lookupObjectStyle($this->getId()));
-
+        // fau: inheritContentStyle - read style inheritance
+        $this->setStyleSheetInheritance((bool) ilObjStyleSheet::lookupObjectStyleScope($this->getId()));
+        // fau.
         $this->readContainerSettings();
         $this->obj_trans = ilObjectTranslation::getInstance($this->getId());
     }

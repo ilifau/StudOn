@@ -78,6 +78,39 @@ class ilDclFieldFactory
         }
     }
 
+    // fau: dclPerformance - new function preloadRecordFieldCache()
+    /**
+     * Preload the record field cache with selected fields for selected records
+     * @param $fields  ilDclBaseFieldModel[]
+     * @param $records ilDclBaseRecordModel[]
+     */
+    public static function preloadRecordFieldCache($fields, $records)
+    {
+        foreach ($fields as $field) {
+            $path = self::getClassPathByInstance($field, self::$record_field_class_patter);
+            if (file_exists($path)) {
+                require_once($path);
+                $class = self::getClassByInstance($field, self::$record_field_class_patter);
+
+                /** @var ilDclBaseRecordFieldModel[] $instances */
+                $instances = call_user_func($class . '::getInstances', $records, $field);
+
+                foreach ($instances as $instance) {
+                    if ($instance instanceof ilDclBaseRecordFieldModel) {
+                        if (!$instance->getFieldRepresentation()) {
+                            $instance->setFieldRepresentation(self::getFieldRepresentationInstance($field));
+                        }
+
+                        if (!$instance->getRecordRepresentation()) {
+                            $instance->setRecordRepresentation(self::getRecordRepresentationInstance($instance));
+                        }
+                        self::$record_field_cache[$field->getId()][$instance->getRecord()->getId()] = $instance;
+                    }
+                }
+            }
+        }
+    }
+    // fau.
 
     /**
      * @var array

@@ -139,6 +139,12 @@ class ilNestedSetTree implements ilTreeImplementation
         
         $fields = '* ';
         if (count($a_fields)) {
+            // fau: treeQuery53 - add the tree pk to the queried fields for later filter outside this function
+            if (!in_array($this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk(), $a_fields)
+                && !in_array($this->getTree()->getTreePk(), $a_fields)) {
+                $a_fields[] = $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk();
+            }
+            // fau.
             $fields = implode(',', $a_fields);
         }
 
@@ -1020,4 +1026,20 @@ class ilNestedSetTree implements ilTreeImplementation
         }
         return $failures;
     }
+
+    // fau: treeQuery - new function getGrandChildCondition()
+    /**
+     * Get an SQL condition for selecting grand childs of a node
+     * this is used by ilUtil::_getObjectsByOperations()
+     * @param array		$node data
+     * @param string	$a_alias for the tree table
+     * @return string	sql condition
+     */
+    public function getGrandChildCondition($node, $a_alias = "tree")
+    {
+        global $ilDB;
+
+        return '(' . $a_alias . '.lft > ' . $ilDB->quote($node['lft'], 'integer') . ' AND ' . $a_alias . '.rgt < ' . $ilDB->quote($node['rgt'], 'integer') . ')';
+    }
+    // fau.
 }

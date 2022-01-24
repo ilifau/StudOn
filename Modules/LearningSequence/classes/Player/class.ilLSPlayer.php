@@ -178,9 +178,13 @@ class ilLSPlayer
                 },
                 array_values($this->ls_items->getItems())
             );
-            if (in_array($current_item_ref_id, $valid_ref_ids)) {
+            // fau: fixLsoResume - add check for read permission on current item
+            global $DIC;
+            if (in_array($current_item_ref_id, $valid_ref_ids)
+                && $DIC->access()->checkAccess('read', '', $current_item_ref_id)) {
                 list($position, $current_item) = $this->findItemByRefId($items, $current_item_ref_id);
             }
+            // fau.
         }
         return $current_item;
     }

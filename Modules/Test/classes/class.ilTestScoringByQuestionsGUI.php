@@ -50,7 +50,7 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
 
         $tpl = $DIC->ui()->mainTemplate();
         $ilAccess = $DIC->access();
-        
+
         $DIC->tabs()->activateTab(ilTestTabsManager::TAB_ID_MANUAL_SCORING);
 
         if (
@@ -238,64 +238,63 @@ class ilTestScoringByQuestionsGUI extends ilTestScoringGUI
             $this->showManScoringByQuestionParticipantsTable($manPointsPost);
             return;
         }
-        
-        $changed_one = false;
-        $lastAndHopefullyCurrentQuestionId = null;
 
+        // fau: fixManScoringSuccessMessage	- show names of all changed participants
+        $changed_ids = array();
         foreach ($participantData->getActiveIds() as $active_id) {
             $questions = $activeData[$active_id];
+
             $update_participant = false;
             
-            if (false == $skipParticipant[$pass][$active_id]) {
-                foreach ((array) $questions as $qst_id => $reached_points) {
+            if ($skipParticipant[$pass][$active_id]) {
+                continue;
+            }
+
+            foreach ((array) $questions as $qst_id => $reached_points) {
                     $this->saveFeedback($active_id, $qst_id, $pass, $ajax);
-                    $update_participant = assQuestion::_setReachedPoints(
-                        $active_id,
-                        $qst_id,
-                        $reached_points,
-                        $maxPointsByQuestionId[$qst_id],
-                        $pass,
-                        1,
-                        $this->object->areObligationsEnabled()
-                    );
-                }
+                $update_participant = assQuestion::_setReachedPoints(
+                    $active_id,
+                    $qst_id,
+                    $reached_points,
+                    $maxPointsByQuestionId[$qst_id],
+                    $pass,
+                    1,
+                    $this->object->areObligationsEnabled()
+                );
+            }
 
-                if ($update_participant) {
-                    $changed_one = true;
-                    $lastAndHopefullyCurrentQuestionId = $qst_id;
+            if ($update_participant) {
+                $changed_ids[] = $active_id;
 
-                    ilLPStatusWrapper::_updateStatus(
-                        $this->object->getId(),
-                        ilObjTestAccess::_getParticipantId($active_id)
-                    );
-                }
+                ilLPStatusWrapper::_updateStatus(
+                    $this->object->getId(),
+                    ilObjTestAccess::_getParticipantId($active_id)
+                );
             }
         }
 
         $correction_feedback = [];
         $correction_points = 0;
 
-        if ($changed_one) {
-            $qTitle = '';
-
-            if ($lastAndHopefullyCurrentQuestionId) {
-                $question = assQuestion::_instantiateQuestion($lastAndHopefullyCurrentQuestionId);
-                $qTitle = $question->getTitle();
+        $changed_names = array();
+        foreach ($changed_ids as $active_id) {
+            if ($this->object->getAnonymity() == 0) {
+                $user_name = $user_name = ilObjUser::_lookupName(ilObjTestAccess::_getParticipantId($active_id));
+                $changed_names[] = $user_name['firstname'] . ' ' . $user_name['lastname'];
+            } else {
+                $changed_names[] = $DIC->language()->txt('anonymous');
             }
+        }
 
-            $msg = sprintf(
-                $this->lng->txt('tst_saved_manscoring_by_question_successfully'),
-                $qTitle,
-                $pass + 1
-            );
-
-            ilUtil::sendSuccess($msg, true);
+        if (!empty($changed_names)) {
+            ilUtil::sendSuccess(sprintf($this->lng->txt('tst_saved_manscoring_successfully'), $pass + 1, implode(', ', $changed_names)), true);
 
             if (isset($active_id)) {
                 $correction_feedback = $this->object->getSingleManualFeedback($active_id, $qst_id, $pass);
                 $correction_points = assQuestion::_getReachedPoints($active_id, $qst_id, $pass);
             }
         }
+        // fau.
 
         if ($ajax && is_array($correction_feedback)) {
             $correction_feedback['finalized_by'] = ilObjUser::_lookupFullname($correction_feedback['finalized_by_usr_id']);

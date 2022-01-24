@@ -70,7 +70,7 @@ class ilSurveyParticipantsGUI
      * @var Participants\InvitationsManager
      */
     protected $invitation_manager;
-    
+
     public function __construct(ilObjSurveyGUI $a_parent_gui, $a_has_write_access)
     {
         global $DIC;
@@ -108,7 +108,7 @@ class ilSurveyParticipantsGUI
         $ilCtrl = $this->ctrl;
         $ilTabs = $this->tabs;
         $lng = $this->lng;
-        
+
         $cmd = $ilCtrl->getCmd("maintenance");
         $next_class = $this->ctrl->getNextClass($this);
         
@@ -214,7 +214,7 @@ class ilSurveyParticipantsGUI
     {
         $ilToolbar = $this->toolbar;
         $lng = $this->lng;
-        
+
         if ($this->object->get360Mode()) {
             return $this->listAppraiseesObject();
         }
@@ -327,7 +327,7 @@ class ilSurveyParticipantsGUI
                 $this->ctrl->getLinkTarget($this, 'codes')
             );
         }
-        
+
 
         $data = $this->object->getExternalCodeRecipients();
         if (count($data)) {
@@ -340,7 +340,7 @@ class ilSurveyParticipantsGUI
 
         $ilTabs->activateSubTab($active);
     }
-    
+
 
 
     /**
@@ -486,12 +486,12 @@ class ilSurveyParticipantsGUI
 
         // creation buttons
         $ilToolbar->setFormAction($this->ctrl->getFormAction($this));
-        
+
         $si = new ilTextInputGUI($this->lng->txt("new_survey_codes"), "nrOfCodes");
         $si->setValue(1);
         $si->setSize(3);
         $ilToolbar->addInputItem($si, true);
-        
+
         $button = ilSubmitButton::getInstance();
         $button->setCaption("create");
         $button->setCommand("createSurveyCodes");
@@ -533,7 +533,7 @@ class ilSurveyParticipantsGUI
         $button->setCaption("set");
         $button->setCommand("setCodeLanguage");
         $ilToolbar->addButtonInstance($button);
-    
+
         $table_gui = new ilSurveyCodesTableGUI($this, 'codes');
         $survey_codes = $this->object->getSurveyCodesTableData(null, $default_lang);
         $table_gui->setData($survey_codes);
@@ -554,7 +554,7 @@ class ilSurveyParticipantsGUI
     
         $this->handleWriteAccess();
         $this->setParticipantSubTabs("codes");
-        
+
         $table_gui = new ilSurveyCodesEditTableGUI($this, 'editCodes');
         $table_gui->setData($this->object->getSurveyCodesTableData($ids));
         $this->tpl->setContent($table_gui->getHTML());
@@ -670,7 +670,7 @@ class ilSurveyParticipantsGUI
     {
         $this->handleWriteAccess();
         $this->setParticipantSubTabs("codes");
-        
+
         $form_import_file = new ilPropertyFormGUI();
         $form_import_file->setFormAction($this->ctrl->getFormAction($this));
         $form_import_file->setTableWidth("100%");
@@ -705,7 +705,7 @@ class ilSurveyParticipantsGUI
             foreach ($this->object->getSurveyCodesTableData() as $item) {
                 $existing[$item["code"]] = $item["id"];
             }
-            
+
             $reader = new ilCSVReader();
             $reader->open($_FILES['codes']['tmp_name']);
             foreach ($reader->getDataArrayFromCSVFile() as $row) {
@@ -716,7 +716,9 @@ class ilSurveyParticipantsGUI
                     
                     // unique code?
                     if (!array_key_exists($code, $existing)) {
-                        // could be date or datetime
+                        // fau: fixImportSurveyCodes - ignore the line with column names
+                        try {
+                            // could be date or datetime
                         try {
                             if (strlen($created) == 10) {
                                 $created = new ilDate($created, IL_CAL_DATE);
@@ -735,6 +737,10 @@ class ilSurveyParticipantsGUI
                             ,"firstname" => $first_name
                         );
                         $this->object->importSurveyCode($code, $created, $user_data);
+                        } catch (ilDateTimeException $e) {
+                            continue;
+                        }
+                        // fau.
                     }
                 }
             }
@@ -944,7 +950,7 @@ class ilSurveyParticipantsGUI
                     array_push($existingcolumns, $key);
                 }
             }
-            
+
             $founddata = array();
             foreach ($data as $row) {
                 if (count($row) == count($fields)) {
@@ -983,7 +989,7 @@ class ilSurveyParticipantsGUI
         
         $this->handleWriteAccess();
         $this->setParticipantSubTabs("mail_survey_codes");
-        
+
         $form_import_file = new ilPropertyFormGUI();
         $form_import_file->setFormAction($this->ctrl->getFormAction($this));
         $form_import_file->setTableWidth("100%");
@@ -1013,7 +1019,7 @@ class ilSurveyParticipantsGUI
         
         $this->handleWriteAccess();
         $this->setParticipantSubTabs("mail_survey_codes");
-        
+
         $form_import_text = new ilPropertyFormGUI();
         $form_import_text->setFormAction($this->ctrl->getFormAction($this));
         $form_import_text->setTableWidth("100%");
@@ -1072,7 +1078,7 @@ class ilSurveyParticipantsGUI
         $this->handleWriteAccess();
         
         $this->ctrl->setParameter($this, "appr360", 1);
-        
+
         ilRepositorySearchGUI::fillAutoCompleteToolbar(
             $this,
             $ilToolbar,
@@ -1102,7 +1108,7 @@ class ilSurveyParticipantsGUI
         );
         
         $this->ctrl->setParameter($this, "appr360", "");
-        
+
         $tbl = new ilSurveyAppraiseesTableGUI($this, "listAppraisees");
         $tbl->setData($this->object->getAppraiseesData());
         $this->tpl->setContent($tbl->getHTML());
@@ -1135,7 +1141,7 @@ class ilSurveyParticipantsGUI
             $this->lng->txt("btn_back"),
             $this->ctrl->getLinkTarget($this, "listAppraisees")
         );
-        
+
         $cgui = new ilConfirmationGUI();
         $cgui->setHeaderText($this->lng->txt("survey_360_sure_delete_appraises"));
 
@@ -1218,7 +1224,7 @@ class ilSurveyParticipantsGUI
         
         $this->ctrl->setParameter($this, "appr_id", $appr_id);
         $this->ctrl->setParameter($this, "rate360", 1);
-        
+
         ilRepositorySearchGUI::fillAutoCompleteToolbar(
             $this,
             $ilToolbar,
@@ -1242,7 +1248,7 @@ class ilSurveyParticipantsGUI
         // #13320
         require_once "Services/Link/classes/class.ilLink.php";
         $url = ilLink::_getStaticLink($this->object->getRefId());
-        
+
         $tbl = new ilSurveyAppraiseesTableGUI($this, "editRaters", true, !$this->object->isAppraiseeClosed($appr_id), $url); // #11285
         $tbl->setData($this->object->getRatersData($appr_id));
         $this->tpl->setContent($tbl->getHTML());
@@ -1370,7 +1376,7 @@ class ilSurveyParticipantsGUI
             $this->lng->txt("btn_back"),
             $this->ctrl->getLinkTarget($this, "editRaters")
         );
-                
+
         $cgui = new ilConfirmationGUI();
         $cgui->setHeaderText(sprintf(
             $this->lng->txt("survey_360_sure_delete_raters"),
@@ -1539,7 +1545,7 @@ class ilSurveyParticipantsGUI
             $sender_id = (trim($ilUser->getEmail()))
                 ? $ilUser->getId()
                 : ANONYMOUS_USER_ID;
-                
+
             $all_data = $this->object->getRatersData($appr_id);
             foreach ($rec_ids as $rec_id) {
                 if (isset($all_data[$rec_id])) {
@@ -1605,7 +1611,7 @@ class ilSurveyParticipantsGUI
         if (!$this->object->isAppraisee($ilUser->getId())) {
             $this->ctrl->redirect($this->parent_gui, "infoScreen");
         }
-       
+
         $cgui = new ilConfirmationGUI();
         $cgui->setHeaderText($this->lng->txt("survey_360_sure_appraisee_close"));
 

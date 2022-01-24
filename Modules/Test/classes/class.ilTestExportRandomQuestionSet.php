@@ -106,7 +106,16 @@ class ilTestExportRandomQuestionSet extends ilTestExport
                 'poolId' => $definition->getPoolId(),
                 'poolQuestCount' => $definition->getPoolQuestionCount(),
                 'questAmount' => $definition->getQuestionAmount(),
-                'position' => $definition->getSequencePosition()
+                'position' => $definition->getSequencePosition(),
+// fau: typeFilter - export type filter
+                'typeFilter' => implode(',', $definition->getTypeFilterAsTypeTags()),
+// fau.
+// fau: taxGroupFilter - export group filter
+                'GroupTaxId' => $definition->getMappedGroupTaxId(),
+// fau.
+// fau: randomSetOrder - export order
+                'orderBy' => $definition->getOrderBy()
+// fau.
             );
 
             // #21330

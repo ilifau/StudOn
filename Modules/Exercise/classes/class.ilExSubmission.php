@@ -15,6 +15,15 @@ class ilExSubmission
     const TYPE_TEXT = "Text";
     const TYPE_REPO_OBJECT = "RepoObject";	// Wikis
 
+    // fau: exAssTest - add test result submission type
+    const TYPE_TEST_RESULT = "TestResult";
+    const TYPE_TEST_RESULT_TEAM = "TestResultTeam";
+    // fau.
+
+    // fau: exAssHook - add inactive submission type
+    const TYPE_INACTIVE = "Inactive";
+    // fau.
+
     /**
      * @var ilObjUser
      */
@@ -368,6 +377,9 @@ class ilExSubmission
         $success = true;
         
         try {
+            // fau: fixUnzipEncoding - enable fix
+            ilUtil::enableUnzipEncodingFix();
+            // fau.
             ilFileUtils::processZipFile($newDir, $fileTmp, false);
             ilFileUtils::recursive_dirscan($newDir, $filearray);
 
@@ -381,7 +393,26 @@ class ilExSubmission
                     ilUtil::sendFailure($lng->txt("exc_upload_error") . " [Zip1]", true);
                 }
             }
-            
+
+            // fau: exFileSuffixes - check zip file contents
+            if ($success) {
+                $wrong_names = [];
+                if (!empty($this->assignment->getFileSuffixes())) {
+                    foreach ($filearray["file"] as $key => $filename) {
+                        $filename = utf8_encode($filename);
+                        $pi = pathinfo($filename);
+                        if (!$this->assignment->checkFileSuffix($pi["extension"])) {
+                            $wrong_names[] = $filename;
+                        }
+                    }
+                }
+                if (!empty($wrong_names)) {
+                    ilUtil::sendFailure(sprintf($lng->txt("exc_wrong_filenames_in_zip"), implode(', ', $wrong_names)), true);
+                    $success = false;
+                }
+            }
+            // fau.
+
             if ($success) {
                 foreach ($filearray["file"] as $key => $filename) {
                     $a_http_post_files["name"] = ilFileUtils::utf8_encode($filename);
@@ -995,6 +1026,31 @@ class ilExSubmission
         //		chdir($this->getExercisePath());
 
         $tmpdir = $storage->getTempPath();
+
+        // fau: exStatusFile - save the file status file in submissions
+        // must be done here before directory is changed
+        // otherwise autoloader of phpspreadsheet fails
+        if ($a_ass->getAssignmentType()->isSubmissionAssignedToTeam()) {
+
+            $user_ids = [];
+            foreach (array_keys($members) as $team_id) {
+                $team = new ilExAssignmentTeam($team_id);
+                $user_ids = array_merge($user_ids, $team->getMembers());
+            }
+        }
+        else {
+            $user_ids = array_keys($members);
+        }
+
+        $status_file = $a_ass->getStatusFile();
+        $status_file->init($a_ass, $user_ids);
+        $status_file->setFormat(ilExAssignmentStatusFile::FORMAT_XML);
+        $status_file->writeToFile($tmpdir . '/'. $status_file->getFilename());
+        $status_file->setFormat(ilExAssignmentStatusFile::FORMAT_CSV);
+        $status_file->writeToFile($tmpdir . '/'. $status_file->getFilename());
+        // fau.
+
+
         chdir($tmpdir);
         $zip = PATH_TO_ZIP;
 
@@ -1021,6 +1077,12 @@ class ilExSubmission
         foreach ($members as $id => $item) {
             $user = $item["name"];
             $user_files = $item["files"];
+            // fau: fixExDownloadAll - fault tolerance for missing files
+            if (!is_array($user_files)) {
+                $user_files = array();
+            }
+            // fau.
+            
             $sourcedir = $savepath . DIRECTORY_SEPARATOR . $id;
             if (!is_dir($sourcedir)) {
                 continue;
@@ -1350,7 +1412,13 @@ class ilExSubmission
         $ilCtrl->setParameterByClass("ilexsubmissionfilegui", "member_id", $this->getUserId());
         
         // assignment type specific
-        switch ($this->assignment->getType()) {
+        // fau: exAssHook - provide download for plugin types with file upload
+        $check_type = $this->assignment->getType();
+        if ($this->assignment->getAssignmentType()->usesFileUpload()) {
+            $check_type = ilExAssignment::TYPE_UPLOAD;
+        }
+        switch ($check_type) {
+        // fau.
             case ilExAssignment::TYPE_UPLOAD_TEAM:
                 // data is merged by team - see above
                 // fallthrough

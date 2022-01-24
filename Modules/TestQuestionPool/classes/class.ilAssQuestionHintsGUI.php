@@ -96,7 +96,18 @@ class ilAssQuestionHintsGUI extends ilAssQuestionHintAbstractGUI
 
         require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
         $DIC->ui()->mainTemplate()->setCurrentBlock("ContentStyle");
-        $DIC->ui()->mainTemplate()->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $DIC->ui()->mainTemplate()->setVariable(
+            "LOCATION_CONTENT_STYLESHEET",
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    '',
+                    $_GET['ref_id']
+                )
+            )
+        );
+        // fau.
         $DIC->ui()->mainTemplate()->parseCurrentBlock();
         
         $cmd = $ilCtrl->getCmd(self::CMD_SHOW_LIST);

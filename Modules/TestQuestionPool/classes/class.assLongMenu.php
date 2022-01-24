@@ -330,7 +330,14 @@ class assLongMenu extends assQuestion implements ilObjQuestionScoringAdjustable
 
         foreach ($files as $file) {
             $gap = str_replace('.txt', '', basename($file));
-            $answers[(int) $gap] = explode("\n", file_get_contents($file));
+            // fau: fixLongMenuFile - take the saved delimiter
+            $content = file_get_contents($file);
+            if (strpos($content, "\n") !== false) {
+                $answers[(int) $gap] = explode("\n", file_get_contents($file));
+            } else {
+                $answers[(int) $gap] = explode('\n', file_get_contents($file));
+            }
+            // fau.
         }
         $this->setAnswers($answers);
         return $answers;
@@ -650,7 +657,7 @@ class assLongMenu extends assQuestion implements ilObjQuestionScoringAdjustable
             include_once "./Modules/Test/classes/class.ilObjTest.php";
             $pass = ilObjTest::_getPass($active_id);
         }
-        
+
         $entered_values = 0;
 
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (&$entered_values, $active_id, $pass, $authorized) {

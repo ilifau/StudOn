@@ -50,8 +50,16 @@ class ilAssQuestionPageCommandForwarder
         $DIC->ui()->mainTemplate()->setCurrentBlock("ContentStyle");
         $DIC->ui()->mainTemplate()->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath(0)
+// fau: inheritContentStyle - get the effective content style by ref_id
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    '',
+                    $_GET['ref_id']
+                )
+            )
         );
+        // fau.
         $DIC->ui()->mainTemplate()->parseCurrentBlock();
         
         // syntax style

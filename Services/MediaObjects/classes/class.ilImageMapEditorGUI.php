@@ -524,7 +524,9 @@ class ilImageMapEditorGUI
             if ($_SESSION["il_map_el_href"] != "") {
                 $ti->setValue($_SESSION["il_map_el_href"]);
             } else {
-                $ti->setValue("http://");
+                // fau: imageLinkDefault  - use https
+                $ti->setValue("https://");
+                // fau.
             }
             $ext->addSubItem($ti);
             

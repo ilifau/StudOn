@@ -686,6 +686,9 @@ class ilAuthUtils
                 return false;
 
             case AUTH_SAML:
+// fau: samlAuth - don't allow password change if sso is standard
+                return false;
+// fau.
                 require_once 'Services/Saml/classes/class.ilSamlIdp.php';
                 $idp = ilSamlIdp::getInstanceByIdpId(ilSamlIdp::getIdpIdByAuthMode($a_authmode));
                 return $idp->isActive() && $idp->allowLocalAuthentication();
@@ -697,6 +700,9 @@ class ilAuthUtils
 
             // Read setting:
             case AUTH_SHIBBOLETH:
+// fau: samlAuth - don't allow password change if sso is standard
+                return false;
+// fau.
                 return $ilSetting->get("shib_auth_allow_local");
             case AUTH_SOAP:
                 return $ilSetting->get("soap_auth_allow_local");

@@ -3,12 +3,13 @@
 
 /**
 * Class ilExSubmissionGUI
-*
 * @author Jörg Lützenkirchen <luetzenkirchen@leifos.com>
-*
 * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTeamGUI, ilExSubmissionFileGUI
 * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTextGUI, ilExSubmissionObjectGUI
 * @ilCtrl_Calls ilExSubmissionGUI: ilExPeerReviewGUI
+ * fau: exAssTest - add GUI to control structure
+ * @ilCtrl_Calls ilExSubmissionGUI: ilExSubmissionTestResultGUI, ilExSubmissionTestResultTeamGUI
+ * fau.
 * @ingroup ModulesExercise
 */
 class ilExSubmissionGUI
@@ -116,13 +117,32 @@ class ilExSubmissionGUI
                 );
 
                 // forward to type gui
-                if ($this->submission->getSubmissionType() != ilExSubmission::TYPE_REPO_OBJECT) {
-                    $this->tabs_gui->addTab(
-                        "submission",
-                        $this->lng->txt("exc_submission"),
-                        $this->ctrl->getLinkTargetByClass("ilexsubmission" . $this->submission->getSubmissionType() . "gui", "")
-                    );
+                // fau: exAssTest - don't shw submission tab for test results
+                // fau: exAssHook - get an own submission tab
+                if ($this->submission->getSubmissionType() != ilExSubmission::TYPE_REPO_OBJECT
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT
+                    && $this->submission->getSubmissionType() != ilExSubmission::TYPE_TEST_RESULT_TEAM) {
+
+                    $type_gui = $this->type_guis->getById($this->assignment ->getType());
+                    if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface
+                        && $type_gui->hasOwnSubmissionScreen()) {
+
+                        $this->tabs_gui->addTab(
+                            "submission",
+                            $this->lng->txt("exc_submission"),
+                            $type_gui->getSubmissionScreenLinkTarget()
+                        );
+                    }
+                    else {
+                        $this->tabs_gui->addTab(
+                            "submission",
+                            $this->lng->txt("exc_submission"),
+                            $this->ctrl->getLinkTargetByClass("ilexsubmission" . $this->submission->getSubmissionType() . "gui", "")
+                        );
+                    }
                 }
+                // fau.
+
 
                 $gui = new ilExSubmissionTeamGUI($this->exercise, $this->submission);
                 $ilCtrl->forwardCommand($gui);
@@ -153,7 +173,21 @@ class ilExSubmissionGUI
                 $peer_gui = new ilExPeerReviewGUI($this->assignment, $this->submission);
                 $this->ctrl->forwardCommand($peer_gui);
                 break;
-                
+
+            // fau: exAssTest - forward to submission gui
+            case "ilexsubmissiontestresultgui":
+                include_once "Modules/Exercise/classes/class.ilExSubmissionTestResultGUI.php";
+                $gui = new ilExSubmissionTestResultGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+
+            case "ilexsubmissiontestresultteamgui":
+                include_once "Modules/Exercise/classes/class.ilExSubmissionTestResultTeamGUI.php";
+                $gui = new ilExSubmissionTestResultTeamGUI($this->exercise, $this->submission);
+                $ilCtrl->forwardCommand($gui);
+                break;
+            // fau.
+
             default:
 
 
@@ -196,7 +230,9 @@ class ilExSubmissionGUI
         $submission_type = $a_submission->getSubmissionType();
         // old handling -> forward to submission type gui class
         // @todo migrate everything to new concept
-        if ($submission_type != ilExSubmission::TYPE_REPO_OBJECT) {
+        // fau: exAssHook - treat inactive submission type like repo object
+        if ($submission_type != ilExSubmission::TYPE_REPO_OBJECT && $submission_type != ilExSubmission::TYPE_INACTIVE) {
+        // fau.
             $class = "ilExSubmission" . $submission_type . "GUI";
             $class::getOverviewContent($a_info, $a_submission);
         } else { // new: get HTML from assignemt type gui class
@@ -291,7 +327,9 @@ class ilExSubmissionGUI
         if (!$this->assignment->notStartedYet()) {
             // deliver file
             $p = $storage->getFeedbackFilePath($this->submission->getFeedbackId(), $file);
-            ilUtil::deliverFile($p, $file);
+            // fau: exMultiFeedbackStructure - use only the basename for download
+            ilUtil::deliverFile($p, basename($file));
+            // fau.
         }
     
         return true;

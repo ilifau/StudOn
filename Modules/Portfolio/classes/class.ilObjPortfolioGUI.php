@@ -1323,7 +1323,15 @@ class ilObjPortfolioGUI extends ilObjPortfolioBaseGUI
 
         $tpl->setBodyClass("ilPrtfPdfBody");
 
-        $tpl->addCss(ilUtil::getStyleSheetLocation("filesystem"));
+        // fau: inheritContentStyle - add ref_id
+        $tpl->addCss(ilObjStyleSheet::getContentStylePath(
+            ilObjStyleSheet::getEffectiveContentStyleId(
+                $this->object->getStyleSheetId(),
+                $this->object->getType(),
+                $this->object->getRefId()
+            )
+        ));
+        // fau.
         $tpl->addCss(ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId(), false));
         $tpl->addCss(ilObjStyleSheet::getContentPrintStyle());
         $tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());

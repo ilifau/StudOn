@@ -45,6 +45,11 @@ class ilObjectDefinition // extends ilSaxParser
     * @access private
     */
     public $obj_data;
+
+    // fau: objectDefCache - class variable
+    /** @var array */
+    protected $obj_data_by_component;
+    // fau.
     
     public $sub_types = array();
 
@@ -67,10 +72,13 @@ class ilObjectDefinition // extends ilSaxParser
 
     protected function readDefinitionDataFromCache()
     {
+        // fau: objectDefCache - read class variable from cache
         $this->obj_data = array();
+        $this->obj_data_by_component = array();
         $defIds = array();
         $global_cache = ilCachedComponentData::getInstance();
         foreach ($global_cache->getIlobjectDef() as $rec) {
+            $this->obj_data_by_component[$rec["component"]][$rec['id']] = $rec;
             $this->obj_data[$rec["id"]] = array(
                 "name" => $rec["id"],
                 "class_name" => $rec["class_name"],
@@ -100,6 +108,7 @@ class ilObjectDefinition // extends ilSaxParser
 
             $defIds[] = $rec["id"];
         }
+        // fau.
 
         $subobj = $global_cache->lookupSubObjForParent($defIds);
 
@@ -128,13 +137,16 @@ class ilObjectDefinition // extends ilSaxParser
 
         $ilDB = $DIC->database();
 
+        // fau: objectDefCache - read class variable from cache
         $this->obj_data = array();
+        $this->obj_data_by_component = array();
 
         // Select all object_definitions and collect the definition id's in
         // this array.
         $defIds = array();
         $set = $ilDB->query("SELECT * FROM il_object_def");
         while ($rec = $ilDB->fetchAssoc($set)) {
+            $this->obj_data_by_component[$rec["component"]][$rec['id']] = $rec;
             $this->obj_data[$rec["id"]] = array(
                 "name" => $rec["id"],
                 "class_name" => $rec["class_name"],
@@ -164,6 +176,7 @@ class ilObjectDefinition // extends ilSaxParser
 
             $defIds[] = $rec["id"];
         }
+        // fau.
 
         // get all subobject definitions in a single query
         $set2 = $ilDB->query("SELECT * FROM il_object_subobj WHERE " . $ilDB->in('parent', $defIds, false, 'text'));
@@ -875,6 +888,27 @@ class ilObjectDefinition // extends ilSaxParser
         return $types;
     }
 
+    // fau: objectDefCache - getRepositoryObjectTypesForComponentCached
+    /**
+     * Get all repository object types of component (using cache if possible)
+     */
+    public function getRepositoryObjectTypesForComponentCached($a_component_type, $a_component_name) {
+
+        if (!isset($this->obj_data_by_component[$a_component_type . "/" . $a_component_name])) {
+            return self::getRepositoryObjectTypesForComponent($a_component_type, $a_component_name);
+        }
+
+        $types = array();
+        foreach ($this->obj_data_by_component[$a_component_type . "/" . $a_component_name] as $id => $rec) {
+            if ($rec["system"] != 1) {
+                $types[] = $rec;
+            }
+        }
+        return $types;
+    }
+    // fau.
+
+
     /**
     * Get component for object type
     */
@@ -906,14 +940,18 @@ class ilObjectDefinition // extends ilSaxParser
         global $DIC;
 
         $ilDB = $DIC->database();
-        
-        $set = $ilDB->query("SELECT * FROM il_object_group");
-        $groups = array();
-        while ($gr_rec = $set->fetchRow(ilDBConstants::FETCHMODE_ASSOC)) {
-            $groups[$gr_rec["id"]] = $gr_rec;
-        }
+
+        // fau: globalCache: take il_object_group from cache
+        //		$set = $ilDB->query("SELECT * FROM il_object_group");
+        //		$groups = array();
+        //		while ($gr_rec = $set->fetchRow(ilDBConstants::FETCHMODE_ASSOC))
+        //		{
+        //			$groups[$gr_rec["id"]] = $gr_rec;
+        //		}
 
         $global_cache = ilCachedComponentData::getInstance();
+        $groups = $global_cache->getIlObjectGroup();
+        // fau.
 
         $recs = $global_cache->lookupGroupedRepObj($a_parent_obj_type);
         

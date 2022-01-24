@@ -31,8 +31,9 @@
 
 # Directories
 /data
-/Customizing/global
-/Customizing/clients
+# fau: gitIgnore - ignore plugins but not the rest of customizing
+/Customizing/global/plugins
+# fau.
 /setup/sql/ilDBTemplate
 virtual-data
 /libs/composer/vendor

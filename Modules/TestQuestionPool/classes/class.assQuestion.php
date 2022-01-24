@@ -268,6 +268,14 @@ abstract class assQuestion
      */
     protected $testQuestionConfig;
     // fau.
+
+
+    // fau: fixQuestionValidateSubmit - new classs variable
+    /**
+     * @var string message produced by validateSolutionSubmit
+     */
+    protected $validateSolutionMessage;
+    // fau.
     
     /**
      * @var ilAssQuestionLifecycle
@@ -298,7 +306,11 @@ abstract class assQuestion
         global $DIC;
         $ilias = $DIC['ilias'];
         $lng = $DIC['lng'];
-        $tpl = $DIC['tpl'];
+        // fau: fixRemoveTrashed - template in assQuestion::__construct
+        if ($DIC->offsetExists('tpl')) {
+            $tpl = $DIC['tpl'];
+        }
+        // fau.
         $ilDB = $DIC['ilDB'];
 
         $this->ilias = $ilias;
@@ -758,7 +770,7 @@ abstract class assQuestion
     {
         return $this->title;
     }
-    
+
     /**
      * returns the object title prepared to be used as a filename
      *
@@ -1360,7 +1372,27 @@ abstract class assQuestion
     {
         return true;
     }
-    
+
+
+    // fau: fixValidateSolutionSubmit - getter and setter
+    /**
+     * @return string
+     */
+    public function getValidateSolutionMessage()
+    {
+        return $this->validateSolutionMessage;
+    }
+
+    /**
+     * @param string $validateSolutionMessage
+     */
+    public function setValidateSolutionMessage($validateSolutionMessage)
+    {
+        $this->validateSolutionMessage = $validateSolutionMessage;
+    }
+    // fau.
+
+
     /**
      * Saves the learners input of the question to the database.
      *
@@ -1475,7 +1507,7 @@ abstract class assQuestion
 
         
         // update test pass results
-        
+        // fau: fixWrongQuestionsCount - filter by question_ids of that pass
         $result = $ilDB->queryF(
             "
 			SELECT		SUM(points) reachedpoints,
@@ -1485,11 +1517,12 @@ abstract class assQuestion
 			FROM		tst_test_result
 			WHERE		active_fi = %s
 			AND			pass = %s
-			",
+			AND " . $ilDB->in('question_fi', $data['question_ids'], false, 'integer'),
             array('integer','integer'),
             array($active_id, $pass)
         );
-        
+        // fau.
+
         if ($result->numRows() > 0) {
             if ($obligationsEnabled) {
                 $query = '
@@ -3433,22 +3466,22 @@ abstract class assQuestion
     public function deductHintPointsFromReachedPoints(ilAssQuestionPreviewSession $previewSession, $reachedPoints)
     {
         global $DIC;
-    
+
         $hintTracking = new ilAssQuestionPreviewHintTracking($DIC->database(), $previewSession);
         $requestsStatisticData = $hintTracking->getRequestStatisticData();
         $reachedPoints = $reachedPoints - $requestsStatisticData->getRequestsPoints();
-        
+
         return $reachedPoints;
     }
-    
+
     public function calculateReachedPointsFromPreviewSession(ilAssQuestionPreviewSession $previewSession)
     {
         $reachedPoints = $this->calculateReachedPointsForSolution($previewSession->getParticipantsSolution());
         $reachedPoints = $this->deductHintPointsFromReachedPoints($previewSession, $reachedPoints);
-        
+
         return $this->ensureNonNegativePoints($reachedPoints);
     }
-    
+
     protected function ensureNonNegativePoints($points)
     {
         return $points > 0 ? $points : 0;
@@ -3728,9 +3761,12 @@ abstract class assQuestion
                     $username = ilObjTestAccess::_getParticipantData($active_id);
                     assQuestion::logAction(sprintf($lng->txtlng("assessment", "log_answer_changed_points", ilObjAssessmentFolder::_getLogLanguage()), $username, $old_points, $points, $ilUser->getFullname() . " (" . $ilUser->getLogin() . ")"), $active_id, $question_id);
                 }
+                // fau: fixManScoringSuccessMessage - return TRUE for _setReachedPoints only if points are changed
+                return true;
             }
 
-            return true;
+            return false;
+        // fau.
         } else {
             return false;
         }

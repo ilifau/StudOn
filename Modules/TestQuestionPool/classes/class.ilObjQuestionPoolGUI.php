@@ -180,7 +180,18 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             case "ilassquestionpagegui":
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
                 $this->tpl->setCurrentBlock("ContentStyle");
-                $this->tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+// fau: inheritContentStyle - get the effective content style by ref_id
+                $this->tpl->setVariable(
+                    "LOCATION_CONTENT_STYLESHEET",
+                    ilObjStyleSheet::getContentStylePath(
+                        ilObjStyleSheet::getEffectiveContentStyleId(
+                            0,
+                            'qpl',
+                            $this->object->getRefId()
+                        )
+                    )
+                );
+// fau.
                 $this->tpl->parseCurrentBlock();
         
                 // syntax style
@@ -209,6 +220,15 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 $this->ctrl->setReturnByClass("ilAssQuestionPageGUI", "view");
                 $this->ctrl->setReturn($this, "questions");
                 $page_gui = new ilAssQuestionPageGUI($_GET["q_id"]);
+// fau: inheritContentStyle - set style for content editor
+                $page_gui->setStyleId(
+                    ilObjStyleSheet::getEffectiveContentStyleId(
+                        0,
+                        'qpl',
+                        $this->object->getRefId()
+                    )
+                );
+// fau.
                 $page_gui->obj->addUpdateListener(
                     $question,
                     'updateTimestamp'
@@ -424,7 +444,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         $DIC->ctrl()->redirectByClass('ilQuestionPoolExportGUI');
     }
-    
+
     /**
     * download file
     */
@@ -735,6 +755,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         }
         
         // delete import directory
+        // fau: fixTestImportDirectory - cleanup import sub directoy
+        unset($_SESSION["qpl_import_subdir"]);
+        // fau.
         include_once "./Services/Utilities/classes/class.ilUtil.php";
         ilUtil::delDir(dirname(ilObjQuestionPool::_getImportDirectory()));
 
@@ -749,6 +772,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
     
     public function cancelImportObject()
     {
+        // fau: fixTestImportDirectory - cleanup import sub directoy
+        unset($_SESSION["qpl_import_subdir"]);
+        // fau.
+
         if ($_POST["questions_only"] == 1) {
             $this->ctrl->redirect($this, "questions");
         } else {
@@ -992,10 +1019,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssQuestionSkillAssignmentImportFails.php';
         $qsaImportFails = new ilAssQuestionSkillAssignmentImportFails($this->object->getId());
         $qsaImportFails->deleteRegisteredImportFails();
-        
+
         $this->ctrl->redirect($this, 'infoScreen');
     }
-    
+
     /**
     * list questions of question pool
     */
@@ -1045,10 +1072,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             $button = ilLinkButton::getInstance();
             $button->setUrl($this->ctrl->getLinkTarget($this, 'renoveImportFails'));
             $button->setCaption('ass_skl_import_fails_remove_btn');
-            
+
             ilUtil::sendFailure($qsaImportFails->getFailedImportsMessage($this->lng) . '<br />' . $button->render());
         }
-        
+
         require_once 'Services/Taxonomy/classes/class.ilObjTaxonomy.php';
         $taxIds = ilObjTaxonomy::getUsageOfObject($this->object->getId());
 
@@ -1102,7 +1129,13 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                     'ilobjquestionpoolgui',
                     'questions'
                 );
-                
+
+                // fau: taxDesc - open the current taxonomy path
+                if ($_GET["tax_node"]) {
+                    $taxExp->setPathOpen($_GET["tax_node"]);
+                }
+                // fau.
+
                 if (!$taxExp->handleCommand()) {
                     $this->tpl->setLeftContent($taxExp->getHTML() . "&nbsp;");
                 }
@@ -1219,12 +1252,23 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         $mode->setOptions(array(
             'overview' => $this->lng->txt('overview'),
             'detailed' => $this->lng->txt('detailed_output_solutions'),
+            // fau: questionPrint - add option for detailed view with scoring
+            'detailed_scoring' => $this->lng->txt('detailed_output_scoring'),
+            // fau.
             'detailed_printview' => $this->lng->txt('detailed_output_printview')
         ));
         $mode->setValue(ilUtil::stripSlashes($_POST['output']));
         
         $ilToolbar->setFormName('printviewOptions');
         $ilToolbar->addInputItem($mode, true);
+
+        // fau: questionPrint - add pagebreak option
+        require_once 'Services/Form/classes/class.ilCheckboxInputGUI.php';
+        $break = new ilCheckboxInputGUI($this->lng->txt("print_pagebreaks"), 'pagebreak');
+        $break->setChecked($_POST['pagebreak']);
+        $ilToolbar->addInputItem($break, true);
+        // fau.
+
         $ilToolbar->addFormButton($this->lng->txt('submit'), 'print');
 
         include_once "./Modules/TestQuestionPool/classes/tables/class.ilQuestionPoolPrintViewTableGUI.php";

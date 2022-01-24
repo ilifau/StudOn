@@ -52,26 +52,43 @@ class ilUserFeedWriter extends ilFeedWriter
         }
 
         include_once "Services/User/classes/class.ilObjUser.php";
-        $hash = ilObjUser::_lookupFeedHash($a_user_id);
-        
+        // fau: shortRssLink - allow shortened feed hashes and password hashes
+        if ($privFeed) {
+            // private feeds are checked by feed password
+            $hash = substr(ilObjUser::_getFeedPass($a_user_id), 0, strlen($a_hash));
+        } else {
+            // public feeds are checked by feed hash
+            $hash = substr(ilObjUser::_lookupFeedHash($a_user_id), 0, strlen($a_hash));
+        }
+        // fau.
+
         include_once("./Services/News/classes/class.ilNewsItem.php");
         $rss_period = ilNewsItem::_lookupRSSPeriod();
 
         if ($a_hash == $hash) {
+            // fau: shortRssLink - set ChannelAbout to the shortened feed URL
             if ($privFeed) {
                 //ilNewsItem::setPrivateFeedId($a_user_id);
                 $items = ilNewsItem::_getNewsItemsOfUser($a_user_id, false, true, $rss_period);
+                $this->setChannelAbout(
+                    ilLink::_getShortlinkBase('https://')
+                    . 'privfeed/' . $a_user_id . '/' . $a_hash . '.rss'
+                );
             } else {
                 $items = ilNewsItem::_getNewsItemsOfUser($a_user_id, true, true, $rss_period);
+                $this->setChannelAbout(
+                    ilLink::_getShortlinkBase('http://')
+                    . 'feed/' . $a_user_id . '/' . $a_hash . '.rss'
+                );
             }
-            
+
             if ($ilSetting->get('short_inst_name') != "") {
                 $this->setChannelTitle($ilSetting->get('short_inst_name'));
             } else {
                 $this->setChannelTitle("ILIAS");
             }
-
-            $this->setChannelAbout(ILIAS_HTTP_PATH);
+            //$this->setChannelAbout(ILIAS_HTTP_PATH);
+            // fau.
             $this->setChannelLink(ILIAS_HTTP_PATH);
             //$this->setChannelDescription("ILIAS Channel Description");
             $i = 0;

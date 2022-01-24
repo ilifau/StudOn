@@ -14,7 +14,9 @@
 <!-- BEGIN preview -->
 					<div class="ilc_media_cont_MediaContainer">
 						<div class="ilc_qimg_QuestionImage ilc_Mob"><img border="0" src="{ANSWER_IMAGE_URL}" alt="{ANSWER_IMAGE_ALT}" title="{ANSWER_IMAGE_TITLE}" /></div>
-						<div class="ilc_qimgd_ImageDetailsLink ilc_media_caption_MediaCaption"><a target="_blank" href="{URL_PREVIEW}" title="{TEXT_PREVIEW}"><img border="0" align="right" src="{IMG_PREVIEW}"/></a></div>
+						<!-- fau: imageBox - use colorbox -->
+                        <div class="ilc_qimgd_ImageDetailsLink ilc_media_caption_MediaCaption"><a onclick="$.colorbox({href:'{URL_PREVIEW}', maxWidth:'100%', maxHeight:'100%'});return false;" target="_blank" href="{URL_PREVIEW}" title="{TEXT_PREVIEW}"><img border="0" align="right" src="{IMG_PREVIEW}"/></a></div>
+                        <!-- fau. -->
 					</div>
 <!-- END preview -->
 <!-- BEGIN answer_image -->

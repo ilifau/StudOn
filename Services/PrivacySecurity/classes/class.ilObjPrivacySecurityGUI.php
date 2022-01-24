@@ -12,6 +12,9 @@ include_once('./Services/PrivacySecurity/classes/class.ilSecuritySettings.php');
 *
 *
 * @ilCtrl_Calls ilObjPrivacySecurityGUI: ilPermissionGUI
+* fau: allowPrivacyRoles - allow role and rold folder GUI
+* @ilCtrl_Calls ilObjPrivacySecurityGUI: ilObjRoleGUI, ilObjRoleFolderGUI
+* fau.
 *
 * @ingroup ServicesPrivacySecurity
 */

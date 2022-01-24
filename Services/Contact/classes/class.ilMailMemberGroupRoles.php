@@ -51,10 +51,20 @@ class ilMailMemberGroupRoles extends ilAbstractMailMemberRoles
 
         foreach ($role_ids as $role_id) {
             $role_title = ilObject::_lookupTitle($role_id);
-            $mailbox = $this->getMailboxRoleAddress($role_id);
+            // fau: mailToRoleAddress - always use the role title for standard roles
+            $role_title = ilObject::_lookupTitle($role_id);
+            if (substr($role_title, 0, 7) == 'il_grp_') {
+                $mailbox = '#' . $role_title;
+            } else {
+                $mailbox = $this->getMailboxRoleAddress($role_id);
+            }
+            // fau.
 
             switch (substr($role_title, 0, 8)) {
                 case 'il_grp_a':
+// fau: mailToMembers - identify admins for mail roles
+                    $sorted_role_ids[1]['is_admin'] = true;
+// fau.
                     $sorted_role_ids[1]['role_id'] = $role_id;
                     $sorted_role_ids[1]['mailbox'] = $mailbox;
                     $sorted_role_ids[1]['form_option_title'] = $this->lng->txt('send_mail_admins');

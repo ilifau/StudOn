@@ -27,6 +27,9 @@ class arObjectCache
     {
         $instance = new $class();
         if ($instance instanceof CachedActiveRecord && $instance->getCacheIdentifier() != '') {
+            // fau: fixActiveRecordCache - set primary key to get the cache identifier
+            $instance->setPrimaryFieldValue($id);
+            // fau.
             if ($instance->getCache()->exists($instance->getCacheIdentifier())) {
                 return true;
             }
@@ -81,6 +84,9 @@ class arObjectCache
     {
         $instance = new $class();
         if ($instance instanceof CachedActiveRecord && $instance->getCacheIdentifier() != '') {
+            // fau: fixActiveRecordCache - set primary key to get the cache identifier
+            $instance->setPrimaryFieldValue($id);
+            // fau.
             if ($instance->getCache()->exists($instance->getCacheIdentifier())) {
                 return $instance->getCache()->get($instance->getCacheIdentifier());
             }

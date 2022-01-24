@@ -75,6 +75,11 @@ class ilObjLearningSequence extends ilContainer
         $this->ctrl = $DIC['ilCtrl'];
         $this->user = $DIC['ilUser'];
         $this->tree = $DIC['tree'];
+        // fau: fixRemoveTrashed - template in ilObjLearningSequence
+        if ($DIC->offsetExists('tpl')) {
+            $this->template = $DIC['tpl'];
+        }
+        // fau.
         $this->log = $DIC["ilLoggerFactory"]->getRootLogger();
         $this->rbacadmin = $DIC['rbacadmin'];
         $this->app_event_handler = $DIC['ilAppEventHandler'];

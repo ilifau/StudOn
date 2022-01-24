@@ -56,7 +56,11 @@ class ilDclIliasReferenceRecordFieldModel extends ilDclBaseRecordFieldModel
     {
         $ref_id = $this->getValue();
 
-        return ilObject2::_lookupTitle(ilObject2::_lookupObjectId($ref_id)) . ' [' . $ref_id . ']';
+        // fau: dclPerformance - prevent a lookup for non-existing references
+        if (!empty($ref_id)) {
+            return ilObject2::_lookupTitle(ilObject2::_lookupObjectId($ref_id)) . ' [' . $ref_id . ']';
+        }
+        // fau.
     }
 
 

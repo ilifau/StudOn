@@ -44,6 +44,13 @@ class ilExAssTypeUploadTeam implements ilExAssignmentTypeInterface
         return true;
     }
 
+    // fau: exAssHook - new function hasFiles()
+    public function hasFiles()
+    {
+        return true;
+    }
+    // fau.
+
     /**
      * @inheritdoc
      */
@@ -100,4 +107,15 @@ class ilExAssTypeUploadTeam implements ilExAssignmentTypeInterface
     {
         // TODO: Implement getSubmissionStringIdentifier() method.
     }
+
+
+    // fau: exAssHook - new function isManualGradingSupported()
+    /**
+     * @inheritdoc
+     */
+    public function isManualGradingSupported($a_ass) : bool
+    {
+        return true;
+    }
+    //fau.
 }

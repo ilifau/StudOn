@@ -1267,12 +1267,9 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
                     //get unit-factor
                     $unit_factor = assFormulaQuestionUnit::lookupUnitFactor($user_solution[$result_name]['unit']);
                 }
-
-                try {
-                    $user_solution[$result->getResult()]["value"] = ilMath::_div($resVal, $unit_factor, 55);
-                } catch (ilMathDivisionByZeroException $ex) {
-                    $user_solution[$result->getResult()]["value"] = 0;
-                }
+                // fau: fixFormulaRoundingFix - revert bugfix from Max Becker
+                $user_solution[$result->getResult()]["value"] = round(ilMath::_div($resVal, $unit_factor), 55);
+                // fau.
             }
             if ($result->getResultType() == assFormulaQuestionResult::RESULT_CO_FRAC
                 || $result->getResultType() == assFormulaQuestionResult::RESULT_FRAC) {
@@ -1284,13 +1281,18 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
                     $user_solution[$result->getResult()]["value"] = $value;
                     $user_solution[$result->getResult()]["frac_helper"] = null;
                 }
-            } else {
-                $user_solution[$result->getResult()]["value"] = ilMath::_div(
+            // fau: fixFormulaRoundingFix - revert bugfix from Max Becker
+            } elseif ($result->getPrecision() > 0) {
+                $user_solution[$result->getResult()]["value"] = round(
                     $user_solution[$result->getResult()]["value"],
-                    1,
                     $result->getPrecision()
                 );
+            } else {
+                $user_solution[$result->getResult()]["value"] = round(
+                    $user_solution[$result->getResult()]["value"]
+                );
             }
+            // fau.
         }
         return $user_solution;
     }
@@ -1353,7 +1355,9 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
         foreach ($this->getSolutionSubmit() as $key => $value) {
             if (preg_match("/^result_(\\\$r\\d+)$/", $key)) {
                 if (strlen($value) && !$this->isValidSolutionResultValue($value)) {
-                    ilUtil::sendFailure($this->lng->txt("err_no_numeric_value"), true);
+                    // fau: fixValidateSolutionSubmit - don't show validation message directly
+                    $this->setValidateSolutionMessage($this->lng->txt("err_no_numeric_value"));
+                    // fau.
                     return false;
                 }
             } elseif (preg_match("/^result_(\\\$r\\d+)_unit$/", $key)) {

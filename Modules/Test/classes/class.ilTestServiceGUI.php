@@ -384,6 +384,16 @@ class ilTestServiceGUI
                             $template->setVariable("RESULT_POINTS", $this->lng->txt("tst_reached_points") . ": " . $question_gui->object->getReachedPoints($active_id, $pass) . " " . $this->lng->txt("of") . " " . $question_gui->object->getMaximumPoints());
                             $template->parseCurrentBlock();
                         }
+                        // fau: questionDesc - show question description if user has write access
+                        global $ilAccess;
+                        if ($ilAccess->checkAccess('write', '', $_GET['ref_id'])) {
+                            $description = $question_gui->object->getComment();
+                            $description .= ' [OrigID: ' . $question_gui->object->getOriginalId() . ']';
+                            $template->setCurrentBlock("question_description");
+                            $template->setVariable('QUESTION_DESCRIPTION', $description);
+                            $template->parseCurrentBlock();
+                        }
+                        // fau.
                         $template->setVariable("COUNTER_QUESTION", $counter . ". ");
                         $template->setVariable("TXT_QUESTION_ID", $this->lng->txt('question_id_short'));
                         $template->setVariable("QUESTION_ID", $question_gui->object->getId());
@@ -1183,7 +1193,18 @@ class ilTestServiceGUI
 
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
         $this->tpl->setCurrentBlock("ContentStyle");
-        $this->tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $this->tpl->setVariable(
+            "LOCATION_CONTENT_STYLESHEET",
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    0,
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                )
+            )
+        );
+        // fau.
         $this->tpl->parseCurrentBlock();
 
         $this->tpl->setCurrentBlock("SyntaxStyle");

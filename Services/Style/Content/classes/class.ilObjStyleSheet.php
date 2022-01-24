@@ -646,6 +646,40 @@ class ilObjStyleSheet extends ilObject
         return $this->scope;
     }
 
+    // fau: customCss - set/get/ lookup custom css
+    /**
+     * Set custom css code
+     */
+    public function setCustomCss($a_css)
+    {
+        $this->custom_css = $a_css;
+    }
+
+    /**
+     * Get custom CSS code
+     */
+    public function getCustomCss()
+    {
+        return $this->custom_css;
+    }
+
+    /**
+     * Lookup the custom css (for export)
+     */
+    public static function lookupCustomCss($a_id)
+    {
+        global $DIC;
+        $ilDB = $DIC->database();
+
+        $q = "SELECT custom_css FROM style_data " .
+            " WHERE id = " . $ilDB->quote($a_id, "integer");
+        $res = $ilDB->query($q);
+        $sty = $ilDB->fetchAssoc($res);
+
+        return (string) $sty["custom_css"];
+    }
+    // fau.
+
     /**
     * Write up to date
     */
@@ -814,8 +848,10 @@ class ilObjStyleSheet extends ilObject
         $ilDB = $DIC->database();
         
         $clonable_styles = array();
-        
-        $q = "SELECT * FROM style_data";
+
+        // fau: styleCloneQuery - allow only standard styles being cloned
+        $q = "SELECT * FROM style_data where standard = 1";
+        // fau.
         $style_set = $ilDB->query($q);
         while ($style_rec = $ilDB->fetchAssoc($style_set)) {
             $clonable = false;
@@ -973,13 +1009,24 @@ class ilObjStyleSheet extends ilObject
                     $ilDB->quote($char["characteristic"], "text") . ")";
                 $ilDB->manipulate($q);
             }
-            
-            // add style_data record
-            $q = "INSERT INTO style_data (id, uptodate, category) VALUES " .
-                "(" . $ilDB->quote($this->getId(), "integer") . ", 0," .
-                $ilDB->quote((int) $this->getScope(), "integer") . ")";
-            $ilDB->manipulate($q);
-            
+
+            // fau: customCss - add style_data record with custom css
+            $q = "SELECT * FROM style_data WHERE id = " .
+                $ilDB->quote($a_from_style, "integer");
+            $data_set = $ilDB->query($q);
+            $data_rec = $ilDB->fetchAssoc($data_set);
+            $this->setCustomCss($data_rec['custom_css']);
+
+            $ilDB->insert(
+                "style_data",
+                array(
+                    "id" => array("integer", $this->getId()),
+                    "uptodate" => array("integer", 0),
+                    "category" => array("integer", $this->getScope()),
+                    "custom_css" => array("clob", $this->getCustomCss())
+                )
+            );
+            // fau.
             // copy images
             $this->createImagesDirectory();
             ilUtil::rCopy(
@@ -1211,6 +1258,9 @@ class ilObjStyleSheet extends ilObject
         $new_obj->setTitle($this->getTitle() . " (" . $lng->txt("sty_acopy") . ")");
         $new_obj->setType($this->getType());
         $new_obj->setDescription($this->getDescription());
+        // fau: customCss - clone custom css
+        $new_obj->setCustomCss($this->getCustomCss());
+        // fau.
         $new_obj->create($this->getId());
         
         $new_obj->writeStyleSetting(
@@ -1582,6 +1632,9 @@ class ilObjStyleSheet extends ilObject
         $sty = $ilDB->fetchAssoc($res);
         $this->setUpToDate((boolean) $sty["uptodate"]);
         $this->setScope($sty["category"]);
+        // fau: customCss - read custom css from database
+        $this->setCustomCss($sty["custom_css"]);
+        // fau.
 
         // get style characteristics records
         $this->chars = array();
@@ -1747,19 +1800,50 @@ class ilObjStyleSheet extends ilObject
                 fwrite($css_file, "}\n");
             }
         }
+
+        // fau: customCss - write custom css to css file
+        $custom = $this->getCustomCss();
+
+        foreach ($this->getImages() as $image) {
+            $custom = str_replace("!" . $image["entry"], "../sty/sty_" . $this->getId() . "/images/" . $image["entry"], $custom);
+        }
+
+        foreach ($this->getColors() as $color) {
+            $custom = preg_replace_callback('/!(' . $color['name'] . ')(\(\-?[0-9]+\))?/', array($this,'replaceColorNameCallback'), $custom);
+        }
+
+        if (!empty($custom)) {
+            fwrite($css_file, "\n" . $custom);
+        }
+        // fau.
         fclose($css_file);
         //	exit;
         $this->setUpToDate(true);
         $this->_writeUpToDate($this->getId(), true);
     }
 
+    // fau: customCss - new function replaceColorNameCallback
     /**
-    * Get effective Style Id
-    *
-    * @param	integer		style id that may be set in object
-    * @param	string		object type
+     * Callback function to replace color names
+     * @param $matches
+     * @return string
+     */
+    public function replaceColorNameCallback($matches)
+    {
+        return $this->getColorCodeForName($matches[1] . $matches[2]);
+    }
+    // fau.
+
+    // fau: inheritContentStyle - add ref_id as parameter and find a parent style
+    /**
+     * Get effective Style Id
+     *
+     * @param	integer		$a_style_id	style id that may be set in object
+     * @param	string		$a_type	object type
+     * @param	integer		$a_ref_id
+     * @return integer
     */
-    public static function getEffectiveContentStyleId($a_style_id, $a_type = "")
+    public static function getEffectiveContentStyleId($a_style_id, $a_type = "", $a_ref_id = null)
     {
         global $DIC;
 
@@ -1771,6 +1855,13 @@ class ilObjStyleSheet extends ilObject
             $a_style_id = $fixed_style;
         }
 
+        // check for an inherited style
+        if ($a_style_id <= 0 && $a_ref_id > 0) {
+            if (!empty($usage = self::getEffectiveParentStyleUsage($a_ref_id))) {
+                $a_style_id = $usage['style_id'];
+            }
+        }
+
         // check global default style
         if ($a_style_id <= 0) {
             $a_style_id = $ilSetting->get("default_content_style_id");
@@ -1779,9 +1870,45 @@ class ilObjStyleSheet extends ilObject
         if ($a_style_id > 0 && ilObject::_lookupType($a_style_id) == "sty") {
             return $a_style_id;
         }
-        
+
         return 0;
     }
+    // fau.
+
+    // fau: inheritContentStyle - new function getEffectiveParentStyleUsage()
+    /**
+     * Get the effective parent style usage record for a repository object
+     *
+     * @param int $a_ref_id	 ref_id of the object
+     * @return array		['obj_id' => int, 'style_id => int, scope_ref_id => int]
+     */
+    public static function getEffectiveParentStyleUsage($a_ref_id)
+    {
+        global $DIC;
+        $tree = $DIC->repositoryTree();
+        $ilDB = $DIC->database();
+
+        $path = $tree->getPathId($a_ref_id);
+
+        // select the style usage records of parent object that have a scope set by their ref_id
+        $query = "SELECT * FROM style_usage WHERE "
+                . $ilDB->in('scope_ref_id', $path, false, 'integer');
+
+        $usages = [];
+        $result = $ilDB->query($query);
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $usages[$row['scope_ref_id']] = $row;
+        }
+
+        foreach (array_reverse($path) as $ref_id) {
+            if (isset($usages[$ref_id])) {
+                return $usages[$ref_id];
+            }
+        }
+
+        return [];
+    }
+    // fau.
 
     /**
      * Get parameters of class
@@ -1880,13 +2007,23 @@ class ilObjStyleSheet extends ilObject
         $ilDB = $this->db;
         
         parent::update();
+        // fau: customCss - update custom css in database
+        $custom_css = $this->getCustomCss();
         $this->read();				// this could be done better
+        $this->setCustomCss($custom_css);
         $this->writeCSSFile();
-        
-        $q = "UPDATE style_data " .
-            "SET category = " . $ilDB->quote((int) $this->getScope(), "integer") .
-            " WHERE id = " . $ilDB->quote($this->getId(), "integer");
-        $ilDB->manipulate($q);
+
+        $ilDB->update(
+            "style_data",
+            array(
+                "category" => array("integer", (int) $this->getScope()),
+                "custom_css" => array("clob", $this->getCustomCss())
+            ),
+            array(
+                "id" => array("integer", $this->getId())
+            )
+        );
+        // fau.
     }
 
     /**
@@ -2038,8 +2175,13 @@ class ilObjStyleSheet extends ilObject
                 $xml .= "</StyleTemplate>\n";
             }
         }
-        
-        
+
+        // fau: customCss - write custom css to xml
+        if ($this->getCustomCss()) {
+            $xml .= "<CustomCss><![CDATA[" . $this->getCustomCss() . "]]></CustomCss>";
+        }
+        // fau.
+
         $xml .= "</StyleSheet>";
         //echo "<pre>".htmlentities($xml)."</pre>"; exit;
         return $xml;
@@ -3645,11 +3787,12 @@ class ilObjStyleSheet extends ilObject
         
         return $rec["value"];
     }
-    
+
+    // fau: inheritContentStyle - add parameter $a_scope_ref_id and save it
     /**
     * Write style usage
     */
-    public static function writeStyleUsage($a_obj_id, $a_style_id)
+    public static function writeStyleUsage($a_obj_id, $a_style_id, $a_scope_ref_id = 0)
     {
         global $DIC;
 
@@ -3660,10 +3803,13 @@ class ilObjStyleSheet extends ilObject
             array(
             "obj_id" => array("integer", (int) $a_obj_id)),
             array(
-                "style_id" => array("integer", (int) $a_style_id))
+                "style_id" => array("integer", (int) $a_style_id),
+                "scope_ref_id" => array("integer", (int) $a_scope_ref_id)
+            )
         );
     }
-    
+    // fau.
+
     /**
     * Lookup object style
     */
@@ -3685,6 +3831,28 @@ class ilObjStyleSheet extends ilObject
         
         return 0;
     }
+
+    // fau: inheritContentStyle - new function lookupObjectStyleScope()
+    /**
+     * Lookup the scope of an object style (object is a container)
+     * @param	int	$a_obj_id
+     * @return	int				ref_id of the container if scope is the subtree, 0 if scope is only the object
+     */
+    public static function lookupObjectStyleScope($a_obj_id)
+    {
+        global $DIC;
+
+        $ilDB = $DIC->database();
+
+        $set = $ilDB->query(
+            "SELECT scope_ref_id FROM style_usage " .
+            " WHERE obj_id = " . $ilDB->quote($a_obj_id, "integer")
+        );
+        $rec = $ilDB->fetchAssoc($set);
+
+        return (int) $rec["scope_ref_id"];
+    }
+    // fau.
 
     /**
      * Lookup object style

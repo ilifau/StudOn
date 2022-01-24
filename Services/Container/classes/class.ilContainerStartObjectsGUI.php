@@ -99,12 +99,13 @@ class ilContainerStartObjectsGUI
                     $new_page_object->createFromXML();
                     unset($new_page_object);
                 }
-
+// fau: inheritContentStyle - add ref_id
                 $this->tpl->setVariable(
                     "LOCATION_CONTENT_STYLESHEET",
                     ilObjStyleSheet::getContentStylePath(ilObjStyleSheet::getEffectiveContentStyleId(
                         $this->object->getStyleSheetId(),
-                        $this->object->getType()
+                        $this->object->getType(),
+                        $this->object->getRefId()
                     ))
                 );
 
@@ -114,9 +115,10 @@ class ilContainerStartObjectsGUI
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
                 $pgui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
                     $this->object->getStyleSheetId(),
-                    $this->object->getType()
+                    $this->object->getType(),
+                    $this->object->getRefId()
                 ));
-
+// fau.
                 $ret = $this->ctrl->forwardCommand($pgui);
                 if ($ret) {
                     $this->tpl->setContent($ret);

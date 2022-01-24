@@ -119,6 +119,20 @@ class ilPrivacySettings
         return $this->export_learning_sequence;
     }
 
+
+    /**
+     * fau: extendedAccess - check the general right for extended access to user data
+    */
+    public static function _checkExtendedAccess()
+    {
+        global $rbacsystem;
+
+        $privacy = self::_getInstance();
+        return $rbacsystem->checkAccess('export_member_data', $privacy->getPrivacySettingsRefId());
+    }
+    // fau.
+
+
     /**
      * @return bool
      */

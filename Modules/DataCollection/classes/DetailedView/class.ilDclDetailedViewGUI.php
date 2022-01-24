@@ -86,7 +86,11 @@ class ilDclDetailedViewGUI
         $tpl->parseCurrentBlock();
 
         $tpl->setCurrentBlock("ContentStyle");
-        $tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(0));
+        // fau: inheritContentStyle - get the effective content style by ref_id
+        $tpl->setVariable("LOCATION_CONTENT_STYLESHEET", ilObjStyleSheet::getContentStylePath(
+            ilObjStyleSheet::getEffectiveContentStyleId(0, 'dcl', $_GET['ref_id'])
+        ));
+        // fau.
         $tpl->parseCurrentBlock();
 
         $this->table = $this->record_obj->getTable();
@@ -189,7 +193,9 @@ class ilDclDetailedViewGUI
 
         // see ilObjDataCollectionGUI->executeCommand about instantiation
         $pageObj = new ilDclDetailedViewDefinitionGUI($this->tableview_id);
-        $pageObj->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(0, "dcl"));
+        // fau: inheritContentStyle - add ref_id
+        $pageObj->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(0, "dcl", $_GET['ref_id']));
+        // fau.
 
         $html = $pageObj->getHTML();
         $rctpl->addCss("./Services/COPage/css/content.css");

@@ -765,7 +765,19 @@ class ilObjSCORM2004LearningModuleGUI extends ilObjSCORMLearningModuleGUI
                 $this->form->addItem($style_sel);
             }
         }
-        
+
+        // fau: inheritContentStyle - add inheritance properties to the form
+        if ($style_id <= 0) {
+            $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->ref_id);
+            if (!empty($parent_usage)) {
+                $pu = new ilNonEditableValueGUI($this->lng->txt('sty_inherited_from'));
+                $pu->setInfo($this->lng->txt('sty_inherited_from_info'));
+                $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                $this->form->addItem($pu);
+            }
+        }
+        // fau.
+
         // number of tries
         $ni = new ilNumberInputGUI($lng->txt("cont_qtries"), "q_tries");
         $ni->setInfo($lng->txt("cont_qtries_info")); // #15133

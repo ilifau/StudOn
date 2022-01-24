@@ -13,6 +13,12 @@ $client = $_SERVER['argv'][3];
 $login = $_SERVER['argv'][1];
 $password = $_SERVER['argv'][2];
 
+// fau: singleCronJob - get job id
+if (isset( $_SERVER['argv'][4])) {
+    $jobId = $_SERVER['argv'][4];
+}
+// fau.
+
 $cron = new ilCronStartUp(
     $client,
     $login,
@@ -25,7 +31,15 @@ try {
     $cronManager = new ilStrictCliCronManager(
         new ilCronManager($DIC->settings(), $DIC->logger()->root())
     );
-    $cronManager->runActiveJobs();
+
+    // fau: singleCronJob - run single job if id is given
+    if (!empty($jobId)) {
+        $cronManager->runSingleJob($jobId);
+    }
+    else {
+        $cronManager->runActiveJobs();
+    }
+    // fau.
 
     $cron->logout();
 } catch (Exception $e) {

@@ -468,38 +468,42 @@ class ilInfoScreenGUI
             $this->addProperty("", nl2br($description));
         }
 
-        // general section
-        $this->addSection($lng->txt("meta_general"));
-        if ($langs != "") {	// language
-            $this->addProperty(
-                $lng->txt("language"),
-                $langs
-            );
+        // fau: infoScreen - show "general" section only if relevant data exist
+        if ($keywords != '' or $author != '' or $copyright != '' or $learning_time != '') {
+            // general section
+            $this->addSection($lng->txt("meta_general"));
+            if ($langs != "") {	// language
+                $this->addProperty(
+                    $lng->txt("language"),
+                    $langs
+                );
+            }
+            if ($keywords != "") {	// keywords
+                $this->addProperty(
+                    $lng->txt("keywords"),
+                    $keywords
+                );
+            }
+            if ($author != "") {		// author
+                $this->addProperty(
+                    $lng->txt("author"),
+                    $author
+                );
+            }
+            if ($copyright != "") {		// copyright
+                $this->addProperty(
+                    $lng->txt("meta_copyright"),
+                    $copyright
+                );
+            }
+            if ($learning_time != "") {		// typical learning time
+                $this->addProperty(
+                    $lng->txt("meta_typical_learning_time"),
+                    $learning_time
+                );
+            }
         }
-        if ($keywords != "") {	// keywords
-            $this->addProperty(
-                $lng->txt("keywords"),
-                $keywords
-            );
-        }
-        if ($author != "") {		// author
-            $this->addProperty(
-                $lng->txt("author"),
-                $author
-            );
-        }
-        if ($copyright != "") {		// copyright
-            $this->addProperty(
-                $lng->txt("meta_copyright"),
-                $copyright
-            );
-        }
-        if ($learning_time != "") {		// typical learning time
-            $this->addProperty(
-                $lng->txt("meta_typical_learning_time"),
-                $learning_time
-            );
-        }
+        // fau.
     }
 
     /**
@@ -529,13 +533,15 @@ class ilInfoScreenGUI
             $ref_id = $a_obj->getRefId();
             
             if ($ref_id) {
-                include_once 'Services/WebServices/ECS/classes/class.ilECSServerSettings.php';
-                if (ilECSServerSettings::getInstance()->activeServerExists()) {
-                    $this->addProperty(
-                        $lng->txt("object_id"),
-                        $a_obj->getId()
-                    );
-                }
+                // fau: infoScreen - don't show the object twice
+//                include_once 'Services/WebServices/ECS/classes/class.ilECSServerSettings.php';
+//                if (ilECSServerSettings::getInstance()->activeServerExists()) {
+//                    $this->addProperty(
+//                        $lng->txt("object_id"),
+//                        $a_obj->getId()
+//                    );
+//                }
+                // fau.
 
                 include_once 'Services/PermanentLink/classes/class.ilPermanentLinkGUI.php';
                 $pm = new ilPermanentLinkGUI($type, $ref_id);
@@ -547,6 +553,32 @@ class ilInfoScreenGUI
                     ""
                 );
             
+                // fau: joinLink - show a separate link to join
+                if ($type == "crs" or $type == "grp") {
+                    $pm = new ilPermanentLinkGUI($type, $ref_id);
+                    $pm->setIncludePermanentLinkText(false);
+                    $pm->setAppend('_join');
+                    $this->addProperty(
+                        $lng->txt("join_link"),
+                        $pm->getHTML()
+                        . '<div class="help-block">' . $lng->txt("join_link_description") . '</div>',
+                        ""
+                    );
+                }
+                // fau.
+
+
+                // fau: relativeLink - show link on infoscreen of repository object
+                if ($ilAccess->checkAccess("write", "", $ref_id) ||
+                    $ilAccess->checkAccess("edit_permissions", "", $ref_id)) {
+                    include_once 'Services/RelativeLink/classes/class.ilRelativeLinkGUI.php';
+                    $rlink = new ilRelativeLinkGUI();
+                    $rlink->setTarget(ilRelativeLink::TYPE_REP_OBJECT, $a_obj->getId());
+                    $this->addProperty($lng->txt("relative_link_label"), $rlink->getHTML(false), "");
+                }
+                // fau.
+
+
                 // links to resource
                 if ($ilAccess->checkAccess("write", "", $ref_id) ||
                     $ilAccess->checkAccess("edit_permissions", "", $ref_id)) {
@@ -575,8 +607,23 @@ class ilInfoScreenGUI
                 }
             }
         }
-                
-                
+
+        // fau: infoScreen - show the ref_id (and the obj_id to admins)
+        $this->addProperty($this->lng->txt('studon_ref_id'), $a_obj->getRefId());
+        if (ilCust::administrationIsVisible()) {
+            $this->addProperty($this->lng->txt('object_id'), $a_obj->getId());
+        }
+        // fau.
+
+        // fau: infoScreen - show the univis id
+        if ($import_id = $a_obj->getImportId()) {
+            require_once('./Services/UnivIS/classes/class.ilUnivisLecture.php');
+            if (ilUnivisLecture::_isIliasImportId($import_id)) {
+                $this->addProperty($this->lng->txt('univis_id'), $import_id);
+            }
+        }
+        // fau.
+
         // creation date
         $this->addProperty(
             $lng->txt("create_date"),
@@ -605,8 +652,10 @@ class ilInfoScreenGUI
         }
 
         // change event
-        require_once 'Services/Tracking/classes/class.ilChangeEvent.php';
-        if (ilChangeEvent::_isActive()) {
+        // fau: infoScreen - show statistical info to users with write access
+        if ($ilAccess->checkAccess("write", "", $ref_id)) {
+            require_once 'Services/Tracking/classes/class.ilChangeEvent.php';
+            // fau.
             if ($ilUser->getId() != ANONYMOUS_USER_ID) {
                 $readEvents = ilChangeEvent::_lookupReadEvents($a_obj->getId());
                 $count_users = 0;
@@ -658,6 +707,134 @@ class ilInfoScreenGUI
                 }
             }
         }
+
+        // fau: showUpperPermissions - show info about users with special rights
+
+        global $ilAccess, $rbacreview, $tree;
+        $a_obj = $this->gui_object->object;
+
+        if (is_object($a_obj)
+            and ilCust::get('ilias_show_roles_info')
+            and $ilUser->getId() != ANONYMOUS_USER_ID) {
+            $type = $a_obj->getType();
+            $ref_id = $a_obj->getRefId();
+
+            // get the roles depending on the object type
+            switch ($type) {
+                case "cat":
+                    $lang_prefix = 'info_section_cat_roles_';
+
+                    // show admins and managers to all logged in users
+                    $permissions = array('edit_permission', 'delete');
+
+                    // show lercturers to managers and admins
+                    if ($ilAccess->checkAccess('write', '', $ref_id, $type)) {
+                        $permissions[] = 'create_crs';
+                    }
+
+                    $roles = $rbacreview->getRolesByPermissions(
+                        $ref_id,
+                        $permissions,
+                        true,
+                        false
+                    );
+                    break;
+
+                case "grp":
+                case "crs":
+                    $lang_prefix = 'info_section_crs_parent_roles_';
+                    $permissions = array('read');
+
+                    $roles = $rbacreview->getRolesByPermissions(
+                        $ref_id,
+                        $permissions,
+                        false,
+                        false
+                    );
+                    break;
+
+                default:
+                    $lang_prefix = 'info_section_roles_';
+                    $permissions = array();
+                    $roles = array();
+                    break;
+            }
+
+            $special_roles = array('il_crs_admin','il_crs_member','il_crs_tutor',
+                                    'il_grp_admin', 'il_grp_member');
+
+            $user_fields = array('usr_id','login','firsname','lastname');
+
+            // create a section for each found permission
+            foreach ($permissions as $perm) {
+                if (is_array($roles[$perm])) {
+                    $this->addSection($lng->txt($lang_prefix . $perm));
+
+                    foreach ($roles[$perm] as $role_id => $role_data) {
+                        $title = $role_data['title'];
+
+                        $rolf_id = current($rbacreview->getFoldersAssignedToRole($role_id, true));
+                        $object_ref_id = $rolf_id;
+                        $object_id = ilObject::_lookupObjId($object_ref_id);
+                        $object_type = ilObject::_lookupType($object_id);
+                        $object_title = ilObject::_lookupTitle($object_id);
+                        $object_link = ilLink::_getStaticLink($object_ref_id);
+
+                        // show only role title for participant roles
+                        // these may have long member lists
+                        foreach ($special_roles as $spec) {
+                            if (strpos($title, $spec, 0) !== false) {
+                                $details = $lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
+
+                                $this->addProperty($lng->txt($spec), $details);
+                                continue 2;
+                            }
+                        }
+
+
+                        // list owners of other roles
+                        include_once "./Services/Object/classes/class.ilObjectFactory.php";
+
+                        $users = $rbacreview->assignedUsers($role_id);
+                        $userlist = array();
+                        $i = 0;
+                        foreach ($users as $user_id) {
+                            if ($userObj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
+                                if ($userObj->hasPublicProfile()) {
+                                    $ilCtrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $userObj->getId());
+                                    $userlist[] = '<a href=' . $ilCtrl->getLinkTargetByClass("ilpublicuserprofilegui", "getHTML") . '>'
+                                                    . $userObj->getLogin() . '</a>';
+                                } else {
+                                    $userlist[] = $userObj->getLogin();
+                                }
+                            }
+
+                            // limit user list to 50 participants
+                            $i++;
+                            if ($i == 50) {
+                                $userlist[] = '...';
+                                break;
+                            }
+                        }
+
+
+                        $details = $lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
+                        if (count($userlist)) {
+                            $details .= '<br />' . $lng->txt('users') . ': ' . implode($userlist, ', ');
+                        }
+
+                        $this->addProperty($title, $details);
+                    }
+                }
+            }
+
+            // add info about StudOn administrators
+            if (in_array($type, array('cat','crs','grp')) and $ilAccess->checkAccess('write', '', $ref_id, $type)) {
+                $this->addSection($lng->txt('info_section_studon_admins'));
+                $this->addProperty($lng->txt('administrator'), $lng->txt('info_section_studon_admins_details'));
+            }
+        }
+        // fau.
     }
     // END ChangeEvent: Display standard object info
     /**

@@ -237,7 +237,13 @@ class ilTestRandomQuestionSetPoolDeriver
                 $taxKeysMap,
                 $definition->getMappedTaxonomyFilter()
             ));
-            
+
+            // fau: taxGroupFilter - set the original group tax id that is derived from the mapped tax id
+            if (!empty($definition->getMappedGroupTaxId())) {
+                $definition->setOriginalGroupTaxId($taxKeysMap->getMappedTaxonomyId($definition->getMappedGroupTaxId()));
+            }
+            // fau.
+
             $definition->saveToDb();
         }
     }

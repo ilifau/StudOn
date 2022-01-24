@@ -10,6 +10,10 @@
  */
 class ilHelp
 {
+    // fau: cacheTooltips - define cache
+    public static $tt_cache = [];
+    // fau.
+
     /**
      * Get tooltip for id
      *
@@ -23,8 +27,13 @@ class ilHelp
         $ilDB = $DIC->database();
         $ilSetting = $DIC->settings();
         $ilUser = $DIC->user();
-        
-        
+
+        // fau: cacheTooltips - check cache for tt
+        if (isset(self::$tt_cache[$a_tt_id])) {
+            return self::$tt_cache[$a_tt_id];
+        }
+        // fau.
+
         if ($ilUser->getLanguage() != "de") {
             return "";
         }
@@ -54,9 +63,15 @@ class ilHelp
         $rec = $ilDB->fetchAssoc($set);
         if ($rec["tt_text"] != "") {
             $t = $rec["tt_text"];
-            if ($module_id == 0) {
-                $t .= "<br/><i>(" . $a_tt_id . ")</i>";
+            // fau: showHelpIds - make showing of ids independent from OH_REF_ID
+
+            if (ilCust::get("help_show_ids")) {
+                $t .= "<br/><i class='small'>" . $a_tt_id . "</i>";
             }
+            // fau.
+            // fau: cacheTooltips - store tt
+            self::$tt_cache[$a_tt_id] = $t;
+            // fau.
             return $t;
         } else { // try to get general version
             $fu = strpos($a_tt_id, "_");
@@ -69,15 +84,28 @@ class ilHelp
             $rec = $ilDB->fetchAssoc($set);
             if ($rec["tt_text"] != "") {
                 $t = $rec["tt_text"];
-                if ($module_id == 0) {
-                    $t .= "<br/><i>(" . $a_tt_id . ")</i>";
+                // fau: showHelpIds - make showing of ids independent from OH_REF_ID
+
+                if (ilCust::get("help_show_ids")) {
+                    $t .= "<br/><i class='small'>" . $a_tt_id . "</i>";
                 }
+                // fau.
+                // fau: cacheTooltips - store tt
+                self::$tt_cache[$a_tt_id] = $t;
+                // fau.
                 return $t;
             }
         }
-        if ($module_id == 0) {
+        // fau: showHelpIds - make showing of ids independent from OH_REF_ID
+
+        if (ilCust::get("help_show_ids")) {
             return "<i>" . $a_tt_id . "</i>";
         }
+        // fau.
+
+        // fau: cacheTooltips - store tt
+        self::$tt_cache[$a_tt_id] = "";
+        // fau.
         return "";
     }
 

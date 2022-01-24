@@ -44,11 +44,18 @@ class ilUserPasswordEncoderFactory
      */
     protected function getValidEncoders($config) : array
     {
+        // fau: idmPass - add idm encoders
+        require_once ('./Services/Password/classes/encoders/class.ilIdmSshaPasswordEncoder.php');
+        require_once ('./Services/Password/classes/encoders/class.ilIdmCryptPasswordEncoder.php');
+
         return [
             new ilBcryptPhpPasswordEncoder($config),
             new ilBcryptPasswordEncoder($config),
             new ilMd5PasswordEncoder($config),
+            new ilIdmSshaPasswordEncoder($config),
+            new ilIdmCryptPasswordEncoder($config)
         ];
+        // fau.
     }
 
     /**

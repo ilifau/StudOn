@@ -921,7 +921,13 @@ class ilObjGlossaryGUI extends ilObjectGUI
         $definition = new ilGlossaryDefinition($_GET["def"]);
         $page_gui = new ilGlossaryDefPageGUI($definition->getId());
         $page_gui->setTemplateOutput(false);
-        $page_gui->setStyleId($this->object->getStyleSheetId());
+        // fau: inheritContentStyle - get the effective content style for the page
+        $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
+            $this->object->getStyleSheetId(),
+            'glo',
+            $this->object->getRefId()
+        ));
+        // fau.
         $page_gui->setSourcecodeDownloadScript("ilias.php?baseClass=ilGlossaryPresentationGUI&amp;ref_id=" . $_GET["ref_id"]);
         $page_gui->setFileDownloadLink("ilias.php?baseClass=ilGlossaryPresentationGUI&amp;ref_id=" . $_GET["ref_id"]);
         $page_gui->setFullscreenLink("ilias.php?baseClass=ilGlossaryPresentationGUI&amp;ref_id=" . $_GET["ref_id"]);
@@ -1433,10 +1439,18 @@ class ilObjGlossaryGUI extends ilObjectGUI
         }
 
         $ctpl->setCurrentBlock("ContentStyle");
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $ctpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->object->getStyleSheetId(),
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                )
+            )
         );
+        // fau.
         $ctpl->parseCurrentBlock();
     }
     
@@ -1527,6 +1541,18 @@ class ilObjGlossaryGUI extends ilObjectGUI
                 );
             }
         }
+        // fau: inheritContentStyle - add inheritance properties to the form
+        if ($style_id <= 0) {
+            $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->ref_id);
+            if (!empty($parent_usage)) {
+                $pu = new ilNonEditableValueGUI($this->lng->txt('sty_inherited_from'));
+                $pu->setInfo($this->lng->txt('sty_inherited_from_info'));
+                $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                $this->form->addItem($pu);
+            }
+        }
+        // fau.
+
         $this->form->setTitle($this->lng->txt("glo_style"));
         $this->form->setFormAction($this->ctrl->getFormAction($this));
     }

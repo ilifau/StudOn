@@ -201,7 +201,7 @@ class ilTinyMCE extends ilRTE
                     return "." . $value;
                 }, $tinyMCE_valid_imgs))
             );
-            
+
             $buttons_1 = $this->_buildAdvancedButtonsFromHTMLTags(1, $tags);
             $buttons_2 = $this->_buildAdvancedButtonsFromHTMLTags(2, $tags)
                        . ',' . $this->_buildAdvancedTableButtonsFromHTMLTags($tags)
@@ -212,7 +212,7 @@ class ilTinyMCE extends ilRTE
             $tpl->setVariable('BUTTONS_3', self::removeRedundantSeparators($buttons_3));
 
             $tpl->setVariable('CONTEXT_MENU_ITEMS', join(" ", $this->contextMenuItems));
-            
+
             $tpl->setVariable("ADDITIONAL_PLUGINS", join(" ", $this->plugins));
             include_once "./Services/Utilities/classes/class.ilUtil.php";
             //$tpl->setVariable("STYLESHEET_LOCATION", $this->getContentCSS());
@@ -255,7 +255,7 @@ class ilTinyMCE extends ilRTE
             array_push($this->contextMenuItems, $item);
         }
     }
-    
+
     /**
      * removeAllContextMenuItems
      *
@@ -284,7 +284,7 @@ class ilTinyMCE extends ilRTE
         $tpl->setVariable("BLOCKFORMATS", $this->_buildAdvancedBlockformatsFromHTMLTags($tags));
         $tpl->setVariable("VALID_ELEMENTS", $this->_getValidElementsFromHTMLTags($tags));
         $tpl->setVariable("TXT_MAX_SIZE", ilUtil::getFileSizeInfo());
-        
+
         $this->disableButtons('charmap');
         $buttons_1 = $this->_buildAdvancedButtonsFromHTMLTags(1, $tags);
         $buttons_2 = $this->_buildAdvancedButtonsFromHTMLTags(2, $tags)
@@ -300,7 +300,10 @@ class ilTinyMCE extends ilRTE
         $tpl->setVariable("ADDITIONAL_PLUGINS", join(" ", $this->plugins));
         include_once "./Services/Utilities/classes/class.ilUtil.php";
         //$tpl->setVariable("STYLESHEET_LOCATION", $this->getContentCSS());
-        $tpl->setVariable("STYLESHEET_LOCATION", ilUtil::getNewContentStyleSheetLocation());
+        // fau: fixCustomRteStyle - use delos.css for custom RTE support (if setRTESupport is not called for ilTextAreaInput)
+        // this is the case for editing success/failed messages and manual scoring in tests
+        $tpl->setVariable("STYLESHEET_LOCATION", ilUtil::getNewContentStyleSheetLocation() . "," . ilUtil::getStyleSheetLocation("output", "delos.css"));
+        // fau.
         $tpl->setVariable("LANG", $this->_getEditorLanguage());
         
         if ($this->getRTERootBlockElement() !== null) {
@@ -340,7 +343,7 @@ class ilTinyMCE extends ilRTE
         $template->setVariable("STYLESHEET_LOCATION", ilUtil::getNewContentStyleSheetLocation() . "," . ilUtil::getStyleSheetLocation("output", "delos.css"));
         $template->setVariable("LANG", $this->_getEditorLanguage());
         $template->parseCurrentBlock();
-        
+
         $this->tpl->addJavaScript("node_modules/tinymce/tinymce.js");
         $this->tpl->addOnLoadCode($template->get());
     }
@@ -680,7 +683,7 @@ class ilTinyMCE extends ilRTE
             case "he":
                 $langtiny = "he_IL";
                 break;
-            
+
             default:
                 //do nothing
         }
@@ -962,6 +965,11 @@ class ilTinyMCE extends ilRTE
                 case "meta":
                     array_push($valid_elements, "meta[content|dir<ltr?rtl|http-equiv|lang|name|scheme]");
                     break;
+// fau: nobrElement - allow nobr as valid element
+                case "nobr":
+                    array_push($valid_elements, "nobr[[class|clear<all?left?none?right|id|style|title]");
+                    break;
+// fau.
                 case "noframes":
                     array_push($valid_elements, "noframes[class|dir<ltr?rtl|id|lang|onclick|ondblclick|onkeydown|onkeypress"
                         . "|onkeyup|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|style"
@@ -1184,7 +1192,7 @@ class ilTinyMCE extends ilRTE
                 $a_string = $a_string . ' ilimgupload ' . str_replace('ilimgupload', '', $arr[1]);
             }
         }
-        
+
 
         return $a_string;
     }

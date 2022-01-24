@@ -179,7 +179,11 @@ class ilTestPlayerDynamicQuestionSetGUI extends ilTestPlayerAbstractGUI
         if ($this->object->checkMaximumAllowedUsers() == false) {
             return $this->showMaximumAllowedUsersReachedMessage();
         }
-        
+
+        // fau: testStatement - call check when dynamic test is resumed
+        $this->checkAuthorshipStatement();
+        // fau.
+
         $this->handleUserSettings();
         
         if ($this->dynamicQuestionSetConfig->isAnyQuestionFilterEnabled()) {
@@ -809,6 +813,12 @@ class ilTestPlayerDynamicQuestionSetGUI extends ilTestPlayerAbstractGUI
         }
         
         if ($this->saveResult == false) {
+            // fau: fixQuestionValidateSubmit - use common function to handle a save error
+            if (isset($questionGUI)) {
+                $questionOBJ = $questionGUI->object;
+            }
+            $this->handleSaveQuestionSolutionError($questionOBJ);
+            // fau.
             $this->ctrl->setParameter($this, "save_error", "1");
             $_SESSION["previouspost"] = $_POST;
         }

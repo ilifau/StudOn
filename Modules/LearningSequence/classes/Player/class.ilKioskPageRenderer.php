@@ -94,6 +94,11 @@ class ilKioskPageRenderer
         }
         //also shift start control up front - this is for legacy-views only!
         if ($control_builder->getStartControl()) {
+
+            // fau: lsoManualRefresh - add control for a manual refresh
+            array_unshift($controls, $control_builder->getRefreshControl());
+            // fau.
+
             array_unshift($controls, $control_builder->getStartControl());
             $this->tpl->setVariable("JS_INLINE", $control_builder->getAdditionalJS());
         }

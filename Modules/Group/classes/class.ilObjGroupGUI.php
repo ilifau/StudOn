@@ -23,10 +23,16 @@ include_once('./Modules/Group/classes/class.ilObjGroup.php');
  * @ilCtrl_Calls ilObjGroupGUI: ilLTIProviderObjectSettingGUI
  * @ilCtrl_Calls ilObjGroupGUI: ilObjectMetaDataGUI, ilObjectTranslationGUI, ilPropertyFormGUI
  *
- *
- *
- * @extends ilObjectGUI
- */
+ * fau: studyCond - added ilStudyCondGUI to call structure
+ * @ilCtrl_Calls ilObjGroupGUI: ilStudyCondGUI
+ * fau.
+ * fau: objectSub - added ilPropertyFormGUI to call structure
+ * @ilCtrl_Calls ilObjGroupGUI: ilPropertyFormGUI
+ * fau.
+*
+*
+* @extends ilObjectGUI
+*/
 class ilObjGroupGUI extends ilContainerGUI
 {
     /**
@@ -106,14 +112,37 @@ class ilObjGroupGUI extends ilContainerGUI
                 $mem_gui = new ilGroupMembershipGUI($this, $this->object);
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
-            
-            
+
+// fau: studyCond - add command class
+            case 'ilstudycondgui':
+                include_once("./Services/StudyData/classes/class.ilStudyCondGUI.php");
+                $cond_gui = new ilStudyCondGUI($this, 'edit');
+                $this->ctrl->setReturn($this, 'edit');
+                $this->ctrl->forwardCommand($cond_gui);
+                $this->setSubTabs('settings');
+                $this->tabs_gui->setTabActive('settings');
+                break;
+// fau.
+
+// fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateRegistrationRefId");
+                $form = $this->initForm();
+                $this->ctrl->forwardCommand($form);
+                break;
+// fau.
+
             case 'ilgroupregistrationgui':
                 $this->ctrl->setReturn($this, '');
                 $this->tabs_gui->setTabActive('join');
                 include_once('./Modules/Group/classes/class.ilGroupRegistrationGUI.php');
                 $registration = new ilGroupRegistrationGUI($this->object);
                 $this->ctrl->forwardCommand($registration);
+                // fau: fixCourseRegHeader - return here to avoid inclusion of header commands
+                return true;
+                // fau.
                 break;
 
             case 'ilpermissiongui':
@@ -175,10 +204,18 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->tabs_gui->setTabActive('none');
                 $this->checkPermission("read");
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+// fau: inheritContentStyle - get the effective content style by ref_id
                 $this->tpl->setVariable(
                     "LOCATION_CONTENT_STYLESHEET",
-                    ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+                    ilObjStyleSheet::getContentStylePath(
+                        ilObjStyleSheet::getEffectiveContentStyleId(
+                            $this->object->getStyleSheetId(),
+                            $this->object->getType(),
+                            $this->object->getRefId()
+                        )
+                    )
                 );
+// fau.
                 $this->renderObject();
                 break;
 
@@ -248,27 +285,29 @@ class ilObjGroupGUI extends ilContainerGUI
                 );
                 $this->ctrl->forwardCommand($service);
                 break;
-            
-            case 'ilmailmembersearchgui':
-                include_once 'Services/Mail/classes/class.ilMail.php';
-                $mail = new ilMail($ilUser->getId());
 
-                if (!($ilAccess->checkAccess('manage_members', '', $this->object->getRefId()) ||
-                    $this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL) &&
-                    $rbacsystem->checkAccess('internal_mail', $mail->getMailObjectReferenceId())) {
-                    $ilErr->raiseError($this->lng->txt("msg_no_perm_read"), $ilErr->MESSAGE);
-                }
-
-                $this->tabs_gui->setTabActive('members');
-                
-                include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
-                include_once './Services/Contact/classes/class.ilMailMemberGroupRoles.php';
-
-                $mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberGroupRoles());
-                $mail_search->setObjParticipants(ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
-                $this->ctrl->forwardCommand($mail_search);
-                break;
-
+// fau: mailToMembers - unused forward
+//			case 'ilmailmembersearchgui':
+//				include_once 'Services/Mail/classes/class.ilMail.php';
+//				$mail = new ilMail($ilUser->getId());
+//
+//				if(!($ilAccess->checkAccess('manage_members','',$this->object->getRefId()) ||
+//					$this->object->getMailToMembersType() == ilObjGroup::MAIL_ALLOWED_ALL) &&
+//					$rbacsystem->checkAccess('internal_mail',$mail->getMailObjectReferenceId()))
+//				{
+//					$ilErr->raiseError($this->lng->txt("msg_no_perm_read"),$ilErr->MESSAGE);
+//				}
+//
+//				$this->tabs_gui->setTabActive('members');
+//
+//				include_once './Services/Contact/classes/class.ilMailMemberSearchGUI.php';
+//				include_once './Services/Contact/classes/class.ilMailMemberGroupRoles.php';
+//
+//				$mail_search = new ilMailMemberSearchGUI($this, $this->object->getRefId(), new ilMailMemberGroupRoles());
+//				$mail_search->setObjParticipants(ilCourseParticipants::_getInstanceByObjId($this->object->getId()));
+//				$this->ctrl->forwardCommand($mail_search);
+//				break;
+// fau.
             case 'ilbadgemanagementgui':
                 $this->tabs_gui->setTabActive('obj_tool_setting_badges');
                 include_once 'Services/Badge/classes/class.ilBadgeManagementGUI.php';
@@ -344,7 +383,13 @@ class ilObjGroupGUI extends ilContainerGUI
                         !$ilAccess->checkAccess('read', '', $this->object->getRefId(), 'grp')) {
                     $ilErr->raiseError($this->lng->txt("msg_no_perm_read"), $ilErr->MESSAGE);
                 }
-                
+
+                // fau: joinAsGuest - redirect joinAsGuest
+                if ($cmd == 'joinAsGuest') {
+                    $this->ctrl->redirectByClass("ilGroupRegistrationGUI", "joinAsGuest");
+                }
+                // fau.
+
                 // #9401 - see also ilStartupGUI::_checkGoto()
                 if ($cmd == 'infoScreenGoto') {
                     if ($this->object->isRegistrationEnabled()) {
@@ -590,6 +635,12 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
             $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
+            // fau: univisAdmin - save univis_id if edited by global admin
+            global $rbacsystem;
+            if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
+                $this->object->setImportId(ilUtil::stripSlashes($form->getInput('import_id')));
+            }
+            // fau.
             $this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
             $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
             $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
@@ -632,24 +683,88 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $cancel_end = $form->getItemByPostVar("cancel_end");
             $this->object->setCancellationEnd($cancel_end->getDate());
+            // fau: fairSub - save the fair period and waiting list options
+            $old_subscription_fair = $this->object->getSubscriptionFair();
+            // check a deactivation of the fair period done in db
+            if ($old_subscription_fair >= 0) {
+                /** @var ilDateTime $sub_fair */
+                $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+                $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+            }
 
-            switch ((int) $_POST['waiting_list']) {
-                case 2:
+            switch ((string) $_POST['waiting_list']) {
+                case 'auto':
+                    $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                     $this->object->enableWaitingList(true);
                     $this->object->setWaitingListAutoFill(true);
                     break;
 
-                case 1:
+                case 'auto_manu':
+                    $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                    $this->object->enableWaitingList(true);
+                    $this->object->setWaitingListAutoFill(false);
+                    break;
+
+                case 'manu':
+                    $this->object->setSubscriptionAutoFill(false);
                     $this->object->enableWaitingList(true);
                     $this->object->setWaitingListAutoFill(false);
                     break;
 
                 default:
+                    $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
                     $this->object->enableWaitingList(false);
                     $this->object->setWaitingListAutoFill(false);
                     break;
             }
+            // fau.
 
+            // fau: fairSub - validate group object
+            if (!$this->object->validate()) {
+                global $DIC;
+                $ilErr = $DIC['ilErr'];
+                ilUtil::sendFailure($ilErr->getMessage());
+                $form->setValuesByPost();
+                $this->editObject($form);
+                return true;
+            }
+            // fau.
+
+            // fau: fairSub - check and correct the fair time
+            if ($this->object->getSubscriptionFair() >= 0
+                && $this->object->isMembershipLimited()
+                && $this->object->getMaxMembers() > 0) {
+                $fair_message = '';
+                if (!$this->object->isRegistrationUnlimited()) {
+                    $registration_start = $this->object->getRegistrationStart()->get(IL_CAL_UNIX);
+                    $registration_end = $this->object->getRegistrationEnd()->get(IL_CAL_UNIX);
+                    if ($this->object->getSubscriptionFair() < $registration_start + $this->object->getSubscriptionMinFairSeconds()) {
+                        $this->object->setSubscriptionFair($registration_start + $this->object->getSubscriptionMinFairSeconds());
+                        $fair_message = $this->lng->txt("sub_fair_to_sub_start_min");
+                    } elseif ($this->object->getSubscriptionFair() > $registration_end) {
+                        $this->object->setSubscriptionFair($registration_end);
+                        $fair_message = $this->lng->txt("sub_fair_to_sub_end");
+                    }
+                }
+
+                // handle a change of the fair time
+                if (!empty($old_subscription_fair) && $old_subscription_fair !== $this->object->getSubscriptionFair()) {
+                    require_once('Modules/Group/classes/class.ilGroupWaitingList.php');
+                    if (!ilGroupWaitingList::_changeFairTimeAllowed($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair())) {
+                        ilUtil::sendFailure($this->lng->txt('sub_fair_not_changeable'));
+                        $this->editObject($form);
+                        return true;
+                    } else {
+                        ilGroupWaitingList::_changeFairTime($this->object->getId(), $old_subscription_fair, $this->object->getSubscriptionFair());
+                        $this->object->saveSubscriptionLastFill(null);
+                    }
+                }
+
+                if (!empty($fair_message)) {
+                    ilUtil::sendInfo($fair_message, true);
+                }
+            }
+            // fau.
             // title icon visibility
             $obj_service->commonSettings()->legacyForm($form, $this->object)->saveTitleIconVisibility();
 
@@ -746,10 +861,27 @@ class ilObjGroupGUI extends ilContainerGUI
             return true;
         } else {
             ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
-            $this->ctrl->redirect($this, 'edit');
+
+            // fau: studyCond - eventually redirect to condition settings after update
+            if ($this->update_for_memcond) {
+                $this->ctrl->redirectByClass('ilstudycondgui');
+            } else {
+                $this->ctrl->redirect($this, 'edit');
+            }
+            // fau.
+
             return true;
         }
     }
+
+    // fau: studyCond - new function updateForMemcond
+    public function updateForMemcondObject()
+    {
+        $this->update_for_memcond = true;
+        $this->updateObject();
+    }
+    // fau.
+
 
     /**
     * Edit Map Settings
@@ -880,7 +1012,29 @@ class ilObjGroupGUI extends ilContainerGUI
         
         return $form;
     }
-    
+
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateRegistrationRefIdObject()
+    {
+        $form = $this->initForm();
+        $input = $form->getItemByPostVar('subscription_object');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setRegistrationType(GRP_REGISTRATION_OBJECT);
+            $this->object->setRegistrationRefId((int) $input->getValue());
+        } else {
+            $this->object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
+            $this->object->setRegistrationRefId(null);
+        }
+        $this->object->update();
+        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
+
     /**
      * update info
      *
@@ -1206,24 +1360,24 @@ class ilObjGroupGUI extends ilContainerGUI
         // parent tabs (all container: edit_permission, clipboard, trash
         parent::getTabs();
 
-        if ($ilAccess->checkAccess('join', '', $this->object->getRefId()) and
-            !$this->object->members_obj->isAssigned($ilUser->getId())) {
-            include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-            if (ilGroupWaitingList::_isOnList($ilUser->getId(), $this->object->getId())) {
-                $this->tabs_gui->addTab(
-                    'leave',
-                    $this->lng->txt('membership_leave'),
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', 'show', '')
-                );
-            } else {
-                $this->tabs_gui->addTarget(
-                    "join",
-                    $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show"),
-                    'show',
-                    ""
-                );
-            }
+        // fau: changeSub - simlified checks for join / edit request tab
+        if ($ilAccess->checkAccess('join', 'join', $this->object->getRefId())) {
+            // no specific command: initial join
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('join'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
+        } elseif ($ilAccess->checkAccess('join', 'leave', $this->object->getRefId())) {
+            // leave command: edit membership request
+            $this->tabs_gui->addTab(
+                'join',
+                $this->lng->txt('mem_edit_request'),
+                $this->ctrl->getLinkTargetByClass('ilgroupregistrationgui', "show")
+            );
         }
+        // fau.
+
         if ($ilAccess->checkAccess('leave', '', $this->object->getRefId()) and
             $this->object->members_obj->isMember($ilUser->getId())) {
             $this->tabs_gui->addTarget(
@@ -1313,30 +1467,68 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->lng->txt('group_registration_mode'),
                 $this->lng->txt('grp_reg_deac_info_screen')
             );
-        } else {
-            switch ($this->object->getRegistrationType()) {
+        }
+        // fau: objectSub - add info about subscription in separate object
+        elseif ($this->object->getRegistrationType() == GRP_REGISTRATION_OBJECT) {
+            $info->addProperty(
+                $this->lng->txt('group_registration_mode'),
+                $this->lng->txt('sub_separate_object')
+            );
+        }
+        // fau.
+        else {
+            // fau: studyCond - generate text for suscription with condition
+            if (ilStudyAccess::_hasConditions($this->object->getId())) {
+                $ctext = ilStudyAccess::_getConditionsText($this->object->getId());
+                switch ($this->object->getRegistrationType()) {
+                    case GRP_REGISTRATION_DIRECT:
+                        $registration_text = sprintf($this->lng->txt('group_req_direct_studycond'), $ctext);
+                        break;
+                    case GRP_REGISTRATION_PASSWORD:
+                        $registration_text = sprintf($this->lng->txt('grp_pass_request_studycond'), $ctext);
+                        break;
+
+                    default:
+                        $registration_text = "";
+                        break;
+                }
+                $ilUser = $DIC->user();
+                if (ilStudyAccess::_checkSubscription($this->object->getId(), $ilUser->getId())) {
+                    $registration_type = $this->object->getRegistrationType();
+                } else {
+                    $registration_type = GRP_REGISTRATION_REQUEST;
+                }
+            } else {
+                $registration_text = "";
+                $registration_type = $this->object->getRegistrationType();
+            }
+            // fau.
+
+            // fau: studyCond - use registration type and text from above
+            switch ($registration_type) {
                 case GRP_REGISTRATION_DIRECT:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_direct_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_direct_info_screen')
                     );
                     break;
                                                        
                 case GRP_REGISTRATION_REQUEST:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_req_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_req_info_screen')
                     );
                     break;
     
                 case GRP_REGISTRATION_PASSWORD:
                     $info->addProperty(
                         $this->lng->txt('group_registration_mode'),
-                        $this->lng->txt('grp_reg_passwd_info_screen')
+                        $registration_text . $this->lng->txt('grp_reg_passwd_info_screen')
                     );
                     break;
                     
             }
+            // fau.
             /*
             $info->addProperty($this->lng->txt('group_registration_time'),
                 ilDatePresentation::formatPeriod(
@@ -1348,19 +1540,26 @@ class ilObjGroupGUI extends ilContainerGUI
                     $this->lng->txt('group_registration_time'),
                     $this->lng->txt('grp_registration_unlimited')
                 );
-            } elseif ($this->object->getRegistrationStart()->getUnixTime() < time()) {
+            }
+            // fau: fixRegPeriodInfo - always show the full registration period
+            else {
                 $info->addProperty(
-                    $this->lng->txt("group_registration_time"),
-                    $this->lng->txt('cal_until') . ' ' .
-                                   ilDatePresentation::formatDate($this->object->getRegistrationEnd())
-                );
-            } elseif ($this->object->getRegistrationStart()->getUnixTime() >= time()) {
-                $info->addProperty(
-                    $this->lng->txt("group_registration_time"),
-                    $this->lng->txt('cal_from') . ' ' .
-                                   ilDatePresentation::formatDate($this->object->getRegistrationStart())
+                    $this->lng->txt('group_registration_time'),
+                    ilDatePresentation::formatPeriod(
+                        $this->object->getRegistrationStart(),
+                        $this->object->getRegistrationEnd()
+                    )
                 );
             }
+            // fau.
+            // fau: fairSub - show fair period on info screen
+            if ($this->object->isMembershipLimited()
+                && $this->object->getMaxMembers()
+                && $this->object->getRegistrationType() != GRP_REGISTRATION_OBJECT) {
+                $info->addProperty($this->lng->txt('sub_fair_date'), $this->object->getSubscriptionFair() >= 0 ?
+                    $this->object->getSubscriptionFairDisplay(true) : $this->lng->txt('sub_fair_inactive_message'));
+            }
+            // fau.
             if ($this->object->isMembershipLimited()) {
                 if ($this->object->getMinMembers()) {
                     $info->addProperty(
@@ -1462,6 +1661,35 @@ class ilObjGroupGUI extends ilContainerGUI
         $lng = $DIC['lng'];
         $ilUser = $DIC['ilUser'];
 
+        // fau: joinLink - handle the join command
+        if ($a_add == 'join') {
+            include_once('Services/User/classes/class.ilUserUtil.php');
+            include_once('Modules/Group/classes/class.ilGroupParticipants.php');
+
+            if ($ilUser->getId() == ANONYMOUS_USER_ID) {
+                ilUtil::sendInfo($lng->txt('join_grp_needs_login'), true);
+                ilUtil::redirect(ilUtil::_getLoginLink('crs_' . $a_target . '_join'));
+            } elseif (ilGroupParticipants::_isParticipant($a_target, $ilUser->getId())) {
+                $lng->loadLanguageModule('grp');
+                ilUtil::sendInfo($lng->txt('grp_reg_user_already_assigned'), true);
+                ilObjectGUI::_gotoRepositoryNode($a_target, "view");
+            } elseif ($ilAccess->checkAccess("join", "", $a_target)) {
+                ilObjectGUI::_gotoRepositoryNode($a_target, "join");
+            } elseif (ilUserUtil::_isGuestHearer() and !$ilAccess->checkAccess("read", "", $a_target)) {
+                ilObjectGUI::_gotoRepositoryNode($a_target, "joinAsGuest");
+            } else {
+                ilUtil::sendFailure($lng->txt("join_grp_not_permitted"), true);
+
+                if ($ilAccess->checkAccess("visible", "", $a_target)
+                or $ilAccess->checkAccess("read", "", $a_target)) {
+                    ilObjectGUI::_gotoRepositoryNode($a_target, "infoScreen");
+                } else {
+                    ilObjectGUI::_gotoRepositoryRoot();
+                }
+            }
+        }
+        // fau.
+
         include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
         if (substr($a_add, 0, 5) == 'rcode') {
             if ($ilUser->getId() == ANONYMOUS_USER_ID) {
@@ -1543,8 +1771,27 @@ class ilObjGroupGUI extends ilContainerGUI
         // title/description
         $this->initFormTitleDescription($form);
 
+        // fau: univisAdmin - make univis id editable for global admins
+        global $rbacsystem;
+        if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
+            $import = new ilTextInputGUI($this->lng->txt('univis_id'), 'import_id');
+            $import->setValue($this->object->getImportId());
+            $import->setInfo($this->lng->txt('univis_id_info'));
+            $import->setSize(50);
+            $import->setMaxLength(50);
+            $form->addItem($import);
+        }
+        // fau.
+
         $form = $this->initDidacticTemplate($form);
-        
+
+        // fau: showUpperPermissions - show info about rights of group admins
+        $grp_type = $form->getItemByPostVar('didactic_type');
+        if ($grp_type instanceof ilRadioGroupInputGUI) {
+            $grp_type->setInfo($this->lng->txt('grp_type_info_' . $a_mode));
+        }
+        // fau.
+
         if ($a_mode == 'edit') {
             // group period
             $cdur = new ilDateDurationInputGUI($this->lng->txt('grp_period'), 'period');
@@ -1568,6 +1815,29 @@ class ilObjGroupGUI extends ilContainerGUI
             $reg_type = new ilRadioGroupInputGUI($this->lng->txt('group_registration_mode'), 'registration_type');
             $reg_type->setValue($this->object->getRegistrationType());
 
+            // fau: objectSub - add option for reference to subscription object
+            require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
+            $opt_obj = new ilRadioOption($this->lng->txt('sub_separate_object'), GRP_REGISTRATION_OBJECT);
+            $opt_obj->setInfo($this->lng->txt('sub_separate_object_info'));
+            $rep_sel = new ilRepositorySelectorInputGUI($this->lng->txt('sub_subscription_object'), 'subscription_object');
+            $rep_sel->setHeaderMessage($this->lng->txt('sub_separate_object_info'));
+            $rep_sel->setClickableTypes(array('xcos'));
+            $rep_sel->setRequired(true);
+            $rep_sel->setParent($form);
+            $opt_obj->addSubItem($rep_sel);
+            if ($ref_id = $this->object->getRegistrationRefId()) {
+                $rep_sel->setValue($ref_id);
+                require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+                $locator = new ilLocatorGUI();
+                $locator->setTextOnly(true);
+                $locator->addContextItems($ref_id);
+                $rep_loc = new ilNonEditableValueGUI();
+                $rep_loc->setValue($locator->getHTML());
+                $opt_obj->addSubItem($rep_loc);
+            }
+            $reg_type->addOption($opt_obj);
+            // fau.
+
             $opt_dir = new ilRadioOption($this->lng->txt('grp_reg_direct'), GRP_REGISTRATION_DIRECT);#$this->lng->txt('grp_reg_direct_info'));
             $reg_type->addOption($opt_dir);
 
@@ -1587,28 +1857,36 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
+            // fau: courseGroupRegCodes - customize use of registration codes
+            if (ilCust::get('grp_enable_reg_codes')) {
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
             $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
             $reg_code->setValue(1);
             $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
+            }
+            // fau.
             $form->addItem($reg_type);
 
-            // Registration codes
-            if (!$this->object->getRegistrationAccessCode()) {
-                include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
-                $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
-            }
-            $reg_link = new ilHiddenInputGUI('reg_code');
-            $reg_link->setValue($this->object->getRegistrationAccessCode());
-            $form->addItem($reg_link);
+            // fau: courseGroupRegCodes - customize use of registration codes
+            if (ilCust::get('grp_enable_reg_codes')) {
+                // Registration codes
+                if (!$this->object->getRegistrationAccessCode()) {
+                    include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
+                    $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
+                }
+                $reg_link = new ilHiddenInputGUI('reg_code');
+                $reg_link->setValue($this->object->getRegistrationAccessCode());
+                $form->addItem($reg_link);
 
-            $link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
-            include_once './Services/Link/classes/class.ilLink.php';
-            $val = ilLink::_getLink($this->object->getRefId(), $this->object->getType(), array(), '_rcode' . $this->object->getRegistrationAccessCode());
-            $link->setHTML('<span class="small">' . $val . '</span>');
-            $reg_code->addSubItem($link);
-            $form->addItem($reg_code);
+                $link = new ilCustomInputGUI($this->lng->txt('grp_reg_code_link'));
+                include_once './Services/Link/classes/class.ilLink.php';
+                $val = ilLink::_getLink($this->object->getRefId(), $this->object->getType(), array(), '_rcode' . $this->object->getRegistrationAccessCode());
+                $link->setHTML('<span class="small">' . $val . '</span>');
+                $reg_code->addSubItem($link);
+                $form->addItem($reg_code);
+            }
+            // fau.
 
             // time limit
             $this->lng->loadLanguageModule('dateplaner');
@@ -1655,30 +1933,74 @@ class ilObjGroupGUI extends ilContainerGUI
             $lim->addSubItem($wait);
             $form->addItem($lim);
             */
-             
-            $wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
-            
-            $option = new ilRadioOption($this->lng->txt('none'), 0);
-            $wait->addOption($option);
-            
-            $option = new ilRadioOption($this->lng->txt('grp_waiting_list_no_autofill'), 1);
-            $option->setInfo($this->lng->txt('grp_waiting_list_info'));
-            $wait->addOption($option);
-            
-            $option = new ilRadioOption($this->lng->txt('grp_waiting_list_autofill'), 2);
-            $option->setInfo($this->lng->txt('grp_waiting_list_autofill_info'));
-            $wait->addOption($option);
-            
-            if ($this->object->hasWaitingListAutoFill()) {
-                $wait->setValue(2);
-            } elseif ($this->object->isWaitingListEnabled()) {
-                $wait->setValue(1);
+
+            // fau: fairSub - add fair date and arrange and explain options for waiting list
+            if ($this->object->getSubscriptionFair() < 0) {
+                $fair_date = new ilNonEditableValueGUI($this->lng->txt('sub_fair_date'));
+                $fair_date_info = $this->lng->txt('sub_fair_inactive_message');
+                $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'activateSubFair') . '">' . $this->lng->txt('sub_fair_activate') . '</a>';
+                $wait_options = array(
+                    'auto' => 'sub_fair_inactive_autofill',
+                    'manu' => 'sub_fair_inactive_waiting',
+                    'no_list' => 'sub_fair_inactive_no_list'
+                );
+            } else {
+                $fair_date = new ilDateTimeInputGUI($this->lng->txt('sub_fair_date'), 'subscription_fair');
+                $fair_date->setShowTime(true);
+                $fair_date->setDate(new ilDateTime($this->object->getSubscriptionFair(), IL_CAL_UNIX));
+                $fair_date_info = $this->lng->txt('sub_fair_date_info');
+                $fair_date_link = '<br />» <a href="' . $this->ctrl->getLinkTarget($this, 'confirmDeactivateSubFair') . '">' . $this->lng->txt('sub_fair_deactivate') . '</a>';
+                $wait_options = array(
+                    'auto' => 'sub_fair_autofill',
+                    'auto_manu' => 'sub_fair_auto_manu',
+                    'manu' => 'sub_fair_waiting',
+                    'no_list' => 'sub_fair_no_list'
+                );
             }
-            
+
+
+            $fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
+            $lim->addSubItem($fair_date);
+
+            $wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
+            foreach ($wait_options as $postvalue => $langvar) {
+                $option = new ilRadioOption($this->lng->txt($langvar), $postvalue);
+                $option->setInfo($this->lng->txt($langvar . '_info'));
+                $wait->addOption($option);
+            }
+
+            if ($this->object->hasWaitingListAutoFill()) {
+                $wait->setValue('auto');
+            } elseif ($this->object->getSubscriptionAutoFill() && $this->object->isWaitingListEnabled()) {
+                $wait->setValue('auto_manu');
+            } elseif ($this->object->isWaitingListEnabled()) {
+                $wait->setValue('manu');
+            } else {
+                $wait->setValue('no_list');
+            }
+
             $lim->addSubItem($wait);
-            
+            // fau.
+
             $form->addItem($lim);
-            
+
+
+            // fau: studyCond - add studycond setting
+            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/StudyData");
+            if ($a_mode == 'edit') {
+                $stpl->setCurrentBlock('condition');
+                $stpl->setVariable("CONDITION_TEXT", nl2br(ilStudyAccess::_getConditionsText($this->object->getId())));
+                $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
+                $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
+                $stpl->parseCurrentBlock();
+                $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info"));
+            } else {
+                $stpl->setVariable("CONDITION_INFO", $this->lng->txt("studycond_condition_info_create"));
+            }
+            $studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
+            $studycond->setHtml($stpl->get());
+            $form->addItem($studycond);
+            // fau.
 
             // Group presentation
             $parent_membership_ref_id = 0;
@@ -2005,6 +2327,11 @@ class ilObjGroupGUI extends ilContainerGUI
         if (!ilCourseUserData::_checkRequired($ilUser->getId(), $this->object->getId())) {
             return false;
         }
+
+        // fau: memberExport - notify first access
+        ilMemberAgreement::_setFirstAccessTime($ilUser->getId(), $this->object->getId());
+        // fau.
+
         return true;
     }
     
@@ -2040,9 +2367,13 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $link = chr(13) . chr(10) . chr(13) . chr(10);
         $link .= $this->lng->txt('grp_mail_permanent_link');
-        $link .= chr(13) . chr(10) . chr(13) . chr(10);
+        // fau: autoMailSignature - add title and use static link for mail signature
+        $link .= chr(13) . chr(10);
+        $link .= $this->object->getTitle();
+        $link .= chr(13) . chr(10);
         include_once 'Services/Link/classes/class.ilLink.php';
-        $link .= ilLink::_getLink($this->object->getRefId());
+        $link .= ilLink::_getStaticLink($this->object->getRefId());
+        // fau.
         return rawurlencode(base64_encode($link));
     }
     
@@ -2154,6 +2485,55 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $this->ctrl->redirectByClass('ilUsersGalleryGUI');
     }
+    // fau: fairSub - activation and deactivation of the fair period
+    public function activateSubFairObject()
+    {
+        if (!ilCust::deactivateFairTimeIsAllowed()) {
+            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+        } else {
+            $this->object->setSubscriptionFair($this->object->getRegistrationStart()->get(IL_CAL_UNIX) + $this->object->getSubscriptionMinFairSeconds());
+            $this->object->setSubscriptionAutoFill(true);
+            $this->object->update();
+            ilUtil::sendSuccess($this->lng->txt('sub_fair_activated'), true);
+        }
+        $this->ctrl->redirect($this, 'edit');
+    }
+
+    public function deactivateSubFairObject()
+    {
+        if (!ilCust::deactivateFairTimeIsAllowed()) {
+            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+        } elseif ($this->object->inSubscriptionFairTime()) {
+            ilUtil::sendFailure($this->lng->txt('sub_fair_deactivate_in_phase'), true);
+        } else {
+            $this->object->setSubscriptionFair(-1);
+            $this->object->setSubscriptionAutoFill(false);
+            $this->object->update();
+            ilUtil::sendSuccess($this->lng->txt('sub_fair_deactivated'), true);
+        }
+        $this->ctrl->redirect($this, 'edit');
+    }
+
+    public function confirmDeactivateSubFairObject()
+    {
+        if (!ilCust::deactivateFairTimeIsAllowed()) {
+            ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
+        } elseif ($this->object->inSubscriptionFairTime()) {
+            ilUtil::sendFailure($this->lng->txt('sub_fair_deactivate_in_phase'), true);
+            $this->ctrl->redirect($this, 'edit');
+        }
+
+        include_once("Services/Utilities/classes/class.ilConfirmationGUI.php");
+        $c_gui = new ilConfirmationGUI();
+        $c_gui->setFormAction($this->ctrl->getFormAction($this, "edit"));
+        $c_gui->setHeaderText($this->lng->txt('sub_fair_deactivate_question')
+            . '<p class="small">' . $this->lng->txt('sub_fair_deactivate_explanation') . '</p>');
+        $c_gui->setCancel($this->lng->txt("cancel"), "edit");
+        $c_gui->setConfirm($this->lng->txt("confirm"), "deactivateSubFair");
+
+        $this->tpl->setContent($c_gui->getHTML());
+    }
+    // fau.
 
     /**
      * Set return point for side column actions

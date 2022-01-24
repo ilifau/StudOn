@@ -439,7 +439,11 @@ class ilSoapAdministration
     {
         global $DIC;
 
-        $ini_file = "./" . $client_dir . "/client.ini.php";
+        // fau: customClientIni - read naming of the client.ini.php from the ilias.ini.php
+        global $ilIliasIniFile;
+        $ini_file = $ilIliasIniFile->readVariable("clients", "inifile");
+        $ini_file = "./" . $client_dir . "/" . (empty($ini_file) ? 'client.ini.php' : $ini_file);
+        // fau.
         
         // get settings from ini file
         require_once("./Services/Init/classes/class.ilIniFile.php");

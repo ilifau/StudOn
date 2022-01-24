@@ -110,7 +110,18 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
     }
     // hey.
 
-    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+    // fau: taxGroupFilter - get a pre-selected set of questions for a source pool definition
+    protected function getQuestionSetForSourcePoolDefinition(ilTestRandomQuestionSetSourcePoolDefinition $definition)
+    {
+        $questionIds = $this->getQuestionIdsForSourcePoolDefinitionIds($definition, true);
+        $questionStage = $this->buildSetQuestionCollection($definition, $questionIds);
+
+        return $questionStage;
+    }
+    // fau.
+
+    // fau: taxGroupFilter - add parameter to select questions from a group
+    private function getQuestionIdsForSourcePoolDefinitionIds(ilTestRandomQuestionSetSourcePoolDefinition $definition, $select = false)
     {
         $this->stagingPoolQuestionList->resetQuestionList();
 
@@ -132,16 +143,31 @@ abstract class ilTestRandomQuestionSetBuilder implements ilTestRandomSourcePoolD
         if (count($definition->getLifecycleFilter())) {
             $this->stagingPoolQuestionList->setLifecycleFilter($definition->getLifecycleFilter());
         }
-        
+
         // fau: taxFilter/typeFilter - use type filter
         if ($this->hasTypeFilter($definition)) {
             $this->stagingPoolQuestionList->setTypeFilter($definition->getTypeFilter());
         }
         // fau.
 
+        // fau: taxGroupFilter - set the gouping information
+        $this->stagingPoolQuestionList->setGroupTaxId($definition->getMappedGroupTaxId());
+        $this->stagingPoolQuestionList->setSelectSize($definition->getQuestionAmount());
+        // fau.
+
+        // fau: randomSetOrder - set order information
+        $this->stagingPoolQuestionList->setOrderBy($definition->getOrderBy());
+        // fau.
+
         $this->stagingPoolQuestionList->loadQuestions();
 
-        return $this->stagingPoolQuestionList->getQuestions();
+        // fau: taxGroupFilter - select questions from a group
+        if ($select) {
+            return $this->stagingPoolQuestionList->getSelectedQuestions();
+        } else {
+            return $this->stagingPoolQuestionList->getQuestions();
+        }
+        // fau.
     }
 
     private function buildSetQuestionCollection(ilTestRandomQuestionSetSourcePoolDefinition $definition, $questionIds)

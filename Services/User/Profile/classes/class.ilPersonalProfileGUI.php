@@ -117,6 +117,10 @@ class ilPersonalProfileGUI
 
         $next_class = $this->ctrl->getNextClass();
 
+        // fau: visibilityHints - show alert about public visibility
+        $this->alertProfileVisibility();
+        // fau.
+
         switch ($next_class) {
             case "ilpublicuserprofilegui":
                 include_once("./Services/User/classes/class.ilPublicUserProfileGUI.php");
@@ -144,6 +148,39 @@ class ilPersonalProfileGUI
         }
         return true;
     }
+
+    // fau: visibilityHints - new function alertProfileVisibility()
+    /**
+     * Show a message about the visibility of the profile
+     */
+    public function alertProfileVisibility()
+    {
+        global $ilCtrl, $ilUser, $lng;
+
+        if ($portfolio_id = $this->getProfilePortfolio()) {
+        } else {
+            switch ($ilUser->prefs["public_profile"]) {
+                case "y":
+                    ilUtil::sendInfo(
+                        sprintf(
+                            $lng->txt("usr_public_profile_logged_in_alert"),
+                            $ilCtrl->getLinkTarget($this, "showPublicProfile")
+                        )
+                    );
+                    break;
+
+                case "g":
+                    ilUtil::sendInfo(
+                        sprintf(
+                            $lng->txt("usr_public_profile_global_alert"),
+                            $ilCtrl->getLinkTarget($this, "showPublicProfile")
+                        )
+                    );
+                    break;
+            }
+        }
+    }
+    // fau.
 
 
     /**
@@ -1250,8 +1287,10 @@ class ilPersonalProfileGUI
             "fax" => $ilUser->getFax(),
             "email" => $ilUser->getEmail(),
             "second_email" => $ilUser->getSecondEmail(),
-            "hobby" => $ilUser->getHobby(),
-            "matriculation" => $ilUser->getMatriculation()
+            "hobby" => $ilUser->getHobby()
+            // fau: reduceProfile - don't add matriculation to the public profile fields
+            // "matriculation" => $ilUser->getMatriculation(),
+            // fau.
         );
         
         // location

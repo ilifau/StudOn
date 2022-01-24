@@ -600,7 +600,7 @@ class ilRepositorySearchGUI
         $this->role_callback = array('class' => $class,'method' => $method);
         $this->add_options = $a_add_options ? $a_add_options : array();
     }
-    
+
     /**
      * Set callback method for user permission access queries
      */
@@ -726,31 +726,43 @@ class ilRepositorySearchGUI
         }
         $kind->addOption($users);
 
+        // fau: searchMatriculations - allow to search users by a list of matriculation numbers
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            // Matriculations
+            $matr = new ilRadioOption($this->lng->txt('search_for_matriculations'), 'matr');
+            $numbers = new ilTextAreaInputGUI($this->lng->txt('search_matriculations'), 'rep_query[matr][numbers]');
+            $numbers->setInfo($this->lng->txt('search_matriculations_info'));
+            $matr->addSubItem($numbers);
+            $kind->addOption($matr);
+        }
+        // fau.
 
+        // fau: extendedAccess - search for roles, courses and groups only with extended access
+        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            // Role
+            $roles = new ilRadioOption($this->lng->txt('search_for_role_members'), 'role');
+            $role = new ilTextInputGUI($this->lng->txt('search_role_title'), 'rep_query[role][title]');
+            $role->setSize(30);
+            $role->setMaxLength(120);
+            $roles->addSubItem($role);
+            $kind->addOption($roles);
 
-        // Role
-        $roles = new ilRadioOption($this->lng->txt('search_for_role_members'), 'role');
-        $role = new ilTextInputGUI($this->lng->txt('search_role_title'), 'rep_query[role][title]');
-        $role->setSize(30);
-        $role->setMaxLength(120);
-        $roles->addSubItem($role);
-        $kind->addOption($roles);
-            
-        // Course
-        $groups = new ilRadioOption($this->lng->txt('search_for_crs_members'), 'crs');
-        $group = new ilTextInputGUI($this->lng->txt('search_crs_title'), 'rep_query[crs][title]');
-        $group->setSize(30);
-        $group->setMaxLength(120);
-        $groups->addSubItem($group);
-        $kind->addOption($groups);
+            // Course
+            $groups = new ilRadioOption($this->lng->txt('search_for_crs_members'), 'crs');
+            $group = new ilTextInputGUI($this->lng->txt('search_crs_title'), 'rep_query[crs][title]');
+            $group->setSize(30);
+            $group->setMaxLength(120);
+            $groups->addSubItem($group);
+            $kind->addOption($groups);
 
-        // Group
-        $groups = new ilRadioOption($this->lng->txt('search_for_grp_members'), 'grp');
-        $group = new ilTextInputGUI($this->lng->txt('search_grp_title'), 'rep_query[grp][title]');
-        $group->setSize(30);
-        $group->setMaxLength(120);
-        $groups->addSubItem($group);
-        $kind->addOption($groups);
+            // Group
+            $groups = new ilRadioOption($this->lng->txt('search_for_grp_members'), 'grp');
+            $group = new ilTextInputGUI($this->lng->txt('search_grp_title'), 'rep_query[grp][title]');
+            $group->setSize(30);
+            $group->setMaxLength(120);
+            $groups->addSubItem($group);
+            $kind->addOption($groups);
 
         // Orgus
         if (ilUserSearchOptions::_isEnabled("org_units")) {
@@ -763,8 +775,10 @@ class ilRepositorySearchGUI
             $orgus->addSubItem($orgu);
             $kind->addOption($orgus);
         }
+        }
+        // fau.
     }
-    
+
 
     public function show()
     {
@@ -833,6 +847,12 @@ class ilRepositorySearchGUI
                     $_POST['rep_query_orgu']
                 );
                 return $this->listUsers();
+
+            // fau: searchMatriculations - treat the search type
+            case 'matr':
+                $this->__performMatriculationSearch();
+                break;
+            // fau.
             default:
                 echo 'not defined';
         }
@@ -842,7 +862,9 @@ class ilRepositorySearchGUI
         $this->result_obj->filter(ROOT_FOLDER_ID, QP_COMBINATION_OR);
         
         // User access filter
-        if ($this->search_type == 'usr') {
+        // fau: searchMatriculations - 	treat the search result
+        if ($this->search_type == 'usr' || $this->search_type == 'matr') {
+            // fau.
             $callable_name = '';
             if (is_callable($this->user_filter, true, $callable_name)) {
                 $result_ids = call_user_func_array($this->user_filter, [$this->result_obj->getResultIds()]);
@@ -943,6 +965,27 @@ class ilRepositorySearchGUI
             }
         }
     }
+
+    // fau: searchMatriculations - new function __performMatriculationSearch()
+    /**
+     * Search by a list of matriculation numbers
+     */
+    public function __performMatriculationSearch()
+    {
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            include_once 'Services/Search/classes/List/class.ilListMatriculationSearch.php';
+
+            $queryParserDummy = new ilQueryParser('');
+            $matrSearch = new ilListMatriculationSearch($queryParserDummy);
+            $matrSearch->parseMatriculationList($_SESSION['rep_query']['matr']['numbers']);
+            $this->__storeEntries($matrSearch->performSearch());
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+    // fau.
 
     /**
      * Search groups
@@ -1131,7 +1174,11 @@ class ilRepositorySearchGUI
             case "usr":
                 $this->showSearchUserTable($_SESSION['rep_search']['usr'], 'showSearchResults');
                 break;
-
+// fau: searchMatriculations - show the search result
+            case "matr":
+                $this->showSearchUserTable($_SESSION['rep_search']['matr'], 'showSearchResults');
+                break;
+// fau.
             case 'grp':
                 $this->showSearchGroupTable($_SESSION['rep_search']['grp']);
                 break;

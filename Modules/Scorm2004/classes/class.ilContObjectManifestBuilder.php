@@ -302,8 +302,15 @@ class ilContObjectManifestBuilder
             $this->writer->xmlStartTag("resource", $attrs, "");
             
             include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-            
-            $active_css = ilObjStyleSheet::getContentStylePath($this->cont_obj->getStyleSheetId());
+            // fau: inheritContentStyle - get the effective content style by ref_id
+            $active_css = ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->cont_obj->getStyleSheetId(),
+                    $this->cont_obj->getType(),
+                    $this->cont_obj->getRefId()
+                )
+            );
+            // fau.
             $active_css = explode('?', $active_css);
             $css = fread(fopen($active_css[0], 'r'), filesize($active_css[0]));
             preg_match_all("/url\(([^\)]*)\)/", $css, $css_files);

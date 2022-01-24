@@ -23,11 +23,15 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
     const MODE_BY_ASSIGNMENT = 1;
     const MODE_BY_USER = 2;
 
+
     protected $cols_mandatory = array("name", "status");
     protected $cols_default = array("login", "submission", "idl", "calc_deadline");
+    // fau: exMaxPoints - put max_points in cols order
+    // fau: exPlag - put plagiarism in cols order
     protected $cols_order = array("image", "name", "login", "team_members",
-            "sent_time", "submission", "calc_deadline", "idl", "status", "mark", "status_time",
-            "feedback_time", "comment", "notice");
+            "sent_time", "submission", "calc_deadline", "idl", "status", "mark", "max_points","status_time",
+            "feedback_time", "comment", "notice", "plagiarism");
+    // fau.
 
     /**
      * @var ilExAssignmentTypes
@@ -122,11 +126,14 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         if ($this->mode == self::MODE_BY_ASSIGNMENT && $this->ass->getType() == ilExAssignment::TYPE_TEXT) {
             $this->addMultiCommand("compareTextAssignments", $this->lng->txt("exc_compare_submissions"));
         }
-            
+
         $this->setFormName("ilExcIDlForm");
 
         // see 0021530 and parseRow here with similar action per user
         if ($this->mode == self::MODE_BY_ASSIGNMENT &&
+            // fau: exGradeTime - check if individual deadline setting is allowed
+            $this->exc->isIndividualDeadlineSettingAllowed() &&
+            // fau.
             $this->ass->hasActiveIDl() &&
             !$this->ass->hasReadOnlyIDl()) {
             $this->addMultiCommand("setIndividualDeadline", $this->lng->txt("exc_individual_deadline_action"));
@@ -220,7 +227,10 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         $cols["submission"] = array($this->lng->txt("exc_tbl_submission_date"), "submission");
         
         $cols["status"] = array($this->lng->txt("exc_tbl_status"), "status");
-        $cols["mark"] = array($this->lng->txt("exc_tbl_mark"), "mark");
+        // fau: exMaxPoints - rename mark column and add max points column
+        $cols["mark"] = array($this->lng->txt("exc_mark"), "mark");
+        $cols["max_points"] = array($this->lng->txt("exc_max_points"), "max_points");
+        // fau.
         $cols["status_time"] = array($this->lng->txt("exc_tbl_status_time"), "status_time");
         
         $cols["sent_time"] = array($this->lng->txt("exc_tbl_sent_time"), "sent_time");
@@ -236,7 +246,11 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         }
         
         $cols["notice"] = array($this->lng->txt("exc_tbl_notice"), "notice");
-        
+
+        // fau: exPlag - parse column
+        $cols['plagiarism'] = array($this->lng->txt('exc_plagiarism'), "plagiarism");
+        // fau.
+
         return $cols;
     }
     
@@ -308,6 +322,14 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         // do not grade or mark if no team yet
         if (!$has_no_team_yet) {
             // status
+            // fau: exPlag - add info about effective status
+            $comment_id = "excasscomm_" . $a_ass->getId() . "_" . $a_user_id;
+            $this->tpl->setVariable("EFFECTIVE_STATUS_ID", $comment_id . "_effective_status");
+            if ($a_row['plag_flag'] != ilExAssignmentMemberStatus::PLAG_DETECTED) {
+                $this->tpl->setVariable("EFFECTIVE_STATUS_HIDDEN", "display: none;");
+            }
+            $this->tpl->setVariable("TXT_EFFECTIVE_STATUS", $this->lng->txt('exc_plag_effective_failed'));
+            // fau.
             $this->tpl->setVariable("SEL_" . strtoupper($a_row["status"]), ' selected="selected" ');
             $this->tpl->setVariable("TXT_NOTGRADED", $this->lng->txt("exc_notgraded"));
             $this->tpl->setVariable("TXT_PASSED", $this->lng->txt("exc_passed"));
@@ -335,11 +357,38 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
             $lcomment_form->setPreventDoubleSubmission(false);
 
             $lcomment = new ilTextAreaInputGUI($this->lng->txt("exc_comment_for_learner"), "lcomment_" . $a_ass->getId() . "_" . $a_user_id);
-            $lcomment->setInfo($this->lng->txt("exc_comment_for_learner_info"));
+            // fau: exResTime - adapt description of feedback input
+            $lcomment->setInfo($this->lng->txt($a_ass->getResultTime() <= time() ? "exc_comment_for_learner_info": "exc_comment_for_learner_info_nosend"));
+            // fau.
             $lcomment->setValue($a_row["comment"]);
             $lcomment->setCols(45);
             $lcomment->setRows(10);
             $lcomment_form->addItem($lcomment);
+
+            // fau: exPlag - add plagiarism form elements
+            if ($this->exc->isPlagiarismSettingAllowed()) {
+                $plag_toggle = new ilCheckboxInputGUI($this->lng->txt('exc_plagiarism'), 'plag_toggle_' . $a_ass->getId() . "_" . $a_user_id);
+                $plag_flag = new ilSelectInputGUI($this->lng->txt('exc_plag_state'), 'plag_flag_' . $a_ass->getId() . "_" . $a_user_id);
+                $plag_flag->setOptions([
+                    ilExAssignmentMemberStatus::PLAG_NONE => $this->lng->txt('exc_plag_none'),
+                    ilExAssignmentMemberStatus::PLAG_SUSPICION => $this->lng->txt('exc_plag_suspicion'),
+                    ilExAssignmentMemberStatus::PLAG_DETECTED => $this->lng->txt('exc_plag_detected')
+                ]);
+                $plag_flag->setInfo($this->lng->txt('exc_plag_visible_info'));
+                $plag_flag->setValue($a_row['plag_flag']);
+                $plag_comment = new ilTextAreaInputGUI($this->lng->txt("exc_plag_comment"), "plag_comment_" . $a_ass->getId() . "_" . $a_user_id);
+                $plag_comment->setValue($a_row["plag_comment"]);
+
+                $lcomment_form->addItem($plag_toggle);
+                $plag_toggle->addSubItem($plag_flag);
+                $plag_toggle->addSubItem($plag_comment);
+
+                if ($a_row['plag_flag'] == ilExAssignmentMemberStatus::PLAG_SUSPICION ||
+                    $a_row['plag_flag'] == ilExAssignmentMemberStatus::PLAG_DETECTED) {
+                    $plag_toggle->setChecked(true);
+                }
+            }
+            // fau.
 
             $lcomment_form->addCommandButton("save", $this->lng->txt("save"));
             // $lcomment_form->addCommandButton("cancel", $lng->txt("cancel"));
@@ -402,7 +451,20 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                     if ($has_no_team_yet) {
                         break;
                     }
-                    // fallthrough
+                    // fau: exPlag - info about effective mark
+                    else {
+                        $this->tpl->setVariable("EFFECTIVE_MARK_ID", $comment_id . "_effective_mark");
+                        if ($a_row['plag_flag'] != ilExAssignmentMemberStatus::PLAG_DETECTED) {
+                            $this->tpl->setVariable("EFFECTIVE_MARK_HIDDEN", "display: none;");
+                        }
+                        $this->tpl->setVariable("TXT_EFFECTIVE_MARK", $this->lng->txt(
+                            is_numeric($a_row['mark']) ? 'exc_plag_effective_zero' : 'exc_plag_effective_empty'));
+
+                        $this->tpl->setVariable("VAL_" . strtoupper($col), ilUtil::prepareFormOutput(trim($a_row[$col])));
+                        break;
+                    }
+                    // fau.
+                 // fallthrough
                     
                     // no break
                 case "notice":
@@ -419,7 +481,25 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                         ? nl2br(trim($a_row[$col]))
                         : "&nbsp;");
                     break;
-                                
+
+                // fau: exPlag - show column content
+                case "plagiarism":
+                    // for js-updating
+                    $this->tpl->setVariable("PLAG_INFO_ID", $comment_id . "_plag_info");
+                    $this->tpl->setVariable("PLAG_COMMENT_ID", $comment_id . "_plag_comment");
+
+                    $plag_info = '';
+                    if ($a_row['plag_flag'] == ilExAssignmentMemberStatus::PLAG_SUSPICION) {
+                        $plag_info = $this->lng->txt("exc_plag_suspicion_info") . " (" .$this->lng->txt("exc_visible_for_tutors") . ")";
+                    }
+                    if ($a_row['plag_flag'] == ilExAssignmentMemberStatus::PLAG_DETECTED) {
+                        $plag_info = $this->lng->txt("exc_plag_detected_info") . " (" .$this->lng->txt("exc_visible_for_student") . ")";
+                    }
+                    $this->tpl->setVariable("VAL_PLAG_INFO", ilUtil::prepareFormOutput($plag_info));
+                    $this->tpl->setVariable("VAL_PLAG_COMMENT", nl2br(ilUtil::prepareFormOutput($a_row['plag_comment'])));
+                    break;
+                    // fau.
+
                 case "submission":
                     if ($a_row["submission_obj"]) {
                         foreach ($a_row["submission_obj"]->getFiles() as $file) {
@@ -488,6 +568,9 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         }
 
         if (!$has_no_team_yet &&
+            // fau: exGradeTime - check if individual deadline setting is allowed
+            $this->exc->isIndividualDeadlineSettingAllowed() &&
+            // fau.
             $a_ass->hasActiveIDl() &&
             !$a_ass->hasReadOnlyIDl()) {
             $idl_id = $a_ass->hasTeam()
@@ -504,7 +587,9 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
         }
         
         // feedback mail
-        if ($this->exc->hasTutorFeedbackMail()) {
+        // fau: exResTime - provide mail button only if result time is reached
+        if ($this->exc->hasTutorFeedbackMail() && $a_ass->getResultTime() <= time()) {
+            // fau.
             $items[] = $this->ui_factory->button()->shy(
                 $this->lng->txt("exc_tbl_action_feedback_mail"),
                 $ilCtrl->getLinkTarget($this->parent_obj, "redirectFeedbackMail")
@@ -567,6 +652,14 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                 $ilCtrl->getLinkTargetByClass("ilExSubmissionTeamGUI", "showTeamLog")
             );
         }
+
+        // fau: exAssHook - add action item so submissions table
+        $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($a_ass->getType());
+        if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface) {
+            $type_gui->modifySubmissionTableActions($a_row['submission_obj'], $items);
+        }
+        // fau.
+
 
         $actions = $this->ui_factory->dropdown()->standard($items)->withLabel($this->lng->txt("actions"));
 

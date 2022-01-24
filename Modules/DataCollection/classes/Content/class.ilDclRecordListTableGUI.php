@@ -166,6 +166,13 @@ class ilDclRecordListTableGUI extends ilTable2GUI
             $record_data["_front"] = null;
             $record_data['_record'] = $record;
 
+            // fau: dclPerformance - tryout to load only the visible record fields
+            // Problem: visible formula fields will not work if invisible fields are excluded
+
+            /** @var ilDclBaseRecordModel $record */
+            // $record->preloadRecordFields($this->tableview->getVisibleFields());
+            // fau.
+
             foreach ($this->tableview->getVisibleFields() as $field) {
                 $title = $field->getTitle();
                 $record_data[$title] = $record->getRecordFieldHTML($field->getId());

@@ -252,6 +252,67 @@ class ilRbacAdmin
         return true;
     }
 
+    /**
+     * fau: heavySub - Assigns a user to a role with a limit of maximum members
+     * @access	public
+     * @param	integer		object_id of role
+     * @param	integer		object_id of user
+     * @param	integer		maximum members
+     * @return	boolean     user assigned (true), not assigned (false)
+     */
+    public function assignUserLimitedCust($a_role_id, $a_usr_id, $a_limit = 0, $a_limited_roles = array())
+    {
+        global $ilDB, $rbacreview;
+
+        if ($a_limit == 0) {
+            // don't check maximum members
+            // but check existing membership
+            $query = "INSERT INTO rbac_ua (usr_id, rol_id) "
+                . "SELECT %s usr_id, %s rol_id FROM DUAL "
+                . "WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s and rol_id = %s) ";
+
+            $res = $ilDB->manipulateF(
+                $query,
+                array(	'integer', 'integer',
+                        'integer', 'integer'
+                ),
+                array(	$a_usr_id, $a_role_id,
+                        $a_usr_id, $a_role_id
+                )
+            );
+        } else {
+            // check max members and add member in one statement
+            // check also whether member is already assigned
+            $query = "INSERT INTO rbac_ua(usr_id, rol_id) "
+                . "SELECT %s usr_id, %s rol_id FROM DUAL "
+                . "WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s and rol_id = %s) "
+                . "AND %s > (SELECT COUNT(*) FROM rbac_ua WHERE "
+                . $ilDB->in('rol_id', (array) $a_limited_roles, false, 'integer') . ")";
+
+            $res = $ilDB->manipulateF(
+                $query,
+                array(	'integer', 'integer',
+                        'integer', 'integer',
+                        'integer'
+                ),
+                array(	$a_usr_id, $a_role_id,
+                        $a_usr_id, $a_role_id,
+                        $a_limit
+                )
+            );
+        }
+
+        if ($res == 0) {
+            return false;
+        }
+
+        include_once('Services/LDAP/classes/class.ilLDAPRoleGroupMapping.php');
+        $mapping = ilLDAPRoleGroupMapping::_getInstance();
+        $mapping->assign($a_role_id, $a_usr_id);
+        return true;
+    }
+    // fau.
+
 
     /**
      * Assigns an user to a role. Update of table rbac_ua
@@ -281,7 +342,7 @@ class ilRbacAdmin
             $query = "INSERT INTO rbac_ua (usr_id, rol_id) " .
              "VALUES (" . $ilDB->quote($a_usr_id, 'integer') . "," . $ilDB->quote($a_rol_id, 'integer') . ")";
             $res = $ilDB->manipulate($query);
-        
+
             $rbacreview->setAssignedCacheEntry($a_rol_id, $a_usr_id, true);
         }
         

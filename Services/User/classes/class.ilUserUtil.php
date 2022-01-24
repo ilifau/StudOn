@@ -29,7 +29,7 @@ class ilUserUtil
     const START_REPOSITORY = 15;
     const START_REPOSITORY_OBJ = 16;
     const START_PD_MYSTAFF = 17;
-    
+
     /**
      * Default behaviour is:
      * - lastname, firstname if public profile enabled
@@ -207,6 +207,137 @@ class ilUserUtil
     }
     
     
+    /**
+     * fau: joinAsGuest - check if user is a guest hearer
+     *
+     * @param	int			user id	(or empty for current user
+     * @return	boolean		user is guest hearer
+     */
+    public static function _isGuestHearer($a_user_id = '')
+    {
+        global $ilUser, $rbacreview;
+
+        static $checked = array();
+
+        // take the current user as default
+        if (!$a_user_id) {
+            $a_user_id = $ilUser->getId();
+            $login = $ilUser->getLogin();
+        }
+
+        // checked the cached status
+        if (isset($checked[$a_user_id])) {
+            return $checked[$a_user_id];
+        }
+
+        // get the login of user is not the current user
+        if (!$login) {
+            $login = ilObjUser::_lookupLogin($a_user_id);
+        }
+
+        // check the guest status
+        // 1. has guest role
+        // 2. login begins with 'gh'
+        if ($rbacreview->isAssigned($a_user_id, ilCust::get('ilias_guest_role_id'))
+        and substr($login, 0, 2) == 'gh') {
+            $checked[$a_user_id] = true;
+        } else {
+            $checked[$a_user_id] = false;
+        }
+
+        return $checked[$a_user_id];
+    }
+    // fau.
+
+
+    // fau: campusSub - new function _createDummyAccount
+    /**
+    * Create a dummy account for course registration
+    *
+    * Account is created as inactive user user role
+    * Final user data will be set when user logs in by SSO
+    */
+    public static function _createDummyAccount(
+        $a_identity,
+        $a_firstname = '',
+        $a_lastname = '',
+        $a_email = ''
+    ) {
+        global $ilias, $rbacadmin;
+
+        $userObj = new ilObjUser();
+
+        // set arguments (may differ)
+        $userObj->setLogin($a_identity);
+        $userObj->setFirstname($a_firstname);
+        $userObj->setLastname($a_lastname);
+        $userObj->setEmail($a_email);
+
+        // set authentication
+        $userObj->setPasswd(rand(10000, 99999));
+
+        // set the identity as external account for shibboleth authentication
+        // if it is not already set by another account
+        if (empty(ilObjUser::_findLoginByField('ext_account', $a_identity))) {
+            $userObj->setExternalAccount($a_identity);
+            $userObj->setAuthMode('shibboleth');
+        }
+        else {
+            $userObj->setAuthMode('local');
+        }
+
+        // set dependent data
+        $userObj->setFullname();
+        $userObj->setTitle($userObj->getFullname());
+        $userObj->setDescription($userObj->getEmail());
+
+        // set time limit
+        $userObj->setTimeLimitOwner(7);
+        $userObj->setTimeLimitUnlimited(1);     // TODO: may be different for external users
+        $userObj->setTimeLimitFrom(time());		// ""
+        $userObj->setTimeLimitUntil(time());    // ""
+
+        // create the user object
+        $userObj->create();
+        $userObj->setActive(0);                 // inactive user
+        $userObj->updateOwner();
+        $userObj->saveAsNew();
+
+        //set personal preferences
+        $userObj->setLanguage("de");
+        $userObj->setPref("hits_per_page", max($ilias->getSetting("hits_per_page"), 100));
+        $userObj->setPref("show_users_online", "y");
+        $userObj->writePrefs();
+
+        // assign the user role
+        // todo: role id 4 is hard-coded
+        $rbacadmin->assignUser(4, $userObj->getId(), true);
+
+        // return the user id
+        return $userObj->getId();
+    }
+    // fau.
+
+
+    // fau: samlAuth - get the logout link dependent from authentication
+    /**
+     * Get the logout link
+     * for simpleSAML authentified users this will return a single log out link
+     * @param 	string	$a_mode		'auto' (default) or 'local'
+     * @return	string
+     */
+    public static function _getLogoutLink($a_mode = 'auto')
+    {
+        global $DIC;
+
+        if (ilSession::get('used_external_auth')) {
+            return 'saml.php?action=logout&logout_url=' . urlencode(ILIAS_HTTP_PATH . '/index.php');
+        } else {
+            return ILIAS_HTTP_PATH . "/logout.php?lang=" . $DIC->user()->getCurrentLanguage();
+        }
+    }
+    // fau.
+
     //
     // Personal starting point
     //
@@ -234,10 +365,12 @@ class ilUserUtil
             $all[self::START_PD_SUBSCRIPTION] = 'my_courses_groups';
         }
 
-        if (ilMyStaffAccess::getInstance()->hasCurrentUserAccessToMyStaff()) {
-            $all[self::START_PD_MYSTAFF] = 'my_staff';
-        }
-    
+// fau: fixOrguAccess - don't get instance to prevent queries like DROP TABLE IF EXISTS `tmp_obj_spec_perm_access_enrolments_crs
+//        if (ilMyStaffAccess::getInstance()->hasCurrentUserAccessToMyStaff()) {
+//            $all[self::START_PD_MYSTAFF] = 'my_staff';
+//        }
+// fau.
+
         if ($a_force_all || !$ilSetting->get("disable_personal_workspace")) {
             $all[self::START_PD_WORKSPACE] = 'mm_personal_and_shared_r';
         }

@@ -45,7 +45,7 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
      * @var array ids of context objects (e.g. course ids)
      */
     protected $context_obj_ids;
-    
+
     /**
      * Constructor
      * @param	object	$a_parent_obj
@@ -170,13 +170,15 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
         $this->setResetCommand("resetLogFilter");
         $this->setFilterCommand("applyLogFilter");
         $this->setDisableFilterHiding(true);
-                
 
-        if ($ilUser->getId() != ANONYMOUS_USER_ID) {
+
+        // fau: stornoBook - check if the object allows a storno
+        if ($ilUser->getId() != ANONYMOUS_USER_ID && $a_parent_obj->allowsStorno()) {
+            // fau.
             $this->addMultiCommand('rsvConfirmCancel', $lng->txt('book_set_cancel'));
             $this->setSelectAllCheckbox('mrsv');
         }
-        
+
 
         ilDatePresentation::setUseRelativeDates(false);
     }
@@ -184,16 +186,16 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
     public function getSelectableColumns($a_only_advmd = false, $a_include_user = true)
     {
         $cols = array();
-        
+
         if ($this->has_schedule &&
             !(bool) $a_only_advmd) {
             $this->lng->loadLanguageModule("dateplaner");
-            
+
             $cols["week"] = array(
                 "txt" => $this->lng->txt("wk_short"),
                 "default" => true
             );
-            
+
             $cols["weekday"] = array(
                 "txt" => $this->lng->txt("cal_weekday"),
                 "default" => true
@@ -494,7 +496,7 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
             foreach (array_keys($data) as $idx) {
                 $data[$idx]["pool_id"] = $this->pool_id;
             }
-            
+
             $data = ilAdvancedMDValues::queryForRecords(
                 $this->ref_id,
                 "book",
@@ -630,6 +632,9 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
         $this->tpl->setVariable("TXT_TITLE", $a_set["title"]);
         
         $can_be_cancelled = (($ilAccess->checkAccess('write', '', $this->ref_id) ||
+// fau: stornoBook - check if storno is allowed
+            $this->parent_obj->allowsStorno() &&
+// fau.
             $a_set['user_id'] == $ilUser->getId()) &&
             $a_set["can_be_cancelled"]);
 
@@ -768,7 +773,7 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
         foreach ($this->getAdditionalExportCols() as $txt) {
             $a_excel->setCell($a_row, ++$col, $txt);
         }
-        
+
         $a_excel->setBold("A" . $a_row . ":" . $a_excel->getColumnCoord($col) . $a_row);
     }
 

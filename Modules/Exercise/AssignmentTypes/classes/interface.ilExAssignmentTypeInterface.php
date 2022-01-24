@@ -23,6 +23,15 @@ interface ilExAssignmentTypeInterface
      */
     public function usesTeams();
 
+    // fau: exAssHook - new function hasFiles()
+    /**
+     * Has files for a submission (uploaded or generated)
+     *
+     * @return bool
+     */
+    public function hasFiles();
+    // fau.
+
     /**
      * Uses file upload
      *
@@ -71,4 +80,11 @@ interface ilExAssignmentTypeInterface
      * @return string
      */
     public function getStringIdentifier() : string;
+
+    /**
+     * Check if manual grading should be supported
+     * @param ilExAssignment $a_ass
+     * @return bool
+     */
+    public function isManualGradingSupported($a_ass): bool;
 }

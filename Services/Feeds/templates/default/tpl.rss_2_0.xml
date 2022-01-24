@@ -1,9 +1,14 @@
 <?{XML} version="1.0" encoding="{CONTENT_ENCODING}" ?>
-<rss version="2.0">
+<!-- fau: shortRssLink - added atom namespace -->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<!-- fau. -->
 	<channel>
 		<title>{CHANNEL_TITLE}</title>
 		<link>{CHANNEL_LINK}</link>
 		<description>{CHANNEL_DESCRIPTION}</description>
+		<!-- fau: shortRssLink - added self link -->
+		<atom:link href="{CHANNEL_ABOUT}" rel="self" type="application/rss+xml" />
+		<!-- fau. -->
 		<!-- BEGIN channel_image --><!-- END channel_image -->
 		<!-- BEGIN rdf_seq --><!-- END rdf_seq -->
 		<!-- BEGIN image --><!-- END image -->

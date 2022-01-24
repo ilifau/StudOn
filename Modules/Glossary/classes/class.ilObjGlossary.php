@@ -38,7 +38,12 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
     {
         global $DIC;
         $this->error = $DIC["ilErr"];
-        $this->tpl = $DIC["tpl"];
+
+        // fau: fixRemoveTrashed - template in ilObjGlossary
+        if ($DIC->offsetExists('tpl')) {
+            $this->tpl = $DIC["tpl"];
+        }
+        // fau.
 
         $this->db = $DIC->database();
         $this->user = $DIC->user();
@@ -938,6 +943,9 @@ class ilObjGlossary extends ilObject implements ilAdvancedMetaDataSubItems
         $new_obj->setPresentationMode($this->getPresentationMode());
         $new_obj->setSnippetLength($this->getSnippetLength());
         $new_obj->setAutoGlossaries($this->getAutoGlossaries());
+        // fau: copyGloShowTax - copy "show taxomony" setting of a glossary
+        $new_obj->setShowTaxonomy($this->getShowTaxonomy());
+        // fau.
         $new_obj->update();
 
         // set/copy stylesheet

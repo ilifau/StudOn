@@ -128,11 +128,35 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
      */
     protected $introduction;
 
+    // fau: testGradingMessage - define class variables
     /**
-* Defines the mark schema
-*
-* @var ASS_MarkSchema
-*/
+    *  Message for passed test
+    *
+    * @var string
+    */
+    public $mark_tst_passed;
+
+    /**
+    * Message for failed test
+    *
+    * @var string
+    */
+    public $mark_tst_failed;
+    // fau.
+
+    //fau: testStatement - class variable
+    /**
+     * @var bool
+     */
+    public $require_authorship_statement = false;
+    // fau.
+
+
+    /**
+    * Defines the mark schema
+    *
+    * @var ASS_MarkSchema
+    */
     public $mark_schema;
 
     /**
@@ -668,7 +692,13 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $this->testSequence = false;
         $this->mailnotification = 0;
         $this->poolUsage = 1;
-        
+        // fau: testGradingMessage - init messages
+        $this->mark_tst_passed = "";
+        $this->mark_tst_failed = "";
+        // fau.
+        // fau: testStatement - init statement
+        $this->require_authorship_statement = false;
+        // fau.
         $this->ects_grades = array(
             'A' => 90,
             'B' => 65,
@@ -1196,6 +1226,10 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $result = array();
         array_push($result, $this->getIntroduction());
         array_push($result, $this->getFinalStatement());
+        // fau: testGradingMessage - push mark messages to RTE content
+        array_push($result, $this->getMarkTstPassed());
+        array_push($result, $this->getMarkTstFailed());
+        // fau.
         return $result;
     }
     
@@ -1251,6 +1285,13 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                 'intro_enabled' => array('integer', (int) $this->isIntroductionEnabled()),
                 'introduction' => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getIntroduction(), 0)),
                 'finalstatement' => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getFinalStatement(), 0)),
+                // fau: testGradingMessage - save mark messages to db
+                'mark_tst_passed' => array('text', $this->getMarkTstPassed()),
+                'mark_tst_failed' => array('text', $this->getMarkTstFailed()),
+                // fau.
+                // fau: testStatement - save the requirement in db
+                'require_authorship_statement' => array('integer', $this->isAuthorshipStatementRequired()),
+                // fau.
                 'showinfo' => array('integer', $this->getShowInfo()),
                 'forcejs' => array('integer', $this->getForceJS()),
                 'customstyle' => array('text', $this->getCustomStyle()),
@@ -1372,6 +1413,13 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                         'intro_enabled' => array('integer', (int) $this->isIntroductionEnabled()),
                         'introduction' => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getIntroduction(), 0)),
                         'finalstatement' => array('text', ilRTE::_replaceMediaObjectImageSrc($this->getFinalStatement(), 0)),
+                        // fau: testGradingMessage - update mark messages in db
+                        'mark_tst_passed' => array('text', $this->getMarkTstPassed()),
+                        'mark_tst_failed' => array('text', $this->getMarkTstFailed()),
+                        // fau.
+                        // fau: testStatement - update requirement in db
+                        'require_authorship_statement' => array('integer', $this->isAuthorshipStatementRequired()),
+                        // fau.
                         'showinfo' => array('integer', $this->getShowInfo()),
                         'forcejs' => array('integer', $this->getForceJS()),
                         'customstyle' => array('text', $this->getCustomStyle()),
@@ -1861,6 +1909,13 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
             $this->setIntroduction(ilRTE::_replaceMediaObjectImageSrc($data->introduction, 1));
             $this->setShowInfo($data->showinfo);
             $this->setFinalStatement(ilRTE::_replaceMediaObjectImageSrc($data->finalstatement, 1));
+            // fau: testGradingMessage - set mark messages from DB
+            $this->setMarkTstPassed($data->mark_tst_passed);
+            $this->setMarkTstFailed($data->mark_tst_failed);
+            // fau.
+            // fau: testStatement - set requirement from DB
+            $this->requireAuthorshipStatement($data->require_authorship_statement);
+            // fau.
             $this->setForceJS($data->forcejs);
             $this->setCustomStyle($data->customstyle);
             $this->setShowFinalStatement($data->showfinalstatement);
@@ -2080,6 +2135,41 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $this->_finalstatement = $a_statement;
     }
 
+    // fau: testGradingMessage - new functions setMarkTstPassed(), setMarkTstFailed()
+    /**
+    * Set the mark message for passed tests
+    *
+    * @param 	string 	mark message (with placeholders)
+    * @see $mark_tst_passed
+    */
+    public function setMarkTstPassed($a_mark = null)
+    {
+        $this->mark_tst_passed = $a_mark;
+    }
+
+    /**
+    * Set the mark message for failed tests
+    *
+    * @param 	string 	mark message (with placeholders)
+    * @see $mark_tst_failed
+    */
+    public function setMarkTstFailed($a_mark = null)
+    {
+        $this->mark_tst_failed = $a_mark;
+    }
+    // fau.
+
+
+    // fau: testStatement - new function requireAuthorshipStatement()
+    /**
+     * Set requirement of an authorship statement
+     * @param bool $require
+     */
+    public function requireAuthorshipStatement($require) {
+        $this->require_authorship_statement = (bool) $require;
+    }
+    // fau.
+
     /**
     * Set whether the complete information page is shown or the required data only
     *
@@ -2201,6 +2291,41 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
     {
         return (strlen($this->_finalstatement)) ? $this->_finalstatement : null;
     }
+
+    // fau: testGradingMessage - getMarkTstPassed() and getMarkTstFailed()
+    /**
+    * Gets the mark message for passed tests
+    *
+    * @return 	string 	mark message (with placeholders)
+    * @see $mark_tst_passed
+    */
+    public function getMarkTstPassed()
+    {
+        return (strlen($this->mark_tst_passed)) ? $this->mark_tst_passed : null;
+    }
+
+    /**
+    * Gets the mark message for failes tests
+    *
+    * @return 	string 	mark message (with placeholders)
+    * @see $mark_tst_failed
+    */
+    public function getMarkTstFailed()
+    {
+        return (strlen($this->mark_tst_failed)) ? $this->mark_tst_failed : null;
+    }
+    // fau.
+
+    // fau: testStatement - new function isAuthorshipStatementRequired()
+    /**
+     * Get requirement of an authorship statement
+     * @return bool
+     */
+    public function isAuthorshipStatementRequired() {
+        return (bool) $this->require_authorship_statement;
+    }
+    // fau.
+
 
     /**
     * Gets whether the complete information page is shown or the required data only
@@ -2666,7 +2791,9 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
     */
     public function getReportingDate()
     {
-        return (strlen($this->reporting_date)) ? $this->reporting_date : null;
+        // fau: fixTestReportingDate - fix wrongly saved reporting date
+        return (strlen($this->reporting_date) and $this->reporting_date != '000000000000') ? $this->reporting_date : null;
+        // fau.
     }
 
     /**
@@ -3492,6 +3619,12 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
 
         foreach ($activeIds as $active_id) {
+            // fau: limitedMediaPlayer - remove limited media player usages
+            require_once("./Services/MediaObjects/classes/class.ilLimitedMediaPlayerUsage.php");
+            ilLimitedMediaPlayerUsage::_deleteTestPassUsages($this->getId(), $usr_id);
+            // fau.
+
+
             // remove file uploads
             if (@is_dir(CLIENT_WEB_DIR . "/assessment/tst_" . $this->getTestId() . "/$active_id")) {
                 ilUtil::delDir(CLIENT_WEB_DIR . "/assessment/tst_" . $this->getTestId() . "/$active_id");
@@ -4121,7 +4254,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         }
         
         $arrResults = array();
-        
+
+        // fau: fixWrongQuestionCount - filter questions wrongly assigned to the pass
         $query = "
 			SELECT		tst_test_result.question_fi,
 						tst_test_result.points reached,
@@ -4134,6 +4268,7 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 			LEFT JOIN	tst_solutions
 			ON			tst_solutions.active_fi = tst_test_result.active_fi
 			AND			tst_solutions.question_fi = tst_test_result.question_fi
+			AND 		tst_solutions.pass = tst_test_result.pass
 			
 			WHERE		tst_test_result.active_fi = %s
 			AND			tst_test_result.pass = %s
@@ -4146,8 +4281,11 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         );
         
         while ($row = $ilDB->fetchAssoc($solutionresult)) {
-            $arrResults[ $row['question_fi'] ] = $row;
+            if (in_array($row['question_fi'], $sequence)) {
+                $arrResults[ $row['question_fi'] ] = $row;
+            }
         }
+        // fau.
 
         $numWorkedThrough = count($arrResults);
 
@@ -5022,11 +5160,15 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                 
                 if ($result->numRows()) {
                     $questionsbysequence = array();
-                    
+
+                    // fau: fixTestEvaluationSequence - reindex fixed questions	sequence
+                    $i = 1;
                     while ($row = $ilDB->fetchAssoc($result)) {
-                        $questionsbysequence[$row["sequence"]] = $row;
+                        $questionsbysequence[$i] = $row;
+                        $i++;
                     }
-                    
+                    // fau.
+
                     $seqresult = $ilDB->queryF(
                         "SELECT * FROM tst_sequence WHERE active_fi = %s",
                         array('integer'),
@@ -5095,7 +5237,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         
         return $data;
     }
-    
+
+    // fau: fixWrongQuestionsCount - return also the list of question ids
     public static function _getQuestionCountAndPointsForPassOfParticipant($active_id, $pass)
     {
         global $DIC;
@@ -5108,8 +5251,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                 
                 $res = $ilDB->queryF(
                     "
-						SELECT		COUNT(qpl_questions.question_id) qcount,
-									SUM(qpl_questions.points) qsum
+						SELECT		qpl_questions.question_id,
+									qpl_questions.points
 						FROM		tst_active
 						INNER JOIN	tst_tests
 						ON			tst_tests.test_id = tst_active.test_fi
@@ -5131,9 +5274,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 
                 $res = $ilDB->queryF(
                     "
-						SELECT		tst_test_rnd_qst.pass,
-									COUNT(tst_test_rnd_qst.question_fi) qcount,
-									SUM(qpl_questions.points) qsum
+						SELECT		tst_test_rnd_qst.question_fi question_id,
+									qpl_questions.points
 
 						FROM		tst_test_rnd_qst,
 									qpl_questions
@@ -5141,9 +5283,6 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 						WHERE		tst_test_rnd_qst.question_fi = qpl_questions.question_id
 						AND			tst_test_rnd_qst.active_fi = %s
 						AND			pass = %s
-
-						GROUP BY	tst_test_rnd_qst.active_fi,
-									tst_test_rnd_qst.pass
 					",
                     array('integer', 'integer'),
                     array($active_id, $pass)
@@ -5155,8 +5294,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                 
                 $res = $ilDB->queryF(
                     "
-						SELECT		COUNT(tst_test_question.question_fi) qcount,
-									SUM(qpl_questions.points) qsum
+						SELECT		tst_test_question.question_fi question_id,
+									qpl_questions.points
 						
 						FROM		tst_test_question,
 									qpl_questions,
@@ -5165,8 +5304,6 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
 						WHERE		tst_test_question.question_fi = qpl_questions.question_id
 						AND			tst_test_question.test_fi = tst_active.test_fi
 						AND			tst_active.active_id = %s
-						
-						GROUP BY	tst_test_question.test_fi
 					",
                     array('integer'),
                     array($active_id)
@@ -5178,15 +5315,19 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                 
                 throw new ilTestException("not supported question set type: $questionSetType");
         }
-        
-        $row = $ilDB->fetchAssoc($res);
-        
-        if (is_array($row)) {
-            return array("count" => $row["qcount"], "points" => $row["qsum"]);
+
+        $qcount = 0;
+        $qsum = 0;
+        $ids = array();
+        while ($row = $ilDB->fetchAssoc($res)) {
+            $qcount++;
+            $qsum += $row['points'];
+            $ids[] = $row['question_id'];
         }
-        
-        return array("count" => 0, "points" => 0);
+        $return = array("count" => $qcount, "points" => $qsum, 'question_ids' => $ids);
+        return $return;
     }
+    // fau.
 
     public function &getCompleteEvaluationData($withStatistics = true, $filterby = "", $filtertext = "")
     {
@@ -5413,11 +5554,13 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
     * @return array The available question pools
     * @access public
     */
-    public function &getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $show_path = false, $with_questioncount = false, $permission = "read")
+    // fau: testQuestionBrowserRoot - added parameter for root id to get available question pools
+    public function &getAvailableQuestionpools($use_object_id = false, $equal_points = false, $could_be_offline = false, $show_path = false, $with_questioncount = false, $permission = "read", $root_id = 0)
     {
         include_once "./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php";
-        return ilObjQuestionPool::_getAvailableQuestionpools($use_object_id, $equal_points, $could_be_offline, $show_path, $with_questioncount, $permission);
+        return ilObjQuestionPool::_getAvailableQuestionpools($use_object_id, $equal_points, $could_be_offline, $show_path, $with_questioncount, $permission, "", $root_id);
     }
+    // fau.
 
     /**
     * Returns the estimated working time for the test calculated from the working time of the contained questions
@@ -5976,6 +6119,19 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
                         $this->setEndingTimeEnabled(true);
                     }
                     break;
+                // fau: testGradingMessage - get mark messages from XML
+                case "mark_tst_passed":
+                    $this->setMarkTstPassed($metadata["entry"]);
+                    break;
+                case "mark_tst_failed":
+                    $this->setMarkTstFailed($metadata["entry"]);
+                    break;
+                // fau.
+                // fau: testStatement - set requirement from XML
+                case "require_authorship_statement":
+                    $this->requireAuthorshipStatement($metadata["entry"]);
+                    break;
+                // fau.
                 case "enable_examview":
                     $this->setEnableExamview($metadata["entry"]);
                     break;
@@ -6594,6 +6750,25 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         }
         $a_xml_writer->xmlEndTag("qtimetadata");
 
+        // fau: testGradingMessage - write mark messages to XML
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "mark_tst_passed");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getMarkTstPassed());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "mark_tst_failed");
+        $a_xml_writer->xmlElement("fieldentry", null, $this->getMarkTstFailed());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+        // fau.
+
+        // fau: testStatement - write requirement to XML
+        $a_xml_writer->xmlStartTag("qtimetadatafield");
+        $a_xml_writer->xmlElement("fieldlabel", null, "require_authorship_statement");
+        $a_xml_writer->xmlElement("fieldentry", null, (int) $this->isAuthorshipStatementRequired());
+        $a_xml_writer->xmlEndTag("qtimetadatafield");
+        // fau.
+
         // add qti objectives
         $a_xml_writer->xmlStartTag("objectives");
         $this->addQTIMaterial($a_xml_writer, $this->getIntroduction());
@@ -7156,6 +7331,13 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
         $newObj->setIntroductionEnabled($this->isIntroductionEnabled());
         $newObj->setIntroduction($this->getIntroduction());
         $newObj->setFinalStatement($this->getFinalStatement());
+        // fau: testGradingMessage - clone mark messages
+        $newObj->setMarkTstPassed($this->getMarkTstPassed());
+        $newObj->setMarkTstFailed($this->getMarkTstFailed());
+        // fau.
+        // fau: testStatement - clone requirement
+        $newObj->requireAuthorshipStatement($this->isAuthorshipStatementRequired());
+        // fau.
         $newObj->setShowInfo($this->getShowInfo());
         $newObj->setForceJS($this->getForceJS());
         $newObj->setCustomStyle($this->getCustomStyle());
@@ -7217,6 +7399,9 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware, ilEctsGradesEnabl
             $newObj->setPassWaiting($this->getPassWaiting());
         }
         $newObj->setObligationsEnabled($this->areObligationsEnabled());
+        // fau: copyShowGradingStatus -copy the setting for showing the grading status
+        $newObj->setShowGradingStatusEnabled($this->isShowGradingStatusEnabled());
+        // fau.
         $newObj->saveToDb();
         
         // clone certificate

@@ -117,7 +117,9 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
 
         if ($participant_id > 0) {
             $this->participant_id = $participant_id;
-            $assignments = ilExAssignment::getInstancesByExercise($this->exercise_id);
+            // fau: exGradeTime - get only the available instances
+            $assignments = ilExAssignment::getInstancesForGrading($this->exercise_id);
+            // fau.
             foreach ($assignments as $assignment) {
                 $this->collectAssignmentData($assignment->getId());
             }
@@ -129,11 +131,13 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
         return $out;
     }
 
+    // fau: exPeerFeedbackDownload - create and return a unique filename
     /**
      * Copy a file in the Feedback_files directory
      * TODO use the new filesystem.
      * @param $a_directory string
      * @param $a_file string
+     * @return string the copied filename
      */
     public function copyFileToSubDirectory($a_directory, $a_file)
     {
@@ -143,13 +147,27 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
             ilUtil::createDirectory($dir);
         }
 
-        copy($a_file, $dir . "/" . basename($a_file));
+        $counter = 0;
+        $target_file = basename($a_file);
+        $parts = pathinfo($target_file);
+        $filename =  $parts['filename'];
+        $extension = (empty($parts['extension']) ? '' : '.' . $parts['extension']);
+
+        while (file_exists($dir . "/" . $target_file)) {
+            $counter++;
+            $target_file = $filename . '_' . $counter . $extension;
+        }
+
+        copy($a_file, $dir . "/" . $target_file);
+
+        return $target_file;
 
         /*global $DIC;
         $fs = $DIC->filesystem();
 
         $fs->storage()->copy($a_file, $this->temp_dir."/".basename($a_file));*/
     }
+    // fau.
 
     /**
      * @inheritdoc
@@ -230,16 +248,31 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
             $submission->updateTutorDownloadTime();
 
             // get member object (ilObjUser)
+            // fau: exAssHook - use implementation from ilExerciseManagementGUI::downloadAllObject()
             if (ilObject::_exists($member_id)) {
+                $storage_id = "";
                 // adding file metadata
                 foreach ($submission->getFiles() as $file) {
-                    $members[$file["user_id"]]["files"][$file["returned_id"]] = $file;
-                }
+                    if ($this->assignment->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                        $storage_id = $file["team_id"];
+                    } else {
+                        $storage_id = $file["user_id"];
+                    }
 
-                $tmp_obj = &ilObjectFactory::getInstanceByObjId($member_id);
-                $members[$member_id]["name"] = $tmp_obj->getFirstname() . " " . $tmp_obj->getLastname();
+                    $members[$storage_id]["files"][$file["returned_id"]] = $file;
+                }
+                if ($this->assignment->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                    $name = "Team " . $submission->getTeam()->getId();
+                } else {
+                    $tmp_obj = ilObjectFactory::getInstanceByObjId($member_id);
+                    $name = $tmp_obj->getFirstname() . " " . $tmp_obj->getLastname();
+                }
+                if ($storage_id > 0) {
+                    $members[$storage_id]["name"] = $name;
+                }
                 unset($tmp_obj);
             }
+            // fau.
         }
 
         ilExSubmission::downloadAllAssignmentFiles($this->assignment, $members, $this->submissions_directory);
@@ -347,9 +380,15 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
                             $this->title_columns[] = $crit_title . "_" . $extra_crit_column;
                         }
                         $extra_crit_column++;
-                        $this->copyFileToSubDirectory(self::FBK_DIRECTORY, $file);
-                        $this->excel->setCell($row, $col, "./" . self::FBK_DIRECTORY . DIRECTORY_SEPARATOR . basename($file));
-                        $this->excel->addLink($row, $col, './' . self::FBK_DIRECTORY . DIRECTORY_SEPARATOR . basename($file));
+                        // fau: exPeerFeedbackDownload - add directories for users and use returned filename for excel
+                        $userdir = ilExSubmission::getDirectoryNameFromUserData($participant_id);
+                        $fbk_subdir = self::FBK_DIRECTORY . DIRECTORY_SEPARATOR . $userdir;
+                        ilUtil::makeDirParents($this->target_directory . DIRECTORY_SEPARATOR . $fbk_subdir);
+
+                        $saved_file = $this->copyFileToSubDirectory($fbk_subdir, $file);
+                        $this->excel->setCell($row, $col, "./" . $fbk_subdir . DIRECTORY_SEPARATOR . $saved_file);
+                        $this->excel->addLink($row, $col, './' . $fbk_subdir . DIRECTORY_SEPARATOR . $saved_file);
+                        // fau.
                         $this->excel->setColors($this->excel->getCoordByColumnAndRow($col, $row), self::BG_COLOR, self::LINK_COLOR);
                     }
                     break;
@@ -442,10 +481,12 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
         $this->createTargetDirectory();
 
         //Collect submission files if needed by assignment type.
-        if (in_array($assignment_type, $this->ass_types_with_files)) {
+        // fau: exAssHook - use hasFiles() function
+        if ($this->assignment->getAssignmentType()->hasFiles()) {
             $this->createSubmissionsDirectory();
             $this->collectSubmissionFiles();
         }
+        // fau.
 
         if ($this->assignment->getPeerReview()) {
             $ass_has_feedback = true;
@@ -513,7 +554,14 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
             $row = 2;
             // Fill the excel
             foreach ($participants as $participant_id) {
-                $submission = new ilExSubmission($this->assignment, $participant_id);
+                // fau: fixDeletedExerciseMember - fault tolerance if user is deleted
+                try {
+                    $submission = new ilExSubmission($this->assignment, $participant_id);
+                }
+                catch (Exception $e) {
+                    continue;
+                }
+                // fau.
                 $submission_files = $submission->getFiles();
 
                 if ($submission_files) {
@@ -523,7 +571,9 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
                     $this->excel->setCell($row, self::PARTICIPANT_LOGIN_COLUMN, $participant_name['login']);
 
                     //Get the submission Text
-                    if (!in_array($assignment_type, $this->ass_types_with_files)) {
+                    // fau: exAssHook: use function hasFiles()
+                    if (!$this->assignment->getAssignmentType()->hasFiles()) {
+                        // fau.
                         foreach ($submission_files as $submission_file) {
                             $this->excel->setCell($row, self::SUBMISSION_DATE_COLUMN, $submission_file['timestamp']);
                             $this->excel->setCell($row, self::FIRST_DEFAULT_SUBMIT_COLUMN, $submission_file['atext']);

@@ -539,6 +539,12 @@ class ilGlossaryDefinition
         $glo_id = ilGlossaryTerm::_lookGlossaryID($this->getTermId());
         $md = new ilMD($glo_id, $this->getId(), $this->getType());
         $md_gen = $md->getGeneral();
+        // fau: fixCloneMd - add General section if it is missing
+        if (!$md_gen) {
+            $md_gen = $md->addGeneral();
+        }
+        // fau.
+
         $md_gen->setTitle($this->getTitle());
 
         // sets first description (maybe not appropriate)

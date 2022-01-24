@@ -392,9 +392,16 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                 $cloze_text->addButton("pastelatex");
             }
         } else {
-            require_once 'Modules/TestQuestionPool/classes/questions/class.ilAssSelfAssessmentQuestionFormatter.php';
-            $cloze_text->setRteTags(ilAssSelfAssessmentQuestionFormatter::getSelfAssessmentTags());
-            $cloze_text->setUseTagsForRteOnly(false);
+            // fau: lmGapFormat - allow richtext editor in gap text
+            $cloze_text->setUseRte(true);
+            include_once "./Services/AdvancedEditing/classes/class.ilObjAdvancedEditing.php";
+            $cloze_text->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("assessment"));
+            $cloze_text->addPlugin("latex");
+            $cloze_text->addButton("latex");
+            $cloze_text->addButton("pastelatex");
+            $cloze_text->removePlugin('ilimgupload');
+            $cloze_text->removePlugin('ibrowser');
+            // fau.
         }
         $cloze_text->setRTESupport($this->object->getId(), "qpl", "assessment");
         $form->addItem($cloze_text);
@@ -466,6 +473,21 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
             $identical_scoring->setRequired(false);
             $form->addItem($identical_scoring);
         }
+        // fau: fixMissingGapLength - allow editing of a fixed text gap length for cloze questions in page content
+        else {
+            // text field length
+            $fixedTextLength = new ilNumberInputGUI($this->lng->txt("cloze_fixed_textlength"), "fixedTextLength");
+            $ftl = $this->object->getFixedTextLength();
+
+            $fixedTextLength->setValue($ftl > 0 ? $ftl : '');
+            $fixedTextLength->setMinValue(0);
+            $fixedTextLength->setSize(3);
+            $fixedTextLength->setMaxLength(6);
+            $fixedTextLength->setInfo($this->lng->txt('cloze_fixed_textlength_description'));
+            $fixedTextLength->setRequired(false);
+            $form->addItem($fixedTextLength);
+        }
+        // fau.
         return $form;
     }
 
@@ -816,8 +838,8 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                             $gaptemplate->setVariable("VALUE_GAP", " value=\"" . ilUtil::prepareFormOutput($val2) . "\"");
                         }
                     }
-                    // fau: fixGapReplace - use replace function
-					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
+// fau: fixGapReplace - use replace function
+                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
 // fau.
                     break;
                 case CLOZE_SELECT:
@@ -836,9 +858,10 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         $gaptemplate->parseCurrentBlock();
                     }
                     $gaptemplate->setVariable("PLEASE_SELECT", $this->lng->txt("please_select"));
-                    $gaptemplate->setVariable("GAP_COUNTER", $gap_index);// fau: fixGapReplace - use replace function
+                    $gaptemplate->setVariable("GAP_COUNTER", $gap_index);
+                    // fau: fixGapReplace - use replace function
                     $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
                 case CLOZE_NUMERIC:
                     $gaptemplate = new ilTemplate("tpl.il_as_qpl_cloze_question_gap_numeric.html", true, true, "Modules/TestQuestionPool");
@@ -855,8 +878,8 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         }
                     }
                     // fau: fixGapReplace - use replace function
-					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    $output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau.
                     break;
             }
         }
@@ -1030,7 +1053,7 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                     $this->populateSolutiontextToGapTpl($gaptemplate, $gap, $solutiontext);
                     // fau: fixGapReplace - use replace function
 					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
                 case CLOZE_SELECT:
                     $solutiontext = "";
@@ -1055,7 +1078,7 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                     $this->populateSolutiontextToGapTpl($gaptemplate, $gap, $solutiontext);
                     // fau: fixGapReplace - use replace function
 					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
                 case CLOZE_NUMERIC:
                     $solutiontext = "";
@@ -1238,9 +1261,10 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         $gaptemplate->parseCurrentBlock();
                     }
                     $gaptemplate->setVariable("PLEASE_SELECT", $this->lng->txt("please_select"));
-                    $gaptemplate->setVariable("GAP_COUNTER", $gap_index);// fau: fixGapReplace - use replace function
+                    $gaptemplate->setVariable("GAP_COUNTER", $gap_index);
+                    // fau: fixGapReplace - use replace function
                     $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    // fau.
                     break;
                 case CLOZE_NUMERIC:
                     $gaptemplate = new ilTemplate("tpl.il_as_qpl_cloze_question_gap_numeric.html", true, true, "Modules/TestQuestionPool");
@@ -1258,8 +1282,8 @@ class assClozeTestGUI extends assQuestionGUI implements ilGuiQuestionScoringAdju
                         }
                     }
                     // fau: fixGapReplace - use replace function
-					$output  = $this->object->replaceFirstGap($output, $gaptemplate->get());
-// fau.
+                    $output = $this->object->replaceFirstGap($output, $gaptemplate->get());
+                    // fau.
                     break;
             }
         }

@@ -1,0 +1,78 @@
+<!-- BEGIN login_message -->
+<div style="text-align:center;">
+<br /><br /><br /><br />
+<p class="warning">Bitte loggen Sie sich als StudOn-Nutzer ein, um den Antrag auf Teilnehmerdaten-Export absenden zu können!</p>
+<br /><br /><br /><br />
+</div>
+<!-- END login_message -->
+
+<!-- BEGIN hasright_message -->
+<div style="text-align:center;">
+<br /><br /><br /><br />
+<p class="warning">Der Teilnehmerdaten-Export ist für Ihren Account bereits freigeschalten!</p>
+<br /><br /><br /><br />
+</div>
+<!-- END hasright_message -->
+
+<!-- BEGIN sent_message -->
+<div style="text-align:center;">
+<br /><br /><br /><br />
+<p class="warning">Ihr Antrag wurde abgeschickt. Sie erhalten eine Nachricht vom StudOn-Team, wenn Ihnen der Export von Teilnehmer-Daten freigeschalten wurde.</p>
+<br /><br /><br /><br />
+</div>
+<!-- END sent_message -->
+
+<!-- BEGIN export_request -->
+<p>Um Teilnehmerdaten aus Kursen exportieren zu können, müssen sie Bedienstete(r) der Universität Erlangen-Nürnberg sein. Aus Datenschutzgründen benötigen wir von Ihnen zusätzlich noch die untenstehende Erklärung, die Sie uns hier direkt senden können. Wir werden Ihnen dann den Export freischalten und Sie informieren.</p>
+<p>Ihr StudOn-Team</p>
+
+<form action="{FORMACTION}" method="post" name="Fobject">
+<table class="std">
+  <tr>
+	<td class="option_value">
+
+<p>Ich beantrage für meinen StudOn-Account <b>{LOGIN}</b> die Freigabe des Exports von Kursteilnehmer-Daten und erkläre verbindlich, dass:</p>
+<ul>
+<li>ich Bedienstete(r) der Universität Erlangen-Nürnberg bin,</li>
+<li>die exportierten Daten nur zur Verwaltung der mit dem Kurs verbundenen Veranstaltung dienen,</li>
+<li>die Daten nicht in automatisierten Verfahren (außer Serien-Schreiben) weiter verarbeitet werden,</li>
+<li>die Daten zum Semesterende bzw. nach dem Ende der Verwendung gelöscht werden,</li>
+<li>die Daten nicht an Dritte weitergegeben und nur Bediensteten der Universität zugänglich gemacht werden, die auf die Geheimhaltungsvorschrift des Datenschutzgesetzes verpflichtet wurden,</li>
+<li>sichergestellt ist, dass andere Stellen und Personen keinen Zugriff auf die gelieferten Daten haben und Unbefugte hierzu keinen Zugang erhalten,</li>
+<li>die Haltung der Studentendaten nur auf Rechnern in speziell abgesicherten Netzen erfolgt.</li>
+</ul>
+<p><b>{DATE}, {USERNAME}</b></p>
+	
+	</td>
+  </tr>
+  <tr>
+	<td class="submit"align="right">
+        <input class="submit" type="submit" name="cmd[submitRequest]" value="Antrag stellen"/>
+        <input class="submit" type="submit" name="cmd[cancel]" value="Abbrechen"/>
+    </td>
+  </tr>
+</table>
+</form>
+<br />
+<!-- END export_request -->
+
+<!-- BEGIN export_mail -->
+
+Ich beantrage für meinen StudOn-Account {LOGIN} die Freigabe des Exports von Kursteilnehmer-Daten und erkläre verbindlich dass,
+
+1. ich Bedienstete(r) der Universität Erlangen-Nürnberg bin,
+
+2. die exportierten Daten nur zur Verwaltung der mit dem Kurs verbundenen Veranstaltung dienen,
+
+3. die Daten nicht in automatisierten Verfahren (außer Serien-Schreiben) weiter verarbeitet werden,
+
+4. die Daten zum Semesterende bzw. nach dem Ende der Verwendung gelöscht werden,
+
+5. die Daten nicht an Dritte weitergegeben und nur Bediensteten der Universität zugänglich gemacht werden, die auf die Geheimhaltungsvorschrift des Datenschutzgesetzes verpflichtet wurden,
+
+6. sichergestellt ist, dass andere Stellen und Personen keinen Zugriff auf die gelieferten Daten haben und Unbefugte hierzu keinen Zugang erhalten,
+
+7. die Haltung der Studentendaten nur auf Rechnern in speziell abgesicherten Netzen erfolgt.
+
+{DATE}, {USERNAME}
+<!-- END export_mail -->

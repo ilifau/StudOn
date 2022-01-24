@@ -35,7 +35,10 @@ class ilObjSurvey extends ilObject
     const ANONYMIZE_ON = 1; // anonymized, codes
     const ANONYMIZE_FREEACCESS = 2; // anonymized, no codes
     const ANONYMIZE_CODE_ALL = 3; // personalized, codes
-    
+    // fau: surveyCaptcha - add captcha option
+    const ANONYMIZE_CAPTCHA = 4;
+    // fau.
+
     const QUESTIONTITLES_HIDDEN = 0;
     const QUESTIONTITLES_VISIBLE = 1;
 
@@ -1039,6 +1042,9 @@ class ilObjSurvey extends ilObject
             case self::ANONYMIZE_ON:
             case self::ANONYMIZE_FREEACCESS:
             case self::ANONYMIZE_CODE_ALL:
+// fau: surveyCaptcha - add captcha option
+            case self::ANONYMIZE_CAPTCHA:
+// fau.
                 $this->anonymize = $a_anonymize;
                 break;
             default:
@@ -1082,8 +1088,11 @@ class ilObjSurvey extends ilObject
     */
     public function isAccessibleWithoutCode()
     {
+        // fau: surveyCaptcha - respect captcha option
         return ($this->getAnonymize() == self::ANONYMIZE_OFF ||
-            $this->getAnonymize() == self::ANONYMIZE_FREEACCESS);
+            $this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+            $this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+        //fau.
     }
     
     /**
@@ -1093,8 +1102,11 @@ class ilObjSurvey extends ilObject
     */
     public function hasAnonymizedResults()
     {
+        // fau: surveyCaptcha - respect captcha option
         return ($this->getAnonymize() == self::ANONYMIZE_ON ||
-            $this->getAnonymize() == self::ANONYMIZE_FREEACCESS);
+            $this->getAnonymize() == self::ANONYMIZE_FREEACCESS ||
+            $this->getAnonymize() == self::ANONYMIZE_CAPTCHA);
+        // fau.
     }
 
     /**
@@ -5538,7 +5550,17 @@ class ilObjSurvey extends ilObject
     
     public function getReminderEnd()
     {
-        return $this->reminder_end;
+        // fau: surveyReminderEnd - set default end to one month after start
+        if (isset($this->reminder_end)) {
+            return $this->reminder_end;
+        } elseif ($this->reminder_start instanceof ilDate) {
+            $end = clone $this->reminder_start;
+            $end->increment(IL_CAL_MONTH, 1);
+            return $end;
+        } else {
+            return null;
+        }
+        // fau.
     }
     
     public function setReminderEnd(ilDate $a_value = null)

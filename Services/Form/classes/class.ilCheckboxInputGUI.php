@@ -41,6 +41,10 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
     protected $checked;
     protected $optiontitle = "";
     protected $additional_attributes = '';
+
+    // fau: courseUdf - variable for required checking
+    protected $check_required = false;
+    // fau.
     
     /**
     * Constructor
@@ -149,6 +153,13 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
         return $this->additional_attributes;
     }
 
+    // fau: courseUdf - set if checking is required
+    public function setCheckRequired($a_check_required = true)
+    {
+        $this->check_required = (bool) $a_check_required;
+    }
+    // fau.
+
     /**
     * Check input, strip slashes etc. set alert, if input is not ok.
     *
@@ -161,7 +172,12 @@ class ilCheckboxInputGUI extends ilSubEnabledFormPropertyGUI implements ilToolba
         $_POST[$this->getPostVar()] =
             ilUtil::stripSlashes($_POST[$this->getPostVar()]);
         
-        // getRequired() is NOT processed here!
+        // fau: courseUdf - check required if needed
+        if ($this->check_required && empty($_POST[$this->getPostVar()])) {
+            $this->setAlert($lng->txt("msg_input_is_required"));
+            return false;
+        }
+        // fau.
 
         $ok = $this->checkSubItemsInput();
 

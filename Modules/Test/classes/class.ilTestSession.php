@@ -85,6 +85,14 @@ class ilTestSession
     
     private $objectiveOrientedContainerId;
 
+    // fau: testStatement - session variable
+    /**
+     * @var string
+     */
+    protected $time_authorship_statement;
+    // fau.
+
+
     /**
     * ilTestSession constructor
     *
@@ -159,6 +167,10 @@ class ilTestSession
                 $this->setLastFinishedPass($row['last_finished_pass']);
                 $this->setObjectiveOrientedContainerId((int) $row['objective_container']);
 
+                // fau: testStatement - read the authorship statement time from db
+                $this->setAuthorshipStatementTime($row['time_authorship_statement']);
+                // fau.
+
                 return true;
             }
         }
@@ -198,6 +210,9 @@ class ilTestSession
                         'tstamp' => array('integer', time()),
                         'last_finished_pass' => array('integer', $this->getLastFinishedPass()),
                         'last_started_pass' => array('integer', $this->getLastStartedPass()),
+                        // fau: testStatement: update authorship statement time in db
+                        'time_authorship_statement' => array('text', $this->getAuthorshipStatementTime()),
+                        // fau.
                         'objective_container' => array('integer', (int) $this->getObjectiveOrientedContainerId())
                     ),
                 array(
@@ -225,6 +240,9 @@ class ilTestSession
                     'tstamp' => array('integer', time() - 10),
                     'last_finished_pass' => array('integer', $this->getLastFinishedPass()),
                     'last_started_pass' => array('integer', $this->getPass()),
+                    // fau: testStatement: update authorship statement time in db
+                    'time_authorship_statement' => array('text', $this->getAuthorshipStatementTime()),
+                    // fau.
                     'objective_container' => array('integer', (int) $this->getObjectiveOrientedContainerId())
                 ),
                 array(
@@ -250,6 +268,9 @@ class ilTestSession
                         'tstamp' => array('integer', time() - 10),
                         'last_finished_pass' => array('integer', $this->getLastFinishedPass()),
                         'last_started_pass' => array('integer', $this->getPass()),
+                        // fau: testStatement: create authorship statement time in db
+                        'time_authorship_statement' => array('text', $this->getAuthorshipStatementTime()),
+                        // fau.
                         'objective_container' => array('integer', (int) $this->getObjectiveOrientedContainerId())
                     )
                 );
@@ -308,6 +329,11 @@ class ilTestSession
             $this->setLastStartedPass($row['last_started_pass']);
             $this->setLastFinishedPass($row['last_finished_pass']);
             $this->setObjectiveOrientedContainerId((int) $row['objective_container']);
+
+            // fau: testStatement - read the authorship statement time from db
+            $this->setAuthorshipStatementTime($row['time_authorship_statement']);
+            // fau.
+
         } elseif ($this->doesAccessCodeInSessionExists()) {
             $this->unsetAccessCodeInSession();
         }
@@ -342,6 +368,11 @@ class ilTestSession
             $this->setLastStartedPass($row['last_started_pass']);
             $this->setLastFinishedPass($row['last_finished_pass']);
             $this->setObjectiveOrientedContainerId((int) $row['objective_container']);
+
+            // fau: testStatement - read the authorship statement time from db
+            $this->setAuthorshipStatementTime($row['time_authorship_statement']);
+            // fau.
+
         }
     }
     
@@ -465,7 +496,53 @@ class ilTestSession
     {
         return (bool) $this->getObjectiveOrientedContainerId();
     }
-    
+
+    // fau: testStatement  - setters and getters
+    /**
+     * User has checked the authorship statement
+     */
+    public function hasAuthorshipStatement()
+    {
+        return !empty($this->time_authorship_statement);
+    }
+
+    /**
+     * Set if the user has checked the authorship statement
+     * @param bool $stated
+     */
+    public function setAuthorshipStatement($stated)
+    {
+        if ($stated && empty($this->time_authorship_statement)) {
+            $this->time_authorship_statement = strftime("%Y-%m-%d %H:%M:%S");
+        }
+
+        if (!$stated) {
+            $this->time_authorship_statement = null;
+        }
+    }
+
+    /**
+     * Get the time of an authorship statement
+     * @return string
+     */
+    public function getAuthorshipStatementTime()
+    {
+        return $this->time_authorship_statement;
+    }
+
+
+    /**
+     * Set the time of an authorship statement
+     * @param string $time
+     */
+    public function setAuthorshipStatementTime($time)
+    {
+        $this->time_authorship_statement = $time;
+    }
+    // fau.
+
+
+
     public function persistTestStartLock($testStartLock)
     {
         global $DIC;

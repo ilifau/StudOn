@@ -55,6 +55,24 @@ class ilMemberExportGUI
     private $exportSettings;
 
     /**
+     * fau: memberExport - add learning progress settings
+     */
+    private $lp_objects = array(
+        'crs' => array('status', 'marks', 'comments'),
+        'sess' => array('status', 'marks', 'comments'),
+        'exc' => array('status', 'marks', 'comments'),
+        'tst' => array('status'),
+        'grp' => array('status'),
+        'fold' => array('status'),
+        'lm' => array('status'),
+        'htlm' => array('status'),
+        'sahs' => array('status'),
+        // 'wiki' => array('marks', 'status') funktioniert nicht
+    );
+    // fau.
+
+
+    /**
      * Constructor
      *
      * @access public
@@ -75,6 +93,12 @@ class ilMemberExportGUI
         $this->tpl = $tpl;
         $this->lng = $lng;
         $this->lng->loadLanguageModule('ps');
+
+        // fau: memberExport - get language vars of course and tracking
+        $this->lng->loadLanguageModule('crs');
+        $this->lng->loadLanguageModule('trac');
+        // fau.
+
         $this->ref_id = $a_ref_id;
         $this->obj_id = $ilObjDataCache->lookupObjId($this->ref_id);
         $this->type = ilObject::_lookupType($this->obj_id);
@@ -97,13 +121,20 @@ class ilMemberExportGUI
         $ilAccess = $DIC['ilAccess'];
         $rbacsystem = $DIC['rbacsystem'];
 
-        
+
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-        if (!ilPrivacySettings::_getInstance()->checkExportAccess($this->ref_id)) {
+        // fau: extendedAccess - jump to export request form if not granted
+        $privacy = ilPrivacySettings::_getInstance();
+        $enabled = $this->type == 'crs' ? $privacy->enabledCourseExport() : $privacy->enabledGroupExport();
+
+        if (!$ilAccess->checkAccess('manage_members', '', $this->ref_id) or !$enabled) {
             ilUtil::sendFailure($this->lng->txt('permission_denied'), true);
             $this->ctrl->returnToParent($this);
+        } elseif (!ilPrivacySettings::_checkExtendedAccess()) {
+            ilUtil::redirect("goto.php?target=studon_exportrequest");
         }
-        
+        // fau.
+
         $next_class = $this->ctrl->getNextClass($this);
         $cmd = $this->ctrl->getCmd();
 
@@ -214,10 +245,45 @@ class ilMemberExportGUI
             $form->addItem($chours);
         }
 
-        $grp_membr = new ilCheckboxInputGUI($this->lng->txt('crs_members_groups'), 'export_members[]');
-        $grp_membr->setValue('group_memberships');
-        $grp_membr->setChecked($this->exportSettings->enabled('group_memberships'));
-        $form->addItem($grp_membr);
+        // fau: memberExport - add further options for member export
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('further_informations'));
+        $form->addItem($header);
+
+
+        $members = new ilCheckboxGroupInputGUI($this->lng->txt('members'), 'export_members');
+        $members->addOption(new ilCheckboxOption($this->lng->txt('events'), 'events'));
+        $members->addOption(new ilCheckboxOption($this->lng->txt('groups'), 'groups'));
+        $values = array();
+        foreach (array('events', 'groups') as $type) {
+            if ($this->exportSettings->enabled($type)) {
+                $values[] = $type;
+            }
+        }
+        $members->setValue($values);
+        $form->addItem($members);
+
+        $header = new ilFormSectionHeaderGUI();
+        $header->setTitle($this->lng->txt('learning_progress'));
+        $header->setInfo($this->lng->txt('export_lp_info'));
+        $form->addItem($header);
+
+        if (count($this->lp_objects)) {
+            foreach ($this->lp_objects as $type => $modes) {
+                $object = new ilCheckboxGroupInputGUI($this->lng->txt('objs_' . $type), 'export_members');
+                $values = array();
+                foreach ($modes as $mode) {
+                    $object->addOption(new ilCheckboxOption($this->lng->txt('export_lp_' . $mode), $type . '_' . $mode));
+                    if ($this->exportSettings->enabled($type . '_' . $mode)) {
+                        $values[] = $type . '_' . $mode;
+                    }
+                }
+                $object->setValue($values);
+                $form->addItem($object);
+            }
+        }
+        // fau.
+
         return $form;
     }
     
@@ -362,7 +428,7 @@ class ilMemberExportGUI
             if (md5($file['name']) == $hash) {
                 $contents = $this->fss_export->getMemberExportFile($file['timest'] . '_participant_export_' .
                     $file['type'] . '_' . $this->obj_id . '.' . $file['type']);
-                
+
                 // newer export files could be .xlsx
                 if ($file['type'] == 'xls' && !$contents) {
                     $contents = $this->fss_export->getMemberExportFile($file['timest'] . '_participant_export_' .
@@ -377,7 +443,7 @@ class ilMemberExportGUI
                             date('Y_m_d_H-i' . $file['timest']) . '_member_export_' . $this->obj_id . '.xlsx',
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                         );
-                    
+
                         // no break
                     case 'xls':
                         ilUtil::deliverData(

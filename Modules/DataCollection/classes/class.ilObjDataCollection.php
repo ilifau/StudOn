@@ -81,8 +81,8 @@ class ilObjDataCollection extends ilObject2
         return false;
     }
 
-
-    protected function doDelete()
+    // fau: fixRemoveTrashed - change doDelete to beforeDelete in DataCollection to avid missing object when contents are deleted
+    protected function beforeDelete()
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
@@ -93,7 +93,10 @@ class ilObjDataCollection extends ilObject2
 
         $query = "DELETE FROM il_dcl_data WHERE id = " . $ilDB->quote($this->getId(), "integer");
         $ilDB->manipulate($query);
+
+        return true;
     }
+    // fau.
 
 
     public function doUpdate()

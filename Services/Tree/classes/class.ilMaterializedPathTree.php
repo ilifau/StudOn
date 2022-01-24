@@ -182,10 +182,26 @@ class ilMaterializedPathTree implements ilTreeImplementation
         if ($type_str or $a_force_join_reference) {
             $join = $this->getTree()->buildJoin();
         }
-        
+
         $fields = '* ';
         if (count($a_fields)) {
+            // fau: treeQuery53 - add the tree pk to the queried fields for later filter outside this function
+            if (!in_array($this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk(), $a_fields)
+                && !in_array($this->getTree()->getTreePk(), $a_fields)) {
+                $a_fields[] = $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk();
+            }
+            // fau.
             $fields = implode(',', $a_fields);
+        }
+
+        // fau: treeQuery53 - don't use tree_id for repository tree
+        // this has bad performance on our MariaDB 10.1
+        // deleted subtrees may have negative tree_id, but the given childs are already primary keys
+
+        if ($this->getTree()->__isMainTree() && $this->getTree()->getTreeId() == 1) {
+            $treeClause = '';
+        } else {
+            $treeClause = 'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ';
         }
 
         // @todo order by
@@ -197,11 +213,12 @@ class ilMaterializedPathTree implements ilTreeImplementation
                 'BETWEEN ' .
                 $ilDB->quote($a_node['path'], 'text') . ' AND ' .
                 $ilDB->quote($a_node['path'] . '.Z', 'text') . ' ' .
-                'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ' .
+                $treeClause .
                 $type_str . ' ' .
                 'ORDER BY ' . $this->getTree()->getTreeTable() . '.path';
-        
+
         return $query;
+        // fau.
     }
     
     /**
@@ -557,7 +574,7 @@ class ilMaterializedPathTree implements ilTreeImplementation
             FROM " . $this->getTree()->getTreeTable() . " t1 
             WHERE t1.child = " . $ilDB->quote($a_endnode_id, 'integer') .
             $treeClause1;
-        
+
         $res = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($res);
         if ($row[$this->getTree()->getTreePk()] == $this->getTree()->getTreeId()) {
@@ -569,13 +586,13 @@ class ilMaterializedPathTree implements ilTreeImplementation
         // then query for the nodes in that path
         $query = "SELECT t2." . $this->getTree()->getTreePk() . ", t2.child child, type, t2.path path " .
             "FROM " . $this->getTree()->getTreeTable() . " t2 " .
-                "JOIN " . $this->getTree()->getTableReference() . " obr ON t2.child = obr.ref_id " .
-                "JOIN " . $this->getTree()->getObjectDataTable() . " obd ON obr.obj_id = obd.obj_id " .
+            "JOIN " . $this->getTree()->getTableReference() . " obr ON t2.child = obr.ref_id " .
+            "JOIN " . $this->getTree()->getObjectDataTable() . " obd ON obr.obj_id = obd.obj_id " .
             "WHERE t2.path BETWEEN " . $ilDB->quote($path, 'text') . " AND " . $ilDB->quote($path . '.Z', 'text') .
             $treeClause2 . ' ' .
-                "ORDER BY t2.path";
+            "ORDER BY t2.path";
 
-        
+
         $res = $ilDB->query($query);
         $nodes = [];
         while ($row = $ilDB->fetchAssoc($res)) {
@@ -592,7 +609,7 @@ class ilMaterializedPathTree implements ilTreeImplementation
         $depth_first_compare = static function ($a, $b) {
             $a_exploded = explode('.', $a['path']);
             $b_exploded = explode('.', $b['path']);
-            
+
             $a_padded = '';
             foreach ($a_exploded as $num) {
                 $a_padded .= (str_pad((string) $num, 14, '0', STR_PAD_LEFT));
@@ -635,4 +652,21 @@ class ilMaterializedPathTree implements ilTreeImplementation
         }
         return $failures;
     }
+
+    // fau: treeQuery - new function getGrandChildCondition()
+    /**
+     * Get an SQL condition for selecting grand childs of a node
+     * this is used by ilUtil::_getObjectsByOperations()
+     * @param array		$node data
+     * @param string	$a_alias for the tree table
+     * @return string	sql condition
+     */
+    public function getGrandChildCondition($node, $a_alias = "tree")
+    {
+        global $ilDB;
+
+        return '(' . $a_alias . '.path BETWEEN ' . $ilDB->quote($node['path'], 'text') . ' AND ' . $ilDB->quote($node['path'] . '.Z', 'text')
+        . ' AND ' . $a_alias . '.child != ' . $ilDB->quote($node['child'], 'integer') . ')';
+    }
+    // fau.
 }

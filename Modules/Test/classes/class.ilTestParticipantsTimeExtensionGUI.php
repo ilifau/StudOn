@@ -96,8 +96,14 @@ class ilTestParticipantsTimeExtensionGUI
         
         include_once "./Modules/Test/classes/tables/class.ilTimingOverviewTableGUI.php";
         $tableGUI = new ilTimingOverviewTableGUI($this, self::CMD_SHOW_LIST);
-        $tableGUI->addCommandButton(self::CMD_SHOW_FORM, $DIC->language()->txt('timing'));
 
+        // fau: showOnlyExtraTimes - move add command to toolbar
+        $button = ilLinkButton::getInstance();
+        $button->setUrl($DIC->ctrl()->getLinkTarget($this, self::CMD_SHOW_FORM));
+        $button->setCaption('timing');
+        $DIC->toolbar()->addButtonInstance($button);
+        //$tableGUI->addCommandButton(self::CMD_SHOW_FORM, $DIC->language()->txt('timing'));
+        // fau.
         
         require_once 'Modules/Test/classes/class.ilTestParticipantList.php';
         $participantList = new ilTestParticipantList($this->getTestObj());
@@ -111,6 +117,11 @@ class ilTestParticipantsTimeExtensionGUI
         
         $tableData = array();
         foreach ($participantList as $participant) {
+            // fau: showOnlyExtraTimes - don't list participants without extra times
+            if ((int) $addons[$participant->getActiveId()] <= 0) {
+                continue;
+            }
+            // fau.
             $tblRow = array();
 
             $time = $this->getTestObj()->getStartingTimeOfUser($participant->getActiveId());

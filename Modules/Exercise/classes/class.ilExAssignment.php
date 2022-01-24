@@ -53,7 +53,17 @@ class ilExAssignment
      * @deprecated
      */
     const TYPE_WIKI_TEAM = 6;
-    
+
+    // fau: exAssHook - dummy type id for inactive type
+    const TYPE_INACTIVE = -1;
+    // fau.
+
+    // fau: exAssTest - type for test results
+    const TYPE_TEST_RESULT = 11;
+    const TYPE_TEST_RESULT_TEAM = 12;
+    // fau.
+
+
     const FEEDBACK_DATE_DEADLINE = 1;
     const FEEDBACK_DATE_SUBMISSION = 2;
     const FEEDBACK_DATE_CUSTOM = 3;
@@ -70,11 +80,17 @@ class ilExAssignment
     const DEADLINE_ABSOLUTE = 0;
     const DEADLINE_RELATIVE = 1;
 
-    
+
     protected $id;
     protected $exc_id;
     protected $type;
     protected $start_time;
+    // fau: exGradeTime - class variable
+    protected $grade_start;
+    // fau.
+    // fau: exResTime - class variable
+    protected $result_time;
+    // fau.
     protected $deadline;
     protected $deadline2;
     protected $instruction;
@@ -97,7 +113,32 @@ class ilExAssignment
     protected $feedback_date;
     protected $feedback_date_custom;
     protected $team_tutor = false;
+    // fau: exTeamLimit - class variable
+    protected $max_team_members;
+    // fau.
     protected $max_file;
+
+    // fau: exFileSuffixes - variables for allowed suffixes
+    protected $file_suffixes = [];
+    protected $file_suffixes_case = false;
+    // fau.
+
+    // fau: exMaxPoints - class variable
+    protected $max_points;
+    // fau.
+
+    // fau: exStatement - class variable
+    public $require_authorship_statement = false;
+    // fau.
+
+    // fau: exMultiFeedbackStructure - variable that indicates that a submission download is uploaded for multi feedback
+    protected $multi_feedback_by_submissions_download = false;
+    // fau.
+
+    // fau: exStatusFile - class variable
+    /** @var ilExAssignmentStatusFile */
+    protected $status_file;
+    // fau.
 
     protected $portfolio_template;
     protected $min_char_limit;
@@ -118,7 +159,7 @@ class ilExAssignment
      * @var
      */
     protected $rel_deadline_last_subm;
-    
+
     protected $member_status = array(); // [array]
 
     protected $log;
@@ -176,6 +217,33 @@ class ilExAssignment
         
         return $data;
     }
+
+    // fau: exAssHook - new function getInstancesForGrading()
+    // fau: exAssTest - new function getInstancesForGrading()
+    // fau: exGradeTime - new function getInstancesForGrading()
+    /**
+     * Get the assignments that are allowed for grading
+     * @param int $a_exc_id
+     * @return ilExAssignment[]
+     */
+    public static function getInstancesForGrading($a_exc_id) {
+        /** @var ilExAssignment[] $assignments */
+        $assignments = self::getInstancesByExercise($a_exc_id);
+        $allowed = [];
+        foreach ($assignments as $ass) {
+
+            $type = $ass->getAssignmentType();
+            if (!$type->isManualGradingSupported($ass)) {
+                    continue;
+            }
+
+            if ($ass->checkInGradeTime() ||ilObjExerciseAccess::checkExtendedGradingAccess($a_exc_id, false)) {
+                $allowed[] = $ass;
+            }
+        }
+        return $allowed;
+    }
+    // fau.
 
     /**
      * @param array $a_file_data
@@ -339,7 +407,7 @@ class ilExAssignment
     {
         $this->rel_deadline_last_subm = $a_val;
     }
-    
+
     /**
      * Get relative deadline last submission
      *
@@ -349,8 +417,8 @@ class ilExAssignment
     {
         return $this->rel_deadline_last_subm;
     }
-    
-    
+
+
     /**
      * Get individual deadline (max of common or idl (team) deadline = Official Deadline)
      * @param int $a_user_id
@@ -419,6 +487,62 @@ class ilExAssignment
         return $this->deadline2;
     }
 
+    // fau: exResTime - get/set the result time
+    /**
+     * Set result time (timestamp)
+     *
+     * @param	int		result time (timestamp)
+     */
+    public function setResultTime($a_val)
+    {
+        $this->result_time = $a_val;
+    }
+
+    /**
+     * Get result time (timestamp)
+     *
+     * @return	int		result time (timestamp)
+     */
+    public function getResultTime()
+    {
+        return $this->result_time;
+    }
+    // fau.
+
+    // fau: exGradeTime - get/set and check the grade time
+    /**
+     * Set the grading start (timestamp)
+     *
+     * @param	int		grading start (timestamp)
+     */
+    public function setGradeStart($a_val)
+    {
+        $this->grade_start = $a_val;
+    }
+
+    /**
+     * get the grading start (timestamp)
+     *
+     * @return	int		grading start (timestamp)
+     */
+    public function getGradeStart()
+    {
+        return $this->grade_start;
+    }
+
+    /**
+     *  Check if the grading is allowed
+     */
+    public function checkInGradeTime()
+    {
+        if (!empty($this->grade_start)) {
+            return $this->grade_start <= time();
+        }
+        return true;
+    }
+    // fau.
+
+
     /**
      * Set instruction
      *
@@ -447,6 +571,11 @@ class ilExAssignment
     public function getInstructionPresentation()
     {
         $inst = $this->getInstruction();
+
+        // fau: exInstRte - process latex
+        $inst = ilUtil::prepareTextareaOutput($inst, true);
+        // fau.
+
         if (trim($inst)) {
             $is_html = (strlen($inst) != strlen(strip_tags($inst)));
             if (!$is_html) {
@@ -476,6 +605,30 @@ class ilExAssignment
     {
         return $this->title;
     }
+
+    // fau: exMaxPoints - new function getTitleWithInfo()
+    // fau: exResTime - add parameter for result time
+    /**
+     * Get the title with basic info in parenthesis
+     * @param $a_with_result_time
+     * @return string
+     */
+    public function getTitleWithInfo($a_with_result_time = false) {
+        $title_infos = [];
+        if ($this->getMandatory()) {
+            $title_infos[] = $this->lng->txt("exc_mandatory");
+        }
+        if ($this->getMaxPoints()) {
+            $title_infos[] = sprintf($this->lng->txt('exc_max_x_points'), $this->getMaxPoints());
+        }
+        if ($this->getResultTime() && $a_with_result_time) {
+            $title_infos[] = $this->lng->txt('exc_result_time') . ' ' . ilDatePresentation::formatDate(new ilDateTime($this->getResultTime(), IL_CAL_UNIX));
+        }
+        $suffix = empty($title_infos) ? '' : ' (' . implode(', ', $title_infos) . ')';
+
+        return $this->getTitle() . $suffix;
+    }
+    // fau.
 
     /**
      * Set mandatory
@@ -920,7 +1073,47 @@ class ilExAssignment
     {
         return $this->team_tutor;
     }
-    
+
+    // fau: exTeamLimit - getter and setter
+    /**
+     * Set maximum team members
+     *
+     * @param int|null $a_value
+     */
+    public function setMaxTeamMembers($a_value)
+    {
+        if ($a_value !== null && $a_value > 0) {
+            $a_value = (int) $a_value;
+        }
+        elseif ($a_value == 0) {
+            $a_value = null;
+        }
+        $this->max_team_members = $a_value;
+    }
+
+    /**
+     * Get maximum team members
+     *
+     * @return int|null
+     */
+    public function getMaxTeamMembers()
+    {
+        return $this->max_team_members;
+    }
+
+    /**
+     * Check if max team members is reached
+     * @param $members
+     * @return bool
+     */
+    public function isMaxTeamMembersReached($members) {
+        if (isset($this->max_team_members)) {
+            return $members >= $this->max_team_members;
+        }
+        return false;
+    }
+    // fau.
+
     /**
      * Set max number of uploads
      *
@@ -933,7 +1126,7 @@ class ilExAssignment
         }
         $this->max_file = $a_value;
     }
-    
+
     /**
      * Get max number of uploads
      *
@@ -943,6 +1136,220 @@ class ilExAssignment
     {
         return $this->max_file;
     }
+
+
+    // fau: exMaxPoints - getter, setter and check
+    /**
+     * Set maximum points
+     *
+     * @param float|null $a_value
+     */
+    public function setMaxPoints($a_value)
+    {
+        if ($a_value !== null) {
+            $a_value = (float) $a_value;
+        }
+        $this->max_points = $a_value;
+    }
+
+    /**
+     * Get maximum points
+     *
+     * @return float|null
+     */
+    public function getMaxPoints()
+    {
+        return $this->max_points;
+    }
+
+    /**
+     * Get if the mark/points are numeric
+     * @return bool
+     */
+    public function hasNumericPoints()
+    {
+        return isset($this->max_points);
+    }
+
+    /**
+     * Check if a mark is allowed
+     * @param $a_mark
+     * @return bool
+     */
+    public function checkMark($a_mark) {
+        if (empty($a_mark)) {
+            return true;
+        }
+        if ($this->hasNumericPoints()) {
+            if (!is_numeric($a_mark)) {
+                return false;
+            }
+            if ((float) $a_mark < 0) {
+                return false;
+            }
+            if ((float) $a_mark > $this->max_points) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Check if a mark is allowed
+     * @param $a_mark
+     * @return bool
+     */
+    public function adjustMark($a_mark) {
+        if (empty($a_mark)) {
+            return $a_mark;
+        }
+        if (isset($this->max_points)) {
+            if (!is_numeric($a_mark)) {
+                return null;
+            }
+            if ((float) $a_mark < 0) {
+                return 0;
+            }
+            if ((float) $a_mark > $this->max_points) {
+                return $this->max_points;
+            }
+        }
+        return $a_mark;
+    }
+    // fau.
+
+
+    // fau: exStatement - new function requireAuthorshipStatement()
+    /**
+     * Set requirement of an authorship statement
+     * @param bool $require
+     */
+    public function requireAuthorshipStatement($require) {
+        $this->require_authorship_statement = (bool) $require;
+    }
+    // fau.
+
+    // fau: exStatement - new function isAuthorshipStatementRequired()
+    /**
+     * Get requirement of an authorship statement
+     * @return bool
+     */
+    public function isAuthorshipStatementRequired() {
+        return (bool) $this->require_authorship_statement;
+    }
+    // fau.
+
+
+
+    // fau: exFileSuffixes - getters and setters and check
+
+    /**
+     * Set the allowed file suffixes
+     * Dots, commas and spaces will be removed
+     * @param string[] $suffixes
+     */
+    public function setFileSuffixes($suffixes)
+    {
+        $this->file_suffixes = [];
+        foreach ((array) $suffixes as $suffix) {
+            $suffix = str_replace(' ', '', $suffix);
+            $suffix = str_replace('.', '', $suffix);
+            $suffix = str_replace(',', '', $suffix);
+            $suffix=trim($suffix);
+            if (!empty($suffix)) {
+                $this->file_suffixes[] = $suffix;
+            }
+        }
+        $this->file_suffixes = array_unique($this->file_suffixes);
+    }
+
+    /**
+     * Get the allowed file suffixes
+     * @return string[]
+     */
+    public function getFileSuffixes()
+    {
+        return $this->file_suffixes;
+    }
+
+    /**
+     * Set the list of allowed suffixes as a comma separated List
+     * Dots, commas and spaces will be removed
+     * @param string  $list
+     */
+    public function setFileSuffixesAsList($list)
+    {
+        $this->setFileSuffixes(explode(',', $list));
+    }
+
+    /**
+     * Get the list of allowed suffixes as a comma separated List
+     * @return string
+     */
+    public function getFileSuffixesAsList()
+    {
+         return implode(', ', $this->file_suffixes);
+    }
+
+    /**
+     * Set the case sensitivity of the file suffixes
+     * @param boolean $case
+     */
+    public function setFileSuffixesCase($case) {
+        $this->file_suffixes_case = (bool) $case;
+    }
+
+    /**
+     * Get the case sensitivity of the file suffixes
+     * @return boolean
+     */
+    public function getFileSuffixesCase() {
+        return $this->file_suffixes_case;
+    }
+
+    /**
+     * Get the info string for allowed file suffixes
+     * @return string
+     */
+    public function getFileSuffixesInfo()
+    {
+        global $DIC;
+        $lng = $DIC->language();
+
+        if (empty($this->file_suffixes)) {
+            return '';
+        }
+
+        $suffixes = [];
+        foreach ($this->file_suffixes as $suffix) {
+            $suffixes[] = '.' . $suffix;
+        }
+
+        $case = $lng->txt($this->file_suffixes_case ?  'exc_file_suffixes_case_checked' : 'exc_file_suffixes_case_ignored');
+        return  implode(', ', $suffixes) . ' (' . $case . ')';
+    }
+
+
+    /**
+     * Check a file suffix
+     * @param string $suffix
+     * @return boolean
+     */
+    public function checkFileSuffix($suffix) {
+        if ($this->file_suffixes_case) {
+            return in_array($suffix, $this->file_suffixes);
+        }
+        else {
+            foreach ($this->file_suffixes as $allowed) {
+                if (strtolower($suffix) == strtolower($allowed)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    // fau.
+
 
     /**
      * Set portfolio template id
@@ -996,11 +1403,23 @@ class ilExAssignment
         $this->setExerciseId($a_set["exc_id"]);
         $this->setDeadline($a_set["time_stamp"]);
         $this->setExtendedDeadline($a_set["deadline2"]);
+        // fau: exGradeTime - read the grade time from the database
+        $this->setGradeStart($a_set["grade_start"]);
+        // fau.
+        // fau: exResTime - read the result time from the database
+        $this->setResultTime($a_set["res_time"]);
+        // fau.
         $this->setInstruction($a_set["instruction"]);
         $this->setTitle($a_set["title"]);
         $this->setStartTime($a_set["start_time"]);
         $this->setOrderNr($a_set["order_nr"]);
         $this->setMandatory($a_set["mandatory"]);
+        // fau: exMaxPoints - read the max points
+        $this->setMaxPoints($a_set["max_points"]);
+        // fau.
+        // fau: exStatement - set requirement from DB
+        $this->requireAuthorshipStatement($a_set["require_authorship_statement"]);
+        // fau.
         $this->setType($a_set["type"]);
         $this->setPeerReview($a_set["peer"]);
         $this->setPeerReviewMin($a_set["peer_min"]);
@@ -1018,7 +1437,14 @@ class ilExAssignment
         $this->setFeedbackDateCustom($a_set["fb_date_custom"]);
         $this->setFeedbackCron($a_set["fb_cron"]);
         $this->setTeamTutor($a_set["team_tutor"]);
+        // fau: exTeamLimit - read the max team members
+        $this->setMaxTeamMembers($a_set["max_team_members"]);
+        // fau.
         $this->setMaxFile($a_set["max_file"]);
+        // fau: exFileSuffixes - read the file suffixes from the database
+        $this->setFileSuffixesAsList($a_set["file_suffixes"]);
+        $this->setFileSuffixesCase($a_set["file_suffixes_case"]);
+        // fau.
         $this->setPortfolioTemplateId($a_set["portfolio_template"]);
         $this->setMinCharLimit($a_set["min_char_limit"]);
         $this->setMaxCharLimit($a_set["max_char_limit"]);
@@ -1050,8 +1476,20 @@ class ilExAssignment
             "instruction" => array("clob", $this->getInstruction()),
             "title" => array("text", $this->getTitle()),
             "start_time" => array("integer", $this->getStartTime()),
+            // fau: exGradeTime - save the grade start to the database
+            "grade_start" => array("integer", $this->getGradeStart()),
+            // fau.
+            // fau: exResTime - save the result time to the database
+            "res_time" => array("integer", $this->getResultTime()),
+            // fau.
             "order_nr" => array("integer", $this->getOrderNr()),
             "mandatory" => array("integer", $this->getMandatory()),
+            // fau: exMaxPoints - save the max points
+            "max_points" => array("float", $this->getMaxPoints()),
+            // fau.
+            // fau: exStatement - save the requirement in db
+            'require_authorship_statement' => array('integer', $this->isAuthorshipStatementRequired()),
+            // fau.
             "type" => array("integer", $this->getType()),
             "peer" => array("integer", $this->getPeerReview()),
             "peer_min" => array("integer", $this->getPeerReviewMin()),
@@ -1069,7 +1507,14 @@ class ilExAssignment
             "fb_date_custom" => array("integer", $this->getFeedbackDateCustom()),
             "fb_cron" => array("integer", $this->hasFeedbackCron()),
             "team_tutor" => array("integer", $this->getTeamTutor()),
+            // fau: exTeamLimit - save the max team members
+            "max_team_members" => array("float", $this->getMaxTeamMembers()),
+            // fau.
             "max_file" => array("integer", $this->getMaxFile()),
+            // fau: exFileSuffixes - save the file suffixes in the database
+            "file_suffixes" => array("text", $this->getFileSuffixesAsList()),
+            "file_suffixes_case" => array("integer", $this->getFileSuffixesCase()),
+            // fau.
             "portfolio_template" => array("integer", $this->getPortFolioTemplateId()),
             "min_char_limit" => array("integer", $this->getMinCharLimit()),
             "max_char_limit" => array("integer", $this->getMaxCharLimit()),
@@ -1101,8 +1546,20 @@ class ilExAssignment
             "instruction" => array("clob", $this->getInstruction()),
             "title" => array("text", $this->getTitle()),
             "start_time" => array("integer", $this->getStartTime()),
+            // fau: exGradeTime - update the grading time in the database
+            "grade_start" => array("integer", $this->getGradeStart()),
+            // fau.
+            // fau: exResTime - update the result time in the database
+            "res_time" => array("integer", $this->getResultTime()),
+            // fau.
             "order_nr" => array("integer", $this->getOrderNr()),
             "mandatory" => array("integer", $this->getMandatory()),
+            // fau: exMaxPoints - update the max points in the database
+            "max_points" => array("float", $this->getMaxPoints()),
+            // fau.
+            // fau: exStatement - update requirement in db
+            'require_authorship_statement' => array('integer', $this->isAuthorshipStatementRequired()),
+            // fau.
             "type" => array("integer", $this->getType()),
             "peer" => array("integer", $this->getPeerReview()),
             "peer_min" => array("integer", $this->getPeerReviewMin()),
@@ -1120,7 +1577,14 @@ class ilExAssignment
             "fb_date_custom" => array("integer", $this->getFeedbackDateCustom()),
             "fb_cron" => array("integer", $this->hasFeedbackCron()),
             "team_tutor" => array("integer", $this->getTeamTutor()),
+            // fau: exTeamLimit - update the max team members in the database
+            "max_team_members" => array("int", $this->getMaxTeamMembers()),
+            // fau.
             "max_file" => array("integer", $this->getMaxFile()),
+            // fau: exFileSuffixes - update the file suffixes in the database
+            "file_suffixes" => array("text", $this->getFileSuffixesAsList()),
+            "file_suffixes_case" => array("integer", $this->getFileSuffixesCase()),
+            // fau.
             "portfolio_template" => array("integer", $this->getPortFolioTemplateId()),
             "min_char_limit" => array("integer", $this->getMinCharLimit()),
             "max_char_limit" => array("integer", $this->getMaxCharLimit()),
@@ -1158,6 +1622,15 @@ class ilExAssignment
 
         $reminder = new ilExAssignmentReminder();
         $reminder->deleteReminders($this->getId());
+
+        // fau: exAssTest - cleanup test relationship
+        if ($this->getType() == self::TYPE_TEST_RESULT || $this->getType() == self::TYPE_TEST_RESULT_TEAM)
+        {
+            require_once("./Modules/Exercise/AssignmentTypes/classes/class.ilExAssTypeTestResultAssignment.php");
+            $assTest = ilExAssTypeTestResultAssignment::findOrGetInstance($this->getId());
+            $assTest->delete();
+        }
+        // fau.
     }
     
     
@@ -1187,6 +1660,12 @@ class ilExAssignment
                 "instruction" => $rec["instruction"],
                 "title" => $rec["title"],
                 "start_time" => $rec["start_time"],
+                // fau: exGradeTime - add grade_start to assignments data
+                "grade_start" => $rec["grade_start"],
+                // fau.
+                // fau: exResTime - add result time to assignments data
+                "res_time" => $rec["res_time"],
+                // fau.
                 "order_val" => $order_val,
                 "mandatory" => $rec["mandatory"],
                 "type" => $rec["type"],
@@ -1220,12 +1699,24 @@ class ilExAssignment
             $new_ass = new ilExAssignment();
             $new_ass->setExerciseId($a_new_exc_id);
             $new_ass->setTitle($d->getTitle());
+            // fau: exMaxPoints - clone max points
+            $new_ass->setMaxPoints($d->getMaxPoints());
+            // fau.
+            // fau: exStatement - clone requirement
+            $new_ass->requireAuthorshipStatement($d->isAuthorshipStatementRequired());
+            // fau.
             $new_ass->setDeadline($d->getDeadline());
             $new_ass->setExtendedDeadline($d->getExtendedDeadline());
             $new_ass->setInstruction($d->getInstruction());
             $new_ass->setMandatory($d->getMandatory());
             $new_ass->setOrderNr($d->getOrderNr());
             $new_ass->setStartTime($d->getStartTime());
+            // fau: exGradeTime - clone grade time
+            $new_ass->setGradeStart($d->getGradeStart());
+            // fau.
+            // fau: exResTime - clone result time
+            $new_ass->setResultTime($d->getResultTime());
+            // fau.
             $new_ass->setType($d->getType());
             $new_ass->setPeerReview($d->getPeerReview());
             $new_ass->setPeerReviewMin($d->getPeerReviewMin());
@@ -1243,7 +1734,14 @@ class ilExAssignment
             $new_ass->setFeedbackDateCustom($d->getFeedbackDateCustom());
             $new_ass->setFeedbackCron($d->hasFeedbackCron()); // #16295
             $new_ass->setTeamTutor($d->getTeamTutor());
+            // fau: exTeamLimit - clone max team members
+            $new_ass->setMaxTeamMembers($d->getMaxTeamMembers());
+            // fau.
             $new_ass->setMaxFile($d->getMaxFile());
+            // fau: exFileSuffixes - clone settings
+            $new_ass->setFileSuffixes($d->getFileSuffixes());
+            $new_ass->setFileSuffixesCase($d->getFileSuffixesCase());
+            // fau.
             $new_ass->setMinCharLimit($d->getMinCharLimit());
             $new_ass->setMaxCharLimit($d->getMaxCharLimit());
             $new_ass->setPortfolioTemplateId($d->getPortfolioTemplateId());
@@ -1592,7 +2090,7 @@ class ilExAssignment
                 "firstname" => $rec["firstname"]
                 );
         }
-        
+
         $q = "SELECT * FROM exc_mem_ass_status " .
             "WHERE ass_id = " . $ilDB->quote($this->getId(), "integer");
         $set = $ilDB->query($q);
@@ -1607,6 +2105,16 @@ class ilExAssignment
                 $mem[$rec["usr_id"]]["notice"] = $rec["notice"];
                 $mem[$rec["usr_id"]]["status"] = $rec["status"];
                 $mem[$rec["usr_id"]]["mark"] = $rec["mark"];
+                // fau: exMaxPoints - add max_points to the member list data
+                $mem[$rec["usr_id"]]["max_points"] = $this->getMaxPoints();
+                // fau.
+                // fau: exStatement - add statement time to the member list data
+                $mem[$rec["usr_id"]]["time_authorship_statement"] = $rec["time_authorship_statement"];
+                // fau.
+                // fau: exPlag - add plagiarism info to member list data
+                $mem[$rec["usr_id"]]["plag_flag"] = $rec["plag_flag"];
+                $mem[$rec["usr_id"]]["plag_comment"] = $rec["plag_comment"];
+                // fau.
                 $mem[$rec["usr_id"]]["comment"] = $rec["u_comment"];
             }
         }
@@ -1681,7 +2189,7 @@ class ilExAssignment
         global $DIC;
 
         $ilDB = $DIC->database();
-        
+
         $exmem = new ilExerciseMembers($a_exc);
         $mems = $exmem->getMembers();
 
@@ -1745,19 +2253,50 @@ class ilExAssignment
             $exercise->getRefId(),
             $mems
         );
-        foreach ($mems as $mem) {
-            $name = ilObjUser::_lookupName($mem);
-            $subdir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
-            $subdir = ilUtil::getASCIIFilename($subdir);
-            ilUtil::makeDir($mfdir . "/" . $subdir);
+
+        // fau: exMultiFeedbackStructure - create structure for teams
+        if ($this->getAssignmentType()->usesTeams()) {
+            /** @var ilExAssignmentTeam[] $teams */
+            $teams = ilExAssignmentTeam::getInstancesFromMap($this->getId());
+            foreach ($teams as $team_id => $team) {
+                $team_dir = $this->lng->txt("exc_team") . " " . $team_id;
+                ilUtil::makeDir($mfdir . "/" . $team_dir);
+
+                if (!$this->getAssignmentType()->isSubmissionAssignedToTeam() && count(array_intersect($team->getMembers(), $mems)) > 0) {
+                    foreach ($team->getMembers() as $mem) {
+                        $name = ilObjUser::_lookupName($mem);
+                        $subdir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
+                        $subdir = ilUtil::getASCIIFilename($subdir);
+                        ilUtil::makeDir($mfdir . "/" . $team_dir . "/" . $subdir);
+                    }
+                }
+            }
         }
-        
+        else {
+            foreach ($mems as $mem) {
+                $name = ilObjUser::_lookupName($mem);
+                $subdir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
+                $subdir = ilUtil::getASCIIFilename($subdir);
+                ilUtil::makeDir($mfdir . "/" . $subdir);
+            }
+        }
+        // fau.
+
+        // fau: exStatusFile - write the status files
+        $status = $this->getStatusFile();
+        $status->init($this, $mems);
+        $status->setFormat(ilExAssignmentStatusFile::FORMAT_XML);
+        $status->writeToFile($mfdir . '/'. $status->getFilename());
+        $status->setFormat(ilExAssignmentStatusFile::FORMAT_CSV);
+        $status->writeToFile($mfdir . '/'. $status->getFilename());
+        // fau.
+
         // create the zip file
         chdir($tmpdir);
         $tmpzipfile = $tmpdir . "/multi_feedback.zip";
         ilUtil::zip($tmpdir, $tmpzipfile, true);
         chdir($cdir);
-        
+
 
         ilUtil::deliverFile($tmpzipfile, $deliverFilename . ".zip", "", false, true);
     }
@@ -1772,15 +2311,18 @@ class ilExAssignment
     {
         $lng = $this->lng;
         $ilUser = $this->user;
-        
+
         if (!is_file($a_file["tmp_name"])) {
             throw new ilExerciseException($lng->txt("exc_feedback_file_could_not_be_uploaded"));
         }
-        
+
         $storage = new ilFSStorageExercise($this->getExerciseId(), $this->getId());
         $mfu = $storage->getMultiFeedbackUploadPath($ilUser->getId());
         ilUtil::delDir($mfu, true);
         ilUtil::moveUploadedFile($a_file["tmp_name"], "multi_feedback.zip", $mfu . "/" . "multi_feedback.zip");
+        // fau: fixUnzipEncoding - enable fix
+        ilUtil::enableUnzipEncodingFix();
+        // fau.
         ilUtil::unzip($mfu . "/multi_feedback.zip", true);
         $subdirs = ilUtil::getDir($mfu);
         $subdir = "notfound";
@@ -1789,6 +2331,12 @@ class ilExAssignment
                 $subdir = $s;
             }
         }
+
+        // fau: exMultiFeedbackStructure - search forsubdir
+        if ($subdir == "notfound") {
+            $subdir = $this->getMultiFeedbackBySubmissionsSubDirectory($mfu, 'notfound');
+        }
+        // fau.
 
         if (!is_dir($mfu . "/" . $subdir)) {
             throw new ilExerciseException($lng->txt("exc_no_feedback_dir_found_in_zip"));
@@ -1830,7 +2378,83 @@ class ilExAssignment
                 $subdir = $s;
             }
         }
-        
+
+        // fau: exMultiFeedbackStructure - search for subdir
+        if ($subdir == "notfound") {
+            $subdir = $this->getMultiFeedbackBySubmissionsSubDirectory($mfu, 'notfound');
+        }
+        // fau.
+
+
+        // fau: exStatusFile - load the file
+        $status_file = $this->getStatusFile();
+        $status_file->init($this, $mems);
+
+        // first look in excel
+        $status_file->setFormat(ilExAssignmentStatusFile::FORMAT_XML);
+        $status_file->loadFromFile($mfu . '/' . $subdir . '/' . $status_file->getFilename());
+
+        // then look in csv if excel has no updates
+        // but keep excel if an error was produced
+        if (!$status_file->hasError() && !$status_file->hasUpdates()) {
+            $status_file->setFormat(ilExAssignmentStatusFile::FORMAT_CSV);
+            $status_file->loadFromFile($mfu . '/' . $subdir . '/' . $status_file->getFilename());
+        }
+        // fau.
+
+        // fau: exMultiFeedbackStructure - read feedback files from teams
+        if ($this->getAssignmentType()->usesTeams()) {
+            /** @var ilExAssignmentTeam[] $teams */
+            $teams = ilExAssignmentTeam::getInstancesFromMap($this->getId());
+            foreach ($teams as $team_id => $team) {
+                $team_dir = $mfu . "/" . $subdir . "/" .  $this->lng->txt("exc_team") . " " . $team_id;
+                $members = [];
+                foreach ($team->getMembers() as $user_id) {
+                    $name = ilObjUser::_lookupName($user_id);
+                    $members[] = $name;
+                }
+
+                // add the feedback files in the team folder
+                if (is_dir($team_dir)) {
+                    foreach (ilUtil::getDir($team_dir) as $filename => $item) {
+                        if ($item['type'] == "file" && substr($filename, 0, 1) != ".") {
+                            $mf_files[] = [
+                                'team_id' => $team_id,
+                                'members' => $members,
+                                "full_path" => $team_dir . "/" . $filename,
+                                "folder" => '',
+                                "file" => $filename
+                            ];
+                        }
+                    }
+                }
+
+                // add the feedback files in folders of team members
+                foreach ($members as $name) {
+                    $mem_dir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
+                    $mem_dir = ilUtil::getASCIIFilename($mem_dir);
+
+                    if (is_dir($team_dir . "/" . $mem_dir)) {
+                        foreach (ilUtil::getDir($team_dir . "/" . $mem_dir) as $filename => $item) {
+                            if ($item['type'] == "file" && substr($filename, 0, 1) != ".") {
+                                $mf_files[] = [
+                                    'team_id' => $team_id,
+                                    'members' => $members,
+                                    "full_path" => $team_dir . "/" . $mem_dir . "/" . $filename,
+                                    "folder" => $mem_dir,
+                                    "file" => $filename
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+
+            return $mf_files;
+        }
+        // fau.
+
+
         $items = ilUtil::getDir($mfu . "/" . $subdir);
         foreach ($items as $k => $i) {
             // check directory
@@ -1859,7 +2483,59 @@ class ilExAssignment
         }
         return $mf_files;
     }
-    
+
+    // fau: exMultiFeedbackStructure - new function getMultiFeedbackBySubmissionsSubDirectory
+    /**
+     * Get the sub directory for multi feedback if the zip from the submissions download is used
+     * @param string    $mfu    multi feedback upload path
+     * @param string    $notfound   return value if the directory is not found
+     * @return string           sub directory (or path) or empty if not found
+     */
+    protected function getMultiFeedbackBySubmissionsSubDirectory($mfu, $notfound) {
+
+        $download_name = ilUtil::getASCIIFilename(ilExAssignment::lookupTitle($this->getId()));
+
+        if (is_dir($mfu . '/' . $download_name)) {
+            $subdirs = ilUtil::getDir($mfu . '/' . $download_name);
+            foreach ($subdirs as $s => $j) {
+                if ($j["type"] == "dir" && $s == $this->lng->txt('exc_ass_submission_zip')) {
+                    $this->multi_feedback_by_submissions_download = true;
+                    return $download_name . '/' . $s;
+                }
+            }
+        }
+
+        return $notfound;
+    }
+
+
+    // fau: exMultiFeedbackStructure - new function isMultiFeedbackBySubmissionsDownload()
+    /**
+     * Get if multi feedback is done with a zip from the submissions download
+     * IMPORTANT: Must be called after uploadMultiFeedbackFile() or getMultiFeedbackFiles()
+     * @return bool
+     */
+    public function isMultiFeedbackBySubmissionsDownload() {
+        return (bool) $this->multi_feedback_by_submissions_download;
+    }
+    // fau.
+
+    // fau: exStatusFile - get the file after reading
+    /**
+     * Get the status file
+     * @return ilExAssignmentStatusFile
+     */
+    public function getStatusFile() {
+        if (!isset($this->status_file)) {
+            require_once (__DIR__ . '/class.ilExAssignmentStatusFile.php');
+            $this->status_file = new ilExAssignmentStatusFile();
+
+        }
+        return $this->status_file;
+    }
+    // fau.
+
+
     /**
      * Clear multi feedback directory
      *
@@ -1870,7 +2546,7 @@ class ilExAssignment
     {
         $lng = $this->lng;
         $ilUser = $this->user;
-        
+
         $storage = new ilFSStorageExercise($this->getExerciseId(), $this->getId());
         $mfu = $storage->getMultiFeedbackUploadPath($ilUser->getId());
         ilUtil::delDir($mfu);
@@ -1887,7 +2563,7 @@ class ilExAssignment
         if ($this->getExerciseId() != $a_exc->getId()) {
             return;
         }
-        
+
         $fstorage = new ilFSStorageExercise($this->getExerciseId(), $this->getId());
         $fstorage->create();
         
@@ -1914,13 +2590,15 @@ class ilExAssignment
                     // rename file
                     rename($file_path, $target);
                                         
-                    if ($noti_rec_ids) {
+                    // fau: exResTime - prevent sending of multi feedback notification
+                    if ($noti_rec_ids and (int) $this->getResultTime() <= time()) {
+                        // fau.
                         foreach ($noti_rec_ids as $user_id) {
                             $member_status = $this->getMemberStatus($user_id);
                             $member_status->setFeedback(true);
                             $member_status->update();
                         }
-                        
+
                         $a_exc->sendFeedbackFileNotification(
                             $file_name,
                             $noti_rec_ids,
@@ -1930,13 +2608,78 @@ class ilExAssignment
                 }
             }
         }
-        
+
         $this->clearMultiFeedbackDirectory();
     }
-    
-    
-    
-    
+
+
+    /**
+     * Save multi feedback files
+     *
+     * @param
+     * @return
+     */
+    public function saveMultiFeedbackFilesTeam($a_files, ilObjExercise $a_exc)
+    {
+        if ($this->getExerciseId() != $a_exc->getId()) {
+            return;
+        }
+
+        $fstorage = new ilFSStorageExercise($this->getExerciseId(), $this->getId());
+        $fstorage->create();
+
+        $mf_files = $this->getMultiFeedbackFiles();
+        foreach ($mf_files as $f) {
+            $team_id = $f["team_id"];
+            $members = $f["members"];
+            $file_path = $f["full_path"];
+            $file_name = $f["file"];
+            $folder = $f["folder"];
+
+            // if checked in confirmation gui
+            if ($a_files[$team_id][md5($folder . '/' . $file_name)] != "") {
+                $submission = new ilExSubmission($this, $members[0]['user_id']);
+                $feedback_id = $submission->getFeedbackId();
+                $noti_rec_ids = $submission->getUserIds();
+
+                if ($feedback_id) {
+                    $fb_path = $fstorage->getFeedbackPath($feedback_id);
+
+                    // keep the folder structure of uploaded feedback files
+                    $target_dir = $fb_path . "/" . ($folder ? '/' . $folder : '');
+                    $target = $target_dir . "/" . $file_name;
+                    if (!is_dir($target_dir)) {
+                        ilUtil::makeDirParents($target_dir)   ;
+                    }
+                    if (is_file($target)) {
+                        unlink($target);
+                    }
+                    // rename file
+                    rename($file_path, $target);
+
+                    // fau: exResTime - prevent sending of multi feedback notification
+                    if ($noti_rec_ids and (int) $this->getResultTime() <= time()) {
+                        // fau.
+                        foreach ($noti_rec_ids as $user_id) {
+                            $member_status = $this->getMemberStatus($user_id);
+                            $member_status->setFeedback(true);
+                            $member_status->update();
+                        }
+
+                        $a_exc->sendFeedbackFileNotification(
+                            $file_name,
+                            $noti_rec_ids,
+                            (int) $this->getId()
+                        );
+                    }
+                }
+            }
+        }
+
+        $this->clearMultiFeedbackDirectory();
+    }
+
+
     /**
      * Handle calendar entries for deadline(s)
      *
@@ -1979,7 +2722,7 @@ class ilExAssignment
                 $apps[] = $app;
             }
         }
-                
+
         $exc = new ilObjExercise($this->getExerciseId(), false);
         
         $ilAppEventHandler->raise(
@@ -2056,7 +2799,7 @@ class ilExAssignment
                 return false;
             }
         }
-        
+
         $ntf = new ilSystemNotification();
         $ntf->setLangModules(array("exc"));
         $ntf->setObjId($ass->getExerciseId());
@@ -2199,7 +2942,7 @@ class ilExAssignment
         // see JF, 2015-05-11
                 
         $ext_deadline = $this->getExtendedDeadline();
-        
+
         foreach (ilExSubmission::getAllAssignmentFiles($this->exc_id, $this->getId()) as $file) {
             $id = $file["returned_id"];
             $uploaded = new ilDateTime($file["ts"], IL_CAL_DATETIME);

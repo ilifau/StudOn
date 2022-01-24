@@ -772,6 +772,30 @@ class ilDclBaseRecordModel
         }
     }
 
+    // fau: dclPerformance - new function preloadRecordFields()
+    // This will only load record fields for selected fields to the record
+    // The class variable is then initialized and other fields will not be loaded in loadRecordFields()
+    // Can be used for an attempt to load only the visible fields of a record list view
+    // Currently not used, because formula fields need other fields
+    /**
+     * Load record fields
+     * @var ilDclBaseFieldModel[] $fields
+     */
+    public function preloadRecordFields($fields)
+    {
+        if ($this->recordfields == null) {
+            $recordfields = array();
+            foreach ($fields as $field) {
+                if ($recordfields[$field->getId()] == null) {
+                    $recordfields[$field->getId()] = ilDclCache::getRecordFieldCache($this, $field);
+                }
+            }
+
+            $this->recordfields = $recordfields;
+        }
+    }
+    // fau.
+
 
     /**
      * Load record fields

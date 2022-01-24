@@ -164,12 +164,24 @@ class ilCourseFile
         }
 
         $file = $this->fss_storage->getInfoDirectory() . '/' . $this->getFileId();
-        if (!file_exists($file)) {
-            $file = $this->fss_storage->getInfoDirectory() . '/' . $this->getFileId() . '.sec';
+
+        // fau: fixCourseFileDownload - try to use use the uploaded file extension
+        $pi = pathinfo($this->getFileName());
+        $ext = $pi['extension'];
+        $variants = [
+            $file,					// standard
+            $file . '.sec',			// standard, secured
+            $file . '.' . $ext,		// patched until 5.3.15
+            $file . $ext . '.sec',	// patched until 5.3.15, secured
+        ];
+
+        foreach ($variants as $file) {
+            if (file_exists($file)) {
+                return $file;
+            }
         }
-        if (file_exists($file)) {
-            return $file;
-        }
+        // fau.
+
         return false;
     }
 

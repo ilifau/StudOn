@@ -212,7 +212,7 @@ class ilObjRootFolderGUI extends ilContainerGUI
     public function renderObject()
     {
         global $ilTabs;
-        
+
         include_once "Services/Object/classes/class.ilObjectListGUI.php";
         ilObjectListGUI::prepareJSLinks(
             "",

@@ -23,6 +23,30 @@ class ilUtil
 {
     protected static $db_supports_distinct_umlauts;
 
+    // fau: fixUnzipEncoding - static variable
+    protected static $fix_unzip_encoding;
+    // fau.
+
+    // fau: joinLink - new function _getLoginLink()
+    public static function _getLoginLink($a_target = "")
+    {
+        global $DIC;
+
+        $target = $a_target ? $a_target : $_GET["target"];
+        if ($target == "" and $_GET["ref_id"] != "") {
+
+            $tree = $DIC->repositoryTree();
+            if ($tree->isInTree($_GET["ref_id"]) && $_GET["ref_id"] != $tree->getRootId()) {
+                $obj_id = ilObject::_lookupObjId($_GET["ref_id"]);
+                $type = ilObject::_lookupType($obj_id);
+                $target = $type . "_" . $_GET["ref_id"];
+            }
+        }
+
+        return  "login.php?target=" . $target . "&cmd=force_login&lang=" . $DIC->language()->getLangKey();
+    }
+    // fau.
+
     /**
     * Builds an html image tag
     * TODO: function still in use, but in future use getImagePath and move HTML-Code to your template file
@@ -200,7 +224,9 @@ class ilUtil
         }
         $vers = "";
         if ($mode != "filesystem") {
-            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version"));
+            // fau: versionSuffix - use the version number with own suffix
+            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
+            // fau.
             $vers = "?vers=" . str_replace(".", "-", $vers);
             // use version from template xml to force reload on changes
             $skin = ilStyleDefinition::getSkins()[ilStyleDefinition::getCurrentSkin()];
@@ -242,7 +268,9 @@ class ilUtil
         }
         $vers = "";
         if ($add_version) {
-            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version"));
+            // fau: versionSuffix - use the version number with own suffix
+            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
+            // fau.
             $vers = "?vers=" . str_replace(".", "-", $vers);
         }
         return $filename . $vers;
@@ -288,7 +316,9 @@ class ilUtil
 
         // add version as parameter to force reload for new releases
         if ($mode != "filesystem") {
-            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version"));
+            // fau: versionSuffix - use the version number with own suffix
+            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
+            // fau.
             $vers = "?vers=" . str_replace(".", "-", $vers);
         }
 
@@ -772,12 +802,20 @@ class ilUtil
         // mask existing image tags
         $ret = str_replace('src="http://', '"***masked_im_start***', $ret);
 
+        // fau: univisInfo - mask existing href tags
+        $ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
+        // fau.
+
         include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
         $parser = new ilMWParserAdapter();
         $ret = $parser->replaceFreeExternalLinks($ret);
 
         // unmask existing image tags
         $ret = str_replace('"***masked_im_start***', 'src="http://', $ret);
+
+        // fau: univisInfo - unmask existing href tags
+        $ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/', 'href="$1', $ret);
+        // fau.
 
         // Should be Safe
 
@@ -1482,6 +1520,61 @@ class ilUtil
         return true;
     }
 
+    // fau: fixRCopy - provide the old implementation
+    /**
+     * Copies content of a directory $a_sdir recursively to a directory $a_tdir
+     * @param	string	$a_sdir		source directory
+     * @param	string	$a_tdir		target directory
+     * @param 	boolean $preserveTimeAttributes	if true, ctime will be kept.
+     *
+     * @return	boolean	TRUE for sucess, FALSE otherwise
+     * @access	public
+     * @static
+     *
+     */
+    public static function rCopyOld($a_sdir, $a_tdir, $preserveTimeAttributes = false)
+    {
+        // check if arguments are directories
+        if (!@is_dir($a_sdir) or
+            !@is_dir($a_tdir)) {
+            return false;
+        }
+
+        // read a_sdir, copy files and copy directories recursively
+        $dir = opendir($a_sdir);
+
+        while ($file = readdir($dir)) {
+            if ($file != "." and
+                $file != "..") {
+                // directories
+                if (@is_dir($a_sdir . "/" . $file)) {
+                    if (!@is_dir($a_tdir . "/" . $file)) {
+                        if (!ilUtil::makeDir($a_tdir . "/" . $file)) {
+                            return false;
+                        }
+
+                        //chmod($a_tdir."/".$file, 0775);
+                    }
+
+                    if (!ilUtil::rCopyOld($a_sdir . "/" . $file, $a_tdir . "/" . $file)) {
+                        return false;
+                    }
+                }
+
+                // files
+                if (@is_file($a_sdir . "/" . $file)) {
+                    if (!copy($a_sdir . "/" . $file, $a_tdir . "/" . $file)) {
+                        return false;
+                    }
+                    if ($preserveTimeAttributes) {
+                        touch($a_tdir . "/" . $file, filectime($a_sdir . "/" . $file));
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    // fau.
 
     /**
      * get webspace directory
@@ -1660,13 +1753,19 @@ class ilUtil
                 }
         */
 
+        // fau: fixUnzipEncoding - get and apply the encoding switch
+        $switch = "";
+        if (self::$fix_unzip_encoding) {
+            $switch = self::getUnzipEncodingSwitch($file);
+        }
         // real unzip
         if (!$overwrite) {
-            $unzipcmd = ilUtil::escapeShellArg($file);
+            $unzipcmd = $switch . ilUtil::escapeShellArg($file);
         } else {
-            $unzipcmd = "-o " . ilUtil::escapeShellArg($file);
+            $unzipcmd = "-o " . $switch . ilUtil::escapeShellArg($file);
         }
         ilUtil::execQuoted($unzip, $unzipcmd);
+        // fau.
 
         chdir($cdir);
 
@@ -1699,6 +1798,87 @@ class ilUtil
         }
     }
 
+    // fau: fixUnzipEncoding - new function enableUnzipEncodingFix()
+    /**
+     * Enable the encoding fix for unzip
+     * @see self::unzip
+     */
+    public static function enableUnzipEncodingFix()
+    {
+        self::$fix_unzip_encoding = true;
+    }
+    // fau.
+
+    // fau: fixUnzipEncoding - new function getUnzipEncodingSwitch()
+    /**
+     * Get the encoding switch for unzip
+     * Unzip on ubuntu 16.04 and 18.04 treats windows zip archives as if they have code page 866 (russian).
+     * That would result in kyrillic letters for german umlaute
+     * This function tries to detect an handle a wrong decoding
+     * If kyrillic characters exist in the file names (without extensions) but are fewer than a threshold,
+     * then a wrong decoding is assumed and the western code page is forced
+     *
+     * @see https://mantis.ilias.de/view.php?id=25383
+     *
+     * @param $file
+     * @return string
+     */
+    public static function getUnzipEncodingSwitch($file)
+    {
+        // this setting is studon specific
+        $unzip_keep_min_kyrillic_percent = ilCust::get('unzip_keep_min_kyrillic_percent');
+        if (empty($unzip_keep_min_kyrillic_percent)) {
+            return '';
+        }
+
+        $kyrillic = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
+        $chars = [];
+        for ( $k = 0; $k < mb_strlen($kyrillic); $k++) {
+            $chars[] = mb_substr($kyrillic, $k, 1);
+        }
+
+        // list the ZIP files, trying utf8 encoding
+        $unzip = PATH_TO_UNZIP;
+        $unzipcmd = ' -Z -1 ' . ilUtil::escapeShellArg($file);
+        $files = ilUtil::execQuoted($unzip, $unzipcmd);
+
+//        echo "<pre />";
+//        var_dump($files);
+
+        $all = 0;
+        $found = 0;
+        foreach ($files as $file) {
+            $info = pathinfo($file);
+            $filename = $info['filename'];
+
+//            echo $filename;
+//            echo "\n";
+
+            $all += mb_strlen($filename);
+            for ( $c = 0; $c < mb_strlen($filename); $c++) {
+                if (in_array(mb_substr($filename, $c, 1), $chars)) {
+                    $found++;
+                }
+            }
+        }
+
+        if ($all > 0 && $found > 0 && (100 * $found / $all < (int) $unzip_keep_min_kyrillic_percent)) {
+            $switch =  "-O CP850 ";
+        }
+        else {
+            $switch = "";
+        }
+
+//        echo "all: $all \n";
+//        echo "found:  $found \n";
+//        echo "switch: $switch \n";
+//        exit;
+
+        return $switch;
+    }
+    // fau.
+
+
     /**
     *	zips given directory/file into given zip.file
     *
@@ -1712,7 +1892,12 @@ class ilUtil
         if ($compress_content) {
             $a_dir .= "/*";
             $pathinfo = pathinfo($a_dir);
-            chdir($pathinfo["dirname"]);
+            // fau: fixZip - prevent zipping if source dir can't be set
+            // otherwise the whole ilias directory would be zipped
+            if (!chdir($pathinfo["dirname"])) {
+                return false;
+            }
+            // fau.
         }
 
         $pathinfo = pathinfo($a_file);
@@ -1720,7 +1905,12 @@ class ilUtil
         $file = $pathinfo["basename"];
 
         if (!$compress_content) {
-            chdir($dir);
+            // fau: fixZip - prevent zipping f source dir can't be set
+            // otherwise the whole ilias directory would be zipped
+            if (!chdir($dir)) {
+                return false;
+            }
+            // fau.
         }
 
         $zip = PATH_TO_ZIP;
@@ -2837,6 +3027,20 @@ class ilUtil
     }
 
     /**
+     * fau: fixOrderingAnswerTex - revert the replacements done in ilUtil::prepareFormOutput
+     * @param	string
+     * @return	string
+     */
+    public static function revertFormOutput($a_str)
+    {
+        $a_str = str_replace("&#123;", "{", $a_str);
+        $a_str = str_replace("&#125;", "}", $a_str);
+        $a_str = str_replace("&#92;", "\\", $a_str);
+        return $a_str;
+    }
+    // fau.
+
+    /**
      * Prepare secure href attribute
      *
      * @param
@@ -3014,11 +3218,15 @@ class ilUtil
         // this comparison should give optimal results if
         // locale is provided and mb string functions are supported
         if ($array_sortorder == "asc") {
-            return ilStr::strCmp($a[$array_sortby], $b[$array_sortby]);
+            // fau: sortCase - use case sensitive string compare
+            return ilStr::strCmpCaseSensitive($a[$array_sortby], $b[$array_sortby]);
+            // fau.
         }
 
         if ($array_sortorder == "desc") {
-            return !ilStr::strCmp($a[$array_sortby], $b[$array_sortby]);
+            // fau: sortCase - use case sensitive string compare
+            return !ilStr::strCmpCaseSensitive($a[$array_sortby], $b[$array_sortby]);
+            // fau.
             return strcoll(ilStr::strToUpper($b[$array_sortby]), ilStr::strToUpper($a[$array_sortby]));
         }
     }
@@ -3297,11 +3505,16 @@ class ilUtil
 
 
     /**
-     * @param $a_script
+     * fau: redirectByHtml - add parameter to redirect by html page instead http header
+     *		this is needed for the join links of courses and groups
+     *		if they are not called from the browser
+     * @param	string		$a_script		target script
+     * @param	string		$a_html_redirect generate a redirecting page instead of a header
      *
      * @deprecated Use $DIC->ctrl()->redirectToURL() instead
      */
-    public static function redirect($a_script)
+    public static function redirect($a_script, $a_html_redirect = false)
+    // fau.
     {
         global $DIC;
 
@@ -3310,7 +3523,7 @@ class ilUtil
         } else {
             $ctrl = $DIC->ctrl();
         }
-        $ctrl->redirectToURL($a_script);
+        $ctrl->redirectToURL($a_script, $a_html_redirect);
     }
 
     /**
@@ -3977,11 +4190,14 @@ class ilUtil
     * @param	string	permission to check e.g. 'visible' or 'read'
     * @param	int id of user in question
     * @param    int limit of results. if not given it defaults to search max hits.If limit is -1 limit is unlimited
+    * @param	int ref_id of the sub tree node to search in
     * @return	array of ref_ids
     * @static
     *
     */
-    public static function _getObjectsByOperations($a_obj_type, $a_operation, $a_usr_id = 0, $limit = 0)
+    // fau: treeQuery - add root as optional parameter to allow selection in sub tree
+    public static function _getObjectsByOperations($a_obj_type, $a_operation, $a_usr_id = 0, $limit = 0, $a_root_id = 0)
+// fau.
     {
         global $DIC;
 
@@ -3997,6 +4213,19 @@ class ilUtil
         } else {
             $where = "WHERE " . $ilDB->in("type", $a_obj_type, false, "text") . " ";
         }
+
+        // fau: treeQuery - respect the root id parameter
+        // fau: optimizeRandomRuleSelect - check for node and grand childs
+        if ($a_root_id) {
+            $where .= ' AND (tree.child = ' . $ilDB->quote((int) $a_root_id, 'integer') . ' OR ' . $tree->getGrandChildCondition((int) $a_root_id) . ")  ";
+
+            $tree_join = " LEFT JOIN tree ON obr.ref_id = tree.child ";
+            $tree_cond = " AND tree = 1 ";
+        } else {
+            $tree_join = "";
+            $tree_cond = "";
+        }
+        // fau.
 
         // limit number of results default is search result limit
         if (!$limit) {
@@ -4047,14 +4276,18 @@ class ilUtil
 
         $and = "AND ((" . $ilDB->in("rol_id", $a_roles, false, "integer") . " ";
 
+        // fau: treeQuery - respect the root conditions
         $query = "SELECT DISTINCT(obr.ref_id),obr.obj_id,type FROM object_reference obr " .
             "JOIN object_data obd ON obd.obj_id = obr.obj_id " .
             "LEFT JOIN rbac_pa  ON obr.ref_id = rbac_pa.ref_id " .
+            $tree_join .
             $where .
+            $tree_cond .
             $and .
             "AND (" . $ilDB->like("ops_id", "text", "%i:" . $ops_id . "%") . " " .
             "OR " . $ilDB->like("ops_id", "text", "%:\"" . $ops_id . "\";%") . ")) " .
             $check_owner;
+        // fau.
 
         $res = $ilDB->query($query);
         $counter = 0;
@@ -4538,8 +4771,12 @@ class ilUtil
         global $DIC;
 
         /** @var ilTemplate $tpl */
-        $tpl = $DIC["tpl"];
+        // fau: fixRemoveTrashed - template in ilUtil::sendSuccess
+        if ($DIC->offsetExists('tpl')) {
+            $tpl = $DIC["tpl"];
         $tpl->setOnScreenMessage("success", $a_info, $a_keep);
+        }
+        // fau.
     }
 
     public static function infoPanel($a_keep = true)

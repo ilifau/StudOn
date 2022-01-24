@@ -361,6 +361,10 @@ abstract class ilTestExport
                 $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt($fieldname));
             }
         }
+        // fau: testParticipantsResultsTable - add the titles for max and scored pass
+        $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_tbl_col_started_passes'));
+        $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_tbl_col_scored_pass'));
+        // fau.
 
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_stat_result_resultspoints'));
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('maximum_points'));
@@ -422,6 +426,13 @@ abstract class ilTestExport
                     }
                 }
             }
+
+            // fau: testParticipantsResultsTable - add the max and scored pass
+            $max_pass = ilObjTest::_getMaxPass($active_id);
+            $scored_pass = $data->getParticipant($active_id)->getScoredPass();
+            $worksheet->setCell($row, $col++, isset($max_pass) ? $max_pass + 1 : 0);
+            $worksheet->setCell($row, $col++, isset($scored_pass) ? $scored_pass + 1 : '');
+            // fau.
 
             $worksheet->setCell($row, $col++, $data->getParticipant($active_id)->getReached());
             $worksheet->setCell($row, $col++, $data->getParticipant($active_id)->getMaxpoints());
@@ -799,6 +810,14 @@ abstract class ilTestExport
                 $col++;
             }
         }
+
+        // fau: testParticipantsResultsTable - add the titles for max and scored pass
+        array_push($datarow, $this->lng->txt("tst_tbl_col_started_passes"));
+        $col++;
+        array_push($datarow, $this->lng->txt("tst_tbl_col_scored_pass"));
+        $col++;
+        // fau.
+
         array_push($datarow, $this->lng->txt("tst_stat_result_resultspoints"));
         $col++;
         array_push($datarow, $this->lng->txt("maximum_points"));
@@ -871,6 +890,14 @@ abstract class ilTestExport
                         }
                     }
                 }
+
+                // fau: testParticipantsResultsTable - add the max and scored pass
+                $max_pass = ilObjTest::_getMaxPass($active_id);
+                $scored_pass = $data->getParticipant($active_id)->getScoredPass();
+                array_push($datarow2, isset($max_pass) ? $max_pass + 1 : 0);
+                array_push($datarow2, isset($scored_pass) ? $scored_pass + 1 : '');
+                // fau.
+
                 array_push($datarow2, $data->getParticipant($active_id)->getReached());
                 array_push($datarow2, $data->getParticipant($active_id)->getMaxpoints());
                 array_push($datarow2, $data->getParticipant($active_id)->getMark());

@@ -101,7 +101,7 @@ class ilNusoapUserAdministrationAdapter
             '',
             'SOAP-ENC:Array',
             array(),
-            array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:int[]')),
+            array(array('ref' => 'SOAP-ENC:arrayType','wsdl:arrayType' => 'xsd:int[]')),
             'xsd:int'
         );
 
@@ -112,7 +112,7 @@ class ilNusoapUserAdministrationAdapter
             '',
             'SOAP-ENC:Array',
             array(),
-            array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:string[]')),
+            array(array('ref' => 'SOAP-ENC:arrayType','wsdl:arrayType' => 'xsd:string[]')),
             'xsd:string'
         );
 
@@ -123,7 +123,7 @@ class ilNusoapUserAdministrationAdapter
             '',
             'SOAP-ENC:Array',
             array(),
-            array(array('ref'=>'SOAP-ENC:arrayType','wsdl:arrayType'=>'xsd:double[]')),
+            array(array('ref' => 'SOAP-ENC:arrayType','wsdl:arrayType' => 'xsd:double[]')),
             'xsd:double'
         );
 
@@ -861,6 +861,30 @@ class ilNusoapUserAdministrationAdapter
                                 'ILIAS internal mail or as e-mail.'
                                 );
 
+        // fau: sendSimpleResults - register function to send user mails
+        $this->server->register(
+            'sendUserMail',
+            array('sid' => 'xsd:string',
+                                      'rcp_to' => 'xsd:string',
+                                      'rcp_cc' => 'xsd:string',
+                                      'rcp_bcc' => 'xsd:string',
+                                      'sender' => 'xsd:string',
+                                      'subject' => 'xsd:string',
+                                      'message' => 'xsd:string',
+                                      'attachments' => 'xsd:string',
+                                      'type' => 'xsd:string',
+                                      'use_placholders' => 'xsd:boolean'),
+            array('status' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#sendUserMail',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS sendUserMail(): Send internal mails according to xml description. Only for internal usage ' .
+                                'Syntax, parameters may change in future releases'
+        );
+        // fau.
+
+
         // Clone functions
         $this->server->register(
             'ilClone',
@@ -930,19 +954,19 @@ class ilNusoapUserAdministrationAdapter
         );
 
         $this->server->register(
-        'saveQuestionSolution',
-        array('sid' => 'xsd:string',
+            'saveQuestionSolution',
+            array('sid' => 'xsd:string',
                                   'active_id' => 'xsd:long',
                                   'question_id' => 'xsd:long',
                                   'pass' => 'xsd:int',
                                   'solution' => 'xsd:string'),
-        array('status' => 'xsd:string'),
-        SERVICE_NAMESPACE,
-        SERVICE_NAMESPACE . '#saveQuestionSolution',
-        SERVICE_STYLE,
-        SERVICE_USE,
-        'ILIAS saveQuestionSolution: Saves the result of a question in a given test pass for the active test user. The active user is identified by the active ID, which assigns a user to a test. The solution has to be an XML string which contains &lt;values&gt;&lt;value&gt;VALUE&lt;/value&gt;&lt;value&gt;VALUE&lt;/value&gt;&lt;points&gt;POINTS&lt;/points&gt;...&lt;/values&gt; where the triplet (value,value,points) can repeat n times. The result string is either TRUE or it contains an error message.'
-    );
+            array('status' => 'xsd:string'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#saveQuestionSolution',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS saveQuestionSolution: Saves the result of a question in a given test pass for the active test user. The active user is identified by the active ID, which assigns a user to a test. The solution has to be an XML string which contains &lt;values&gt;&lt;value&gt;VALUE&lt;/value&gt;&lt;value&gt;VALUE&lt;/value&gt;&lt;points&gt;POINTS&lt;/points&gt;...&lt;/values&gt; where the triplet (value,value,points) can repeat n times. The result string is either TRUE or it contains an error message.'
+        );
 
         $this->server->register(
             'getQuestionSolution',
@@ -959,57 +983,57 @@ class ilNusoapUserAdministrationAdapter
         );
 
         $this->server->register(
-                                'getTestUserData',
-                                array('sid' => 'xsd:string',
+            'getTestUserData',
+            array('sid' => 'xsd:string',
                                                           'active_id' => 'xsd:long'),
-                                array('userdata' => 'tns:stringArray'),
-                                SERVICE_NAMESPACE,
-                                SERVICE_NAMESPACE . '#getTestUserData',
-                                SERVICE_STYLE,
-                                SERVICE_USE,
-                                'ILIAS getTestUserData: Typically called from external assessment questions to retrieve data of the active user. The returned string array values are fullname, title, firstname, lastname, login.'
-                            );
+            array('userdata' => 'tns:stringArray'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#getTestUserData',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS getTestUserData: Typically called from external assessment questions to retrieve data of the active user. The returned string array values are fullname, title, firstname, lastname, login.'
+        );
 
         $this->server->register(
-                                'getPositionOfQuestion',
-                                array('sid' => 'xsd:string',
+            'getPositionOfQuestion',
+            array('sid' => 'xsd:string',
                                                           'active_id' => 'xsd:long',
                                                           'question_id' => 'xsd:int',
                                                           'pass' => 'xsd:int'),
-                                array('position' => 'xsd:int'),
-                                SERVICE_NAMESPACE,
-                                SERVICE_NAMESPACE . '#getPositionOfQuestion',
-                                SERVICE_STYLE,
-                                SERVICE_USE,
-                                'ILIAS getPositionOfQuestion: Returns the position of a given question for a given user in a given test pass.'
-                            );
+            array('position' => 'xsd:int'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#getPositionOfQuestion',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS getPositionOfQuestion: Returns the position of a given question for a given user in a given test pass.'
+        );
 
         $this->server->register(
-                                'getPreviousReachedPoints',
-                                array('sid' => 'xsd:string',
+            'getPreviousReachedPoints',
+            array('sid' => 'xsd:string',
                                                           'active_id' => 'xsd:long',
                                                           'question_id' => 'xsd:int',
                                                           'pass' => 'xsd:int'),
-                                array('position' => 'tns:doubleArray'),
-                                SERVICE_NAMESPACE,
-                                SERVICE_NAMESPACE . '#getPreviousReachedPoints',
-                                SERVICE_STYLE,
-                                SERVICE_USE,
-                                'ILIAS getPreviousReachedPoints: Returns an array of reached points for the previous questions in a given test pass.'
-                            );
+            array('position' => 'tns:doubleArray'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#getPreviousReachedPoints',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS getPreviousReachedPoints: Returns an array of reached points for the previous questions in a given test pass.'
+        );
 
         $this->server->register(
-                                'getNrOfQuestionsInPass',
-                                array('sid' => 'xsd:string',
+            'getNrOfQuestionsInPass',
+            array('sid' => 'xsd:string',
                                                           'active_id' => 'xsd:long',
                                                           'pass' => 'xsd:int'),
-                                array('count' => 'xsd:int'),
-                                SERVICE_NAMESPACE,
-                                SERVICE_NAMESPACE . '#getNrOfQuestionsInPass',
-                                SERVICE_STYLE,
-                                SERVICE_USE,
-                                'ILIAS getNrOfQuestionsInPass: Returns the question count for a given test user in a given pass.'
-                            );
+            array('count' => 'xsd:int'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#getNrOfQuestionsInPass',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS getNrOfQuestionsInPass: Returns the question count for a given test user in a given pass.'
+        );
 
         $this->server->register(
             'getStructureObjects',
@@ -1188,15 +1212,15 @@ class ilNusoapUserAdministrationAdapter
 
 
         $this->server->register(
-              'getUserXML',
-              array('sid' => 'xsd:string', 'user_ids' => 'tns:intArray', 'attach_roles' => 'xsd:int'),
-              array('xml' => 'xsd:string'),
-              SERVICE_NAMESPACE,
-              SERVICE_NAMESPACE . '#resolveUsers',
-              SERVICE_STYLE,
-              SERVICE_USE,
-              'ILIAS getUserXML(): get xml records for user ids, e.g. retrieved vom members of course xml. Returns user xml dtds. ids are numeric ids of user'
-          );
+            'getUserXML',
+            array('sid' => 'xsd:string', 'user_ids' => 'tns:intArray', 'attach_roles' => 'xsd:int'),
+            array('xml' => 'xsd:string'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#resolveUsers',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'ILIAS getUserXML(): get xml records for user ids, e.g. retrieved vom members of course xml. Returns user xml dtds. ids are numeric ids of user'
+        );
 
 
         // get objs ids by ref id
@@ -1483,7 +1507,269 @@ class ilNusoapUserAdministrationAdapter
         // mcs-patch end
         
 
-        
+
+        // fau: soapFunctions - add new soap functions
+        $this->server->wsdl->addComplexType(
+            'studonResource',
+            'complexType',
+            'struct',
+            'all',
+            '',
+            array('univis_id' => array('name' => 'univis_id',
+                                                                    'type' => 'xsd:string'),
+                                                  'perma_link' => array('name' => 'perma_link',
+                                                                       'type' => 'xsd:string'))
+        );
+        $this->server->wsdl->addComplexType(
+            'studonResources',
+            'complexType',
+            'array',
+            '',
+            'SOAP-ENC:Array',
+            array(),
+            array(array('ref' => 'SOAP-ENC:arrayType',
+                                                        'wsdl:arrayType' => 'tns:studonResource[]')),
+            'tns:studonResource'
+        );
+
+
+        $this->server->register(
+            'studonGetResources',
+            array('sid' => 'xsd:string', 'semester' => 'xsd:string'),
+            array('result' => 'tns:studonResources'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonGetResources',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonGetResources(): returns a list of semester resources'
+        );
+                                
+                                
+        $this->server->register(
+            'studonHasResource',
+            array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonHasResource',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonHasResource(): returns true, if an object is found for the given univis_id'
+        );
+
+        $this->server->register(
+            'studonGetPermaLink',
+            array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'xsd:string'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonGetPermaLink',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonGetPermaLink(): returns the url for a permanent link to the resource'
+        );
+
+        $this->server->register(
+            'studonGetMembers',
+            array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'tns:stringArray'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonGetMembers',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonGetMembers(): returns the identities of course participants'
+        );
+
+        $this->server->register(
+            'studonIsSoapAssignable',
+            array('sid' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonIsSoapAssignable',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonIsSoapAssignable(): return true if user assignment can be done by SOAP'
+        );
+
+        $this->server->register(
+            'studonIsAssigned',
+            array('sid' => 'xsd:string', 'identity' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonIsAssigned',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonIsAssigned(): checks if a user is assigned to a course or group by given univis_id'
+        );
+
+
+        $this->server->register(
+            'studonAssignMember',
+            array('sid' => 'xsd:string', 'identity' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonAssignMember',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonAssignMember(): assigns a user to a course or group by given univis_id'
+        );
+
+        $this->server->register(
+            'studonExcludeMember',
+            array('sid' => 'xsd:string', 'identity' => 'xsd:string', 'univis_id' => 'xsd:string'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonExcludeMember',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonExcludeMember(): excludes a user from a course or group by given univis_id'
+        );
+
+        // functions for TCA
+
+        $this->server->wsdl->addComplexType(
+            'studonLtiCredentials',
+            'complexType',
+            'struct',
+            'all',
+            '',
+            array('consumerKey' => array('name' => 'consumerKey',
+                                       'type' => 'xsd:string'),
+                  'consumerSecret' => array('name' => 'consumerSecret',
+                                        'type' => 'xsd:string'))
+        );
+
+
+        $this->server->register(
+            'studonCopyCourse',
+            array('sid' => 'xsd:string', 'sourceRefId' => 'xsd:int', 'targetRefId' => 'xsd:int',
+                'typesToLink' => 'tns:stringArray'),
+            array('result' => 'xsd:int'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonCopyCourse',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonCopyCourse(): copies a course.
+                sid: session id;
+                sourceRefId: ref_id of the course to be copied;
+                targetRefId: ref_id of the place where copied course should be added;
+                typesToLink: types of course contents which should be linked instead of copied;
+                returns the ref_id of the copied course
+            '
+        );
+
+        $this->server->register(
+            'studonSetCourseProperties',
+            array('sid' => 'xsd:string', 'refId' => 'xsd:int',
+                  'title' => 'xsd:string', 'description' => 'xsd:string', 'online'=> 'xsd:boolean',
+                  'courseStart' => 'xsd:int', 'courseEnd' => 'xsd:int',
+                  'activationStart' => 'xsd:int', 'activationEnd' => 'xsd:int'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonSetCourseProperties',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonSetCourseProperties(): sets the basic properties of a course.
+                sid: session id;
+                refId: ref_id of the course to be changed;
+                title: new course title;
+                description: new course description (shown below the title);
+                online: course should be visible to the members;
+                courseStart: new course start (unix timestamp, only day will be used);
+                courseEnd: new course end (unix timestamp, only day will be used);
+                activationStart: new start of availability (unix timestamp);
+                activationEnd: new end of availability (unix timestamp);
+                returns true in case of success
+            '
+        );
+
+        $this->server->register(
+            'studonSetCourseInfo',
+            array('sid' => 'xsd:string', 'refId' => 'xsd:int',
+                  'importantInformation' => 'xsd:string', 'syllabus' => 'xsd:string', 'contactName'=> 'xsd:string',
+                  'contactResponsibility' => 'xsd:string', 'contactPhone' => 'xsd:string',
+                  'contactEmail' => 'xsd:string', 'contactConsultation' => 'xsd:string'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonSetCourseInfo',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonSetCourseInfo(): sets the data shown on the info page of a course.
+                sid: session id;
+                refId: ref_id of the course to be changed;
+                importantInformation: important information for course participants;
+                syllabus: description of the course contents, learning ourcomes etc.;
+                contactName: name of the organizational contact person;
+                contactResponsibility: responsibility of the contect person;
+                contactPhone: phone number of the contact person;
+                contactEmail: email address of the contact person;
+                contactConsultation: consultation hours of the contact person;
+                returns true in case of success
+            '
+        );
+
+
+        $this->server->register(
+            'studonAddCourseAdminsByIdentity',
+            array('sid' => 'xsd:string', 'refId' => 'xsd:int',
+                  'admins' => 'tns:stringArray'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonAddCourseAdminsByIdentity',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonAddCourseAdminsByIdentity(): add course administrators with their idm accounts.
+                Dummy accounts will be created if the users do not yet exist.
+                Existing administrators will be kept.
+                sid: session id;
+                refId: ref_id of the course;
+                admins: idm identities of users that should be added as course admins;
+                returns true in case of success
+            '
+        );
+
+        $this->server->register(
+            'studonSetCourseAdminsByIdentity',
+            array('sid' => 'xsd:string', 'refId' => 'xsd:int',
+                  'admins' => 'tns:stringArray'),
+            array('result' => 'xsd:boolean'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonSetCourseAdminsByIdentity',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonSetCourseAdminsByIdentity(): sets course administrators with their idm accounts.
+                Dummy accounts will be created if the users do not yet exist.
+                Existing administrators will be removed if they do not match.
+                sid: session id;
+                refId: ref_id of the course;
+                admins: idm identities of users that should be set as course admins;
+                returns true in case of success
+            '
+        );
+
+
+        $this->server->register(
+            'studonEnableLtiConsumer',
+            array('sid' => 'xsd:string', 'refId' => 'xsd:int', 'consumerId' => 'xsd:int',
+                  'adminRole' => 'xsd:string', 'instructorRole' => 'xsd:string',  'memberRole' => 'xsd:string'),
+            array('result' => 'tns:studonLtiCredentials'),
+            SERVICE_NAMESPACE,
+            SERVICE_NAMESPACE . '#studonEnableLtiConsumer',
+            SERVICE_STYLE,
+            SERVICE_USE,
+            'studonEnableLtiConsumer(): enables an LTI consumer for a course.
+                sid: session id;
+                refId: ref_id of the course; 
+                consumerId: id of the lti consumer configuration in studon
+                adminRole: studon course role of lti admins (admin|tutor|member);
+                instructorRole: studon course role of lti instructors (admin|tutor|member);
+                memberRole: studon course role of lti members (admin|tutor|member);
+                returns: lti credentials [consumerKey, consumerSecret]
+            '
+        );
+
+
+        // fau.
+
+                                    
         $this->server->register(
             'deleteProgress',
             array(

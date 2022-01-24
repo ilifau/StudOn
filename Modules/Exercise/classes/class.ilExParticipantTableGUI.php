@@ -56,7 +56,9 @@ class ilExParticipantTableGUI extends ilExerciseSubmissionTableGUI
     
         $data = array();
         /** @var ilExAssignment $ass */
-        foreach (ilExAssignment::getInstancesByExercise($this->exc->getId()) as $ass) {
+        // fau: exGradeTime - get only available instances
+        foreach (ilExAssignment::getInstancesForGrading($this->exc->getId()) as $ass) {
+            // fau.
             // ilExAssignment::getMemberListData()
             $member_status = $ass->getMemberStatus($this->user->getId());
                             
@@ -85,12 +87,19 @@ class ilExParticipantTableGUI extends ilExerciseSubmissionTableGUI
                 "name" => $ass->getTitle(),
                 "status" => $member_status->getStatus(),
                 "mark" => $member_status->getMark(),
+                // fau: exMaxPoints - add table data
+                "max_points" => $ass->getMaxPoints(),
+                // fau.
                 "sent_time" => $member_status->getSentTime(),
                 "status_time" => $member_status->getStatusTime(),
                 "feedback_time" => $member_status->getFeedbackTime(),
                 "submission" => $submission->getLastSubmission(),
                 "notice" => $member_status->getNotice(),
                 "comment" => $member_status->getComment(),
+                // fau: exPlag - add plag info to table row
+                "plag_flag" => $member_status->getPlagFlag(),
+                "plag_comment" => $member_status->getPlagComment(),
+                // fau.
                 "order_nr" => $ass->getOrderNr()
             );
             

@@ -299,7 +299,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $answers = $form->getItemByPostVar('kprim_answers')->getValues();
         $answers = $this->handleAnswerTextsSubmit($answers);
         $files = $form->getItemByPostVar('kprim_answers')->getFiles();
-        
+
         $this->object->handleFileUploads($answers, $files);
         $this->object->setAnswers($answers);
     }
@@ -309,14 +309,14 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         if ($this->object->getAnswerType() == assKprimChoice::ANSWER_TYPE_MULTI_LINE) {
             return $answers;
         }
-        
+
         foreach ($answers as $key => $answer) {
             $answer->setAnswerText(ilUtil::secureString($answer->getAnswerText()));
         }
-        
+
         return $answers;
     }
-    
+
     /**
      * @param integer $active_id
      * @param integer $pass
@@ -345,6 +345,13 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
         $use_post_solutions = false,
         $showInlineFeedback = false
     ) {
+
+// fau: imageBox - init colorbox
+        include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initColorbox();
+        // fau.
+
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
 
@@ -450,6 +457,12 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
      */
     public function getPreview($show_question_only = false, $showInlineFeedback = false)
     {
+        // fau: imageBox - init colorbox
+        include_once "./Services/jQuery/classes/class.iljQueryUtil.php";
+        iljQueryUtil::initjQuery();
+        iljQueryUtil::initColorbox();
+        // fau.
+
         $user_solution = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : array();
         // shuffle output
         $keys = $this->getParticipantsAnswerKeySequence();
@@ -651,7 +664,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                 $template->setVariable('SOL_QID', $this->object->getId());
                 $template->setVariable('SOL_SUFFIX', $show_correct_solution ? 'bestsolution' : 'usersolution');
                 $template->setVariable('SOL_POSITION', $answer->getPosition());
-                
+
                 $template->setVariable('SOL_TRUE_VALUE', 1);
                 $template->setVariable('SOL_FALSE_VALUE', 0);
 
@@ -663,7 +676,7 @@ class assKprimChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringAd
                     }
                 }
             }
-            
+
             $template->parseCurrentBlock();
         }
         

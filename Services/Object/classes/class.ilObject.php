@@ -957,6 +957,79 @@ class ilObject
         }
     }
 
+
+    /**
+     * fau: soapFunctions - get all untrashed objects for an import id
+     *
+     * @param   string		import id
+     * @param	string		matching mode ('exact', 'like', 'ilike')
+     *						exact:	exact matching
+     *						like:	pattern matching with % and _
+     *						ilike:	case insensitive pattern matching
+     * @return   array		arrays of object data (ref_id, obj_id, title, ...)
+    */
+    public static function _getUntrashedObjectsForImportId($a_import_id, $a_matching = 'exact')
+    {
+        global $ilDB;
+
+        switch ($a_matching) {
+            case 'like':
+                $cond = $ilDB->like('d.import_id', 'text', $a_import_id, false);
+                break;
+
+            case 'ilike':
+                $cond = $ilDB->like('d.import_id', 'text', $a_import_id, true);
+                break;
+
+            case 'exact':
+            default:
+                $cond = 'd.import_id = ' . $ilDB->quote($a_import_id, "text");
+                break;
+        }
+
+        $q = "SELECT r.ref_id, d.* "
+            . " FROM object_data d "
+            . " INNER JOIN object_reference r ON d.obj_id = r.obj_id "
+            . " INNER JOIN tree t ON r.ref_id = t.child "
+            . " WHERE " . $cond
+            . " AND t.tree = 1 "
+            . " ORDER BY d.obj_id DESC";
+        $result = $ilDB->query($q);
+
+        $objects = array();
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $objects[] = $row;
+        }
+
+        return $objects;
+    }
+    // fau.
+
+
+    /**
+    * fau: univisImport - get import id for object id
+    *
+    * @param	int		$a_object_id		object id
+    * @return	string	id                  import_id
+    */
+    public static function _getImportIdForObjectId($a_obj_id)
+    {
+        global $ilDB;
+
+        $ilDB->setLimit(1, 0);
+        $q = "SELECT import_id FROM object_data WHERE obj_id = " . $ilDB->quote($a_obj_id, "integer") .
+            " ORDER BY create_date DESC";
+        $obj_set = $ilDB->query($q);
+
+        if ($obj_rec = $ilDB->fetchAssoc($obj_set)) {
+            return $obj_rec["import_id"];
+        } else {
+            return '';
+        }
+    }
+    // fau.
+
+
     /**
     * get all reference ids of object
     *
@@ -1581,6 +1654,12 @@ class ilObject
             include_once("Services/Tracking/classes/class.ilLPObjSettings.php");
             ilLPObjSettings::_deleteByObjId($this->getId());
 
+            // fau: relativeLink - delete relative link if last reference is deleted
+            if ($this->referenced) {
+                require_once("./Services/RelativeLink/classes/class.ilRelativeLink.php");
+                ilRelativeLink::deleteLink(ilRelativeLink::TYPE_REP_OBJECT, $this->getId());
+            }
+            // fau.
             $remove = true;
         } else {
             // write log entry
@@ -1873,6 +1952,11 @@ class ilObject
                 // copy local roles
                 $rbacadmin->copyLocalRoles($this->getRefId(), $new_obj->getRefId());
             }
+
+            // fau: relativeLink - clone relative link
+            require_once("./Services/RelativeLink/classes/class.ilRelativeLink.php");
+            ilRelativeLink::cloneLink(ilRelativeLink::TYPE_REP_OBJECT, $this->getId(), $new_obj->getId());
+        // fau.
         } else {
             ilLoggerFactory::getLogger('obj')->debug('Tree copy is disabled');
         }
@@ -1983,7 +2067,14 @@ class ilObject
     public function cloneMetaData($target_obj)
     {
         $md = new ilMD($this->getId(), 0, $this->getType());
-        $md->cloneMD($target_obj->getId(), 0, $target_obj->getType());
+        // fixCloneMd - fault tolerance if meta data can't be cloned
+        try {
+            $md->cloneMD($target_obj->getId(), 0, $target_obj->getType());
+        }
+        catch (Exception $e) {
+            return false;
+        }
+        // fau.
         return true;
     }
 
@@ -2270,7 +2361,7 @@ class ilObject
         $rec = $ilDB->fetchAssoc($set);
         return $rec["create_date"];
     }
-        
+
     /**
      * Check if auto rating is active for parent group/course
      *

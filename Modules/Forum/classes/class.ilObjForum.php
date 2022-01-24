@@ -570,7 +570,6 @@ class ilObjForum extends ilObject
             $newThread->setSubject($old_thread['thr_subject']);
             $newThread->setUserAlias($old_thread['thr_usr_alias']);
             $newThread->setCreateDate($old_thread['thr_date']);
-
             $newPostId = $new_frm->generateThread(
                 $newThread,
                 ilForum::_lookupPostMessage($old_post_id),
@@ -579,6 +578,11 @@ class ilObjForum extends ilObject
                 1,
                 false
             );
+
+            // fau: copyForumSorting - clone the sorting of sticky threads in the forum
+            $new_obj->setThreadSorting($newThread->getId(), $old_thread['thread_sorting']);
+            // fau.
+
 
             $old_forum_files = new ilFileDataForum($this->getId(), $old_post_id);
             $old_forum_files->ilClone($new_obj->getId(), $newPostId);

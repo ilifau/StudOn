@@ -64,10 +64,18 @@ class ilTermDefinitionEditorGUI
 
         // content style
         $this->tpl->setCurrentBlock("ContentStyle");
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->tpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath($this->term_glossary->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->glossary->getStyleSheetId(),
+                    $this->glossary->getType(),
+                    $this->glossary->getRefId()
+                )
+            )
         );
+        // fau.
         $this->tpl->parseCurrentBlock();
 
         // syntax style
@@ -139,10 +147,13 @@ class ilTermDefinitionEditorGUI
                 $page_gui->setTemplateTargetVar("ADM_CONTENT");
                 $page_gui->setOutputMode("edit");
 
+// fau: inheritContentStyle - add ref_id
                 $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
-                    $this->term_glossary->getStyleSheetId(),
-                    "glo"
+                    $this->glossary->getStyleSheetId(),
+                    "glo",
+                    $this->glossary->getRefId()
                 ));
+// fau.
                 $page_gui->setLocator($gloss_loc);
                 $page_gui->setIntLinkReturn($this->ctrl->getLinkTargetByClass(
                     "ilobjglossarygui",

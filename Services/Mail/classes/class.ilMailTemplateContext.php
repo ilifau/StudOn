@@ -217,7 +217,9 @@ abstract class ilMailTemplateContext
                 break;
 
             case 'ilias_url' === $placeholder_id:
-                $resolved = $this->envHelper->getHttpPath() . '/login.php?client_id=' . $this->envHelper->getClientId();
+                // fau: linkPermaShort - use short link also in template
+                $resolved = $this->envHelper->getHttpPath();
+                // fau.
                 break;
 
             case 'client_name' === $placeholder_id:

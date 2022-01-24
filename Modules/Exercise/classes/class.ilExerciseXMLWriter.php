@@ -170,8 +170,10 @@ class ilExerciseXMLWriter extends ilXmlWriter
     {
         $ass = new ilExAssignment($assignment_id);
 
-        $amark = $ass->getMemberStatus($user_id)->getMark();
-        $astatus = $ass->getMemberStatus($user_id)->getStatus();
+        // fau: exPlag - use effective status and mark
+        $amark = $ass->getMemberStatus($user_id)->getEffectiveStatus();
+        $astatus = $ass->getMemberStatus($user_id)->getEffectiveMark($ass->hasNumericPoints());
+        // fau.
         $acomment = $ass->getMemberStatus($user_id)->getComment();
         $anotice = $ass->getMemberStatus($user_id)->getNotice();
         

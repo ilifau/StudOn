@@ -146,7 +146,7 @@ class ilStartUpGUI
         $this->ctrl->setCmd("");
         $this->executeCommand();
     }
-
+    
     /**
      * Show login page or redirect to startup page if user is not authenticated.
      */
@@ -196,8 +196,8 @@ class ilStartUpGUI
         $this->logger->debug('No valid session -> show login');
         $this->showLoginPage();
     }
-
-
+    
+    
     /**
      * @todo check for forced authentication like ecs, ...
      * Show login page
@@ -206,7 +206,7 @@ class ilStartUpGUI
     protected function showLoginPage(ilPropertyFormGUI $form = null)
     {
         global $tpl, $ilSetting;
-
+        
 
         $this->getLogger()->debug('Showing login page');
 
@@ -1665,6 +1665,13 @@ class ilStartUpGUI
         $t_arr = explode("_", $a_target);
         $type = $t_arr[0];
 
+        // fau: gotoLinks - don't check goto for studon targets
+        // fau: univisLinks don't check goto for univis targets
+        if ($type == "studon" or $type == "univis") {
+            return true;
+        }
+        // fau.
+
         if ($type == "git") {
             $type = "glo";
         }
@@ -1813,12 +1820,15 @@ class ilStartUpGUI
         }
 
         try {
-            $oRegSettings = new ilRegistrationSettings();
-
+            // fau: regCodes - get settings instance after hash verification (code my be injected)
             $usr_id = ilObjUser::_verifyRegistrationHash(trim($_GET['rh']));
             /** @var \ilObjUser $user */
             $user = ilObjectFactory::getInstanceByObjId($usr_id);
             $user->setActive(true);
+
+            $oRegSettings = ilRegistrationSettings::getInstance();
+            // fau.
+
             $password = '';
             if ($oRegSettings->passwordGenerationEnabled()) {
                 $passwords = ilUtil::generatePasswords(1);
@@ -1890,14 +1900,14 @@ class ilStartUpGUI
          */
         global $lng, $ilAccess, $ilSetting;
         $tpl = new ilGlobalTemplate("tpl.main.html", true, true);
-
+        
         $tpl->addBlockfile('CONTENT', 'content', 'tpl.startup_screen.html', 'Services/Init');
 
         $view_title = $lng->txt('login_to_ilias');
         if ($a_show_back) {
             // #13400
             $param = 'client_id=' . $_COOKIE['ilClientId'] . '&lang=' . $lng->getLangKey();
-
+            
             $tpl->setCurrentBlock('link_item_bl');
             $tpl->setVariable('LINK_TXT', $view_title);
             $tpl->setVariable('LINK_URL', 'login.php?cmd=force_login&' . $param);

@@ -277,10 +277,17 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
 
                 $this->prepareOutput();
 
+                // fau: inheritContentStyle - get the effective content style by ref_id
                 $this->tpl->setVariable(
                     'LOCATION_CONTENT_STYLESHEET',
-                    ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
-                );
+                    ilObjStyleSheet::getContentStylePath(
+                        ilObjStyleSheet::getEffectiveContentStyleId(
+                            $this->object->getStyleSheetId(),
+                            $this->object->getType(),
+                            $this->object->getRefId()
+                        )
+                ));
+                // fau.
                 $this->tpl->setCurrentBlock('SyntaxStyle');
                 $this->tpl->setVariable('LOCATION_SYNTAX_STYLESHEET', ilObjStyleSheet::getSyntaxStylePath());
                 $this->tpl->parseCurrentBlock();
@@ -573,10 +580,18 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
 
     protected function initStyleSheets() : void
     {
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->tpl->setVariable(
             'LOCATION_CONTENT_STYLESHEET',
-            ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->object->getStyleSheetId(),
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                ))
         );
+        // fau.
+
         $this->tpl->setCurrentBlock('SyntaxStyle');
         $this->tpl->setVariable('LOCATION_SYNTAX_STYLESHEET', ilObjStyleSheet::getSyntaxStylePath());
         $this->tpl->parseCurrentBlock();
@@ -721,6 +736,18 @@ class ilObjContentPageGUI extends ilObject2GUI implements ilContentPageObjectCon
                 $form->addCommandButton('saveStyleSettings', $this->lng->txt('save'));
                 $form->addCommandButton('createStyle', $this->lng->txt('sty_create_ind_style'));
             }
+
+            // fau: inheritContentStyle - add inheritance properties to the form
+            if ($styleId <= 0) {
+                $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->object->getRefId());
+                if (!empty($parent_usage)) {
+                    $pu = new ilNonEditableValueGUI($this->lng->txt('sty_inherited_from'));
+                    $pu->setInfo($this->lng->txt('sty_inherited_from_info'));
+                    $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                    $form->addItem($pu);
+                }
+            }
+            // fau.
         }
 
         $form->setTitle($this->lng->txt("cont_style"));

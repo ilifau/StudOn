@@ -72,9 +72,11 @@
 				> a {
 				margin: 0;
 				padding: 5px 10px 6px;
-				text-transform: uppercase;
-				font-size: 14px;
-				border-top: 4px solid white;
+				text-transform: none;               // fim: no transformation.
+				font-size: 16px;					// fim: added.
+				font-weight: bold;					// fim: added.
+				text-decoration: none;				// fim: added.
+				border-top: 4px solid transparent;  // fim: transparent border.
 				background-color: @il-main-menu-link-bg;
 				color: @il-main-menu-link-color;
 				@media only screen and (max-width: @grid-float-breakpoint-max) {
@@ -187,7 +189,8 @@
 /* Main Menu Top Title */
 .ilTopTitle {
 	float: left;
-	font-weight: 600;
+	font-family: 'roboto';		// fim: use fau font.
+	// font-weight: 600; 		// fim: don't use font weight.
 	padding: 0 0 0 15px;
 	white-space: nowrap;
 	line-height: 40px;
@@ -223,7 +226,7 @@ input.ilOpenIDBox {
 	height: 40px;
 	top: 0;
 	z-index: 1040;
-	@media only screen and (max-width: @grid-float-breakpoint-max) {
+  @media only screen and (max-width: @grid-float-breakpoint-max) {
 		z-index: 1030;
 	}
 }
@@ -425,7 +428,7 @@ div.ilTopMemberView {
 	h3 {
 		padding: 0;
 		margin: 0;
-		line-height: 40px;	
+		line-height: 40px;
 	}
 	@media only screen and (max-width: @grid-float-breakpoint-max) {
 		display: none;

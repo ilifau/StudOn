@@ -43,6 +43,11 @@ class ilFeedbackConfirmationTable2GUI extends ilTable2GUI
         parent::__construct($a_parent_obj, $a_parent_cmd);
         $this->setLimit(9999);
         $this->setData($this->ass->getMultiFeedbackFiles($ilUser->getId()));
+        // fau: exMultiFeedbackStructure - show warning if submission structure is detected
+        if ($this->ass->isMultiFeedbackBySubmissionsDownload()) {
+            ilUtil::sendQuestion($this->lng->txt('exc_multi_feedback_by_submissions_warning'));
+        }
+        // fau.
         $this->setTitle($lng->txt("exc_multi_feedback_files"));
         $this->setSelectAllCheckbox("file[]");
         

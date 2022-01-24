@@ -143,11 +143,14 @@ class assMatchingQuestionExport extends assQuestionExport
             $a_xml_writer->xmlStartTag("material");
             if (strlen($definition->picture)) {
                 if ($force_image_references) {
+                    // fau: fixMatchingImageExport - query the mime type
+                    require_once('Services/Utilities/classes/class.ilMimeTypeUtil.php');
                     $attrs = array(
-                        "imagtype" => "image/jpeg",
+                        "imagtype" => ilMimeTypeUtil::lookupMimeType($this->object->getImagePath() . $definition->picture),
                         "label" => $definition->picture,
                         "uri" => $this->object->getImagePathWeb() . $definition->picture
                     );
+                    // fau.
                     $a_xml_writer->xmlElement("matimage", $attrs);
                 } else {
                     $imagepath = $this->object->getImagePath() . $definition->picture;
@@ -156,11 +159,15 @@ class assMatchingQuestionExport extends assQuestionExport
                         $imagefile = fread($fh, filesize($imagepath));
                         fclose($fh);
                         $base64 = base64_encode($imagefile);
+                        // fau: fixMatchingImageExport - query the mime type
+                        require_once('Services/Utilities/classes/class.ilMimeTypeUtil.php');
+
                         $attrs = array(
-                            "imagtype" => "image/jpeg",
+                            "imagtype" => ilMimeTypeUtil::lookupMimeType($this->object->getImagePath() . $definition->picture),
                             "label" => $definition->picture,
                             "embedded" => "base64"
                         );
+                        // fau.
                         $a_xml_writer->xmlElement("matimage", $attrs, $base64, false, false);
                     }
                 }
@@ -186,11 +193,15 @@ class assMatchingQuestionExport extends assQuestionExport
             $a_xml_writer->xmlStartTag("material");
             if (strlen($term->picture)) {
                 if ($force_image_references) {
+                    // fau: fixMatchingImageExport - query the mime type
+                    require_once('Services/Utilities/classes/class.ilMimeTypeUtil.php');
+
                     $attrs = array(
-                        "imagtype" => "image/jpeg",
+                        "imagtype" => ilMimeTypeUtil::lookupMimeType($this->object->getImagePath() . $term->picture),
                         "label" => $term->picture,
                         "uri" => $this->object->getImagePathWeb() . $term->picture
                     );
+                    // fau.
                     $a_xml_writer->xmlElement("matimage", $attrs);
                 } else {
                     $imagepath = $this->object->getImagePath() . $term->picture;
@@ -199,11 +210,15 @@ class assMatchingQuestionExport extends assQuestionExport
                         $imagefile = fread($fh, filesize($imagepath));
                         fclose($fh);
                         $base64 = base64_encode($imagefile);
+                        // fau: fixMatchingImageExport - query the mime type
+                        require_once('Services/Utilities/classes/class.ilMimeTypeUtil.php');
+
                         $attrs = array(
-                            "imagtype" => "image/jpeg",
+                            "imagtype" => ilMimeTypeUtil::lookupMimeType($this->object->getImagePath() . $term->picture),
                             "label" => $term->picture,
                             "embedded" => "base64"
                         );
+                        // fau.
                         $a_xml_writer->xmlElement("matimage", $attrs, $base64, false, false);
                     }
                 }

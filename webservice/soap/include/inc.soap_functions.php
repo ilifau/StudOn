@@ -468,6 +468,20 @@ class ilSoapFunctions
         return $sou->distributeMails($sid, $mail_xml);
     }
 
+    // fau: sendSimpleResults - new function sendUserMail()
+    public static function sendUserMail($sid, $to, $cc, $bcc, $sender, $subject, $message, $attach, $type, $use_placeholders)
+    {
+        include_once './webservice/soap/classes/class.ilSoapUtils.php';
+
+        $sou = new ilSoapUtils();
+        $sou->disableSOAPCheck();
+        $sou->ignoreUserAbort();
+
+        return $sou->sendUserMail($sid, $to, $cc, $bcc, $sender, $subject, $message, $attach, $type, $use_placeholders);
+    }
+    // fau.
+
+
     public static function ilClone($sid, $copy_identifier)
     {
         include_once './webservice/soap/classes/class.ilSoapUtils.php';
@@ -888,6 +902,110 @@ class ilSoapFunctions
         $roa = new ilSoapAdministration();
         return $roa->getClientInfoXML($clientid);
     }
+    
+    // fau: soapFunctions - add new functions
+    
+    public static function studonGetResources($sid, $semester)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonGetResources($sid, $semester);
+    }
+    
+    public static function studonHasResource($sid, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonHasResource($sid, $univis_id);
+    }
+
+    public static function studonGetPermaLink($sid, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonGetPermaLink($sid, $univis_id);
+    }
+
+    public static function studonGetMembers($sid, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonGetMembers($sid, $univis_id);
+    }
+
+    public static function studonIsSoapAssignable($sid, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonIsSoapAssignable($sid, $univis_id);
+    }
+
+    public static function studonIsAssigned($sid, $identity, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonIsAssigned($sid, $identity, $univis_id);
+    }
+
+    public static function studonAssignMember($sid, $identity, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonAssignMember($sid, $identity, $univis_id);
+    }
+
+    public static function studonExcludeMember($sid, $identity, $univis_id)
+    {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonExcludeMember($sid, $identity, $univis_id);
+    }
+
+    public function studonCopyCourse($sid, $sourceRefId, $targetRefId, $typesToLink=[]) {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonCopyCourse($sid, $sourceRefId, $targetRefId, $typesToLink);
+    }
+
+    public function studonSetCourseProperties($sid, $refId,
+        $title = null, $description = null, $online = null,
+        $courseStart = null, $courseEnd = null,
+        $activationStart = null, $activationEnd = null) {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonSetCourseProperties($sid, $refId, $title, $description, $online, $courseStart, $courseEnd, $activationStart, $activationEnd);
+    }
+
+    public function studonSetCourseInfo($sid, $refId,
+        $importantInformation = null, $syllabus = null, $contactName = null,
+        $contactResponsibility = null, $contactPhone = null,
+        $contactEmail = null, $contactConsultation = null) {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonSetCourseInfo($sid, $refId, $importantInformation, $syllabus, $contactName, $contactResponsibility, $contactPhone, $contactEmail, $contactConsultation);
+    }
+
+    public function studonAddCourseAdminsByIdentity($sid, $refId, $admins = []) {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonAddCourseAdminsByIdentity($sid, $refId, $admins);
+    }
+
+    public function studonSetCourseAdminsByIdentity($sid, $refId, $admins = []) {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studonSetCourseAdminsByIdentity($sid, $refId, $admins);
+    }
+
+
+    public function studonEnableLtiConsumer($sid, $refId, $consumerId, $adminRole = 'admin', $instructorRole = 'tutor', $memberRole = 'member') {
+        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
+        $ssa = new ilSoapStudOnAdministration();
+        return $ssa->studOnEnableLtiConsumer($sid, $refId, $consumerId, $adminRole, $instructorRole, $memberRole);
+    }
+
+    // fim.
+
     
     /**
      * builds http path if no client is available

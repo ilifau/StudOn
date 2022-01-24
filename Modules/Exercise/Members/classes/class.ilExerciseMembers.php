@@ -310,6 +310,26 @@ class ilExerciseMembers
         return false;
     }
 
+    // fau: exCalc - new function lookupStatusTime
+    /**
+     * Get the time from the last status update
+     */
+    public static function _lookupStatusTime($exc_id, $member_id)
+    {
+        global $ilDB, $lng;
+
+        $q = "SELECT * " .
+            "FROM exc_members " .
+            "WHERE obj_id= " . $ilDB->quote($exc_id, "integer") .
+            " AND usr_id= " . $ilDB->quote($member_id, "integer");
+
+        $set = $ilDB->query($q);
+        if ($rec = $ilDB->fetchAssoc($set)) {
+            return ilUtil::getMySQLTimestamp($rec["status_time"]);
+        }
+    }
+    // fau.
+
     /**
      * Write user status
      *
@@ -330,6 +350,9 @@ class ilExerciseMembers
         $ilDB->manipulate(
             "UPDATE exc_members SET " .
             " status = " . $ilDB->quote($a_status, "text") .
+            // fau: exCalc - update the status time
+            ", status_time = " . $ilDB->quote(ilUtil::now(), "timestamp") .
+            // fau.
             " WHERE obj_id = " . $ilDB->quote($a_obj_id, "integer") .
             " AND usr_id = " . $ilDB->quote($a_user_id, "integer")
         );

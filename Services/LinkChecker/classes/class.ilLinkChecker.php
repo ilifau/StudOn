@@ -100,9 +100,12 @@ class ilLinkChecker
 
         $res = $this->db->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
+            // fau: fixLinkChecker - add status to table data
             $invalid[] = array('page_id' => $row->page_id,
-                               'url' => $row->url);
+                               'url' => $row->url,
+                               'status' => $row->http_status_code);
         }
+        // fau.
 
         return $invalid ? $invalid : array();
     }

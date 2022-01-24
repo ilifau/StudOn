@@ -735,7 +735,7 @@ class ilPCMediaObjectGUI extends ilPageContentGUI
                 $std_item->getLocation(),
                 $std_item->getFormat()
             )) {	// autostart
-                /*
+                // fau: limitedMediaPlayer - show options for limited media player
                 $par = $std_item->getParameters();
                 $def_str = ($par["autostart"] == "true")
                     ? " (" . $lng->txt("yes") . ")"
@@ -750,7 +750,20 @@ class ilPCMediaObjectGUI extends ilPageContentGUI
                 $auto = new ilCheckboxInputGUI($lng->txt("enabled"), "st_autostart");
                 $op2->addSubItem($auto);
                 $rad_auto->addOption($op2);
-                $this->form_gui->addItem($rad_auto);*/
+
+                $opt3 = new ilRadioOption($lng->txt("cont_limit_starts"), "limit_starts");
+                $count = new ilNumberInputGUI($lng->txt("cont_limit_starts_count"), "st_limit_starts_count");
+                $count->setSize(2);
+                $opt3->addSubItem($count);
+                $base = new ilRadioGroupInputGUI($lng->txt("cont_limit_starts_context"), "st_limit_starts_context");
+                $base->addOption(new ilRadioOption($lng->txt("cont_limit_starts_user"), "user"));
+                $base->addOption(new ilRadioOption($lng->txt("cont_limit_starts_session"), "session"));
+                $base->addOption(new ilRadioOption($lng->txt("cont_limit_starts_testpass"), "testpass"));
+                $opt3->addSubItem($base);
+                $rad_auto->addOption($opt3);
+                // fau.
+
+                $this->form_gui->addItem($rad_auto);
             } else {							// parameters
                 $rad_parameters = new ilRadioGroupInputGUI($lng->txt("cont_parameter"), "st_derive_parameters");
                 $op1 = new ilRadioOption($lng->txt("cont_default"), "y");
@@ -939,11 +952,17 @@ class ilPCMediaObjectGUI extends ilPageContentGUI
             $std_item->getLocation(),
             $std_item->getFormat()
         )) {	// autostart
-            /*
+            // fau: limitedMediaPlayer - get options for limited media player
             $par = $std_alias_item->getParameters();
             if ($par["autostart"] == "true") {
                 $values["st_autostart"] = true;
-            }*/
+            }
+            elseif ($par["limit_starts"] == "true") {
+                $values["st_derive_parameters"] = "limit_starts";
+                $values["st_limit_starts_count"] = (int) $par["limit_starts_count"];
+                $values["st_limit_starts_context"] = (string) $par["limit_starts_context"];
+            }
+            // fau.
         } else {				// parameters
             $values["st_parameters"] = $std_alias_item->getParameterString();
         }
@@ -962,9 +981,13 @@ class ilPCMediaObjectGUI extends ilPageContentGUI
         $values["st_derive_text_representation"] = $std_alias_item->definesTextRepresentation()
             ? "n"
             : "y";
-        $values["st_derive_parameters"] = $std_alias_item->definesParameters()
-            ? "n"
-            : "y";
+        // fau: limitedMediaPlayer - respect previous setting for limited media player
+        if ($values["st_derive_parameters"] == "") {
+            $values["st_derive_parameters"] = $std_alias_item->definesParameters()
+                ? "n"
+                : "y";
+        }
+        // fau.
         if (trim($std_item->getParameterString()) == "") {
             $values["def_parameters"] = "<i>" . $lng->txt("cont_no_parameters") . "</i>";
         } else {
@@ -1075,17 +1098,30 @@ class ilPCMediaObjectGUI extends ilPageContentGUI
         // standard parameters
         if ($_POST["st_derive_parameters"] == "y") {
             $std_alias_item->deriveParameters();
-        } else {
+        }
+        // fau: limitedMediaPlayer - save the parameters for limited media player
+        elseif ($_POST["st_derive_parameters"] == "limit_starts") {
+            $std_alias_item->setParameters(
+                array(
+                    "limit_starts" => "true",
+                    "limit_starts_count" => ilUtil::stripSlashes($_POST["st_limit_starts_count"]),
+                    "limit_starts_context" => ilUtil::stripSlashes($_POST["st_limit_starts_context"])
+            )
+            );
+        }
+        // fau.
+        else {
             if ($this->media_type->usesAutoStartParameterOnly(
                 $std_item->getLocation(),
                 $std_item->getFormat()
             )) {	// autostart
-                /*
+                // fau: limitedMediaPlayer - todo: keept autostart
                 if ($_POST["st_autostart"]) {
                     $std_alias_item->setParameters(ilUtil::extractParameterString('autostart="true"'));
                 } else {
                     $std_alias_item->setParameters(ilUtil::extractParameterString('autostart="false"'));
-                }*/
+                }
+                // fau.
             } else {				// parameters
                 $std_alias_item->setParameters(ilUtil::extractParameterString(ilUtil::stripSlashes(utf8_decode($_POST["st_parameters"]))));
             }

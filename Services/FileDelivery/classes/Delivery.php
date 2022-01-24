@@ -142,6 +142,11 @@ final class Delivery
 
     public function deliver()
     {
+        // fau: webAccessChecker - use PHP delivery for download files that are deleted afterwards
+        if ($this->isDeleteFile()) {
+            $this->setDeliveryType(DeliveryMethod::PHP);
+        }
+        // fau.
         $response = $this->httpService->response()->withHeader('X-ILIAS-FileDelivery-Method', $this->getDeliveryType());
         if (!$this->delivery()->doesFileExists($this->path_to_file)) {
             $response = $this->httpService->response()->withStatus(404);

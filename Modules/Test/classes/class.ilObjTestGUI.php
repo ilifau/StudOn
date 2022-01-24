@@ -581,10 +581,18 @@ class ilObjTestGUI extends ilObjectGUI
                 }
                 require_once "./Services/Style/Content/classes/class.ilObjStyleSheet.php";
                 $this->tpl->setCurrentBlock("ContentStyle");
-                $this->tpl->setVariable(
-                    "LOCATION_CONTENT_STYLESHEET",
-                    ilObjStyleSheet::getContentStylePath(0)
-                );
+// fau: inheritContentStyle - get the effective content style by ref_id
+            $this->tpl->setVariable(
+                "LOCATION_CONTENT_STYLESHEET",
+                ilObjStyleSheet::getContentStylePath(
+                    ilObjStyleSheet::getEffectiveContentStyleId(
+                        0,
+                        $this->object->getType(),
+                        $this->object->getRefId()
+                    )
+                )
+            );
+// fau.
                 $this->tpl->parseCurrentBlock();
 
                 // syntax style
@@ -636,7 +644,9 @@ class ilObjTestGUI extends ilObjectGUI
 
                 $page_gui->setHeader($question->getTitle());
                 $page_gui->setFileDownloadLink($this->ctrl->getLinkTarget($this, "downloadFile"));
-                $page_gui->setFullscreenLink($this->ctrl->getLinkTarget($this, "fullscreen"));
+                // fau: fixFullscreenLink - fix fullscreen link in question page view
+                // $page_gui->setFullscreenLink($this->ctrl->getLinkTarget($this, "fullscreen"));
+                // fau.
                 $page_gui->setSourcecodeDownloadScript($this->ctrl->getLinkTarget($this));
                 $page_gui->setPresentationTitle($question->getTitle() . ' [' . $this->lng->txt('question_id_short') . ': ' . $question->getId() . ']');
                 $ret = $this->ctrl->forwardCommand($page_gui);
@@ -682,7 +692,19 @@ class ilObjTestGUI extends ilObjectGUI
                 $forwarder->setTestObj($this->object);
                 $forwarder->forward();
                 break;
-                
+
+            // fau: campusGrades - handle commands for my campus
+            case 'iltestmycampusgui':
+                global $ilTabs;
+                $this->prepareOutput();
+                $ilTabs->activateTab('export');
+                include_once './Modules/Test/classes/class.ilTestMyCampusGUI.php';
+                $new_gui = new ilTestMyCampusGUI($this->object);
+                $this->ctrl->forwardCommand($new_gui);
+                break;
+            // fau.
+
+
             case 'ilassspecfeedbackpagegui':
                 if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {
                     $ilias->raiseError($this->lng->txt("permission_denied"), $ilias->error_obj->MESSAGE);
@@ -1034,12 +1056,15 @@ class ilObjTestGUI extends ilObjectGUI
     */
     protected function importFileObject($parent_id = null, $a_catch_errors = true)
     {
+        // fau: fixTestImportType - set new type parameter before form is initialized
+        $this->ctrl->setParameter($this, "new_type", $this->type);
         $form = $this->initImportForm($_REQUEST["new_type"]);
         if ($form->checkInput()) {
             $this->ctrl->setParameter($this, "new_type", $this->type);
             $this->uploadTstObject();
             return;
         }
+        // fau.
 
         // display form to correct errors
         $form->setValuesByPost();
@@ -1292,7 +1317,9 @@ class ilObjTestGUI extends ilObjectGUI
         // create new questionpool object
         $newObj = new ilObjTest(0, true);
         // set type of questionpool object
-        $newObj->setType($_GET["new_type"]);
+        // fau: fixTestImportType - use the fixed type 'tst' for a new test
+        $newObj->setType('tst');
+        // fau.
         // set title of questionpool object to "dummy"
         $newObj->setTitle("dummy");
         // set description of questionpool object
@@ -1362,12 +1389,23 @@ class ilObjTestGUI extends ilObjectGUI
         
         
         // delete import directory
+        // fau: fixTestImportDirectory - cleanup import subdirectory
+        unset($_SESSION["tst_import_subdir"]);
+        // fau.
         ilUtil::delDir(ilObjTest::_getImportDirectory());
 
         ilUtil::sendSuccess($this->lng->txt("object_imported"), true);
         ilUtil::redirect("ilias.php?ref_id=" . $newObj->getRefId() . "&baseClass=ilObjTestGUI");
     }
-    
+
+    // fau: fixTestImportDirectory - cleanup import sub directoy
+    public function cancelImportObject()
+    {
+        unset($_SESSION["qpl_import_subdir"]);
+        $this->cancelObject();
+    }
+    // fau.
+
     /**
     * display status information or report errors messages
     * in case of error
@@ -2370,7 +2408,7 @@ class ilObjTestGUI extends ilObjectGUI
         }
         $this->ctrl->redirect($this, "participants");
     }
-    
+
     /**
     * Print tab to create a print of all questions with points and solutions
     *
@@ -2403,7 +2441,16 @@ class ilObjTestGUI extends ilObjectGUI
             $template->parseCurrentBlock();
 
             $template->setCurrentBlock("navigation_buttons");
+            // fau: questionPrint - add page breaks button
+            $this->ctrl->setParameter($this, "break", "none");
+            $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
             $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
+
+            $this->ctrl->setParameter($this, "break", "questions");
+            $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
+            $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
+            $this->ctrl->setParameter($this, "break", "");
+            // fau.
             $template->parseCurrentBlock();
         }
         // prepare generation before contents are processed (for mathjax)
@@ -2430,6 +2477,11 @@ class ilObjTestGUI extends ilObjectGUI
 
         foreach ($this->object->questions as $question) {
             $template->setCurrentBlock("question");
+            // fau: questionPrint - handle page breaks
+            if ($_GET['break'] == 'questions') {
+                $template->setVariable("STYLE_PRINT_PAGEBREAKS", "page-break-before:always;");
+            }
+            // fau.
             $question_gui = $this->object->createQuestionGUI("", $question);
             
             if ($isPdfDeliveryRequest) {
@@ -2449,6 +2501,12 @@ class ilObjTestGUI extends ilObjectGUI
             $counter++;
             $max_points += $question_gui->object->getMaximumPoints();
         }
+
+        // fau: questionPrint - handle page breaks
+        if ($_GET['break']) {
+            $template->touchBlock('print');
+        }
+        // fau.
 
         $template->setVariable("TITLE", ilUtil::prepareFormOutput($this->object->getTitle()));
         $template->setVariable("PRINT_TEST", ilUtil::prepareFormOutput($this->lng->txt("tst_print")));
@@ -2543,7 +2601,18 @@ class ilObjTestGUI extends ilObjectGUI
             $template->parseCurrentBlock();
 
             $template->setCurrentBlock("navigation_buttons");
+
+            // fau: questionPrint - add page breaks button
+            $this->ctrl->setParameter($this, "break", "none");
+            $template->setVariable("HREF_PRINT", $this->ctrl->getLinkTarget($this, "print"));
             $template->setVariable("BUTTON_PRINT", $this->lng->txt("print"));
+
+            $this->ctrl->setParameter($this, "break", "questions");
+            $template->setVariable("HREF_PRINT_PAGEBREAKS", $this->ctrl->getLinkTarget($this, "print"));
+            $template->setVariable("BUTTON_PRINT_PAGEBREAKS", $this->lng->txt("print_pagebreaks"));
+            $this->ctrl->setParameter($this, "break", "");
+            // fau.
+
             $template->parseCurrentBlock();
             
             
@@ -2801,7 +2870,22 @@ class ilObjTestGUI extends ilObjectGUI
         if ($this->object->getShowInfo()) {
             $info->enablePrivateNotes();
         }
-        
+
+        // fau: testStatement - add checkbox
+        if ($this->object->isAuthorshipStatementRequired()) {
+            $info->addSection($this->lng->txt("tst_info_section_requirements"));
+            if ($this->user->getLanguage() == 'de') {
+                $tpl_stat = new ilTemplate('tpl.tst_authorship_statement_de.html', false, false, 'Modules/Test');
+            }
+            else {
+                $tpl_stat = new ilTemplate('tpl.tst_authorship_statement_en.html', false, false, 'Modules/Test');
+            }
+            $info->addPropertyCheckbox($this->lng->txt("tst_authorship_statement"), "chb_authorship_statement", 1,
+                $tpl_stat->get(), $toolbar->getTestSession()->hasAuthorshipStatement());
+        }
+        // fau.
+
+
         if (strlen($this->object->getIntroduction())) {
             $info->addSection($this->lng->txt("tst_introduction"));
             $info->addProperty("", $this->object->prepareTextareaOutput($this->object->getIntroduction(), true) .
@@ -2838,7 +2922,9 @@ class ilObjTestGUI extends ilObjectGUI
                             if ($ilUser->prefs["tst_use_previous_answers"]) {
                                 $checked_previous_answers = true;
                             }
-                            $info->addPropertyCheckbox($this->lng->txt("tst_use_previous_answers"), "chb_use_previous_answers", 1, $this->lng->txt("tst_use_previous_answers_user"), $checked_previous_answers);
+                            // fau: adoptPreviousSolutions - new checkbox label on info screen
+                            $info->addPropertyCheckbox($this->lng->txt("tst_use_previous_answers"), "chb_use_previous_answers", 1, $this->lng->txt("tst_use_previous_answers_authorized"), $checked_previous_answers);
+                            // fau.
                         }
                     }
                 }

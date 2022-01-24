@@ -877,9 +877,32 @@ class ilObjRoleFolderGUI extends ilObjectGUI
             );
         }
     }
-    
+
+    // fau: cleanupRbacLog - new function to cleanup the rbac log
+    /**
+     * Cleanup the RBAC log
+     */
+    public function cleanupRbacLogObject()
+    {
+        $this->lng->loadLanguageModule('ps');
+        require_once "./Services/AccessControl/classes/class.ilRbacLog.php";
+        ilRbacLog::garbageCollection();
+        ilUtil::sendSuccess($this->lng->txt("cleanup_rbac_log_finished"), true);
+        $this->ctrl->redirect($this, 'editSettings');
+    }
+    // fau.
+
     public function editSettingsObject(ilPropertyFormGUI $a_form = null)
     {
+        // fau: cleanupRbacLog - add button to cleanup log
+        global $ilToolbar;
+        $this->lng->loadLanguageModule('ps');
+        $ilToolbar->addButton(
+            $this->lng->txt('cleanup_rbac_log'),
+            $this->ctrl->getLinkTarget($this, 'cleanupRbacLog')
+        );
+        // fau.
+
         if (!$a_form) {
             $a_form = $this->initSettingsForm();
         }

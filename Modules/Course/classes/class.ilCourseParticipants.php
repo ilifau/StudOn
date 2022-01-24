@@ -60,7 +60,7 @@ class ilCourseParticipants extends ilParticipants
         $this->NOTIFY_REGISTERED = 10;
         $this->NOTIFY_UNSUBSCRIBE = 11;
         $this->NOTIFY_WAITING_LIST = 12;
-        
+
         // ref based constructor
         $refs = ilObject::_getAllReferences($a_obj_id);
         parent::__construct(self::COMPONENT_NAME, array_pop($refs));
@@ -95,7 +95,7 @@ class ilCourseParticipants extends ilParticipants
         }
         return false;
     }
-    
+
     /**
      * Get member roles
      * @param int $a_ref_id
@@ -339,17 +339,11 @@ class ilCourseParticipants extends ilParticipants
                 $mail->send();
                 break;
 
+// fau: fairSub - deprecated case, fallback to specific function
             case $this->NOTIFY_WAITING_LIST:
-                include_once('./Modules/Course/classes/class.ilCourseWaitingList.php');
-                $wl = new ilCourseWaitingList($this->obj_id);
-                $pos = $wl->getPosition($a_usr_id);
-                    
-                $mail->setType(ilCourseMembershipMailNotification::TYPE_WAITING_LIST_MEMBER);
-                $mail->setRefId($this->ref_id);
-                $mail->setRecipients(array($a_usr_id));
-                $mail->setAdditionalInformation(array('position' => $pos));
-                $mail->send();
+                $this->sendAddedToWaitingList($a_usr_id);
                 break;
+// fau.
 
             case $this->NOTIFY_SUBSCRIPTION_REQUEST:
                 $this->sendSubscriptionRequestToAdmins($a_usr_id);
@@ -362,7 +356,27 @@ class ilCourseParticipants extends ilParticipants
         }
         return true;
     }
-    
+
+    // fau: fairSub - new function sendAddedToWaitingList()
+    /**
+     * Send notification to user about being added to the waiting list
+     * @param int			$a_usr_id
+     * @param ilWaitingList	$a_waiting_list
+     * @return bool
+     */
+    public function sendAddedToWaitingList($a_usr_id, $a_waiting_list = null)
+    {
+        include_once './Modules/Course/classes/class.ilCourseMembershipMailNotification.php';
+        $mail = new ilCourseMembershipMailNotification();
+        $mail->setType(ilCourseMembershipMailNotification::TYPE_WAITING_LIST_MEMBER);
+        $mail->setRefId($this->ref_id);
+        $mail->setWaitingList($a_waiting_list);
+        $mail->setRecipients(array($a_usr_id));
+        $mail->send();
+        return true;
+    }
+    // fau.
+
     public function sendUnsubscribeNotificationToAdmins($a_usr_id)
     {
         global $DIC;

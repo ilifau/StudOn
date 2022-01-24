@@ -110,11 +110,13 @@ class ilObjTestAccess extends ilObjectAccess implements ilConditionHandling
             array($user_id, $a_obj_id)
         );
         if (!$result->numRows()) {
+            // fau: fixTestPassedQuery - remove non-existing field tst_tests.random_test from query
             $result = $ilDB->queryF(
-                "SELECT tst_pass_result.*, tst_tests.pass_scoring, tst_tests.random_test, tst_tests.test_id FROM tst_pass_result, tst_active, tst_tests WHERE tst_active.test_fi = tst_tests.test_id AND tst_active.user_fi = %s AND tst_tests.obj_fi = %s AND tst_pass_result.active_fi = tst_active.active_id ORDER BY tst_pass_result.pass",
+                "SELECT tst_pass_result.*, tst_tests.pass_scoring, tst_tests.test_id FROM tst_pass_result, tst_active, tst_tests WHERE tst_active.test_fi = tst_tests.test_id AND tst_active.user_fi = %s AND tst_tests.obj_fi = %s AND tst_pass_result.active_fi = tst_active.active_id ORDER BY tst_pass_result.pass",
                 array('integer','integer'),
                 array($user_id, $a_obj_id)
             );
+            // fau.
             $points = array();
             while ($row = $ilDB->fetchAssoc($result)) {
                 array_push($points, $row);
@@ -337,8 +339,10 @@ class ilObjTestAccess extends ilObjectAccess implements ilConditionHandling
         $commands = array(
             array("permission" => "write", "cmd" => "questionsTabGateway", "lang_var" => "tst_edit_questions"),
             array("permission" => "write", "cmd" => "ilObjTestSettingsGeneralGUI::showForm", "lang_var" => "settings"),
-            array("permission" => "read", "cmd" => "infoScreen", "lang_var" => "tst_run",
+            // fau: testInfoScreen - "visible is enough to show the info screen
+            array("permission" => "visible", "cmd" => "infoScreen", "lang_var" => "tst_run",
                 "default" => true),
+            // fau.
             //array("permission" => "write", "cmd" => "", "lang_var" => "edit"),
             array("permission" => "tst_statistics", "cmd" => "outEvaluation", "lang_var" => "tst_statistical_evaluation"),
             array("permission" => "read", "cmd" => "userResultsGateway", "lang_var" => "tst_test_results")

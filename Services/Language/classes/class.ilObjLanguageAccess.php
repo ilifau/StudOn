@@ -49,7 +49,9 @@ class ilObjLanguageAccess
             self::$cached_check_translate = false;
         }
 
-        if ($ilUser->getId()) {
+        // fau: fixTranslateContext	- check translate permission only if rbac is initialized
+        if ($ilUser->getId() && isset($rbacsystem)) {
+            // fau.
             $ref_id = self::_lookupLangFolderRefId();
             self::$cached_check_translate =  $rbacsystem->checkAccess("read,write", (int) $ref_id);
         }

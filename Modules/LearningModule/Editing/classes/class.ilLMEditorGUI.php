@@ -235,10 +235,18 @@ class ilLMEditorGUI
 
         // content style
         $this->tpl->setCurrentBlock("ContentStyle");
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->tpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath($this->lm_obj->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->lm_obj->getStyleSheetId(),
+                    $this->lm_obj->getType(),
+                    $this->lm_obj->getRefId()
+                )
+            )
         );
+        // fau.
         $this->tpl->parseCurrentBlock();
 
         // syntax style

@@ -29,10 +29,14 @@ class ilObjBookingPool extends ilObject
      */
     protected $preference_nr;
 
+    // fau: stornoBook - add property
+    protected $user_storno = true; // [int]
+    // fau.
+
     const TYPE_FIX_SCHEDULE = 1;
     const TYPE_NO_SCHEDULE = 2;
     const TYPE_NO_SCHEDULE_PREFERENCES = 3;
-    
+
     /**
     * Constructor
     * @param	int		$a_id					reference_id or object_id
@@ -60,6 +64,9 @@ class ilObjBookingPool extends ilObject
             "ovlimit" => array("integer", $this->getOverallLimit()),
             "reminder_status" => array("integer", $this->getReminderStatus()),
             "reminder_day" => array("integer", $this->getReminderDay()),
+            // fau: stornoBook - add db field
+            "user_storno" => array("integer", $this->getUserStorno()),
+            // fau.
             "rsv_filter_period" => array("integer", $this->getReservationFilterPeriod()),
             "preference_nr" => array("integer", (int) $this->getPreferenceNumber()),
             "pref_deadline" => array("integer", (int) $this->getPreferenceDeadline())
@@ -127,6 +134,9 @@ class ilObjBookingPool extends ilObject
             $this->setOverallLimit($row['ovlimit']);
             $this->setReminderStatus($row['reminder_status']);
             $this->setReminderDay($row['reminder_day']);
+            // fau: stornoBook - read value
+            $this->setUserStorno(($row['user_storno']));
+            // fau.
             $this->setReservationFilterPeriod($row['rsv_filter_period']);
             $this->setPreferenceNumber($row['preference_nr']);
             $this->setPreferenceDeadline($row['pref_deadline']);
@@ -235,6 +245,10 @@ class ilObjBookingPool extends ilObject
         $new_obj->setReminderDay($this->getReminderDay());
         $new_obj->setPreferenceNumber($this->getPreferenceNumber());
         $new_obj->setPreferenceDeadline($this->getPreferenceDeadline());
+
+        // fau: stornoBook - clone value
+        $new_obj->setUserStorno($this->getUserStorno());
+        // fau.
 
         $smap = null;
         if ($this->getScheduleType() == self::TYPE_FIX_SCHEDULE) {
@@ -359,7 +373,7 @@ class ilObjBookingPool extends ilObject
     {
         $this->preference_nr = $a_val;
     }
-    
+
     /**
      * Get preference number
      *
@@ -369,7 +383,7 @@ class ilObjBookingPool extends ilObject
     {
         return $this->preference_nr;
     }
-    
+
     /**
      * Set preference deadline
      *
@@ -379,7 +393,7 @@ class ilObjBookingPool extends ilObject
     {
         $this->pref_deadline = $a_val;
     }
-    
+
     /**
      * Get preference deadline
      *
@@ -389,9 +403,9 @@ class ilObjBookingPool extends ilObject
     {
         return $this->pref_deadline;
     }
-    
-    
-    
+
+
+
     /**
      * Check object status
      *
@@ -456,8 +470,29 @@ class ilObjBookingPool extends ilObject
     {
         return $this->reservation_period;
     }
-    
-    
+
+    // fau: stornoBook - setter/getter
+    /**
+     * Set the storno by user option
+     * @param $a_value
+     */
+    public function setUserStorno($a_value)
+    {
+        $this->user_storno = (bool) $a_value;
+    }
+
+
+    /**
+     * Get the user storno option
+     * @param $a_value
+     * @return bool
+     */
+    public function getUserStorno()
+    {
+        return (bool) $this->user_storno;
+    }
+    // fau.
+
     //
     // advanced metadata
     //
@@ -465,7 +500,7 @@ class ilObjBookingPool extends ilObject
     public static function getAdvancedMDFields($a_ref_id)
     {
         $fields = array();
-        
+
         $recs = ilAdvancedMDRecord::_getSelectedRecordsByObject("book", $a_ref_id, "bobj");
 
         foreach ($recs as $record_obj) {

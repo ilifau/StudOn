@@ -66,6 +66,28 @@ class ilCoursePlaceholderDescription implements ilCertificatePlaceholderDescript
         $this->placeholder['DATETIME_COMPLETED'] = ilUtil::prepareFormOutput($language->txt('certificate_ph_datetime_completed'));
     }
 
+    // fau: courseCertData - new function addMoreCourseData
+    /**
+     * @param $objId
+     */
+    public function addMoreCourseData($objId)
+    {
+        $olp = ilObjectLP::getInstance($objId);
+        if ($olp->isActive()) {
+            $this->language->loadLanguageModule('trac');
+            $this->placeholder["COURSE_USER_MARK"] = $this->language->txt('trac_mark');
+            $this->placeholder["COURSE_USER_COMMENT"] = $this->language->txt('trac_comment');
+        }
+
+        foreach (ilCourseDefinedFieldDefinition::_getFields($objId) as $field) {
+            $name = str_replace('[', '(', $field->getName());
+            $name = str_replace(']', ')', $name);
+
+            $this->placeholder[$name] = $name;
+        }
+    }
+    // fau.
+
     /**
      * This methods MUST return an array containing an array with
      * the the description as array value.

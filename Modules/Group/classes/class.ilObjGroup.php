@@ -12,6 +12,10 @@ define('GRP_REGISTRATION_DIRECT', 0);
 define('GRP_REGISTRATION_REQUEST', 1);
 define('GRP_REGISTRATION_PASSWORD', 2);
 
+// fau: objectSub - add constant for subscription via object
+define('GRP_REGISTRATION_OBJECT', 11);
+// fau.
+
 define('GRP_REGISTRATION_LIMITED', 1);
 define('GRP_REGISTRATION_UNLIMITED', 2);
 
@@ -58,6 +62,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     protected $information;
     protected $group_type = null;
     protected $reg_type = GRP_REGISTRATION_DIRECT;
+    // fau: objectSub - class variable
+    protected $reg_ref_id = null;
+    // fau.
     protected $reg_enabled = true;
     protected $reg_unlimited = true;
     protected $reg_start = null;
@@ -66,7 +73,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     protected $reg_membership_limitation = false;
     protected $reg_min_members = 0;
     protected $reg_max_members = 0;
-    protected $waiting_list = false;
+    // fau: fairSub - change default setting for waiting list
+    protected $waiting_list = true;
+    // fau.
     protected $auto_fill_from_waiting; // [bool]
     protected $leave_end; // [ilDate]
     protected $show_members = 1;
@@ -97,8 +106,8 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
      * @var null | \ilDateTime
      */
     protected $end = null;
-    
-    
+
+
     // Map
     private $latitude = '';
     private $longitude = '';
@@ -109,10 +118,17 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private $reg_access_code_enabled = false;
 
     private $view_mode = ilContainer::VIEW_DEFAULT;
-    
-    private $mail_members = self::MAIL_ALLOWED_ALL;
-    
-    
+
+    // fau: mailToMembers - change default setting for mail to members
+    private $mail_members = self::MAIL_ALLOWED_TUTORS;
+    // fau.
+
+    // fau: fairSub - new class variables
+    protected $subscription_fair;
+    protected $subscription_auto_fill = true;
+    protected $subscription_last_fill;
+    // fau.
+
     public $members_obj;
 
 
@@ -236,7 +252,18 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     {
         return $this->reg_type;
     }
-    
+
+    // fau: objectSub - getter / setter
+    public function getRegistrationRefId()
+    {
+        return $this->reg_ref_id;
+    }
+    public function setRegistrationRefId($a_ref_id)
+    {
+        $this->reg_ref_id = $a_ref_id;
+    }
+    // fau.
+
     /**
      * is registration enabled
      *
@@ -317,6 +344,82 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     {
         return $this->reg_end;
     }
+
+    // fau: fairSub - getter / setter
+    public function getSubscriptionFair()
+    {
+        return (int) $this->subscription_fair;
+    }
+    public function setSubscriptionFair($a_value)
+    {
+        $this->subscription_fair = $a_value;
+    }
+    public function getSubscriptionAutoFill()
+    {
+        return (bool) $this->subscription_auto_fill;
+    }
+    public function setSubscriptionAutoFill($a_value)
+    {
+        $this->subscription_auto_fill = (bool) $a_value;
+    }
+    public function getSubscriptionLastFill()
+    {
+        return $this->subscription_last_fill;
+    }
+    public function setSubscriptionLastFill($a_value)
+    {
+        $this->subscription_last_fill = $a_value;
+    }
+    public function saveSubscriptionLastFill($a_value = null)
+    {
+        global $ilDB;
+        $ilDB->update(
+            'grp_settings',
+            array('sub_last_fill' => array('integer', $a_value)),
+            array('obj_id' => array('integer', $this->getId()))
+        );
+        $this->subscription_last_fill = $a_value;
+    }
+
+    public function getSubscriptionMinFairSeconds()
+    {
+        global $ilSetting;
+        return $ilSetting->get('SubscriptionMinFairSeconds', 3600);
+    }
+
+    public function getSubscriptionFairDisplay($a_relative)
+    {
+        require_once('Services/Calendar/classes/class.ilDatePresentation.php');
+        $relative = ilDatePresentation::useRelativeDates();
+        ilDatePresentation::setUseRelativeDates($a_relative);
+        $fairdate = ilDatePresentation::formatDate(new ilDateTime($this->getSubscriptionFair(), IL_CAL_UNIX));
+        ilDatePresentation::setUseRelativeDates($relative);
+        return $fairdate;
+    }
+    // fau.
+
+    // fau: fairSub - check if current time is in fair time span
+    public function inSubscriptionFairTime($a_time = null)
+    {
+        if (!isset($a_time)) {
+            $a_time = time();
+        }
+
+        if (!$this->isMembershipLimited()) {
+            return false;
+        } elseif (empty($this->getMaxMembers())) {
+            return false;
+        } elseif ($a_time > $this->getSubscriptionFair()) {
+            return false;
+        } elseif (empty($this->getRegistrationStart()) || $this->getRegistrationStart()->isNull()) {
+            return false;
+        } elseif ($a_time < $this->getRegistrationStart()->get(IL_CAL_UNIX)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    // fau.
 
     /**
      * set password
@@ -440,7 +543,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     {
         return (bool) $this->auto_fill_from_waiting;
     }
-    
+
     /**
     * Set Latitude.
     *
@@ -772,6 +875,17 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $ilErr->appendMessage($this->lng->txt(self::ERR_WRONG_REG_TIME_LIMIT));
         }
         */
+
+
+        // fau: fairSub - validate subscription times
+        if ($this->isMembershipLimited() && $this->getMaxMembers() > 0
+            && !empty($this->getRegistrationStart()) && !$this->getRegistrationStart()->isNull()
+            && !empty($this->getRegistrationEnd()) && !$this->getRegistrationEnd()->isNull()
+            && $this->getRegistrationEnd()->get(IL_CAL_UNIX) < $this->getRegistrationStart()->get(IL_CAL_UNIX) + $this->getSubscriptionMinFairSeconds()) {
+            $ilErr->appendMessage(sprintf($this->lng->txt("sub_fair_subscription_min_minutes"), ceil($this->getSubscriptionMinFairSeconds() / 60)));
+        }
+        // fau.
+
         if ($this->isMembershipLimited()) {
             if ($this->getMinMembers() <= 0 && $this->getMaxMembers() <= 0) {
                 $ilErr->appendMessage($this->lng->txt(self::ERR_MISSING_MIN_MAX_MEMBERS));
@@ -783,11 +897,16 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
                 $ilErr->appendMessage($this->lng->txt(self::ERR_WRONG_MIN_MAX_MEMBERS));
             }
         }
+        // fau: fairSub - fixed check for wrong registration period
+        $has_regstart = $this->getRegistrationStart() instanceof ilDateTime && !$this->getRegistrationStart()->isNull();
+        $has_regend = $this->getRegistrationEnd() instanceof ilDateTime && !$this->getRegistrationEnd()->isNull();
+
         if (
-            ($this->getRegistrationStart() && !$this->getRegistrationEnd()) ||
-            (!$this->getRegistrationStart() && $this->getRegistrationEnd()) ||
-            $this->getRegistrationEnd() <= $this->getRegistrationStart()
+            ($has_regstart && !$has_regend) ||
+            (!$has_regstart && $has_regend) ||
+            ($has_regstart && $has_regend && ilDateTime::_before($this->getRegistrationEnd(), $this->getRegistrationStart()))
         ) {
+            // fau.
             $ilErr->appendMessage($this->lng->txt((self::ERR_WRONG_REGISTRATION_LIMITED)));
         }
         
@@ -816,8 +935,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         }
 
 
-        $query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,registration_enabled," .
-            "registration_unlimited,registration_start,registration_end,registration_password,registration_mem_limit," .
+        // fau: objectSub - add sub_ref_id
+        // fau: fairSub - add sub_fair, sub_auto_fill, sub_last_fill
+        $query = "INSERT INTO grp_settings (obj_id,information,grp_type,registration_type,sub_ref_id,registration_enabled," .
+            "registration_unlimited,registration_start,registration_end,sub_fair,sub_auto_fill,sub_last_fill,registration_password,registration_mem_limit," .
             "registration_max_members,waiting_list,latitude,longitude,location_zoom,enablemap,reg_ac_enabled,reg_ac,view_mode,mail_members_type," .
             "leave_end,registration_min_members,auto_wait, grp_start, grp_end, auto_notification, session_limit, session_prev, session_next) " .
             "VALUES(" .
@@ -825,10 +946,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $ilDB->quote($this->getInformation(), 'text') . ", " .
             $ilDB->quote((int) $this->getGroupType(), 'integer') . ", " .
             $ilDB->quote($this->getRegistrationType(), 'integer') . ", " .
+            $ilDB->quote($this->getRegistrationRefId(), 'integer') . ", " .
             $ilDB->quote(($this->isRegistrationEnabled() ? 1 : 0), 'integer') . ", " .
             $ilDB->quote(($this->isRegistrationUnlimited() ? 1 : 0), 'integer') . ", " .
             $ilDB->quote(($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) ? $this->getRegistrationStart()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
             $ilDB->quote(($this->getRegistrationEnd() && !$this->getRegistrationEnd()->isNull()) ? $this->getRegistrationEnd()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
+            $ilDB->quote($this->getSubscriptionFair(), 'integer') . ", " .
+            $ilDB->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
+            $ilDB->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
             $ilDB->quote($this->getPassword(), 'text') . ", " .
             $ilDB->quote((int) $this->isMembershipLimited(), 'integer') . ", " .
             $ilDB->quote($this->getMaxMembers(), 'integer') . ", " .
@@ -851,6 +976,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $ilDB->quote($this->getNumberOfPreviousSessions(), ilDBConstants::T_INTEGER) . ', ' .
             $ilDB->quote($this->getNumberOfNextSessions(), ilDBConstants::T_INTEGER) .
             ')';
+        // fau.
         $res = $ilDB->manipulate($query);
 
         $ilAppEventHandler->raise(
@@ -882,6 +1008,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             "SET information = " . $ilDB->quote($this->getInformation(), 'text') . ", " .
             "grp_type = " . $ilDB->quote((int) $this->getGroupType(), 'integer') . ", " .
             "registration_type = " . $ilDB->quote($this->getRegistrationType(), 'integer') . ", " .
+            // fau: objectSub - save sub_ref_id
+            "sub_ref_id = " . $ilDB->quote($this->getRegistrationRefId(), 'integer') . ", " .
+            // fau.
+            // fau: fairSub - save sub_fair, sub_auto_fill and sub_last_fill
+            "sub_fair = " . $ilDB->quote($this->getSubscriptionFair(), 'integer') . ", " .
+            "sub_auto_fill = " . $ilDB->quote((int) $this->getSubscriptionAutoFill(), 'integer') . ", " .
+            "sub_last_fill = " . $ilDB->quote($this->getSubscriptionLastFill(), 'integer') . ", " .
+            // fau.
             "registration_enabled = " . $ilDB->quote($this->isRegistrationEnabled() ? 1 : 0, 'integer') . ", " .
             "registration_unlimited = " . $ilDB->quote($this->isRegistrationUnlimited() ? 1 : 0, 'integer') . ", " .
             "registration_start = " . $ilDB->quote(($this->getRegistrationStart() && !$this->getRegistrationStart()->isNull()) ? $this->getRegistrationStart()->get(IL_CAL_DATETIME, '') : null, 'timestamp') . ", " .
@@ -911,8 +1045,13 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             'session_prev = ' . $ilDB->quote($this->getNumberOfPreviousSessions(), ilDBConstants::T_INTEGER) . ', ' .
             'session_next = ' . $ilDB->quote($this->getNumberOfNextSessions(), ilDBConstants::T_INTEGER) . ' ' .
             "WHERE obj_id = " . $ilDB->quote($this->getId(), 'integer');
+        // fim.
         $res = $ilDB->manipulate($query);
-        
+
+        // fau: fixGroupDescription - update metadata
+        $this->updateMetaData();
+        // fau.
+
         $ilAppEventHandler->raise(
             'Modules/Group',
             'update',
@@ -949,7 +1088,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         
         include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
         ilGroupParticipants::_deleteAllEntries($this->getId());
-        
+
         $ilAppEventHandler->raise(
             'Modules/Group',
             'delete',
@@ -982,6 +1121,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             $this->setInformation($row->information);
             $this->setGroupType($row->grp_type);
             $this->setRegistrationType($row->registration_type);
+            // fau: objectSub - read sub_ref_id
+            $this->setRegistrationRefId($row->sub_ref_id);
+            // fau.
+            // fau: fairSub - read sub_fair and sub_last_fill
+            $this->setSubscriptionFair($row->sub_fair);
+            $this->setSubscriptionAutoFill($row->sub_auto_fill);
+            $this->setSubscriptionLastFill($row->sub_last_fill);
+            // fau.
             $this->enableUnlimitedRegistration($row->registration_unlimited);
             $this->setRegistrationStart(new ilDateTime($row->registration_start, IL_CAL_DATETIME));
             $this->setRegistrationEnd(new ilDateTime($row->registration_end, IL_CAL_DATETIME));
@@ -1063,6 +1210,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $new_obj->enableWaitingList($this->isWaitingListEnabled());
         $new_obj->setShowMembers($this->getShowMembers());
 
+        // fau: objectSub - clone sub_ref_id
+        $new_obj->setRegistrationRefId($this->getRegistrationRefId());
+        // fau.
+        // fau: fairSub - clone sub_fair and reset sub_last_fill
+        $new_obj->setSubscriptionFair($this->getSubscriptionFair());
+        $new_obj->setSubscriptionAutoFill($this->getSubscriptionAutoFill());
+        $new_obj->setSubscriptionLastFill(null);
+        // fau.
         // map
         $new_obj->setLatitude($this->getLatitude());
         $new_obj->setLongitude($this->getLongitude());
@@ -2122,39 +2277,156 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $part->sendNotification(ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION, $a_user_id);
         return true;
     }
-        
-    public function handleAutoFill()
-    {
-        if ($this->isWaitingListEnabled() &&
-            $this->hasWaitingListAutoFill()) {
-            $max = $this->getMaxMembers();
-            $now = ilGroupParticipants::lookupNumberOfMembers($this->getRefId());
-            if ($max > $now) {
-                // see assignFromWaitingListObject()
-                include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
-                $waiting_list = new ilGroupWaitingList($this->getId());
 
-                foreach ($waiting_list->getUserIds() as $user_id) {
-                    if (!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
+    // fau: fairSub - new function findFairAutoFill
+    /**
+     * Find groups that can be auto filled after the fair subscription time
+     * @return int[]	object ids
+     */
+    public static function findFairAutoFill()
+    {
+        global $ilDB;
+
+        // find all groups with a finished fair period in the last month
+        // that are not filled or last filled before the fair period
+        $query = "
+			SELECT s.obj_id
+			FROM grp_settings s
+			INNER JOIN object_reference r ON r.obj_id = s.obj_id
+			WHERE r.deleted IS NULL
+			AND s.grp_type <> 1
+			AND registration_mem_limit > 0
+			AND registration_max_members > 0
+			AND s.sub_auto_fill > 0
+			AND s.sub_fair > (UNIX_TIMESTAMP() - 3600 * 24 * 30)
+			AND sub_fair < UNIX_TIMESTAMP()
+			AND (s.sub_last_fill IS NULL OR s.sub_last_fill < s.sub_fair)
+		";
+
+        $obj_ids = array();
+        $result = $ilDB->query($query);
+        while ($row = $ilDB->fetchAssoc($result)) {
+            $obj_ids[] = $row['obj_id'];
+        }
+        return $obj_ids;
+    }
+    // fau.
+
+    // fau: fairSub - fill only assignable users, treat manual fill, return filled users
+    /**
+     * Auto fill free places in the course from the waiting list
+     * @param bool 		$manual		called manually by admin
+     * @param bool 		$initial	called initially by cron job after fair time
+     * @return int[]	added user ids
+     */
+    public function handleAutoFill($manual = false, $initial = false)
+    {
+        $added_users = array();
+        $last_fill = $this->getSubscriptionLastFill();
+
+        // never fill if subscriptions are still fairly collected, even if manual call (should not happen)
+        if ($this->inSubscriptionFairTime()) {
+            return array();
+        }
+
+        // check the conditions for autofill
+        if ($manual
+            || $initial
+            || ($this->isWaitingListEnabled() && $this->hasWaitingListAutoFill())
+        ) {
+            include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
+            include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
+            include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
+
+            $max = (int) $this->getMaxMembers();
+            $now = ilGroupParticipants::lookupNumberOfMembers($this->getRefId());
+
+            if ($max == 0 || $max > $now) {
+                // see assignFromWaitingListObject()
+                $waiting_list = new ilGroupWaitingList($this->getId());
+                $members_obj = ilGroupParticipants::_getInstanceByObjId($this->getId());
+                $grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this);
+
+                foreach ($waiting_list->getAssignableUserIds($max == 0 ? null :  $max - $now) as $user_id) {
+                    // check conditions for adding the member
+                    if (
+                        // user does not longer exist
+                        ilObjectFactory::getInstanceByObjId($user_id, false) == false
+                        // user is already assigned to the course
+                        || $members_obj->isAssigned($user_id) == true
+                        // user is already assigned to a grouped course
+                        || ilObjCourseGrouping::_checkGroupingDependencies($this, $user_id) == false
+                    ) {
+                        $waiting_list->removeFromList($user_id);
                         continue;
                     }
-                    if ($this->getMembersObject()->isAssigned($user_id)) {
-                        continue;
+
+                    // avoid race condition
+                    if ($members_obj->addLimited($user_id, IL_GRP_MEMBER, $max)) {
+                        // user is now member
+                        $added_users[] = $user_id;
+
+                        // delete user from this and grouped waiting lists
+                        $waiting_list->removeFromList($user_id);
+                        foreach ($grouping_ref_ids as $ref_id) {
+                            ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
+                        }
+                    } else {
+                        // last free places are taken by parallel requests, don't try further
+                        break;
                     }
-                    $this->getMembersObject()->add($user_id, IL_GRP_MEMBER); // #18213
-                    include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
-                    $this->getMembersObject()->sendNotification(ilGroupMembershipMailNotification::TYPE_ACCEPTED_SUBSCRIPTION_MEMBER, $user_id, true);
-                    $waiting_list->removeFromList($user_id);
 
                     $now++;
-                    if ($now >= $max) {
+                    if ($max > 0 && $now >= $max) {
                         break;
                     }
                 }
+
+                // get the user that remain on the waiting list
+                $waiting_users = $waiting_list->getUserIds();
+
+                // prepare notifications
+                // the waiting list object is injected to allow the inclusion of the waiting list position
+                include_once('./Modules/Group/classes/class.ilGroupMembershipMailNotification.php');
+                $mail = new ilGroupMembershipMailNotification();
+                $mail->setRefId($this->ref_id);
+                $mail->setWaitingList($waiting_list);
+
+                // send notifications to added users
+                if (!empty($added_users)) {
+                    $mail->setType(ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER);
+                    $mail->setRecipients($added_users);
+                    $mail->send();
+                }
+
+                // send notifications to waiting users if waiting list is automatically filled for the first time
+                // the distinction between requests and subscriptions is done in the send() function
+                if (empty($last_fill) && !empty($waiting_users)) {
+                    $mail->setType(ilGroupMembershipMailNotification::TYPE_AUTOFILL_STILL_WAITING);
+                    $mail->setRecipients($waiting_users);
+                    $mail->send();
+                }
+
+                // send notification to course admins if waiting users have to be confirmed and places are free
+                // this should be done only once after the end of the fair time
+                if ($initial
+                    && $waiting_list->getCountToConfirm() > 0
+                    && ($max == 0 || $max > $now)) {
+                    $mail->setType(ilGroupMembershipMailNotification::TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM);
+                    $mail->setRecipients($members_obj->getNotificationRecipients());
+                    $mail->send();
+                }
             }
         }
+
+        // remember the fill date
+        // this prevents further calls from the cron job
+        $this->saveSubscriptionLastFill(time());
+
+        return $added_users;
     }
-    
+    // fau.
+
     public static function mayLeave($a_group_id, $a_user_id = null, &$a_date = null)
     {
         global $DIC;

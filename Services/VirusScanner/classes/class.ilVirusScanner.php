@@ -13,370 +13,380 @@
  */
 class ilVirusScanner
 {
-    /**
-     * type of the virus scanner ("simulate", "sophos", "antivir")
-     * should be set in child constructors
-     * @var string
-     * @access private
-     */
-    public $type;
+	/**
+	 * type of the virus scanner ("simulate", "sophos", "antivir")
+	 * should be set in child constructors
+	 * @var string
+	 * @access private
+	 */
+	var $type;
 
-    /**
-     * can scan zip files (true, false)
-     * should be set in child classes
-     * @var boolean
-     * @access private
-     */
-    public $scanZipFiles;
+	/**
+	 * can scan zip files (true, false)
+	 * should be set in child classes
+	 * @var boolean
+	 * @access private
+	 */
+	var $scanZipFiles;
 
-    /**
-     * Path of external scanner command
-     * @var string
-     * @access private
-     */
-    public $scanCommand;
+	/**
+	 * Path of external scanner command
+	 * @var string
+	 * @access private
+	 */
+	var $scanCommand;
 
-    /**
-     * Path of external cleaner command
-     * @var string
-     * @access private
-     */
-    public $cleanCommand;
+	/**
+	 * Path of external cleaner command
+	 * @var string
+	 * @access private
+	 */
+	var $cleanCommand;
 
-    /**
-     * path of the scanned file including the name
-     * @var string
-     * @access private
-     */
-    public $scanFilePath;
+	/**
+	 * path of the scanned file including the name
+	 * @var string
+	 * @access private
+	 */
+	var $scanFilePath;
 
-    /**
-     * original name of the scanned file (e.g. if uploaded)
-     * @var string
-     * @access private
-     */
-    public $scanFileOrigName;
+	/**
+	 * original name of the scanned file (e.g. if uploaded)
+	 * @var string
+	 * @access private
+	 */
+	var $scanFileOrigName;
 
-    /**
-     * path of the scanned file including the name
-     * @var string
-     * @access private
-     */
-    public $cleanFilePath;
+	/**
+	 * path of the scanned file including the name
+	 * @var string
+	 * @access private
+	 */
+	var $cleanFilePath;
 
-    /**
-     * original name of the cleaned file (e.g. if uploaded)
-     * @var string
-     * @access private
-     */
-    public $cleanFileOrigName;
+	/**
+	 * original name of the cleaned file (e.g. if uploaded)
+	 * @var string
+	 * @access private
+	 */
+	var $cleanFileOrigName;
 
-    /**
-     * the scanned file is infected
-     * @var boolean
-     * @access private
-     */
-    public $scanFileIsInfected;
+	/**
+	 * the scanned file is infected
+	 * @var boolean
+	 * @access private
+	 */
+	var $scanFileIsInfected;
 
-    /**
-     * the clean file could be cleaned
-     * @var boolean
-     * @access private
-     */
-    public $cleanFileIsCleaned;
+	/**
+	 * the clean file could be cleaned
+	 * @var boolean
+	 * @access private
+	 */
+	var $cleanFileIsCleaned;
 
-    /**
-     * ouptput message of external scanner
-     * @var string
-     * @access private
-     */
-    public $scanResult;
+	/**
+	 * ouptput message of external scanner
+	 * @var string
+	 * @access private
+	 */
+	var $scanResult;
 
-    /**
-     * ouptput message of external cleaner
-     * @var string
-     * @access private
-     */
-    public $cleanResult;
+	/**
+	 * ouptput message of external cleaner
+	 * @var string
+	 * @access private
+	 */
+	var $cleanResult;
 
-    /**
-     * Ilias object
-     * @var object
-     * @access private
-     */
-    public $ilias;
+	/**
+	 * Ilias object
+	 * @var object
+	 * @access private
+	 */
+	var $ilias;
 
-    /**
-     * Language object
-     * @var object Language
-     * @access private
-     */
-    public $lng;
+	/**
+	 * Language object
+	 * @var object Language
+	 * @access private
+	 */
+	var $lng;
 
-    /**
-     * Log object
-     * @var object
-     * @access private
-     */
-    public $log;
+	/**
+	 * Log object
+	 * @var object
+	 * @access private
+	 */
+	var $log;
 
-    /**
-     * Constructor
-     * @access    public
-     */
-    public function __construct($a_scancommand, $a_cleancommand)
-    {
-        global $DIC;
-        $ilias = $DIC['ilias'];
-        $lng = $DIC['lng'];
-        $log = $DIC['log'];
+	/**
+	 * Constructor
+	 * @access    public
+	 */
+	public function __construct($a_scancommand, $a_cleancommand)
+	{
+		global $DIC;
+		$ilias = $DIC['ilias'];
+		$lng = $DIC['lng'];
+		$log = $DIC['log'];
 
-        $this->ilias = $ilias;
-        $this->lng = $lng;
-        $this->log = $log;
-        $this->scanCommand = $a_scancommand;
-        $this->cleanCommand = $a_cleancommand;
+		$this->ilias        = $ilias;
+		$this->lng          = $lng;
+		$this->log          = $log;
+		$this->scanCommand  = $a_scancommand;
+		$this->cleanCommand = $a_cleancommand;
 
-        $this->type = "simulate";
-        $this->scanZipFiles = false;
-    }
-    
-    /**
-     * @param string $buffer (any data, binary)
-     * @return bool $infected
-     */
-    public function scanBuffer($buffer)
-    {
-        return $this->scanFileFromBuffer($buffer);
-    }
-    
-    /**
-     * @param string $buffer (any data, binary)
-     * @return bool $infected
-     */
-    protected function scanFileFromBuffer($buffer)
-    {
-        $bufferFile = $this->createBufferFile($buffer);
-        $isInfected = $this->scanFile($bufferFile);
-        $this->removeBufferFile($bufferFile);
-        return $isInfected;
-    }
-    
-    /**
-     * @param string $buffer (any data, binary)
-     * @return string $bufferFile
-     */
-    protected function createBufferFile($buffer)
-    {
-        $bufferFile = ilUtil::ilTempnam();
-        file_put_contents($bufferFile, $buffer);
-        return $bufferFile;
-    }
-    
-    /**
-     * @param string $bufferFile
-     */
-    protected function removeBufferFile($bufferFile)
-    {
-        unlink($bufferFile);
-    }
-    
-    /**
-     * scan a file for viruses
-     * needs to be redefined in child classes
-     * here it simulates a scan
-     * "infected.txt" or "cleanable.txt" are expected to be infected
-     * @param    string    path of file to scan
-     * @param    string    original name of the file to scan
-     * @return   string  virus message (empty if not infected)
-     * @access    public
-     */
-    public function scanFile($a_filepath, $a_origname = "")
-    {
-        // This function needs to be redefined in child classes.
-        // It should:
-        // - call the external scanner for a_filepath
-        // - set scanFilePath to a_filepath
-        // - set scanFileOrigName to a_origname
-        // - set scanFileIsInfected according the scan result
-        // - set scanResult to the scanner output message
-        // - call logScanResult() if file is infected
-        // - return the output message, if file is infected
-        // - return an empty string, if file is not infected
+		$this->type         = "simulate";
+		$this->scanZipFiles = false;
+	}
 
-        $this->scanFilePath = $a_filepath;
-        $this->scanFileOrigName = $a_origname;
+	/**
+	 * @param string $buffer (any data, binary)
+	 * @return bool $infected
+	 */
+	public function scanBuffer($buffer)
+	{
+		return $this->scanFileFromBuffer($buffer);
+	}
 
-        if ($a_origname == "infected.txt" or $a_origname == "cleanable.txt") {
-            $this->scanFileIsInfected = true;
-            $this->scanResult =
-                "FILE INFECTED: [" . $a_filepath . "] (VIRUS: simulated)";
-            $this->logScanResult();
-            return $this->scanResult;
-        } else {
-            $this->scanFileIsInfected = false;
-            $this->scanResult = "";
-            return "";
-        }
-    }
+	/**
+	 * @param string $buffer (any data, binary)
+	 * @return bool $infected
+	 */
+	protected function scanFileFromBuffer($buffer)
+	{
+		$bufferFile = $this->createBufferFile($buffer);
+		$isInfected = $this->scanFile($bufferFile);
+		$this->removeBufferFile($bufferFile);
+		return $isInfected;
+	}
 
-    /**
-     * clean an infected file
-     * needs to be redefined in child classes
-     * here it simulates a clean
-     * "cleanable.txt" is expected to be cleanable
-     * @param    string    path of file to check
-     * @param    string    original name of the file to clean
-     * @return   string  clean message (empty if not cleaned)
-     * @access    public
-     */
-    public function cleanFile($a_filepath, $a_origname = "")
-    {
-        // This function needs to be redefined in child classes
-        // It should:
-        // - call the external cleaner
-        // - set cleanFilePath to a_filepath
-        // - set cleanFileOrigName to a_origname
-        // - set cleanFileIsCleaned according the clean result
-        // - set cleanResult to the cleaner output message
-        // - call logCleanResult in any case
-        // - return the output message, if file is cleaned
-        // - return an empty string, if file is not cleaned
+	/**
+	 * @param string $buffer (any data, binary)
+	 * @return string $bufferFile
+	 */
+	protected function createBufferFile($buffer)
+	{
+		$bufferFile = ilUtil::ilTempnam();
+		file_put_contents($bufferFile, $buffer);
+		return $bufferFile;
+	}
 
-        $this->cleanFilePath = $a_filepath;
-        $this->cleanFileOrigName = $a_origname;
+	/**
+	 * @param string $bufferFile
+	 */
+	protected function removeBufferFile($bufferFile)
+	{
+		unlink($bufferFile);
+	}
 
-        if ($a_origname == "cleanable.txt") {
-            $this->cleanFileIsCleaned = true;
-            $this->cleanResult =
-                "FILE CLEANED: [" . $a_filepath . "] (VIRUS: simulated)";
-            $this->logCleanResult();
-            return $this->cleanResult;
-        } else {
-            $this->cleanFileIsCleaned = false;
-            $this->cleanResult =
-                "FILE NOT CLEANED: [" . $a_filepath . "] (VIRUS: simulated)";
-            $this->logCleanResult();
-            return "";
-        }
-    }
+	/**
+	 * scan a file for viruses
+	 * needs to be redefined in child classes
+	 * here it simulates a scan
+	 * "infected.txt" or "cleanable.txt" are expected to be infected
+	 * @param    string    path of file to scan
+	 * @param    string    original name of the file to scan
+	 * @return   string  virus message (empty if not infected)
+	 * @access    public
+	 */
+	function scanFile($a_filepath, $a_origname = "")
+	{
+		// This function needs to be redefined in child classes.
+		// It should:
+		// - call the external scanner for a_filepath
+		// - set scanFilePath to a_filepath
+		// - set scanFileOrigName to a_origname
+		// - set scanFileIsInfected according the scan result
+		// - set scanResult to the scanner output message
+		// - call logScanResult() if file is infected
+		// - return the output message, if file is infected
+		// - return an empty string, if file is not infected
 
-    /**
-     * returns wether file has been cleaned successfully or not
-     * @return    boolean        true, if last clean operation has been successful
-     */
-    public function fileCleaned()
-    {
-        return $this->cleanFileIsCleaned;
-    }
+		$this->scanFilePath     = $a_filepath;
+		$this->scanFileOrigName = $a_origname;
 
-    /**
-     * write the result of the last scan to the log
-     * @access    public
-     */
-    public function logScanResult()
-    {
-        $mess = "Virus Scanner (" . $this->type . ")";
-        if ($this->scanFileOrigName) {
-            $mess .= " (File " . $this->scanFileOrigName . ")";
-        }
-        $mess .= ": " . preg_replace('/[\r\n]+/', "; ", $this->scanResult);
+		if($a_origname == "infected.txt" or $a_origname == "cleanable.txt")
+		{
+			$this->scanFileIsInfected = true;
+			$this->scanResult         =
+				"FILE INFECTED: [" . $a_filepath . "] (VIRUS: simulated)";
+			$this->logScanResult();
+			return $this->scanResult;
+		}
+		else
+		{
+			$this->scanFileIsInfected = false;
+			$this->scanResult         = "";
+			return "";
+		}
+	}
 
-        $this->log->write($mess);
-    }
+	/**
+	 * clean an infected file
+	 * needs to be redefined in child classes
+	 * here it simulates a clean
+	 * "cleanable.txt" is expected to be cleanable
+	 * @param    string    path of file to check
+	 * @param    string    original name of the file to clean
+	 * @return   string  clean message (empty if not cleaned)
+	 * @access    public
+	 */
+	function cleanFile($a_filepath, $a_origname = "")
+	{
+		// This function needs to be redefined in child classes
+		// It should:
+		// - call the external cleaner
+		// - set cleanFilePath to a_filepath
+		// - set cleanFileOrigName to a_origname
+		// - set cleanFileIsCleaned according the clean result
+		// - set cleanResult to the cleaner output message
+		// - call logCleanResult in any case
+		// - return the output message, if file is cleaned
+		// - return an empty string, if file is not cleaned
 
-    /**
-     * write the result of the last clean to the log
-     * @access    public
-     */
-    public function logCleanResult()
-    {
-        $mess = "Virus Cleaner (" . $this->type . ")";
-        if ($this->cleanFileOrigName) {
-            $mess .= " (File " . $this->cleanFileOrigName . ")";
-        }
-        $mess .= ": " . preg_replace('/[\r\n]+/', "; ", $this->cleanResult);
+		$this->cleanFilePath     = $a_filepath;
+		$this->cleanFileOrigName = $a_origname;
 
-        $this->log->write($mess);
-    }
+		if($a_origname == "cleanable.txt")
+		{
+			$this->cleanFileIsCleaned = true;
+			$this->cleanResult        =
+				"FILE CLEANED: [" . $a_filepath . "] (VIRUS: simulated)";
+			$this->logCleanResult();
+			return $this->cleanResult;
+		}
+		else
+		{
+			$this->cleanFileIsCleaned = false;
+			$this->cleanResult        =
+				"FILE NOT CLEANED: [" . $a_filepath . "] (VIRUS: simulated)";
+			$this->logCleanResult();
+			return "";
+		}
+	}
 
-    /**
-     * get the pure output of the external scan
-     * @return   string
-     * @access    public
-     */
-    public function getScanResult()
-    {
-        return $this->scanResult;
-    }
+	/**
+	 * returns wether file has been cleaned successfully or not
+	 * @return    boolean        true, if last clean operation has been successful
+	 */
+	function fileCleaned()
+	{
+		return $this->cleanFileIsCleaned;
+	}
 
-    /**
-     * get the pure output of the external scan
-     * @return   string
-     * @access    public
-     */
-    public function getCleanResult()
-    {
-        return $this->cleanResult;
-    }
+	/**
+	 * write the result of the last scan to the log
+	 * @access    public
+	 */
+	function logScanResult()
+	{
+		$mess = "Virus Scanner (" . $this->type . ")";
+		if($this->scanFileOrigName)
+		{
+			$mess .= " (File " . $this->scanFileOrigName . ")";
+		}
+		$mess .= ": " . preg_replace('/[\r\n]+/', "; ", $this->scanResult);
 
-    /**
-     * get a located message with the result from the last scan
-     * @return   string
-     * @access    public
-     */
-    public function getScanMessage()
-    {
-        if ($this->scanFileIsInfected) {
-            $ret = sprintf($this->lng->txt("virus_infected"), $this->scanFileOrigName);
-        } else {
-            $ret = sprintf($this->lng->txt("virus_not_infected"), $this->scanFileOrigName);
-        }
+		$this->log->write($mess);
+	}
 
-        if ($this->scanResult) {
-            $ret .= " " . $this->lng->txt("virus_scan_message")
-                . "<br />"
-                . str_replace(
-                    $this->scanFilePath,
-                    $this->scanFileOrigName,
-                    nl2br($this->scanResult)
-                );
-        }
-        return $ret;
-    }
+	/**
+	 * write the result of the last clean to the log
+	 * @access    public
+	 */
+	function logCleanResult()
+	{
+		$mess = "Virus Cleaner (" . $this->type . ")";
+		if($this->cleanFileOrigName)
+		{
+			$mess .= " (File " . $this->cleanFileOrigName . ")";
+		}
+		$mess .= ": " . preg_replace('/[\r\n]+/', "; ", $this->cleanResult);
 
-    /**
-     * get a located message with the result from the last clean
-     * @return   string
-     * @access    public
-     */
-    public function getCleanMessage()
-    {
-        if ($this->cleanFileIsCleaned) {
-            $ret = sprintf($this->lng->txt("virus_cleaned"), $this->cleanFileOrigName);
-        } else {
-            $ret = sprintf($this->lng->txt("virus_not_cleaned"), $this->cleanFileOrigName);
-        }
+		$this->log->write($mess);
+	}
 
-        if ($this->cleanResult) {
-            $ret .= " " . $this->lng->txt("virus_clean_message")
-                . "<br />"
-                . str_replace(
-                    $this->cleanFilePath,
-                    $this->cleanFileOrigName,
-                    nl2br($this->cleanResult)
-                );
-        }
-        return $ret;
-    }
+	/**
+	 * get the pure output of the external scan
+	 * @return   string
+	 * @access    public
+	 */
+	function getScanResult()
+	{
+		return $this->scanResult;
+	}
 
-    /**
-     * get info if class can scan ZIP files
-     * @return   boolean
-     * @access    public
-     */
-    public function getScanZipFiles()
-    {
-        return $this->scanZipFiles;
-    }
+	/**
+	 * get the pure output of the external scan
+	 * @return   string
+	 * @access    public
+	 */
+	function getCleanResult()
+	{
+		return $this->cleanResult;
+	}
+
+	/**
+	 * get a located message with the result from the last scan
+	 * @return   string
+	 * @access    public
+	 */
+	function getScanMessage()
+	{
+		if($this->scanFileIsInfected)
+		{
+			$ret = sprintf($this->lng->txt("virus_infected"), $this->scanFileOrigName);
+		}
+		else
+		{
+			$ret = sprintf($this->lng->txt("virus_not_infected"), $this->scanFileOrigName);
+		}
+
+		if($this->scanResult)
+		{
+			$ret .= " " . $this->lng->txt("virus_scan_message")
+				. "<br />"
+				. str_replace($this->scanFilePath, $this->scanFileOrigName,
+					nl2br($this->scanResult));
+		}
+		return $ret;
+	}
+
+	/**
+	 * get a located message with the result from the last clean
+	 * @return   string
+	 * @access    public
+	 */
+	function getCleanMessage()
+	{
+		if($this->cleanFileIsCleaned)
+		{
+			$ret = sprintf($this->lng->txt("virus_cleaned"), $this->cleanFileOrigName);
+		}
+		else
+		{
+			$ret = sprintf($this->lng->txt("virus_not_cleaned"), $this->cleanFileOrigName);
+		}
+
+		if($this->cleanResult)
+		{
+			$ret .= " " . $this->lng->txt("virus_clean_message")
+				. "<br />"
+				. str_replace($this->cleanFilePath, $this->cleanFileOrigName,
+					nl2br($this->cleanResult));
+		}
+		return $ret;
+	}
+
+	/**
+	 * get info if class can scan ZIP files
+	 * @return   boolean
+	 * @access    public
+	 */
+	function getScanZipFiles()
+	{
+		return $this->scanZipFiles;
+	}
 }

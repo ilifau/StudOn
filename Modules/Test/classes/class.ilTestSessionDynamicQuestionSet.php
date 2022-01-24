@@ -60,6 +60,10 @@ class ilTestSessionDynamicQuestionSet extends ilTestSession
             $this->questionSetFilterSelection->setTaxonomySelection(unserialize($row['taxfilter']));
             $this->questionSetFilterSelection->setAnswerStatusSelection($row['answerstatusfilter']);
             $this->questionSetFilterSelection->setAnswerStatusActiveId($row['active_id']);
+
+            // fau: testStatement - read the authorship statement time from db
+            $this->setAuthorshipStatementTime($row['time_authorship_statement']);
+            // fau.
         }
     }
     
@@ -113,6 +117,11 @@ class ilTestSessionDynamicQuestionSet extends ilTestSession
             $this->questionSetFilterSelection->setTaxonomySelection(unserialize($row['taxfilter']));
             $this->questionSetFilterSelection->setAnswerStatusSelection($row['answerstatusfilter']);
             $this->questionSetFilterSelection->setAnswerStatusActiveId($row['active_id']);
+
+            // fau: testStatement - read the authorship statement time from db
+            $this->setAuthorshipStatementTime($row['time_authorship_statement']);
+            // fau.
+
         } elseif ($this->doesAccessCodeInSessionExists()) {
             $this->unsetAccessCodeInSession();
         }
@@ -133,6 +142,9 @@ class ilTestSessionDynamicQuestionSet extends ilTestSession
                     'tries' => array('integer', $this->getPass()),
                     'submitted' => array('integer', $submitted),
                     'submittimestamp' => array('timestamp', (strlen($this->getSubmittedTimestamp())) ? $this->getSubmittedTimestamp() : null),
+                    // fau: testStatement: update authorship statement time in db
+                    'time_authorship_statement' => array('text', $this->getAuthorshipStatementTime()),
+                    // fau.
                     'tstamp' => array('integer', time() - 10),
                     'taxfilter' => array('text', serialize($this->getQuestionSetFilterSelection()->getTaxonomySelection())),
                     'answerstatusfilter' => array('text', $this->getQuestionSetFilterSelection()->getAnswerStatusSelection())
@@ -165,6 +177,9 @@ class ilTestSessionDynamicQuestionSet extends ilTestSession
                         'tries' => array('integer', $this->getPass()),
                         'submitted' => array('integer', $submitted),
                         'submittimestamp' => array('timestamp', (strlen($this->getSubmittedTimestamp())) ? $this->getSubmittedTimestamp() : null),
+                        // fau: testStatement: update authorship statement time in db
+                        'time_authorship_statement' => array('text', $this->getAuthorshipStatementTime()),
+                        // fau.
                         'tstamp' => array('integer', time() - 10),
                         'taxfilter' => array('text', serialize($this->getQuestionSetFilterSelection()->getTaxonomySelection())),
                         'answerstatusfilter' => array('text', $this->getQuestionSetFilterSelection()->getAnswerStatusSelection())

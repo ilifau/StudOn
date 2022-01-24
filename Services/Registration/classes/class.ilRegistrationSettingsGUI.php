@@ -43,6 +43,11 @@ class ilRegistrationSettingsGUI
     public $ref_id;
     public $rbacsystem;
 
+    // fau: regCodes - phpdoc for form_gui
+    /** @var ilPropertyFormGUI */
+    public $form_gui;
+    // fau.
+
     public function __construct()
     {
         global $DIC;
@@ -50,7 +55,7 @@ class ilRegistrationSettingsGUI
         $this->tpl = $DIC['tpl'];
         $this->ctrl = $DIC->ctrl();
         $this->rbacsystem = $DIC->rbac();
-        
+
         $this->lng = $DIC->language();
         $this->lng->loadLanguageModule('administration');
         $this->lng->loadLanguageModule('registration');
@@ -102,7 +107,7 @@ class ilRegistrationSettingsGUI
 
         return $access->checkAccess($a_permission, '', $this->ref_id);
     }
-    
+
     /**
     * set sub tabs
     * @param	string	$activeTab
@@ -220,7 +225,7 @@ class ilRegistrationSettingsGUI
             $this->form_gui->addCommandButton('save', $this->lng->txt('save'));
         }
     }
-    
+
     public function initFormValues()
     {
         if ($this->registration_settings->roleSelectionEnabled()) {
@@ -486,7 +491,7 @@ class ilRegistrationSettingsGUI
 
         return $role_assignment_form;
     }
-    
+
     public function editRoleAccessLimitations(ilPropertyFormGUI $form = null)
     {
         global $DIC;
@@ -521,11 +526,11 @@ class ilRegistrationSettingsGUI
         $form->setTitle($this->lng->txt('reg_role_access_limitations'));
             
         foreach (ilObjRole::_lookupRegisterAllowed() as $role) {
-            
+
             $role_access = new ilRadioGroupInputGUI($role['title'], "role_access_" . $role['id']);
-            
+
             $op_unlimited = new ilRadioOption($this->lng->txt('reg_access_limitation_mode_unlimited'), "unlimited");
-            
+
             $op_absolute   = new ilRadioOption($this->lng->txt('reg_access_limitation_mode_absolute'), "absolute");
             $absolute_date = new ilDateTime(date("d.m.Y",$this->access_limitations_obj->getAbsolute($role['id'])), IL_CAL_DATE);
             $date          = new ilDateTimeInputGUI("", "absolute_date_" . $role['id']);
@@ -635,7 +640,7 @@ class ilRegistrationSettingsGUI
             $this->access_limitations_obj->setAbsolute($form->getInput("absolute_date_" . $role['id']), $role['id']);
             $this->access_limitations_obj->setRelative($form->getInput("duration_" . $role['id']), $role['id']);
         }
-        
+
         if ($err = $this->access_limitations_obj->validate()) {
             switch ($err) {
                 case IL_REG_ACCESS_LIMITATION_MISSING_MODE:
@@ -710,7 +715,7 @@ class ilRegistrationSettingsGUI
         global $DIC;
 
         $this->__initRoleAccessLimitations();
-        
+
 
         $all = array();
         foreach (ilObjRole::_lookupRegisterAllowed() as $role) {
@@ -779,7 +784,7 @@ class ilRegistrationSettingsGUI
 
         $this->access_limitations_obj = new ilRegistrationRoleAccessLimitations();
     }
-    
+
     public function listCodes()
     {
         global $DIC;
@@ -796,9 +801,18 @@ class ilRegistrationSettingsGUI
 
         $ctab = new ilRegistrationCodesTableGUI($this, "listCodes");
         $this->tpl->setContent($ctab->getHTML());
+
+        // fau: regCodes - chow codes info
+        ilUtil::sendInfo(str_replace('{URL}', ilLink::_getShortlinkBase(), $this->lng->txt('registration_codes_info')), false);
+        // fau.
     }
-    
-    public function initAddCodesForm()
+
+    // fau: regCodes - change initAddCodesForm() to initCodesForm()	and extend it
+    /**
+     * Init the registration codes form
+     * @param ilRegistrationCode $codeObj
+     */
+    public function initCodesForm(ilRegistrationCode $codeObj)
     {
         global $DIC;
 
@@ -806,17 +820,40 @@ class ilRegistrationSettingsGUI
         $ilObjDataCache = $DIC['ilObjDataCache'];
 
         $this->form_gui = new ilPropertyFormGUI();
-        $this->form_gui->setFormAction($this->ctrl->getFormAction($this, 'createCodes'));
-        $this->form_gui->setTitle($this->lng->txt('registration_codes_edit_header'));
-        
-        $count = new ilNumberInputGUI($this->lng->txt('registration_codes_number'), 'reg_codes_number');
-        $count->setSize(4);
-        $count->setMaxLength(4);
-        $count->setMinValue(1);
-        $count->setMaxValue(1000);
-        $count->setRequired(true);
-        $this->form_gui->addItem($count);
-        
+
+        if (empty($codeObj->code_id)) {
+            $this->form_gui->setFormAction($this->ctrl->getFormAction($this, 'createCodes'));
+            $this->form_gui->setTitle($this->lng->txt('registration_codes_edit_header'));
+
+            $count = new ilNumberInputGUI($this->lng->txt('registration_codes_number'), 'reg_codes_number');
+            $count->setSize(4);
+            $count->setMaxLength(4);
+            $count->setMinValue(1);
+            $count->setMaxValue(1000);
+            $count->setRequired(true);
+            $this->form_gui->addItem($count);
+        } else {
+            $this->form_gui->setFormAction($this->ctrl->getFormAction($this, 'updateCode'));
+            $this->form_gui->setTitle($this->lng->txt('registration_code_update_header'));
+
+            $code = new ilNonEditableValueGUI($this->lng->txt('registration_code'));
+            $code->setValue($codeObj->code);
+            $this->form_gui->addItem($code);
+        }
+
+        // title
+        $title = new ilTextInputGUI($this->lng->txt('title'), 'title');
+        $title->setInfo($this->lng->txt('reg_code_title_info'));
+        $title->setSize(50);
+        $title->setValue($codeObj->title);
+        $this->form_gui->addItem($title);
+
+        // description
+        $description = new ilTextAreaInputGUI($this->lng->txt('description'), 'description');
+        $description->setInfo($this->lng->txt('reg_code_description_info'));
+        $description->setValue($codeObj->description);
+        $this->form_gui->addItem($description);
+
         // type
         $code_type = new ilCheckboxGroupInputGUI($this->lng->txt('registration_codes_type'), 'code_type');
         $code_type->setRequired(true);
@@ -835,9 +872,81 @@ class ilRegistrationSettingsGUI
                 $this->lng->txt('registration_codes_type_ext_info')
                 )
         );
+        $values = array();
+        if ($codeObj->reg_enabled) {
+            $values[] = self::CODE_TYPE_REGISTRATION;
+        }
+        if ($codeObj->ext_enabled) {
+            $values[] = self::CODE_TYPE_EXTENSION;
+        }
+        $code_type->setValue($values);
         $this->form_gui->addItem($code_type);
 
-        
+
+        // use limit
+        $ulimit = new ilNumberInputGUI($this->lng->txt('reg_code_use_limit'), 'use_limit');
+        $ulimit->setInfo($this->lng->txt('reg_code_use_limit_info'));
+        $ulimit->setDecimals(0);
+        $ulimit->setSize(4);
+        $ulimit->setValue($codeObj->use_limit);
+        $this->form_gui->addItem($ulimit);
+
+        // --- options ---
+        $sec = new ilFormSectionHeaderGUI();
+        $sec->setTitle($this->lng->txt('options'));
+        $this->form_gui->addItem($sec);
+
+        // login generation
+        $logintype = new ilSelectInputGUI($this->lng->txt('reg_login_generation_type'), 'login_generation_type');
+        $logintype->setInfo($this->lng->txt('reg_login_generation_type_info'));
+        $logintype->setOptions(ilRegistrationSettings::getLoginGenerationTypes());
+        $logintype->setValue($codeObj->login_generation_type);
+        $this->form_gui->addItem($logintype);
+
+        // password generation
+        $pwgen = new ilSelectInputGUI($this->lng->txt('passwd_generation'), 'password_generation');
+        $pwgen->setInfo($this->lng->txt('reg_pw_gen_info'));
+        $pwgen->setOptions(ilRegistrationSettings::getPasswordGenerationTypes());
+        $pwgen->setValue($codeObj->password_generation);
+        $this->form_gui->addItem($pwgen);
+
+        // captcha
+        require_once 'Services/Captcha/classes/class.ilCaptchaUtil.php';
+        $captcha = new ilCheckboxInputGUI($this->lng->txt('adm_captcha_anonymous_short'), 'captcha_required');
+        $captcha->setInfo($this->lng->txt('adm_captcha_anonymous_reg'));
+        $captcha->setValue(1);
+        $captcha->setChecked($codeObj->captcha_required);
+        if (!ilCaptchaUtil::checkFreetype()) {
+            $captcha->setAlert(ilCaptchaUtil::getPreconditionsMessage());
+        }
+        $this->form_gui->addItem($captcha);
+
+        // email verification
+        $mailver = new ilCheckboxInputGUI($this->lng->txt('reg_type_confirmation'), 'email_verification');
+        $mailver->setInfo($this->lng->txt('reg_type_confirmation_info'));
+        $mailver->setChecked($codeObj->email_verification);
+        $this->form_gui->addItem($mailver);
+
+        // verification lifetime
+        $lt = new ilNumberInputGUI($this->lng->txt('reg_confirmation_hash_life_time'), 'email_verification_time');
+        $lt->setSize(6);
+        $lt->setMaxLength(6);
+        $lt->setMinValue(ilRegistrationSettings::REG_HASH_LIFETIME_MIN_VALUE);
+        $lt->setRequired(true);
+        $lt->setInfo($this->lng->txt('reg_confirmation_hash_life_time_info'));
+        $lt->setValue($codeObj->email_verification_time);
+        $lt->setSuffix($this->lng->txt('seconds'));
+        $mailver->addSubItem($lt);
+
+        // notification
+        $notify = new ilTextInputGUI($this->lng->txt('reg_notification'), 'notification_logins');
+        $notify->setInfo($this->lng->txt('reg_notification_info'));
+        $notify->setSize(32);
+        $notify->setMaxLength(50);
+        $notify->setValue($codeObj->getNotificationLogins());
+        $this->form_gui->addItem($notify);
+
+
         $sec = new ilFormSectionHeaderGUI();
         $sec->setTitle($this->lng->txt('registration_codes_roles_title'));
         $this->form_gui->addItem($sec);
@@ -851,11 +960,17 @@ class ilRegistrationSettingsGUI
         $roles = new ilSelectInputGUI($this->lng->txt("registration_codes_roles"), "reg_codes_role");
         $roles->setInfo($this->lng->txt("registration_codes_override_info"));
         $roles->setOptions($options);
+        $roles->setValue($codeObj->global_role);
         $this->form_gui->addItem($roles);
         
         $local = new ilTextInputGUI($this->lng->txt("registration_codes_roles_local"), "reg_codes_local");
         $local->setMulti(true);
         $local->setDataSource($this->ctrl->getLinkTarget($this, "getLocalRoleAutoComplete", "", true));
+        $titles = $codeObj->getLocalRoleTitles();
+        $local->setMultiValues($titles);
+        if (count($titles)) {
+            $local->setValue($titles[0]);
+        }
         $this->form_gui->addItem($local);
         
         
@@ -865,6 +980,7 @@ class ilRegistrationSettingsGUI
         
         $limit = new ilRadioGroupInputGUI($this->lng->txt("reg_access_limitation_mode"), "reg_limit");
         $limit->setInfo($this->lng->txt("registration_codes_override_info"));
+        $limit->setValue(empty($codeObj->limit_type) ? 'none' : $codeObj->limit_type);
         $this->form_gui->addItem($limit);
     
         $opt = new ilRadioOption($this->lng->txt("registration_codes_roles_limitation_none"), "none");
@@ -878,6 +994,7 @@ class ilRegistrationSettingsGUI
         
         $dt = new ilDateTimeInputGUI($this->lng->txt("reg_access_limitation_mode_absolute_target"), "abs_date");
         $dt->setRequired(true);
+        $dt->setDate($codeObj->limit_date->isNull() ? new ilDateTime(time(), IL_CAL_UNIX) : $codeObj->limit_date);
         $opt->addSubItem($dt);
         
         $opt = new ilRadioOption($this->lng->txt("reg_access_limitation_mode_relative"), "relative");
@@ -889,12 +1006,142 @@ class ilRegistrationSettingsGUI
         $dur->setShowDays(true);
         $dur->setShowHours(false);
         $dur->setShowMinutes(false);
+        if ($codeObj->limit_type == 'relative') {
+            $duration = $codeObj->limit_duration;
+            $dur->setDays($duration['d']);
+            $dur->setMonths((int) $duration['m'] + (int) $duration['y'] * 12);
+        }
         $opt->addSubItem($dur);
-        
-        $this->form_gui->addCommandButton('createCodes', $this->lng->txt('create'));
-        $this->form_gui->addCommandButton('listCodes', $this->lng->txt('cancel'));
+
+        if (empty($codeObj->code_id)) {
+            $this->form_gui->addCommandButton('createCodes', $this->lng->txt('create'));
+            $this->form_gui->addCommandButton('listCodes', $this->lng->txt('cancel'));
+        } else {
+            $this->form_gui->addCommandButton('updateCode', $this->lng->txt('update'));
+            $this->form_gui->addCommandButton('listCodes', $this->lng->txt('cancel'));
+        }
     }
-    
+    // fau.
+
+    // fau: regCodes - new function validateCodesForm
+    public function validateCodesForm()
+    {
+        if (!$this->form_gui->checkInput()) {
+            return false;
+        }
+
+        switch ($this->form_gui->getInput("reg_limit")) {
+            case "absolute":
+                $date_input = $this->form_gui->getItemByPostVar("abs_date");
+                $date = $date_input->getDate()->get(IL_CAL_DATE);
+                if ($date < date("Y-m-d")) {
+                    return false;
+                }
+                break;
+
+            case "relative":
+                $date = $this->form_gui->getInput("rel_date");
+                if (!array_sum($date)) {
+                    return false;
+                } else {
+                    $date = array(
+                        "d" => $date["dd"],
+                        "m" => $date["MM"] % 12,
+                        "y" => floor($date["MM"] / 12)
+                    );
+                }
+                break;
+        }
+
+        return true;
+    }
+    // fau.
+
+    // fau: regCodes - new function writeCodesFormData
+    /**
+     * Set the data of the codes form to a code object
+     * @param ilRegistrationCode $codeObj
+     */
+    public function setCodesFormData(ilRegistrationCode $codeObj)
+    {
+        global $rbacreview;
+
+        // code name
+        $codeObj->title = $this->form_gui->getInput('title');
+        $codeObj->description = $this->form_gui->getInput('description');
+
+        // code type
+        $code_types = (array) $this->form_gui->getInput('code_type');
+        $codeObj->reg_enabled = in_array(self::CODE_TYPE_REGISTRATION, $code_types);
+        $codeObj->ext_enabled = in_array(self::CODE_TYPE_EXTENSION, $code_types);
+        $codeObj->use_limit = $this->form_gui->getInput('use_limit');
+
+        // code options
+        $codeObj->login_generation_type = $this->form_gui->getInput('login_generation_type');
+        $codeObj->password_generation = (int) $this->form_gui->getInput('password_generation');
+        $codeObj->captcha_required = (bool) $this->form_gui->getInput('captcha_required');
+        $codeObj->email_verification = (bool) $this->form_gui->getInput('email_verification');
+        $codeObj->email_verification_time = (integer) $this->form_gui->getInput('email_verification_time');
+        $codeObj->setNotificationLogins($this->form_gui->getInput('notification_logins'));
+
+        // global role
+        $codeObj->global_role = $this->form_gui->getInput('reg_codes_role');
+
+        // local roles
+        $role_ids = array();
+        $local = $this->form_gui->getInput("reg_codes_local");
+        if (is_array($local)) {
+            foreach (array_unique($local) as $item) {
+                if (trim($item)) {
+                    $role_id = $rbacreview->roleExists($item);
+                    if ($role_id) {
+                        $role_ids[] = $role_id;
+                    }
+                }
+            }
+        }
+        $codeObj->local_roles = $role_ids;
+
+        // limited account activation
+        switch ($this->form_gui->getInput("reg_limit")) {
+            case "absolute":
+                $date_input = $this->form_gui->getItemByPostVar("abs_date");
+                $date = $date_input->getDate();
+                $codeObj->limit_type = "absolute";
+                $codeObj->limit_date = $date;
+                $codeObj->limit_duration = array();
+                break;
+
+            case "relative":
+                $date = $this->form_gui->getInput("rel_date");
+                if (is_array($date) && array_sum($date) > 0) {
+                    $date = array(
+                        "d" => $date["dd"],
+                        "m" => $date["MM"] % 12,
+                        "y" => floor($date["MM"] / 12)
+                    );
+
+                    $codeObj->limit_type = "relative";
+                    $codeObj->limit_date = new ilDateTime();
+                    $codeObj->limit_duration = $date;
+                }
+                break;
+
+            case "unlimited":
+                $codeObj->limit_type = "unlimited";
+                $codeObj->limit_date = new ilDateTime();
+                $codeObj->limit_duration = array();
+                break;
+
+            case "none":
+                $codeObj->limit_type = null;
+                $codeObj->limit_date = new ilDateTime();
+                $codeObj->limit_duration = array();
+                break;
+        }
+    }
+    // fau.
+
     // see ilRoleAutoCompleteInputGUI
     public function getLocalRoleAutoComplete()
     {
@@ -916,13 +1163,12 @@ class ilRegistrationSettingsGUI
         }
     
         $this->setSubTabs('registration_codes');
-        
-        $this->initAddCodesForm();
-    
-        // default
-        $limit = $this->form_gui->getItemByPostVar("reg_limit");
-        $limit->setValue("none");
-        
+
+        // fau: regCodes - init new codes form
+        include_once './Services/Registration/classes/class.ilRegistrationCode.php';
+        $this->initCodesForm(new ilRegistrationCode());
+        // fau.
+
         $this->tpl->setContent($this->form_gui->getHTML());
     }
     
@@ -940,76 +1186,25 @@ class ilRegistrationSettingsGUI
         
         $this->setSubTabs('registration_codes');
 
-        $this->initAddCodesForm();
-        $valid = $this->form_gui->checkInput();
-        if ($valid) {
+        // fau: regCodes - save the codes through code object
+        include_once './Services/Registration/classes/class.ilRegistrationCode.php';
+        $codeObj = new ilRegistrationCode();
+
+        $this->initCodesForm($codeObj);
+        if ($this->validateCodesForm()) {
+            // prepare the common data for all codes
+            $this->setCodesFormData($codeObj);
+            $codeObj->generated = new ilDateTime(time(), IL_CAL_UNIX);
+
+            // create the codes (id and code will be different)
             $number = $this->form_gui->getInput('reg_codes_number');
-            $role = $this->form_gui->getInput('reg_codes_role');
-            $local = $this->form_gui->getInput("reg_codes_local");
-            
-            if (is_array($local)) {
-                $role_ids = array();
-                foreach (array_unique($local) as $item) {
-                    if (trim($item)) {
-                        $role_id = $rbacreview->roleExists($item);
-                        if ($role_id) {
-                            $role_ids[] = $role_id;
-                        }
-                    }
-                }
-                if (sizeof($role_ids)) {
-                    $local = $role_ids;
-                }
-            }
-                        
-            $date = null;
-            $limit = $this->form_gui->getInput("reg_limit");
-            switch ($limit) {
-                case "absolute":
-                    $date_input = $this->form_gui->getItemByPostVar("abs_date");
-                    $date = $date_input->getDate()->get(IL_CAL_DATE);
-                    if ($date < date("Y-m-d")) {
-                        $date_input->setAlert($this->lng->txt("form_msg_wrong_date"));
-                        $valid = false;
-                    }
-                    break;
-                
-                case "relative":
-                    $date = $this->form_gui->getInput("rel_date");
-                    if (!array_sum($date)) {
-                        $valid = false;
-                    } else {
-                        $date = array(
-                            "d" => $date["dd"],
-                            "m" => $date["MM"] % 12,
-                            "y" => floor($date["MM"] / 12)
-                        );
-                    }
-                    break;
-                    
-                case "none":
-                    $limit = null;
-                    break;
-            }
-        }
-        
-        if ($valid) {
-            
-            $stamp = time();
             for ($loop = 1; $loop <= $number; $loop++) {
-                $code_types = (array) $this->form_gui->getInput('code_type');
-                
-                ilRegistrationCode::create(
-                    $role,
-                    $stamp,
-                    $local,
-                    $limit,
-                    $date,
-                    in_array(self::CODE_TYPE_REGISTRATION, $code_types) ? true : false,
-                    in_array(self::CODE_TYPE_EXTENSION, $code_types) ? true : false
-                );
+                $codeObj->code_id = null;
+                $codeObj->code = null;
+                $codeObj->write();
             }
-            
+            // fau.
+
             ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
             $this->ctrl->redirect($this, "listCodes");
         } else {
@@ -1017,7 +1212,62 @@ class ilRegistrationSettingsGUI
             $this->tpl->setContent($this->form_gui->getHtml());
         }
     }
-    
+
+    // fau: regCodes - new function editCode
+    public function editCode()
+    {
+        global $DIC;
+
+        $ilAccess = $DIC->access();
+        $ilErr = $DIC['ilErr'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->ref_id)) {
+            $ilErr->raiseError($this->lng->txt("msg_no_perm_write"), $ilErr->MESSAGE);
+        }
+
+        $this->setSubTabs('registration_codes');
+
+        include_once './Services/Registration/classes/class.ilRegistrationCode.php';
+        $codeObj = new ilRegistrationCode($_GET['code']);
+
+        $this->ctrl->saveParameter($this, 'code');
+        $this->initCodesForm($codeObj);
+        $this->tpl->setContent($this->form_gui->getHTML());
+    }
+    // fau.
+
+    // fau: regCodes - new function updateCode
+    public function updateCode()
+    {
+        global $DIC;
+
+        $ilAccess = $DIC->access();
+        $ilErr = $DIC['ilErr'];
+
+        if (!$ilAccess->checkAccess('write', '', $this->ref_id)) {
+            $ilErr->raiseError($this->lng->txt("msg_no_perm_write"), $ilErr->MESSAGE);
+        }
+
+        $this->setSubTabs('registration_codes');
+
+        include_once './Services/Registration/classes/class.ilRegistrationCode.php';
+        $codeObj = new ilRegistrationCode($_GET['code']);
+        $this->ctrl->saveParameter($this, 'code');
+        $this->initCodesForm($codeObj);
+
+        if ($this->validateCodesForm()) {
+            $this->setCodesFormData($codeObj);
+            $codeObj->write();
+
+            ilUtil::sendSuccess($this->lng->txt('saved_successfully'), true);
+            $this->ctrl->redirect($this, "listCodes");
+        } else {
+            $this->form_gui->setValuesByPost();
+            $this->tpl->setContent($this->form_gui->getHtml());
+        }
+    }
+    // fau.
+
     public function deleteCodes()
     {
         $this->checkAccess("write");
@@ -1048,7 +1298,7 @@ class ilRegistrationSettingsGUI
         $gui->setCancel($this->lng->txt("cancel"), "listCodes");
         $gui->setConfirm($this->lng->txt("confirm"), "deleteCodes");
         $gui->setFormAction($this->ctrl->getFormAction($this, "deleteCodes"));
-        
+
         $data = ilRegistrationCode::loadCodesByIds($_POST["id"]);
         foreach ($data as $code) {
             $gui->addItem("id[]", $code["code_id"], $code["code"]);
@@ -1085,9 +1335,9 @@ class ilRegistrationSettingsGUI
         if (!$ilAccess->checkAccess('read', '', $this->ref_id)) {
             $ilErr->raiseError($this->lng->txt("msg_no_perm_read"), $ilErr->MESSAGE);
         }
-        
+
         $utab = new ilRegistrationCodesTableGUI($this, "listCodes");
-        
+
         $codes = ilRegistrationCode::getCodesForExport($utab->filter["code"], $utab->filter["role"], $utab->filter["generated"], $utab->filter["alimit"]);
 
         if (sizeof($codes)) {

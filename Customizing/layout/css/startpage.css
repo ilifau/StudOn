@@ -1,0 +1,195 @@
+/*
+ * Custom Content Styles for the Start Page of StudOn
+ *
+ * Copied to from Customizing/layout/css/startpage.css
+ * (same directory nesting level as specific content styles)
+ * The original file can be included in ilObjRootFolderGUI::renderObject()
+ * This would have higher priority then the content style
+ */
+
+/* Hide navigation tree */
+.ilTreeView, .ilLeftNav { display: none; }
+.ilLeftNavSpace { margin-left: 0; }
+
+
+/**
+ * Banner and Login Container
+ */
+.ilc_section_BannerContainer {
+    display: none;
+}
+@media (min-width: 768px) {
+
+    /* show the login container as a panel on top the banner */
+    #il_center_col > .ilc_section_LoginContainer {
+        position: absolute;
+        top: -20px;
+        left: 15px;
+        width: 330px;
+        z-index: 1000;
+        background-color: #fafafc;
+        -webkit-box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+        box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* positioning of the banner */
+    #il_center_col > .ilc_section_BannerContainer {
+        display:block;
+        height:400px;
+        margin-top: -53px;
+        margin-left: -30px;
+        margin-right: -30px;
+    }
+
+    /* rotating banner images */
+    #il_center_col > .ilc_section_BannerContainer .ilc_ca_icntr_CarouselICntr {
+        height:400px;
+    }
+    #il_center_col > .ilc_section_BannerContainer .ilc_Mob  {
+        position: absolute;
+        height: 400px;
+        left: 0;
+        right: 0;
+        overflow:hidden;
+    }
+    #il_center_col > .ilc_section_BannerContainer .ilc_Mob img {
+        position: absolute;
+        height: 400px;
+        width:auto!important;
+        right: 0;
+    }
+
+    /* rotating banner texts */
+    #il_center_col > .ilc_section_BannerContainer .ilc_Paragraph {
+        position: absolute;
+        /*top: 240px;*/
+        bottom:0px;
+        right: 0px;
+        left: 0px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: bold;
+    }
+    .ilc_section_BannerContainer .ilc_Paragraph {
+        background: #fafafc;
+        color: #003366;
+        padding: 20px;
+    }
+    .ilc_section_BannerContainer .ilc_Paragraph a {
+        color: #004080;
+        text-decoration: none;
+    }
+    .ilc_section_BannerContainer .ilc_Paragraph a:hover {
+        color: white;
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    /* put banner directly below menu */
+    .ilMainHeader {
+        border-bottom: 0;
+    }
+
+    /* for admins viewing the page with write permissions */
+    #ilSubTab {
+        margin-bottom: 50px;
+    }
+
+
+
+    /* success and failure messages (can be improved) */
+    div.ilAdminRow {
+        position:absolute;
+    }
+    div.alert {
+        position:absolute;
+        top: -20px;
+        left: 350px;
+        z-index: 1000;
+        -webkit-box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+        -moz-box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+        box-shadow: 3px 9px 9px 0 rgba(0, 0, 0, 0.3);
+    }
+}
+
+
+/*
+ * Elements of the login container
+ */
+.ilc_section_LoginContainer {
+    padding-top: 5px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 30px;
+}
+
+/* blocks being shown when their headline is clicked */
+.ilc_section_LoginFormHidden,
+.ilc_section_LoginInfoHidden  {
+    display:none;
+}
+
+.ilc_section_LoginContainer .ilc_text_block_TableContent {
+    margin:0;
+    padding:0;
+    line-height:1.5em;
+}
+
+.ilc_section_LoginContainer a:active,
+.ilc_section_LoginContainer a:hover,
+.ilc_section_LoginContainer a:focus {
+    color: #003366!important;
+}
+
+/* headlines in the login box */
+.ilc_section_LoginContainer h2 {
+    background-image: url(../../../templates/default/images/tree_col.svg);
+    background-repeat: no-repeat;
+    background-position: 0 3px;
+    margin-left: -22px;
+    padding-left: 22px;
+    margin-bottom: 0;
+    font-size: 120%;
+}
+.ilc_section_LoginContainer h2.open {
+    background-image: url(../../../templates/default/images/tree_exp.svg);
+}
+.ilc_section_LoginContainer small {
+    font-size: 80%;
+}
+
+.loginHelp {
+    padding-top: 20px;
+}
+
+/**
+ * Grid for info blocks below the banner
+ * (flex display is used to have the same background height for all blocks)
+ */
+.ilc_section_GridContainer > .row {
+    display: -webkit-flex;
+    display: flex;
+    flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    margin-top: 15px;
+}
+.ilc_section_GridContainer > .row > div {
+    display: -webkit-flex;
+    display:flex;
+    background-color: #fafafc;
+    border: 15px solid white;
+    min-height: 300px;
+}
+
+/*
+* Links in the text paragraphs
+* (should not be underlined by default, otherwise looking ugly in link lists)
+*/
+.ilc_Paragraph a {
+    text-decoration: none;
+}
+.ilc_Paragraph a:hover {
+    text-decoration: underline;
+}

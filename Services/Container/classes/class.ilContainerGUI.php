@@ -325,7 +325,15 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $lng->loadLanguageModule("content");
         
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-        $this->tpl->addCss(ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId()));
+        // fau: inheritContentStyle - get the effective style by ref_id
+        $this->tpl->addCss(ilObjStyleSheet::getContentStylePath(
+            ilObjStyleSheet::getEffectiveContentStyleId(
+                $this->object->getStyleSheetId(),
+                $this->object->getType(),
+                $this->object->getRefId()
+            )
+        ));
+        // fau.
         // $this->tpl->setCurrentBlock("SyntaxStyle");
         $this->tpl->addCss(ilObjStyleSheet::getSyntaxStylePath());
         // $this->tpl->parseCurrentBlock();
@@ -345,11 +353,13 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->ctrl->setReturnByClass("ilcontainerpagegui", "edit");
         $page_gui = new ilContainerPageGUI($this->object->getId());
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+        // fau: inheritContentStyle - add ref_id
         $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
             $this->object->getStyleSheetId(),
-            $this->object->getType()
+            $this->object->getType(),
+            $this->object->getRefId()
         ));
-
+        // fau.
         $page_gui->setTemplateTargetVar("ADM_CONTENT");
         $page_gui->setFileDownloadLink("");
         //$page_gui->setLinkParams($this->ctrl->getUrlParameterString()); // todo
@@ -449,10 +459,18 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         include_once("./Services/Container/classes/class.ilContainerPageGUI.php");
         
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+        // fau: inheritContentStyle - get the effective content style by ref_id
         $this->tpl->setVariable(
             "LOCATION_CONTENT_STYLESHEET",
-            ilObjStyleSheet::getContentStylePath($this->object->getStyleSheetId())
+            ilObjStyleSheet::getContentStylePath(
+                ilObjStyleSheet::getEffectiveContentStyleId(
+                    $this->object->getStyleSheetId(),
+                    $this->object->getType(),
+                    $this->object->getRefId()
+                )
+            )
         );
+        // fau.
         $this->tpl->setCurrentBlock("SyntaxStyle");
         $this->tpl->setVariable(
             "LOCATION_SYNTAX_STYLESHEET",
@@ -466,11 +484,15 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $lang = $ot->getEffectiveContentLang($ilUser->getCurrentLanguage(), "cont");
         $page_gui = new ilContainerPageGUI($this->object->getId(), 0, $lang);
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-        $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
-            $this->object->getStyleSheetId(),
-            $this->object->getType()
-        ));
-
+        // fau: inheritContentStyle - add ref_id
+        $page_gui->setStyleId(
+            ilObjStyleSheet::getEffectiveContentStyleId(
+                $this->object->getStyleSheetId(),
+                $this->object->getType(),
+                $this->object->getRefId()
+            )
+        );
+        // fau.
         $page_gui->setPresentationTitle("");
         $page_gui->setTemplateOutput(false);
         $page_gui->setHeader("");
@@ -539,7 +561,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             include_once './Services/Object/classes/class.ilObjectListGUIFactory.php';
             $lgui = ilObjectListGUIFactory::_getListGUIByType($this->object->getType());
             $lgui->initItem($this->object->getRefId(), $this->object->getId(), $this->object->getType());
-            $this->tpl->setAlertProperties($lgui->getAlertProperties());
+
+            // fau: visibilityHints - add an alert about the public vissibility of the object
+            $this->tpl->setAlertProperties(
+                $this->addPublicVisibilityAlert($lgui->getAlertProperties())
+            );
+            // fau.
         }
     }
         
@@ -555,7 +582,16 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $gui = new ilObjectAddNewItemGUI($this->object->getRefId());
         $gui->render();
     }
-    
+
+    // fau: univisImport - show the actions for univis import
+    public function showUnivisImportActions()
+    {
+        include_once "Services/UnivIS/classes/class.ilUnivisImportActionsGUI.php";
+        $gui = new ilUnivisImportActionsGUI($this->object);
+        $gui->render();
+    }
+    // fau.
+
     /**
      * Get content gui object
      *
@@ -646,6 +682,12 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         }
 
         $this->showContainerFilter();
+
+        // fau: univisImport - show link to import univis
+        if (ilCust::get($this->object->getType() . '_enable_univis_import')) {
+            $this->showUnivisImportActions();
+        }
+        // fau.
 
         $this->showPermanentLink();
 
@@ -1456,7 +1498,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         }
         return false;
     }
-            
+
 
     // bugfix mantis 24559
     // undoing an erroneous change inside mantis 23516 by adding "Download Multiple Objects"-functionality for non-admins
@@ -2931,6 +2973,14 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
                     //$this->ctrl->getLinkTargetByClass("ilObjStyleSheetGUI", "edit"));
 
+                    // fau: inheritContentStyle - add save button to the form if container individual style
+                    if ($this->object->getType() != 'cat') {
+                        $this->form->addCommandButton(
+                            "saveStyleSettings",
+                            $lng->txt("save")
+                        );
+                    }
+                    // fau.
                     // delete command
                     $this->form->addCommandButton(
                         "editStyle",
@@ -2966,6 +3016,22 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
                     $lng->txt("sty_create_ind_style")
                 );
             }
+            // fau: inheritContentStyle - add inheritance properties to the form
+            if ($style_id > 0 && $this->object->getType() != 'cat') {
+                $inh = new ilCheckboxInputGUI($lng->txt('sty_inherit'), 'inherit');
+                $inh->setInfo($lng->txt('sty_inherit_info'));
+                $inh->setChecked($this->object->getStyleSheetInheritance());
+                $this->form->addItem($inh);
+            } else {
+                $parent_usage = ilObjStyleSheet::getEffectiveParentStyleUsage($this->object->getRefId());
+                if (!empty($parent_usage)) {
+                    $pu = new ilNonEditableValueGUI($lng->txt('sty_inherited_from'));
+                    $pu->setInfo($lng->txt('sty_inherited_from_info'));
+                    $pu->setValue(ilObject::_lookupTitle($parent_usage['obj_id']));
+                    $this->form->addItem($pu);
+                }
+            }
+            // fau.
         }
         $this->form->setTitle($lng->txt("obj_sty"));
         $this->form->setFormAction($ilCtrl->getFormAction($this));
@@ -3009,13 +3075,18 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $ilSetting = $this->settings;
     
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
-        if ($ilSetting->get("fixed_content_style_id") <= 0 &&
-            (ilObjStyleSheet::_lookupStandard($this->object->getStyleSheetId())
-            || $this->object->getStyleSheetId() == 0)) {
-            $this->object->setStyleSheetId(ilUtil::stripSlashes($_POST["style_id"]));
+        // fau: inheritContentStyle - save the style inheritance
+        if ($ilSetting->get("fixed_content_style_id") <= 0) {
+            if ($this->object->getStyleSheetId() == 0 || ilObjStyleSheet::_lookupStandard($this->object->getStyleSheetId())) {
+                $this->object->setStyleSheetId(ilUtil::stripSlashes($_POST["style_id"]));
+            }
+            if ($this->object->getType() !== 'cat') {
+                $this->object->setStyleSheetInheritance(!empty($_POST["inherit"]));
+            }
             $this->object->update();
             ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
         }
+        // fau.
         $this->ctrl->redirect($this, "editStyleProperties");
     }
 
@@ -3288,7 +3359,9 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         if ($this->getCreationMode() != true) {
             $title->setValue($trans->getDefaultTitle());
-            $desc->setValue($trans->getDefaultDescription());
+            // fau: fixContainerLongDescription - use the long description for edit forms
+            $desc->setValue($this->object->getLongDescription());
+            // fau.
         }
     }
 
@@ -3739,7 +3812,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             /** @var ilTemplate $main_tpl */
             $main_tpl = $this->tpl;
             $main_tpl->setFilter($renderer->render($this->ui_filter));
-            
+
             if ($this->container_user_filter->isEmpty() && !ilContainer::_lookupContainerSetting($this->object->getId(), "filter_show_empty", false)) {
                 ilUtil::sendInfo($this->lng->txt("cont_filter_empty"));
             }

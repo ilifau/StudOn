@@ -168,7 +168,29 @@ class ilSurveyExecutionGUI
         // check existing code
         // see ilObjSurveyGUI::infoScreen()
         $anonymous_id = $anonymous_code = null;
-        if ($this->object->getAnonymize() || !$this->object->isAccessibleWithoutCode()) {
+        // fau: surveyCaptcha - check captcha for anonymous survey
+        if ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA and $ilUser->getId() == ANONYMOUS_USER_ID) {
+            if (isset($_POST["captcha"])) {
+                include_once("./Services/Captcha/classes/class.ilSecurImage.php");
+                $si = new ilSecurImage();
+
+                if (!$si->check(ilUtil::stripSlashes($_POST["captcha"]))) {
+                    $this->lng->loadLanguageModule("cptch");
+                    ilUtil::sendFailure($this->lng->txt("cptch_wrong_input"), true);
+                    $this->ctrl->redirectByClass("ilobjsurveygui", "infoScreen");
+                }
+            }
+
+            $anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
+        } elseif ($this->object->getAnonymize() == ilObjSurvey::ANONYMIZE_CAPTCHA && $ilUser->getId() != ANONYMOUS_USER_ID) {
+            $anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
+            if (empty($anonymous_code)) {
+                $anonymous_code = $this->object->createNewAccessCode();
+                $_SESSION["anonymous_id"][$this->object->getId()] = $anonymous_code;
+                $a_may_start = true;
+            }
+        } elseif ($this->object->getAnonymize() || !$this->object->isAccessibleWithoutCode()) {
+            // fau.
             $anonymous_code = $_SESSION["anonymous_id"][$this->object->getId()];
             $anonymous_id = $this->object->getAnonymousIdByCode($anonymous_code);
             if (!$anonymous_id) {

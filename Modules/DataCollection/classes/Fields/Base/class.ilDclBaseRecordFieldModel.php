@@ -15,6 +15,9 @@
  */
 class ilDclBaseRecordFieldModel
 {
+    // fau: dclPerformance - static variable to prevent a read in the constructor
+    protected static $preventRead = false;
+    // fau.
 
     /**
      * @var int
@@ -75,8 +78,68 @@ class ilDclBaseRecordFieldModel
         $this->user = $ilUser;
         $this->db = $ilDB;
         $this->lng = $lng;
-        $this->doRead();
+
+        // fau: dclPerformance - prevent a read in the constructor
+        if (!self::$preventRead) {
+            $this->doRead();
+        }
+        // fau.
     }
+
+    // fau: dclPerformance - new function getInstances()
+    // This gets all record field instances of a field for a list of records
+    /**
+     * Get instances for a list of records
+     * @var ilDclBaseRecordModel[] $records
+     * @var ilDclBaseFieldModel $field
+     */
+    public static function getInstances($records, $field)
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $datatype = $field->getDatatype();
+        $storage_location = ($field->getStorageLocationOverride() !== null) ? $field->getStorageLocationOverride() : $datatype->getStorageLocation();
+
+        $indexed_records = [];
+        foreach ($records as $record) {
+            $indexed_records[$record->getId()] = $record;
+        }
+
+        // query for the record fields at once
+        if ($storage_location == 0) {
+            $query = "
+                SELECT f.id, f.record_id
+                FROM il_dcl_record_field f ";
+        }
+        else {
+            $query = "
+                SELECT f.id, f.record_id, v.value
+                FROM il_dcl_record_field f
+                LEFT JOIN il_dcl_stloc" . $storage_location . "_value v ON f.id = v.record_field_id ";
+        }
+        $query .= " WHERE f.field_id = " . $db->quote($field->getId(), "integer") . "
+                    AND " . $db->in('f.record_id', array_keys($indexed_records), false, "integer");
+        $set = $db->query($query);
+
+        // create the record field instances
+        // prevent a read in the constructor
+        // instead assign the id and value directly
+        $instances = [];
+        self::$preventRead = true;
+        while ($rec = $db->fetchAssoc($set)) {
+            $instance = new static($indexed_records[$rec['record_id']], $field);
+            $instance->id = $rec['id'];
+            if (isset($rec['value'])) {
+                $instance->value = $instance->deserializeData($rec['value']);
+            }
+            $instances[] = $instance;
+        }
+        self::$preventRead = false;
+
+        return $instances;
+     }
+     // fau.
 
 
     /**

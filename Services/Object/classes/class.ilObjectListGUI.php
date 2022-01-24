@@ -168,7 +168,7 @@ class ilObjectListGUI
      * @var \ILIAS\DI\UIServices
      */
     protected $ui;
-
+    
     /**
      * @var ilObjectService
      */
@@ -199,9 +199,9 @@ class ilObjectListGUI
         $this->mode = IL_LIST_FULL;
         $this->path_enabled = false;
         $this->context = $a_context;
-
-        $this->object_service = $DIC->object();
         
+        $this->object_service = $DIC->object();
+
         $this->enableComments(false);
         $this->enableNotes(false);
         $this->enableTags(false);
@@ -1225,7 +1225,9 @@ class ilObjectListGUI
 
             // BEGIN WebDAV Display locking information
             require_once('Services/WebDAV/classes/class.ilDAVActivationChecker.php');
-            if (ilDAVActivationChecker::_isActive()) {
+            // fau: hideWebdav - customize visibility of locking info and warnings
+            if (ilDAVActivationChecker::_isActive() && ilCust::get('webdav_show_warnings')) {
+                // fau.
                 // Show lock info
                 require_once('Services/WebDAV/classes/lock/class.ilWebDAVLockBackend.php');
                 $webdav_lock_backend = new ilWebDAVLockBackend();
@@ -1591,6 +1593,11 @@ class ilObjectListGUI
 
         // see bug #16519
         $d = $this->getDescription();
+        // fau: fixDescriptionLineBreaks - repace line breaks by spaces inobject lists
+        $d = str_replace('<br>', ' ', $d);
+        $d = str_replace('<br />', ' ', $d);
+        $d = str_replace("\n", ' ', $d);
+        // fau.
         $d = strip_tags($d, "<b>");
         $this->tpl->setCurrentBlock("item_description");
         $this->tpl->setVariable("TXT_DESC", $d);
@@ -2021,7 +2028,7 @@ class ilObjectListGUI
                 $a_href = "#";
                 ilWebDAVMountInstructionsModalGUI::maybeRenderWebDAVModalInGlobalTpl();
             }
-
+            
             $this->current_selection_list->addItem(
                 $a_text,
                 "",
@@ -2422,9 +2429,11 @@ class ilObjectListGUI
         if ($this->reference_ref_id) {
             $this->ctrl->setParameterByClass('ilobjectactivationgui', 'ref_id', $this->reference_ref_id);
         }
-        
-        if ($this->checkCommandAccess('write', '', $parent_ref_id, $parent_type) ||
+
+        // fau: restrictAvailabilityChange - write permission to parent is not enough to set availability
+        if ( // $this->checkCommandAccess('write','',$parent_ref_id,$parent_type) ||
             $this->checkCommandAccess('write', '', $this->ref_id, $this->type)) {
+            // fau.
             $this->ctrl->setParameterByClass(
                 'ilobjectactivationgui',
                 'cadh',
@@ -2523,13 +2532,18 @@ class ilObjectListGUI
                         $txt = ($command["lang_var"] == "")
                             ? $command["txt"]
                             : $this->lng->txt($command["lang_var"]);
-                        $this->insertCommand(
-                            $cmd_link,
-                            $txt,
-                            $command["frame"],
-                            $command["img"],
-                            $command["cmd"]
-                        );
+
+                        // fau: hideWebdav - don't show webfolder command
+                        if ($command["cmd"] != "mount_webfolder") {
+                            $this->insertCommand(
+                                $cmd_link,
+                                $txt,
+                                $command["frame"],
+                                $command["img"],
+                                $command["cmd"]
+                            );
+                        }
+                        // fau.
                     }
                 } else {
                     $this->default_command = $this->createDefaultCommand($command);

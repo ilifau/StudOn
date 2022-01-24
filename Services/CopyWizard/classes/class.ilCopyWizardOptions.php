@@ -43,7 +43,10 @@ class ilCopyWizardOptions
     const DISABLE_SOAP = -4;
     const ROOT_NODE = -5;
     const DISABLE_TREE_COPY = -6;
-    
+    // fau: copyBySoap - constant for mail option
+    const SEND_MAIL = -7;
+    // fau.
+
     private $db;
     
     private $copy_id;

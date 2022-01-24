@@ -28,6 +28,14 @@ class ilFileDataForum extends ilFileData
     
     private $error;
 
+    // fau: fastForumFiles - cache variable
+    /**
+     * Cache for file paths obj_id => paths[]
+     * @var array
+     */
+    protected static $paths_cache = [];
+    // fau.
+
     /**
     * Constructor
     * call base constructors
@@ -74,6 +82,37 @@ class ilFileDataForum extends ilFileData
         return $this->forum_path;
     }
 
+    // fau: fastForumFiles - new function _getFilePathsOfForum()
+    /**
+     * Get the paths of files used by a forum
+     *
+     * @param string $a_forum_path
+     * @param $a_obj_id
+     * @return string[]
+     */
+    protected static function _getFilePathsOfForum($a_forum_path, $a_obj_id) {
+
+        if (isset(self::$paths_cache[$a_obj_id])) {
+            return self::$paths_cache[$a_obj_id];
+        }
+
+        // clear the cache if forum is changed
+        // this should avoid overflows for delete operations
+        self::$paths_cache = [];
+
+        $paths = [];
+        foreach (glob($a_forum_path . '/'. (int) $a_obj_id . '_*') as $path) {
+            if (is_dir($path)) {
+                continue;
+            }
+            $paths[] = $path;
+        }
+
+        self::$paths_cache[$a_obj_id] = $paths;
+        return $paths;
+    }
+    // fau.
+
     /**
      * @return array
      */
@@ -112,30 +151,23 @@ class ilFileDataForum extends ilFileData
     {
         $files = array();
 
-        foreach (new DirectoryIterator($this->forum_path) as $file) {
-            /**
-             * @var $file SplFileInfo
-             */
+        // fau: fastForumFiles - use the cached file path list
+        foreach (self::_getFilePathsOfForum($this->forum_path, $this->obj_id) as $path) {
 
-            if ($file->isDir()) {
-                continue;
-            }
+            list($obj_id, $pos_id, $rest) = explode('_', basename($path), 3);
 
-            list($obj_id, $rest) = explode('_', $file->getFilename(), 2);
-            if ($obj_id == $this->obj_id) {
-                list($pos_id, $rest) = explode('_', $rest, 2);
-                if ($pos_id == $this->getPosId()) {
-                    $files[$rest] = array(
-                        'path' => $file->getPathname(),
-                        'md5' => md5($this->obj_id . '_' . $this->pos_id . '_' . $rest),
-                        'name' => $rest,
-                        'size' => $file->getSize(),
-                        'ctime' => date('Y-m-d H:i:s', $file->getCTime())
-                    );
-                }
+            if ($obj_id == $this->obj_id && $pos_id == $this->getPosId()) {
+                $stat = stat($path);
+                $files[$rest] = array(
+                    'path' => $path,
+                    'md5' => md5($this->obj_id . '_' . $this->pos_id . '_' . $rest),
+                    'name' => $rest,
+                    'size' => $stat['size'],
+                    'ctime' => date('Y-m-d H:i:s', $stat['ctime'])
+                );
             }
         }
-
+        // fau.
         return $files;
     }
 

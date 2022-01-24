@@ -169,7 +169,9 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
     /**
      * Rebuild the thumbnail images with a new thumbnail size
      */
-    protected function rebuildThumbnails()
+    // fau: fixScMcImport - make public to allow a call from import
+    public function rebuildThumbnails()
+    // fau.
     {
         if ($this->isSingleline && ($this->getThumbSize())) {
             foreach ($this->getAnswers() as $answer) {
@@ -192,7 +194,9 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
      * @param $path string
      * @param $file string
      */
-    protected function generateThumbForFile($path, $file)
+    // fau: fixScMcImport - make public to allow a call from import
+    public function generateThumbForFile($path, $file)
+    // fau.
     {
         $filename = $path . $file;
         if (@file_exists($filename)) {
@@ -609,8 +613,10 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
                     $this->getSelectionLimit(),
                     $this->getAnswerCount()
                 );
-                
-                ilUtil::sendFailure($failureMsg, true);
+
+                // fau: fixValidateSolutionSubmit - don't show validation message directly
+                $this->setValidateSolutionMessage($failureMsg);
+                // fau.
                 return false;
             }
         }
@@ -1020,7 +1026,7 @@ class assMultipleChoice extends assQuestion implements ilObjQuestionScoringAdjus
     {
         $this->thumb_size = $a_size;
     }
-    
+
     /**
      * @param ilAssSelfAssessmentMigrator $migrator
      */

@@ -63,7 +63,11 @@ class ilDclIliasReferenceRecordRepresentation extends ilDclBaseRecordRepresentat
         global $DIC;
         $lng = $DIC['lng'];
         $this->getRecordField();
-        $link = ilLink::_getStaticLink($this->getRecordField()->getValue());
+        // fau: dclPerformance - prevent a lookup for non-existing references
+        if ($this->getRecordField()->getValue() != 0) {
+            $link = ilLink::_getStaticLink($this->getRecordField()->getValue());
+        }
+        // fau.
         if ($show_action_menu) {
             $field = $this->getRecordField()->getField();
             $record = $this->getRecordField()->getRecord();

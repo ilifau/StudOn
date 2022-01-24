@@ -470,7 +470,9 @@ var ilCOPage =
 
 	cmdExtLink: function()
 	{
-		this.addBBCode('[xln url="http://"]', '[/xln]');
+	    /* fau: changeXlnTemplate - */
+		this.addBBCode('[xln url="https://"]', '[/xln]');
+		/* fau.*/
 	},
 
 	cmdUserLink: function()

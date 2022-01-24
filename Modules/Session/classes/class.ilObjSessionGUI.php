@@ -15,6 +15,9 @@ include_once('./Modules/Session/classes/class.ilSessionFile.php');
 * @ilCtrl_Calls ilObjSessionGUI:  ilLearningProgressGUI, ilSessionMembershipGUI, ilObjectMetaDataGUI, ilPropertyFormGUI
 * @ilCtrl_Calls ilObjSessionGUI: ilBookingGatewayGUI
 *
+* fau: objectSub - added ilPropertyFormGUI to call structure
+* @ilCtrl_Calls ilObjSessionGUI: ilPropertyFormGUI
+* fau.
 * @ingroup ModulesSession
 */
 class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
@@ -94,6 +97,16 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         $this->prepareOutput();
         switch ($next_class) {
+// fau: objectSub - object selection in properties form
+            case "ilpropertyformgui":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "updateRegistrationRefId");
+                $this->initForm('edit');
+                $this->ctrl->forwardCommand($this->form);
+                break;
+// fau.
+
             case 'ilsessionmembershipgui':
                 $this->tabs_gui->activateTab('members');
                 include_once './Modules/Session/classes/class.ilSessionMembershipGUI.php';
@@ -256,7 +269,13 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
 
         $this->checkPermission('visible');
-        
+
+        // fau: objectSub - redirect to info screen if registration type is object
+        if ($this->getCurrentObject()->getRegistrationType() == ilMembershipRegistrationSettings::TYPE_OBJECT) {
+            $this->ctrl->redirect($this, 'infoScreen');
+        }
+        // fau.
+
         include_once './Services/Membership/classes/class.ilParticipants.php';
         $part = ilParticipants::getInstance($this->getCurrentObject()->getRefId());
 
@@ -454,7 +473,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
             ilObjectGUI::_gotoRepositoryRoot();
         }
     }
-    
+
 
     
     /**
@@ -522,7 +541,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
     {
         return $this->unregisterObject(true);
     }
-    
+
     /**
      * @param $ilToolbar ilToolbarGUI
      * show join request
@@ -542,6 +561,30 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         if (!$this->getCurrentObject()->enabledRegistrationForUsers() || $ilUser->isAnonymous()) {
             return false;
         }
+
+        // fau: objectSub - show info for subscription by object
+        require_once('Services/Membership/classes/class.ilMembershipRegistrationSettings.php');
+        if ($this->getCurrentObject()->getRegistrationType() == ilMembershipRegistrationSettings::TYPE_OBJECT) {
+            $ref_id = $this->getCurrentObject()->getRegistrationRefId();
+            require_once('Services/Link/classes/class.ilLink.php');
+            $obj_id = ilObject::_lookupObjId($ref_id);
+            $link = ilLink::_getLink($ref_id);
+
+            require_once('Services/Locator/classes/class.ilLocatorGUI.php');
+            $locator = new ilLocatorGUI();
+            $locator->addRepositoryItems($ref_id);
+
+            $tpl = new ilTemplate('tpl.sub_object_link.html', true, true, 'Services/Membership');
+            $tpl->setVariable('TXT_INFO', $this->lng->txt('sub_separate_object_reg_info'));
+            $tpl->setVariable('IMG_TYPE', ilObject::_getIcon($obj_id, 'small'));
+            $tpl->setVariable('URL_OBJECT', $link);
+            $tpl->setVariable('TITLE_OBJECT', ilObject::_lookupTitle($obj_id));
+            $tpl->setVariable('TXT_PATH', $locator->getTextVersion());
+
+            ilUtil::sendInfo($tpl->get());
+            return true;
+        }
+        // fau.
 
         include_once './Modules/Session/classes/class.ilSessionWaitingList.php';
         
@@ -870,7 +913,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->handleFileUpload();
 
         $DIC->object()->commonSettings()->legacyForm($this->form, $this->object)->saveTileImage();
-        
+
         $this->createRecurringSessions($this->form->getInput("lp_preset"));
 
         if ($a_redirect_on_success) {
@@ -1110,7 +1153,31 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         #$this->editObject();
         return true;
     }
-    
+
+    // fau: objectSub - update the ref id for subscriptions
+    /**
+     * Update the chosen ref id for subscriptions
+     */
+    public function updateRegistrationRefIdObject()
+    {
+        require_once('Services/Membership/classes/class.ilMembershipRegistrationSettings.php');
+        $this->initForm('edit');
+        $input = $this->form->getItemByPostVar('registration_ref_id');
+        $input->readFromSession();
+        if ($input->getValue()) {
+            $this->object->setRegistrationType(ilMembershipRegistrationSettings::TYPE_OBJECT);
+            $this->object->setRegistrationRefId((int) $input->getValue());
+        } else {
+            $this->object->setRegistrationType(ilMembershipRegistrationSettings::TYPE_NONE);
+            $this->object->setRegistrationRefId(null);
+        }
+        $this->object->update();
+        ilUtil::sendSuccess($this->lng->txt("msg_obj_modified"), true);
+        $this->ctrl->redirect($this, "edit");
+    }
+    // fau.
+
+
     /**
      * confirm delete files
      *
@@ -1717,17 +1784,33 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
 
         include_once './Modules/Session/classes/class.ilSessionMembershipRegistrationSettingsGUI.php';
         include_once './Services/Membership/classes/class.ilMembershipRegistrationSettings.php';
-        $reg_settings = new ilSessionMembershipRegistrationSettingsGUI(
-            $this,
-            $this->object,
-            array(
+        // fau: objectSub - add registration by object to settings if form is in edit mode
+        if ($a_mode == 'create') {
+            $reg_settings = new ilSessionMembershipRegistrationSettingsGUI(
+                $this,
+                $this->object,
+                array(
                     ilMembershipRegistrationSettings::TYPE_DIRECT,
                     ilMembershipRegistrationSettings::TYPE_REQUEST,
                     ilMembershipRegistrationSettings::TYPE_TUTOR,
                     ilMembershipRegistrationSettings::TYPE_NONE,
                     ilMembershipRegistrationSettings::REGISTRATION_LIMITED_USERS
                 )
-        );
+            );
+        } else {
+            $reg_settings = new ilSessionMembershipRegistrationSettingsGUI(
+                $this,
+                $this->object,
+                array(
+                    ilMembershipRegistrationSettings::TYPE_OBJECT,
+                    ilMembershipRegistrationSettings::TYPE_DIRECT,
+                    ilMembershipRegistrationSettings::TYPE_REQUEST,
+                    ilMembershipRegistrationSettings::TYPE_NONE,
+                    ilMembershipRegistrationSettings::REGISTRATION_LIMITED_USERS
+                )
+            );
+        }
+        // fau.
         $reg_settings->addMembershipFormElements($this->form, '');
 
 
@@ -1744,7 +1827,7 @@ class ilObjSessionGUI extends ilObjectGUI implements ilDesktopItemHandling
         $this->form->addItem($section);
 
         $DIC->object()->commonSettings()->legacyForm($this->form, $this->object)->addTileImage();
-                
+
         $features = new ilFormSectionHeaderGUI();
         $features->setTitle($this->lng->txt('obj_features'));
         $this->form->addItem($features);

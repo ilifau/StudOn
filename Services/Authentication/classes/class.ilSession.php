@@ -420,6 +420,63 @@ class ilSession
         }
         return $users;
     }
+
+    // fau: countUsersOnline - new function to periodically count the users online
+    /**
+     * Get Users online since a certain time span
+     * @param int $seconds   time window for counting
+     * @param bool $store   store the value in a log table
+     */
+    public static function _getUsersOnline($seconds, $store = false)
+    {
+        global $DIC;
+
+        $ilDB = $DIC->database();
+        $ilSetting = $DIC->settings();
+
+        // ensure integer
+        $seconds = (int) $seconds;
+
+        if (time() < $ilSetting->get('session_count_users_online_expire_' . $seconds)) {
+            $users = $ilSetting->get('session_count_users_online_' . $seconds);
+        } else {
+            $query = "SELECT COUNT(DISTINCT user_id) users FROM usr_session u WHERE expires > UNIX_TIMESTAMP() AND ctime + $seconds > UNIX_TIMESTAMP();";
+            $result = $ilDB->query($query);
+            $row = $ilDB->fetchAssoc($result);
+            $users = $row['users'];
+
+            // next query after 1 minute
+            $ilSetting->set('session_count_users_online_expire_' . $seconds, time() + 60);
+            $ilSetting->set('session_count_users_online_' . $seconds, $row['users']);
+        }
+
+        if ($store && time() > (int) $ilSetting->get('session_count_users_online_store_' . $seconds)) {
+
+            $parts = getdate();
+            $datetime = new ilDateTime($parts[0], IL_CAL_UNIX);
+
+            if ($ilDB->tableExists('ut_count_online')) {
+                $ilDB->replace('ut_count_online',
+                    ['check_time' => ['text', $datetime->get(IL_CAL_DATETIME)]],
+                    [
+                        'check_year'=> ['integer', $parts['year']],
+                        'check_month' => ['integer', $parts['mon']],
+                        'check_day' => ['integer', $parts['mday']],
+                        'check_hour' => ['integer', $parts['hours']],
+                        'check_minute' => ['integer', $parts['minutes']],
+                        'window_seconds' => ['integer', $seconds],
+                        'users_online' => ['integer', $users]
+                    ]
+                );
+            }
+
+            // next store after 5 minutes
+            $ilSetting->set('session_count_users_online_store_'. $seconds, time() + 300);
+        }
+
+        return $users;
+    }
+    // fau.
     
     /**
      * Set a value

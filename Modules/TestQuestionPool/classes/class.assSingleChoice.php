@@ -148,7 +148,9 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
     /*
     * Rebuild the thumbnail images with a new thumbnail size
     */
-    protected function rebuildThumbnails()
+    // fau: fixScMcImport - make public to allow a call from import
+    public function rebuildThumbnails()
+    // fau.
     {
         if ($this->isSingleline && ($this->getThumbSize())) {
             foreach ($this->getAnswers() as $answer) {
@@ -164,7 +166,9 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
         return "thumb.";
     }
     
-    protected function generateThumbForFile($path, $file)
+    // fau: fixScMcImport - make public to allow a call from import
+    public function generateThumbForFile($path, $file)
+    // fau.
     {
         $filename = $path . $file;
         if (@file_exists($filename)) {
@@ -995,7 +999,7 @@ class assSingleChoice extends assQuestion implements ilObjQuestionScoringAdjusta
             $answer->setAnswertext($migrator->migrateToLmContent($answer->getAnswertext()));
         }
     }
-    
+
     /**
     * Returns a JSON representation of the question
     */

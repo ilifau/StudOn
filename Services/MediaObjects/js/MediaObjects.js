@@ -20,6 +20,15 @@ il.MediaObjects = {
 		window.onhashchange = function() {
 			il.MediaObjects.onHashChange();
 		}
+
+		// fau: preventContextMenu - prevent context menu for media
+		$('video').bind('contextmenu', function(e) {
+				return false;
+		});
+		$('audio').bind('contextmenu', function(e) {
+				return false;
+		});
+		// fau.
 	},
 	
 	setPlayerConfig: function (id, config) {
@@ -52,7 +61,12 @@ il.MediaObjects = {
 			video_el_wrap.find(".ilNoDisplay").removeClass('ilNoDisplay');
 			//video_el.attr('autoplay', 'true');
 			const elid = video_el.attr('id');
-			player = new MediaElementPlayer(elid, {});
+			// fau: jumpMedia - activate skipback and jumpforward links
+			player = new MediaElementPlayer(elid, {
+				features: ['playpause', 'current', 'progress', 'skipback', 'jumpforward', 'volume', 'fullscreen'],
+				skipBackInterval: 10, jumpForwardInterval: 10,
+			});
+			// fau.
 			const wrap = document.getElementById(elid);
 			if (!il.MediaObjects.player_config[video_el_id]['listener_added']) {
 				wrap.addEventListener('play', function (e) {
@@ -180,13 +194,18 @@ il.MediaObjects = {
 	},
 
 	autoInitPlayers: function () {
+		// fau: jumpMedia - activate skipback and jumpforward links
+		var cfg;
+		cfg = {features: ['playpause', 'current', 'progress', 'skipback', 'jumpforward', 'volume', 'fullscreen'], skipBackInterval: 10, jumpForwardInterval: 10};
+
 		$("video, audio").each(function () {
 			var id = $(this).attr("id");
 			if ($(this).attr("id") != "") {
-				new MediaElementPlayer(id);
+				new MediaElementPlayer(id, cfg);
 			}
 
 		});
+		// fau.
 	}
 }
 il.Util.addOnLoad(il.MediaObjects.init);

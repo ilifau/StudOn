@@ -104,13 +104,15 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
     protected function getPageObjectGUI(string $language, bool $isEmbedded = false) : ilContentPagePageGUI
     {
         $pageObjectGUI = new ilContentPagePageGUI($this->parentObject->getId(), 0, $isEmbedded, $language);
+        // fau: inheritContentStyle - add ref_id
         $pageObjectGUI->setStyleId(
             ilObjStyleSheet::getEffectiveContentStyleId(
                 $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType()
+                $this->parentObject->getType(),
+                $this->parentObject->getRefId()
             )
         );
-
+        // fau.
         $pageObjectGUI->obj->addUpdateListener($this->parentObject, 'update');
 
         return $pageObjectGUI;
@@ -190,13 +192,15 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
         $pageObjectGUI = $this->getPageObjectGUI($language);
         $pageObjectGUI->setEnabledTabs(false);
 
+        // fau: inheritContentStyle - add ref_id
         $pageObjectGUI->setStyleId(
             ilObjStyleSheet::getEffectiveContentStyleId(
                 $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType()
+                $this->parentObject->getType(),
+                $this->parentObject->getRefId()
             )
         );
-
+        // fau.
         return $pageObjectGUI;
     }
 
@@ -211,13 +215,15 @@ class ilContentPagePageCommandForwarder implements ilContentPageObjectConstants
         $pageObjectGUI = $this->getPageObjectGUI($language, true);
         $pageObjectGUI->setEnabledTabs(false);
 
+        // fau: inheritContentStyle - add ref_id
         $pageObjectGUI->setStyleId(
             ilObjStyleSheet::getEffectiveContentStyleId(
                 $this->parentObject->getStyleSheetId(),
-                $this->parentObject->getType()
+                $this->parentObject->getType(),
+                $this->parentObject->getRefId()
             )
         );
-
+        // fau.
         return $pageObjectGUI;
     }
 

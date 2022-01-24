@@ -234,7 +234,10 @@ class assFileUploadGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             }
             $solutions = &$this->object->getSolutionValues($active_id, $pass);
 
-            $files = ($show_manual_scoring) ? $this->object->getUploadedFilesForWeb($active_id, $pass) : $this->object->getUploadedFiles($active_id, $pass);
+            // fau: tstDownloadFilesInResultsView - alow a download of the oploaded files in the results view
+            // $files = ($show_manual_scoring) ? $this->object->getUploadedFilesForWeb($active_id, $pass) : $this->object->getUploadedFiles($active_id, $pass);
+            $files = $this->object->getUploadedFilesForWeb($active_id, $pass);
+            // fau.
             include_once "./Modules/TestQuestionPool/classes/tables/class.assFileUploadFileTableGUI.php";
             $table_gui = new assFileUploadFileTableGUI($this->getTargetGuiClass(), 'gotoquestion');
             $table_gui->setTitle($this->lng->txt('already_delivered_files'), 'icon_file.svg', $this->lng->txt('already_delivered_files'));

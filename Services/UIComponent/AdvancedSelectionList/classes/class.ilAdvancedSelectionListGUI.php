@@ -45,7 +45,7 @@ class ilAdvancedSelectionListGUI implements ilToolbarItem
 
     protected $listtitle;
     protected $aria_listtitle;
-    
+
     /*
 
     The modes implement the following html for non-js fallback:

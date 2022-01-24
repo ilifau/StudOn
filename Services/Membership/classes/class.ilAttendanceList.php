@@ -58,6 +58,12 @@ class ilAttendanceList
         $this->presets['name'] = array($DIC->language()->txt('name'), true);
         $this->presets['login'] = array($DIC->language()->txt('login'), true);
 
+        // fau: extendedAccess - show email only with extended export rights
+        include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
+        if (ilPrivacySettings::_checkExtendedAccess()) {
+            $this->presets['email'] = array($DIC->language()->txt('email'));
+        }
+        // fau.
         
         // add exportable fields
         $this->readOrderedExportableFields();
@@ -457,9 +463,13 @@ class ilAttendanceList
             foreach ((array) $form->getInput('preset') as $value) {
                 if (isset($this->presets[$value])) {
                     $this->presets[$value][1] = true;
-                } else {
-                    $this->addPreset($value, $value, true);
                 }
+                // fau: fixPrintForMembers - respect the default presets (their data protection is already checked)
+//				else
+//				{
+//					$this->addPreset($value, $value, true);
+//				}
+// fau.
             }
             
             $this->setTitle($form->getInput('title'), $form->getInput('desc'));

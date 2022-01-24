@@ -84,6 +84,14 @@ abstract class ilDBPdo implements ilDBInterface, ilDBPdoInterface
      */
     protected $field_definition;
 
+    // fau: waitTimeout - class variable
+    /**
+     * timeout for idle database sessions in seconds
+     * @var integer
+     */
+    protected $wait_timeout = 0;
+    // fau.
+
 
     /**
      * @param bool $return_false_for_error
@@ -216,6 +224,10 @@ abstract class ilDBPdo implements ilDBInterface, ilDBPdoInterface
         $this->setPassword($clientIniFile->readVariable("db", "pass"));
         $this->setDbname($clientIniFile->readVariable("db", "name"));
         $this->setDBType($clientIniFile->readVariable("db", "type"));
+
+        // fau: waitTimeout - set from client.ini.php
+        $this->wait_timeout = (int) $clientIniFile->readVariable("db", "wait_timeout");
+        // fau.
 
         $this->generateDSN();
     }

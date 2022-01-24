@@ -178,14 +178,16 @@ class ilObjRepositorySettings extends ilObject
 
         $ilPluginAdmin = $DIC["ilPluginAdmin"];
         $objDefinition = $DIC["objDefinition"];
-        
+
         $res = array();
         
         // parse modules
         include_once("./Services/Component/classes/class.ilModule.php");
         foreach (ilModule::getAvailableCoreModules() as $mod) {
             $has_repo = false;
-            $rep_types = $objDefinition->getRepositoryObjectTypesForComponent(IL_COMP_MODULE, $mod["subdir"]);
+            // fau: objectDefCache - get the cached component info
+            $rep_types = $objDefinition->getRepositoryObjectTypesForComponentCached(IL_COMP_MODULE, $mod["subdir"]);
+            // fau.
             if (sizeof($rep_types) > 0) {
                 foreach ($rep_types as $ridx => $rt) {
                     // we only want to display repository modules

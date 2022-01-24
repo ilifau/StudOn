@@ -212,6 +212,10 @@ class assSingleChoiceImport extends assQuestionImport
         $this->object->saveToDb();
         foreach ($answers as $answer) {
             if (is_array($answer["imagefile"]) && (count($answer["imagefile"]) > 0)) {
+                // fau: fixScMcImport - set singleline mode for answers if image exists
+                $this->object->isSingleline = true;
+                // fau.
+                
                 $image = &base64_decode($answer["imagefile"]["content"]);
                 $imagepath = $this->object->getImagePath();
                 include_once "./Services/Utilities/classes/class.ilUtil.php";
@@ -225,6 +229,9 @@ class assSingleChoiceImport extends assQuestionImport
                     $imagefile = fwrite($fh, $image);
                     fclose($fh);
                 }
+                // fau: fixScMcImport - rebuild the answer thumbnail
+                $this->object->generateThumbForFile($this->object->getImagePath(), $answer["imagefile"]["label"]);
+                // fau.
             }
         }
 
