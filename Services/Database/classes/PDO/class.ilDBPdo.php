@@ -226,7 +226,7 @@ abstract class ilDBPdo implements ilDBInterface, ilDBPdoInterface
         $this->setDBType($clientIniFile->readVariable("db", "type"));
 
         // fau: waitTimeout - set from client.ini.php
-        $this->wait_timeout = (int) $clientIniFile->readVariable("db", "wait_timeout");
+        $this->wait_timeout = (int) $clientIniFile->readVariable("customize", "wait_timeout");
         // fau.
 
         $this->generateDSN();

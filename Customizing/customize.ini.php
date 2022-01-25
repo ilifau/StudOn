@@ -96,5 +96,7 @@ univis_noimports = ""                   ;don't show imported lectures (1)
 unzip_keep_min_kyrillic_percent = "0"   ;min percent of kyrillic characters (if any) to keep the default encoding
 
 videoportal_token = ""                  ;token for the videoportal to call the studon service
-            
+
+wait_timeout = "0"                      ;timeout of the database session to wait for new queries (0: use default)
+
 webdav_show_warnings = "1"				;show warnings about locking and invisible names for webdav
