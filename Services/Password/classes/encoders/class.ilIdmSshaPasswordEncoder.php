@@ -20,7 +20,7 @@ class ilIdmSshaPasswordEncoder extends ilBasePasswordEncoder
      * {@inheritdoc}
      * @throws ilPasswordException
      */
-    public function encodePassword($raw, $salt)
+    public function encodePassword(string $raw, string $salt) : string
     {
         if ($this->isPasswordTooLong($raw)) {
             require_once 'Services/Password/exceptions/class.ilPasswordException.php';
@@ -37,7 +37,7 @@ class ilIdmSshaPasswordEncoder extends ilBasePasswordEncoder
     /**
      * {@inheritdoc}
      */
-    public function isPasswordValid($encoded, $raw, $salt)
+    public function isPasswordValid(string $encoded, string $raw, string $salt) : bool
     {
         if ($this->isPasswordTooLong($raw)) {
             return false;
@@ -61,7 +61,7 @@ class ilIdmSshaPasswordEncoder extends ilBasePasswordEncoder
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName() : string
     {
         return 'idmssha';
     }
