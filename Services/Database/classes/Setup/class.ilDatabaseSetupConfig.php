@@ -166,6 +166,10 @@ class ilDatabaseSetupConfig implements Setup\Config
                         return $this->config->getDatabase();
                     case "type":
                         return $this->config->getType();
+                        // fau: waitTimeout: provide setting for the setup
+                    case "wait_timeout":
+                        return 0;
+                        // fau.
                     default:
                         throw new \LogicException(
                             "Cannot provide variable '$a_var_name'"
