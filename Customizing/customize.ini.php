@@ -75,7 +75,6 @@ search_enable_autocomplete = "1"        ;enable auto-complete in object search f
 shib_allow_create = "1"                 ;allow the creation of user accounts by shibboleth
 shib_create_limited = ""				;time limit for shib created accounts, e.g. 2015-10-01
 shib_log_accounts = ""                  ;comma separated list of accounts for which a shibboleth login should be logged
-shib_login_help_url = ""				;link to a help page for the shibboleth login
 shib_devmode_identity = ""              ;force an identity at shibboleth authentication in devmode (to fetch idm data)
 shib_devmode_login = ""                 ;force a login at shibboleth authentication in devmode (to get a studon user)
 
@@ -89,7 +88,7 @@ tst_prevent_image_validate = "0"        ;fau: preventQtiImageValidate - prevent 
 univis_server = ""                      ;only the server name, e.g. univis.uni-erlangen.de
 univis_port = ""                        ;port sor testing socket connection in univis2mysql
 univis_prg_url = ""                     ;url if the prg interface (ending with /?)
-univis_temp_dir = ""                    ;temporary directory for storing fetched xml files
+univis_tempdir = ""                    ;temporary directory for storing fetched xml files
 univis_semester = ""                    ;set a specific semester for the import (if empty: current and following)
 univis_noimports = ""                   ;don't show imported lectures (1)
 
