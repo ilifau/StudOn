@@ -109,4 +109,9 @@ class ilContextPatch implements ilContextTemplate
     {
         return true;
     }
+
+    public static function modifyHttpPath(string $httpPath) : string
+    {
+        return $httpPath;
+    }
 }
