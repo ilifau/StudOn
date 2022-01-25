@@ -103,4 +103,13 @@ class ilExAssTypeTestResultTeam implements ilExAssignmentTypeInterface
         return ilObjExerciseAccess::checkExtendedGradingAccess($a_ass->getExerciseId(), false);
     }
 
+    public function supportsWebDirAccess() : bool
+    {
+        return false;
+    }
+
+    public function getStringIdentifier() : string
+    {
+        // TODO: Implement getStringIdentifier() method.
+    }
 }

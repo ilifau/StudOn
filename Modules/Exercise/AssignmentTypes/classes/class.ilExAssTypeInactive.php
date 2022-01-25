@@ -101,4 +101,14 @@ class ilExAssTypeInactive implements ilExAssignmentTypeInterface
         return false;
     }
     //fau.
+
+    public function supportsWebDirAccess() : bool
+    {
+        return false;
+    }
+
+    public function getStringIdentifier() : string
+    {
+        // TODO: Implement getStringIdentifier() method.
+    }
 }
