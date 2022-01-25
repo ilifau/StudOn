@@ -10,12 +10,12 @@
 	</audio>
 	
 	<script>
-		$('#audio').mediaelementplayer({features: ['playpause','duration', 'volume'],
+		$('#audio').mediaelementplayer({features: ['playpause','duration', 'current', 'volume'],
 			audioWidth: 260,
 			audioHeight: 30,
 			success: function(player, node) {
 				player.addEventListener('play', function(e){
-					$('.mejs-controls').attr('style','visibility:hidden;');
+					$('.mejs__playpause-button').attr('style','visibility:hidden;');
 					$('#count').html('{SET_USES}');
 					$.get('{UPDATE_URL}');
 				});
