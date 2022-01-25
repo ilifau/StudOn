@@ -38,12 +38,6 @@
  * @modifier Fred neumann <fred.neumann@fim.uni-erlangen.de>
  */
 
-function DEBUG($message)
-{
-    if (DEBUG == true) {
-        echo $message . '<br />';
-    }
-}
 
 function U2T3_DEBUG_PARSER($depth, $message)
 {

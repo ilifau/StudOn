@@ -31,29 +31,29 @@ class Model
     public function fitsIntoDOM($curModelClass, $parModelClass)
     {
         if (!$this->parentModelClass) {
-            DEBUG("It's a TOP-level model -> modelFits = true.\n");
+            U2T3_DEBUG("It's a TOP-level model -> modelFits = true.\n");
             return true;
         }
         if (is_string($this->parentModelClass)) {
-            DEBUG("parentModelClass is a string\n");
+            U2T3_DEBUG("parentModelClass is a string\n");
             if ($this->parentModelClass == $curModelClass) {
-                DEBUG("We are currently in a model class with the correct modelClass -> modelFits = true.\n");
+                U2T3_DEBUG("We are currently in a model class with the correct modelClass -> modelFits = true.\n");
                 return true;
             }
             if ($this->parentModelClass == $parModelClass) {
-                DEBUG("We are currently in a model class with the correct parent->modelClass -> modelFits = true.\n");
+                U2T3_DEBUG("We are currently in a model class with the correct parent->modelClass -> modelFits = true.\n");
                 return true;
             }
         }
         if (is_array($this->parentModelClass)) {
-            DEBUG("parentModelClass is an array\n");
+            U2T3_DEBUG("parentModelClass is an array\n");
             if (in_array($curModelClass, $this->parentModelClass)) {
-                DEBUG("We are currently in a model class with the correct modelClass -> modelFits = true.\n");
+                U2T3_DEBUG("We are currently in a model class with the correct modelClass -> modelFits = true.\n");
                 $this->actualParentModel = $curModelClass;
                 return true;
             }
             if (in_array($parModelClass, $this->parentModelClass)) {
-                DEBUG("We are currently in a model class with the correct parent->modelClass -> modelFits = true.\n");
+                U2T3_DEBUG("We are currently in a model class with the correct parent->modelClass -> modelFits = true.\n");
                 $this->actualParentModel = $parModelClass;
                 return true;
             }

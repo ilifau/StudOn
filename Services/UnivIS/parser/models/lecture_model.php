@@ -114,7 +114,7 @@ class LectureModel extends Model
 	{
 	    if (empty($GLOBALS['semester']))
 	    {
-		DEBUG("LectureModel(): Semester nicht gesetzt!\n");
+		    U2T3_DEBUG("LectureModel(): Semester nicht gesetzt!\n");
 		return false;
 	    }
 	    $this->attributes['semester'] = $GLOBALS['semester'];
@@ -156,7 +156,7 @@ class CourseModel extends Model
 	    $this->attributes[$this->childModelKey]='';
 	    if (empty($GLOBALS['semester']))
 	    {
-		DEBUG("LectureModel(): Semester nicht gesetzt!\n");
+		    U2T3_DEBUG("LectureModel(): Semester nicht gesetzt!\n");
 		return false;
 	    }
 	    $this->attributes['semester'] = $GLOBALS['semester'];
@@ -203,7 +203,7 @@ class DozModel extends Model
 	    $this->attributes[$this->childModelKey]='';
 	    if (empty($GLOBALS['semester']))
 	    {
-		DEBUG("LectureModel(): Semester nicht gesetzt!\n");
+		    U2T3_DEBUG("LectureModel(): Semester nicht gesetzt!\n");
 		return false;
 	    }
 	    $this->attributes['semester'] = $GLOBALS['semester'];
@@ -251,7 +251,7 @@ class StudModel extends Model
 	    $this->attributes[$this->childModelKey]='';
 	    if (empty($GLOBALS['semester']))
 	    {
-		DEBUG("LectureModel(): Semester nicht gesetzt!\n");
+		    U2T3_DEBUG("LectureModel(): Semester nicht gesetzt!\n");
 		return false;
 	    }
 	    $this->attributes['semester'] = $GLOBALS['semester'];
@@ -302,7 +302,7 @@ class TermModel extends Model
 	    
 	    if (empty($GLOBALS['semester']))
 	    {
-		DEBUG("LectureModel(): Semester nicht gesetzt!\n");
+		    U2T3_DEBUG("LectureModel(): Semester nicht gesetzt!\n");
 		return false;
 	    }
 	    $this->attributes['semester'] = $GLOBALS['semester'];
