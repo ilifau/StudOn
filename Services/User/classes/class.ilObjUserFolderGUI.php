@@ -298,9 +298,9 @@ class ilObjUserFolderGUI extends ilObjectGUI
         // fau: userQuery - don't load the items twice if filter is applied
         $utab = new ilUserTableGUI(
             $this,
-  view",
-        ilUserTableGUI::MODE_USER_FOLDER,
-        false);
+            "view",
+            ilUserTableGUI::MODE_USER_FOLDER,
+            false);
         // fau.
         $utab->resetOffset();
         $utab->writeFilterToSession();

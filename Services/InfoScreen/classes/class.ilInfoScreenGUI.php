@@ -820,7 +820,7 @@ class ilInfoScreenGUI
 
                         $details = $lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
                         if (count($userlist)) {
-                            $details .= '<br />' . $lng->txt('users') . ': ' . implode($userlist, ', ');
+                            $details .= '<br />' . $lng->txt('users') . ': ' . implode(', ', $userlist) ;
                         }
 
                         $this->addProperty($title, $details);
