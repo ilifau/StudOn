@@ -14072,6 +14072,8 @@ div.ilc_answers.answer-table div.ilc_qanswer_Answer {
 }
 div.ilc_answers.answer-table div.ilc_qanswer_Answer > div {
   display: table-cell;
+  vertical-align: top;
+  /* fau:  show mc checkbox at top of row */
 }
 div.ilc_question_SingleChoice .answertext > p,
 div.ilc_question_MultipleChoice .answertext > p {
@@ -14337,6 +14339,7 @@ table.calmini tr:nth-child(even) {
 }
 table.calmini th.calmini,
 table.calmini th.calminiweek {
+  font-family: 'roboto';
   font-weight: 600;
   font-size: 90%;
 }
@@ -14736,9 +14739,11 @@ li.ilWikiBlockItem {
 #ilTopNav .navbar-nav > li > a {
   margin: 0;
   padding: 5px 10px 6px;
-  text-transform: uppercase;
-  font-size: 14px;
-  border-top: 4px solid white;
+  text-transform: none;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  border-top: 4px solid transparent;
   background-color: transparent;
   color: #808080;
 }
@@ -14854,7 +14859,7 @@ li.ilWikiBlockItem {
 /* Main Menu Top Title */
 .ilTopTitle {
   float: left;
-  font-weight: 600;
+  font-family: 'roboto';
   padding: 0 0 0 15px;
   white-space: nowrap;
   line-height: 40px;
@@ -16259,6 +16264,9 @@ li.smallPad {
   min-height: 200px;
   background-color: #f9f9f9;
 }
+#chat-message-controls .form-group {
+  margin-bottom: 0;
+}
 #chat_users {
   overflow: auto;
   height: 100%;
@@ -16823,7 +16831,7 @@ h2.ilBlockHeader {
   display: inline;
 }
 h3.ilBlockHeader {
-  font-weight: 600;
+  font-family: 'roboto';
   margin: 0;
   padding: 0;
   font-size: 100%;
@@ -17732,7 +17740,7 @@ body.ilPrtfPdfBody .ilPCMyCoursesToggle img {
   font-size: 12px;
 }
 #awareness-content .dropdown-menu a {
-  color: #7c7c7c;
+  color: #161616;
 }
 #awareness-content .dropdown-menu a:hover {
   color: #000000;
@@ -19153,3 +19161,4 @@ table.mceToolbar td {
   border: 1px solid #dddddd;
   border-radius: 0.25em;
 }
+/*# sourceMappingURL=delos.css.map */
