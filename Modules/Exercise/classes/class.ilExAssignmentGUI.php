@@ -279,7 +279,7 @@ class ilExAssignmentGUI
             }
 
             if (!empty($suffixes)) {
-                $a_info->addProperty($lng->txt('exc_file_suffixes'), $suffixes);
+                $a_info->addProperty($this->lng->txt('exc_file_suffixes'), $suffixes);
             }
         }
 
