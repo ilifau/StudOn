@@ -149,7 +149,7 @@ class ilExAssignmentGUI
         $mand = "";
         if ($this->mandatory_manager->isMandatoryForUser($a_ass->getId(), $this->user->getId())) {
             $mand = " (" . $lng->txt("exc_mandatory") . ")";
-
+        }
         // fau: exGradeTime - add info about grade time
         if ($a_ass->getGradeStart() > 0) {
             $tpl->setCurrentBlock("prop");
@@ -428,7 +428,7 @@ class ilExAssignmentGUI
     // fau: exStatement - new function addRequirements
     protected function addRequirements(ilInfoScreenGUI $a_info, ilExAssignment $a_ass)
     {
-        include_once("./Modules/Exercise/classes/class.ilExcAssMemberState.php");
+        include_once("./Modules/Exercise/AssMemberState/classes/class.ilExcAssMemberState.php");
         $state = ilExcAssMemberState::getInstanceByIds($a_ass->getId(), $this->user->getId());
         $a_info->addSection($this->lng->txt("exc_info_section_requirements"));
         if ($this->user->getLanguage() == 'de') {
