@@ -558,14 +558,15 @@ class ilSetupLanguage extends ilLanguage
                             // keep a locally changed value that is newer than the local file
                             $lang_array[$separated[0]][$separated[1]] = $local_value;
                         } else {
-                            // UPDATE because the global values have already been INSERTed
-                            ilSetupLanguage::updateLangEntry(
+                            // fau: keepNewLangVars - add new variables from the local language file
+                            ilSetupLanguage::replaceLangEntry(
                                 $separated[0],
                                 $separated[1],
                                 $lang_key,
                                 $separated[2],
                                 $change_date
                             );
+                            // fau.
                             $lang_array[$separated[0]][$separated[1]] = $separated[2];
                         }
                     }
