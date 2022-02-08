@@ -13,7 +13,7 @@ $p->login();
 * Specific actions
 ******************/
 
-//$p->applyPatch('ilSpecificPatches.addOnlineHelpToRepository', array('obj_id'=>19093, 'parent_ref_id'=>97));
+//$p->applyPatch('ilSpecificPatches.addOnlineHelpToRepository', array('obj_id'=>24751, 'parent_ref_id'=>8803));
 //$p->applyPatch('ilSpecificPatches.replacePageTexts', array('parent_id'=>1436623, 'search'=>'131.188.192.86', 'replace'=> '131.188.103.103'));
 //$p->applyPatch('ilSpecificPatches.mergeQuestionPoolsAsTaxonomy', array('containerRefId' => 1187922, 'targetRefId' => 1307954, 'navTax' =>'Thema', 'randomTax' => "Verwendung", 'randomNodes' => array('Übung'=> 0.75, 'Klausur' => 1)));
 //$p->applyPatch('ilSpecificPatches.compareAccountingQuestionResults');
@@ -99,4 +99,5 @@ $p->login();
 //$p->applyPatch('ilPermissionPatches54.initCreatePermissions');
 //$p->applyPatch('ilPermissionPatches54.initEduSharing');
 
-$p->logout();
+//avoid "Cannot modify header information"
+//$p->logout();

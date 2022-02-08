@@ -40,7 +40,7 @@ class ilContextPatch implements ilContextTemplate
      */
     public static function usesHTTP()
     {
-        return true;
+        return false;
     }
     
     /**
