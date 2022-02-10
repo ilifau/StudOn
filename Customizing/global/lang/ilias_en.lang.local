@@ -222,7 +222,6 @@ common#:#join_grp_not_permitted#:#You cannot join the group!
 common#:#join_link#:#Link to the joining
 common#:#join_link_description#:#By calling up this link a user has to be logged in to StudOn and will then be forwarded to the joining-page.
 common#:#label_remark#:#References
-common#:#leave_lot_list#:#unsubscribe for the lottery
 common#:#links_password_coded#:#password-code
 common#:#lm_helptext#:#An ILIAS-learnmodule is constructed like an electronical book. With the Online-editor you can create pages with text and media elements, which can be integrated in a chapterstructure or be linked as free pages (digressions). ILIAS-Learnmodule can be exported and be used in different Learn environments or offline. <p class="alert">Advice: with the external tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> you can convert OpenOffice-documents to ILIAS-Learnmodules.</p>
 common#:#local_login_help_title#:#Help for local login
@@ -236,8 +235,6 @@ common#:#mcst_helptext#:#A mediacast can include many mediaobjects (e.g. audio f
 common#:#mem_external_notification_subject#:#Registration of %s for "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Registration of %s for "%s" changed###fau: courseUdf
 common#:#mem_add_to_lot#:#Add to lot list
-common#:#mem_added_to_lot_list#:#You have been added to the lot list.
-common#:#mem_already_on_lot_list#:#You are already on the lot list.
 common#:#mem_edit_request#:#edit request
 common#:#mem_fill_free_places#:#fill free places
 common#:#mem_lot_button#:#lottery members
@@ -247,9 +244,6 @@ common#:#mem_lot_cleaned#:#The list is cleaned up:<br />Removed for being alread
 common#:#mem_lot_drawn#:#The free slots have been filled.<br />Added and informed: %s User.<br />Excluded, because elsewhere member: %s User.
 common#:#mem_lot_form_title#:#Lot´list
 common#:#mem_lot_free_places#:#Free slots
-common#:#mem_lot_list_count#:#candidates for drawing lots:
-common#:#mem_lot_list_info#:#The lots for free places be drawn after end of registration time. Everyone has the same chance, independent of the order of their registration. So you can use the whole registration time!
-common#:#mem_lot_list_possible#:#The lots for free places will be drawn after end of registration time.
 common#:#mem_lot_message_no_candidates#:#There are no candidates on the lot list.
 common#:#mem_lot_message_no_places#:#There are no free slots for drawing lots.
 common#:#mem_lot_message_not_enabled#:#The lot list is not active!
@@ -259,7 +253,6 @@ common#:#mem_lot_message_time#:#Drawing lots is available at %s.
 common#:#mem_lot_status#:#Status
 common#:#mem_lot_table_description#:#Free slots: %s, candidates on lot list: %s, status: %s
 common#:#mem_max_users_hidden#:#Info for admins:
-common#:#mem_on_lot_list#:#added to the lot list
 common#:#mem_registration_access_time#:#Registration/First access
 common#:#mem_remove_from_lot#:#Remove from lot list
 common#:#mem_request_joining#:#Request joining
@@ -515,7 +508,6 @@ cron#:#cron_mycampus_sync_added#:#New course members: %s
 cron#:#cron_set_last_run#:#Set Last Run
 cron#:#cron_set_last_run_info#:#the next run start by the schedule based on the last run
 cron#:#cron_last_run#:#Last Run
-crs#:#crs_cancel_lot_list#:#Are you sure that you want to unsubscribe for the lottery of the course "%s"?
 crs#:#crs_choose_one_event#:#Please choose a date!
 crs#:#crs_error_preconditions#:#You could not have been accepted!
 crs#:#crs_event_registration_not_possible#:#The login to the date '%s' is not possible!
@@ -525,7 +517,6 @@ crs#:#crs_info_reg_direct_lot#:#You can register directly for the lottery of thi
 crs#:#crs_info_reg_password_lot#:#When you received the course-password by an course-administrator, you can register for the lottery of this course.
 crs#:#crs_limit_period_for_lot#:#For the activation of the lottery you have to limit the registration period!
 crs#:#crs_lot_info#:#<span class="alert">Use the lottery, if you expect many interested parties!</span><br />All registrations will be collected by same chance. After the registration period you can define the members by chance.
-crs#:#crs_lot_list#:#Lottery
 crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
 crs#:#crs_max_members_mode#:#Procedure:
 crs#:#crs_mem_set_passed#:#set passed
@@ -541,7 +532,6 @@ crs#:#crs_reg_univis_info#:#The registrationperiod will be overtaken from UnivIS
 crs#:#crs_reg_user_generic_failure#:#You could not be accepted!
 crs#:#crs_reg_user_on_waiting_list#:#You are already on the waiting list of this course!
 crs#:#crs_reg_user_already_assigned#:#ou are already participant of this course.
-crs#:#crs_removed_from_lot_list#:#You have been unsubscribed for the lottery of the course "%s".
 crs#:#crs_subscribe_events_not_possible#:#A direct registration to sessions is only possible for joining directly or with course password.
 crs#:#crs_subscription_event_free#:#free
 crs#:#crs_subscription_event_location#:#location:
@@ -739,11 +729,9 @@ grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for adm
 grp#:#group_req_registration_lot#:#You can request the participation of the lottery for this group. You will receive a message, if you have been drawn or your admission was rejected.
 grp#:#grp_added_member#:#Admission to group "%s"
 grp#:#grp_added_member_body#:#You have been accepted to the group "%s".
-grp#:#grp_cancel_lot_list#:#Are you sure that you want to unsubscribe for the lottery of the group "%s"?
 grp#:#grp_grp_info_reg_lot#:#You can only become a member of the following groups, but join any. So the first assigned membership becomes valid.
 grp#:#grp_limit_period_for_lot#:#For the activation of the lottery you have to limit the admission period!
 grp#:#grp_lot_info#:#<span class="alert">Use the lottery, if you expect many interest parties!</span><br />All Admissions will be collect with the same chance. After the admission period you can determine the members by chance.
-grp#:#grp_lot_list#:#Lottery
 grp#:#grp_max_members_mode#:#Procedure:
 grp#:#grp_no_list#:#Rejection
 grp#:#grp_no_list_info#:#If the number of members has exceeded, new Joinings will instantly be rejected.
@@ -756,7 +744,6 @@ grp#:#grp_reg_req_info_screen_lot#:#You can request the participation of the lot
 grp#:#grp_reg_user_already_assigned#:#You are already member of this group.
 grp#:#grp_reg_user_generic_failure#:#You could not be accepted!
 grp#:#grp_reg_user_on_waiting_list#:#You are already on the waiting list of this group!
-grp#:#grp_removed_from_lot_list#:#You have been unsbuscribed for the lottery of the group "%s".
 grp#:#grp_type_info_create#:#<span class="alert">Superior administrators can - independable of that - have access (see Info-page after creating)</span>.
 grp#:#grp_type_info_edit#:#<span class="alert">Superior administrator can - independable of that - have access (see Info-page)</span>.
 grp#:#mem_error_preconditions#:#You could not have been accepted!
@@ -1057,72 +1044,3 @@ videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM accou
 videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
 videoportal#:#vp_access_granted#:#Access is granted by a StudOn object.
 videoportal#:#vp_no_access_granted#:#No access is granted for the user.
-webform#:#webform_all_categories#:#All Categories
-webform#:#webform_all_corrected#:#corrected
-webform#:#webform_all_courses#:#All courses
-webform#:#webform_all_modules#:#All learning modules
-webform#:#webform_all_not_corrected#:#not corrected
-webform#:#webform_check_date#:#Check date
-webform#:#webform_correct#:#mark as corrected
-webform#:#webform_corrected#:#corrected
-webform#:#webform_corrected_entries#:#The entries have been marked as corrected.
-webform#:#webform_corrected_entry#:#the entry has been marked as corrected.
-webform#:#webform_create#:#create Formdefinitions
-webform#:#webform_create_definition#:#create formdefinitions
-webform#:#webform_definition#:#Formdefinitions
-webform#:#webform_definition_delete_failed#:#The Formdefinition was not able to be deleted.
-webform#:#webform_definition_deleted#:#The Formdefinition has been deleted.
-webform#:#webform_definition_saved#:#The Formdefinition has been saved.
-webform#:#webform_definition_updated#:#The Formdefinition has been updated.
-webform#:#webform_definitions#:#Formdefinitions
-webform#:#webform_definitions_not_found#:#The file with the formdefinitions "%s" has not been found.
-webform#:#webform_definitions_read#:#Read formdefinitions
-webform#:#webform_definitions_read_count#:#%s Formdefinitions have been read.
-webform#:#webform_definitions_read_finished#:#The following formdefinitions have been read:<br />%s
-webform#:#webform_edit_definition#:#Formdefinition
-webform#:#webform_field_dataset_id#:#Dataset
-webform#:#webform_field_dataset_id_info#:#Label of the dataset, in which the contents of the form will be saved.<br />Several forms can use the same dataset. If there is no dataset-label, the formname will be used.
-webform#:#webform_field_form_name#:#Name
-webform#:#webform_field_form_name_info#:#Unique name of the form in the learnmodule.<br />Will be used by re-reading of the formdefinitions to overwrite an existing.
-webform#:#webform_field_forum#:#targetforum (Name)
-webform#:#webform_field_forum_info#:#Title of the forum, in which the entry will be posted additionally.<br />If there are several identically named forums with write-permission of the user, the one which is closest to the learnmodule will be used.
-webform#:#webform_field_forum_parent#:#upper entry (Name)
-webform#:#webform_field_forum_parent_info#:#Title of an existing upper entry in the forum, which the entry will be assigned.
-webform#:#webform_field_forum_subject#:#Entry-title
-webform#:#webform_field_forum_subject_info#:#Title of the forums entry, which will be created by submitting.
-webform#:#webform_field_path#:#Path
-webform#:#webform_field_path_info#:#relative path to the html-page of the form, based on the basic directory of the learnmodule.
-webform#:#webform_field_send_maxdate#:#Max. transmission date
-webform#:#webform_field_send_maxdate_info#:#date, until which the form can be submitted.
-webform#:#webform_field_solution_date#:#Date of release
-webform#:#webform_field_solution_date_info#:#date, from which the solutionpage is available.
-webform#:#webform_field_solution_mode#:#Release of the solution
-webform#:#webform_field_solution_mode_info#:#Determines when the solutionpage is available.
-webform#:#webform_field_solution_ref#:#path to the solution
-webform#:#webform_field_solution_ref_info#:#relative path to the solutionpage, based on the basicdirectory of the learnmodule.
-webform#:#webform_field_title#:#Title
-webform#:#webform_field_title_info#:#Title, which will be shown in the list of forms and submissions.
-webform#:#webform_filter#:#Filter
-webform#:#webform_filter_all#:#All
-webform#:#webform_filter_checked#:#Correction
-webform#:#webform_filter_form_id#:#Submissionform
-webform#:#webform_filter_user_id#:#User
-webform#:#webform_goto_solution#:#To the solution
-webform#:#webform_no_solution#:#For this form no solution is defined.
-webform#:#webform_read_definitions#:#read Formdefinitions
-webform#:#webform_read_definitions_failed#:#The Formdefinitions couldn't been read
-webform#:#webform_read_definitions_successful#:#Formdefinitions have been read
-webform#:#webform_savings#:#Savings
-webform#:#webform_send_date#:#Submissiondate
-webform#:#webform_sendings#:#Submissions
-webform#:#webform_solution#:#Solution
-webform#:#webform_solution_after_checked#:#The solution will only be shown after correction by the tutor.
-webform#:#webform_solution_after_date#:#The solution will be shown after the date %s.
-webform#:#webform_solution_after_sent#:#The solution will be shown after submission.
-webform#:#webform_solution_mode_checked#:#After the correction
-webform#:#webform_solution_mode_date#:#After the date
-webform#:#webform_solution_mode_send#:#By Submitting
-webform#:#webform_tutor#:#Tutor
-webform#:#webform_uncorrect#:#mark as not-corrected
-webform#:#webform_uncorrected_entries#:#The submissions have been marked as not-corrected.
-webform#:#webform_uncorrected_entry#:#The submission has been marked as not-corrected.
