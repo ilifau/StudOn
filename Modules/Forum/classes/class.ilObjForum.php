@@ -604,6 +604,21 @@ class ilObjForum extends ilObject
             }
         }
 
+        if (ilForumPage::_exists($this->getType(), $this->getId())) {
+            $translations = ilContentPagePage::lookupTranslations($this->getType(), $this->getId());
+            foreach ($translations as $language) {
+                $originalPageObject = new ilForumPage($this->getId(), 0, $language);
+                $copiedXML = $originalPageObject->copyXmlContent();
+
+                $duplicatePageObject = new ilForumPage();
+                $duplicatePageObject->setId($new_obj->getId());
+                $duplicatePageObject->setParentId($new_obj->getId());
+                $duplicatePageObject->setLanguage($language);
+                $duplicatePageObject->setXMLContent($copiedXML);
+                $duplicatePageObject->createFromXML();
+            }
+        }
+
         return $new_obj;
     }
 
@@ -646,6 +661,11 @@ class ilObjForum extends ilObject
         // always call parent delete function first!!
         if (!parent::delete()) {
             return false;
+        }
+
+        if (ilForumPage::_exists($this->getType(), $this->getId())) {
+            $originalPageObject = new ilForumPage($this->getId());
+            $originalPageObject->delete();
         }
 
         // delete attachments
@@ -1216,5 +1236,26 @@ class ilObjForum extends ilObject
             return (int) $row['num_sticky'];
         }
         return 0;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getPageObjIds() : array
+    {
+        $pageObjIds = [];
+
+        $sql = 'SELECT DISTINCT page_id FROM page_object WHERE parent_id = %s AND parent_type = %s';
+        $res = $this->db->queryF(
+            $sql,
+            ['integer', 'text'],
+            [$this->getId(), $this->getType()]
+        );
+
+        while ($row = $this->db->fetchAssoc($res)) {
+            $pageObjIds[] = (int) $row['page_id'];
+        }
+
+        return $pageObjIds;
     }
 }

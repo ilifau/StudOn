@@ -26,6 +26,9 @@ class ilForumXMLParser extends ilSaxParser
     protected $schema_version = null;
 
     private $db;
+    
+    private ilImportMapping $importMapping;
+    
     /**
      * Constructor
      *
@@ -33,12 +36,14 @@ class ilForumXMLParser extends ilSaxParser
      * @param	string		$a_xml_file	xml data
      * @access	public
      */
-    public function __construct($forum, $a_xml_data)
+    public function __construct($forum, $a_xml_data, ilImportMapping $importMapping)
     {
         global $DIC;
+
+        $this->forum = $forum;
+        $this->importMapping = $importMapping;
         
         parent::__construct();
-        $this->forum = $forum;
         $this->setXMLContent('<?xml version="1.0" encoding="utf-8"?>' . $a_xml_data);
         $this->aobject = new ilObjUser(ANONYMOUS_USER_ID);
         $this->db = $DIC->database();
@@ -182,6 +187,10 @@ class ilForumXMLParser extends ilSaxParser
             case 'Id':
                 $x['Id'] = $this->cdata;
                 break;
+
+            case 'StyleId':
+                $x['StyleId'] = $this->cdata;
+                break;
             
             case 'ObjId':
                 $x['ObjId'] = $this->cdata;
@@ -308,12 +317,21 @@ class ilForumXMLParser extends ilSaxParser
                     $newObjProp->setFileUploadAllowed((int) $this->forumArray['FileUpload']);
                     $newObjProp->setThreadSorting((int)$this->forumArray['Sorting']);
                     $newObjProp->setMarkModeratorPosts((int)$this->forumArray['MarkModeratorPosts']);
+                    $newObjProp->setStyleSheetId((int) ($this->forumArray['StyleId'] ?? 0));
                     $newObjProp->update();
 
                     $id = $this->getNewForumPk();
                     $this->forum_obj_id = $newObjProp->getObjId();
                     $this->mapping['frm'][$this->forumArray['Id']] = $id;
                     $this->lastHandledForumId = $id;
+
+                    $this->importMapping->addMapping('Modules/Forum', 'style', $this->forum->getId(), $newObjProp->getStyleSheetId());
+                    $this->importMapping->addMapping(
+                        'Services/COPage',
+                        'pg',
+                        'frm:' . $this->forumArray['ObjId'],
+                        'frm:' . $this->forum->getId()
+                    );
 
                     unset($this->forumArray);
                 }

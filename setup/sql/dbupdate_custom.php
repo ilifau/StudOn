@@ -1185,3 +1185,22 @@ if (!$ilDB->tableColumnExists('ut_auth', 'user_agent')) {
     );
 }
 ?>
+<#90>
+<?php
+/**
+ * fau: forumCopage - include changes from databay
+ */
+/** @var ilDBInterface $ilDB */
+if ($ilDB->tableExists('frm_settings') && !$ilDB->tableColumnExists('frm_settings', 'stylesheet')) {
+    $ilDB->addTableColumn(
+        'frm_settings',
+        'stylesheet',
+        [
+            'type' => 'integer',
+            'notnull' => true,
+            'length' => 4,
+            'default' => 0
+        ]
+    );
+}
+?>
