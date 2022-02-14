@@ -84,7 +84,10 @@
 			"./Services/Migration",
 			"./*/*/lib", "./*/*/test",
 			"./Services/CAS/phpcas",
-			"./Customizing/**/vendor"
+			"./Customizing/**/vendor",
+			"fau: excludeAutoload - add some plugins",
+			"./Customizing/global/plugins/Modules/TestQuestionPool/Questions/assSQLQuestion",
+			"fau."
 		]
 	},
 	"extra": {
