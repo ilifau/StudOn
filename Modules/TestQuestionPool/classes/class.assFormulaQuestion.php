@@ -1267,9 +1267,12 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
                     //get unit-factor
                     $unit_factor = assFormulaQuestionUnit::lookupUnitFactor($user_solution[$result_name]['unit']);
                 }
-                // fau: fixFormulaRoundingFix - revert bugfix from Max Becker
-                $user_solution[$result->getResult()]["value"] = round(ilMath::_div($resVal, $unit_factor), 55);
-                // fau.
+
+                try {
+                    $user_solution[$result->getResult()]["value"] = ilMath::_div($resVal, $unit_factor, 55);
+                } catch (ilMathDivisionByZeroException $ex) {
+                    $user_solution[$result->getResult()]["value"] = 0;
+                }
             }
             if ($result->getResultType() == assFormulaQuestionResult::RESULT_CO_FRAC
                 || $result->getResultType() == assFormulaQuestionResult::RESULT_FRAC) {
@@ -1281,18 +1284,16 @@ class assFormulaQuestion extends assQuestion implements iQuestionCondition
                     $user_solution[$result->getResult()]["value"] = $value;
                     $user_solution[$result->getResult()]["frac_helper"] = null;
                 }
-            // fau: fixFormulaRoundingFix - revert bugfix from Max Becker
-            } elseif ($result->getPrecision() > 0) {
-                $user_solution[$result->getResult()]["value"] = round(
+            } else {
+                $user_solution[$result->getResult()]["value"] = round($user_solution[$result->getResult()]["value"], $result->getPrecision());
+                /*
+                $user_solution[$result->getResult()]["value"] = ilMath::_div(
                     $user_solution[$result->getResult()]["value"],
+                    1,
                     $result->getPrecision()
                 );
-            } else {
-                $user_solution[$result->getResult()]["value"] = round(
-                    $user_solution[$result->getResult()]["value"]
-                );
+                */
             }
-            // fau.
         }
         return $user_solution;
     }
