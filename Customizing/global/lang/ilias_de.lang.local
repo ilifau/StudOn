@@ -220,14 +220,9 @@ common#:#join_link_description#:#Beim Aufruf dieses Links muss sich ein Nutzer z
 common#:#label_remark#:#Hinweis
 common#:#links_password_coded#:#Passwort-Code
 common#:#lm_helptext#:#Ein ILIAS-Lernmodul ist wie ein elektronisches Buch aufgebaut. Mit dem Online-Editor erstellen Sie Seiten mit Text und Medienelementen, die in einer Kapitelstruktur eingegliedert oder als freie Seiten (Exkurse) verlinkt werden. ILIAS-Lernmodule lassen sich exportieren und in anderen Lernumgebungen oder offline weiternutzen. <p class="alert">Tipp: mit dem externen Tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> können Sie OpenOffice-Dokumente in ILIAS-Lernmodule konvertieren.</p>
-common#:#local_login_help_title#:#Hilfe zur lokalen Anmeldung
-common#:#local_login_to_ilias#:#Lokale Anmeldung
-common#:#local_login_to_ilias_addition#:#(mit StudOn-Benutzerkennung)
-common#:#logged_in_to_ilias#:#<strong>Sie sind eingeloggt.</strong>
-common#:#logged_in_to_ilias_info#:#Klicken Sie auf Abmelden, wenn Sie Ihre Sitzung schließen möchten.
+common#:#local_login_to_ilias#:#Bei StudOn lokal anmelden###fau: loginForm
+common#:#local_login_to_ilias_addition#:#Verwenden Sie die Lokale Anmeldung, wenn Sie von StudOn einen lokalen Account bekommen haben.###fau: loginForm
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
-common#:#login_to_ilias_via_shibboleth#:#Single Sign-On
-common#:#login_to_ilias_via_shibboleth_addition#:#(mit FAU-Benutzerkennung)
 common#:#mcst_helptext#:#Ein Mediacast kann mehrere Medienobjekte (z.B. Audio-Dateien) beinhalten, die sich im Browser abspielen oder herunterladen lassen. <p class="alert">Umfangreiche Video-Datei (z.B. Vorlesungsaufzeichnungen) laden Sie am besten im <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> der Universität hoch. Sie können sie dort mit einem Schutz versehen und in Ihrem StudOn-Kurs als "Externer Inhalt" verlinken.</p>
 common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
 common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.

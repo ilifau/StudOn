@@ -411,7 +411,10 @@ class ilStartUpGUI
         $form->setFormAction($this->ctrl->getFormAction($this, ''));
         $form->setName("formlogin");
         $form->setShowTopButtons(false);
-        $form->setTitle($this->lng->txt("login_to_ilias"));
+        // fau: loginForm - use specific language variables for local login
+        $form->setTitle($this->lng->txt("local_login_to_ilias"));
+        $form->setDescription($this->lng->txt("local_login_to_ilias_addition"));
+        // fau.
 
         include_once './Services/Authentication/classes/class.ilAuthModeDetermination.php';
         $det = ilAuthModeDetermination::_getInstance();

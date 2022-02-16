@@ -6,8 +6,6 @@
 * @version			$Id: $
 */
 <!-- language file start -->
-common#:#local_login_to_ilias#:#Zur Prüfungsplattform einloggen
-common#:#local_login_to_ilias_addition#:#(Teilnehmer und Prüfer)
 common#:#err_inactive_contact#:#<br/>Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>. Falls das nicht funktioniert, wenden Sie sich an <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>, um Ihr Benutzerkonto aktivieren zu lassen.
 common#:#err_wrong_login_assist#:#Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>.
 common#:#err_wrong_login_contact#:#Falls das nicht funktioniert, wenden Sie sich bitte an <a href="mailto:studon-exam@ili.@fau.de">studon-exam@ili.fau.de</a>.

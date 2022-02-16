@@ -6,8 +6,6 @@
 * @version			$Id: $
 */
 <!-- language file start -->
-common#:#local_login_to_ilias#:#Login to the Exam Platform
-common#:#local_login_to_ilias_addition#:#(Students and Lecturers)
 common#:#err_inactive_contact#:#<br/>Please check in the top bar if it is the correct platform for your exam. Choose the right one on our <a href="https://www.studon-exam.fau.de/">overview page</a>. If the problem remains, please contact <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a> to get your account activated.
 common#:#err_wrong_login_assist#:#<br/>Please check in the top bar if it is the correct platform for your exam. Choose the right one on our <a href="https://www.studon-exam.fau.de/">overview page</a>.
 common#:#err_wrong_login_contact#:#If the problem remains, please contact <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a> to get your account activated.
