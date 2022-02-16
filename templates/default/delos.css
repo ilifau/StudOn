@@ -10093,9 +10093,16 @@ footer {
   color: white;
   font-size: 0.9em;
   padding: 2px 10px;
+  text-align: left;
+}
+.il-maincontrols-footer .il-footer-content {
+  clear: both;
 }
 .il-maincontrols-footer .il-footer-content div {
   display: inline-block;
+}
+.il-maincontrols-footer .il-footer-links {
+  float: right;
 }
 .il-maincontrols-footer .il-footer-links ul {
   list-style: none;
@@ -10114,7 +10121,6 @@ footer {
   vertical-align: baseline;
 }
 .il-maincontrols-footer .il-footer-links li:first-child:before {
-  content: "\00b7";
   margin-right: 10px;
 }
 .il-maincontrols-footer .il-footer-links li:after {
@@ -10125,10 +10131,14 @@ footer {
   content: " ";
 }
 .il-maincontrols-footer .il-footer-permanent-url {
+  float: left;
   margin-right: 5px;
 }
 .il-maincontrols-footer .il-footer-text {
-  margin-right: 5px;
+  float: left;
+  margin-right: 40px;
+  margin-top: 40px;
+  font-size: 0.85em;
 }
 .il-mode-info {
   border-top: 3px solid #B54F00;

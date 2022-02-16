@@ -141,26 +141,65 @@ class PageContentProvider extends AbstractModificationProvider implements Modifi
      */
     public function getFooterModification(CalledContexts $screen_context_stack) : ?FooterModification
     {
+        // fau: ownFooter - add the own links
         return $this->globalScreen()->layout()->factory()->footer()->withModification(function () : Footer {
             $f = $this->dic->ui()->factory();
+            $lng = $this->dic->language();
 
             $links = [];
-            // ILIAS Version and Text
-            $ilias_version = $this->dic->settings()->get('ilias_version');
-            $text = "powered by ILIAS (v{$ilias_version})";
+            $texts = [];
+
+            if (\ilCust::get('ilias_footer_type') != 'exam') {
+                $links[] = $f->link()->standard($lng->txt('footer_contact'), \ilCust::get("ilias_footer_contact_url"));
+                $links[] = $f->link()->standard($lng->txt('footer_imprint'), \ilCust::get("ilias_footer_imprint_url"));
+                $links[] = $f->link()->standard($lng->txt('footer_privacy'), \ilCust::get("ilias_footer_privacy_url"));
+                $links[] = $f->link()->standard($lng->txt('obj_accs'), \ilCust::get("ilias_footer_accessibility_url"));
+            }
+
+            // fau: countUsersOnline - call the counter
+            $users_online = \ilSession::_getUsersOnline(600, true) . ' (10min) ⸱ ' . \ilSession::_getUsersOnline(3600). ' (1h)';
+            // fau.
+
+            $texts[] = $lng->txt('footer_realised_with') . ' '. ILIAS_VERSION_NUMERIC;
+            $texts[] = $lng->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR'])));
+            $texts[] = $lng->txt('footer_active_users') . ' ' . $users_online;
+
+            // fau: devmodeFooter - show memory usage as MB
+            if (DEVMODE) {
+                // execution time
+                $t1 = explode(" ", $GLOBALS['ilGlobalStartTime']);
+                $t2 = explode(" ", microtime());
+                $diff = $t2[0] - $t1[0] + $t2[1] - $t1[1];
+
+                $texts[] = "Execution Time: " . round($diff, 4) . " seconds";
+
+                if (function_exists("memory_get_usage")) {
+                    $texts[] =
+                        "Memory Usage: " . round(memory_get_usage() / (1024 * 1024)) . " MB";
+                }
+                if (function_exists("xdebug_peak_memory_usage")) {
+                    $texts[] =
+                        "XDebug Peak Memory Usage: " . round(xdebug_peak_memory_usage() / (1024 * 1024)) . " MB";
+                }
+             }
+             // fau.
+
+                // ILIAS Version and Text
+//            $ilias_version = $this->dic->settings()->get('ilias_version');
+//            $text = "powered by ILIAS (v{$ilias_version})";
 
             // Imprint
-            if ($_REQUEST["baseClass"] !== "ilImprintGUI" && \ilImprint::isActive()) {
-                $imprint_title = $this->dic->language()->txt("imprint");
-                $imprint_url = \ilLink::_getStaticLink(0, "impr");
-                $links[] = $f->link()->standard($imprint_title, $imprint_url);
-            }
+//            if ($_REQUEST["baseClass"] !== "ilImprintGUI" && \ilImprint::isActive()) {
+//                $imprint_title = $this->dic->language()->txt("imprint");
+//                $imprint_url = \ilLink::_getStaticLink(0, "impr");
+//                $links[] = $f->link()->standard($imprint_title, $imprint_url);
+//            }
 
             // system support contacts
-            if (($system_support_url = \ilSystemSupportContactsGUI::getFooterLink()) !== '') {
-                $system_support_title = \ilSystemSupportContactsGUI::getFooterText();
-                $links[] = $f->link()->standard($system_support_title, $system_support_url);
-            }
+//            if (($system_support_url = \ilSystemSupportContactsGUI::getFooterLink()) !== '') {
+//                $system_support_title = \ilSystemSupportContactsGUI::getFooterText();
+//                $links[] = $f->link()->standard($system_support_title, $system_support_url);
+//            }
 
             // output translation link
             if (\ilObjLanguageAccess::_checkTranslate() && !\ilObjLanguageAccess::_isPageTranslation()) {
@@ -170,18 +209,18 @@ class PageContentProvider extends AbstractModificationProvider implements Modifi
             }
 
             // accessibility control concept
-            if (($accessibility_control_url = \ilAccessibilityControlConceptGUI::getFooterLink()) !== '') {
-                $accessibility_control_title = \ilAccessibilityControlConceptGUI::getFooterText();
-                $links[] = $f->link()->standard($accessibility_control_title, $accessibility_control_url);
-            }
+//            if (($accessibility_control_url = \ilAccessibilityControlConceptGUI::getFooterLink()) !== '') {
+//                $accessibility_control_title = \ilAccessibilityControlConceptGUI::getFooterText();
+//                $links[] = $f->link()->standard($accessibility_control_title, $accessibility_control_url);
+//            }
 
             // report accessibility issue
-            if (($accessibility_report_url = \ilAccessibilitySupportContactsGUI::getFooterLink()) !== '') {
-                $accessibility_report_title = \ilAccessibilitySupportContactsGUI::getFooterText();
-                $links[] = $f->link()->standard($accessibility_report_title, $accessibility_report_url);
-            }
+//            if (($accessibility_report_url = \ilAccessibilitySupportContactsGUI::getFooterLink()) !== '') {
+//                $accessibility_report_title = \ilAccessibilitySupportContactsGUI::getFooterText();
+//                $links[] = $f->link()->standard($accessibility_report_title, $accessibility_report_url);
+//            }
 
-            $footer = $f->mainControls()->footer($links, $text);
+            $footer = $f->mainControls()->footer($links, implode('<br />', $texts));
 
             $tosWithdrawalGui = new \ilTermsOfServiceWithdrawalGUIHelper($this->dic->user());
             $footer = $tosWithdrawalGui->modifyFooter($footer);
@@ -192,5 +231,6 @@ class PageContentProvider extends AbstractModificationProvider implements Modifi
 
             return $footer;
         });
+        // fau.
     }
 }
