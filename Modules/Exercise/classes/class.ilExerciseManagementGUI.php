@@ -1551,13 +1551,13 @@ class ilExerciseManagementGUI
                     if (in_array($user_id, $all_members)) {
                         $member_status = $this->assignment->getMemberStatus($user_id);
                         // fau: exFeedbackHtml - allow html special chars in comment
-                        $member_status->setComment(ilUtil::stripSlashes($comment, false));
+                        $member_status->setComment(nl2br(ilUtil::secureString($comment)));
                         // fau.
                         $member_status->setFeedback(true);
                         // fau: exPlag - save plagiarism state sent by ajax
                         if ($set_plag) {
                             $member_status->setPlagFlag($plag_flag);
-                            $member_status->setPlagComment(ilUtil::stripSlashes($plag_comment, false));
+                            $member_status->setPlagComment(nl2br(ilUtil::secureString($plag_comment)));
                         }
                         // fau.
 

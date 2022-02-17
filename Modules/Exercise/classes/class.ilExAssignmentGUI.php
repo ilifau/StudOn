@@ -560,8 +560,8 @@ class ilExAssignmentGUI
             if ($lpcomment != "") {
                 $a_info->addProperty(
                     $lng->txt("exc_comment"),
-                    // fau: exFeedbackHtml - allow html special chars in the output
-                    nl2br(ilUtil::prepareFormOutput($lpcomment))
+                    // fau: exFeedbackHtml - allow secure html output
+                    nl2br(ilUtil::secureString($lpcomment))
                     // fau.
                 );
 
@@ -584,7 +584,7 @@ class ilExAssignmentGUI
                 if ($a_ass->getMemberStatus()->getPlagComment()) {
                     $a_info->addProperty(
                         $lng->txt("exc_plag_comment"),
-                        $a_ass->getMemberStatus()->getPlagComment()
+                        nl2br(ilUtil::secureString($a_ass->getMemberStatus()->getPlagComment()))
                     );
                 }
             }
