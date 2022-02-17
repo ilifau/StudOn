@@ -1471,3 +1471,16 @@ if (!$ilDB->tableColumnExists('ut_auth', 'user_agent')) {
     );
 }
 ?>
+<#90>
+<?php
+/**
+ * fau: massMail - add field for mass mail sent time
+ */
+if (!$ilDB->tableColumnExists('usr_data', 'mass_mail_sent')) {
+    $ilDB->addTableColumn(
+        'usr_data',
+        'mass_mail_sent',
+        array('type' => 'timestamp', 'notnull' => false, 'default' => null)
+    );
+}
+?>
