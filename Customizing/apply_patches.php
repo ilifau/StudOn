@@ -21,11 +21,11 @@ $p->login();
 //$p->applyPatch('ilSpecificPatches.changeRemoteMediaUrlPrefix', array('search'=> 'http://', 'replace' => 'https://', 'update' => false));
 //$p->applyPatch('ilSpecificPatches.removeCourseMembersWhenOnWaitingList', array('obj_id' => 2569770));
 //$p->applyPatch('ilSpecificPatches.countExerciseUploads', array('start_id'=> 737000));
+//$p->applyPatch('ilSpecificPatches.sendMassMail', array('subject' => 'Update am 14.3.2022 / Update on 3/14/2022', 'bodyfile'=> 'data/mail.txt'));
 
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2019-10-14_bis_2020-10-24/online.log'));
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2020-10-24_bis_2021-01-01/online.log'));
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2021-01-01_bis_2021-02-15/online.log'));
-
 
 /***********
  * Cleanups

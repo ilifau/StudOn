@@ -1,6 +1,7 @@
 <#1>
 <?php
     /** @var ilDBInterface $ilDB */
+    /** @var ilCtrlStructureReader $ilCtrlStructureReader */
 
     /**
     * fau: studyData - Create the tables for study data.
@@ -52,12 +53,29 @@
 ?>
 <#2>
 <?php
-    // obsolete
+    /**
+    * Extend the course event settings
+    */
+    if (!$ilDB->tableColumnExists('event', 'max_participants')) {
+        $ilDB->addTableColumn(
+            'event',
+            'max_participants',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0)
+        );
+    }
+
+    if (!$ilDB->tableColumnExists('crs_settings', 'subscription_with_events')) {
+        $ilDB->addTableColumn(
+            'crs_settings',
+            'subscription_with_events',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0)
+        );
+    }
 ?>
 <#3>
 <?php
     /**
-    * fau: fairSub - add subject to the waiting list
+    * Add subject to the waiting list
     * Extend the subjects to 4000 characters
     */
     if (!$ilDB->tableColumnExists('crs_waiting_list', 'subject')) {
@@ -76,7 +94,32 @@
 ?>
 <#4>
 <?php
-    // obsolete
+    /**
+    * Add the support for a subscription lot list
+    */
+    if (!$ilDB->tableExists('il_subscribers_lot')) {
+        $ilDB->createTable('il_subscribers_lot', array(
+            'usr_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+            'obj_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+        ));
+        $ilDB->addPrimaryKey('il_subscribers_lot', array('usr_id', 'obj_id'));
+    }
+
+    if (!$ilDB->tableColumnExists('crs_settings', 'lot_list')) {
+        $ilDB->addTableColumn(
+            'crs_settings',
+            'lot_list',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0)
+        );
+    }
+    
+    if (!$ilDB->tableColumnExists('grp_settings', 'lot_list')) {
+        $ilDB->addTableColumn(
+            'grp_settings',
+            'lot_list',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0)
+        );
+    }
 ?>
 <#5>
 <?php
@@ -99,15 +142,92 @@
 ?>
 <#6>
 <?php
-    // obsolete
+    /**
+    * Add a password field to web link items
+    */
+    if (!$ilDB->tableColumnExists('webr_items', 'password')) {
+        $ilDB->addTableColumn(
+            'webr_items',
+            'lot_list',
+            array('type' => 'text', 'length' => 50, 'notnull' => false, 'default' => null)
+        );
+    }
 ?>
 <#7>
 <?php
-    // obsolete
+    /**
+     * Create webform tables
+     * Deprecated!
+     */
+//	if(!$ilDB->tableExists('webform_types'))
+//	{
+//		$ilDB->createTable('webform_types', array(
+//			'form_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'lm_obj_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'form_name' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'dataset_id' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => '0'),
+//			'title' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'path' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'send_maxdate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'solution_ref' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'solution_mode' => array('type' => 'text', 'length' => 7, 'notnull' => false, 'default' => 'checked'),
+//			'solution_date' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'forum' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'forum_parent' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'forum_subject' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//		));
+//		$ilDB->addPrimaryKey('webform_types',array('form_id'));
+//		$ilDB->createSequence('webform_types');
+//	}
+//
+//	if(!$ilDB->tableExists('webform_savings'))
+//	{
+//		$ilDB->createTable('webform_savings', array(
+//			'save_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'user_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'form_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'dataset_id' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => '0'),
+//			'savedate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'senddate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'checkdate' => array('type' => 'date', 'notnull' => false, 'default' => null),
+//			'is_forum_saving' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//		));
+//		$ilDB->addPrimaryKey('webform_savings',array('save_id'));
+//		$ilDB->createSequence('webform_savings');
+//	}
+//
+//	if(!$ilDB->tableExists('webform_entries'))
+//	{
+//		$ilDB->createTable('webform_entries', array(
+//			'entry_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'save_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
+//			'fieldname' => array('type' => 'text', 'length' => 255, 'notnull' => false, 'default' => null),
+//			'fieldvalue' => array('type' => 'clob', 'notnull' => false, 'default' => null),
+//		));
+//		$ilDB->addPrimaryKey('webform_entries',array('entry_id'));
+//		$ilDB->createSequence('webform_entries');
+//	}
 ?>
 <#8>
 <?php
-    // obsolete
+    /**
+    * Add the switches to show membership limits
+    */
+    if (!$ilDB->tableColumnExists('crs_settings', 'show_mem_limit')) {
+        $ilDB->addTableColumn(
+            'crs_settings',
+            'show_mem_limit',
+            array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1)
+        );
+    }
+    
+    if (!$ilDB->tableColumnExists('grp_settings', 'show_mem_limit')) {
+        $ilDB->addTableColumn(
+            'grp_settings',
+            'show_mem_limit',
+            array('type' => 'integer',	'length' => 4, 'notnull' => true, 'default' => 1)
+        );
+    }
 ?>
 <#9>
 <?php
@@ -131,12 +251,28 @@
 ?>
 <#10>
 <?php
-    // obsolete
+    /**
+    * Add a column to always store the external password coming from SSO
+    * Extend the standard password column to the same size
+    */
+    if (!$ilDB->tableColumnExists('usr_data', 'ext_passwd')) {
+        $ilDB->addTableColumn(
+            'usr_data',
+            'ext_passwd',
+            array('type' => 'text', 'length' => 100, 'notnull' => false, 'default' => null)
+        );
+
+        $ilDB->modifyTableColumn(
+            'usr_data',
+            'passwd',
+            array('type' => 'text', 'length' => 100, 'notnull' => false, 'default' => null)
+        );
+    }
 ?>
 <#11>
 <?php
     /**
-    * fau: testGradingMessage - add fields for test specific passed/failed messages
+    * Add fields for test specific passed/failed messages
     */
     if (!$ilDB->tableColumnExists('tst_tests', 'mark_tst_passed')) {
         $ilDB->addTableColumn(
@@ -181,7 +317,7 @@
 <#13>
 <?php
     /**
-    * fau: loginLog - Create authentication logging table
+    * Create authentication logging table
     */
     if (!$ilDB->tableExists('ut_auth')) {
         $ilDB->createTable("ut_auth", array(
@@ -202,12 +338,21 @@
 ?>
 <#14>
 <?php
-    // obsolete
+    /**
+    * Add a column to store the DocOrder user id for an account
+    */
+    if (!$ilDB->tableColumnExists('usr_data', 'docorder_id')) {
+        $ilDB->addTableColumn(
+            'usr_data',
+            'docorder_id',
+            array('type' => 'text', 'length' => 20)
+        );
+    }
 ?>
 <#15>
 <?php
     /**
-     * fau: campusGrades - Create the table to store the test result export options for my campus
+     * Create the table to store the test result export options for my campus
      */
     if (!$ilDB->tableExists('tst_mycampus_options')) {
         $ilDB->createTable('tst_mycampus_options', array(
@@ -221,7 +366,7 @@
 <#16>
 <?php
     /**
-     * fau: exCalc - create the table to store the result calculation options for exercises
+     * Create the table to store the result calculation options for exercises
      */
     if (!$ilDB->tableExists('exc_calc_options')) {
         $ilDB->createTable('exc_calc_options', array(
@@ -234,12 +379,20 @@
 ?>
 <#17>
 <?php
-    // obsolete
+    /**
+     * Create the table to mark ojects for evaluation
+     */
+    if (!$ilDB->tableExists('eval_marked_objects')) {
+        $ilDB->createTable('eval_marked_objects', array(
+            'ref_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true)
+        ));
+        $ilDB->addPrimaryKey('eval_marked_objects', array('ref_id'));
+    }
 ?>
 <#18>
 <?php
     /**
-     * fau: fairSub - add a flag to the waiting list to indicate whether an entry is a subscription request
+     * Add a flag to the waiting list to indicate whether an entry is a subscription request
      */
     if (!$ilDB->tableColumnExists('crs_waiting_list', 'to_confirm')) {
         $ilDB->addTableColumn(
@@ -251,15 +404,34 @@
 ?>
 <#19>
 <?php
-    // obsolete
+    /**
+     * fau: extendBenchmark - Add backtrace info to the benchmark data
+     */
+    if (!$ilDB->tableColumnExists('benchmark', 'backtrace')) {
+        $ilDB->addTableColumn(
+            'benchmark',
+            'backtrace',
+            array('type' => 'clob', 'notnull' => false)
+        );
+    }
 ?>
 <#20>
 <?php
-    // obsolete
+/** obsolete */
 ?>
 <#21>
 <?php
-    // obsolete
+    /**
+    * Add field for materialized path
+    * (obsolete in 4.4)
+    */
+//	if( !$ilDB->tableColumnExists('tree', 'path'))
+//	{
+//		$ilDB->addTableColumn('tree', 'path',
+//			array('type' => 'text', 'length' => 4000, 'notnull'	=> false, 'default'	=> null)
+//		);
+//		$ilDB->addIndex('tree', array('path'), 'i9');
+//	}
 ?>
 <#22>
 <?php
@@ -303,7 +475,7 @@
 <#23>
 <?php
         /**
-         * fau: customCSS - add field for custom css in styles
+         * Add field for custom css in styles
          */
         if (!$ilDB->tableColumnExists('style_data', 'custom_css')) {
             $ilDB->addTableColumn(
@@ -315,7 +487,7 @@
 ?>
 <#24>
 <?php
-    // obsolete
+    $ilCtrlStructureReader->getStructure();
 ?>
 <#25>
 <?php
@@ -345,31 +517,68 @@
 ?>
 <#27>
 <?php
-    // obsolete
+    /**
+     * fau: studyData - Drop old study registration support.
+     */
+    if ($ilDB->tableExists('study_matriculations')) {
+        $ilDB->dropTable('study_matriculations');
+    }
+
+    if ($ilDB->tableExists('study_matriculations')) {
+        $ilDB->dropTable('study_mapping');
+    }
 ?>
 <#28>
 <?php
-    // obsolete
+    /**
+     * Switch the user styles to Delos
+     *
+     * Don't forget to change it also in client.ini.php
+     */
+    $ilDB->manipulate("UPDATE usr_pref SET value = 'delos' WHERE keyword='style'");
 ?>
 <#29>
 <?php
-    // obsolete
+    /**
+     * Move tree view switch to the left
+     */
+    $ilDB->manipulate("UPDATE settings SET value = 'left' WHERE module='common' AND keyword='tree_frame'");
 ?>
 <#30>
 <?php
-    // obsolete
+    /**
+     * optimize queries on page_style_usage
+     */
+//    if (!$ilDB->indexExistsByFields('page_style_usage', array('page_id'))) {
+//        $ilDB->addIndex('page_style_usage', array('page_id'), 'i1');
+//    }
 ?>
 <#31>
 <?php
-    // obsolete
+    /**
+     * optimize queries on file_usage
+     */
+//    if (!$ilDB->indexExistsByFields('file_usage', array('usage_id'))) {
+//        $ilDB->addIndex('file_usage', array('usage_id'), 'i1');
+//    }
 ?>
 <#32>
 <?php
-    // obsolete
+    /**
+     * optimize queries on event_appointment
+     */
+//    if (!$ilDB->indexExistsByFields('event_appointment', array('event_id'))) {
+//        $ilDB->addIndex('event_appointment', array('event_id'), 'i1');
+//    }
 ?>
 <#33>
 <?php
-    // obsolete
+    /**
+     * optimize queries on frm_posts_tree
+     */
+//    if (!$ilDB->indexExistsByFields('frm_posts_tree', array('pos_fk'))) {
+//        $ilDB->addIndex('frm_posts_tree', array('pos_fk'), 'i1');
+//    }
 ?>
 <#34>
 <?php
@@ -382,11 +591,54 @@
 ?>
 <#35>
 <?php
-    // obsolete
+    /**
+     * is done at #4282 in dbupdate_04
+     */
 ?>
 <#36>
 <?php
-    // obsolete
+    /**
+     * fau: taxFilter - extend the random question set condition to multiple taxonomy and node ids
+     */
+    if (!$ilDB->tableColumnExists('tst_rnd_quest_set_qpls', 'origin_tax_filter')) {
+        $ilDB->addTableColumn(
+            'tst_rnd_quest_set_qpls',
+            'origin_tax_filter',
+            array('type' => 'text', 'length' => 4000, 'notnull' => false, 'default' => null)
+        );
+    }
+    if (!$ilDB->tableColumnExists('tst_rnd_quest_set_qpls', 'mapped_tax_filter')) {
+        $ilDB->addTableColumn(
+            'tst_rnd_quest_set_qpls',
+            'mapped_tax_filter',
+            array('type' => 'text', 'length' => 4000, 'notnull' => false, 'default' => null)
+        );
+    }
+
+    $query = "SELECT * FROM tst_rnd_quest_set_qpls WHERE origin_tax_fi IS NOT NULL OR mapped_tax_fi IS NOT NULL";
+    /** @var PDOStatement $result */
+    $result = $ilDB->query($query);
+    while ($row = $ilDB->fetchObject($result)) {
+        if (!empty($row->origin_tax_fi)) {
+            $origin_tax_filter = serialize(array((int) $row->origin_tax_fi => array((int) $row->origin_node_fi)));
+        } else {
+            $origin_tax_filter = null;
+        }
+
+        if (!empty($row->mapped_tax_fi)) {
+            $mapped_tax_filter = serialize(array((int) $row->mapped_tax_fi => array((int) $row->mapped_node_fi)));
+        } else {
+            $mapped_tax_filter = null;
+        }
+
+        $update = "UPDATE tst_rnd_quest_set_qpls SET "
+            . " origin_tax_fi = NULL, origin_node_fi = NULL, mapped_tax_fi = NULL, mapped_node_fi = NULL, "
+            . " origin_tax_filter = " . $ilDB->quote($origin_tax_filter, 'text') . ", "
+            . " mapped_tax_filter = " . $ilDB->quote($mapped_tax_filter, 'text')
+            . " WHERE def_id = " . $ilDB->quote($row->def_id,  'integer');
+
+        $ilDB->manipulate($update);
+    }
 ?>
 <#37>
 <?php
@@ -403,7 +655,16 @@
 ?>
 <#38>
 <?php
-    // obsolete
+    /**
+     * move old max_participants in session to new reg_limit_users
+     * and delete max_participants
+     */
+    if ($ilDB->tableColumnExists('event', 'max_participants')) {
+        $query = 'UPDATE event set reg_limited = 1, reg_limit_users = max_participants WHERE max_participants > 0';
+        $ilDB->manipulate($query);
+
+        $ilDB->dropTableColumn('event', 'max_participants');
+    }
 ?>
 <#39>
 <?php
@@ -435,7 +696,10 @@
 ?>
 <#40>
 <?php
-    // obsolete
+    /**
+     * fau: relativeLink - reload control structure for relative link service
+     */
+    $ilCtrlStructureReader->getStructure();
 ?>
 <#41>
 <?php
@@ -452,7 +716,11 @@
 ?>
 <#42>
 <?php
-    // obsolete
+    /**
+     * fau: lmLayout - change outdated layout win2toc to toc2win
+     */
+    $ilDB->manipulate("UPDATE content_object SET default_layout='toc2win' WHERE default_layout='win2toc'");
+    $ilDB->manipulate("UPDATE lm_data SET layout='toc2win' WHERE layout='win2toc'");
 ?>
 <#43>
 <?php
@@ -711,11 +979,20 @@
 ?>
 <#57>
 <?php
-    // obsolete
+/* obsolete */
 ?>
 <#58>
 <?php
-   // obsolete
+/**
+ * fau: extendBenchmark - Add backtrace info to the benchmark data
+ */
+if (!$ilDB->tableColumnExists('benchmark', 'backtrace')) {
+    $ilDB->addTableColumn(
+        'benchmark',
+        'backtrace',
+        array('type' => 'clob', 'notnull' => false)
+    );
+}
 ?>
 <#59>
 <?php
@@ -881,7 +1158,7 @@ if ($ilDB->tableExists('il_studycond_seq')) {
 ?>
 <#69>
 <?php
-    // obsolete
+$ilCtrlStructureReader->getStructure();
 ?>
 <#70>
 <?php
@@ -1001,7 +1278,10 @@ if (!$ilDB->tableColumnExists('exc_assignment', 'max_team_members')) {
 ?>
 <#78>
 <?php
-    // obsolete
+/**
+ * fau: exAssHook - load the hook definition
+ */
+$ilCtrlStructureReader->getStructure();
 ?>
 <#79>
 <?php
@@ -1045,7 +1325,10 @@ if (! $ilDB->tableExists('exc_ass_test_result')) {
 ?>
 <#81>
 <?php
-    // obsolete
+/**
+ * fau: exAssTest - reload control structure
+ */
+$ilCtrlStructureReader->getStructure();
 ?>
 <#82>
 <?php
@@ -1057,7 +1340,10 @@ $ilDB->manipulate("UPDATE usr_data SET passwd_enc_type = 'idmcrypt' WHERE passwd
 ?>
 <#83>
 <?php
-    // obsolete
+/**
+ * fau: idmPass - drop unnecessary ext_passwd
+ */
+$ilDB->dropTableColumn('usr_data', 'ext_passwd');
 ?>
 <#84>
 <?php
@@ -1201,6 +1487,19 @@ if ($ilDB->tableExists('frm_settings') && !$ilDB->tableColumnExists('frm_setting
             'length' => 4,
             'default' => 0
         ]
+    );
+}
+?>
+<#91>
+<?php
+/**
+ * fau: massMail - add field for mass mail sent time
+ */
+if (!$ilDB->tableColumnExists('usr_data', 'mass_mail_sent')) {
+    $ilDB->addTableColumn(
+        'usr_data',
+        'mass_mail_sent',
+        array('type' => 'timestamp', 'notnull' => false, 'default' => null)
     );
 }
 ?>

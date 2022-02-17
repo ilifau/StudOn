@@ -561,5 +561,67 @@ class ilSpecificPatches
             }
         }
     }
+
+    /**
+     * Send an email to all active users
+     * @param string[] $params
+     * @return false|void
+     */
+    function sendMassMail($params = array('subject' => 'StudOn', 'bodyfile' => 'data/mail.txt'))
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $subject = $params['subject'];
+        $content = file_get_contents($params['bodyfile']);
+        if (empty($content)) {
+            echo "Mail body not read!";
+            return;
+        }
+
+        $query = "
+            SELECT usr_id, login
+            FROM usr_data
+            WHERE active = 1
+            AND mass_mail_sent IS NULL
+            AND first_login IS NOT NULL
+            AND login NOT LIKE '%.test1'
+            AND login NOT LIKE '%.test2'
+            AND (time_limit_unlimited = 1 OR (time_limit_from < UNIX_TIMESTAMP() AND time_limit_until > UNIX_TIMESTAMP()))
+        ";
+
+//        $query = "
+//            SELECT usr_id, login
+//            FROM usr_data
+//            WHERE login like 'fred.neumann%'
+//            AND mass_mail_sent IS NULL
+//        ";
+
+        $result = $db->query($query);
+
+        $count = 1;
+        while ($row = $db->fetchAssoc($result)) {
+
+            $login = $row['login'];
+
+            $mail = new ilMail(ANONYMOUS_USER_ID);
+            $errors = $mail->sendMail($login, '', '', $subject, $content, [],['system'], false);
+
+            if (!empty($errors)) {
+                echo $count++ . ': ' . $login . " (ERROR)\n";
+            }
+            else {
+                echo $count++ . ': ' . $login . "\n";
+            }
+
+            $sent = date("Y-m-d H:i:s");
+            $update = "UPDATE usr_data set mass_mail_sent=" . $db->quote($sent, 'text')
+                . ' WHERE usr_id = ' . $db->quote($row['usr_id'], 'integer');
+
+            $db->manipulate($update);
+
+            usleep(360000);
+        }
+    }
 }
 
