@@ -14,7 +14,7 @@ $p->login();
 ******************/
 
 //$p->applyPatch('ilSpecificPatches.addOnlineHelpToRepository', array('obj_id'=>24751, 'parent_ref_id'=>8803));
-//$p->applyPatch('ilSpecificPatches.replacePageTexts', array('parent_id'=>1436623, 'search'=>'131.188.192.86', 'replace'=> '131.188.103.103'));
+//$p->applyPatch('ilSpecificPatches.replacePageTexts', array('parent_id'=>0, 'search'=>'studon.uni-erlangen.de', 'replace'=> 'studon.fau.de'));
 //$p->applyPatch('ilSpecificPatches.mergeQuestionPoolsAsTaxonomy', array('containerRefId' => 1187922, 'targetRefId' => 1307954, 'navTax' =>'Thema', 'randomTax' => "Verwendung", 'randomNodes' => array('Übung'=> 0.75, 'Klausur' => 1)));
 //$p->applyPatch('ilSpecificPatches.compareAccountingQuestionResults');
 //$p->applyPatch('ilSpecificPatches.convertAccountingQuestionResults');
