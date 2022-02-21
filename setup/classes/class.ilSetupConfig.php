@@ -17,6 +17,10 @@ class ilSetupConfig implements Setup\Config
      */
     protected $server_timezone;
 
+    // fau: absolutePath - class variable
+    protected $absolute_path;
+    // fau.
+
     /**
      * @var	bool
      */
@@ -35,6 +39,10 @@ class ilSetupConfig implements Setup\Config
         $this->client_id = $client_id;
         $this->server_timezone = $server_timezone;
         $this->register_nic = $register_nic;
+
+        // fau: absolutePath - initialize default value
+        $this->absolute_path = dirname(__DIR__, 2);
+        // fau.
     }
 
     public function getClientId() : string
@@ -51,4 +59,44 @@ class ilSetupConfig implements Setup\Config
     {
         return $this->register_nic;
     }
+
+    // fau: absolutePath - mutation and getter
+    /**
+     * Optionally set a new absolute path
+     * This is needed if setup runs on file server
+     * but mounted nfs on webservers has a different path and nfs on file server is just a symboliclink
+     * @param string $path
+     * @return ilSetupConfig
+     */
+    public function withAbsolutePath(string $path)
+    {
+        // cut a trailing slash
+        if (substr($path, 0, -1) == '/') {
+            $path = substr($path, 0, strlen($path) -1);
+        }
+
+        // ensure absolute path
+        if(substr($path, 0, 1) != '/') {
+            throw new \InvalidArgumentException(
+                "absolute_path $path must start with a /"
+            );
+        }
+
+        // ensure uniqueness with the installation directory
+        if (realpath($path) != realpath($this->absolute_path)) {
+            throw new \InvalidArgumentException(
+                "absolute_path $path must point to the installation directory"
+            );
+        }
+
+        $clone = clone $this;
+        $clone->absolute_path = $path;
+        return $clone;
+    }
+
+    public function getAbsolutePath(): string
+    {
+        return $this->absolute_path;
+    }
+    // fau.
 }

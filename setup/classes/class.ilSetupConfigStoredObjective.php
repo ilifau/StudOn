@@ -39,7 +39,9 @@ class ilSetupConfigStoredObjective extends ilSetupObjective
     {
         $ini = $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI);
 
-        $ini->setVariable("server", "absolute_path", dirname(__DIR__, 2));
+        // fau: absolutePath - get from config
+        $ini->setVariable("server", "absolute_path", $this->config->getAbsolutePath());
+        // fau.
         $ini->setVariable(
             "server",
             "timezone",
@@ -63,7 +65,7 @@ class ilSetupConfigStoredObjective extends ilSetupObjective
         $ini = $environment->getResource(Setup\Environment::RESOURCE_ILIAS_INI);
 
         return
-            $ini->readVariable("server", "absolute_path") !== dirname(__DIR__, 2) ||
+            $ini->readVariable("server", "absolute_path") !== $this->config->getAbsolutePath() ||
             $ini->readVariable("server", "timezone") !== $this->config->getServerTimeZone()->getName() ||
             $ini->readVariable("clients", "default") !== $this->config->getClientId()
         ;
