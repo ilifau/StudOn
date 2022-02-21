@@ -321,7 +321,7 @@ class ilPersonalSettingsGUI
 
 
         $this->tpl->setContent($gui->getHTML());
-        $this->tpl->show();
+        $this->tpl->printToStdOut();
     }
     // fau.
 
@@ -798,7 +798,7 @@ class ilPersonalSettingsGUI
 
 
         $this->tpl->setContent($this->form->getHTML());
-        $this->tpl->show();
+        $this->tpl->printToStdOut();
     }
     // fau.
 
