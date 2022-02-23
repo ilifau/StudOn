@@ -1503,3 +1503,15 @@ if (!$ilDB->tableColumnExists('usr_data', 'mass_mail_sent')) {
     );
 }
 ?>
+<#92>
+<?php
+/**
+ * fau: loginLog - add indexes to ut_auth
+ */
+if (!$ilDB->indexExistsByFields('ut_auth', ['auth_time'])) {
+    $ilDB->addIndex('ut_auth', ['auth_time'], 'i1');
+}
+if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
+    $ilDB->addIndex('ut_auth', ['username'], 'i2');
+}
+?>
