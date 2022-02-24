@@ -155,7 +155,7 @@ class ilSoapUtils extends ilSoapAdministration
                     $subject, 				// subject
                     $message, 				// message
                     array(),				// attachments (TODO)
-                    explode(',', $type), 	// type
+                    //explode(',', $type), 	// type
                     $use_placeholders     	// use placeholders
         );
 
