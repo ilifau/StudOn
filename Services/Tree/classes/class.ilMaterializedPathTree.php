@@ -516,6 +516,15 @@ class ilMaterializedPathTree implements ilTreeImplementation
 
         $ilDB = $DIC['ilDB'];
 
+        // fau: moveToRoot - move contents of the repository category to the root folder
+        $cat_id = ilCust::get('ilias_repository_cat_id');
+        echo "ilias_repository_cat_id:" . $cat_id . "\n";
+
+        if (!empty($cat_id)) {
+            $ilDB->manipulate('UPDATE tree SET parent = 1 WHERE parent = '. (int) $cat_id);
+        }
+        // fau.
+
         $r = $ilDB->queryF('SELECT DISTINCT * FROM tree WHERE parent = %s', array('integer'), array(0));
 
         while ($row = $ilDB->fetchAssoc($r)) {

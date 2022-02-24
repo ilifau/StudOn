@@ -1145,7 +1145,7 @@ abstract class ilParticipants
                 break;
         }
         $this->participants[] = $a_usr_id;
-        $this->addDesktopItem($a_usr_id);
+        $this->addRecommendation($a_usr_id);
 
         // Delete subscription request
         $this->deleteSubscriber($a_usr_id);
@@ -1156,7 +1156,7 @@ abstract class ilParticipants
         if ($this->type == 'crs') {
             // Add event: used for ecs accounts
             $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addParticipant');
-            $ilAppEventHandler->raise("Modules/Course", "addParticipant", array('usr_id' => $a_usr_id,'role_id' => $a_role));
+            $ilAppEventHandler->raise("Modules/Course", "addParticipant", array('usr_id' => $a_usr_id,'role_id' => $a_role, 'obj_id' =>  $this->obj_id));
         }
         return true;
     }
@@ -1771,8 +1771,8 @@ abstract class ilParticipants
         }
 
         // prepare common data
+        $sender = new ilMailMimeSenderUserById($ilSetting, $a_user->getId());
 
-        $sender = new ilMailMimeSenderUser($ilSetting, $a_user);
         $sender_address = $sender->getReplyToAddress();
         $cc_address = '';
         foreach ($this->getNotificationRecipients() as $admin_id) {

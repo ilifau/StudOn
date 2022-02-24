@@ -49,11 +49,19 @@ class ilSetupAgent implements Setup\Agent
     {
         return $this->refinery->custom()->transformation(function ($data) {
             $datetimezone = $this->refinery->to()->toNew(\DateTimeZone::class);
-            return new \ilSetupConfig(
+
+            // fau: absolutePath - read for config
+            $config = new \ilSetupConfig(
                 $data["client_id"],
                 $datetimezone->transform([$data["server_timezone"] ?? "UTC"]),
                 $data["register_nic"] ?? false
             );
+
+            if (isset($data['absolute_path'])) {
+                $config = $config->withAbsolutePath($data['absolute_path']);
+            }
+            return $config;
+            // fau.
         });
     }
 

@@ -50,7 +50,7 @@ class ilContextPatch implements ilContextTemplate
      */
     public static function hasHTML()
     {
-        return false;
+        return true;
     }
     
     /**
@@ -110,6 +110,9 @@ class ilContextPatch implements ilContextTemplate
         return true;
     }
 
+    /**
+     * @inheritDoc
+     */
     public static function modifyHttpPath(string $httpPath) : string
     {
         return $httpPath;
