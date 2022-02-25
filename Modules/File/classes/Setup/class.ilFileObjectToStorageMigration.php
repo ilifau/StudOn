@@ -119,6 +119,9 @@ class ilFileObjectToStorageMigration implements Setup\Migration
                 $legacy_files_dir . "/" . self::MIGRATION_LOG_CSV
             );
 
+            // fau: fixFileMigration - inject the runner to the helper to provide the logging function
+            $this->helper->setRunner($this->runner);
+            // fau.
         }
     }
 

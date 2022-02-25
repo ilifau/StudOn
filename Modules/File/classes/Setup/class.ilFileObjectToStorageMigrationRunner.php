@@ -164,7 +164,8 @@ class ilFileObjectToStorageMigrationRunner
         }
     }
 
-    private function logMigratedFile(
+    // fau: fixFileMigration - make logging function public, remove newlines from strings
+    public function logMigratedFile(
         int $object_id,
         string $rid,
         int $version,
@@ -175,14 +176,15 @@ class ilFileObjectToStorageMigrationRunner
     ) : void {
         fputcsv($this->migration_log_handle, [
             $object_id,
-            $old_path,
+            str_replace("\n", ' ',$old_path),
             $rid,
             $version,
             $status,
             $movement_implementation,
-            $aditional_info
+            str_replace("\n", ' ', $aditional_info)
         ], ";");
     }
+    // fau.
 
     /**
      * @param ilFileObjectToStorageDirectory $item

@@ -9,6 +9,13 @@ class ilFileObjectToStorageMigrationHelper
      */
     protected $database;
 
+    // fau: fixFileMigration - class variable for the runner
+    /**
+     * @var ilFileObjectToStorageMigrationRunner
+     */
+    protected  $runner;
+    // fau.
+
     /**
      * @param string        $base_path
      * @param ilDBInterface $database
@@ -18,6 +25,16 @@ class ilFileObjectToStorageMigrationHelper
         $this->base_path = $base_path;
         $this->database = $database;
     }
+
+    // fau: fixFileMigration - setter for the runner
+    /**
+     * @param ilFileObjectToStorageMigrationRunner $runner
+     */
+    public function setRunner(ilFileObjectToStorageMigrationRunner $runner)
+    {
+        $this->runner = $runner;
+    }
+    // fau.
 
     public function getNext() : ilFileObjectToStorageDirectory
     {
@@ -34,7 +51,26 @@ class ilFileObjectToStorageMigrationHelper
         }
 
         $file_id = (int) $d->file_id;
-        return new ilFileObjectToStorageDirectory($file_id, $this->createPathFromId($file_id));
+
+        // fau: fixFileMigration - create missing source directory
+        $file_path = $this->createPathFromId($file_id);
+
+        if (!is_dir($file_path)) {
+            mkdir($file_path, 0755, true);
+
+            $this->runner->logMigratedFile(
+                $file_id,
+                '',
+                0,
+                $file_path,
+                'fixed',
+                '',
+                'missing source directory created'
+            );
+        }
+
+        return new ilFileObjectToStorageDirectory($file_id, $file_path);
+        // fau.
     }
 
     private function createPathFromId(int $file_id) : string
