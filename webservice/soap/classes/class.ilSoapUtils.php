@@ -317,7 +317,7 @@ class ilSoapUtils extends ilSoapAdministration
                         ilLink::_getStaticLink($ref_id));
                 }
                 $mail = new ilMail(ANONYMOUS_USER_ID);
-                $mail->sendMail($ilUser->getLogin(), null, null, $subject, $message, null, array("system"));
+                $mail->sendMail($ilUser->getLogin(), '', '', $subject, $message, array(), false);
             }
         }
     }
