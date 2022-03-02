@@ -606,4 +606,15 @@ class ilBookingReservationsGUI
         ilUtil::sendSuccess($this->lng->txt('reservation_deleted'), true);
         $this->ctrl->redirect($this, 'log');
     }
+    
+    // fau: stornoBook - new function allowStorno()
+    /**
+     * Check if the object allows a storno
+     * @return bool
+     */
+    public function allowsStorno()
+    {
+        return $this->pool->getUserStorno() || $this->checkPermissionBool('write');
+    }
+    // fau.
 }
