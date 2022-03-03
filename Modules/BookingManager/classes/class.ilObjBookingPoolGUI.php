@@ -244,17 +244,6 @@ class ilObjBookingPoolGUI extends ilObjectGUI
         return true;
     }
 
-    // fau: stornoBook - new function allowStorno()
-    /**
-     * Check if the object allows a storno
-     * @return bool
-     */
-    public function allowsStorno()
-    {
-        return $this->object->getUserStorno() || $this->checkPermissionBool('write');
-    }
-    // fau.
-
     protected function initCreationForms($a_new_type)
     {
         $forms = parent::initCreationForms($a_new_type);
