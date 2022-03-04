@@ -163,9 +163,10 @@ class PageContentProvider extends AbstractModificationProvider implements Modifi
             $texts[] = $lng->txt('footer_realised_with') . ' '. ILIAS_VERSION_NUMERIC;
             $texts[] = $lng->txt('footer_server') . ' ' . current(explode('.', gethostbyaddr($_SERVER['SERVER_ADDR'])));
             $texts[] = $lng->txt('footer_active_users') . ' ' . $users_online;
+            $texts[] = $lng->txt('footer_hotline');
 
             // fau: devmodeFooter - show memory usage as MB
-            if (DEVMODE) {
+            if (!DEVMODE) {
                 // execution time
                 $t1 = explode(" ", $GLOBALS['ilGlobalStartTime']);
                 $t2 = explode(" ", microtime());
