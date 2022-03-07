@@ -75,34 +75,22 @@ class ilUnivisImportActionsGUI
         }
     }
 
-    /**
-     * get the html code of the action choice
-     *
-     * @return string	html code
-     */
-    public function getHTML()
-    {
-        if (count($this->actions)) {
-            include_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
-            $selection = new ilAdvancedSelectionListGUI();
-            $selection->setLinksMode();
-            $selection->setListTitle($this->lng->txt("univis_data_transfer"));
-            $selection->setSelectionHeaderClass("submit");
-            foreach ($this->actions as $action) {
-                $selection->addItem($action['title'], '', $action['link']);
-            }
-            return $selection->getHTML();
-        } else {
-            return "";
-        }
-    }
 
     public function render()
     {
-        global $tpl;
+        global $DIC;
+
+        $toolbar = $DIC->toolbar();
 
         if (count($this->actions)) {
-            $tpl->setVariable("UNIVIS_IMPORT", $this->getHTML());
+            include_once("./Services/UIComponent/AdvancedSelectionList/classes/class.ilAdvancedSelectionListGUI.php");
+            $selection = new ilAdvancedSelectionListGUI();
+            $selection->setListTitle($this->lng->txt("univis_data_transfer"));
+            $selection->setPullRight(false);
+            foreach ($this->actions as $action) {
+                $selection->addItem($action['title'], '', $action['link']);
+            }
+            $toolbar->addStickyItem($selection);
         }
     }
 }
