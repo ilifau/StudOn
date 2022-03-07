@@ -218,6 +218,7 @@ common#:#join_grp_not_permitted#:#Sie können der Gruppe nicht beitreten!
 common#:#join_link#:#Link zum Beitritt
 common#:#join_link_description#:#Beim Aufruf dieses Links muss sich ein Nutzer zunächst bei StudOn anmelden und wird dann zur Beitritts-Seite weitergeleitet.
 common#:#label_remark#:#Hinweis
+common#:#lang_refresh_confirm_info#:#ILIAS hat geänderte Sprachvariablen gefunden. Die Aktualisierung einer Sprache lädt alle Daten aus ihrer Standard-Sprachdatei und eventuell aus einer Custom-Sprachdatei in die Datenbank. Ihre Änderungen werden durch das Laden nicht überschrieben.###fau: keepAllLocalChanges
 common#:#links_password_coded#:#Passwort-Code
 common#:#lm_helptext#:#Ein ILIAS-Lernmodul ist wie ein elektronisches Buch aufgebaut. Mit dem Online-Editor erstellen Sie Seiten mit Text und Medienelementen, die in einer Kapitelstruktur eingegliedert oder als freie Seiten (Exkurse) verlinkt werden. ILIAS-Lernmodule lassen sich exportieren und in anderen Lernumgebungen oder offline weiternutzen. <p class="alert">Tipp: mit dem externen Tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> können Sie OpenOffice-Dokumente in ILIAS-Lernmodule konvertieren.</p>
 common#:#local_login_to_ilias#:#Bei StudOn lokal anmelden###fau: loginForm

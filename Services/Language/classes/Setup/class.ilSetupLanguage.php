@@ -510,8 +510,9 @@ class ilSetupLanguage extends ilLanguage
                     // get the modification date of the local file
                     // get the newer local changes for a local file
                     $change_date = date("Y-m-d H:i:s", time());
-                    $min_date = date("Y-m-d H:i:s", filemtime($lang_file));
-                    $local_changes = $this->getLocalChanges($lang_key, $min_date);
+                    // fau: keepAllLocalChanges - don't use the file date of the local language file
+                    $local_changes = $this->getLocalChanges($lang_key);
+                    // fau.
                 }
 
                 foreach ($content as $key => $val) {

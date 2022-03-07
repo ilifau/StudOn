@@ -222,6 +222,7 @@ common#:#join_grp_not_permitted#:#You cannot join the group!
 common#:#join_link#:#Link to the joining
 common#:#join_link_description#:#By calling up this link a user has to be logged in to StudOn and will then be forwarded to the joining-page.
 common#:#label_remark#:#References
+common#:#lang_refresh_confirm_info#:#ILIAS found changed language variables. Refreshing a language will read the standard language file and probably a custom language file to the database. This will not affect your changes.###fau: keepAllLocalChanges
 common#:#links_password_coded#:#password-code
 common#:#lm_helptext#:#An ILIAS-learnmodule is constructed like an electronical book. With the Online-editor you can create pages with text and media elements, which can be integrated in a chapterstructure or be linked as free pages (digressions). ILIAS-Learnmodule can be exported and be used in different Learn environments or offline. <p class="alert">Advice: with the external tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> you can convert OpenOffice-documents to ILIAS-Learnmodules.</p>
 common#:#local_login_to_ilias#:#Local Login to StudOn###fau: loginForm
