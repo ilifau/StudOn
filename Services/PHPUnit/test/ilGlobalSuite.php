@@ -59,9 +59,12 @@ class ilGlobalSuite extends TestSuite
             return false;
         }
 
-        if (!is_file($client_data_path . "/" . $phpunit_client . "/client.ini.php")) {
+        // fau: customClientIni - take name of the installation directory as name for the client ini
+        $ini_file = "./".ILIAS_WEB_DIR."/".CLIENT_ID."/". basename(realpath('.')) . '.ini.php';
+        if (!is_file($client_data_path . "/" . $phpunit_client . "/" . $ini_file)) {
             return false;
         }
+        // fau.
 
         return true;
     }
