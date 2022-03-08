@@ -469,6 +469,10 @@ class ilInitialisation
         }
         // fau.
 
+        // fau: clientByUrl - always get the client from the ILIAS ini file
+        $clientId = $ilIliasIniFile->readVariable('clients', 'default');
+        // fau.
+
         define('CLIENT_ID', \ilUtil::getClientIdByString((string) $clientId)->toString());
     }
 
