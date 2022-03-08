@@ -366,6 +366,16 @@ class ilIniFile
     */
     public function readVariable($a_group, $a_var_name)
     {
+        // fau: clientByUrl - dynamically get the http_path and default client
+        if ($a_group == 'server' && $a_var_name == 'http_path') {
+            return $this->getHttpPath();
+        }
+
+        if ($a_group == 'clients' && $a_var_name == 'default') {
+            return $this->getClient();
+        }
+        // fau.
+
         if (!isset($this->GROUPS[$a_group][$a_var_name])) {
             $this->error("'" . $a_var_name . "' does not exist in '" . $a_group . "'");
             return false;
@@ -414,4 +424,130 @@ class ilIniFile
     {
         return $this->ERROR;
     }
+
+    // fau: clientByUrl - new functions
+    /**
+     * Get the client from the ilias.ini
+     *
+     * Check the requested url against the patterns defined in [client_urls].
+     * Use the first client where the url matches the pattern.
+     * If no client matches, use the default from [clients].
+     *
+     * Example of the ini group:
+     * [client_urls]
+     * StudOn[] = "https://www.studon.fau.de/studon/"
+     * StudOn[] = "/studon/"
+     * StudOnTest[] = "https://www.studon.fau.de/studon-test/"
+     * StudOnTest[] = "/studon-test/"
+     * StudOnTest[] = "/test/"
+     *
+     * The first pattern for each client should be a full url to be used for getHttpPath().
+     * Please note the trailing slash at the end of the patterns to clearly match the directory names.
+     *
+     * @return string
+     * @see self::urlMatches()
+     */
+    public function getClient()
+    {
+        if (isset($this->GROUPS['client_urls'])) {
+            $request = [
+                'host' => $_SERVER['SERVER_NAME'],
+                'port' => $_SERVER['SERVER_PORT'],
+                'path' => $_SERVER['SCRIPT_NAME']
+            ];
+
+            foreach ((array) $this->GROUPS['client_urls'] as $client => $patterns) {
+                foreach ((array) $patterns as $pattern) {
+                    $condition = (array) parse_url($pattern);
+                    if ($this->urlMatches($request, $condition)) {
+                        return $client;
+                    }
+                }
+            }
+        }
+
+        if (isset($this->GROUPS['clients']['default'])) {
+            return trim($this->GROUPS['clients']['default']);
+        }
+
+        return '';
+    }
+
+    /**
+     * Get the http_path from the ilias.ini
+     *
+     * If a CLIENT_ID is defined or of client can be determined with getClient(), then
+     * use the first url defined in the group [client_urls] for this client (which should be a full url).
+     * Otherwise use the http_path in the group [server].
+     * A trailing slash will be removed from the end.
+     *
+     * @return string
+     * @see self::getClient()
+     */
+    public function getHttpPath()
+    {
+        if (defined('CLIENT_ID')) {
+            $client = CLIENT_ID;
+        }
+        else {
+            $client = $this->getClient();
+        }
+
+        // client specific url (first of list)
+        if (isset($this->GROUPS['client_urls'][$client])) {
+            $urls = (array) $this->GROUPS['client_urls'][$client];
+            return ($this->removeTrailingSlashes(trim($urls[0])));
+        }
+
+        // default url
+        if (isset($this->GROUPS['server']['http_path'])) {
+            return ($this->removeTrailingSlashes(trim($this->GROUPS['server']['http_path'])));
+        }
+    }
+
+    /**
+     * Check if a request matches a given condition
+     * The request and condition are arrays like produced by parse url
+     * A request matches, if every existing part in the condition is matched by the corresponding part in the request
+     * A required host or port must match completely
+     * A required path must match the beginning of the path in the url
+     * The scheme, user, pass, query and fragment are ignored
+     *
+     * @param array $request
+     * @param array $condition
+     * @return bool
+     */
+    protected function urlMatches($request, $condition)
+    {
+        foreach ($condition as $part => $value) {
+            switch ($part) {
+                case "host":
+                case "port":
+                    if (!isset($request[$part]) || $request[$part] != $value) {
+                        return false;
+                    }
+                    break;
+                case "path":
+                    if (!isset($request[$part]) || substr($request[$part], 0, strlen($value)) != $value) {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Remove trailing slashes from a url or path
+     *
+     * @param string $path
+     * @return string
+     */
+    protected function removeTrailingSlashes($path)
+    {
+        return preg_replace("/[\/\\\]+$/", "", $path);
+    }
+    // fau.
+
+
 } //END class.ilIniFile
