@@ -57,37 +57,21 @@ class ClientIdReadObjective implements Setup\Objective
      */
     public function achieve(Setup\Environment $environment) : Setup\Environment
     {
-        $dir = $this->getDataDirectoryPath();
-        $candidates = array_filter(
-            $this->scanDirectory($dir),
-            function ($c) use ($dir) {
-                if ($c == "." || $c == "..") {
-                    return false;
-                }
-                return $this->isDirectory($dir . "/" . $c);
-            }
-        );
+        // fau: clientByUrl - always take the client id from the setup config
+        $common_config = $environment->getConfigFor("common");
+        $client_id = $common_config->getClientId();
 
-        if (count($candidates) == 0) {
+        $client_dir = $this->getDataDirectoryPath() . $client_id;
+        if ($this->isDirectory($client_dir)) {
             throw new Setup\UnachievableException(
-                "There are no directories in the webdata-dir at '$dir'. " .
+                "The client directory '$client_dir' does not exist. " .
                 "Probably ILIAS is not installed."
             );
         }
 
-        if (count($candidates) != 1) {
-            $ilias_version = ILIAS_VERSION_NUMERIC;
-
-            throw new Setup\UnachievableException(
-                "There is more than one directory in the webdata-dir at '$dir'. " .
-                "Probably this is an ILIAS installation that uses clients. Clients " .
-                "are not supported anymore since ILIAS $ilias_version " .
-                "(see: https://docu.ilias.de/goto.php?target=wiki_1357_Setup_-_Abandon_Multi_Client)"
-            );
-        }
-
-        $client_id = array_shift($candidates);
         return $environment->withResource(Setup\Environment::RESOURCE_CLIENT_ID, $client_id);
+        // fau.
+
     }
 
     protected function getDataDirectoryPath() : string
