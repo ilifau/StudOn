@@ -443,32 +443,6 @@ class ilInitialisation
             self::abortAndDie('Fatal Error: ilInitialisation::determineClient called without initialisation of ILIAS ini file object.');
         }
 
-        // fau: shortRssLink - set default client when called from context without cookies
-        // fau: videoPortal - set default client when called from context without cookies
-        // fau: univisLinks - set default client when called from context without cookies
-        if (!empty($_GET['client_id'])) {
-            $clientId = ilUtil::getClientIdByString((string) $_GET['client_id'])->toString();
-            $_GET['client_id'] = $clientId;
-
-            if (!defined('IL_PHPUNIT_TEST') && ilContext::supportsPersistentSessions()) {
-                $_COOKIE['ilClientId'] = $clientId;
-                ilUtil::setCookie('ilClientId', $clientId);
-            }
-        } elseif (!defined('IL_PHPUNIT_TEST') && ilContext::supportsPersistentSessions()) {
-            if (!empty($_COOKIE['ilClientId'])) {
-                $clientId = $_COOKIE['ilClientId'];
-            }
-            else {
-                $clientId = $ilIliasIniFile->readVariable('clients', 'default');
-                $_COOKIE['ilClientId'] = $clientId;
-                ilUtil::setCookie('ilClientId', $clientId);
-            }
-        }
-        else {
-            $clientId = $ilIliasIniFile->readVariable('clients', 'default');
-        }
-        // fau.
-
         // fau: clientByUrl - always get the client from the ILIAS ini file
         $clientId = $ilIliasIniFile->readVariable('clients', 'default');
         // fau.
