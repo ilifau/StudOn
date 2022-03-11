@@ -99,5 +99,16 @@ $p->login();
 //$p->applyPatch('ilPermissionPatches54.initCreatePermissions');
 //$p->applyPatch('ilPermissionPatches54.initEduSharing');
 
+/*******************************
+ * New Permissions in ILIAS 7
+ ******************************/
+
+//$p->applyPatch('ilPermissionPatches7.createMissingCopyOperations');
+//$p->applyPatch('ilPermissionPatches7.createMissingIvLpOperations');
+//$p->applyPatch('ilPermissionPatches7.initPluginsCopyPermissions');
+//$p->applyPatch('ilPermissionPatches7.initCourseRefLearningProgress');
+//$p->applyPatch('ilPermissionPatches7.initInteractiveVideoLearningProgress');
+
+
 //avoid "Cannot modify header information"
 //$p->logout();

@@ -408,7 +408,7 @@ class ilPermissionUtils
 	* @param 	string		operation name, e.g 'write'
 	* @return	int			operation identifier
 	*/
-	private function getRbacOpsId($a_operation)
+	public function getRbacOpsId($a_operation)
 	{		
 		if(empty($this->ops_ids))
 		{
