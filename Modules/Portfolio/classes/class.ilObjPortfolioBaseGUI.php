@@ -145,7 +145,13 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
         }
 
         $page_gui = $this->getPageGUIInstance($this->page_id);
-        
+
+        $this->tabs_gui->clearTargets();
+        $this->tabs_gui->setBackTarget(
+            $this->lng->txt("back"),
+            $this->ctrl->getLinkTarget($page_gui, "edit")
+        );
+
         // needed for editor
         // fau: inheritContentStyle - add ref_id
         $page_gui->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(

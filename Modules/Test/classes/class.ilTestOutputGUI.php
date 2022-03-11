@@ -624,6 +624,16 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
                 return false;
             }
         }
+
+        /*
+            #21097 - exceed maximum passes
+            this is a battle of conditions; e.g. ilTestPlayerAbstractGUI::autosaveOnTimeLimitCmd forces saving of results.
+            However, if an admin has finished the pass in the meantime, a new pass should not be created.
+        */
+        if ($force && $this->isNrOfTriesReached()) {
+            $force = false;
+        }
+
         // save question solution
         if ($this->canSaveResult() || $force) {
             // but only if the ending time is not reached
@@ -660,7 +670,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
             }
         }
 
-        if ($this->saveResult == false || (!$questionOBJ->validateSolutionSubmit() && $questionOBJ->savePartial()) ) {
+        if ($this->saveResult == false || (!$questionOBJ->validateSolutionSubmit() && $questionOBJ->savePartial())) {
             // fau: fixQuestionValidateSubmit - use common function to handle a save error
             $this->handleSaveQuestionSolutionError($questionOBJ);
             // fau.
@@ -686,7 +696,7 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
             }
             $this->testSequence->setQuestionChecked($questionId);
             $this->testSequence->saveToDb();
-        } else if ($this->object->isForceInstantFeedbackEnabled()) {
+        } elseif ($this->object->isForceInstantFeedbackEnabled()) {
             $this->testSequence->setQuestionChecked($questionId);
             $this->testSequence->saveToDb();
         }

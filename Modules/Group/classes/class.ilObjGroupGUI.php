@@ -86,6 +86,7 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->ctrl->redirectbyclass("ilnewstimelinegui");
         }
 
+        $header_action = true;
         switch ($next_class) {
             case 'ilreputilgui':
                 $ru = new \ilRepUtilGUI($this);
@@ -225,6 +226,7 @@ class ilObjGroupGUI extends ilContainerGUI
                 if ($ret != "") {
                     $this->tpl->setContent($ret);
                 }
+                $header_action = false;
                 break;
 
             case 'ilobjectcopygui':
@@ -418,8 +420,10 @@ class ilObjGroupGUI extends ilContainerGUI
                 $this->$cmd();
                 break;
         }
-        
-        $this->addHeaderAction();
+
+        if ($header_action) {
+            $this->addHeaderAction();
+        }
     }
     
     public function viewObject()
