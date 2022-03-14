@@ -11,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use ILIAS\Setup\Agent;
+use ILIAS\Setup\Environment;
 
 /**
  * Command to output status information about the installation.
@@ -48,7 +49,12 @@ class StatusCommand extends Command
         // in ilIniFilesLoadedObjective.
         \ilIniFilesLoadedObjective::$might_populate_ini_files_as_well = false;
 
-        $environment = new ArrayEnvironment([]);
+        $environment = new ArrayEnvironment([
+            // fau: clientByUrl - add client id to environment for status
+            Environment::RESOURCE_CLIENT_ID => $this->getClientIdFromIliasIni()
+            // fau.
+
+        ]);
         $storage = new Metrics\ArrayStorage();
         $objective = new Tentatively(
             $agent->getStatusObjective($storage)
@@ -73,4 +79,26 @@ class StatusCommand extends Command
             $values
         );
     }
+
+    // fau: clientByUrl - new function getClientIdFromIliasIni
+    /**
+     * Get the client id from the ILIAS ini file
+     * (needed in setup for migration command which has no config parameter)
+     * @return string|null
+     */
+    protected function getClientIdFromIliasIni(): ?string
+    {
+        $path = dirname(__DIR__, 3) . "/ilias.ini.php";
+        if (file_exists($path)) {
+            $ini = new \ilIniFile($path);
+            $ini->read();
+            $client_id = $ini->readVariable('clients', 'default');
+            if (!empty($client_id)) {
+                return $client_id;
+            }
+        }
+        return null;
+    }
+    // fau.
+
 }
