@@ -97,7 +97,10 @@ class MigrateCommand extends Command
         $objective = new Objective\MigrationObjective($migration, $steps);
 
         $env = new ArrayEnvironment([
-            Environment::RESOURCE_ADMIN_INTERACTION => $io
+            Environment::RESOURCE_ADMIN_INTERACTION => $io,
+            // fau: clientByUrl - add client id to environment for migration
+            Environment::RESOURCE_CLIENT_ID => $this->getClientIdFromIliasIni()
+            // fau.
         ]);
 
         $preconditions = $migration->getPreconditions($env);
@@ -127,7 +130,10 @@ class MigrateCommand extends Command
         }
 
         $env = new ArrayEnvironment([
-            Environment::RESOURCE_ADMIN_INTERACTION => $io
+            Environment::RESOURCE_ADMIN_INTERACTION => $io,
+            // fau: clientByUrl - add client id to environment for migration
+            Environment::RESOURCE_CLIENT_ID => $this->getClientIdFromIliasIni()
+            // fau.
         ]);
 
         $io->inform("There are {$count} to run:");
@@ -157,4 +163,27 @@ class MigrateCommand extends Command
 
         return $environment;
     }
+
+
+
+    // fau: clientByUrl - new function getClientIdFromIliasIni
+    /**
+     * Get the client id from the ILIAS ini file
+     * (needed in setup for migration command which has no config parameter)
+     * @return string|null
+     */
+    protected function getClientIdFromIliasIni(): ?string
+    {
+        $path = dirname(__DIR__, 3) . "/ilias.ini.php";
+        if (file_exists($path)) {
+            $ini = new \ilIniFile($path);
+            $ini->read();
+            $client_id = $ini->readVariable('clients', 'default');
+            if (!empty($client_id)) {
+                return $client_id;
+            }
+        }
+        return null;
+    }
+    // fau.
 }
