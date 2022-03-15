@@ -109,13 +109,13 @@ class ilAccountRegistrationGUI
             default:
                 // fau: regCodes - determine default command based on code entry
                 if (!$this->code_enabled) {
-                    $this->displayForm();
+                    $tpl = $this->displayForm();
                 } elseif (!isset($this->codeObj)) {
-                    $this->displayCodeForm();
+                    $tpl = $this->displayCodeForm();
                 } elseif (!$this->codeObj->isUsable()) {
-                    $this->displayCodeForm();
+                    $tpl = $this->displayCodeForm();
                 } else {
-                    $this->displayForm();
+                    $tpl = $this->displayForm();
                 }
             // fau.
         }
@@ -131,15 +131,20 @@ class ilAccountRegistrationGUI
         if (!$this->form) {
             $this->__initCodeForm();
         }
+
+        $tpl = ilStartUpGUI::initStartUpTemplate(array('tpl.usr_registration.html', 'Services/Registration'), true);
+
         ilStartUpGUI::initStartUpTemplate(array('tpl.usr_registration.html', 'Services/Registration'), true);
-        $this->tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
+        $tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
         if ((bool) $this->registration_settings->registrationCodeRequired()) {
-            $this->tpl->setVariable('DESCRIPTION', $this->lng->txt("registration_code_required_info"));
+            $tpl->setVariable('DESCRIPTION', $this->lng->txt("registration_code_required_info"));
         } else {
-            $this->tpl->setVariable('DESCRIPTION', $this->lng->txt("registration_code_optional_info"));
+            $tpl->setVariable('DESCRIPTION', $this->lng->txt("registration_code_optional_info"));
         }
 
-        $this->tpl->setVariable('FORM', $this->form->getHTML());
+        $tpl->setVariable('FORM', $this->form->getHTML());
+
+        return $tpl;
     }
 
 
