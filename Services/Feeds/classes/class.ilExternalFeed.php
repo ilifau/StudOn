@@ -135,6 +135,10 @@ class ilExternalFeed
     */
     public function fetch()
     {
+        // fau: fixExternalFeed
+        return false;
+        // fau.
+
         if ($this->getUrl() != "") {
             $this->feed = @fetch_rss($this->getUrl());
         }
