@@ -573,12 +573,11 @@ class ilSoapStudOnAdministration extends ilSoapAdministration
             if (isset($online)) {
                 $course->setOfflineStatus(!$online);
             }
-            if (!empty($courseStart)) {
-                $course->setCourseStart(new ilDate((int) $courseStart, IL_CAL_UNIX));
-            }
-            if (!empty($courseEnd)) {
-                $course->setCourseEnd(new ilDate((int) $courseEnd, IL_CAL_UNIX));
-            }
+
+            $courseStart = empty($courseStart) ? null : new ilDate((int) $courseStart, IL_CAL_UNIX);
+            $courseEnd = empty($courseEnd) ? null : new ilDate((int) $courseEnd, IL_CAL_UNIX);
+            $course->setCoursePeriod($courseStart, $courseEnd);
+
             if (isset($activationStart)) {
                 $course->setActivationStart($activationStart);
             }
