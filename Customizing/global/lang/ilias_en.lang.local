@@ -751,6 +751,7 @@ mail#:#mail_pear_is_automaticly_switched#:#PEAR will automaticly be activated at
 mail#:#mail_salutation_f#:#Dear Mrs.
 mail#:#mail_salutation_m#:#Dear Mr.
 mail#:#mail_smtp_not_allowed#:#You can only write to users in the system, not to general e-mail-adresses!
+meta#:#meta_vhb_notice#:#Note for vhb course managers: Enter the LV number in the "Quick editing" area under "Keywords". If the course is to be used for several events, you can enter several LV numbers as separate keywords or use the placeholder "*" for any characters in a LV number.###fau: vhbNumber
 mob#:#mob_extract_preview_image#:#Extract Preview Image
 mob#:#mob_preview_image_extracted#:#The preview image was extracted from the video. Please reload the page with the video to get the image updated.
 mob#:#mob_no_extraction_possible#:#The preview image couldn't be extracted.

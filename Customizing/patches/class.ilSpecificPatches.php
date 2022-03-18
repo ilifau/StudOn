@@ -623,5 +623,81 @@ class ilSpecificPatches
             usleep(360000);
         }
     }
+
+    // fau: vhbNumber - patch to move the number to the keywords
+    /**
+     * Move the LV numbers of vhb courses from meta data identifiers to keywirds
+     * @param string[] $params
+     * @return false|void
+     */
+    function moveVhbIdentifiersToKeywords($params = array())
+    {
+        global $DIC;
+        $db = $DIC->database();
+
+        $object_keywords = [];
+
+        $keyword_query = "
+            SELECT o.obj_id, o.title, o.description, m.keyword entry FROM il_meta_keyword m
+            INNER JOIN object_data o ON m.obj_id = o.obj_id
+            INNER JOIN crs_settings s ON s.obj_id = o.obj_id
+            WHERE m.obj_type = 'crs'
+            AND m.keyword LIKE 'LV_%'
+        ";
+
+        $catalog_query = "
+            SELECT o.obj_id, o.title, o.description, m.entry FROM il_meta_identifier m
+            INNER JOIN object_data o ON m.obj_id = o.obj_id
+            INNER JOIN crs_settings s ON s.obj_id = o.obj_id
+            WHERE m.obj_type = 'crs'
+            AND m.catalog = 'vhb'
+            AND entry LIKE 'LV%'        
+        ";
+
+        // collect the existing keywords
+        $result = $db->query($keyword_query);
+        while ($row = $db->fetchAssoc($result)) {
+            $obj_id = $row['obj_id'];
+            $pattern = $row['entry'];
+
+            $object_keywords[$obj_id][$pattern] = true;
+        }
+
+        // get the existing catalog entries
+        $result = $db->query($catalog_query);
+        while ($row = $db->fetchAssoc($result)) {
+            $obj_id = $row['obj_id'];
+            $pattern = $row['entry'];
+
+            if (isset($object_keywords[$obj_id][$pattern])) {
+                echo "EXISTING for $obj_id: $pattern \n";
+            }
+            else {
+                $meta = new ilMD($obj_id, $obj_id, 'crs');
+
+                if(!is_object($general = $meta->getGeneral())) {
+                    $general = $meta->addGeneral();
+                    $general->save();
+                }
+
+                $keyword = $general->addKeyword();
+                $keyword->setKeywordLanguage(new ilMDLanguageItem('de'));
+                $keyword->setKeyword($pattern);
+                $keyword->save();
+
+                echo "ADDED for $obj_id: $pattern \n";
+            }
+        }
+
+        $delete_query = "DELETE FROM il_meta_identifier
+            WHERE obj_type = 'crs'
+            AND catalog = 'vhb'
+            AND entry LIKE 'LV%' 
+        ";
+
+        echo "DELETE catalog entries...";
+        $db->manipulate($delete_query);
+    }
+    // fau.
 }
 

@@ -362,6 +362,12 @@ class ilMDEditorGUI
     {
         global $DIC;
 
+        // fau: vhbNumber - show notice on how to enter the number
+        if ($this->md_obj->getObjType() == 'crs') {
+            ilUtil::sendInfo($this->lng->txt('meta_vhb_notice'));
+        }
+        // fau.
+
         $tpl = $DIC['tpl'];
 
         if (!is_object($this->md_section = $this->md_obj->getGeneral())) {
@@ -1247,6 +1253,12 @@ class ilMDEditorGUI
      */
     public function listGeneral()
     {
+        // fau: vhbNumber - show notice on how to enter the number
+        if ($this->md_obj->getObjType() == 'crs') {
+            ilUtil::sendInfo($this->lng->txt('meta_vhb_notice'));
+        }
+        // fau.
+
         if (!is_object($this->md_section = $this->md_obj->getGeneral())) {
             $this->md_section = $this->md_obj->addGeneral();
             $this->md_section->save();

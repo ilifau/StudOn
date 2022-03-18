@@ -699,6 +699,7 @@ mail#:#mail_from_via#:#%s via %s
 mail#:#mail_only_own_courses_info#:#Bitte schreiben Sie nur an Mitglieder Ihrer eigenen Kurse und Gruppen.<br />Verwenden Sie die Sammeladressen von Kurse nur für wichtige Mitteilungen.</br >Alles andere wird als Spam empfunden!
 mail#:#mail_pear_is_automaticly_switched#:#PEAR mail wird bei der Mail an Kurs- oder Gruppenmitglieder automatisch aktiviert, wenn dort lokale Rollen ohne eindeutige Namen existieren.
 mail#:#mail_smtp_not_allowed#:#Sie können nur an Benutzer im System schreiben, nicht an allgemeine E-Mail-Adressen!
+meta#:#meta_vhb_notice#:#Hinweis für vhb-Kursverantwortliche: Geben Sie die LV-Nummer im Bereich "Schnellbearbeitung" unter "Schlagwörter" ein. Wenn der Kurs für mehrere Veranstaltungen genutzt werden soll, könenn Sie mehrere LV-Nummern als separate Schlagwärter eintragen oder in einer LV-Nummer den Platzhalter "*" für beliebige Zeichen verwenden.###fau: vhbNumber
 mob#:#mob_extract_preview_image#:#Vorschaubild erzeugen
 mob#:#mob_no_extraction_possible#:#Das Vorschaubild konnte nicht erzeugt werden.
 mob#:#mob_preview_image_extracted#:#Das Vorschaubild wurde aus den Video erzeugt. Laden Sie die Seite mit dem Video neu, um das Bild zu aktualisieren.
