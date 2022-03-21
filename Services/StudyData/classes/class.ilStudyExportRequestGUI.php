@@ -9,26 +9,25 @@
 */
 class ilStudyExportRequestGUI
 {
-    public $ctrl;
+    /** @var ilGlobalTemplate  */
     public $tpl;
 
     public function __construct()
     {
-        global $ilCtrl, $tpl, $lng;
+        global $DIC;
 
-        $this->tpl = $tpl;
-        $lng->loadLanguageModule('registration');
+        $DIC->language()->loadLanguageModule('registration');
 
-        $this->tpl->getStandardTemplate();
+        $this->tpl = $DIC->ui()->mainTemplate();
         $this->tpl->setTitle("Antrag auf Teilnehmerdaten-Export");
     }
 
 
     public function executeCommand()
     {
-        global $ilErr, $ilCtrl;
-        
-        $cmd = $ilCtrl->getCmd("showRequestForm");
+        global $DIC;
+
+        $cmd = $DIC->ctrl()->getCmd("showRequestForm");
         $this->$cmd();
 
         return true;
@@ -42,7 +41,11 @@ class ilStudyExportRequestGUI
     
     public function showRequestForm()
     {
-        global $ilUser, $ilCtrl, $rbacsystem, $https;
+        global $DIC;
+
+        $ilUser = $DIC->user();
+        $ilCtrl = $DIC->ctrl();
+        $rbacsystem = $DIC->rbac()->system();
 
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         $privacy = ilPrivacySettings::_getInstance();
@@ -65,7 +68,7 @@ class ilStudyExportRequestGUI
         }
 
         $this->tpl->setContent($tpl->get());
-        $this->tpl->show();
+        $this->tpl->printToStdout();
     }
 
 
@@ -85,18 +88,19 @@ class ilStudyExportRequestGUI
         require_once('Services/Mail/classes/class.ilMail.php');
         $mail = new ilMail($ilUser->getId());
 
-        $mail->sendMimeMail(
+        $mail->sendMail(
             'studon@uni-erlangen.de',
             $ilUser->getEmail(),
             '',
             'Antrag auf Teilnehmerdaten-Export',
             $message,
-            ''
+            [],
+            false
         );
             
         $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/StudyData");
         $tpl->touchBlock('sent_message');
         $this->tpl->setContent($tpl->get());
-        $this->tpl->show();
+        $this->tpl->printToStdout();
     }
 }
