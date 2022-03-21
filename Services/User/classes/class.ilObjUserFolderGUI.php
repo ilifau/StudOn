@@ -1692,28 +1692,21 @@ class ilObjUserFolderGUI extends ilObjectGUI
             $this->lng->txt("file_info")
         );
 
-        $global_role_info_section = $ui->input()->field()->section(
-            [$global_roles_assignment_info],
-            $this->lng->txt("global_role_assignment")
-        );
-        $global_role_selection_section = $ui->input()->field()->section(
-            $global_selects,
-            ""
-        );
-        $conflict_action_section = $ui->input()->field()->section(
-            [$conflict_action_select],
-            ""
-        );
-        $form_action = $DIC->ctrl()->getFormActionByClass(
-            'ilObjUserFolderGui',
-            'importUsers'
-        );
+        // fau: fixUserImportRoles - see https://github.com/ILIAS-eLearning/ILIAS/pull/3541
+        $form_action = $DIC->ctrl()->getFormActionByClass('ilObjUserFolderGui', 'importUsers');
 
-        $form_elements = array(
-            "file_info" => $file_info_section,
-            "global_role_info" => $global_role_info_section,
-            "global_role_selection" => $global_role_selection_section
-        );
+        $form_elements = [
+            "file_info" => $file_info_section
+        ];
+
+        if (!empty($global_selects)) {
+            $global_role_info_section = $ui->input()
+                ->field()
+                ->section([$global_roles_assignment_info], $this->lng->txt("global_role_assignment"));
+            $global_role_selection_section = $ui->input()->field()->section($global_selects, "");
+            $form_elements["global_role_info"] = $global_role_info_section;
+            $form_elements["global_role_selection"] = $global_role_selection_section;
+        }
 
         if (!empty($local_selects)) {
             $local_role_info_section = $ui->input()->field()->section(
@@ -1729,7 +1722,8 @@ class ilObjUserFolderGUI extends ilObjectGUI
             $form_elements["local_role_selection"] = $local_role_selection_section;
         }
 
-        $form_elements["conflict_action"] = $conflict_action_section;
+        $form_elements["conflict_action"] = $ui->input()->field()->section([$conflict_action_select], "");
+        // fau.
 
         if (!empty($mail_section)) {
             $form_elements["send_mail"] = $mail_section;
@@ -1929,6 +1923,12 @@ class ilObjUserFolderGUI extends ilObjectGUI
         }
 
         $rule = $result["conflict_action"][0];
+
+        // fau: fixUserImportRoles - ensure array exists
+        if (!isset($result["global_role_selection"])) {
+            $result["global_role_selection"] = [];
+        }
+        // fau.
 
         //If local roles exist, merge the roles that are to be assigned, otherwise just take the array that has global roles
         $roles = isset($result["local_role_selection"]) ? array_merge(
