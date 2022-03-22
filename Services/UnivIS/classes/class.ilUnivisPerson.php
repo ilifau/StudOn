@@ -63,8 +63,8 @@ class ilUnivisPerson extends ilUnivisData
     */
     public function getOfficehours()
     {
-        $locations = ilUnivisOfficehour::_getOfficehoursOfPerson($this->data['key']);
-        return $locations;
+        $hours = ilUnivisOfficehour::_getOfficehoursOfPerson($this->data['key']);
+        return $hours;
     }
 
     /**

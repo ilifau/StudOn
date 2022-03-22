@@ -78,11 +78,11 @@ class ilUnivisLocation extends ilUnivisData
 
         $result = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($result)) {
-            $term = new ilUnivisLocation();
-            $term->setData($row);
-            $terms[] = $term;
+            $location = new ilUnivisLocation();
+            $location->setData($row);
+            $locations[] = $location;
         }
 
-        return $terms;
+        return $locations;
     }
 }

@@ -117,7 +117,7 @@ class ilUnivisOfficehour extends ilUnivisData
     {
         global $ilDB;
 
-        $locations = array();
+        $hours = array();
 
         $query = "SELECT * FROM univis_person_officehour "
                 . " WHERE " . parent::_getLookupCondition()
@@ -126,11 +126,11 @@ class ilUnivisOfficehour extends ilUnivisData
 
         $result = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($result)) {
-            $term = new ilUnivisOfficehour();
-            $term->setData($row);
-            $terms[] = $term;
+            $hour = new ilUnivisOfficehour();
+            $hour->setData($row);
+            $hours[] = $hour;
         }
 
-        return $terms;
+        return $hours;
     }
 }

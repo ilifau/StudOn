@@ -1186,12 +1186,12 @@ class ilUnivisImportLecturesGUI extends ilWizardGUI
                 $consultations = array();
 
                 $list = $lecture->getLecturers();
-                if (count($list)) {
+                if (!empty($list)) {
                     $person = current($list);
                     $contact_name = $person->getDisplay(false);
 
                     $list = $person->getLocations();
-                    if (count($list)) {
+                    if (!empty($list)) {
                         $location = current($list);
                         $contact_email = $location->getEmail();
                         $contact_phone = $location->getPhone();
