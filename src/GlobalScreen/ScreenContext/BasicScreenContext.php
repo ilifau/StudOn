@@ -94,7 +94,14 @@ class BasicScreenContext implements ScreenContext
      */
     public function addAdditionalData(string $key, $value) : ScreenContext
     {
-        $this->additional_data->add($key, $value);
+        // fau: fixLmInLso - prevent "key already exists" exception
+        // see https://mantis.ilias.de/view.php?id=30691
+        if($this->additional_data->exists($key)) {
+            $this->additional_data->replace($key, $value);
+        } else {
+            $this->additional_data->add($key, $value);
+        }
+        // fau.
 
         return $this;
     }
