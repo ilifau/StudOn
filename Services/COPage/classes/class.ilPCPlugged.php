@@ -216,7 +216,7 @@ class ilPCPlugged extends ilPageContent
                 }
                 foreach ($properties as $name => $value) {
                     // fau: fixPCPluggedCopy - mask special characters
-                    $child = new DOMElement('PluggedProperty', htmlentities($value));
+                    $child = new DOMElement('PluggedProperty', htmlspecialchars($value, ENT_QUOTES));
                     // fau.
                     $node->appendChild($child);
                     $child->setAttribute('Name', $name);
