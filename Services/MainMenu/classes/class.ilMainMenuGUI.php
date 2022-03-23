@@ -303,9 +303,6 @@ class ilMainMenuGUI
             } else {
                 $this->tpl->setCurrentBlock("userisloggedin");
                 $this->tpl->setVariable("TXT_LOGIN_AS", $lng->txt("login_as"));
-                // fau: wcag - add title
-                $this->tpl->setVariable("USER_MENU_TITLE", $lng->txt("user_menu"));
-                // fau.
                 $user_img_src = $ilUser->getPersonalPicturePath("small", true);
                 $user_img_alt = $ilUser->getFullname();
                 $this->tpl->setVariable("USER_IMG", ilUtil::img($user_img_src, $user_img_alt));
@@ -356,9 +353,6 @@ class ilMainMenuGUI
         if ($this->getMode() == self::MODE_FULL) {
             // $this->tpl->setVariable("TXT_LOGOUT", $lng->txt("logout"));
             $this->tpl->setVariable("HEADER_URL", $this->getHeaderURL());
-            // fau: wcag -  add title
-            $this->tpl->setVariable("HEADER_URL_TITLE", $lng->txt('to_home'));
-            // fau.
             $this->tpl->setVariable("HEADER_ICON", ilUtil::getImagePath("HeaderIcon.svg"));
             $this->tpl->setVariable("HEADER_ICON_RESPONSIVE", ilUtil::getImagePath("HeaderIconResponsive.svg"));
         }
