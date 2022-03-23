@@ -18,3 +18,4 @@ echo "<pre>\n";
 echo "CLIENT_ID: " . CLIENT_ID . "\n";
 echo "HTTP_PATH: " . IlUtil::_getHttpPath() . "\n";
 
+echo "Finished.";
