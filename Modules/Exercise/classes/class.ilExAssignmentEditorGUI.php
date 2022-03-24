@@ -124,12 +124,11 @@ class ilExAssignmentEditorGUI
         );
 
         // fau: exAssHook - set type specific indicators
-        if (isset($a_ass)) {
-            $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($a_ass->getType());
-            if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface ) {
-                $this->type_has_own_submission = $type_gui->hasOwnOverviewSubmission();
-                $this->type_has_own_feedback = $type_gui->hasOwnOverviewGeneralFeedback();
-            }
+        $type = ($_POST['type'] ?? (isset($a_ass) ? $a_ass->getType() :  0));
+        $type_gui = ilExAssignmentTypesGUI::getInstance()->getById($type);
+        if ($type_gui instanceof ilExAssignmentTypeExtendedGUIInterface ) {
+            $this->type_has_own_submission = $type_gui->hasOwnOverviewSubmission();
+            $this->type_has_own_feedback = $type_gui->hasOwnOverviewGeneralFeedback();
         }
         // fau.
     }
@@ -669,6 +668,9 @@ class ilExAssignmentEditorGUI
 
         $fb_date = new ilRadioGroupInputGUI($lng->txt("exc_global_feedback_file_date"), "fb_date");
         $fb_date->setRequired(true);
+        // fau: exFeedbackNever - add option in assignment form
+        $fb_date->addOption(new ilRadioOption($lng->txt("exc_global_feedback_file_date_never"), ilExAssignment::FEEDBACK_DATE_NEVER));
+        // fau.
         $fb_date->addOption(new ilRadioOption($lng->txt("exc_global_feedback_file_date_deadline"), ilExAssignment::FEEDBACK_DATE_DEADLINE));
         $fb_date->addOption(new ilRadioOption($lng->txt("exc_global_feedback_file_date_upload"), ilExAssignment::FEEDBACK_DATE_SUBMISSION));
 

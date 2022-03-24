@@ -583,6 +583,7 @@ exc#:#exc_file_suffixes_case_checked#:#Die Groß-/Kleinschreibung wird beachtet
 exc#:#exc_file_suffixes_case_ignored#:#Die Groß-/Kleinschreibung wird ignoriert
 exc#:#exc_file_suffixes_info#:#Kommagetrennte Liste der erlaubten Endungen für hochgeladenen Dateien, z.B. doc, docx
 exc#:#exc_file_suffixes_in_zip#:#Erlaubte Dateiendungen im Archiv: %s
+exc#:#exc_global_feedback_file_date_never#:#Nie###fau: exFeedbackNever
 exc#:#exc_grade_overview_legend_mandatory#:#Verpflichtende Übungseinheiten sind mit * gekennzeichnet.
 exc#:#exc_grade_overview_legend_restime#:#Übungseinheiten vor dem Veröffentlichungstermin ihrer Ergebnisse sind in Klammern gesetzt.
 exc#:#exc_grade_start#:#Korrektur-Start

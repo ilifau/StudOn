@@ -682,6 +682,10 @@ class ilExcAssMemberState
             $access = $this->hasSubmissionEndedForAllUsers();
         } elseif ($this->assignment->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_CUSTOM) {
             $access = $this->assignment->afterCustomDate();
+        // fau: exFeedbackNever - suppress feedback generally
+        } elseif ($this->assignment->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_CUSTOM) {
+            $access = false;
+            // fau.
         } else {
             $access = $submission->hasSubmitted();
         }

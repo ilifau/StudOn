@@ -63,7 +63,9 @@ class ilExAssignment
     const TYPE_TEST_RESULT_TEAM = 12;
     // fau.
 
-
+    // fau: exFeedbackNever - add constant
+    const FEEDBACK_DATE_NEVER = 0;
+    // fau.
     const FEEDBACK_DATE_DEADLINE = 1;
     const FEEDBACK_DATE_SUBMISSION = 2;
     const FEEDBACK_DATE_CUSTOM = 3;
@@ -178,7 +180,9 @@ class ilExAssignment
         $this->types = ilExAssignmentTypes::getInstance();
 
         $this->setType(self::TYPE_UPLOAD);
-        $this->setFeedbackDate(self::FEEDBACK_DATE_DEADLINE);
+        // fau: exFeedbackNever - set "never" as default feedback date
+        $this->setFeedbackDate(self::FEEDBACK_DATE_NEVER);
+        // fau.
 
         $this->log = ilLoggerFactory::getLogger("exc");
         

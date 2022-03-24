@@ -521,6 +521,11 @@ class ilExAssignmentGUI
         //we can check in the elseif $submission->hasSubmitted()
         elseif ($a_ass->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_CUSTOM) {
             $show_global_feedback = ($a_ass->afterCustomDate() && $has_global_feedback);
+        }
+        // fau: exFeedbackNever - suppress feedback generally
+        elseif($a_ass->getFeedbackDate() == ilExAssignment::FEEDBACK_DATE_NEVER) {
+            $show_global_feedback = false;
+            // fau.
         } else {
             $show_global_feedback = ($last_sub && $has_global_feedback);
         }

@@ -609,6 +609,7 @@ exc#:#exc_calc_status_compare_percent_info#:#The calculated grades/points are co
 exc#:#exc_calculate_overall_results#:#Calculate Overall Results
 exc#:#exc_calc_confirm_all#:#Calculate the overall result of all participants?
 exc#:#exc_calculate#:#Calculate
+exc#:#exc_global_feedback_file_date_never#:#Never###fau: exFeedbackNever
 exc#:#exc_grade_time#:#Grading Time
 exc#:#exc_grade_time_info#:#In an exercise with restricted tutor rights (see exercise settings), course tutors can only give feedbacks and grades for this assignment after the given date.
 exc#:#exc_grade_start#:#Grading Start
