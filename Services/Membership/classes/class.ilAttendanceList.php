@@ -534,6 +534,9 @@ class ilAttendanceList
 
         $tpl = $DIC->ui()->mainTemplate();
         $tpl->setContent($this->getHTML());
+        // fau: coursePrint - open browser print windows on print course member list
+        $tpl->addOnLoadCode("il.Util.print();");
+        // fau.
         //$tpl->setVariable("CONTENT", $this->getHTML());
         //$tpl->setContent($this->getHTML());
     }
