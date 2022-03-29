@@ -9,8 +9,10 @@
 common#:#err_inactive_contact#:#<br/>Please check in the top bar if it is the correct platform for your exam. Choose the right one on our <a href="https://www.studon-exam.fau.de/">overview page</a>. If the problem remains, please contact <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a> to get your account activated.
 common#:#err_wrong_login_assist#:#<br/>Please check in the top bar if it is the correct platform for your exam. Choose the right one on our <a href="https://www.studon-exam.fau.de/">overview page</a>.
 common#:#err_wrong_login_contact#:#If the problem remains, please contact <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a> to get your account activated.
+common#:#local_login_to_ilias#:#Login to the Examination Platform
+common#:#local_login_to_ilias_addition#:#Use your StudOn account
+common#:#login_to_ilias#:#Login to StudOn Exam
 common#:#txt_registered#:#<p>You are successfully registered in the exam platform.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Then click the button below to get into the platform.</p>
 common#:#txt_registered_pw_is_login#:#<p>You are successfully registered in the exam platform.</p><p>Please remember your username/password: <strong>%s</strong></p><p>Then click the button below to get into the platform.</p>
 registration#:#registration_code_required_info#:#Please enter first the registration code that you got from the supervisor of the exam. Then click "Register", to enter your personal data.
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration. Please have your pen and paper ready.
-common#:#footer_hotline#:#Support: <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>
