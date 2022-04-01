@@ -542,7 +542,11 @@ class ilContainer extends ilObject
         // translations
         include_once("./Services/Object/classes/class.ilObjectTranslation.php");
         $ot = ilObjectTranslation::getInstance($this->getId());
-        $ot->copy($new_obj->getId());
+        // fau: fixClonePageTranslation - set the new translation object in the cloned container object
+        // otherwise, cloned courses anf groups will loose their page translation settings in update()
+        $new_ot = $ot->copy($new_obj->getId());
+        $new_obj->setObjectTranslation($new_ot);
+        // fau.
 
         include_once('./Services/Container/classes/class.ilContainerSortingSettings.php');
         #18624 - copy all sorting settings
