@@ -395,7 +395,11 @@ class ilObjectTranslation
      */
     public function copy($a_obj_id)
     {
-        $target_ml = new ilObjectTranslation($a_obj_id);
+        // fau: fixClonePageTranslation - get a cached instance instead of a new object
+        // a cached instance may already have be created in the copy process before
+        // this must be in sync, if the parent object is is newly instantiated and updated afterwards
+        $target_ml = ilObjectTranslation::getInstance($a_obj_id);
+        // fau.
         $target_ml->setMasterLanguage($this->getMasterLanguage());
         $target_ml->setFallbackLanguage($this->getFallbackLanguage());
         $target_ml->setLanguages($this->getLanguages());
