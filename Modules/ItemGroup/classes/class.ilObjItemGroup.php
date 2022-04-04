@@ -219,7 +219,21 @@ class ilObjItemGroup extends ilObject2
             include_once("./Services/COPage/classes/class.ilPCResources.php");
             ilPCResources::modifyItemGroupRefIdsByMapping($new_page, $mappings);
             $new_page->update();
+
+            // fau: fixCopyItemGroupInPageTranslation - map also translations
+            foreach (ilPageObject::lookupTranslations('cont', $new_page->getId()) as $l) {
+                if (ilPageObject::_exists('cont', $new_page->getId(), $l, true)) {
+                    $trans_page = new ilContainerPage($new_page->getId(), 0, $l);
+                    $trans_page->buildDom();
+                    ilPCResources::modifyItemGroupRefIdsByMapping($trans_page, $mappings);
+                    $trans_page->update();
+                }
+            }
+            // fau.
         }
+
+
+
         $ilLog->write(__METHOD__ . ': 5');
     }
 
