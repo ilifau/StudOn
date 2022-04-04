@@ -560,7 +560,10 @@ class ilDclBaseFieldModel
      */
     public function getViewSetting(int $tableview_id) : ilDclTableViewFieldSetting
     {
-        return ilDclTableViewFieldSetting::where(array('field' => $this->getId(), 'tableview_id' => $tableview_id))->first();
+        //fau
+        //dcl_fix_missing_fields: old function did not handle missing field-elements
+        return ilDclTableViewFieldSetting::getInstance($tableview_id, $this->getId());
+        //fau
     }
 
 
