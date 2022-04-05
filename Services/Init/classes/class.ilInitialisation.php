@@ -561,19 +561,24 @@ class ilInitialisation
             );
             $mess_id = "init_error_maintenance";
 
-            // fau: maintenanceEmergency - support specific emergency message
-            if ($ilClientIniFile->readVariable("client", "emergency")
-             && ilContext::hasHTML() && is_file("./maintenance_emergency.html")) {
-                self::redirect("./maintenance_emergency.html", $mess_id, $mess);
+            // fau: maintenanceEmergency - support specific emergency message and use local pages on web servers
+            if (substr(CLIENT_ID, 0, 10) == "StudOnExam") {
+                $prefix="exam-";
             }
-            // fau.
-
-            if (ilContext::hasHTML() && is_file("./maintenance.html")) {
-                self::redirect("./maintenance.html", $mess_id, $mess);
+            else {
+                $prefix= "";
+            }
+            if ($ilClientIniFile->readVariable("client", "emergency")
+             && ilContext::hasHTML() && is_file("/srv/www/htdocs/" . $prefix . "emergency.html")) {
+                self::redirect("/" .  $prefix  . "emergency.html", $mess_id, $mess);
+            }
+            if (ilContext::hasHTML() && is_file("/srv/www/htdocs/" . $prefix . "maintenance.html")) {
+                self::redirect("/" . $prefix . "maintenance.html", $mess_id, $mess);
             } else {
                 $mess = self::translateMessage($mess_id, $mess);
                 self::abortAndDie($mess);
             }
+            // fau.
         }
     }
 
