@@ -135,10 +135,10 @@ require_once('./Customizing/vhb_wayf/wayf_embedded.php');
 
                 <div class="il-footer-content">
                     <div class="il-footer-text">
-                        <img src="./templates/static/images/fau-white.svg" height="45" alt="FAU Logo">
+                        <img src="./templates/default/images/studon/fau-white.svg" height="45" alt="FAU Logo">
                     </div>
                     <div class="il-footer-text">
-                        <img src="./templates/static/images/ili-white.svg" height="45" alt="ILI Logo">
+                        <img src="./templates/default/images/studon/ili-white.svg" height="45" alt="ILI Logo">
                     </div>
                 </div>
             </div>
