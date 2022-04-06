@@ -199,8 +199,6 @@ class ilRegistrationSettings
     {
         // fau: regCodes - take code settings for password generation with precedence
         if (isset($this->codeObj)) {
-            // the login generation type is treated like manual generation
-            // this will affect the page after registration but not other functionality
             return ($this->codeObj->password_generation == self::PW_GEN_AUTO);
         }
         // fau.
@@ -235,7 +233,7 @@ class ilRegistrationSettings
         return array(
             self::PW_GEN_MANUAL => $lng->txt('reg_pw_gen_manual'),
             self::PW_GEN_AUTO => $lng->txt('reg_pw_gen_auto'),
-            self::PW_GEN_LOGIN => $lng->txt('reg_pw_gen_login'),
+            // self::PW_GEN_LOGIN => $lng->txt('reg_pw_gen_login'),
         );
     }
     // fau.
