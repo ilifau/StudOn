@@ -1646,13 +1646,11 @@ class ilLMPresentationGUI
 
         $term_gui = new ilGlossaryTermGUI($this->requested_obj_id);
 
-        //fau
-        //glossarytermgui_fix: adding jquery and javascript to display everything correct in presentation
-        //and slate
+        // fau: fixGlossaryTermGui - adding jquery and javascript to display everything correct in presentation and slate
         iljQueryUtil::initjQuery($this->tpl);
         $this->tpl->addJavaScript('./Services/Accordion/js/accordion.js', true, 0);
         $this->tpl->addJavaScript('./Services/COPage/js/ilCOPagePres.js', true, 0);
-        //fau
+        // fau.
 
         // content style
         $this->setContentStyles();
