@@ -88,10 +88,9 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
                 }
                 $input->setOptions($array);
                 break;
-            //fau
-            //dcl_fix_missing_fieldtype: if no type is set-> use combobox
+            // fau: dclFixMissingFieldType: if no type is set -> use combobox
             default:
-            //fau
+            // fau.
                 $input = new ilSelectInputGUI($this->getField()->getTitle(), 'field_' . $this->getField()->getId());
                 $array = array();
                 foreach ($options as $opt) {
