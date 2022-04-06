@@ -788,8 +788,11 @@ class ilLTIToolProvider extends ToolProvider\ToolProvider
             $this->context->save();//ACHTUNG TODO UWE
         }
 
-        $this->logger->dump(get_class($this->context));
-
+        // fau: fixLtiContextLog - context may not be set
+        if (isset($this->context)) {
+            $this->logger->dump(get_class($this->context));
+        }
+        // fau.
 
         if ($this->ok && isset($this->resourceLink)) {
 
