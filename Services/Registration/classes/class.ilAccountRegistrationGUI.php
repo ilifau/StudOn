@@ -104,6 +104,10 @@ class ilAccountRegistrationGUI
         $cmd = $this->ctrl->getCmd();
         switch ($cmd) {
             case 'saveForm':
+            // fau: regCodes - add commands for code form
+            case 'saveCodeForm':
+            case 'cancelForm':
+            // fau.
                 $tpl = $this->$cmd();
                 break;
             default:
@@ -186,7 +190,7 @@ class ilAccountRegistrationGUI
         }
 
         if (!$valid) {
-            $this->displayCodeForm();
+            return $this->displayCodeForm();
         } else {
             $this->ctrl->redirect($this, 'displayForm');
         }
@@ -847,6 +851,10 @@ class ilAccountRegistrationGUI
     public function login($password = '')
     // fau.
     {
+        global $DIC;
+        $f = $DIC->ui()->factory();
+        $renderer = $DIC->ui()->renderer();
+
         $tpl = ilStartUpGUI::initStartUpTemplate(array('tpl.usr_registered.html', 'Services/Registration'), false);
         $this->tpl->setVariable('TXT_PAGEHEADLINE', $this->lng->txt('registration'));
 
@@ -859,35 +867,25 @@ class ilAccountRegistrationGUI
             ) &&
             !$this->registration_settings->passwordGenerationEnabled()
         ) {
-            // store authenticated user in session
-            ilSession::set('registered_user', $this->userObj->getId());
+            // fau: regCodes - merge the username and password in the welcome text
+            // create a hidden form to allow a direct login
+            // set a timeout url to the starting page in order to prevent the password from being shown too long
+            $ctrl = $DIC->ctrl();
+            $ctrl->setParameterByClass('ilstartupgui', 'lang', $this->userObj->getLanguage());
+            $ctrl->setParameterByClass('ilstartupgui', 'target', ilUtil::stripSlashes($_GET['target']));
 
-            $tpl->setCurrentBlock('activation');
-            // fau: regCodes - merge the username  and password in the welcome text
-            if ($this->registration_settings->passwordGenerationType() == ilRegistrationSettings::PW_GEN_LOGIN) {
-                $tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered_pw_is_login"), $this->userObj->getLogin()));
-            } else {
-                $tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
-            }
-            $this->tpl->setVariable('USERNAME', $this->userObj->getLogin());
-            $this->tpl->setVariable('PASSWORD', $password);
+            $tpl->setVariable("TXT_REGISTERED", sprintf($this->lng->txt("txt_registered"), $this->userObj->getLogin(), $password));
+            $tpl->setVariable('FORMACTION', $ctrl->getFormActionByClass('ilstartupgui'));
+            $tpl->setVariable('COMMAND', 'doStandardAuthentication');
+            $tpl->setVariable('USERNAME', $this->userObj->getLogin());
+            $tpl->setVariable('PASSWORD', $password);
+            $tpl->setVariable('TXT_LOGIN', $this->lng->txt('local_login_to_ilias'));
+            $tpl->setVariable('TIMEOUT_URL', 'index.php');
             // fau.
-
-            $action = $GLOBALS['DIC']->ctrl()->getFormAction($this, 'login') . '&target=' . ilUtil::stripSlashes($_GET['target']);
-            $tpl->setVariable('FORMACTION', $action);
-
-            // fau: samlAuth - changed language var for local login
-            $this->tpl->setVariable('TXT_LOGIN', $this->lng->txt('local_login_to_ilias'));
-            // fau.
-            $tpl->parseCurrentBlock();
         } elseif ($this->registration_settings->getRegistrationType() == IL_REG_APPROVE) {
             $tpl->setVariable('TXT_REGISTERED', $this->lng->txt('txt_submitted'));
         } elseif ($this->registration_settings->getRegistrationType() == IL_REG_ACTIVATION) {
-            $login_url = './login.php?cmd=force_login&lang=' . $this->userObj->getLanguage();
-            $tpl->setVariable('TXT_REGISTERED', sprintf($this->lng->txt('reg_confirmation_link_successful'), $login_url));
-            // fau: regCodes show info about confirmation mail also for code - don't redirect automatically
-            // $tpl->setVariable('REDIRECT_URL', $login_url);
-            // fau.
+            $tpl->setVariable('TXT_REGISTERED', $this->lng->txt('reg_confirmation_link_successful'));
         } else {
             $tpl->setVariable('TXT_REGISTERED', $this->lng->txt('txt_registered_passw_gen'));
         }
