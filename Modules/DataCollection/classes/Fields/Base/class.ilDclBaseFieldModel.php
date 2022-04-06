@@ -560,10 +560,9 @@ class ilDclBaseFieldModel
      */
     public function getViewSetting(int $tableview_id) : ilDclTableViewFieldSetting
     {
-        //fau
-        //dcl_fix_missing_fields: old function did not handle missing field-elements
+        // fau: dclFixMissingFields: old function did not handle when comment is missing (or field is missing)
         return ilDclTableViewFieldSetting::getInstance($tableview_id, $this->getId());
-        //fau
+        // fau.
     }
 
 
