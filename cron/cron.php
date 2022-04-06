@@ -41,9 +41,11 @@ try {
     }
     // fau.
 
-    $cron->logout();
+    // fau: avoidCronSessionError - don't logout to avoid "headers already sent" error at the end if cron made outputs
+    // $cron->logout();
 } catch (Exception $e) {
-    $cron->logout();
+    // $cron->logout();
+    // fau.
 
     echo $e->getMessage() . "\n";
     exit(1);
