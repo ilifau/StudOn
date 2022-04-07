@@ -750,7 +750,9 @@ class ilAccountRegistrationGUI
                             $role_ref = end($role_refs);
                             // deactivated for now, see discussion at
                             // https://docu.ilias.de/goto_docu_wiki_wpage_5620_1357.html
-                            // $this->recommended_content_manager->addObjectRecommendation($this->userObj->getId(), $role_ref);
+                            // fau: regCodes - add courses and groups to the recommended contents
+                            $this->recommended_content_manager->addObjectRecommendation($this->userObj->getId(), $role_ref);
+                            // fau.
                             break;
                     }
                 }
