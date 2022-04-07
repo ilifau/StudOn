@@ -289,7 +289,9 @@ class ilRecommendedContentDBRepository
         // recommendations of user
         $obj_recommendations = $this->getUserObjectRecommendations($user_id);
 
-        $recommendations = array_unique($role_recommendations + $obj_recommendations);
+        // fau: fixObjectRecommendation - merge arrays correctly
+        $recommendations = array_unique(array_merge($role_recommendations, $obj_recommendations));
+        // fau.
 
         // filter declined recommendations
         $declined_recommendations = $this->getDeclinedUserObjectRecommendations($user_id);
