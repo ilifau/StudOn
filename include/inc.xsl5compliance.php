@@ -67,7 +67,15 @@ function xslt_process(
     //if ($a_no_warnings)
     //{
     $xml_domdoc = new DomDocument();
-    $xml_domdoc->loadXML($args[substr($xml_var, 4)]);
+    // fau: fixPCPluggedCopy - fault tolerance when loading unfixed content
+    $code = $args[substr($xml_var, 4)];
+    $ok =  @$xml_domdoc->loadXML($code);
+    if (!$ok) {
+        $code = html_entity_decode($code, ENT_XHTML, 'UTF-8');
+        $xml_domdoc->loadXML($code);
+    }
+    // fau.
+
     // show warnings again due to discussion in #12866
     $result = $xslt->transformToXML($xml_domdoc);
     //}

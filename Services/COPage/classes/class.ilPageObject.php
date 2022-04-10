@@ -2750,7 +2750,13 @@ abstract class ilPageObject
                         $old_content = $old_rec["content"];
                         $old_domdoc = new DOMDocument();
                         $old_nr = $last_nr["mnr"] + 1;
-                        $old_domdoc->loadXML('<?xml version="1.0" encoding="UTF-8"?>' . $old_content);
+                        // fau: fixPCPluggedCopy - fault tolerance when loading unfixed content
+                        $ok =  @$old_domdoc->loadXML('<?xml version="1.0" encoding="UTF-8"?>' . $old_content);
+                        if (!$ok) {
+                            $old_content = html_entity_decode($old_content, ENT_XHTML, 'UTF-8');
+                            $old_domdoc->loadXML('<?xml version="1.0" encoding="UTF-8"?>' . $old_content);
+                        }
+                        // fau.
 
                         // after history entry creation event
                         $this->__afterHistoryEntry($old_domdoc, $old_content, $old_nr);
