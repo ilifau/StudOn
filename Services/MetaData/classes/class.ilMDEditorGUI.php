@@ -3425,7 +3425,9 @@ class ilMDEditorGUI
         $ilToolbar = $DIC['ilToolbar'];
         
         $tabs = array('meta_quickedit' => 'listQuickEdit',
+        // fau: courseRemoveMetadataGeneral - remove the General dropdown in course metadata
                       'meta_general' => 'listGeneral',
+        // fau.
                       'meta_lifecycle' => 'listLifecycle',
                       'meta_meta_metadata' => 'listMetaMetadata',
                       'meta_technical' => 'listTechnical',
