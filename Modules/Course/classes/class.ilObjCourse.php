@@ -472,7 +472,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             return false;
         } elseif (empty($this->getSubscriptionMaxMembers())) {
             return false;
-        } elseif ($a_time < (int) $this->getSubscriptionStart()) {
+        } elseif (!empty( $this->getSubscriptionStart()) && $a_time < (int) $this->getSubscriptionStart()) {
             return false;
         } elseif ($a_time > $this->getSubscriptionFair()) {
             return false;

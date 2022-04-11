@@ -411,9 +411,9 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             return false;
         } elseif ($a_time > $this->getSubscriptionFair()) {
             return false;
-        } elseif (empty($this->getRegistrationStart()) || $this->getRegistrationStart()->isNull()) {
-            return false;
-        } elseif ($a_time < $this->getRegistrationStart()->get(IL_CAL_UNIX)) {
+        } elseif (!empty($this->getRegistrationStart()) &&
+            !$this->getRegistrationStart()->isNull() &&
+            $a_time < $this->getRegistrationStart()->get(IL_CAL_UNIX)) {
             return false;
         } else {
             return true;
