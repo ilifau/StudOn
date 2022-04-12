@@ -270,6 +270,10 @@ class ilUserPrivacySettingsGUI
         }
 
         $this->lng->loadLanguageModule("awrn");
+        
+        // fau: awrnLegal - add legal text on user privacy settings page
+        ilUtil::sendInfo($this->lng->txt('legal_visibility'));
+        // fau.
 
         $default = ($this->settings->get('hide_own_online_status') == "n")
             ? $this->lng->txt("user_awrn_show")
