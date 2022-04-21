@@ -87,7 +87,11 @@ class MetaContent
      */
     public function addJs(string $path, bool $add_version_number = false, int $batch = 2)
     {
-        $this->js->addItem(new Js($path, $this->resource_version, $add_version_number, $batch));
+        //fau: fixEmptyPathJSMetaContent - Only add JS-Item if Path is not empty
+        if($path != '') {
+            $this->js->addItem(new Js($path, $this->resource_version, $add_version_number, $batch));
+        }
+        //fau.
     }
 
 
