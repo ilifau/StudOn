@@ -7,6 +7,8 @@
 administration#:#adm_activate_db_benchmark_instant#:#Save Instantly###fau: extendBenchmark
 administration#:#adm_activate_db_benchmark_instant_desc#:#the queries will be saved instantly. This allows tracking of long requests that end in a fatal error.###fau: extendBenchmark
 administration#:#adm_db_bench_grouped_by_sql#:#Group by SQL###fau: extendBenchmark
+administration#:#language_scope_file#:#By File###fau: syncLangFile
+administration#:#language_scope_file_info#:#Exports all database entries to language variables specified in the uploaded file. This can be used to update a local language file to the current database state.###fau: syncLangFile
 assessment#:#ass_create_export_mycampus#:#Create resultionfile for my campus
 assessment#:#ass_mycampus_exam_number#:#Exam Number
 assessment#:#ass_mycampus_exam_number_info#:#The exam number is needed for namign the export file. Please imprt the file in <i>mein campus</i> with the created name.<br />If the StudOn-Test is used for more exams, please choose the option "Registered Participants" to export a separate file for each exam.

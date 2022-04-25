@@ -520,6 +520,14 @@ class ilObjLanguageExtGUI extends ilObjectGUI
             $rg->addOption($ro);
         }
 
+        // fau: syncLangFile - add export option
+        $ro = new ilRadioOption($this->lng->txt("language_scope_file"), "file");
+        $ro->setInfo($this->lng->txt("language_scope_file_info"));
+        $rg->addOption($ro);
+        $fu = new ilFileInputGUI($this->lng->txt("file"), "userfile");
+        $ro->addSubItem($fu);
+        // fau.
+
         $rg->setValue($this->session["export"]["scope"] ? $this->session["export"]["scope"] : "global");
         $form->addItem($rg);
 
@@ -574,9 +582,60 @@ class ilObjLanguageExtGUI extends ilObjectGUI
             $local_file_obj->setAllValues($this->object->getMergedValues());
             $local_file_obj->setAllComments($this->object->getMergedRemarks());
         }
+        // fau: syncLangFile - tread addutional export option
+        elseif ($_POST["scope"] == 'file') {
+             $this->downloadByFile();
+        }
+        // fau.
 
         ilUtil::deliverData($local_file_obj->build(), $filename);
     }
+
+
+    // fau: syncLangFile - new function downloadByFile()
+    /**
+     * Download the actual content of language variables listed in an uploaded file
+     */
+    public function downloadByFile()
+    {
+        global $DIC;
+
+        try {
+            $upload = $DIC->upload();
+            $upload->process();
+
+            if (!$upload->hasUploads()) {
+                throw new ilException($DIC->language()->txt("upload_error_file_not_found"));
+            }
+            $UploadResult = $upload->getResults()[$_FILES['userfile']['tmp_name']];
+
+            $ProcessingStatus = $UploadResult->getStatus();
+            if ($ProcessingStatus->getCode() === ProcessingStatus::REJECTED) {
+                throw new ilException($ProcessingStatus->getMessage());
+            }
+
+            // todo: refactor when importLanguageFile() is able to work with the new Filesystem service
+            $tempfile = ilUtil::ilTempnam() . '.sec';
+            $upload->moveOneFileTo($UploadResult, '', Location::TEMPORARY, basename($tempfile), true);
+
+            $file_obj = new ilLanguageFile($tempfile, $this->object->key, 'local');
+            $file_obj->read();
+            $new_values = array_intersect_key($this->object->getAllValues(), $file_obj->getAllValues());
+            $new_comments = array_intersect_key($this->object->getAllRemarks(), $file_obj->getAllComments());
+            $file_obj->setAllValues($new_values);
+            $file_obj->setAllComments($new_comments);
+
+            ilUtil::deliverData($file_obj->build(), 'new_'. $_FILES['userfile']['name']);
+
+            $tempfs = $DIC->filesystem()->temp();
+            $tempfs->delete(basename($tempfile));
+
+        } catch (Exception $e) {
+            ilUtil::sendFailure($e->getMessage(), true);
+            $this->ctrl->redirect($this, 'export');
+        }
+    }
+    // fau.
 
 
     /**
