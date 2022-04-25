@@ -71,5 +71,5 @@ interface ilExAssignmentTypeExtendedGUIInterface extends ilExAssignmentTypeGUIIn
      * @param ilExSubmission             $a_submission
      * @param <\ILIAS\UI\Component\Button\Shy|\ILIAS\UI\Component\Divider\Horizontal|\ILIAS\UI\Component\Link\Standard>[] $a_items
      */
-    public function modifySubmissionTableActions(ilExSubmission $a_submission, $a_items);
+    public function modifySubmissionTableActions(ilExSubmission $a_submission, &$a_items);
 }
