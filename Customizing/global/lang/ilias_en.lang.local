@@ -1,8 +1,28 @@
 /**
-* StudOn: added English language variables for local customizations
+* This file is part of ILIAS, a powerful learning management system
+* published by ILIAS open source e-Learning e.V.
 *
-* @version			$Id: $
+* ILIAS is licensed with the GPL-3.0,
+* see https://www.gnu.org/licenses/gpl-3.0.en.html
+* You should have received a copy of said license along with the
+* source code, too.
+*
+* If this is not the case or you just want to try ILIAS, you'll find
+* us at:
+* https://www.ilias.de
+* https://github.com/ILIAS-eLearning
+*
+/**
+* StudOn: added and changed English language variables
+* These variables are needed for the added or customized functionality
+* Additional changes are directly done in the database
 */
+// The language file starts beyond the HTML-comment below. DO NOT modify this line!
+// To edit your language file with a spreadsheet (i.e. Excel or StarCalc) remove all lines
+// from the first line to the HTML-comment. After editing paste the lines in place again.
+// NOTICE: Character coding of all ILIAS lang files is UTF-8! Please set your editor
+// to the corresponding mode!
+// Language file names refer to ISO 639, see: http://www.oasis-open.org/cover/iso639a.html
 <!-- language file start -->
 administration#:#adm_activate_db_benchmark_instant#:#Save Instantly###fau: extendBenchmark
 administration#:#adm_activate_db_benchmark_instant_desc#:#the queries will be saved instantly. This allows tracking of long requests that end in a fatal error.###fau: extendBenchmark
@@ -13,37 +33,35 @@ assessment#:#ass_create_export_mycampus#:#Create resultionfile for my campus
 assessment#:#ass_mycampus_exam_number#:#Exam Number
 assessment#:#ass_mycampus_exam_number_info#:#The exam number is needed for namign the export file. Please imprt the file in <i>mein campus</i> with the created name.<br />If the StudOn-Test is used for more exams, please choose the option "Registered Participants" to export a separate file for each exam.
 assessment#:#ass_mycampus_export#:#Export results for the grades booking in <i>my campus</i>
+assessment#:#ass_mycampus_export_all#:#All Participants
+assessment#:#ass_mycampus_export_all_info#:#Exports all results. <strong>The import to <i>mein campus</i> will add all non-registered users!</strong>
 assessment#:#ass_mycampus_export_forbidden#:#to export the results for <i>my campus</i>, you have to have the permission to export userdata.<br /><a href="%s">Here you can request the admission</a>.
+assessment#:#ass_mycampus_export_registered#:#Registered Participants
+assessment#:#ass_mycampus_export_registered_info#:#Exports only the participants that were registered in <i>mein campus</i>.
+assessment#:#ass_mycampus_export_scope#:#Participants Selection
+assessment#:#ass_mycampus_file_written#:#The results file for <i>my campus</i> was written.
+assessment#:#ass_mycampus_filter_export#:#Limit Export
+assessment#:#ass_mycampus_marked#:#marked
+assessment#:#ass_mycampus_marked_info#:#In marked exams a correct thirds grade has to be registered in <i>my campus </i> in one of the following formats: "1,3", "2.7" or "400".<br />Please declare which label shall be exported from the grade-schema. Their grade-steps have to be in the named format.
 assessment#:#ass_mycampus_mark_field#:#Exported Grade
 assessment#:#ass_mycampus_mark_field_official#:#Official Label
 assessment#:#ass_mycampus_mark_field_short#:#Short Label
-assessment#:#ass_mycampus_marked#:#marked
-assessment#:#ass_mycampus_marked_info#:#In marked exams a correct thirds grade has to be registered in <i>my campus </i> in one of the following formats: "1,3", "2.7" or "400".<br />Please declare which label shall be exported from the grade-schema. Their grade-steps have to be in the named format.
+assessment#:#ass_mycampus_matcol_not_found#:#The .csv file was not recognized as a list of registrations!<br />It must have the column titles in the first row.<br />One column must be named as <b>mtknr</b> and this column must have the matriculation numbers of the registered students.<br />The column delimiter must be <b>;</b>
+assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
 assessment#:#ass_mycampus_not_marked#:#not marked
 assessment#:#ass_mycampus_not_marked_info#:#In not-marked exams a "+" is displayed for "passed" and a "-" for "not passed".
 assessment#:#ass_mycampus_other_fields#:#Other Fields
 assessment#:#ass_mycampus_other_fields_info#:#Leave this selection empty, if there are problems while importing into <i>my campus</i>.<br />At least the matriculation number and evaluation will be exported.
 assessment#:#ass_mycampus_rating_type#:#Evaluation Mode
-assessment#:#ass_mycampus_test_date#:#Individual Exam Date
-assessment#:#ass_mycampus_test_starttime#:#Individual Exam beginning
-assessment#:#ass_mycampus_file_written#:#The results file for <i>my campus</i> was written.
-assessment#:#ass_mycampus_filter_export#:#Limit Export
 assessment#:#ass_mycampus_registrations_file#:#Exam Registrations
 assessment#:#ass_mycampus_registrations_file_info#:#Plase choose the CSV file that you exported from <i>mein campus</i>. The created result file will have the same name.
-assessment#:#ass_mycampus_matcol_not_found#:#The .csv file was not recognized as a list of registrations!<br />It must have the column titles in the first row.<br />One column must be named as <b>mtknr</b> and this column must have the matriculation numbers of the registered students.<br />The column delimiter must be <b>;</b>
-assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
-assessment#:#ass_mycampus_export_scope#:#Participants Selection
-assessment#:#ass_mycampus_export_all#:#All Participants
-assessment#:#ass_mycampus_export_all_info#:#Exports all results. <strong>The import to <i>mein campus</i> will add all non-registered users!</strong>
-assessment#:#ass_mycampus_export_registered#:#Registered Participants
-assessment#:#ass_mycampus_export_registered_info#:#Exports only the participants that were registered in <i>mein campus</i>.
 assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die export file is wrongly named.It must be named like <strong>prf_123.csv</strong> with 123 being the exam number.
+assessment#:#ass_mycampus_test_date#:#Individual Exam Date
+assessment#:#ass_mycampus_test_starttime#:#Individual Exam beginning
+assessment#:#detailed_output_scoring#:#detail statement with solutions and points
+assessment#:#err_cloze_not_numeric#:#You entered text in a gap that requires numeric input!
 assessment#:#fq_err_no_numeric_value#:#Please enter a numeric value or a fraction.
 assessment#:#fq_formula_desc_additional#:#StudOn also supports 'atan2(y;x)''. Please separate parameters by semicolon.
-assessment#:#log_wrong_test_password_entered#:#Participant entered a wrong test password.###fau: reducedTestPasswordLog
-assessment#:#dashboard_tab#:#Participants
-assessment#:#detailed_output_scoring#:#detail statement with solutions and points
-assessment#:#dont_use_questionpool#:#Do not add question in a existing questionpool.
 assessment#:#send_simple_results_body#:#%s\n\nName: %s\nmatriculation number: %s\ndate of the testrun: %s
 assessment#:#send_simple_results_subject#:#result "%s" of the %s
 assessment#:#send_simple_results_to_participants#:#Send simply result as mail (evaluated testrun)
@@ -52,51 +70,45 @@ assessment#:#send_simple_results_to_participants_failed#:#The following users co
 assessment#:#send_simple_results_to_participants_success#:#The following users have been wrote to:<br />%s
 assessment#:#sent_simple_results_to_participants#:#The results have been send to the participants
 assessment#:#show_detailed_results_with_correct_solutions#:#Detailed testresults with correct solutions (evaluated testrun)
-assessment#:#tst_mark_tst_failed#:#Resulting Mark "not succeeded"
-assessment#:#tst_mark_tst_failed_details#:#This text replaces the stadnardmessage on the solutionsite of a unsucceeded test. You can use following placeholder:<br /><strong>[mark]</strong> : Official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
-assessment#:#tst_mark_tst_passed#:#Resulting Mark "succeeded"
-assessment#:#tst_mark_tst_passed_details#:#This text replaces the standardmessage on the solutionsite of a succeeded test. You can use following placeholder:<br /><strong>[mark]</strong> : official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
-assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Rule %s requires more questions than available. Each rule must have enough questions that don't fit to another rule.
-assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Rule %s provides no question group with the required amount of questions!###fau: taxGroupFilter
-assessment#:#tst_msg_rand_quest_set_not_sync#:#The rules for a random selection of questions were newly created or changed. The questions from the pools have to be synchronized in the test before it can be used. This checks also if a random test is possible with the given set of rules.
-assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies all questions matching the rules into the test. This may take several minutes for big pools.
-assessment#:#tst_msg_rand_quest_set_has_double_originals#:#The random selection has double originals. Please synchronize the set again, prteferrably not via a load balancer!
-assessment#:#tst_msg_rand_quest_set_pool_not_available#:#The selected qestion pool is not available. It is offline, not readable or has questions with different scores.###.###fau: optimizeRandomRuleSelect
-assessment#:#tst_filter_question_type#:#Question Type
-assessment#:#tst_filter_question_type#:#Use Question Type as Filter
-assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
-assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of all participants. Manual scorings will be kept. The calculation may took a long time!
-assessment#:#tst_recalculate_selected_solutions_confirm#:#Recalculate the solutions of the selected participants. Manual scorings will be kept.
-assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
-assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
-assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.
+assessment#:#tst_authorship_statement#:#Declaration of own Work
+assessment#:#tst_filter_order_by#:#Questions Order
+assessment#:#tst_filter_order_by_info#:#When the test doesn't shuffle the questions, then the questions of this rule are presented in a sequence. Their order is defined here.
+assessment#:#tst_filter_order_description#:#By Description
+assessment#:#tst_filter_order_random#:#Random
+assessment#:#tst_filter_order_title#:#By Title
+assessment#:#tst_filter_order_undefined#:#Not Sorted
 assessment#:#tst_group_filter#:#Group Selection
 assessment#:#tst_group_filter_info#:#All questions should belong to the same taxonomy node
 assessment#:#tst_group_filter_info_warning#:#Note: A group selection rule may limit the available questions more than the check will take into account if there are enough questions available that aren't needed for other rules. Therefore, group selection may only be used in rules that do not overlap with other rules.
 assessment#:#tst_group_filter_tax#:#Group Taxonomy
 assessment#:#tst_group_filter_tax_info#:#The taxonomy must be activated as a filter. A node will be chosen from the selected ones and the questions will be drawn from there. Only nodes having enough quetions are considered.
-assessment#:#tst_filter_order_by#:#Questions Order
-assessment#:#tst_filter_order_title#:#By Title
-assessment#:#tst_filter_order_description#:#By Description
-assessment#:#tst_filter_order_random#:#Random
-assessment#:#tst_filter_order_undefined#:#Not Sorted
-assessment#:#tst_filter_order_by_info#:#When the test doesn't shuffle the questions, then the questions of this rule are presented in a sequence. Their order is defined here.
-assessment#:#tst_question_browse_root_message#:#The questions are searched in the parent container of the test by default. You can change this with the filter settings.
-assessment#:#question_browse_area_info#:#Please select a search area for the questions:
-assessment#:#use_previous_solution_advice#:#The shown solution for the question is your previously given one. You have to confirm the adoption of the solution, if you like to use it without any change.
-assessment#:#warning_delete_scored_pass#:#WARNING: This is the scored test pass! You should delete it only in case of an error.###deleteTestPass
-assessment#:#tst_use_previous_answers_authorized#:#Copy the previous solutions to the new test pass. They are then already saved but can still be changed.###fau: adoptPreviousSolutions
-assessment#:#validate_submit_error#:#Your input is rejected!
-assessment#:#validate_submit_error_in_test_hint#:#You need to fix it to leave the question. Alteratively you can revert the edit.
-assessment#:#err_cloze_not_numeric#:#You entered text in a gap that requires numeric input!
+assessment#:#tst_info_section_requirements#:#Requirements
+assessment#:#tst_mark_tst_failed#:#Resulting Mark "not succeeded"
+assessment#:#tst_mark_tst_failed_details#:#This text replaces the stadnardmessage on the solutionsite of a unsucceeded test. You can use following placeholder:<br /><strong>[mark]</strong> : Official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
+assessment#:#tst_mark_tst_passed#:#Resulting Mark "succeeded"
+assessment#:#tst_mark_tst_passed_details#:#This text replaces the standardmessage on the solutionsite of a succeeded test. You can use following placeholder:<br /><strong>[mark]</strong> : official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
+assessment#:#tst_msg_authorship_statement_required#:#Please read and confirm the declaration of own work!
+assessment#:#tst_msg_rand_quest_set_has_double_originals#:#The random selection has double originals. Please synchronize the set again, prteferrably not via a load balancer!
+assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Rule %s requires more questions than available. Each rule must have enough questions that don't fit to another rule.
+assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Rule %s provides no question group with the required amount of questions!###fau: taxGroupFilter
+assessment#:#tst_msg_rand_quest_set_pool_not_available#:#The selected qestion pool is not available. It is offline, not readable or has questions with different scores.###.###fau: optimizeRandomRuleSelect
+assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies all questions matching the rules into the test. This may take several minutes for big pools.
 assessment#:#tst_password_enter_info#:#IMPORTANT: Do not change the password during a running exam! The participants have to enter it when they move to the next question. Previous autosaves fail!
+assessment#:#tst_question_browse_root_message#:#The questions are searched in the parent container of the test by default. You can change this with the filter settings.
+assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
+assessment#:#tst_recalculate_selected_solutions_confirm#:#Recalculate the solutions of the selected participants. Manual scorings will be kept.
+assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
+assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of all participants. Manual scorings will be kept. The calculation may took a long time!
 assessment#:#tst_require_authorship_statement#:#Declaration of own Work
 assessment#:#tst_require_authorship_statement_desc#:#A confirmation of the declaration of own work is required to submit the exercise.
-assessment#:#tst_info_section_requirements#:#Requirements
-assessment#:#tst_authorship_statement#:#Declaration of own Work
-assessment#:#tst_msg_authorship_statement_required#:#Please read and confirm the declaration of own work!
 assessment#:#tst_tbl_col_pass_finished#:#Last Scored Accessf###fau: testParticipantsResultsTable
 assessment#:#tst_tbl_col_started_passes#:#Started Passes###fau: testParticipantsResultsTable
+assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
+assessment#:#tst_use_previous_answers_authorized#:#Copy the previous solutions to the new test pass. They are then already saved but can still be changed.###fau: adoptPreviousSolutions
+assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.
+assessment#:#validate_submit_error#:#Your input is rejected!
+assessment#:#validate_submit_error_in_test_hint#:#You need to fix it to leave the question. Alteratively you can revert the edit.
+assessment#:#warning_delete_scored_pass#:#WARNING: This is the scored test pass! You should delete it only in case of an error.###deleteTestPass
 auth#:#shib_continue#:#Continue to StudOn
 auth#:#shib_continue_local#:#Continue to StudOn
 auth#:#shib_convert_accept#:# I agree to the changes.
@@ -120,32 +132,32 @@ auth#:#shib_recommendation_text#:#<p>Dear Student,</p><p>Since <strong>1. Decemb
 auth#:#shib_reminder_head#:#Single Sign-On
 auth#:#shib_reminder_text#:#<p>Dear User, </p><p>The <a href="http://www.studon.uni-erlangen.de/cat166816.html">Single Sign-On</a> is set as the standard log-in type for your user account. Please use this log-in type in normal cases.<p><p class="alert">Your study data (subjects, semester, degree) will only be updated when you log in by single sign-on. These data may influence your chance to register for certain courses.</p><p>The <strong>local Login</strong> can be used, if single sign-on does not work. In this case use the password, that you used at the last successful single sign-on.</p>
 auth#:#shib_to_sso#:#To Single Sign-On
+awrn#:#awrn_hide_from_awareness_info#:#The "Who is online?"-Tool is in the top bar of the notification center and lists selected users (e.g. contacts from my courses and groups, course supervision). Only "linked" contacts from your own contact list (=confirmed contacts) or confirmed contact requests are listed. Users who do not have their online status displayed will not be listed. Course administrators can be displayed in the "WIO?"-Tool as "course tutors" in the respective course/group if "tutorial tutoring" is activated in the tab "Members" in the course/group.
+awrn#:#legal_visibility#:#<p>Make your decision here about your visibility in your courses and groups and determine whether your username is displayed in the "Who's online?" status display, whether contact requests and chatting by other course and group members are allowed.  </p> <br/> <p style="color: red;">The features are designed to be opt-in and are disabled by default in the personal profile settings. The decision to activate the individual functions is exclusively voluntary and only with the explicit consent of the user himself/herself. The "Privacy Checklist" shows how visible you are to other users with your personal profile. </p>
 book#:#book_user_storno#:#Allow Storno
 book#:#book_user_storno_info#:#Allow users to cancel their own bookings. Otherwise it's only possible with write permission.
+buddysystem#:#buddy_allow_to_contact_me_info#:#If enabled, other users are able to send me request for getting into contact. Contact requests to members from your own courses and groups can be sent, cancelled or withdrawn either from the tab "Members" in courses/groups or from the main menu via "Communication" > "Contacts". Only members who have "Allow to contact me" enabled can be contacted. New contact requests are displayed in the notification center via the bell symbol and can thus be confirmed or ignored. Confirmed contacts can also be added to groups for shared learning groups within courses/groups via the contact list of the WIO-tool.
+chatroom#:#chat_osc_accept_msg_info#:#If activated, other users are allowed start a conversation with me. A conversation with another user from your contact list can be started from the "Who is online?"-Tool in the notification center. Chatting is only possible with users from your courses and groups who have "Allow On-Screen Chat Conversations" enabled.
+cntr#:#cntr_container_only_on_their_own#:#Categories, courses, groups, folders or study programmes can only be copied as single objects. Please select one item only.
 common#:#accept_updated_user_agreement#:#The terms of use have been reformulated. The amount of the offer did not change. Please accept the terms of use at the end of the page to still be able using the system.
 common#:#accept_user_agreement#:#Please accept the terms of use at the end of this page to still be able using the system.
 common#:#archive_structure#:#Archive Structure
-common#:#book_helptext#:#<p>By a bookingpool you can manage Hardware, workplaces or -rooms. Authorized users can then book these.</p><p>In the pool the number of objects and their available time is determined. These can then be recognized by a booking plan. Already booked objects or rooms will not be shown in the overview. So on the first look it will be clear if a object is available for the desired day. The booking dates can then also be transferred to the personal calendar of the user.</p>
+common#:#caches_flushed#:#The Caches were flushed.
 common#:#cat_create_exco#:#Create new external content
 common#:#cat_create_perc#:#Create new Perception-Assessment
-common#:#cat_helptext#:#With categories you can organise the proposals of your professorship or institut more clearly, for example using an archive for the courses of previous semesters or own subcategories for the professors.
-common#:#catr_helptext#:#With a categorie-reference you can refer to a category, which is at another position at StudOn. By Clicking on the reference you go to the category. The accessrights to this category stay unchanged by that reference.
-common#:#chat_helptext#:#A chat in StudOn works like an instant messanger (e.g. ICQ, AIM, Skype). You can make available chats in your courses or e.g. as communicationtool for workgroups too.
 common#:#cont_limit_starts#:#Limited Playbacks
-common#:#cont_limit_starts_count#:#Number of Playbacks
 common#:#cont_limit_starts_context#:#Context for Counting
-common#:#cont_limit_starts_user#:#All times
+common#:#cont_limit_starts_count#:#Number of Playbacks
+common#:#cont_limit_starts_current_plays_text#:#Started Playbacks: &nbsp;
+common#:#cont_limit_starts_first_time_text#:#Start the player for the first time.
+common#:#cont_limit_starts_limit_reached_text#:#The maximum number of playbacks is reached.
+common#:#cont_limit_starts_max_plays_text#:#Maximum Playbacks: &nbsp;
 common#:#cont_limit_starts_session#:#Login Session
 common#:#cont_limit_starts_testpass#:#Test Pass
-common#:#cont_limit_starts_current_plays_text#:#Started Playbacks: &nbsp;
-common#:#cont_limit_starts_max_plays_text#:#Maximum Playbacks: &nbsp;
-common#:#cont_limit_starts_limit_reached_text#:#The maximum number of playbacks is reached.
-common#:#cont_limit_starts_first_time_text#:#Start the player for the first time.
+common#:#cont_limit_starts_user#:#All times
 common#:#cont_zipped_html_info#:#You may upload a zipped media package, e.g. created by Camtasia. It should have an index.html on the main level, otherwise you need to set a Standard file on the "Files" tab. Please don't use special characters for project or file names when you author the package, because then it won't work.
 common#:#crs_create_exco#:#Create new external content
 common#:#crs_create_perc#:#Create new Perception-Assessment
-common#:#crs_helptext#:#Courses are Container-objects, which can contain any other learnobject and offer different abilities of memberadministration. It is suggested to use courses for organisation of classes in StudOn. <a target="_blank" href="http://www.studon.uni-erlangen.de/lm113424.html">More...</a>
-common#:#crsr_helptext#:#With a Course-reference you can refer to a course, which is at another place in StudOn. By clicking on the reference you go to the course. The accessrights to this course stay unchanged by that reference.
 common#:#distinct_registrations#:#Different registrations
 common#:#docorder_err_course_not_closed#:#The StudOn-course "%s" is not suitable for the granting of ordered documents. Please consider that the granting can only take place in StudOn-courses in which its membercycle has been limited by a joiningprocess.
 common#:#docorder_err_course_not_found#:#To the course number %s no StudOn-course has been found!
@@ -153,16 +165,15 @@ common#:#docorder_err_no_course_found#:#No suitable target course has been found
 common#:#docorder_err_no_user_found#:#For your UB-User number no StudOn-useraccount has been found. To be able to use the essay delivery service for granting on StudOn, please insert your UB-usernumber in "personal profile" in StudOn.
 common#:#docorder_err_no_write_access#:#You do not have write-permission in the StudOn-course "%s"
 common#:#docorder_err_wrong_request#:#This request has not been found!
-common#:#dummy_user_email_mycampus#:#noreply@fim.uni-erlangen.de
-common#:#dummy_user_firstname_mycampus#:#mein campus
-common#:#dummy_user_lastname_mycampus#:#Course registration
 common#:#dummy_admin_firstname_tca#:#TCA
 common#:#dummy_admin_lastname_tca#:#Course adminstrator
+common#:#dummy_user_firstname_mycampus#:#mein campus
+common#:#dummy_user_lastname_mycampus#:#Course registration
 common#:#duration#:#Duration
 common#:#err_inactive_contact#:#Please contact <a href="mailto:studon@fau.de">studon@fau.de</a> to get your account activated.
-common#:#err_inactive_sso#:#Please use the <a href="saml_login.php">Single Sign-On</a> with your FAU account, to log into StudOn.
 common#:#err_inactive_new#:#Your account is not yet active.
 common#:#err_inactive_set#:#Your account is deactivated.
+common#:#err_inactive_sso#:#Please use the <a href="saml_login.php">Single Sign-On</a> with your FAU account, to log into StudOn.
 common#:#err_inactive_time_limit#:#The time limit of your account is exceeded or not yet active.
 common#:#err_inactive_too_long#:#Your account hasn't been used for over one year and is deactivated.
 common#:#err_inactive_wrong_logins#:#Your account had too many failed login attempts and was deactivated.
@@ -171,45 +182,32 @@ common#:#err_wrong_login_contact#:#If that doesn't help, please contact <a href=
 common#:#eval_mark_for_evaluation#:#Mark for lecture evaluation
 common#:#eval_mark_for_evaluation_info#:#If turned on the members will receive the link for the online-evaluation at the end of the semester per email.<br />Requirement for that is the transfer of the lecture data from UnivIS (can be made on the tab "content").
 common#:#eval_mark_for_evaluation_info_import#:#If turned on the members will receive the link for the online-evaluation at the end of the semester per email.
-common#:#exc_helptext#:#In exercises you can make availabe tasks for the course participants, e.g. in Word-form. The tasks can than be processed and be reuploaded. The process time can be set as desired.
-common#:#feed_helptext#:#You can integrate external informations as RSS-Feeds in StudOn to your courses. So students have immediately access on it. E.g. Messages or exchangedata can be easily tied to a course. Furthermore you can place RSS-Feeds for yourself on your personal desk.
-common#:#file_helptext#:#Provide any Files to download for your courses. You can provide these files with metainformations like keywords or information about the respective license for better findability.
+common#:#flush_caches#:#Flush Caches
 common#:#fold_create_exco#:#Create new external content
 common#:#fold_create_perc#:#Create new perception-assessment
-common#:#fold_helptext#:#With help of folders you can struct your courses as you wish, you can for example add a folder for scripts or seminar protocols. Folders are the easiest COntainer-elements in StudOn â€“ by creating, you only have to give a name.
-common#:#flush_caches#:#Flush Caches
-common#:#caches_flushed#:#The Caches were flushed.
 common#:#footer_active_users#:#users online:
-common#:#footer_financed_by#:#Financed with state tuition funds
-common#:#footer_realised_with#:#Realised with ILIAS
-common#:#footer_server#:#Server
 common#:#footer_contact#:#Contact
+common#:#footer_financed_by#:#Financed with state tuition funds
+common#:#footer_hotline#:#Hotline: +49 9131 85 61133
 common#:#footer_imprint#:#Imprint
 common#:#footer_privacy#:#Privacy
-common#:#footer_hotline#:#Hotline: +49 9131 85 61133
-common#:#forgot_password#:#Forgot your local password?
-common#:#forgot_username#:#Forgot your local username?
-common#:#frm_helptext#:#By forums you can give ability of communication between professors and students. You can add as many forums as you wish and encourage discussions about questions and themes in the relevant category of the course. To add a new forum you have to write a first contribution about a specific theme.
+common#:#footer_realised_with#:#Realised with ILIAS
+common#:#footer_server#:#Server
 common#:#general_info#:#General Informations
-common#:#glo_helptext#:#In a glossary you can set terms or definitions. You can refer on theses contents from e.g. courses and by that organise often required informations.
 common#:#groupings_assigned_obj_info_crs#:#You may select all courses on whichyou have write access.
 common#:#groupings_assigned_obj_info_grp#:#You may select all grups on whichyou have write access.
 common#:#groupings_assigned_obj_not_writable_crs#:#You must have write access on all assigned courses in order to edit or to delete the grouping.
 common#:#groupings_assigned_obj_not_writable_grp#:#You must have write access on all assigned groups in order to edit or to delete the grouping.
 common#:#groupings_of#:#Grouping of
-common#:#grp_helptext#:#Groups can - compared with folders - not only include files, forums or wikis, but dispose options for member management, so that you can add participants to groups. By that you can realize e.g. separated workgroups in studon or give students the ability to upload files.
-common#:#grp_status_pending#:#Request is pending
-common#:#htlm_helptext#:#If you already have your learning content as HTML-site, you can integrate it as HTML-Learnmodule. Upload your set of sites as zip-archive, unpack it and set a front page.<br />The front page opens by call of the learnmodule in a new window. StudOn assures that your contents can only be called with provided rights.
 common#:#icon_alert_s.gif#:#Warning
-common#:#imprint#:#Imprint
 common#:#ilias_remote_soap_login_failed#:#No link could have been established to the StudOn-platform!
 common#:#info_section_cat_roles_create_crs#:#Section-Lecturers (can create contents)
 common#:#info_section_cat_roles_delete#:#Section Manager (can manage contents)
 common#:#info_section_cat_roles_edit_permission#:#Section Administrators (can manage contents and define permissions)
 common#:#info_section_cat_roles_write#:#Section Manager (can edit)
+common#:#info_section_crs_parent_roles_read#:#User with access without joining
 common#:#info_section_studon_admins#:#StudOn Administrators (can manage contents and define permissions)
 common#:#info_section_studon_admins_details#:#Users: see the <a href="http://www.studon.fau.de/studon">contact page</a> of StudOn.
-common#:#info_section_crs_parent_roles_read#:#User with access without joining
 common#:#join_as_guest#:#Login as Guest
 common#:#join_as_guest_mail_message#:#Request for guest auditor-access\n\nUsername: {LOGIN}\nFirstname: {FIRSTNAME}\nLastname: {LASTNAME}\nE-Mail: {EMAIL}\n\nPath: {PATH}\nCourse/Group: {OBJECT}\nLink: {LINK}\n\n{LABEL_REG_TYPE}: {REG_TYPE}{MAX_MEMBERS}\n\n
 common#:#join_as_guest_mail_subject#:#guest joining of {LOGIN} in {OBJECT}
@@ -226,48 +224,30 @@ common#:#join_link_description#:#By calling up this link a user has to be logged
 common#:#label_remark#:#References
 common#:#lang_refresh_confirm_info#:#ILIAS found changed language variables. Refreshing a language will read the standard language file and probably a custom language file to the database. This will not affect your changes.###fau: keepAllLocalChanges
 common#:#links_password_coded#:#password-code
-common#:#lm_helptext#:#An ILIAS-learnmodule is constructed like an electronical book. With the Online-editor you can create pages with text and media elements, which can be integrated in a chapterstructure or be linked as free pages (digressions). ILIAS-Learnmodule can be exported and be used in different Learn environments or offline. <p class="alert">Advice: with the external tool <a href="http://boldt-media.de/about-elaix.html">eLAIX</a> you can convert OpenOffice-documents to ILIAS-Learnmodules.</p>
 common#:#local_login_to_ilias#:#Local Login to StudOn###fau: loginForm
 common#:#local_login_to_ilias_addition#:#Use this login if you got a local account from StudOn###fau.
-common#:#mcst_helptext#:#A mediacast can include many mediaobjects (e.g. audio files), which can be played or downloaded in the browser. <p class="alert">Enormous video files (e.g. lecture recordings) you best upload to the <a href="http://www.video.uni-erlangen.de" target="_blank">video portal</a> of the university. There you can set protection on them and refer them from StudOn-course as "external content".</p>
+common#:#login_required_for_object#:#Bitte melden Sie sich an.
+common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
+common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
+common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
+common#:#mem_edit_request#:#edit request
 common#:#mem_external_notification_subject#:#Registration of %s for "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Registration of %s for "%s" changed###fau: courseUdf
-common#:#mem_add_to_lot#:#Add to lot list
-common#:#mem_edit_request#:#edit request
 common#:#mem_fill_free_places#:#fill free places
-common#:#mem_lot_button#:#lottery members
-common#:#mem_lot_candidates#:#Drawing candidates
-common#:#mem_lot_clean_button#:#Cleanup list (remove members)
-common#:#mem_lot_cleaned#:#The list is cleaned up:<br />Removed for being already member of this or connected groups/courses): %s Users.
-common#:#mem_lot_drawn#:#The free slots have been filled.<br />Added and informed: %s User.<br />Excluded, because elsewhere member: %s User.
-common#:#mem_lot_form_title#:#Lot´list
-common#:#mem_lot_free_places#:#Free slots
-common#:#mem_lot_message_no_candidates#:#There are no candidates on the lot list.
-common#:#mem_lot_message_no_places#:#There are no free slots for drawing lots.
-common#:#mem_lot_message_not_enabled#:#The lot list is not active!
-common#:#mem_lot_message_possible#:#You can draw lots for membership.
-common#:#mem_lot_message_subscribers#:#There are still applications for admission. Please edit these before you draw the lots.
-common#:#mem_lot_message_time#:#Drawing lots is available at %s.
-common#:#mem_lot_status#:#Status
-common#:#mem_lot_table_description#:#Free slots: %s, candidates on lot list: %s, status: %s
 common#:#mem_max_users_hidden#:#Info for admins:
 common#:#mem_registration_access_time#:#Registration/First access
-common#:#mem_remove_from_lot#:#Remove from lot list
 common#:#mem_request_joining#:#Request joining
-common#:#mem_request_lot#:#Request for lot list
 common#:#mem_request_waiting#:#set on waiting list
-common#:#mem_subscribers_added_to_lot#:#%s applicants have been added to lottery.
-common#:#mem_subscribers_removed_from_lot#:#%s candidates have been removed from lot list.
 common#:#mem_user_already_subscribed#:#You have already requested admission. Do you want to update or cancel it?
-common#:#mep_helptext#:#In a mediapool you can "store" multimedia data to use them at different places of your learn offer, e.g. on contentpages of Wikis and Learn modules. <p class="alert">large video-file (e.g. lecture recordings) are best uploaded to <a href="http://www.video.uni-erlangen.de" target="_blank">Video-Portal</a> of the university. There you can set protection on them and refer them from StudOn-course as "external content".</p>
 common#:#more#:#More...
+common#:#msg_no_perm_read_item#:#You have no permission to access this item.###Zur Sicherheit kein Objektname
+common#:#object_copy_in_progress_with_mail#:#The copy is started in background. You will get a system message, when all contents are copied.###fau: copyBySoap
+common#:#object_copy_mail_body#:#Link to the copied object: %s###fau: copyBySoap
+common#:#object_copy_mail_error_body#:#The copy process stpped with an error. Please forward this mail to studon@fau.de.\n\Error Message:\n%s\n\nStacktrace:\n%s\n\nSource Object: %s\nTarget Object: %s\nError Object: %s###fau: copyBySoap
+common#:#object_copy_mail_error_subject#:#Error on Copy: %s###fau: copyBySoap
+common#:#object_copy_mail_subject#:#Copied: %s###fau: copyBySoap
 common#:#object_copy_with_mail_info#:#Note: The contents will be copied in background. You can get a success message per email.###fau: copyBySoap
 common#:#object_copy_with_mail_suffix#:#(With Email Message)###fau: copyBySoap
-common#:#object_copy_in_progress_with_mail#:#The copy is started in background. You will get a system message, when all contents are copied.###fau: copyBySoap
-common#:#object_copy_mail_subject#:#Copied: %s###fau: copyBySoap
-common#:#object_copy_mail_body#:#Link to the copied object: %s###fau: copyBySoap
-common#:#object_copy_mail_error_subject#:#Error on Copy: %s###fau: copyBySoap
-common#:#object_copy_mail_error_body#:#The copy process stpped with an error. Please forward this mail to studon@fau.de.\n\Error Message:\n%s\n\nStacktrace:\n%s\n\nSource Object: %s\nTarget Object: %s\nError Object: %s###fau: copyBySoap
 common#:#permission_denied_for#:#The permission is rejected for:
 common#:#print_pagebreaks#:#print on single pages
 common#:#privacy_note_for_authors#:#Note for authors
@@ -282,38 +262,30 @@ common#:#progress_finished#:#Finished
 common#:#progress_info#:#Information
 common#:#progress_submit_info#:#The Editing will normally continue automatically.<br />If you see this message, click once on "continue", to continue manually. <br />While the request is running (Browser-symbol rotates), do not click again.
 common#:#progress_task#:#Task
-common#:#qpl_helptext#:#In questionpools you can create and collect questions, which you want to use in your tests. By this concept you can - once created questions - repeatingly combine to new tests.
 common#:#reg_account_confirmation_successful#:#Your user account has been activated and will receive a new e-mail with your account date. Please look also in the spam folder of your post box. Use the account data to log in with the ‘Local Login’ on this page.###fau: regCodes
 common#:#reg_mail_body_2_confirmation#:#The link will only be good for %s, then you will have to try again from the beginning. After a successful confirmation you will receive a new e-mail with your account date. Please look also in the spam folder of your post box.###fau: regCodes
-common#:#relative_link_label#:#Relative Link
 common#:#relative_link_create#:#Create Link
 common#:#relative_link_description#:#This link can be used for internal linking course templates. It will look the same when the object is copied. A user clicking this link will be led to the nearest target. Please note that this function is not available in other ILIAS installations.
+common#:#relative_link_label#:#Relative Link
 common#:#relative_link_not_found#:#The link target for code %s was not found!
-common#:#repository_public#:#Repository (public)
 common#:#role_unbreak_permissions#:#delete interruptions
 common#:#role_unbreak_permissions_desc#:#All local permission rules for this role will be deleted. Together with "change created objects" and "protect permissions" you can force the permission settings for all objects.
-common#:#rpl_warning#:#The registration starts at the same time with others for over %s places. This may cause high system load. Please choose a different time, if possible.
 common#:#rpl_info#:#Please choose a time without other registration starts, if possible.
+common#:#rpl_next_week#:#Next Week
 common#:#rpl_overview#:#Overview of Registration starts
 common#:#rpl_overview_desc#:#This tables shows the registration starts for courses and groups with a limited number of places. Each time slot show the sum of places for which the registration starts. High values may indicate a high system load, but uther factors like the popularity of courses may be relevant, too. Please try to use a free slot for your own registration start. The first two weeks of the lectures period have a high load generally.
 common#:#rpl_previous_week#:#Previous Week
-common#:#rpl_next_week#:#Next Week
-common#:#sahs_helptext#:#Here you can import Learn modules, which have been developed for E-Learning-Standards SCORM or AICC. Such Learn modules enable e.g. a handover of the learnprocess on StudOn for further evaluation.<br />With StudOn you can create own SCORM-2004-Learn modules, which allow control of the learning stream by learn targets and testquestions and which can be exported as SCORM 2004-packages and used in different platforms.
-common#:#select_all_page_only#:#Select all on this page. Show more rows per page to select all!
+common#:#rpl_warning#:#The registration starts at the same time with others for over %s places. This may cause high system load. Please choose a different time, if possible.
 common#:#score#:#Points
-common#:#sess_helptext#:#A session represents a presence event on StudOn. You can apply this object for pure presence courses as well as in the frame of Blended Learning-Scenarios. By creating sessions you can indicate framedata of the presence event (time, location, etc.) as well as personal data of the lecturer and adding files to the session like for example the program of the event or work materials.
+common#:#select_all_page_only#:#Select all on this page. Show more rows per page to select all!
 common#:#shib_data_missing#:#Your Single Sign-On did work, some data is missing (firstname or lastname) to create a user account for StudOn. Please contact<a href="idm@fau.de">idm@fau.de</a>, to solve the problem and tell your user identification and the missing data.
-common#:#shib_general_login_instructions#:#Use this login if you have a central user identification of the FAU.<div style="text-align:right;"><a href="http://www.studon.uni-erlangen.de/cat166816.html">What is that?</a></div>
 common#:#shib_help_title#:#Help for single sign-on
 common#:#shib_login_used#:#The username %s is already in use by another user. Please mail to <a href="mailto:studon@fau.de">studon@fau.de</a> to solve the problem!
-common#:#shib_update#:#To update at login of Shibboleth-Users
 common#:#shib_updated_field#:#This field will be transfered by Single Sign-On
 common#:#shib_user_not_found#:#No useraccount has been found for your user identification in this installation. An automatically creating is not possible.
-common#:#spl_helptext#:#In questionspools you can create and collect questions, which you want to use in your polls. By this concept you can - once created questions - repeatingly combine to new polls or use the same questions for different polls.
 common#:#start#:#Start
 common#:#studon_login_exportrequest#:#Please log in to make an export application!
 common#:#studon_ref_id#:#StudOn-ID
-common#:#study_data#:#study data
 common#:#studycond_add_condition#:#add condition
 common#:#studycond_add_course_condition#:#Add Study Condition
 common#:#studycond_add_doc_condition#:#Add Promotion Condition
@@ -332,147 +304,146 @@ common#:#studycond_edit_condition#:#Edit Condition
 common#:#studycond_edit_conditions#:#Determine Condition
 common#:#studycond_field_degree#:#Expected Graduation
 common#:#studycond_field_degree_info#:#Choose a  graduation or let the choice open, if the expected graduation can be any.
+common#:#studycond_field_doc_program#:#Stuctured Promotion Program
+common#:#studycond_field_max_approval_date#:#Latest Approval Date
 common#:#studycond_field_max_semester#:#Until Semester
 common#:#studycond_field_max_semester_info#:#Please set the latest subjectsemester. 0 means any.
+common#:#studycond_field_min_approval_date#:#Earliest Approvel Date
 common#:#studycond_field_min_semester#:#From Semester
 common#:#studycond_field_min_semester_info#:#Please set the earliest subjectsemester. 0 means any.
 common#:#studycond_field_ref_semester#:#Reference-Semester
 common#:#studycond_field_ref_semester_info#:#Set here on which semester the subjectsemester-conditions refer to. If you let the choice open, the conditions refer to the moment of Joining.
+common#:#studycond_field_studytype_info#:#Choose a study type or let the choice open, if the type can be any.
 common#:#studycond_field_subject#:#studysubject
 common#:#studycond_field_subject_info#:#Choose a given studysubject or let the choice open, if the subject can be any.
-common#:#studycond_field_studytype_info#:#Choose a study type or let the choice open, if the type can be any.
-common#:#studycond_field_doc_program#:#Stuctured Promotion Program
-common#:#studycond_field_min_approval_date#:#Earliest Approvel Date
-common#:#studycond_field_max_approval_date#:#Latest Approval Date
+common#:#studycond_max_approval_date#:#Approval until %s
 common#:#studycond_max_semester#:#until %s. subjectsemester (%s)
+common#:#studycond_min_approval_date#:#Approval on/after %s
+common#:#studycond_min_max_approval_date#:#Approval in Period %s
 common#:#studycond_min_max_semester#:#%s. until %s. subjectsemester (%s)
 common#:#studycond_min_semester#:#from %s. subjectsemester (%s)
-common#:#studycond_min_max_approval_date#:#Approval in Period %s
-common#:#studycond_min_approval_date#:#Approval on/after %s
-common#:#studycond_max_approval_date#:#Approval until %s
 common#:#studycond_no_condition_defined#:#No conditions determined.
 common#:#studydata#:#Study data
-common#:#studydata_edit#:#Edit study data
-common#:#studydata_study_no#:#Study course %s
 common#:#studydata_degree#:#Expected Graduation
+common#:#studydata_doc_prog_until#:#bis
+common#:#studydata_edit#:#Edit study data
 common#:#studydata_long#:#Study Data (subject, semester, graduation, faculty)
 common#:#studydata_msg_incomplete#:#The study data are not complete! A study course must have a reference semester, a graduation, a faculty and a least one subject. A subject must be specified with a name and the semester number.
+common#:#studydata_options_update#:#Update Study Data Options
+common#:#studydata_options_update_info#:#Updates the lists for degrees, schools, subjects and structured promotion programs from the IDM database
+common#:#studydata_promotion#:#Promotion
+common#:#studydata_promotion_approval#:#approved
+common#:#studydata_promotion_approval_date#:#Approval Date
+common#:#studydata_promotion_program#:#Stuctured Promotion Program
 common#:#studydata_ref_semester#:#Reference Semester
 common#:#studydata_ref_semester_any#:#without date
 common#:#studydata_ref_semester_summer#:#in the summer %s
 common#:#studydata_ref_semester_winter#:#in the winter %s/%s
 common#:#studydata_school#:#Faculty
 common#:#studydata_semester#:#Semester
-common#:#studydata_semester_text#:#%s. semester
 common#:#studydata_semester_subject_no#:#Semester subject %s
+common#:#studydata_semester_text#:#%s. semester
+common#:#studydata_study_no#:#Study course %s
 common#:#studydata_subject#:#Subject
 common#:#studydata_subject_no#:#Fach %s
 common#:#studydata_type#:#Study Type
-common#:#studydata_type_full#:#Full time
-common#:#studydata_type_part#:#Part time
-common#:#studydata_type_none#:#Unknown
 common#:#studydata_type_any#:#Any
-common#:#studydata_promotion#:#Promotion
-common#:#studydata_promotion_approval#:#approved
-common#:#studydata_promotion_program#:#Stuctured Promotion Program
-common#:#studydata_promotion_approval_date#:#Approval Date
-common#:#studydata_doc_proc_until#:#util
-common#:#studydata_unknown_school#:#Unknown Faculty
-common#:#studydata_unknown_subject#:#Unknown Suject
+common#:#studydata_type_full#:#Full time
+common#:#studydata_type_none#:#Unknown
+common#:#studydata_type_part#:#Part time
 common#:#studydata_unknown_degree#:#Unknown Degree
 common#:#studydata_unknown_doc_program#:#Unknown Promotion Program
-common#:#studydata_options_update#:#Update Study Data Options
-common#:#studydata_options_update_info#:#Updates the lists for degrees, schools, subjects and structured promotion programs from the IDM database
+common#:#studydata_unknown_school#:#Unknown Faculty
+common#:#studydata_unknown_subject#:#Unknown Suject
+common#:#study_data#:#study data
+common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
+common#:#sub_added_member#:#One new member was added.
+common#:#sub_added_members#:#%s new members were added.
 common#:#sub_added_to_waiting_list#:#You have been assigned to the waiting list. You are assigned to position %s on the waiting list.
-common#:#sub_fair_date#:#Equal Chances Until
-common#:#sub_fair_date_info#:#All registrations will be equally collected on the waiting list and the free places will be filled by lot afterwards. Later registrations will get higher waiting positions. A later filling from the waiting list will also respect the equal chances.
-common#:#sub_fair_date_default#:#One Hour after Subscription Start (Standard)
-common#:#sub_fair_date_invalid#:#The period of equal chances must be longer than one hour and must be finished with the end of the whole registration period!
+common#:#sub_assign_waiting#:#Add Directly
+common#:#sub_assign_waiting_fair_info#:#Adding members directly from the waiting list may not respect the equal chances or the order of subscriptions. Please use this in exceptional cases only!
+common#:#sub_assign_waiting_groupings_info#:#You configured a membership limitation. Added users will be removed from the waiting lists of related courses or groups.
+common#:#sub_confirmed_request#:#One membership request was accepted.
+common#:#sub_confirmed_requests#:#%s membership requests were accepted.
+common#:#sub_confirm_request#:#Accespt Request
+common#:#sub_confirm_requests#:#Accept Requests
+common#:#sub_confirm_request_question#:#Do you want to accept the following membership requests? The accepted requests stay on the list until free places are filled.
+common#:#sub_fair_activate#:#Activate equal chances
+common#:#sub_fair_activated#:#The period of equal chances is activated
+common#:#sub_fair_activation_min_minutes#:#The availability period must be longer than %s minutes!
+common#:#sub_fair_added_to_waiting_list#:#Your registrations is added to the waiting list. When the period of equal chances has ended, you will get an e-mail notification whether you are assigned or whether you stay on the waiting list.
 common#:#sub_fair_autofill#:#Automatic Fill and Move Up
 common#:#sub_fair_autofill_info#:#Free places will automatically be filled by lot after the end of equal chances. Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
 common#:#sub_fair_auto_manu#:#Automatic Fill and Manual Move Up
 common#:#sub_fair_auto_manu_info#:#Free places will automatically be filled by lot after the end of equal chances. Places getting free afterwards have to be manually filled in the membership administration.
-common#:#sub_fair_waiting#:#Manual Fill and Move Up
-common#:#sub_fair_waiting_info#:#Free places have to be manually filled in the member administration after the end of equal chances. Please use this setting only, if the membership has additional conditions.
-common#:#sub_fair_no_list#:#Automatic Fill, Rejection Afterwards
-common#:#sub_fair_no_list_info#:#The waiting list will only be filled in the period of equal chances and free places will be automatically filled by lot afterwards. Later registrations will be rejected if no places are free.
+common#:#sub_fair_date#:#Equal Chances Until
+common#:#sub_fair_date_default#:#One Hour after Subscription Start (Standard)
+common#:#sub_fair_date_info#:#All registrations will be equally collected on the waiting list and the free places will be filled by lot afterwards. Later registrations will get higher waiting positions. A later filling from the waiting list will also respect the equal chances.
+common#:#sub_fair_date_invalid#:#The period of equal chances must be longer than one hour and must be finished with the end of the whole registration period!
+common#:#sub_fair_deactivate#:#Deactivate equal chances
+common#:#sub_fair_deactivated#:#The period of equal chances is deactivated.
+common#:#sub_fair_deactivate_explanation#:#IMPORTANT: Please deactivate the period of equal chances only if you don't expect a rush on the subscription. Normally students expect to have one hour time after subscription start without loosing chances. The "first come, first served" method undermines this solution, which was developed in close consultation with student representatives.
+common#:#sub_fair_deactivate_in_phase#:#You can't deactivate the period of equal chances because it is running.
+common#:#sub_fair_deactivate_question#:#Would you like to deactivate the period if equal chances?
 common#:#sub_fair_inactive_autofill#:#Automatic Move Up
 common#:#sub_fair_inactive_autofill_info#:#Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
-common#:#sub_fair_inactive_waiting#:#Manual Move Up
-common#:#sub_fair_inactive_waiting_info#:#Free places have to be manually filled from waiting registrations in the member administration.
+common#:#sub_fair_inactive_message#:#This registration has no period of equal chances. The order of subscriptions counts from the beginning!
 common#:#sub_fair_inactive_no_list#:#Rejection
 common#:#sub_fair_inactive_no_list_info#:#Registrations will be rejected if no places are free.
-common#:#sub_fair_waiting_univis#:#Like in UnivIS
-common#:#sub_fair_waiting_univis_info#:#The waiting list setting is taken from UnivIS. A a waiting list is set there then 'Automatic Fill and Move Up' will be set, otherwise "Automatic Fill, Rejection Afterwards".
-common#:#sub_fair_activation_min_minutes#:#The availability period must be longer than %s minutes!
-common#:#sub_fair_subscription_min_minutes#:#The registration period must be longer than %s minutes!
-common#:#sub_fair_to_sub_start_min#:#The period of equal chances was set to minimum length after start of the registration period.
-common#:#sub_fair_to_sub_end#:#The period of equal chances was limited to the end of the registration period.
-common#:#sub_fair_to_act_start_min#:#The period of equal chances was set to minimum length after start of the availability period.
-common#:#sub_fair_to_act_end#:#The period of equal chances was limited to the end of the availability period.
+common#:#sub_fair_inactive_short#:#First Come-First Served!
+common#:#sub_fair_inactive_waiting#:#Manual Move Up
+common#:#sub_fair_inactive_waiting_info#:#Free places have to be manually filled from waiting registrations in the member administration.
 common#:#sub_fair_not_changeable#:#The period of equal chances can't be shortened because existing registrations would be affected.
-common#:#sub_fair_subscribe_message#:#All registration will be collected until %s. Free places will be automatically filled by lot afterwards.
-common#:#sub_fair_added_to_waiting_list#:#Your registrations is added to the waiting list. When the period of equal chances has ended, you will get an e-mail notification whether you are assigned or whether you stay on the waiting list.
-common#:#sub_fair_subscribe_label#:#Register for Assignment
+common#:#sub_fair_not_on_list#:#Nit on the list
+common#:#sub_fair_no_list#:#Automatic Fill, Rejection Afterwards
+common#:#sub_fair_no_list_info#:#The waiting list will only be filled in the period of equal chances and free places will be automatically filled by lot afterwards. Later registrations will be rejected if no places are free.
 common#:#sub_fair_position_with_other#:#%s (with 1 other having equal chances)
 common#:#sub_fair_position_with_others#:#%s (with %s others having chances)
-common#:#sub_fair_not_on_list#:#Nit on the list
+common#:#sub_fair_subscribe_label#:#Register for Assignment
+common#:#sub_fair_subscribe_message#:#All registration will be collected until %s. Free places will be automatically filled by lot afterwards.
+common#:#sub_fair_subscription_min_minutes#:#The registration period must be longer than %s minutes!
 common#:#sub_fair_time_before#:#before %s
+common#:#sub_fair_to_act_end#:#The period of equal chances was limited to the end of the availability period.
+common#:#sub_fair_to_act_start_min#:#The period of equal chances was set to minimum length after start of the availability period.
+common#:#sub_fair_to_sub_end#:#The period of equal chances was limited to the end of the registration period.
+common#:#sub_fair_to_sub_start_min#:#The period of equal chances was set to minimum length after start of the registration period.
+common#:#sub_fair_waiting#:#Manual Fill and Move Up
+common#:#sub_fair_waiting_info#:#Free places have to be manually filled in the member administration after the end of equal chances. Please use this setting only, if the membership has additional conditions.
+common#:#sub_fair_waiting_univis#:#Like in UnivIS
+common#:#sub_fair_waiting_univis_info#:#The waiting list setting is taken from UnivIS. A a waiting list is set there then 'Automatic Fill and Move Up' will be set, otherwise "Automatic Fill, Rejection Afterwards".
 common#:#sub_fair_wait_pos_header#:#Pos.
-common#:#sub_fair_inactive_short#:#First Come-First Served!
-common#:#sub_fair_inactive_message#:#This registration has no period of equal chances. The order of subscriptions counts from the beginning!
-common#:#sub_fair_activate#:#Activate equal chances
-common#:#sub_fair_activated#:#The period of equal chances is activated
-common#:#sub_fair_deactivate#:#Deactivate equal chances
-common#:#sub_fair_deactivate_explanation#:#IMPORTANT: Please deactivate the period of equal chances only if you don't expect a rush on the subscription. Normally students expect to have one hour time after subscription start without loosing chances. The "first come, first served" method undermines this solution, which was developed in close consultation with student representatives.
-common#:#sub_fair_deactivate_question#:#Would you like to deactivate the period if equal chances?
-common#:#sub_fair_deactivate_in_phase#:#You can't deactivate the period of equal chances because it is running.
-common#:#sub_fair_deactivated#:#The period of equal chances is deactivated.
-common#:#sub_mail_request_crs#:#Your membership request for course "%s"
-common#:#sub_mail_request_grp#:#Your membership request for group  "%s"
-common#:#sub_mail_request_added#:#Your membership request is received. You will get a notification when it is accepted or rejected.
-common#:#sub_mail_request_accepted#:#Your membership request was accepted but you stay on the waiting list until free places are filled.
-common#:#sub_mail_request_autofill#:#The free places are filled but your membership request still needs manual acceptance. A place is kept free for this purpose.
-common#:#sub_mail_waiting_crs#:#Your registration for course "%s"
-common#:#sub_mail_waiting_grp#:#Your registration for group "%s"
-common#:#sub_mail_waiting_added#:#You are added to the waiting list will get notified when you are assigned.
-common#:#sub_mail_waiting_autofill#:#All free places are filled but you stay on the waiting list.
-common#:#sub_mail_autofill_requests_crs#:#Membership requests for course "%s"
-common#:#sub_mail_autofill_requests_grp#:#Membership requests for group "%s"
-common#:#sub_mail_autofill_requests_body#:#The free places were filled from the waiting list. But there are places kept free for membership requests on which you have to decide manually.
-common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
-common#:#sub_assign_waiting#:#Add Directly
-common#:#sub_assign_waiting_fair_info#:#Adding members directly from the waiting list may not respect the equal chances or the order of subscriptions. Please use this in exceptional cases only!
-common#:#sub_assign_waiting_groupings_info#:#You configured a membership limitation. Added users will be removed from the waiting lists of related courses or groups.
-common#:#sub_remove_waiting#:#Remove (with Notification)
 common#:#sub_fill_free_places#:#Fill Free Places
 common#:#sub_fill_free_places_question#:#Would you like to fill the free places from the waiting list?
-common#:#sub_to_fill_message#:#You can fill free places from the waiting list.
-common#:#sub_to_confirm_message#:#You have to decide on membership requests.
-common#:#sub_status_request#:#Membership Request
-common#:#sub_status_confirmed#:#accepted request
-common#:#sub_status_pending#:#pending request
-common#:#sub_status_normal#:#registration
-common#:#sub_confirm_request#:#Accespt Request
-common#:#sub_confirm_requests#:#Accept Requests
-common#:#sub_confirmed_request#:#One membership request was accepted.
-common#:#sub_confirmed_requests#:#%s membership requests were accepted.
-common#:#sub_added_member#:#One new member was added.
-common#:#sub_added_members#:#%s new members were added.
+common#:#sub_mail_autofill_requests_body#:#The free places were filled from the waiting list. But there are places kept free for membership requests on which you have to decide manually.
+common#:#sub_mail_autofill_requests_crs#:#Membership requests for course "%s"
+common#:#sub_mail_autofill_requests_grp#:#Membership requests for group "%s"
+common#:#sub_mail_request_accepted#:#Your membership request was accepted but you stay on the waiting list until free places are filled.
+common#:#sub_mail_request_added#:#Your membership request is received. You will get a notification when it is accepted or rejected.
+common#:#sub_mail_request_autofill#:#The free places are filled but your membership request still needs manual acceptance. A place is kept free for this purpose.
+common#:#sub_mail_request_crs#:#Your membership request for course "%s"
+common#:#sub_mail_request_grp#:#Your membership request for group  "%s"
+common#:#sub_mail_waiting_added#:#You are added to the waiting list will get notified when you are assigned.
+common#:#sub_mail_waiting_autofill#:#All free places are filled but you stay on the waiting list.
+common#:#sub_mail_waiting_crs#:#Your registration for course "%s"
+common#:#sub_mail_waiting_grp#:#Your registration for group "%s"
 common#:#sub_no_member_added#:#There was no new member added.
-common#:#sub_select_one_request#:#Please select a membership request!
-common#:#sub_confirm_request_question#:#Do you want to accept the following membership requests? The accepted requests stay on the list until free places are filled.
+common#:#sub_remove_waiting#:#Remove (with Notification)
 common#:#sub_revoke_request#:#Reject request
+common#:#sub_select_one_request#:#Please select a membership request!
 common#:#sub_separate_object#:#Combined Subscription
 common#:#sub_separate_object_info#:#The subscription in done with others in a dedicated StudOn object. Please choose the 'Combined Subscription' object.
 common#:#sub_separate_object_reg_info#:#The subscription in done with others in a dedicated StudOn object. Please click the title to open it.
+common#:#sub_status_confirmed#:#accepted request
+common#:#sub_status_normal#:#registration
+common#:#sub_status_pending#:#pending request
+common#:#sub_status_request#:#Membership Request
 common#:#sub_subscription_object#:#Subscription Object
-common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
-common#:#svy_helptext#:#You can create polls on StudOn and therewith e.g. votes or realize an evaluation of your course. Once created questions can be repeatedly combined to new polls.
+common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
+common#:#sub_to_confirm_message#:#You have to decide on membership requests.
+common#:#sub_to_fill_message#:#You can fill free places from the waiting list.
 common#:#to_home#:#Home
 common#:#to_login#:#To the Login
-common#:#tst_helptext#:#For review of the learnsuccess in your courses you can create tests, that can be composed of different questiontypes. Available are e.g. cloze-, multiple choice-, matching-, or free text-questions, but also complex tasks in flash-form can be realized.
-common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
+common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>###fau: regCodes
 common#:#txt_registered_pw_is_login#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username/password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
 common#:#univis#:#UnivIS
 common#:#univis_category_course_import#:#import course as courses
@@ -490,8 +461,6 @@ common#:#univis_link_to_studon#:#For this lecture an <a href="%s" target="_top">
 common#:#user_menu#:#User Menu
 common#:#view_results#:#show results
 common#:#waiting_list#:#waiting list
-common#:#webr_helptext#:#Apply reference collections and refer them directly from your course offer to external content of that topic. To every link you can enter a description and even deliver dynamic parameters.
-common#:#wiki_helptext#:#Wikis suit especially for internetbased, common work on a topic. In a Wiki all participants can create pages and write and edit texts. Even pictures and different mediadata can be bound to these pages.
 common#:#wizard_finish#:#Finish
 common#:#wizard_next#:#Continue to step %s
 common#:#wizard_previous#:#Back to step %s
@@ -501,41 +470,32 @@ content#:#cont_layout_help_desc#:#Layout for the StudOn Help Modules
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout for 'Informations On StudOn'
 cron#:#cron_mycampus_sync#:#Synchronisation with mein campus
-cron#:#cron_mycampus_sync_info#:#Add course registrations from my campus as course members
 cron#:#cron_mycampus_sync_added#:#New course members: %s
+cron#:#cron_mycampus_sync_info#:#Add course registrations from my campus as course members
 cron#:#cron_set_last_run#:#Set Last Run
 cron#:#cron_set_last_run_info#:#the next run start by the schedule based on the last run
-cron#:#cron_last_run#:#Last Run
 crs#:#crs_choose_one_event#:#Please choose a date!
 crs#:#crs_error_preconditions#:#You could not have been accepted!
 crs#:#crs_event_registration_not_possible#:#The login to the date '%s' is not possible!
 crs#:#crs_event_subscription_after_confirmation#:#You can register to the dates only after acceptance of your application for admission.
-crs#:#crs_info_reg_confirmation_lot#:#You can request the participation in the lottery for this course. You will receive a message, if you have been drawn or your application has been rejected.
-crs#:#crs_info_reg_direct_lot#:#You can register directly for the lottery of this course.
-crs#:#crs_info_reg_password_lot#:#When you received the course-password by an course-administrator, you can register for the lottery of this course.
-crs#:#crs_limit_period_for_lot#:#For the activation of the lottery you have to limit the registration period!
-crs#:#crs_lot_info#:#<span class="alert">Use the lottery, if you expect many interested parties!</span><br />All registrations will be collected by same chance. After the registration period you can define the members by chance.
+crs#:#crs_mail_permanent_link#:#Link zum Kurs:###fau: fairSub - changed link text
 crs#:#crs_mail_subscribe_to_events#:#For this course the registration to the dates (sessions) is provided. Please go to the course content, to register for the sessions!
 crs#:#crs_max_members_mode#:#Procedure:
 crs#:#crs_mem_set_passed#:#set passed
 crs#:#crs_mem_set_passed_success#:#These selected participants have been set to "passed".
-crs#:#crs_new_subscription_waiting#:#waiting list entry for the course "%s"
-crs#:#crs_new_subscription_waiting_body#:#%s has been placed on waiting list for the course "%s".
-crs#:#crs_new_subscription_waiting_body2#:#To accept or decline users from the waiting list for the course, you have to go to the member management of the course.\nPlease use following link:
 crs#:#crs_no_list#:#Rejection
-crs#:#crs_no_list_info#:#If the number of members is exceeded, new joinings will instantly be rejected.
 crs#:#crs_reg_limit_reached#:#You could not have been accepted, because the maximum number of participants has been exceeded.
 crs#:#crs_reg_univis#:#like in UnivIS
 crs#:#crs_reg_univis_info#:#The registrationperiod will be overtaken from UnivIS.
+crs#:#crs_reg_user_already_assigned#:#ou are already participant of this course.
 crs#:#crs_reg_user_generic_failure#:#You could not be accepted!
 crs#:#crs_reg_user_on_waiting_list#:#You are already on the waiting list of this course!
-crs#:#crs_reg_user_already_assigned#:#ou are already participant of this course.
 crs#:#crs_subscribe_events_not_possible#:#A direct registration to sessions is only possible for joining directly or with course password.
+crs#:#crs_subscription_events_header#:#registration to dates
 crs#:#crs_subscription_event_free#:#free
 crs#:#crs_subscription_event_location#:#location:
 crs#:#crs_subscription_event_referee#:#advisor:
 crs#:#crs_subscription_event_registered#:#signed in
-crs#:#crs_subscription_events_header#:#registration to dates
 crs#:#crs_subscription_mycampus#:#Registration by <em>my campus</em>
 crs#:#crs_subscription_mycampus_info#:#The registration takes place by the system <em>my campus</em>. This requires an iport of the lecture data from UnivIS. This can be made by "Content / UnivIS Import".
 crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>The Joining to this course takes place by the system <em>my campus</em>. The following link leads to the front page of <em>my campus</em>. After the login you get automatically to the registrationsite of the course.</p><p><a target="_blank" href="%s"><strong>Joining by my campus</strong> (new window)</a></p>
@@ -548,32 +508,37 @@ crs#:#crs_sync_my_campus_failure_connect#:#Could not establish connection to my 
 crs#:#crs_sync_my_campus_failure_participants#:#The logindata for this course could not been retrieved!
 crs#:#crs_sync_my_campus_ok#:#The logins of my campus are added as members.
 crs#:#crs_sync_my_campus_waiting#:#The following users are on waiting list in my campus and have to be accepted there: %s.
-crs#:#crs_view_info_standard#:#This view presents the course materials similar to the online offers.
 crs#:#event_enabled#:#Activated
 crs#:#event_max_participants#:#maximum number of participants
 crs#:#event_max_participants_info#:#Set here the maximum number of sessionparticipants. If the number exceeds, no more registrations are possible ('0' means unlimited).
 crs#:#event_max_participants_not_numeric#:#The maximum number of participants has to be a number!
 crs#:#event_not_registered#:#Not registered
+crs#:#export_lp_comments#:#Comment
 crs#:#export_lp_info#:#The determination of the status can be determined in the single contents on the tab "learning process" among "settings".<br />Some contents (Sessions, exercises) have additional overviews for editing the status and grade.<br /><em>The more you select, the longer the export takes.</em>
 crs#:#export_lp_marks#:#Grades/Credits
 crs#:#export_lp_status#:#Status
-crs#:#export_lp_comments#:#Comment
-dcl#:#dcl_max_import_simulate#:#The file has %s records, but only %s can be imported in one upload. Please split your file if you need to import more records.###fau: dcImportLimit
+dateplaner#:#cal_export_timezone_tz#:#Use ILIAS-Timezone
 dcl#:#dcl_max_import_done#:#The file has %s records, but only the first %s were imported. Please split your file if you need to import more records.###fau: dcImportLimit
+dcl#:#dcl_max_import_simulate#:#The file has %s records, but only %s can be imported in one upload. Please split your file if you need to import more records.###fau: dcImportLimit
+exc#:#exc_accept_authorship_statement#:#Accept Statement
+exc#:#exc_ass_type_test_object#:#Test Object
+exc#:#exc_ass_type_test_object_info#:#Test object whose status and points are automatically taken over as the evaluation of this assignment. The evaluation is updated with each test run within the submission deadline. Depending on the test settings, the best or last run is evaluated. Please make sure that the test settings match the schedule of this assignment.
 exc#:#exc_ass_type_test_open#:#Open Test
 exc#:#exc_ass_type_test_open_info#:#You submit this assignment by running a test. The test result will automatically be taken as result for this assignment.
 exc#:#exc_ass_type_test_open_label#:#Abgabe
 exc#:#exc_ass_type_test_open_no_team#:#You must form a team or be added to a team in order to run the test of this assignment.
-exc#:#exc_ass_type_test_object#:#Test Object
-exc#:#exc_ass_type_test_object_info#:#Test object whose status and points are automatically taken over as the evaluation of this assignment. The evaluation is updated with each test run within the submission deadline. Depending on the test settings, the best or last run is evaluated. Please make sure that the test settings match the schedule of this assignment.
-exc#:#exc_ass_type_test_sync_label#:#For Administrators
 exc#:#exc_ass_type_test_sync#:#Synchronize Test Results
-exc#:#exc_ass_type_test_sync_info#:#The existing test results of all partipipants will be transmitted to the exercise. In teams the latest test result of all team members will be used.
 exc#:#exc_ass_type_test_synced#:#The test results are transmitted.
+exc#:#exc_ass_type_test_sync_info#:#The existing test results of all partipipants will be transmitted to the exercise. In teams the latest test result of all team members will be used.
+exc#:#exc_ass_type_test_sync_label#:#For Administrators
+exc#:#exc_authorship_statement#:#Declaration of own Work
+exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
+exc#:#exc_calculate_overall_results#:#Calculate Overall Results
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
-exc#:#exc_calc_settings#:#Settings for Calculation of Overall Results
-exc#:#exc_calc_settings_update_status#:#When the settings are saved the overall result for all students will be recalculated.
+exc#:#exc_calc_confirm_all#:#Calculate the overall result of all participants?
+exc#:#exc_calc_mark_force_zero#:#Force 0 for Missing Values
+exc#:#exc_calc_mark_force_zero_info#:#NNot evaluated submissions or assignments before the result date should be counted with 0 points
 exc#:#exc_calc_mark_function#:#Grades/Credits-Calculation
 exc#:#exc_calc_mark_function_average#:#Average
 exc#:#exc_calc_mark_function_average_info#:#An average-grade of the selected exercise units will be calculated.
@@ -590,254 +555,237 @@ exc#:#exc_calc_mark_select_mandatory#:#All affirmative exercise units
 exc#:#exc_calc_mark_select_marked#:#All exercise units with grades/credits
 exc#:#exc_calc_mark_select_number#:#fixed number
 exc#:#exc_calc_mark_select_order#:#Selection
-exc#:#exc_calc_mark_force_zero#:#Force 0 for Missing Values
-exc#:#exc_calc_mark_force_zero_info#:#NNot evaluated submissions or assignments before the result date should be counted with 0 points
+exc#:#exc_calc_settings#:#Settings for Calculation of Overall Results
+exc#:#exc_calc_settings_update_status#:#When the settings are saved the overall result for all students will be recalculated.
 exc#:#exc_calc_status#:#Status-Calculation
 exc#:#exc_calc_status_compare#:#passed, if
+exc#:#exc_calc_status_compare_absolute#:#Fixed Value
+exc#:#exc_calc_status_compare_absolute_info#:#The calculated grades/points will directly be compared with the threshold.
+exc#:#exc_calc_status_compare_base#:#Comparing Base
 exc#:#exc_calc_status_compare_higher#:#bigger than the threshold
 exc#:#exc_calc_status_compare_higher_equal#:#bigger than or equal to the threshold
 exc#:#exc_calc_status_compare_info#:#You have to serve the threshold for calculation. It can also be a decimal value - comma or point will be treated as the same.
 exc#:#exc_calc_status_compare_lower#:#smaller that the threshold
 exc#:#exc_calc_status_compare_lower_equal#:#smaller than or equal to the threshold
+exc#:#exc_calc_status_compare_percent#:#Percent of All
+exc#:#exc_calc_status_compare_percent_info#:#The calculated grades/points are compared with the total achievable points of all assignments. This will only work correctly if all assignments have maximum points defined and the the sum of the reached points is calculated.
 exc#:#exc_calc_status_compare_value#:#threshold
 exc#:#exc_calc_status_default#:#Default value
 exc#:#exc_calc_status_default_info#:#Is because of lack of single results the overall result empty, the status will get this value.
 exc#:#exc_calc_status_info#:#The passed status will be determined by the calculated grades/points.
-exc#:#exc_calc_status_compare_base#:#Comparing Base
-exc#:#exc_calc_status_compare_absolute#:#Fixed Value
-exc#:#exc_calc_status_compare_absolute_info#:#The calculated grades/points will directly be compared with the threshold.
-exc#:#exc_calc_status_compare_percent#:#Percent of All
-exc#:#exc_calc_status_compare_percent_info#:#The calculated grades/points are compared with the total achievable points of all assignments. This will only work correctly if all assignments have maximum points defined and the the sum of the reached points is calculated.
-exc#:#exc_calculate_overall_results#:#Calculate Overall Results
-exc#:#exc_calc_confirm_all#:#Calculate the overall result of all participants?
-exc#:#exc_calculate#:#Calculate
-exc#:#exc_global_feedback_file_date_never#:#Never###fau: exFeedbackNever
-exc#:#exc_grade_time#:#Grading Time
-exc#:#exc_grade_time_info#:#In an exercise with restricted tutor rights (see exercise settings), course tutors can only give feedbacks and grades for this assignment after the given date.
-exc#:#exc_grade_start#:#Grading Start
-exc#:#exc_grade_overview_legend_mandatory#:#Mandatory assignments are marked by an asteristk.
-exc#:#exc_grade_overview_legend_restime#:#Assignments before the publish date of their results are put in parentheses.
-exc#:#exc_no_assignments_for_grading#:#No assignments available for grading.
-exc#:#exc_not_available_for_grading#:#The selected assignment is not available for grading!
-exc#:#exc_mark#:#Grade/Credits
-exc#:#exc_limit_points#:#Limit Points
-exc#:#exc_max_points#:#Maximum Points
-exc#:#exc_max_points_info#:#The mark must be a number (points) which can't exceed this value
-exc#:#exc_max_x_points#:#max. %s points
-exc#:#exc_mark_percent#:#%s (%s %%)
-exc#:#exc_mark_ignored#:#The points given for the following users were adjusted to the valid range:
-exc#:#exc_multi_feedback_by_submissions_hint#:#You may use the Archive created with "Download All Submissions" if you insert your comments directly in the submitted files (e.h. PDFs).
-exc#:#exc_multi_feedback_by_submissions_warning#:#You probably uploaded the archive provided by "Download All Submissions". Did you enter your feedback directly in the submitted files? Then you can save them as feedback.
-exc#:#exc_pass_calc#:#Calculated
-exc#:#exc_pass_calc_info#:#The passing of the exercise and the overall mark/points are automatically calculated based on the partial points.
-exc#:#exc_pass_calc_info_tip#:#The settings for this are made after saving this option on the "Result Calculation" sub-tab.
-exc#:#exc_pass_manual#:#Manual
-exc#:#exc_pass_manual_info#:#The passing of the exercise and the overall mark/points are manually set by the tutors based on the partial points.
-exc#:#exc_pass_manual_info#:#In the grade view an automatical calculation of the total result can be made based on the partial points.
-exc#:#exc_pass_description#:#Description of the requirement on the info page and on the list of assignments. It will replace an automatic generated description.
-exc#:#exc_pass_result_calculation#:#Result Calculation
-exc#:#exc_result_time#:#Result Availability
-exc#:#exc_result_time_info#:#The result and tutor Feedback will be available after this date. No feedback email is automatically sent before this date.
-exc#:#exc_result_time_should_be_after_end_date#:#The result availability must be after the deadline.
-exc#:#exc_result_time_not_for_peer_feedback#:#The result availability is not valid for peer feedback. Please use the feedback deadline there.
-exc#:#exc_result_available_after#:#Result available after
-exc#:#exc_status_file_wrong_titles#:#The head row has wrong column titles.
-exc#:#exc_status_file_wrong_mark#:#The value "%s" in "mark" is not numeric or exceeds the maximum points %s.
-exc#:#exc_status_file_wrong_status#:#The status %s is not valid. It must be 'notgraded', 'passed' or 'failed'.
-exc#:#exc_status_file_wrong_plag_flag#:#The plagiarism flag '%s' ist not valid. It must be 'none', 'suspicion', 'detected' or empty.
-exc#:#exc_status_file_error#:#Reading the file %s produced the following error (the file will be ignored at saving): <p class="small">%s</p>
-exc#:#exc_status_file_no_updates#:#The file %s nas no matching users for an update.
-exc#:#exc_status_file_update_users#:#Saving will process the file %s to update the status of the following users: <p class="small">%s</p>
-exc#:#exc_status_file_update_users_no plag#:#Saving will process the file %s to update the status of the following users (without plagiarism settings): <p class="small">%s</p>
-exc#:#exc_status_file_updated_users#:#The status of the following users was updated: <p class="small">%s</p>
-exc#:#exc_status_file_updated_users_no_plag#:#The status of the following users was updated (without plagiarism settings): <p class="small">%s</p>
-exc#:#exc_status_file_update_teams#:#Saving will process the file %s to update the status of the following teams: <p class="small">%s</p>
-exc#:#exc_status_file_update_teams_no plag#:#Saving will process the file %s to update the status of the following teams (without plagiarism settings): <p class="small">%s</p>
-exc#:#exc_status_file_updated_teams#:#The status of the following teams was updated: <p class="small">%s</p>
-exc#:#exc_status_file_updated_teams_no_plag#:#The status of the following teams was updated (without plagiarism settings): <p class="small">%s</p>
-exc#:#exc_not_attempted#:#Not Submitted
 exc#:#exc_comment_for_learner_info_nosend#:#No Notification is sent. The Feedback will be shown in the units oberview after reaching the result availability.
-exc#:#exc_file_suffixes#:#Allowed filename suffixes
-exc#:#exc_file_suffixes_info#:#Comma separated list of allowed filename suffixes for upload files, e.g. doc, docx
-exc#:#exc_file_suffixes_case_checked#:#Upper/lowercase will be checked
-exc#:#exc_file_suffixes_case_ignored#:#Upper/lowercase will be ignored
-exc#:#exc_file_suffixes_in_zip#:#Allowed filename in the archive: %s
-exc#:#exc_wrong_filenames#:#The following filenames have a wrong suffix: %s
-exc#:#exc_wrong_filenames_in_zip#:#The following filenames in the archive have a wrong suffix: %s
-exc#:#exc_mem_delete_perm_failure#:#You need the permission to edit the exercise settings in order to delete submissions!
-exc#:#exc_team_manage_perm_failure#:#You need the permission to edit the exercise settings in order to create or dissolve teams!
-exc#:#exc_plagiarism#:#Plagiarism
-exc#:#exc_plag_state#:#Status
-exc#:#exc_plag_none#:#None
-exc#:#exc_plag_suspicion#:#Suspicion
-exc#:#exc_plag_detected#:#Detected
-exc#:#exc_plag_comment#:#Plagiarism comment
-exc#:#exc_plag_suspicion_info#:#Plagiarism suspicion
-exc#:#exc_plag_detected_info#:#Plagiarism detected
-exc#:#exc_plag_see_comment#:#, see Comment
-exc#:#exc_plag_original_mark#:#, original Mark/Points:
-exc#:#exc_plag_visible_info#:#A suspected plagiarismn will be shown to the tutors only. A detected plagiarism will be shown to the learner. The effective status is then 'failed' with empty mark or 0 points.
-exc#:#exc_plag_effective_failed#:#(effective "Failed")
-exc#:#exc_plag_effective_zero#:#(effektive 0)
-exc#:#exc_plag_effective_empty#:#(effektive empty)
-exc#:#exc_visible_for_tutors#:#only visible for tutors
-exc#:#exc_visible_for_student#:#visible for learners
-exc#:#exc_max_team_size#:#Maximum Team Size
-exc#:#exc_max_team_size_info#:#Leave the field empty to set no limit
-exc#:#exc_max_team_members_reached#:#The maximum team size is reached.
-exc#:#exc_team_remove_self_with_submission#:#You can't fully dissolve yor team as long as you have a submission!
-exc#:#exc_team_member_remove_new_team#:#The removed team members with submissions will form single user teams, to prevent their submission from a take over by others.
-exc#:#exc_type_inactive#:#Inaktive
-exc#:#exc_type_inactive_info#:#This assignment type is currently not active. Please inform the StudOn team: <a href="mailto://studon@fau.de">studon@fau.de</a>
-exc#:#exc_notification#:#Notification###fau: exNotify
-exc#:#exc_feedback_notification#:#Notification at Feedback###fau: exNotify
-exc#:#exc_feedback_notification_info#:#Participants get an email notification when a new feedback is available. This setting is used for all participants.###fau: exNotify
-exc#:#exc_settings_feedback_file_info#:#Tutors upload a file. The participant can access the file at the assignment overview.###fau: exNotify
-exc#:#exc_settings_feedback_text_info#:#Tutors type their evaluation in a text field. The participant can view the text is at the assignment overview.###fau: exNotify
-exc#:#exc_type_test_result#:#Test Result (Single User)
-exc#:#exc_type_test_result_team#:#Test Result (as Team)
-exc#:#exc_result_time_open_info#:#At least one exercise unit has not yet reached the date for announcing the result. The effective status of this exercise is therefore "In progress".
-exc#:#exc_result_time_open_info#:#Here you see a preliminary result from the already announced exercise units.
-exc#:#exc_preliminary_mark#:#Preliminary Grade/Points
-exc#:#exc_preliminary_status#:#Preliminary Status
-exc#:#exc_notgraded#:#Not Graded
-exc#:#exc_incomplete#:#In Progress
 exc#:#exc_create_single_teams#:#Create Single Teams
 exc#:#exc_create_single_teams_confirmation#:#Would you like to form individual teams for the following users? This makes them rateable, but they are no longer available for others to form teams.
 exc#:#exc_create_single_teams_empty#:#No participants without team were found.
 exc#:#exc_create_single_teams_finished#:#The individual teams were formed.
-exc#:#exc_require_authorship_statement#:#Declaration of own Work
-exc#:#exc_require_authorship_statement_desc#:#A confirmation of the declaration of own work is required to submit the exercise.
+exc#:#exc_feedback_notification#:#Notification at Feedback###fau: exNotify
+exc#:#exc_feedback_notification_info#:#Participants get an email notification when a new feedback is available. This setting is used for all participants.###fau: exNotify
+exc#:#exc_file_suffixes#:#Allowed filename suffixes
+exc#:#exc_file_suffixes_case_checked#:#Upper/lowercase will be checked
+exc#:#exc_file_suffixes_case_ignored#:#Upper/lowercase will be ignored
+exc#:#exc_file_suffixes_info#:#Comma separated list of allowed filename suffixes for upload files, e.g. doc, docx
+exc#:#exc_file_suffixes_in_zip#:#Allowed filename in the archive: %s
+exc#:#exc_global_feedback_file_date_never#:#Never###fau: exFeedbackNever
+exc#:#exc_grade_overview_legend_mandatory#:#Mandatory assignments are marked by an asteristk.
+exc#:#exc_grade_overview_legend_restime#:#Assignments before the publish date of their results are put in parentheses.
+exc#:#exc_grade_start#:#Grading Start
+exc#:#exc_grade_time#:#Grading Time
+exc#:#exc_grade_time_info#:#In an exercise with restricted tutor rights (see exercise settings), course tutors can only give feedbacks and grades for this assignment after the given date.
+exc#:#exc_incomplete#:#In Progress
 exc#:#exc_info_section_requirements#:#Requirements
-exc#:#exc_authorship_statement#:#Declaration of own Work
+exc#:#exc_limit_points#:#Limit Points
+exc#:#exc_mark#:#Grade/Credits
+exc#:#exc_mark_adjusted#:#Die Punkte der folgenden Nutzer wurden an den gültigen Wertebereich angepasst:
+exc#:#exc_mark_percent#:#%s (%s %%)
+exc#:#exc_max_points#:#Maximum Points
+exc#:#exc_max_points_info#:#The mark must be a number (points) which can't exceed this value
+exc#:#exc_max_team_members_reached#:#The maximum team size is reached.
+exc#:#exc_max_team_size#:#Maximum Team Size
+exc#:#exc_max_team_size_info#:#Leave the field empty to set no limit
+exc#:#exc_max_x_points#:#max. %s points
+exc#:#exc_mem_delete_perm_failure#:#You need the permission to edit the exercise settings in order to delete submissions!
 exc#:#exc_msg_authorship_statement_required#:#Please read and confirm the declaration of own work!
+exc#:#exc_multi_feedback_by_submissions_hint#:#You may use the Archive created with "Download All Submissions" if you insert your comments directly in the submitted files (e.h. PDFs).
+exc#:#exc_multi_feedback_by_submissions_warning#:#You probably uploaded the archive provided by "Download All Submissions". Did you enter your feedback directly in the submitted files? Then you can save them as feedback.
+exc#:#exc_notgraded#:#Not Graded
+exc#:#exc_notification#:#Notification###fau: exNotify
+exc#:#exc_not_attempted#:#Not Submitted
+exc#:#exc_not_available_for_grading#:#The selected assignment is not available for grading!
+exc#:#exc_no_assignments_for_grading#:#No assignments available for grading.
+exc#:#exc_pass_calc#:#Calculated
+exc#:#exc_pass_calc_info#:#The passing of the exercise and the overall mark/points are automatically calculated based on the partial points.
+exc#:#exc_pass_calc_info_tip#:#The settings for this are made after saving this option on the "Result Calculation" sub-tab.
+exc#:#exc_pass_description#:#Description of the requirement on the info page and on the list of assignments. It will replace an automatic generated description.
+exc#:#exc_pass_manual#:#Manual
+exc#:#exc_pass_manual_info#:#In the grade view an automatical calculation of the total result can be made based on the partial points.
+exc#:#exc_pass_manual_info_tip#:#In der Notenübersicht kann eine automatische Berechnung der Gesamtergebnisse auf Basis der Teilnpunkte erfolgen.
+exc#:#exc_pass_result_calculation#:#Result Calculation
+exc#:#exc_plagiarism#:#Plagiarism
+exc#:#exc_plag_comment#:#Plagiarism comment
+exc#:#exc_plag_detected#:#Detected
+exc#:#exc_plag_detected_info#:#Plagiarism detected
+exc#:#exc_plag_effective_empty#:#(effektive empty)
+exc#:#exc_plag_effective_failed#:#(effective "Failed")
+exc#:#exc_plag_effective_zero#:#(effektive 0)
+exc#:#exc_plag_none#:#None
+exc#:#exc_plag_original_mark#:#, original Mark/Points:
+exc#:#exc_plag_see_comment#:#, see Comment
+exc#:#exc_plag_state#:#Status
+exc#:#exc_plag_suspicion#:#Suspicion
+exc#:#exc_plag_suspicion_info#:#Plagiarism suspicion
+exc#:#exc_plag_visible_info#:#A suspected plagiarismn will be shown to the tutors only. A detected plagiarism will be shown to the learner. The effective status is then 'failed' with empty mark or 0 points.
+exc#:#exc_preliminary_info#:#Sie sehen hier eine vorläufige Bewertung aus den bereits bekannt gegebenen Übungseinheiten.
+exc#:#exc_preliminary_mark#:#Preliminary Grade/Points
+exc#:#exc_preliminary_status#:#Preliminary Status
+exc#:#exc_require_authorship_statement#:#Declaration of own Work
 exc#:#exc_require_authorship_statement_default#:#An declaration of own work is required by default for new exercise assignments
-exc#:#exc_accept_authorship_statement#:#Accept Statement
+exc#:#exc_require_authorship_statement_desc#:#A confirmation of the declaration of own work is required to submit the exercise.
+exc#:#exc_result_available_after#:#Result available after
+exc#:#exc_result_time#:#Result Availability
+exc#:#exc_result_time_info#:#The result and tutor Feedback will be available after this date. No feedback email is automatically sent before this date.
+exc#:#exc_result_time_not_for_peer_feedback#:#The result availability is not valid for peer feedback. Please use the feedback deadline there.
+exc#:#exc_result_time_open_info#:#Here you see a preliminary result from the already announced exercise units.
+exc#:#exc_result_time_should_be_after_end_date#:#The result availability must be after the deadline.
 exc#:#exc_revoke_authorship_statement#:#Revoke Statement
-exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
-exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
+exc#:#exc_settings_feedback_file_info#:#Tutors upload a file. The participant can access the file at the assignment overview.###fau: exNotify
+exc#:#exc_settings_feedback_text_info#:#Tutors type their evaluation in a text field. The participant can view the text is at the assignment overview.###fau: exNotify
+exc#:#exc_status_file_error#:#Reading the file %s produced the following error (the file will be ignored at saving): <p class="small">%s</p>
+exc#:#exc_status_file_no_updates#:#The file %s nas no matching users for an update.
+exc#:#exc_status_file_updated_teams#:#The status of the following teams was updated: <p class="small">%s</p>
+exc#:#exc_status_file_updated_teams_no_plag#:#The status of the following teams was updated (without plagiarism settings): <p class="small">%s</p>
+exc#:#exc_status_file_updated_users#:#The status of the following users was updated: <p class="small">%s</p>
+exc#:#exc_status_file_updated_users_no_plag#:#The status of the following users was updated (without plagiarism settings): <p class="small">%s</p>
+exc#:#exc_status_file_update_teams#:#Saving will process the file %s to update the status of the following teams: <p class="small">%s</p>
+exc#:#exc_status_file_update_teams_no_plag#:#Beim Speichern wird aus der Datei %s der Status der folgenden Teams aktualisiert (ohne Plagiatsinformationen): <p class="small">%s</p>
+exc#:#exc_status_file_update_users#:#Saving will process the file %s to update the status of the following users: <p class="small">%s</p>
+exc#:#exc_status_file_update_users_no_plag#:#Beim Speichern wird aus der Datei %s der Status der folgenden Benutzer aktualisiert (ohne Plagiatsinformationen): <p class="small">%s</p>
+exc#:#exc_status_file_wrong_mark#:#The value "%s" in "mark" is not numeric or exceeds the maximum points %s.
+exc#:#exc_status_file_wrong_plag_flag#:#The plagiarism flag '%s' ist not valid. It must be 'none', 'suspicion', 'detected' or empty.
+exc#:#exc_status_file_wrong_status#:#The status %s is not valid. It must be 'notgraded', 'passed' or 'failed'.
+exc#:#exc_status_file_wrong_titles#:#The head row has wrong column titles.
+exc#:#exc_team_manage_perm_failure#:#You need the permission to edit the exercise settings in order to create or dissolve teams!
+exc#:#exc_team_member_remove_new_team#:#The removed team members with submissions will form single user teams, to prevent their submission from a take over by others.
+exc#:#exc_team_remove_self_with_submission#:#You can't fully dissolve yor team as long as you have a submission!
+exc#:#exc_type_inactive#:#Inaktive
+exc#:#exc_type_inactive_info#:#This assignment type is currently not active. Please inform the StudOn team: <a href="mailto://studon@fau.de">studon@fau.de</a>
+exc#:#exc_type_test_result#:#Test Result (Single User)
+exc#:#exc_type_test_result_team#:#Test Result (as Team)
+exc#:#exc_visible_for_student#:#visible for learners
+exc#:#exc_visible_for_tutors#:#only visible for tutors
+exc#:#exc_wrong_filenames#:#The following filenames have a wrong suffix: %s
+exc#:#exc_wrong_filenames_in_zip#:#The following filenames in the archive have a wrong suffix: %s
+exc#:#label_finished_pass#:#LastFinished Pass: ###fau: exAssTest
 exc#:#label_scored_participant#:#Participant: ###fau: exAssTest
 exc#:#label_scored_pass#:#Scored Pass: ###fau: exAssTest
 exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
-exc#:#label_finished_pass#:#LastFinished Pass: ###fau: exAssTest
-exercise#:#exc_mark#:#Grade/Points
+exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
+exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
-grp#:#crs_grp_info_reg_lot#:#You can only become a member of the following courses, but register for any. So the first assigned membership becomes valid.
-grp#:#group_password_registration_lot#:#When you received the group-password, you can register for the lottery of this group.
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
-grp#:#group_req_registration_lot#:#You can request the participation of the lottery for this group. You will receive a message, if you have been drawn or your admission was rejected.
 grp#:#grp_added_member#:#Admission to group "%s"
 grp#:#grp_added_member_body#:#You have been accepted to the group "%s".
-grp#:#grp_grp_info_reg_lot#:#You can only become a member of the following groups, but join any. So the first assigned membership becomes valid.
-grp#:#grp_limit_period_for_lot#:#For the activation of the lottery you have to limit the admission period!
-grp#:#grp_lot_info#:#<span class="alert">Use the lottery, if you expect many interest parties!</span><br />All Admissions will be collect with the same chance. After the admission period you can determine the members by chance.
+grp#:#grp_mail_permanent_link#:#This message concerns to the following group:###fau: linkPermaShort
 grp#:#grp_max_members_mode#:#Procedure:
 grp#:#grp_no_list#:#Rejection
 grp#:#grp_no_list_info#:#If the number of members has exceeded, new Joinings will instantly be rejected.
 grp#:#grp_pass_request_studycond#:#Joining with group-password (otherwise application for admission) for following students:<p class="small">%s</p>
-grp#:#grp_reg_direct_info_screen_lot#:#You can register for the lottery of this group.
 grp#:#grp_reg_limit_reached#:#You could not have been accepted, because the maximum number of participants has been exceeded.
 grp#:#grp_reg_limit_time_info#:#Joining is only possible during a fixed period.
-grp#:#grp_reg_passwd_info_screen_lot#:#When you receive the group-password, you can register for the lottery of this group.
-grp#:#grp_reg_req_info_screen_lot#:#You can request the participation of the lottery for this group. You will receive a message, if you have been drawn or your admission has been rejected.
 grp#:#grp_reg_user_already_assigned#:#You are already member of this group.
 grp#:#grp_reg_user_generic_failure#:#You could not be accepted!
 grp#:#grp_reg_user_on_waiting_list#:#You are already on the waiting list of this group!
 grp#:#grp_type_info_create#:#<span class="alert">Superior administrators can - independable of that - have access (see Info-page after creating)</span>.
 grp#:#grp_type_info_edit#:#<span class="alert">Superior administrator can - independable of that - have access (see Info-page)</span>.
 grp#:#mem_error_preconditions#:#You could not have been accepted!
-logging#:#log_error_message#:#The error was logged with the code %s.
-logging#:#log_error_message_send_mail#:#Please ty fist to repeat your action. Sometimes it helps to log out and log in again. If the error occurs again, please send the code to <a href="mailto:%s?subject=code: %s">%s</a>. Please describe in your e-mail, what you intended to do.
+logging#:#log_error_message_send_mail#:#Please ty fist to repeat your action. Sometimes it helps to log out and log in again. If the error occurs again, please send the code to <a href="mailto:%s?subject=code: %s">%s</a>. Please describe in your e-mail, what you intended to do.###fau: logErrorFile
 mail#:#mail_from_via#:#%s via %s
 mail#:#mail_only_own_courses_info#:#Please write only to members of your own courses and groups.<br />Use course or group addresses only for important messages.</br >Anything else may be spam for the recipients!
 mail#:#mail_pear_is_automaticly_switched#:#PEAR will automaticly be activated at the mailing to course or group members where local roles exists with non-unique names.
-mail#:#mail_salutation_f#:#Dear Mrs.
-mail#:#mail_salutation_m#:#Dear Mr.
 mail#:#mail_smtp_not_allowed#:#You can only write to users in the system, not to general e-mail-adresses!
 meta#:#meta_vhb_notice#:#Note for vhb course managers: Enter the LV number in the "Quick editing" area under "Keywords". If the course is to be used for several events, you can enter several LV numbers as separate keywords or use the placeholder "*" for any characters in a LV number.###fau: vhbNumber
 mob#:#mob_extract_preview_image#:#Extract Preview Image
-mob#:#mob_preview_image_extracted#:#The preview image was extracted from the video. Please reload the page with the video to get the image updated.
 mob#:#mob_no_extraction_possible#:#The preview image couldn't be extracted.
+mob#:#mob_preview_image_extracted#:#The preview image was extracted from the video. Please reload the page with the video to get the image updated.
 mob#:#mob_preview_image_upload_info#:#Alternatively you can upload the preview image on the "Files" tab. It must have the filename 'mob_vpreview.png'.
-news#:#news_get_feed_info#:#This feed has all news to your selected items that were declared as public by their authos. It is not protected by any authentication.
-news#:#news_get_priv_feed_info#:#This feed has additional news that were declared as private. It is protected by a password defined by you in the <a href=%s">news settings</a>. Please replace the pattern PASSWORD in the URL with your feed password.
-news#:#news_get_priv_feed_passhash_title#:#Personal private Feed-URL (alternative)
-news#:#news_get_priv_feed_passhash_info#:#Use this feed address when your RSS reader doesn't support passwords. When you change your feed password in the <a href=%s">news settings</a> then this link will be changed, too. Please don't send this link to other persons.
-news#:#news_get_priv_feed_disabled_info#:#Your private news feed isn't active. You can activate it in the <a href=%s">"news settings"</a>.
+news#:#news_enable_private_feed_info#:#Activates password protected feeds for personal news. The password is used for feeds of news on your desktop und and for separate feeds of news from the repository. When you change it, the feed urls will change, too.###fau: shortRssLink
 news#:#news_get_context_info#:#This feed gets all news from the current context, that are declared as 'public by their authors'. It isn't protected by any authentication.
-news#:#news_enable_private_feed_info#:#Activates password protected feeds for personal news. The password is used for feeds of news on your desktop und and for separate feeds of news from the repository. When you change it, the feed urls will change, too.
+news#:#news_get_feed_info#:#This feed has all news to your selected items that were declared as public by their authos. It is not protected by any authentication.###fau: shortRssLink
+news#:#news_get_priv_feed_disabled_info#:#Your private news feed isn't active. You can activate it in the <a href=%s">"news settings"</a>.
+news#:#news_get_priv_feed_info#:#This feed has additional news that were declared as private. It is protected by a password defined by you in the <a href=%s">news settings</a>. Please replace the pattern PASSWORD in the URL with your feed password.###fau: shortRssLink
+news#:#news_get_priv_feed_passhash_info#:#Use this feed address when your RSS reader doesn't support passwords. When you change your feed password in the <a href=%s">news settings</a> then this link will be changed, too. Please don't send this link to other persons.
+news#:#news_get_priv_feed_passhash_title#:#Personal private Feed-URL (alternative)
+news#:#news_notifications_public_info#:#If this option is enabled, notifications can be obtained by personal RSS feeds outside of ILIAS. Please note that this makes notifications accessible without authentication.###fau: shortRssLink
+news#:#news_nr_of_items_info#:#Number of news items that are kept for an object (e.g. a file or a learning module) in the database. Please note, that container objects (e.g. categories, courses) may list more items, because they aggregate news of sub-objects.###fau: shortRssLink
+news#:#passwd_equals_ilpasswd#:#Please enter a password different from your ILIAS-password.###fau: shortRssLink
 ps#:#cleanup_rbac_log#:#Cleanup Permission Log
 ps#:#cleanup_rbac_log_finished#:#Permission log cleaned.
-ps#:#ps_export_lot#:#Lot candidates
-ps#:#ps_perform_export_excel#:#Start Excel Export
 ps#:#ps_cdf_desc#:#Description###fau: courseUdf
 ps#:#ps_cdf_desc_info#:#The description is shown below the field on the registration page###fau: courseUdf
-ps#:#ps_type_email#:#E-mail Address###fau: courseUdf
-ps#:#ps_type_email_long#:#E-mail Addres###fau: courseUdf
 ps#:#ps_cdf_email_auto#:#Automated Notification###fau: courseUdf
 ps#:#ps_cdf_email_auto_info#:#An automated notification will be sent to the entered e-mail address. The Reply-To address is taken from the first adminsitrator with activated notification.###fau: courseUdf
 ps#:#ps_cdf_email_text#:#E-mail Text###fau: courseUdf
 ps#:#ps_cdf_email_text_info#:#The e-mail will start with this text. The placeholder [reply-to] will be replaced by the Reply-To address. The text is followed by a list of data (course/group info, name and e-mail of the registered person, course specific user data).###fau: courseUdf
-ps#:#ps_type_select_long#:#Select List (fixed values)
 ps#:#ps_cdf_is_sub_field#:#Sub Field
 ps#:#ps_cdf_is_sub_field_info#:#This is a sub field if a selection. A 'required' setting will only be checked if the parent option is selected.
 ps#:#ps_cdf_parent_field#:#Parent Field
 ps#:#ps_cdf_parent_value#:#Parent Option
+ps#:#ps_perform_export_excel#:#Start Excel Export
 ps#:#ps_type_checkbox#:#Checkbox
+ps#:#ps_type_email#:#E-mail Address###fau: courseUdf
+ps#:#ps_type_email_long#:#E-mail Addres###fau: courseUdf
 ps#:#ps_type_select_info#:#ATTENTION: The select positions have sub fields assigned. When you change the order of the fields, please update the assignments in the sub fields!
-registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
-registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.
-registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.
 registration#:#registration_codes_info#:#You can link the self registration this way:<br />{URL}studon_register (code will be queried)<br />{URL}studon_register_CODE (code is linked)
-registration#:#reg_code_title_info#:#This title replaces the page title of the registration form.
+registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.###fau: regCodes
+registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.###fau: regCodes
+registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
+registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
 registration#:#reg_code_description_info#:#The description is shown below the page title.
-registration#:#reg_code_use_limit#:#Usable
-registration#:#reg_code_use_unlimited#:#unlimited
-registration#:#reg_code_use_limit_info#:#Number of possible code usages. 0 means unlimited.
-registration#:#reg_code_use_count#:#Used
 registration#:#reg_code_last_used#:#Last Used
+registration#:#reg_code_title_info#:#This title replaces the page title of the registration form.
+registration#:#reg_code_use_count#:#Used
+registration#:#reg_code_use_limit#:#Usable
+registration#:#reg_code_use_limit_info#:#Number of possible code usages. 0 means unlimited.
+registration#:#reg_code_use_unlimited#:#unlimited
+registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to StudOn. You will receive a confirmation e-mail in the next minutes. Please look also in the spam folder of your post box. Confirm your registration by clicking the confirmation link in this mail.<br />After that you will receive a second e-mail with your account data. Please use the ‘Local Login’ on the StudOn start page to log in.###fau: regCodes
 registration#:#reg_login_generation_type#:#Login Generation
 registration#:#reg_login_generation_type_info#:#Definition of the login name for the new user account.
-registration#:#reg_login_gen_manual#:#Manual entry
 registration#:#reg_login_gen_first_lastname#:#Automatic (firstname.lastname)
 registration#:#reg_login_gen_guest_listener#:#Automatic for Guest Listeners (ghs16frneuma)
 registration#:#reg_login_gen_guest_selfreg#:#Automatic for Self Registered Guests (gsr12345)### fau.
+registration#:#reg_login_gen_manual#:#Manual entry
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration.
-registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
-registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to StudOn. You will receive a confirmation e-mail in the next minutes. Please look also in the spam folder of your post box. Confirm your registration by clicking the confirmation link in this mail.<br />After that you will receive a second e-mail with your account data. Please use the ‘Local Login’ on the StudOn start page to log in.###fau: regCodes
 registration#:#reg_mail_body_confirmation#:#To confirm this registration you have to activate it. Click the link below or copy it to the address field of your browser (ensure that it has no line break):###fau: regCodes
 registration#:#reg_password_is_login#:#Your password is identical to the username.
-registration#:#reg_pw_gen_info#:#Setting of the password for the new account.
-registration#:#reg_pw_gen_manual#:#Manual entry in the registration form
 registration#:#reg_pw_gen_auto#:#Automated generation and sending per e-nail
+registration#:#reg_pw_gen_info#:#Setting of the password for the new account.
 registration#:#reg_pw_gen_login#:#Use the login as password (without sending)
+registration#:#reg_pw_gen_manual#:#Manual entry in the registration form
 search#:#search_for_matriculations#:#Search for Matriculation Numbers
 search#:#search_matriculations#:#Matriculation Numbers
 search#:#search_matriculations_info#:#Separate the numbers by comma, semi colons oder new lines. spaces are ignored.
 search#:#search_use_quotes_info#:#Verwenden Sie Anführungszeichen für zusammenhängende Begriffe, z.B.<br />"Erste Schritte"
 style#:#sty_custom_css#:#Special Styles
-style#:#sty_custom_css_edit#:#Edit Special Styles
-style#:#sty_custom_css_description#:#Enter special styles here as CSS code. The code is appended to the generated CSS file. Special styles are only supported in StudOn, not in standard ILIAS.
 style#:#sty_custom_css_color_info#:#Predefined colors are used like in the style forms, e.g. color: !MeineFarbe(20);
+style#:#sty_custom_css_description#:#Enter special styles here as CSS code. The code is appended to the generated CSS file. Special styles are only supported in StudOn, not in standard ILIAS.
+style#:#sty_custom_css_edit#:#Edit Special Styles
 style#:#sty_custom_css_image_info#:#Images are used with ! as prefix, e.g. background-image: url(!MeinHintergrund.png);
 style#:#sty_inherit#:#Set as Default###// fau: inheritContentStyle
-style#:#sty_inherit_info#:#This style is used for all sub objects that don't have an own style.###// fau: inheritContentStyle
 style#:#sty_inherited_from#:#Default set by###// fau: inheritContentStyle
 style#:#sty_inherited_from_info#:#The default style is set in the named parent object.###// fau: inheritContentStyle
-survey#:#freetext_answers#:#Freetext answers
+style#:#sty_inherit_info#:#This style is used for all sub objects that don't have an own style.###// fau: inheritContentStyle
 survey#:#anonymize_survey_description#:#The anonymisation deletes all personal data from the survey statistics.<ul><li>Public surveys with CAPTCHA require the recognition of a short picture text to prevent an automated fill-in.</li><li>Public surveys with access key require a short key to be entered.</li></ul>Registered StudOn users don't need a CAPTCHA or access key.
 survey#:#anonymize_with_captcha#:#Anonymous Survey with CAPTCHA
 survey#:#anonymize_with_captcha_info#:#The survey can be startet aber entering the text from an automatically generated image. This option can't be combined with access codes.
 trac#:#lp_info_users_to_refresh#:#%s learning progress data were refreshed. There are %s users remaining that need an update. Please reload this page if you need their data.###fau: lpRefreshesLimit
-trac#:#trac_mode_questions#:#Answering Questions Correctly
-trac#:#trac_mode_questions_info#:#Users who answered a certain share of questions correctly will automatically be assigned with the status ‘Completed’. Please use this setting only if there actually are questions in the learning module.
+trac#:#trac_mode_questions#:#Answering Questions Correctly###fau: lpQuestionsPercent
+trac#:#trac_mode_questions_info#:#Users who answered a certain share of questions correctly will automatically be assigned with the status ‘Completed’. Please use this setting only if there actually are questions in the learning module.###fau: lpQuestionsPercent
 trac#:#trac_mode_questions_percent#:#Share (%)
 trac#:#trac_required_questions_percent#:#Share of correctly answered questions (%)
+univis#:#crs_availability_unvisible_info#:#Der Kurs ist set offline
 univis#:#crs_visibility#:#Visibility
 univis#:#crs_visibility_unvisible#:#Not visible
-univis#:#crs_availability_unvisible_info#:#Der Kurs ist set offline
-univis#:#univis_add_title_short#:#add short title
 univis#:#univis_additional_info#:#Additional informations
+univis#:#univis_add_title_short#:#add short title
 univis#:#univis_allfak#:#language course for listeners of all faculties
 univis#:#univis_allfak_short#:#AllFak
 univis#:#univis_bac#:#Bachelor
@@ -907,6 +855,13 @@ univis#:#univis_lafn#:#LAFN
 univis#:#univis_lafn_short#:#LAFN
 univis#:#univis_lafv#:#LAFV
 univis#:#univis_lafv_short#:#LAFV
+univis#:#univis_lecturer#:#lecturer
+univis#:#univis_lecturer_name#:#Name
+univis#:#univis_lectures_search_import_desc#:#Please insert a search criteria for the lecture, which you want to apply to StudOn.
+univis#:#univis_lectures_search_title#:#Search for lectures
+univis#:#univis_lectures_selection_import_desc#:#Please choose the lectures, which you want to import.
+univis#:#univis_lectures_selection_title#:#Choose lectures
+univis#:#univis_lectures_selection_update_desc#:#Please choose the lectures, which course data you want to update.
 univis#:#univis_lecture_conditions_desc#:#Please determine how the lecture data shall be taken over.
 univis#:#univis_lecture_conditions_title#:#Settings for Data-overtake
 univis#:#univis_lecture_message_course_blocked#:#This StudOn-course is not changeable for you. Owner: %s.
@@ -947,13 +902,6 @@ univis#:#univis_lecture_type_tut#:#Seminar conducted by a postgraduate
 univis#:#univis_lecture_type_ue#:#Exercise
 univis#:#univis_lecture_type_v-ue#:#lecture with exercise
 univis#:#univis_lecture_type_vorl#:#lecture
-univis#:#univis_lecturer#:#lecturer
-univis#:#univis_lecturer_name#:#Name
-univis#:#univis_lectures_search_import_desc#:#Please insert a search criteria for the lecture, which you want to apply to StudOn.
-univis#:#univis_lectures_search_title#:#Search for lectures
-univis#:#univis_lectures_selection_import_desc#:#Please choose the lectures, which you want to import.
-univis#:#univis_lectures_selection_title#:#Choose lectures
-univis#:#univis_lectures_selection_update_desc#:#Please choose the lectures, which course data you want to update.
 univis#:#univis_literature#:#recommended literature
 univis#:#univis_mag#:#Master's degree
 univis#:#univis_mag_short#:#MAG
@@ -964,12 +912,12 @@ univis#:#univis_medabschn1#:#1. Study stage
 univis#:#univis_medabschn1_short#:#1. stage
 univis#:#univis_medabschn2#:#2. Study stage
 univis#:#univis_medabschn2_short#:#2. stage
-univis#:#univis_message_course_updated#:#1 StudOn-course has been updated.
 univis#:#univis_message_courses_updated#:#%s StudOn-course has been updated.
-univis#:#univis_message_lecture_ignored#:#1 lecture has been ignored.
-univis#:#univis_message_lecture_imported#:#1 lecture has been added as StudOn-course.
+univis#:#univis_message_course_updated#:#1 StudOn-course has been updated.
 univis#:#univis_message_lectures_ignored#:#%s lecture has been ignored.
 univis#:#univis_message_lectures_imported#:#%s lecture has been added as StudOn-course.
+univis#:#univis_message_lecture_ignored#:#1 lecture has been ignored.
+univis#:#univis_message_lecture_imported#:#1 lecture has been added as StudOn-course.
 univis#:#univis_message_this_course_updated#:#The course data has been updated.
 univis#:#univis_mycampus_registration#:#For the lecture a login is required. The login takes place per <a href="https://www.campus.uni-erlangen.de/qisserver/rds?univisid=%s" target="_blank"><em>my campus</em></a>.
 univis#:#univis_no_department_found#:#No matching facilities have been found. Please check your search input!
@@ -1019,32 +967,29 @@ univis#:#univis_ss#:#SS %s
 univis#:#univis_studies#:#subject of study / branch of study
 univis#:#univis_summary#:#Summary
 univis#:#univis_sws#:#SWS
+univis#:#univis_terms#:#Dates
 univis#:#univis_term_bd#:#block lecture
 univis#:#univis_term_d1#:#daily
 univis#:#univis_term_s1#:#single date at
 univis#:#univis_term_w2#:#every 2. week
-univis#:#univis_terms#:#Dates
 univis#:#univis_turnout#:#Expected number of participants:
 univis#:#univis_women#:#women research
 univis#:#univis_women_short#:#women
 univis#:#univis_ws#:#WS %s/%s
-user#:#usr_public_profile_global_alert#:#Your profile is visible to all internet users!<br /><a href="%s">Change Setting</a>
-user#:#usr_public_profile_logged_in_alert#:#Your profile is visible to registered users!<br /><a href="%s">Change Setting</a>
-user#:#show_client_info#:#Browser Information
-user#:#browser_desc#:#Broeser Description
 user#:#browser_agent#:#Browser Family
+user#:#browser_desc#:#Broeser Description
 user#:#browser_platform#:#Platform
 user#:#browser_version#:#Browser Version
-user#:#is_mobile#:#Mobile
-user#:#current_password_info#:#<strong>Note for vhb students:</strong> Your StudOn password is not the same as the vhb portal! If you do not know your StudOn password yet, select the function "Forgot your password?" above. You will then receive outside StudOn by e-mail a link with which you can set your new password. If you do not find the e-mail, please also check the spam folder of your e-mail inbox.
 user#:#confirm_password_assistance#:#Send a password assistance link to an %s? You will be logged out.
-videoportal#:#vp_authorization_failed#:#The Authentication by the video portal failed.
-videoportal#:#vp_no_interface_active#:#The Interface of StudOn to the video portal is currently not active.
-videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM account.
-videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
+user#:#current_password_info#:#<strong>Note for vhb students:</strong> Your StudOn password is not the same as the vhb portal! If you do not know your StudOn password yet, select the function "Forgot your password?" above. You will then receive outside StudOn by e-mail a link with which you can set your new password. If you do not find the e-mail, please also check the spam folder of your e-mail inbox.
+user#:#is_mobile#:#Mobile
+user#:#show_client_info#:#Browser Information
+user#:#user_screen_reader_optimization_info#:#Improve ILIAS for usage with screen readers.
+user#:#usr_public_profile_global_alert#:#Your profile is visible to all internet users!<br /><a href="%s">Change Setting</a>
+user#:#usr_public_profile_logged_in_alert#:#Your profile is visible to registered users!<br /><a href="%s">Change Setting</a>
 videoportal#:#vp_access_granted#:#Access is granted by a StudOn object.
+videoportal#:#vp_authorization_failed#:#The Authentication by the video portal failed.
 videoportal#:#vp_no_access_granted#:#No access is granted for the user.
-awrn#:#legal_visibility#:#<p>Make your decision here about your visibility in your courses and groups and determine whether your username is displayed in the "Who's online?" status display, whether contact requests and chatting by other course and group members are allowed.  </p> <br/> <p style="color: red;">The features are designed to be opt-in and are disabled by default in the personal profile settings. The decision to activate the individual functions is exclusively voluntary and only with the explicit consent of the user himself/herself. The "Privacy Checklist" shows how visible you are to other users with your personal profile. </p>
-awrn#:#awrn_hide_from_awareness_info#:#The "Who is online?"-Tool is in the top bar of the notification center and lists selected users (e.g. contacts from my courses and groups, course supervision). Only "linked" contacts from your own contact list (=confirmed contacts) or confirmed contact requests are listed. Users who do not have their online status displayed will not be listed. Course administrators can be displayed in the "WIO?"-Tool as "course tutors" in the respective course/group if "tutorial tutoring" is activated in the tab "Members" in the course/group.
-buddysystem#:#buddy_allow_to_contact_me_info#:#If enabled, other users are able to send me request for getting into contact. Contact requests to members from your own courses and groups can be sent, cancelled or withdrawn either from the tab "Members" in courses/groups or from the main menu via "Communication" > "Contacts". Only members who have "Allow to contact me" enabled can be contacted. New contact requests are displayed in the notification center via the bell symbol and can thus be confirmed or ignored. 
-chatroom#:#chat_osc_accept_msg_info#:#If activated, other users are allowed start a conversation with me. A conversation with another user from your contact list can be started from the "Who is online?"-Tool in the notification center. Chatting is only possible with users from your courses and groups or with confirmed contacts who have "Allow On-Screen Chat Conversations" enabled.
+videoportal#:#vp_no_interface_active#:#The Interface of StudOn to the video portal is currently not active.
+videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
+videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM account.
