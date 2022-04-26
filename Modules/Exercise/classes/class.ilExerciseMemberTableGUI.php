@@ -55,6 +55,13 @@ class ilExerciseMemberTableGUI extends ilExerciseSubmissionTableGUI
             $this->exc->getRefId(),
             $usr_ids
         );
+
+        // fau: exMemFilter - exclude members without read access
+        if (!$this->exc->canViewMembersWithoutAccess()) {
+            $filtered_usr_ids = $this->exc->filterUsersByReadAccess($filtered_usr_ids);
+        }
+        // fau.
+
         $data = [];
         foreach ($filtered_usr_ids as $usr_id) {
             $data[$usr_id] = $tmp_data[$usr_id];

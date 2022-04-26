@@ -804,6 +804,12 @@ class ilObjExercise extends ilObject
             (array) $mem_obj->getMembers()
         );
 
+        // fau: exMemFilter - exclude members without read access
+        if (!$this->canViewMembersWithoutAccess()) {
+            $filtered_members = $this->filterUsersByReadAccess($filtered_members);
+        }
+        // fau.
+
         foreach ((array) $filtered_members as $user_id) {
             // fau: exGradesExport - get all user fields
             $mems[$user_id] = ilObjUser::_lookupFields($user_id);
@@ -930,7 +936,27 @@ class ilObjExercise extends ilObject
         $not->setRecipients($user_ids);
         $not->send();
     }
-    
+
+    // fau: exMemFilter - new function filterUsersByReadAccess
+    /**
+     * Filter a list of user ids by granted read access
+     * @param int[] $users
+     * @return int[]
+     */
+    public function filterUsersByReadAccess(array $users) : array
+    {
+        global $DIC;
+
+        $filtered = [];
+        foreach ($users as $user_id) {
+            if ($DIC->access()->checkAccessOfUser($user_id, 'read', '', $this->getRefId())) {
+                $filtered[] = $user_id;
+            }
+        }
+        return $filtered;
+    }
+    // fau.
+
     /**
      *
      * Checks whether completion by submission is enabled or not
@@ -943,6 +969,18 @@ class ilObjExercise extends ilObject
     {
         return $this->completion_by_submission;
     }
+
+
+    // fau: exMemFilter - new function canViewMembersWithoutAccess()
+    /**
+     * Check if the list of members should contain members without access
+     *
+     * @return bool
+     */
+    public function canViewMembersWithoutAccess() {
+        return ilObjExerciseAccess::checkExtendedGradingAccess($this->getRefId(), true);
+    }
+    // fau.
 
     // fau: exMemDelete - new function isMemberDeleteAllowed()
     /**

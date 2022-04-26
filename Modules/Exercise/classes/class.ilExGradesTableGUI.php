@@ -60,7 +60,14 @@ class ilExGradesTableGUI extends ilTable2GUI
             $this->exc->getRefId(),
             $mems
         );
-        
+
+        // fau: exMemFilter - exclude members without read access
+        if (!$this->exc->canViewMembersWithoutAccess()) {
+            $mems = $this->exc->filterUsersByReadAccess($mems);
+        }
+        // fau.
+
+
         $data = array();
         foreach ($mems as $d) {
             $data[$d] = ilObjUser::_lookupName($d);

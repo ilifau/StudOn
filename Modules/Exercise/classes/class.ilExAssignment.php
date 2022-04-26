@@ -2258,23 +2258,34 @@ class ilExAssignment
             $mems
         );
 
+        // fau: exMemFilter - exclude members without read access
+        if (!$exercise->canViewMembersWithoutAccess()) {
+            $mems = $exercise->filterUsersByReadAccess($mems);
+        }
+        // fau.
+
+
         // fau: exMultiFeedbackStructure - create structure for teams
         if ($this->getAssignmentType()->usesTeams()) {
             /** @var ilExAssignmentTeam[] $teams */
             $teams = ilExAssignmentTeam::getInstancesFromMap($this->getId());
+            // fau: exMemFilter - create team dir only if at least one member is in filter
             foreach ($teams as $team_id => $team) {
-                $team_dir = $this->lng->txt("exc_team") . " " . $team_id;
-                ilUtil::makeDir($mfdir . "/" . $team_dir);
+                if (count(array_intersect($team->getMembers(), $mems)) > 0) {
+                    $team_dir = $this->lng->txt("exc_team") . " " . $team_id;
+                    ilUtil::makeDir($mfdir . "/" . $team_dir);
 
-                if (!$this->getAssignmentType()->isSubmissionAssignedToTeam() && count(array_intersect($team->getMembers(), $mems)) > 0) {
-                    foreach ($team->getMembers() as $mem) {
-                        $name = ilObjUser::_lookupName($mem);
-                        $subdir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
-                        $subdir = ilUtil::getASCIIFilename($subdir);
-                        ilUtil::makeDir($mfdir . "/" . $team_dir . "/" . $subdir);
+                    if (!$this->getAssignmentType()->isSubmissionAssignedToTeam()) {
+                        foreach ($team->getMembers() as $mem) {
+                            $name = ilObjUser::_lookupName($mem);
+                            $subdir = $name["lastname"] . "_" . $name["firstname"] . "_" . $name["login"] . "_" . $name["user_id"];
+                            $subdir = ilUtil::getASCIIFilename($subdir);
+                            ilUtil::makeDir($mfdir . "/" . $team_dir . "/" . $subdir);
+                        }
                     }
                 }
             }
+            // fau.
         }
         else {
             foreach ($mems as $mem) {
@@ -2370,6 +2381,13 @@ class ilExAssignment
         $exmem = new ilExerciseMembers($exc);
         $mems = $exmem->getMembers();
 
+        // fau: exMemFilter - exclude members without read access
+        if (!empty($ref_id = $_GET['ref_id'])) {
+            $filter = new ilExerciseMembersFilter($ref_id, $mems, $a_user_id);
+            $mems = $filter->filterParticipantsByAccess();
+        }
+        // fau.
+
         // read mf directory
         $storage = new ilFSStorageExercise($this->getExerciseId(), $this->getId());
         $mfu = $storage->getMultiFeedbackUploadPath($ilUser->getId());
@@ -2412,6 +2430,11 @@ class ilExAssignment
             $teams = ilExAssignmentTeam::getInstancesFromMap($this->getId());
             foreach ($teams as $team_id => $team) {
                 $team_dir = $mfu . "/" . $subdir . "/" .  $this->lng->txt("exc_team") . " " . $team_id;
+                // fau: exMemFilter - exclude teams without members with read access
+                if (empty(array_intersect($team->getMembers(), $mems))) {
+                    continue;
+                }
+                // fau.
                 $members = [];
                 foreach ($team->getMembers() as $user_id) {
                     $name = ilObjUser::_lookupName($user_id);

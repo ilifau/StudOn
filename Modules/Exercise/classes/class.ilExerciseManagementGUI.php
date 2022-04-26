@@ -979,8 +979,6 @@ class ilExerciseManagementGUI
         }
         // fau.
 
-        // $ass = ilExAssignment::getAssignmentDataOfExercise($this->exercise->getId());
-        // fau.
         $members = $this->exercise->members_obj->getMembers();
         
         $members = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
@@ -989,8 +987,13 @@ class ilExerciseManagementGUI
             $this->exercise->getRefId(),
             $members
         );
-        
-        
+
+        // fau: exMemFilter - exclude members without read access
+        if (!$this->exercise->canViewMembersWithoutAccess()) {
+            $members = $this->exercise->filterUsersByReadAccess($members);
+        }
+        // fau.
+
         if (count($members) == 0) {
             ilUtil::sendInfo($lng->txt("exc_no_participants"));
             return;
@@ -1100,6 +1103,13 @@ class ilExerciseManagementGUI
             $this->exercise->getRefId(),
             $mems
         );
+
+        // fau: exMemFilter - exclude members without read access
+        if (!$this->exercise->canViewMembersWithoutAccess()) {
+            $mems = $this->exercise->filterUsersByReadAccess($mems);
+        }
+        // fau.
+
         if (count($mems) > 0) {
             $ilToolbar->addButton(
                 $lng->txt("exc_export_excel"),

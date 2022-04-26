@@ -58,6 +58,21 @@ class ilExerciseMembersFilter
      */
     public function filterParticipantsByAccess() : array
     {
+        // fau: exMemFilter - add filter by access of members
+        // @see ilObjExercise::canViewMembersWithoutAccess
+        // @see ilObjExercise::filterUsersByReadAccess
+        $members = [];
+        if (ilObjExerciseAccess::checkExtendedGradingAccess($this->exercise_ref_id, true)) {
+            $members = $this->members;
+        }
+        else {
+            foreach ($this->members as $user_id) {
+                if ($this->access->checkAccessOfUser($user_id, 'read', '', $this->exercise_ref_id)) {
+                    $members[] = $user_id;
+                }
+            }
+        }
+
         if ($this->access->checkAccessOfUser(
             $this->user_id,
             'edit_submissions_grades',
@@ -65,13 +80,14 @@ class ilExerciseMembersFilter
             $this->exercise_ref_id
         )) {
             // if access by rbac granted => return all
-            return $this->members;
+            return $members;
         }
         return $this->access->filterUserIdsByPositionOfUser(
             $this->user_id,
             'edit_submissions_grades',
             $this->exercise_ref_id,
-            $this->members
+            $members
         );
+        // fau.
     }
 }
