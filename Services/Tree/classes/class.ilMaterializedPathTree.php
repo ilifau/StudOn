@@ -204,6 +204,10 @@ class ilMaterializedPathTree implements ilTreeImplementation
             $treeClause = 'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ';
         }
 
+        // 2022-04-26 Fred: added to check if performance is now ok with the clause. If yes, revert the whole patch treeQuery53
+        $treeClause = 'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ';
+
+
         // @todo order by
         $query = 'SELECT ' .
                 $fields . ' ' .
