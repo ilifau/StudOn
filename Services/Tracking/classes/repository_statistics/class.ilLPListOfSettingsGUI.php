@@ -118,22 +118,22 @@ class ilLPListOfSettingsGUI extends ilLearningProgressBaseGUI
                     $vis->setValue($this->obj_settings->getVisits());
                     $opt->addSubItem($vis);
                 }
-            }
 
-            // fau: lpQuestionsPercent - form input for percent
-            if ($mode_key == ilLPObjSettings::LP_MODE_QUESTIONS) {
-                $perc = new ilNumberInputGUI($this->lng->txt('trac_mode_questions_percent'), 'questions_percent');
-                $perc->setSize(5);
-                $perc->setMaxLength(5);
-                $perc->setMinValue(0);
-                $perc->setMaxValue(100);
-                $perc->setDecimals(1);
-                $perc->setRequired(true);
-                $perc->setValue($this->obj_settings->getQuestionsPercent());
-                $opt->addSubItem($perc);
+                // fau: lpQuestionsPercent - form input for percent
+                if ($mode_key == ilLPObjSettings::LP_MODE_QUESTIONS) {
+                    $perc = new ilNumberInputGUI($this->lng->txt('trac_mode_questions_percent'), 'questions_percent');
+                    $perc->setSize(5);
+                    $perc->setMaxLength(5);
+                    $perc->setMinValue(0);
+                    $perc->setMaxValue(100);
+                    $perc->setDecimals(1);
+                    $perc->setRequired(true);
+                    $perc->setValue($this->obj_settings->getQuestionsPercent());
+                    $opt->addSubItem($perc);
+                }
+                // fau.
             }
         }
-        // fau.
         $form->addCommandButton('saveSettings', $this->lng->txt('save'));
 
         return $form;
