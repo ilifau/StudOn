@@ -6,6 +6,7 @@
 * @version			$Id: $
 */
 <!-- language file start -->
+assessment#:#tst_ending_time_desc#:#Zeitpunkt, ab dem Teilnehmer keine Antworten mehr abgeben können. <b>Wichtig</b>: Benutzen Sie diese Option, um den Zugang zum Test zu beenden und <b>nicht</b> für die Begrenzung der Bearbeitungszeit bei E-Klausuren/Fernklausuren. Verwenden Sie stattdessen die Funktion "Bearbeitungsdauer begrenzen", siehe unten. Nur dann wird der Test serverseitig beendet und die letzte Eingabe jedes Teilnehmers als autorisierte Antwort automatisch gespeichert.
 common#:#err_inactive_contact#:#<br/>Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>. Falls das nicht funktioniert, wenden Sie sich an <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a>, um Ihr Benutzerkonto aktivieren zu lassen.
 common#:#err_wrong_login#:#Login Fehlgeschlagen. Benutzername oder Passwort sind ungültig oder Ihr Account ist noch nicht auf der Prüfungsplattform hinterlegt.
 common#:#err_wrong_login_assist#:#Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige Plattform auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>.

@@ -6,6 +6,7 @@
 * @version			$Id: $
 */
 <!-- language file start -->
+assessment#:#tst_ending_time_desc#:#Time after which participants can no longer submit answers. <b>Important</b>: Use this option to end access to the test and <b>not</b> for limiting the completion time for e-exams/distance exams. Use the "Limit completion time" function instead, see below. Only then will the test be ended on the server side and the last entry of each participant will be automatically saved as an authorized answer.
 common#:#err_inactive_contact#:#<br/>Please check in the top bar if it is the correct platform for your exam. Choose the right one on our <a href="https://www.studon-exam.fau.de/">overview page</a>. If the problem remains, please contact <a href="mailto:studon-exam@ili.fau.de">studon-exam@ili.fau.de</a> to get your account activated.
 common#:#err_wrong_login#:#Login failed. Login or Password are wrong or your account is not yet registered on the exam-platform.
 common#:#err_wrong_login_assist#:#<br/>Please check in the top bar whether it is the correct platform for your exam. Choose the right one from our <a href="https://www.studon-exam.fau.de/">overview</a>.
