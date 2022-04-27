@@ -938,12 +938,9 @@ if ($ilDB->tableColumnExists('mail_saved', 'm_type')) {
     $ilDB->dropTableColumn('mail_saved', 'm_type');
 }
 
-// fau: skipMailUpdate - skip drop of mail.m_type
-// this would hang mariadb because of huge temp table creation
-//if ($ilDB->tableColumnExists('mail', 'm_type')) {
-//    $ilDB->dropTableColumn('mail', 'm_type');
-//}
-// fau.
+if ($ilDB->tableColumnExists('mail', 'm_type')) {
+    $ilDB->dropTableColumn('mail', 'm_type');
+}
 
 $ilDB->manipulateF(
     'DELETE FROM settings WHERE keyword = %s',
