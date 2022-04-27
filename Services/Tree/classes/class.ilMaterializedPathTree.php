@@ -185,28 +185,8 @@ class ilMaterializedPathTree implements ilTreeImplementation
 
         $fields = '* ';
         if (count($a_fields)) {
-            // fau: treeQuery53 - add the tree pk to the queried fields for later filter outside this function
-            if (!in_array($this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk(), $a_fields)
-                && !in_array($this->getTree()->getTreePk(), $a_fields)) {
-                $a_fields[] = $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk();
-            }
-            // fau.
             $fields = implode(',', $a_fields);
         }
-
-        // fau: treeQuery53 - don't use tree_id for repository tree
-        // this has bad performance on our MariaDB 10.1
-        // deleted subtrees may have negative tree_id, but the given childs are already primary keys
-
-        if ($this->getTree()->__isMainTree() && $this->getTree()->getTreeId() == 1) {
-            $treeClause = '';
-        } else {
-            $treeClause = 'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ';
-        }
-
-        // 2022-04-26 Fred: added to check if performance is now ok with the clause. If yes, revert the whole patch treeQuery53
-        $treeClause = 'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ';
-
 
         // @todo order by
         $query = 'SELECT ' .
@@ -217,12 +197,11 @@ class ilMaterializedPathTree implements ilTreeImplementation
                 'BETWEEN ' .
                 $ilDB->quote($a_node['path'], 'text') . ' AND ' .
                 $ilDB->quote($a_node['path'] . '.Z', 'text') . ' ' .
-                $treeClause .
+                'AND ' . $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk() . ' = ' . $ilDB->quote($this->getTree()->getTreeId(), 'integer') . ' ' .
                 $type_str . ' ' .
                 'ORDER BY ' . $this->getTree()->getTreeTable() . '.path';
 
         return $query;
-        // fau.
     }
     
     /**

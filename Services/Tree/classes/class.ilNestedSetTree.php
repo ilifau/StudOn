@@ -139,12 +139,6 @@ class ilNestedSetTree implements ilTreeImplementation
         
         $fields = '* ';
         if (count($a_fields)) {
-            // fau: treeQuery53 - add the tree pk to the queried fields for later filter outside this function
-            if (!in_array($this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk(), $a_fields)
-                && !in_array($this->getTree()->getTreePk(), $a_fields)) {
-                $a_fields[] = $this->getTree()->getTreeTable() . '.' . $this->getTree()->getTreePk();
-            }
-            // fau.
             $fields = implode(',', $a_fields);
         }
 

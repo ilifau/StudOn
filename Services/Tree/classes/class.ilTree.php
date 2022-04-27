@@ -475,7 +475,7 @@ class ilTree
             return $a_type . " JOIN " . $this->table_obj_data . " ON " . $this->table_tree . ".child=" . $this->table_obj_data . "." . $this->obj_pk . " ";
         }
     }
-    // fim.
+    // fau.
 
     /**
      * Get relation of two nodes
@@ -572,24 +572,16 @@ class ilTree
             $order_clause = "ORDER BY " . $this->table_tree . ".lft";
         }
 
-        // fau: treeQuery53 - don't use tree_id for repository tree
-        // this has bad performance on our MariaDB 10.1
-        // deleted subtrees may have negative tree_id, but the given childs are already primary keys
-        if ($this->__isMainTree() && $this->tree_id == 1) {
-            $treeClause = '';
-        } else {
-            $treeClause = 'AND ' . $this->table_tree . '.' . $this->tree_pk . ' = ' . $this->ilDB->quote($this->tree_id, 'integer') . ' ';
-        }
 
         $query = sprintf(
             'SELECT * FROM ' . $this->table_tree . ' ' .
                 $this->buildJoin() .
                 "WHERE parent = %s " .
-                $treeClause .
+                "AND " . $this->table_tree . "." . $this->tree_pk . " = %s " .
                 $order_clause,
-            $ilDB->quote($a_node_id, 'integer')
+            $ilDB->quote($a_node_id, 'integer'),
+            $ilDB->quote($this->tree_id, 'integer')
         );
-        // fau.
 
         $res = $ilDB->query($query);
         
@@ -597,21 +589,12 @@ class ilTree
             return array();
         }
 
-        // fau: treeQuery53 - filter by tree id outside query
         // get rows and object ids
         $rows = array();
         while ($r = $ilDB->fetchAssoc($res)) {
-            if ($this->__isMainTree() && $r[$this->getTreePk()] != $this->getTreeId()) {
-                continue;
-            }
             $rows[] = $r;
             $obj_ids[] = $r["obj_id"];
         }
-        // count again
-        if (!$count = count($rows)) {
-            return array();
-        }
-        // fau.
 
         // preload object translation information
         if ($this->__isMainTree() && $this->isCacheUsed() && is_object($ilObjDataCache) &&
@@ -962,11 +945,6 @@ class ilTree
         $query = $this->getTreeImplementation()->getSubTreeQuery($a_node, $a_type);
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($res)) {
-            // fau: treeQuery53 - filter by tree id outside query
-            if ($this->__isMainTree() && $row[$this->getTreePk()] != $this->getTreeId()) {
-                continue;
-            }
-            // fau.
             if ($a_with_data) {
                 $subtree[] = $this->fetchNodeData($row);
             } else {
@@ -1025,7 +1003,7 @@ class ilTree
 
         // fau: cleanupTrash - don't check materialized path trees that are already in trash when being deleted
         if ($this->__isMainTree() and ($this->getTreeId() >= 0 or is_a($this->getTreeImplementation(), 'ilNestedSetTree'))) {
-            // fim.
+            // fau.
             // @todo normally this part is not executed, since the subtree is first
             // moved to trash and then deleted.
             if (!$this->__checkDelete($a_node)) {
@@ -1081,23 +1059,14 @@ class ilTree
         }
         $inClause .= ')';
 
-        // fau: treeQuery53 - don't use tree_id for repository tree
-        // this has bad performance on our MariaDB 10.1
-        // deleted subtrees may have negative tree_id, but the given childs are already primary keys
-        if ($this->__isMainTree() && $this->tree_id == 1) {
-            $treeClause = '';
-        } else {
-            $treeClause = 'AND ' . $this->table_tree . '.' . $this->tree_pk . ' = ' . $this->ilDB->quote($this->tree_id, 'integer') . ' ';
-        }
-
         $q = 'SELECT * ' .
             'FROM ' . $this->table_tree . ' ' .
             $this->buildJoin() . ' ' .
             'WHERE ' . $inClause . ' ' .
-            $treeClause .
+            'AND ' . $this->table_tree . '.' . $this->tree_pk . ' = ' . $this->ilDB->quote($this->tree_id, 'integer') . ' ' .
             'ORDER BY depth';
         $r = $ilDB->query($q);
-        // fau.
+
         $pathFull = array();
         while ($row = $r->fetchRow(ilDBConstants::FETCHMODE_ASSOC)) {
             $pathFull[] = $this->fetchNodeData($row);
@@ -1127,20 +1096,11 @@ class ilTree
         if (!$this->__isMainTree() || !is_array($a_node_ids) || !$this->isCacheUsed()) {
             return;
         }
-        // fau: treeQuery53 - don't use tree_id for repository tree
-        // this has bad performance on our MariaDB 10.1
-        // deleted subtrees may have negative tree_id, but the given childs are already primary keys
-        if ($this->__isMainTree() && $this->tree_id == 1) {
-            $treeClause = '';
-        } else {
-            $treeClause = ' AND ' . $this->tree_pk . ' = ' . $ilDB->quote($this->tree_id, "integer");
-        }
 
         $res = $ilDB->query('SELECT t.depth, t.parent, t.child ' .
             'FROM ' . $this->table_tree . ' t ' .
             'WHERE ' . $ilDB->in("child", $a_node_ids, false, "integer") .
-            $treeClause);
-        // fau.
+            'AND ' . $this->tree_pk . ' = ' . $ilDB->quote($this->tree_id, "integer"));
         while ($row = $ilDB->fetchAssoc($res)) {
             $this->depth_cache[$row["child"]] = $row["depth"];
             $this->parent_cache[$row["child"]] = $row["parent"];
@@ -1587,7 +1547,7 @@ class ilTree
 
         return $this->fetchNodeData($row);
     }
-    // fim.
+    // fau.
 
     /**
     * get data of parent node from tree and object_data
@@ -1949,11 +1909,6 @@ class ilTree
 
         $subnodes = array();
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_ASSOC)) {
-            // fau: treeQuery53 - filter by tree id outside query
-            if ($this->__isMainTree() && $row[$this->getTreePk()] != $this->getTreeId()) {
-                continue;
-            }
-            // fau.
             $subnodes[] = $row['child'];
         }
 
@@ -2649,16 +2604,11 @@ class ilTree
         $res = $ilDB->query($query);
         
         $counter = (int) $lft_childs = array();
-        // fau: treeQuery53 - filter by tree id outside query
-        while ($row = $ilDB->fetchAssoc($res)) {
-            if ($this->__isMainTree() && $row[$this->getTreePk()] != $this->getTreeId()) {
-                continue;
-            }
-
-            $lft_childs[$row['child']] = $row['parent'];
+        while ($row = $ilDB->fetchObject($res)) {
+            $lft_childs[$row->child] = $row->parent;
             ++$counter;
         }
-        // fau.
+
         // CHECK FOR DUPLICATE CHILD IDS
         if ($counter != count($lft_childs)) {
             $message = 'Duplicate entries for "child" in maintree! $a_node_id: ' . $a_node['child'];
@@ -2871,11 +2821,6 @@ class ilTree
             " AND " . $ilDB->in($this->getObjectDataTable() . "." . $this->obj_pk, $a_obj_ids, "", "integer");
         $set = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($set)) {
-            // fau: treeQuery53 - filter by tree id outside query
-            if ($this->__isMainTree() && $row[$this->getTreePk()] != $this->getTreeId()) {
-                continue;
-            }
-            // fau.
             $res[] = $row;
         }
         
