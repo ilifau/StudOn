@@ -33,7 +33,7 @@
 /data
 # fau: gitIgnore - ignore plugins and skin but not the rest of customizing
 /Customizing/global/plugins
-/Customizing/global/skin
+# /Customizing/global/skin
 # fau.
 /setup/sql/ilDBTemplate
 virtual-data
