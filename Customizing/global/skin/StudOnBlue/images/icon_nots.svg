@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#BAE1FF;}
+	
+		.st1{clip-path:url(#SVGID_2_);fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="Ebene_2_1_">
+</g>
+<g>
+	<g>
+		<g>
+			<polygon id="SVGID_782_" class="st0" points="22.3,10.6 27.1,9.2 16.9,2 17.4,7 13.7,11.9 7.4,13.5 12.4,17.1 6.8,25.2 4.9,30 
+				8.8,26.6 14.4,18.5 19.6,22.1 18.9,15.5 			"/>
+		</g>
+		<g>
+			<defs>
+				<polygon id="SVGID_6_" points="22.3,10.6 27.1,9.2 16.9,2 17.4,7 13.7,11.9 7.4,13.5 12.4,17.1 6.8,25.2 4.9,30 8.8,26.6 
+					14.4,18.5 19.6,22.1 18.9,15.5 				"/>
+			</defs>
+			<clipPath id="SVGID_2_">
+				<use xlink:href="#SVGID_6_"  style="overflow:visible;"/>
+			</clipPath>
+			<polygon class="st1" points="12.2,-8.4 40.1,11.3 19.8,40.4 -8.1,21 			"/>
+		</g>
+		<g>
+			<polygon id="SVGID_1_" class="st2" points="22.3,10.6 27.1,9.2 16.9,2 17.4,7 13.7,11.9 7.4,13.5 12.4,17.1 6.8,25.2 4.9,30 
+				8.8,26.6 14.4,18.5 19.6,22.1 18.9,15.5 			"/>
+		</g>
+	</g>
+</g>
+</svg>
