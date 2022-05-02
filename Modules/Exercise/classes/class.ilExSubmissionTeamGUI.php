@@ -138,22 +138,32 @@ class ilExSubmissionTeamGUI
             
             if (!$a_submission->getAssignment()->getTeamTutor()) {
                 #23685
-                // any team member upload?
-                if (!$a_submission->getLastSubmission()) {
+
+                // fau: exTeamRemove - don't show button for team management to participants if submission time is over
+                if (!$state->hasSubmissionEnded()) {
+                    // any team member upload?
+                    if (!$a_submission->getLastSubmission()) {
+                        $button = ilLinkButton::getInstance();
+                        $button->setCaption("exc_delete_team");
+                        $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "confirmDeleteTeam"));
+                        $team .= " " . $button->render();
+                    }
                     $button = ilLinkButton::getInstance();
-                    $button->setCaption("exc_delete_team");
-                    $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "confirmDeleteTeam"));
-                    $team .= " " . $button->render();
+                    $button->setCaption("exc_manage_team");
+                    $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeam"));
                 }
-                $button = ilLinkButton::getInstance();
-                $button->setCaption("exc_manage_team");
-                $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeam"));
+                // fau.
             } else {
                 $button = ilLinkButton::getInstance();
                 $button->setCaption("exc_team_log");
                 $button->setUrl($ilCtrl->getLinkTargetByClass(array("ilExSubmissionGUI", "ilExSubmissionTeamGUI"), "submissionScreenTeamLog"));
             }
-            $team .= "<br><br>" . $button->render();
+
+            // fau: exTeamRemove - render only an existing tam button instance
+            if (isset($button)) {
+                $team .= "<br><br>" . $button->render();
+            }
+            // fau.
 
             $a_info->addProperty($lng->txt("exc_team_members"), $team);
         } else {
