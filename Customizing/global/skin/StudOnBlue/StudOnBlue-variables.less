@@ -9,9 +9,9 @@ with the il- variable set here.
 //
 //## The Main Colors used in ILIAS along with their semantics
 //** For Standard Buttons, Main color used in various places, used to be @brand-primary
-@il-main-color:		#002F6D;
+@il-main-color:		#002F6D; // fau: studOnSkin.
 //** For Primary Buttons, used to point to interactions with a special importance, used to be @brand-secondary
-@il-secondary-color:		#34997E;
+@il-secondary-color:		#34997E; // fau: studOnSkin.
 //** Used to indicate some success, used to be @brand-success
 @il-success-color:		#6ea03c;
 //** Used to indicate some success, used to be @brand-info
@@ -22,31 +22,31 @@ with the il- variable set here.
 @il-danger-color:		#d00;
 
 //** Neutral Color for various Backgrounds, used to be @gray-dark and @il-neutral-color
-@il-neutral-color:		#333333;
+@il-neutral-color:		#333333; // fau: studOnSkin.
 //** Light version of the @il-neutral-color, used to be @gray-light
-@il-neutral-light-color:		#757575;
+@il-neutral-light-color:		#757575; // fau: studOnSkin.
 
 //** Base Border Color, e.g. applied to Meta Bar and Breadcrumbs in Default.
 @il-main-border-color:		#dddddd;
 //** Darker version of Base Border Color. Used as e.g. Text Inputs.
-@il-main-border-dark-color:		#A8A8A8;
+@il-main-border-dark-color: #757575;
 
 //** Base Background Color, e.g. applied to Meta Bar and Breadcrumbs in Default, but also to panels in main content area.
 @il-main-bg:		white;
 //** Title area of various components such as Panels. Used as e.g. in containers as bg. Used to be @il-secondary-bg
-@il-main-dark-bg:		rgb(245, 247, 250);;
+@il-main-dark-bg:		rgb(245, 247, 250);// fau: studonBlueSkin.
 //** Background of everything in the Content Area, which is the area bellow the Meta Bar and Breadcrumbs next to the Main Bar. Used to be @body-bg
-@il-content-bg:		white;
+@il-content-bg:		white; // fau: studOnSkin.
 
 //** Currently used for several highlighting effects, such as hovering
-@il-highlight-bg:		#EEEEEE;
+@il-highlight-bg:		#EEEEEE; // fau: studOnSkin.
 
 //** Used to be @text-color. Can be used on all background colors.
-@il-text-color:		@il-neutral-color;
+@il-text-color: #161616;
 //** Used if text is hovered in components such a Dropdowns
 @il-text-hover-color:		darken(@il-text-color, 10%);
 //** Used e.g. for Bylines in Forms. Used to be @il-light-text-color. For accessibility reasons, the @il-text-color should only be used on the @il-main-bg.
-@il-text-light-color:		@il-neutral-light-color;
+@il-text-light-color: lighten(@il-text-color, 35%);
 
 //** Used to be @link-color
 @il-link-color:		@il-main-color;
@@ -106,15 +106,15 @@ with the il- variable set here.
 //##
 
 //** if left unchanged, you have to copy delos fonts folder to your skin folder. To use the delos fonts in your skin, please change this value (in custom less data or variables.less of your custom skin) to "../../../../templates/default/fonts/"
-@il-web-font-path:		"../../../../templates/default/fonts/";
-@il-font-family-sans-serif:		Roboto, 'Open Sans', Verdana, Arial, Helvetica, sans-serif;
+@il-web-font-path:		"../../../../templates/default/fonts/"; // fau: studOnSkin.
+@il-font-family-sans-serif:		Roboto, 'Open Sans', Verdana, Arial, Helvetica, sans-serif; // fau: studOnSkin.
 
 //** Base font size used to calculate others
 @il-font-size-base:		14px;
 @il-font-size-large:		ceil((@il-font-size-base *1.25));
 @il-font-size-small:		ceil((@il-font-size-base * 0.85));
 //** Unit-less `line-height` for use in components like buttons.
-@il-line-height-base:		1.428571429;
+@il-line-height-base: 1.428571429; // 20/14
 
 
 //== Base Padding and Border
@@ -123,6 +123,9 @@ with the il- variable set here.
 @il-padding-base-vertical:		3px;
 @il-padding-base-horizontal:		8px;
 
+@il-padding-xlarge-vertical: 9px;
+@il-padding-xlarge-horizontal: 15px;
+
 @il-padding-large-vertical:		6px;
 @il-padding-large-horizontal:		12px;
 
@@ -130,7 +133,7 @@ with the il- variable set here.
 @il-padding-small-horizontal:		6px;
 
 @il-padding-xs-vertical:		1px;
-@il-padding-xs-horizontal:		15px;
+@il-padding-xs-horizontal:		15px; // fau: studOnSkin.
 
 @il-border-radius-base:		0px;
 @il-border-radius-large:		0px;
@@ -148,7 +151,7 @@ with the il- variable set here.
 
 @il-standard-page-logo-height:		45px;
 @il-standard-page-logo-width:		45px;
-@il-standard-page-header-height:		70px;
+@il-standard-page-header-height:		70px; // fau: studOnSkin.
 @il-standard-page-header-bg-color:		@il-main-bg;
 @il-standard-page-border-light-color:		@il-main-border-color;
 @il-standard-page-content-padding:		20px;
@@ -174,7 +177,7 @@ with the il- variable set here.
 @il-mainbar-btn-height:		80px;
 @il-mainbar-btn-width:		80px;
 @il-mainbar-btn-color:		white;
-@il-mainbar-btn-bg-color:		@il-main-color;
+@il-mainbar-btn-bg-color:		@il-main-color; // fau: studonBlueSkin
 @il-mainbar-btn-color-engaged:		@il-neutral-color;
 @il-mainbar-btn-bg-color-engaged:		@il-main-bg;
 @il-mainbar-btn-border:		1px solid @il-standard-page-border-light-color;
@@ -252,11 +255,11 @@ with the il- variable set here.
 @il-top-bar-dropdown-link-hover-bg:		@il-highlight-bg;
 @il-top-bar-dropdown-link-hover-color:		lighten(@il-neutral-color, 42%);
 //** controls the height of the "logo" (that [ILIAS] thingy on top the page in the standard).
-@il-logo-height:		150px;
+@il-logo-height:		150px; // fau: studOnSkin.
 //** controls the width of the "logo" (that [ILIAS] thingy on top the page in the standard).
 @il-logo-width:		50px;
 //** controls margin around the logo
-@il-logo-margin:		25px;
+@il-logo-margin:		25px; // fau: studOnSkin.
 @il-logo-resp-margin:		10px;
 //** controls the height of the "logo" for small screens.
 @il-logo-resp-height:		40px;
@@ -325,11 +328,11 @@ with the il- variable set here.
 @il-btn-primary-border:		darken(@il-secondary-color, 10%);
 
 //** Text color of inactive buttons
-@il-disabled-btn-color:		darken(@il-text-color, 20%);
+@il-disabled-btn-color:		darken(@il-text-color, 20%); // fau: studOnSkin.
 //** Background color of inactive buttons
 @il-disabled-btn-bg:		#b0b0b0;
 //** Border color of inactive buttons
-@il-disabled-btn-border:		#b0b0b0;
+@il-disabled-btn-border:		#b0b0b0; // fau: studOnSkin.
 
 //** Text color of inactive buttons
 @il-engaged-btn-color:		@il-text-color;
@@ -428,7 +431,7 @@ with the il- variable set here.
 //** Background color used in the forms header, the sections header and the footer
 @il-standard-form-header-bg:		@il-content-bg;
 //** Textsize color used in the forms header and the sections header
-@il-standard-form-header-font-size:		ceil((@il-font-size-base * 2.3));
+@il-standard-form-header-font-size:		ceil((@il-font-size-base * 2.3)); // fau: studOnSkin.
 //** Textsize color used in the form headers the section headers byline (description)
 @il-standard-form-header-byline-font-size:		@il-font-size-small;
 //** Background color used for dependant groups (sub forms) in standard forms
@@ -493,9 +496,9 @@ with the il- variable set here.
 //== Tables
 //
 //##
-@il-table-head-bg:		darken(@il-main-bg, 2%);;
-@il-data-table-bg:		darken(@il-main-bg, 2%);;
-@il-table-cmd-bg:		@il-main-bg;
+@il-table-head-bg:		darken(@il-main-bg, 2%);; // fau: studOnSkin.
+@il-data-table-bg:		darken(@il-main-bg, 2%);; // fau: studOnSkin.
+@il-table-cmd-bg:		@il-main-bg; // fau: studOnSkin.
 
 //** Presentation Table borders
 @il-table-presentation-rowborder-top:		1px solid @table-border-color;
@@ -512,7 +515,7 @@ with the il- variable set here.
 //== Toolbar
 //
 //##
-@il-toolbar-margin:		15px;
+@il-toolbar-margin:		15px; // fau: studOnSkin.
 @il-toolbar-bg:		@il-main-bg;
 @il-toolbar-height:		40px;
 @il-toolbar-border:		1px solid @il-main-border-color;
@@ -709,7 +712,7 @@ with the il- variable set here.
 //## Icons are used to represent (and quickly identify) objects.
 
 //** Path to the font of the glyphicons. Note that the path must be put in "" for less to compile.
-@il-icon-font-path:		"../../../../node_modules/bootstrap/fonts/";
+@il-icon-font-path:		"../../../../node_modules/bootstrap/fonts/"; // fau: studOnSkin.
 //** if left unchanged, you have to copy all the background images to your skin/images folder. To use the delos background images in your skin, please change this value (in custom less data or in variables.less of your custom skin) to "../../../../templates/default/images/"
 @il-background-images-path:		"images/";
 
@@ -734,7 +737,6 @@ with the il- variable set here.
 
 //== Avatar
 //
-//##
 //** Size for avatars: used in the header. e.g. standard (and recommended) is @il-icon-size-large
 @il-avatar-size:		@il-icon-size-large;
 @il-avatar-size-small:		@il-avatar-size / 2;
@@ -776,7 +778,7 @@ with the il- variable set here.
 /** contrast threshold for contrast color **/
 @il-standard-page-system-info-contrast-threshold:		43%;
 /** three color variants for neutral, important, breaking Head Infos **/
-@il-standard-page-system-info-color-variant-neutral:		lighten(@il-main-color, 50%);
+@il-standard-page-system-info-color-variant-neutral: lighten(@il-main-color, 50%); // looks nice with @il-mainbar-btn-bg-color as well
 @il-standard-page-system-info-color-variant-important:		lighten(@il-danger-color, 40%);
 @il-standard-page-system-info-color-variant-breaking:		darken(@il-danger-color, 10%);
 
@@ -797,7 +799,7 @@ with the il- variable set here.
 @il-card-highlight-bg:		@il-warning-color;
 @il-card-highlight-height:		@padding-large-vertical;
 @il-card-list-key-color:		@il-text-light-color;
-@il-card-repository-head-color:		rgba(0, 0, 0, 0.1);
+@il-card-repository-head-color:		rgba(0, 0, 0, 0.1); // fau: studOnSkin.
 @il-card-repository-dropdown-border:		@il-main-border-color 1px solid;
 @il-card-repository-outlined-icon-filter:		invert(1);
 @il-card-repository-outlined-disabled-icon-filter:		@il-card-repository-outlined-icon-filter;
@@ -807,7 +809,6 @@ with the il- variable set here.
 
 //== Workflow
 //
-//##
 //##Workflow-steps have an icon indicating their status. The label changes color and size accordingly.
 @il-workflow-icon-size:		21px;
 @il-workflow-icon-font-color:		white;
@@ -833,10 +834,9 @@ with the il- variable set here.
 @il-tree-node-indentation:		@il-font-size-base;
 //** Vertical Space between nodes
 @il-tree-node-vertical-spacing:		3px;
-
+//** Horizontal space between expand/collapse icon, an optional node icon and node label
+@il-tree-node-horizontal-spacing: 4px;
 //== Characteristic Value Listing
-//
-//##
 //** item rows layout
 @il-characteristic-value-border-color:		@il-main-border-color;
 
