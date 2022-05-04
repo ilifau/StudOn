@@ -1339,7 +1339,6 @@ abstract class assQuestion
         $saveStatus = false;
 
         $this->getProcessLocker()->executePersistWorkingStateLockOperation(function () use ($active_id, $pass, $authorized, $obligationsEnabled, &$saveStatus) {
-
             if ($pass === null) {
                 require_once 'Modules/Test/classes/class.ilObjTest.php';
                 $pass = ilObjTest::_getPass($active_id);
@@ -3711,7 +3710,15 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+        $refinery = $DIC['refinery'];
+
+        $float_trafo = $refinery->kindlyTo()->float();
+        try {
+            $points = $float_trafo->transform($points);
+        } catch (ILIAS\Refinery\ConstraintViolationException $e) {
+            return false;
+        }
+
         if ($points <= $maxpoints) {
             if (is_null($pass)) {
                 $pass = assQuestion::_getSolutionMaxPass($question_id, $active_id);
@@ -5514,7 +5521,7 @@ abstract class assQuestion
         return new ilTestQuestionConfig();
     }
     // hey.
-// fau.
+    // fau.
 
     public function savePartial()
     {

@@ -170,10 +170,6 @@ class ilObjTestGUI extends ilObjectGUI
         $next_class = $this->ctrl->getNextClass($this);
         $this->ctrl->setReturn($this, "infoScreen");
 
-        if (method_exists($this->object, "getTestStyleLocation")) {
-            $this->tpl->addCss($this->object->getTestStyleLocation("output"), "screen");
-        }
-
         // add entry to navigation history
         if (!$this->getCreationMode() &&
             $ilAccess->checkAccess("read", "", $_GET["ref_id"])
@@ -2905,7 +2901,7 @@ class ilObjTestGUI extends ilObjectGUI
             $info->addProperty("", $this->object->prepareTextareaOutput($this->object->getIntroduction(), true) .
                     $info->getHiddenToggleButton());
         } else {
-            $info->addSection("");
+            $info->addSection($this->lng->txt("show_details"));
             $info->addProperty("", $info->getHiddenToggleButton());
         }
 

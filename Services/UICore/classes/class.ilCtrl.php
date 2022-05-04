@@ -1892,7 +1892,7 @@ class ilCtrl
         if ($rec = $ilDB->fetchAssoc($set)) {
             return;
         }
-        $ilDB->manipulate("INSERT INTO ctrl_calls " .
+        $ilDB->manipulate("INSERT IGNORE INTO ctrl_calls " .
             "(parent, child, comp_prefix) VALUES (" .
             $ilDB->quote($a_parent, "text") . "," .
             $ilDB->quote($a_child, "text") . "," .

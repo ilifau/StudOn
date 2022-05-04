@@ -72,15 +72,9 @@ class ilUserActionCollector
 
         include_once("./Services/User/Actions/classes/class.ilUserActionProviderFactory.php");
         foreach (ilUserActionProviderFactory::getAllProviders() as $prov) {
-            //fau: optimizeUserActions - don't collect actions if none are activated
-            if (!ilUserActionAdmin::hasActiveActions(
-                $this->action_context->getComponentId(),
-                $this->action_context->getContextId(),
-                $prov->getComponentId()
-            )) {
+            if (!$this->hasProviderActiveActions($prov)) {
                 continue;
             }
-            // fau.
             $prov->setUserId($this->user_id);
             $coll = $prov->collectActionsForTargetUser($a_target_user);
             foreach ($coll->getActions() as $action) {
@@ -97,4 +91,20 @@ class ilUserActionCollector
 
         return $this->collection;
     }
+
+    protected function hasProviderActiveActions(ilUserActionProvider $prov) : bool
+    {
+        foreach ($prov->getActionTypes() as $act_type => $act_txt) {
+            if (ilUserActionAdmin::lookupActive(
+                $this->action_context->getComponentId(),
+                $this->action_context->getContextId(),
+                $prov->getComponentId(),
+                $act_type
+            )) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

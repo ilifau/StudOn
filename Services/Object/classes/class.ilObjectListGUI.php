@@ -168,7 +168,7 @@ class ilObjectListGUI
      * @var \ILIAS\DI\UIServices
      */
     protected $ui;
-    
+
     /**
      * @var ilObjectService
      */
@@ -199,9 +199,9 @@ class ilObjectListGUI
         $this->mode = IL_LIST_FULL;
         $this->path_enabled = false;
         $this->context = $a_context;
-        
-        $this->object_service = $DIC->object();
 
+        $this->object_service = $DIC->object();
+        
         $this->enableComments(false);
         $this->enableNotes(false);
         $this->enableTags(false);
@@ -1598,7 +1598,8 @@ class ilObjectListGUI
         $d = str_replace('<br />', ' ', $d);
         $d = str_replace("\n", ' ', $d);
         // fau.
-        $d = strip_tags($d, "<b>");
+        // even b tag produced bugs, see #32304
+        $d = strip_tags($d);
         $this->tpl->setCurrentBlock("item_description");
         $this->tpl->setVariable("TXT_DESC", $d);
         $this->tpl->parseCurrentBlock();
@@ -2028,7 +2029,7 @@ class ilObjectListGUI
                 $a_href = "#";
                 ilWebDAVMountInstructionsModalGUI::maybeRenderWebDAVModalInGlobalTpl();
             }
-            
+
             $this->current_selection_list->addItem(
                 $a_text,
                 "",
@@ -3757,6 +3758,9 @@ class ilObjectListGUI
     ) : ?\ILIAS\UI\Component\Item\Item {
         $ui = $this->ui;
 
+        // even b tag produced bugs, see #32304
+        $description = strip_tags($description);
+
         $this->initItem(
             $ref_id,
             $obj_id,
@@ -3869,6 +3873,9 @@ class ilObjectListGUI
         string $description
     ) : ?\ILIAS\UI\Component\Card\Card {
         $ui = $this->ui;
+
+        // even b tag produced bugs, see #32304
+        $description = strip_tags($description);
 
         $this->initItem(
             $ref_id,

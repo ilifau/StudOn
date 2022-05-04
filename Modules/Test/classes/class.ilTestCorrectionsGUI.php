@@ -249,8 +249,7 @@ class ilTestCorrectionsGUI
         $this->populatePageTitleAndDescription($questionGUI);
 
         $this->DIC->ui()->mainTemplate()->setContent($tpl->get());
-        $this->DIC->ui()->mainTemplate()->addCss('Modules/Test/templates/default/ta.css');
-        
+
         $this->DIC->ui()->mainTemplate()->setCurrentBlock("ContentStyle");
         // fau: inheritContentStyle - get the effective content style by ref_id
         $stylesheet = ilObjStyleSheet::getContentStylePath(
@@ -292,7 +291,6 @@ class ilTestCorrectionsGUI
         
         $this->populatePageTitleAndDescription($questionGUI);
         $this->DIC->ui()->mainTemplate()->setContent($tablesHtml);
-        $this->DIC->ui()->mainTemplate()->addCss('Modules/Test/templates/default/ta.css');
     }
     
     protected function addAnswerAsynch()

@@ -422,7 +422,6 @@ class ilSCORM2004ScoGUI extends ilSCORM2004NodeGUI
         $tpl->addJavaScript("./Modules/Scorm2004/scripts/pager.js");
         $tpl->addJavaScript("./Services/COPage/js/ilCOPagePres.js");
         $tpl->addJavascript(iljQueryUtil::getLocalMaphilightPath());
-        $tpl->addCss("./Modules/Test/templates/default/ta.css");
 
         $tpl->addOnLoadCode("pager.Init();");
         
@@ -721,7 +720,7 @@ class ilSCORM2004ScoGUI extends ilSCORM2004NodeGUI
                         $this,
                         "resource",
                         rawurlencode(ilObjMediaObject::_lookupStandardItemPath($mob_id, false, false))
-                        );
+                    );
                     $export_files[$i]["link"] = $this->ctrl->getLinkTarget($this, "downloadResource");
                     $i++;
                 }

@@ -339,6 +339,11 @@ class assLongMenu extends assQuestion implements ilObjQuestionScoringAdjustable
             }
             // fau.
         }
+        // Sort by gap keys, to ensure the numbers are in ascending order.
+        // Glob will report the keys in files order like 0, 1, 10, 11, 2,...
+        // json_encoding the array with keys in order 0,1,10,11,2,.. will create
+        // a json_object instead of a list when keys are numeric, sorted and start with 0
+        ksort($answers);
         $this->setAnswers($answers);
         return $answers;
     }

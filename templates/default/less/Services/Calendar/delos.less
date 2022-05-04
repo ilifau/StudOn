@@ -133,6 +133,10 @@ table.calmini {
 		color: @il-text-color;
 		display:none;
 	}
+	a {
+        display: block;
+        width: 100%;
+    }
 }
 
 a.callink:link, a.callink:visited {
@@ -185,6 +189,8 @@ th.calstd {
 	border-width:1px;
 	border-style:solid;
 	border-color:@table-border-color;
+	line-break: auto;
+	vertical-align: top;
 }
 
 td.calheadertime {
@@ -461,4 +467,9 @@ span.calminiinactive {
 .calnewapplink {
 	float: right;
 	visibility:hidden;
+}
+
+span.ilIcalIcon .btn {
+	text-align: initial;
+	margin-top: @il-padding-large-vertical;
 }

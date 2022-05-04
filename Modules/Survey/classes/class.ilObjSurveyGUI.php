@@ -2008,7 +2008,7 @@ class ilObjSurveyGUI extends ilObjectGUI
             $info->addProperty("", $this->object->prepareTextareaOutput($introduction) .
                 $captcha_submit . "<br />" . $info->getHiddenToggleButton());
         } else {
-            $info->addSection("");
+            $info->addSection($this->lng->txt("show_details"));
             $info->addProperty("", $captcha_submit . $info->getHiddenToggleButton());
         }
         // fau.

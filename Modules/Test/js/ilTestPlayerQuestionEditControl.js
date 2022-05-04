@@ -13,6 +13,7 @@ il.TestPlayerQuestionEditControl = new function() {
      */
     var self = this;
 
+
     /**
      * @const   string                  jquery selector for the question form
      */
@@ -677,6 +678,7 @@ il.TestPlayerQuestionEditControl = new function() {
 
             autoSavedData = newData;
 
+            // fix mantis #2506:
             // the question must stay at changed status, once an unauthorized solution exists
             // otherwise nothing will be saved at navigation and the auto saved solution remains
             // going back to the question would show the auto saved solution as "editing"

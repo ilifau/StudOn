@@ -356,7 +356,6 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
         $passDeletion->addOption(new ilRadioOption($this->lng->txt('tst_pass_deletion_not_allowed'), 0, ''));
         $passDeletion->addOption(new ilRadioOption($this->lng->txt('tst_pass_deletion_allowed'), 1, ''));
         $passDeletion->setValue($this->testOBJ->isPassDeletionAllowed());
-        $form->addItem($passDeletion);
 
         // disable scoring settings
         if (!$this->areScoringSettingsWritable()) {
@@ -408,6 +407,13 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
         $resultsAccessEnabled->setChecked($this->testOBJ->isScoreReportingEnabled());
         $resultsAccessSetting = new ilRadioGroupInputGUI($this->lng->txt('tst_results_access_setting'), 'results_access_setting');
         $resultsAccessSetting->setRequired(true);
+
+        $passDeletion = new ilRadioGroupInputGUI($this->lng->txt('tst_pass_deletion'), 'pass_deletion_allowed');
+        $passDeletion->addOption(new ilRadioOption($this->lng->txt('tst_pass_deletion_not_allowed'), 0, ''));
+        $passDeletion->addOption(new ilRadioOption($this->lng->txt('tst_pass_deletion_allowed'), 1, ''));
+        $passDeletion->setValue($this->testOBJ->isPassDeletionAllowed());
+        $resultsAccessEnabled->addSubItem($passDeletion);
+
         $optAlways = new ilRadioOption($this->lng->txt('tst_results_access_always'));
         $optAlways->setInfo($this->lng->txt('tst_results_access_always_desc'));
         $optAlways->setValue(ilObjTest::SCORE_REPORTING_IMMIDIATLY);
@@ -436,12 +442,12 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
         $resultsAccessSetting->addOption($optionDate);
         $resultsAccessSetting->setValue($this->testOBJ->getScoreReporting());
         $resultsAccessEnabled->addSubItem($resultsAccessSetting);
+
         // show pass details
         $showPassDetails = new ilCheckboxInputGUI($this->lng->txt('tst_show_pass_details'), 'pass_details');
         $showPassDetails->setInfo($this->lng->txt('tst_show_pass_details_desc'));
         $showPassDetails->setChecked($this->testOBJ->getShowPassDetails());
         $resultsAccessEnabled->addSubItem($showPassDetails);
-        $form->addItem($resultsAccessEnabled);
 
         // grading
         $chb_only_passed_failed = new ilCheckboxInputGUI($this->lng->txt('tst_results_grading_opt_show_status'), 'grading_status');
@@ -455,6 +461,8 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
         $chb_resulting_mark_only->setValue(1);
         $chb_resulting_mark_only->setChecked($this->testOBJ->isShowGradingMarkEnabled());
         $resultsAccessEnabled->addSubItem($chb_resulting_mark_only);
+
+        $form->addItem($resultsAccessEnabled);
 
         // fau: testGradingMessage - add fields for passed / failed messages
         $mark = new ilTextAreaInputGUI($this->lng->txt("tst_mark_tst_passed"), "mark_tst_passed");
@@ -761,7 +769,7 @@ class ilObjTestSettingsScoringResultsGUI extends ilTestSettingsGUI
         if ($this->testQuestionSetConfigFactory->getQuestionSetConfig()->isResultTaxonomyFilterSupported()) {
             if (!$this->isHiddenFormItem('results_tax_filters') && count($this->getAvailableTaxonomyIds())) {
                 $taxFilters = array();
-
+                
                 if (is_array($form->getItemByPostVar('results_tax_filters')->getValue())) {
                     $taxFilters = array_intersect(
                         $this->getAvailableTaxonomyIds(),

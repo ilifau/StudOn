@@ -3252,6 +3252,10 @@ class ilObjForumGUI extends \ilObjectGUI implements \ilDesktopItemHandling, ilFo
             $this->ctrl->clearParameters($this);
         }
 
+        if ($currentViewMode > ilForumProperties::VIEW_DATE_ASC) {
+            $currentViewMode = ilForumProperties::VIEW_DATE_ASC;
+        }
+
         $sortViewControl = $this->uiFactory
             ->viewControl()
             ->mode($translationKeys, $this->lng->txt($this->viewModeOptions[$currentViewMode]))

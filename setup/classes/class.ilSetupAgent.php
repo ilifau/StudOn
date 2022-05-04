@@ -52,7 +52,7 @@ class ilSetupAgent implements Setup\Agent
 
             // fau: absolutePath - read for config
             $config = new \ilSetupConfig(
-                $data["client_id"],
+                $this->data->clientId($data["client_id"] ?? ''),
                 $datetimezone->transform([$data["server_timezone"] ?? "UTC"]),
                 $data["register_nic"] ?? false
             );

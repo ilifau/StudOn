@@ -44,10 +44,6 @@ class ilLSItemsDB
 
     public function getLSItems(int $ref_id) : array
     {
-        // fau: fixLsoCronConditionCheck - omit style usage for call in cron jobs
-        global $DIC;
-        $style_available = $DIC->isDependencyAvailable("systemStyle");
-
         $children = $this->tree->getChilds($ref_id);
 
         $sorting_settings = $this->container_sorting->getSortingSettings();
@@ -60,13 +56,12 @@ class ilLSItemsDB
         $items = [];
         foreach ($children as $position => $child) {
             $ref_id = (int) $child['child'];
-            // $icon_path = ilObject2::_getIcon("", "big", $child['type']);
+            $icon_path = ilObject2::_getIcon("", "big", $child['type']);
             $items[] = new LSItem(
                 $child['type'],
                 $child['title'],
                 $child['description'] ?? "",
-                // must be string for LSItem::__construct()
-                $icon_path = ($style_available ? $this->getIconPathForType($child['type']) : 'null'),
+                $icon_path = $this->getIconPathForType($child['type']),
                 $this->ls_item_online_status->getOnlineStatus($ref_id),
                 $position,
                 $conditions[$ref_id],
@@ -75,8 +70,6 @@ class ilLSItemsDB
         }
 
         return $items;
-        // fau.
-
     }
 
     protected function getIconPathForType(string $type) : string
