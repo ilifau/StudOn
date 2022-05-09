@@ -586,6 +586,7 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     // fau: univisImport - show the actions for univis import
     public function showUnivisImportActions()
     {
+        return;
         include_once "Services/UnivIS/classes/class.ilUnivisImportActionsGUI.php";
         $gui = new ilUnivisImportActionsGUI($this->object);
         $gui->render();
