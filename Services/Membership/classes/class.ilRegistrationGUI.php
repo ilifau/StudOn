@@ -214,7 +214,23 @@ abstract class ilRegistrationGUI
      * @return string title
      */
     abstract protected function getFormTitle();
-    
+
+    // fau: campoMock - new function fillCampo()
+    public function fillCampo() {
+
+        $item = new ilNonEditableValueGUI('Voraussetzungen', '');
+        $item->setValue('erfüllt');
+        $item->setInfo('Die formell notwendigen Voraussetzungen zur Teilnahme an der Lehrveranstaltungen sind gegeben. Die Teilnahme an diesem Kurs kann aber von der Lehrperson weiter eingeschränkt werden (siehe unten).');
+        $this->form->addItem($item);
+
+        $item = new ilSelectInputGUI('Modul / Leistung', '');
+        $item->setRequired(true);
+        $item->setInfo('Wählen Sie das Modul oder die Teilleistung, für das/die dieser Kurs belegt werden soll. Diese Information ist notwendig und erscheint später auf Ihren Leistungsnachweisen.');
+        $item->setOptions([1 => 'Schlüsselqualifikation 1']);
+        $this->form->addItem($item);
+    }
+    // fau.
+
     /**
      * fill informations
      *
@@ -637,7 +653,11 @@ abstract class ilRegistrationGUI
         $this->form = new ilPropertyFormGUI();
         $this->form->setFormAction($this->ctrl->getFormAction($this, 'join'));
         $this->form->setTitle($this->getFormTitle());
-        
+
+        // fau: campoMock - add demo campo course registration fields to form
+        $this->fillCampo();
+        // fau.
+
         $this->fillInformations();
         $this->fillMembershipLimitation();
         if ($this->isRegistrationPossible()) {
