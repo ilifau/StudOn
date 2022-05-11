@@ -2487,7 +2487,9 @@ class ilObjectListGUI
         $this->current_selection_list = new ilAdvancedSelectionListGUI();
         $this->current_selection_list->setAriaListTitle(sprintf(
                 $this->lng->txt('actions_for'),
-                $this->getTitle()
+                // fau: fixLuceneHighlightHTMLInAriaLabel - remove the highlight html from aria label 
+                strip_tags($this->getTitle())
+                // fau.
             )
         );
         $this->current_selection_list->setAsynch($a_use_asynch && !$a_get_asynch_commands);
