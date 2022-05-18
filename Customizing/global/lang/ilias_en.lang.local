@@ -993,3 +993,4 @@ videoportal#:#vp_no_access_granted#:#No access is granted for the user.
 videoportal#:#vp_no_interface_active#:#The Interface of StudOn to the video portal is currently not active.
 videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
 videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM account.
+content#:#cont_link_info#:#Note: If you see one or more objects at the bottom, please select one of them. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal 

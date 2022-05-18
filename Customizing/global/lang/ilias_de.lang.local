@@ -997,3 +997,4 @@ videoportal#:#vp_no_access_granted#:#Für den Benutzer wird kein Zugriff gewähr
 videoportal#:#vp_no_interface_active#:#Die StudOn-Schnittstelle zum Videoportal ist aktuell nicht aktiv.
 videoportal#:#vp_no_reference_found#:#Es wurde keine Referenz auf den Clip oder Kurs gefunden.
 videoportal#:#vp_no_user_found#:#Zum IDM-Benutzer wurde kein entsprechender StudOn-Nutzer gefunden.
+content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal 
