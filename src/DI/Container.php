@@ -18,6 +18,13 @@ use ILIAS\Skill\Service\SkillService;
 class Container extends \Pimple\Container
 {
     /**
+     * Get the factory
+     */
+    public function fau(): \FAU\Service {
+        return $this["fau"];
+    }
+
+    /**
      * Get interface to the Database.
      *
      * @return	\ilDBInterface

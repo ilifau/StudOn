@@ -9,6 +9,13 @@ include_once("./Customizing/classes/class.ilPatchStartUp.php");
 $p = new ilPatchStartUp($_SERVER['argv'][3], $_SERVER['argv'][1], $_SERVER['argv'][2]);
 $p->login();
 
+/*******************
+ * Patches for FAU
+ ********************/
+
+$p->applyPatch('ilFauPatches.createFauTables', []);
+
+
 /*****************
 * Specific actions
 ******************/

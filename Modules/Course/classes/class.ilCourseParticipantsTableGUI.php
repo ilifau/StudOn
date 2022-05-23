@@ -254,10 +254,15 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
-// fau: studyData - format table output of studydata
+                // fau: studyData - format table output of studydata
                 case 'studydata':
                     $a_set['studydata'] = nl2br($a_set['studydata']);
-// fau.
+                // fau.
+                // fau: userData - format table output of educations
+                    case 'educations':
+                        $a_set['educations'] = nl2br($a_set['educations']);
+                // fau.
+
 // no break
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');

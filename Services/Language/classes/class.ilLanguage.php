@@ -195,6 +195,10 @@ class ilLanguage
 
         $this->loadLanguageModule("common");
 
+        // fau: fauService - load the fau language module by default
+        $this->loadLanguageModule('fau');
+        // fau.
+
         return true;
     }
 

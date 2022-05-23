@@ -1138,10 +1138,14 @@ class ilTrQuery
                     }
 
                     switch ($field) {
-// fau: studyData - don't get the studydata directly from user table
+                        // fau: studyData - don't get the studydata directly from user table
                         case "studydata":
                             break;
-// fau.
+                        // fau.
+                        // fau: userData - don't get the educations directly from user table
+                        case "educations":
+                            break;
+                        // fau.
 
                         case 'org_units':
                             break;

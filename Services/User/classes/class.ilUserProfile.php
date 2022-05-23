@@ -263,12 +263,19 @@ class ilUserProfile
                         "size" => 40,
                         "method" => "getMatriculation",
                         "group" => "other"),
-// fau: studyData - add studydata to profile fields
+        // fau: studyData - add studydata to profile fields
         "studydata" => array(
                         "input" => "studydata",
                         "lists_hide" => false,
                         "group" => "other"),
-// fau.
+        // fau.
+        // fau: userData - add educations to profile fields
+        "studydata" => array(
+            "input" => "educations",
+            "lists_hide" => false,
+            "group" => "other"),
+        // fau.
+
         "language" => array(
                         "input" => "language",
                         "method" => "getLanguage",
@@ -559,6 +566,17 @@ class ilUserProfile
                             $stu->setHTML(nl2br(ilStudyAccess::_getDataText($a_user->getId())));
                         }
                         $a_form->addItem($stu);
+                    }
+                    break;
+// fau.
+// fau: userData - add educations to standard fields
+                case "educations":
+                    if (self::$mode != self::MODE_REGISTRATION) {
+                        $edu = new ilNonEditableValueGUI($lng->txt("fau_educations"), "educations", true);
+                        if ($a_user) {
+                            $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($a_user->getId())));
+                        }
+                        $a_form->addItem($edu);
                     }
                     break;
 // fau.

@@ -1493,6 +1493,10 @@ class ilObjUser extends ilObject
         ilStudyAccess::_deleteData($this->getId());
         // fau.
 
+        // fau: userData - delete the assigned data
+        $DIC->fau()->user()->repo()->deleteEducationsOfUser($this->getId());
+        // fau.
+
         // Delete clipboard entries
         $this->clipboardDeleteAll();
         

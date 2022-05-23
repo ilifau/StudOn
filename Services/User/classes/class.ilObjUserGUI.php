@@ -1403,6 +1403,12 @@ class ilObjUserGUI extends ilObjectGUI
         $this->form_gui->addItem($stu);
         // fau.
 
+        // fau: userData - add row for educations
+        $edu = new ilNonEditableValueGUI($lng->txt('fau_educations'), 'educations', true);
+        $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($this->object->getId())));
+        $this->form_gui->addItem($edu);
+        // fau.
+
         // client IP
         $ip = new ilTextInputGUI($lng->txt("client_ip"), "client_ip");
         $ip->setSize(40);
