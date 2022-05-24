@@ -331,6 +331,13 @@ class ilUserQuery
                 continue;
             }
             // fau.
+            // fau: userData - don't query for educations directly, add them later
+            if ($field == 'educations') {
+                $add_educations = true;
+                continue;
+            }
+            // fau.
+
 
             if (in_array($field, $all_multi_fields)) {
                 $multi_fields[] = $field;
@@ -527,10 +534,15 @@ class ilUserQuery
                 }
                 break;
 
-// fau: studyData - don't oeder by studydata
+            // fau: studyData - don't oreder by studydata
             case "studydata":
                 break;
-// fau.
+            // fau.
+            // fau: userData - don't oreder by educations
+            case "educations":
+                break;
+            // fau.
+
 
             default:
                 if ($this->order_dir != "asc" && $this->order_dir != "desc") {
@@ -581,6 +593,11 @@ class ilUserQuery
             // fau: studyData - optionally add the studydata
             if ($add_studydata) {
                 $rec['studydata'] = ilStudyAccess::_getDataText($rec['usr_id']);
+            }
+            // fau.
+            // fau: userData - optionally add the educations
+            if ($add_educations) {
+                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id']);
             }
             // fau.
             $result[] = $rec;

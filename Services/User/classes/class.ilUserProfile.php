@@ -270,10 +270,10 @@ class ilUserProfile
                         "group" => "other"),
         // fau.
         // fau: userData - add educations to profile fields
-        "studydata" => array(
-            "input" => "educations",
-            "lists_hide" => false,
-            "group" => "other"),
+        "educations" => array(
+                        "input" => "educations",
+                        "lists_hide" => false,
+                        "group" => "other"),
         // fau.
 
         "language" => array(
@@ -574,7 +574,7 @@ class ilUserProfile
                     if (self::$mode != self::MODE_REGISTRATION) {
                         $edu = new ilNonEditableValueGUI($lng->txt("fau_educations"), "educations", true);
                         if ($a_user) {
-                            $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($a_user->getId())));
+                            $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText((int) $a_user->getId())));
                         }
                         $a_form->addItem($edu);
                     }

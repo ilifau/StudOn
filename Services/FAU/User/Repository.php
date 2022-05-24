@@ -31,7 +31,7 @@ class Repository
      */
     public function getEducationsOfUser(int $user_id, ?string $type = null) : array
     {
-        $query = "SELECT * FROM fau_user_educations WHERE user_id" . $this->db->quote($user_id, 'integer');
+        $query = "SELECT * FROM fau_user_educations WHERE user_id = " . $this->db->quote($user_id, 'integer');
         if (isset($type))  {
             $query .= " AND " . $this->db->quoteIdentifier('type') . ' = ' . $this->db->quote($type, 'text');
         }

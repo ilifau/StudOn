@@ -1494,7 +1494,7 @@ class ilObjUser extends ilObject
         // fau.
 
         // fau: userData - delete the assigned data
-        $DIC->fau()->user()->repo()->deleteEducationsOfUser($this->getId());
+        $DIC->fau()->user()->repo()->deleteEducationsOfUser((int) $this->getId());
         // fau.
 
         // Delete clipboard entries

@@ -56,6 +56,4 @@ class Service
         }
         return implode("\n", $texts);
     }
-
-
 }

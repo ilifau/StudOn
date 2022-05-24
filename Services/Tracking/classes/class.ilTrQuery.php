@@ -378,6 +378,11 @@ class ilTrQuery
                 $a_result["set"][$idx]['studydata'] = ilStudyAccess::_getDataText($row["usr_id"]);
             }
             // fau.
+            // fau: userData - get educations if allowed
+            if (!$a_check_agreement or in_array($row["usr_id"], $agreements)) {
+                $a_result["set"][$idx]['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $row["usr_id"]);
+            }
+            // fau.
 
             // remove all private data - if active agreement and agreement not given by user
             if (sizeof($a_privacy_fields) && $a_check_agreement && !in_array($row["usr_id"], $agreements)) {

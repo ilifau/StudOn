@@ -680,7 +680,7 @@ exc#:#label_scored_pass#:#Scored Pass: ###fau: exAssTest
 exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
 exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
-fau#:#fau_educations#:#Educations
+fau#:#educations#:#Educations
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

@@ -590,17 +590,27 @@ class ilMemberExport
 
 
                     // fau: memberExport - add studydata
+                    // fau: studyData - add studydata
                     case 'studydata':
+                        global $DIC;
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
                             $studydata = ilStudyAccess::_getDataText($usr_id);
-                            $studydata = str_replace('"', '', $studydata);
-                            $studydata = str_replace("'", '', $studydata);
-                            $studydata = str_replace("'", '', $studydata);
-                            $studydata = str_replace(",", ' ', $studydata);
-                            $studydata = str_replace(";", ' ', $studydata);
-                            $studydata = str_replace("\n", ' / ', $studydata);
-
+                            $studydata = $DIC->fau()->tools()->quoteForExport($studydata);
                             $this->addCol($studydata, $row, $col++);
+                        } else {
+                            $this->addCol('', $row, $col++);
+                        }
+                        break;
+                    // fau.
+
+                    // fau: memberExport - add educations
+                    // fau: userData - add educations
+                    case 'educations':
+                        global $DIC;
+                        if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
+                            $educations = $DIC->fau()->user()->getEducationsAsText((int)$usr_id);
+                            $educations = $DIC->fau()->tools()->quoteForExport($educations);
+                            $this->addCol($educations, $row, $col++);
                         } else {
                             $this->addCol('', $row, $col++);
                         }

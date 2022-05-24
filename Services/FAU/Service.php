@@ -8,7 +8,7 @@ class Service
 {
     protected Container $dic;
     protected User\Service $userService;
-
+    protected Tools\Service $toolsService;
 
     public function __construct(Container $dic)
     {
@@ -26,5 +26,15 @@ class Service
         return $this->userService;
     }
 
+    /**
+     * Get the Service for Tools
+     */
+    public function tools() : Tools\Service
+    {
+        if (!isset($this->toolsService)) {
+            $this->toolsService = new Tools\Service($this->dic);
+        }
+        return $this->toolsService;
+    }
 
 }

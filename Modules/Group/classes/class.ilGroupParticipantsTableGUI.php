@@ -206,7 +206,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                 case 'educations':
                     $a_set['educations'] = nl2br($a_set['educations']);
                 // fau.
-// no break
+                // no break
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');

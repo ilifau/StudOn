@@ -259,11 +259,11 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
                     $a_set['studydata'] = nl2br($a_set['studydata']);
                 // fau.
                 // fau: userData - format table output of educations
-                    case 'educations':
-                        $a_set['educations'] = nl2br($a_set['educations']);
+                case 'educations':
+                    $a_set['educations'] = nl2br($a_set['educations']);
                 // fau.
 
-// no break
+                // no break
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');

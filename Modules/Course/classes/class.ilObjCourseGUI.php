@@ -2579,25 +2579,6 @@ class ilObjCourseGUI extends ilContainerGUI
     }
 
 
-    // fau: studyData - new function __getStudyDataVisibility()
-    public function __getStudyDataVisibility()
-    {
-        global $rbacsystem;
-
-        if (!isset($this->study_data_visible)) {
-            include_once 'Services/PrivacySecurity/classes/class.ilPrivacySettings.php';
-            $privacy = ilPrivacySettings::_getInstance();
-
-            if ($privacy->checkExportAccess($this->object->getRefId())) {
-                $this->study_data_visible = true;
-            } else {
-                $this->study_data_visible = false;
-            }
-        }
-        return $this->study_data_visible;
-    }
-    // fau.
-
     public function executeCommand()
     {
         global $DIC;

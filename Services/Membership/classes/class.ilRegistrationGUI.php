@@ -223,7 +223,7 @@ abstract class ilRegistrationGUI
         $item->setInfo('Die formell notwendigen Voraussetzungen zur Teilnahme an der Lehrveranstaltungen sind gegeben. Die Teilnahme an diesem Kurs kann aber von der Lehrperson weiter eingeschränkt werden (siehe unten).');
         $this->form->addItem($item);
 
-        $item = new ilSelectInputGUI('Modul / Leistung', '');
+        $item = new ilSelectInputGUI('Modul / Leistung', 'selected_module');
         $item->setRequired(true);
         $item->setInfo('Wählen Sie das Modul oder die Teilleistung, für das/die dieser Kurs belegt werden soll. Diese Information ist notwendig und erscheint später auf Ihren Leistungsnachweisen.');
         $item->setOptions([1 => 'Schlüsselqualifikation 1']);
