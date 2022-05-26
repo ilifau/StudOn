@@ -4,6 +4,9 @@ namespace FAU\User;
 
 use ILIAS\DI\Container;
 
+/**
+ * Service for user related data
+ */
 class Service
 {
     /**
@@ -12,7 +15,7 @@ class Service
     protected $dic;
 
     /** @var Repository */
-    protected $repo;
+    protected $repository;
 
 
     /**
@@ -29,10 +32,10 @@ class Service
      */
     public function repo() : Repository
     {
-        if(!isset($this->repo)) {
-            $this->repo = new Repository($this->dic->database());
+        if(!isset($this->repository)) {
+            $this->repository = new Repository($this->dic->database());
         }
-        return $this->repo;
+        return $this->repository;
     }
 
     /**

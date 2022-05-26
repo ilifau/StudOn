@@ -3,23 +3,16 @@
 namespace FAU\User;
 
 use FAU\User\Data\Education;
+use FAU\RecordRepo;
 
 /**
  * Repository for accessing FAU user data
  */
-class Repository
+class Repository extends RecordRepo
 {
     /**
-     * @var \ilDBInterface
+     * Delete the educations of a user account (e.g. if user is deleted)
      */
-    protected $db;
-
-    public function __construct(\ilDBInterface $a_db)
-    {
-        $this->db = $a_db;
-    }
-
-
     public function deleteEducationsOfUser(int $user_id) : void
     {
         $this->db->manipulateF("DELETE FROM fau_user_educations WHERE user_id = %s", ['int'], [$user_id]);
@@ -35,20 +28,6 @@ class Repository
         if (isset($type))  {
             $query .= " AND " . $this->db->quoteIdentifier('type') . ' = ' . $this->db->quote($type, 'text');
         }
-        $result = $this->db->query($query);
-
-        $educations = [];
-        while ($row = $this->db->fetchAssoc($result)) {
-            $educations[] = new Education(
-                (int) $row['user_id'],
-                (string) $row['type'],
-                (string) $row['key'],
-                (string) $row['value'],
-                isset($row['key_title']) ? (string) $row['key_title'] : null,
-                isset($row['value_text']) ? (string) $row['value_text'] : null);
-        }
-        return $educations;
+        return $this->queryRecords($query, new Education());
     }
-
-
 }

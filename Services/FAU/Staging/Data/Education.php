@@ -1,28 +1,28 @@
 <?php declare(strict_types=1);
 
-namespace FAU\User\Data;
+namespace FAU\Staging\Data;
 
-use FAU\RecordData;
-
-class Education extends RecordData
+/**
+ * Record of the education table
+ */
+class Education extends DipData
 {
-    protected int $user_id;
-    protected string $type;
-    protected string $key;
-    protected string $value;
+    protected string $idm_uid = '';
+    protected string $type = '';
+    protected string $key = '';
+    protected string $value = '';
     protected ?string $key_title;
     protected ?string $value_text;
 
-
     public static function getTableName() : string
     {
-        return 'fau_user_educations';
+        return 'campo_specific_educations';
     }
 
     public static function getTableKeyTypes() : array
     {
         return [
-            'user_id' => 'integer',
+            'idm_uid' => 'text',
             'type' => 'text',
             'key' => 'text'
         ];
@@ -30,29 +30,28 @@ class Education extends RecordData
 
     public static function getTableOtherTypes() : array
     {
-        return [
+        return array_merge(parent::getTableOtherTypes(), [
             'value' => 'text',
             'key_title' => 'text',
-            'value_text' => 'text'
-        ];
+            'value_text' => 'text',
+        ]);
     }
 
-    public function getTableRow() : array
-    {
-        return [
-            'user_id' => $this->user_id,
+    public function getTableRow() : array {
+        return array_merge(parent::getTableRow(), [
+            'idm_uid' => $this->idm_uid,
             'type' => $this->type,
             'key' => $this->key,
             'value' => $this->value,
             'key_title' => $this->key_title,
             'value_text' => $this->value_text
-        ];
+        ]);
     }
 
-    public function withTableRow(array $row) : RecordData
+    public function withTableRow(array $row) : self
     {
-        $clone = clone $this;
-        $clone->user_id = $row['user_id'] ?? 0;
+        $clone = parent::withTableRow($row);
+        $clone->idm_uid = $row['idm_uid'] ?? '';
         $clone->type = $row['type'] ?? '';
         $clone->key =  $row['key'] ?? '';
         $clone->value = $row['value'] ?? '';
@@ -61,14 +60,12 @@ class Education extends RecordData
         return $clone;
     }
 
-
-
     /**
-     * User id to which this education is assigned
+     * IDM user id to which this education is assigned
      */
-    public function getUserId() : int
+    public function getIdmUid() : string
     {
-        return $this->user_id;
+        return $this->idm_uid;
     }
 
     /**
@@ -89,7 +86,7 @@ class Education extends RecordData
     }
 
     /**
-     * Value of the edication, e.g. "E2"
+     * Value of the education, e.g. "E2"
      */
     public function getValue() : string
     {
@@ -105,7 +102,7 @@ class Education extends RecordData
     }
 
     /**
-     * Optional key of the value for better undestanding
+     * Optional key of the value for better understanding
      */
     public function getValueText() : ?string
     {
@@ -129,5 +126,4 @@ class Education extends RecordData
     {
         return $this->value_text ?? $this->value;
     }
-
 }
