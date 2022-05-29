@@ -1,14 +1,7 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
-<service xmlns="http://www.w3.org" version="$Id$" id="mmbr">
-	<baseclasses>
-		<baseclass name="ilMembershipOverviewGUI" dir="classes" />
-	</baseclasses>
+<service xmlns="http://www.w3.org" version="$Id$" id="fau">
 	<crons>
-<!-- fau: fairSub - add cron job  -->
-		<cron id="mem_autofill_fair" class="ilMembershipCronFairAutoFill" />
-<!-- fau. -->
-		<cron id="mem_notification" class="ilMembershipCronNotifications" />
-		<cron id="mem_min_members" class="ilMembershipCronMinMembers" />
+		<cron id="fau_sync_with_campo" class="FAU\SyncWithCampoCron" />
 	</crons>
-	<logging />
 </service>
+
