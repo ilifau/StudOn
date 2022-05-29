@@ -9,13 +9,8 @@ use ILIAS\DI\Container;
  */
 class Service
 {
-    /**
-     * @var Container
-     */
-    protected $dic;
-
-    /** @var Repository */
-    protected $repository;
+    protected Container $dic;
+    protected Repository $repository;
 
     /**
      * Constructor

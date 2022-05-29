@@ -49,7 +49,7 @@ class Education extends RecordData
         ];
     }
 
-    public function withTableRow(array $row) : RecordData
+    public function withTableRow(array $row) : self
     {
         $clone = clone $this;
         $clone->user_id = $row['user_id'] ?? 0;
@@ -128,6 +128,48 @@ class Education extends RecordData
     public function getText() : string
     {
         return $this->value_text ?? $this->value;
+    }
+
+    public function withUserId(int $user_id) : Education
+    {
+        $clone = clone $this;
+        $clone->user_id = $user_id;
+        return $clone;
+    }
+
+    public function withType(string $type) : Education
+    {
+        $clone = clone $this;
+        $clone->type = $type;
+        return $clone;
+    }
+
+    public function withKey(string $key) : Education
+    {
+        $clone = clone $this;
+        $clone->key = $key;
+        return $clone;
+    }
+
+    public function withValue(string $value) : Education
+    {
+        $clone = clone $this;
+        $clone->value = $value;
+        return $clone;
+    }
+
+    public function withKeyTitle(?string $key_title) : Education
+    {
+        $clone = clone $this;
+        $clone->key_title = $key_title;
+        return $clone;
+    }
+
+    public function withValueText(?string $value_text) : Education
+    {
+        $clone = clone $this;
+        $clone->value_text = $value_text;
+        return $clone;
     }
 
 }

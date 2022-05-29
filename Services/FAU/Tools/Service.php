@@ -6,10 +6,7 @@ use ILIAS\DI\Container;
 
 class Service
 {
-    /**
-     * @var Container
-     */
-    protected $dic;
+    protected Container $dic;
 
     /**
      * Constructor

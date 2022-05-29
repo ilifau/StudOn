@@ -43,8 +43,9 @@ abstract class RecordData
 
     /**
      * Get a clone with the single row data of a database query
+     * @return static
      */
-    abstract public function withTableRow(array $row) : self;
+    abstract public function withTableRow(array $row);
 
     /**
      * Get the sequence value (if a sequence exists)
@@ -56,8 +57,10 @@ abstract class RecordData
 
     /**
      * Get a clone with a sequence value
+     * @return static
      */
-    public function withTableSequence(int $value) : self {
+    public function withTableSequence(int $value)
+    {
         return clone $this;
     }
 }

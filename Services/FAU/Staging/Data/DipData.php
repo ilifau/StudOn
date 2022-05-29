@@ -9,6 +9,12 @@ use FAU\RecordData;
  */
 abstract class DipData extends RecordData
 {
+    public const INSERTED = 'inserted';
+    public const CHANGED = 'changed';
+    public const DELETED = 'deleted';
+    public const MARKED = 'marked';
+
+
     protected ?string $dip_status;
     protected ?string $dip_timestamp;
 
@@ -28,9 +34,13 @@ abstract class DipData extends RecordData
         ];
     }
 
-    public function withTableRow(array $row) : self
+    /**
+     * Get the record with processed status
+     * @return static
+     */
+    public function withTableRow(array $row)
     {
-        $clone = clone($this);
+        $clone = clone $this;
         $clone->dip_status = $row['value'] ?? null;
         $clone->dip_timestamp = $row['value'] ?? null;
         return $clone;
@@ -39,22 +49,26 @@ abstract class DipData extends RecordData
     /**
      * Get the status of the last change by DIP
      */
-    public function getDipStatus() : ?string {
+    public function getDipStatus() : ?string
+    {
         return $this->dip_status;
     }
 
     /**
      * Get the timestamp of the last change by DIP
      */
-    public function getDipTimestamp() : ?string {
+    public function getDipTimestamp() : ?string
+    {
         return $this->dip_timestamp;
     }
 
     /**
      * Get the record with processed status
+     * @return static
      */
-    public function asProcessed(): self {
-        $clone = clone($this);
+    public function asProcessed()
+    {
+        $clone = clone $this;
         $clone->dip_status = null;
         $clone->dip_timestamp = null;
         return $clone;

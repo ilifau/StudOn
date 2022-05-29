@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace FAU\User;
+namespace FAU\Campo;
 
 use ILIAS\DI\Container;
 
@@ -39,30 +39,5 @@ class Service
     public function migration() : Migration
     {
         return new Migration($this->dic->database());
-    }
-
-    /**
-     * Get the educations of a user as text
-     * An education is given as Title: Text
-     * Educations are separated by newlines
-     */
-    public function getEducationsAsText(int $user_id) : string
-    {
-        $texts = [];
-        foreach ($this->repo()->getEducationsOfUser($user_id) as $education) {
-            $texts[] = $education->getTitle() . ': ' . $education->getText();
-        }
-        return implode("\n", $texts);
-    }
-
-    /**
-     * Find the Id of a studOn user by the IDM id
-     */
-    public function findUserIdByIdmUid(string $idm_uid) : ?int
-    {
-       if ((int) $id = \ilObjUser::_findUserIdByAccount($idm_uid)) {
-           return $id;
-       }
-       return null;
     }
 }

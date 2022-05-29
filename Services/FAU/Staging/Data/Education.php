@@ -48,7 +48,7 @@ class Education extends DipData
         ]);
     }
 
-    public function withTableRow(array $row) : self
+    public function withTableRow(array $row): self
     {
         $clone = parent::withTableRow($row);
         $clone->idm_uid = $row['idm_uid'] ?? '';
@@ -61,7 +61,7 @@ class Education extends DipData
     }
 
     /**
-     * IDM user id to which this education is assigned
+     * @return string
      */
     public function getIdmUid() : string
     {
@@ -69,8 +69,7 @@ class Education extends DipData
     }
 
     /**
-     * Type of the education, e.g. 'language'
-     * This is used to filter the educations shown in courses of specific organizations
+     * @return string
      */
     public function getType() : string
     {
@@ -78,7 +77,7 @@ class Education extends DipData
     }
 
     /**
-     * Key of the education, e.g. 'Spanish'
+     * @return string
      */
     public function getKey() : string
     {
@@ -86,7 +85,7 @@ class Education extends DipData
     }
 
     /**
-     * Value of the education, e.g. "E2"
+     * @return string
      */
     public function getValue() : string
     {
@@ -94,7 +93,7 @@ class Education extends DipData
     }
 
     /**
-     * Optional title of the key for better understanding
+     * @return string|null
      */
     public function getKeyTitle() : ?string
     {
@@ -102,28 +101,10 @@ class Education extends DipData
     }
 
     /**
-     * Optional key of the value for better understanding
+     * @return string|null
      */
     public function getValueText() : ?string
     {
         return $this->value_text;
-    }
-
-    /**
-     * Get the title (label) of the property
-     * Either the key title (if given) or the key
-     */
-    public function getTitle() : string
-    {
-        return $this->key_title ?? $this->key;
-    }
-
-    /**
-     * Get the textual value
-     * Either the value text (if given) or the value
-     */
-    public function getText() : string
-    {
-        return $this->value_text ?? $this->value;
     }
 }

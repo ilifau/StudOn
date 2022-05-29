@@ -5,6 +5,7 @@ namespace FAU\User;
 use FAU\User\Data\Education;
 use FAU\RecordRepo;
 
+
 /**
  * Repository for accessing FAU user data
  */
@@ -30,4 +31,14 @@ class Repository extends RecordRepo
         }
         return $this->queryRecords($query, new Education());
     }
+
+    public function saveEducation(Education $record)
+    {
+        $this->replaceRecord($record);
+    }
+    public function deleteEducation(Education $record)
+    {
+        $this->deleteRecord($record);
+    }
+
 }
