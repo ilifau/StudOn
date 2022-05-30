@@ -1,7 +1,9 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <service xmlns="http://www.w3.org" version="$Id$" id="fau">
 	<crons>
-		<cron id="fau_sync_with_campo" class="FAU\SyncWithCampoCron" />
+		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" />
 	</crons>
+	<baseclasses />
+	<logging />
 </service>
 

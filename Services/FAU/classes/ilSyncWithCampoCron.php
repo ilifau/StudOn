@@ -1,14 +1,10 @@
 <?php
 
-namespace FAU;
-
-use ILIAS\DI\Container;
-use FAU\Staging\Repository;
 
 /**
  * new class for campo data update cron job.
  */
-class SyncWithCampo extends \ilCronJob
+class ilSyncWithCampoCron extends ilCronJob
 {
     public function getId()
     {
