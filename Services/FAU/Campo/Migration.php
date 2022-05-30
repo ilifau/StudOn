@@ -14,9 +14,10 @@ class Migration
     public function createTables() {
         $this->createModuleTable();
         $this->createCourseOfStudyTable();
+        $this->createModuleCosTable();
     }
 
-    public function createModuleTable()
+    protected function createModuleTable()
     {
         $this->db->createTable('fau_campo_modules', [
             'module_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -28,7 +29,7 @@ class Migration
         $this->db->addPrimaryKey('fau_campo_modules', ['module_id']);
     }
 
-    public function createCourseOfStudyTable()
+    protected function createCourseOfStudyTable()
     {
         $this->db->createTable('fau_campo_cos', [
             'cos_id'            => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -43,7 +44,7 @@ class Migration
         $this->db->addPrimaryKey('fau_campo_cos', ['cos_id']);
     }
 
-    public function createModuleCosTable()
+    protected function createModuleCosTable()
     {
         $this->db->createTable('fau_campo_module_cos', [
             'module_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -51,7 +52,7 @@ class Migration
         ],
             true
         );
-        $this->db->addPrimaryKey('fau_campo_modules', ['module_id', 'cos_id']);
+        $this->db->addPrimaryKey('fau_campo_module_cos', ['module_id', 'cos_id']);
     }
 
 }

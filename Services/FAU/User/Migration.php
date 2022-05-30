@@ -15,7 +15,7 @@ class Migration
         $this->createUserEducationsTable();
     }
 
-    public function createUserEducationsTable()
+    protected function createUserEducationsTable()
     {
         $this->db->createTable('fau_user_educations', [
             'user_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true],
