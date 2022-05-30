@@ -8,7 +8,7 @@ class ilSyncWithCampoCron extends ilCronJob
 {
     public function getId()
     {
-        return "campo_data_update_cron";
+        return "fau_sync_with_campo";
     }
     
     public function getTitle()
