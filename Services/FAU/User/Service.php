@@ -60,8 +60,8 @@ class Service
      */
     public function findUserIdByIdmUid(string $idm_uid) : ?int
     {
-       if ((int) $id = \ilObjUser::_findUserIdByAccount($idm_uid)) {
-           return $id;
+       if ($id = \ilObjUser::_findUserIdByAccount($idm_uid)) {
+           return (int) $id;
        }
        return null;
     }

@@ -77,14 +77,14 @@ class Module extends RecordData
     public function withModuleNr(?string $module_nr) : Module
     {
         $clone = clone $this;
-        $this->module_nr = $module_nr;
+        $clone->module_nr = $module_nr;
         return $clone;
     }
 
     public function withModuleName(?string $module_name) : Module
     {
         $clone = clone $this;
-        $this->module_name = $module_name;
+        $clone->module_name = $module_name;
         return $clone;
     }
 

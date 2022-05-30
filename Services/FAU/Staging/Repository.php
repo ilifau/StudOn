@@ -62,7 +62,8 @@ class Repository extends RecordRepo
     protected function getDipRecords(DipData $prototype, string $dip_status = DipData::MARKED) : array
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($prototype::getTableName())
-            . " WHERE " . $this->getDipStatusCondition($dip_status);
+            . " WHERE " . $this->getDipStatusCondition($dip_status)
+            . " ORDER BY dip_timestamp ASC ";
         return $this->queryRecords($query, $prototype);
     }
 

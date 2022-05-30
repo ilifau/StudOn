@@ -41,8 +41,8 @@ abstract class DipData extends RecordData
     public function withTableRow(array $row)
     {
         $clone = clone $this;
-        $clone->dip_status = $row['value'] ?? null;
-        $clone->dip_timestamp = $row['value'] ?? null;
+        $clone->dip_status = $row['dip_status'] ?? null;
+        $clone->dip_timestamp = $row['dip_timestamp'] ?? null;
         return $clone;
     }
 

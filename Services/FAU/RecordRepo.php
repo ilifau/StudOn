@@ -76,8 +76,8 @@ abstract class RecordRepo
     protected function deleteRecord(RecordData $record)
     {
         $conditions[] = '';
-        foreach($this->getFieldsArray($record, $record::getTableKeyTypes()) as $key => $field) {
-            $conditions[] = $this->db->quoteIdentifier($key) . " = " . $this->db->quote($field[1], $field[0]);
+        foreach($this->getFieldsArray($record, $record::getTableKeyTypes()) as $quotedKey => $field) {
+            $conditions[] = $quotedKey . " = " . $this->db->quote($field[1], $field[0]);
         }
         $query = "DELETE FROM " . $this->db->quoteIdentifier($record::getTableName())
             . " WHERE " . implode(" AND ", $conditions);
@@ -88,14 +88,14 @@ abstract class RecordRepo
      * Get the typed field values
      * @param RecordData $record
      * @param array $types  field name => type
-     * @return array    field name => [type, value]
+     * @return array    quoted field name => [type, value]
      */
     private function getFieldsArray(RecordData $record, array $types) : array
     {
         $fields = [];
         foreach ($record->getTableRow() as $key => $value) {
             if (isset($types[$key])) {
-                $fields[$key] = [$types[$key], $value];
+                $fields[$this->db->quoteIdentifier($key)] = [$types[$key], $value];
             }
         }
         return $fields;

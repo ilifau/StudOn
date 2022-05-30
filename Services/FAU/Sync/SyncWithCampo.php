@@ -76,6 +76,7 @@ class SyncWithCampo
     {
         $this->syncCampoModule();
         $this->syncCampoModuleCos();
+        $this->syncEducations();
     }
 
     /**
@@ -84,6 +85,7 @@ class SyncWithCampo
      */
     protected function syncCampoModule()
     {
+        $this->info('syncCampoModule...');
         $moduleDone=[];
         foreach ($this->dic->fau()->staging()->repo()->getModulesToDo() as $record) {
             $module = (new Module())
@@ -95,11 +97,13 @@ class SyncWithCampo
                 case DipData::INSERTED:
                 case DipData::CHANGED:
                     if (!isset($moduleDone[$record->getModuleId()])) {
+                        $this->info('Save Module ' . $module->getModuleId());
                         $this->dic->fau()->campo()->repo()->saveModule($module);
                     }
                     break;
                 case DipData::DELETED:
                     if (!isset($moduleDone[$record->getModuleId()])) {
+                        $this->info('Delete Module ' . $module->getModuleId());
                         $this->dic->fau()->campo()->repo()->deleteModule($module);
                     }
                     break;
@@ -114,6 +118,7 @@ class SyncWithCampo
      */
     protected function syncCampoModuleCos()
     {
+        $this->info('syncCampoModuleCos...');
         $cosDone=[];
         foreach ($this->dic->fau()->staging()->repo()->getModuleCosToDo() as $record) {
             $cos = (new CourseOfStudy())
@@ -132,11 +137,14 @@ class SyncWithCampo
                 case DipData::INSERTED:
                 case DipData::CHANGED:
                     if (!isset($cosDone[$record->getCosId()])) {
+                        $this->info('Save CourseOfStudy ' . $cos->getCosId());
                         $this->dic->fau()->campo()->repo()->saveCos($cos);
                     }
+                    $this->info('Save ModuleCos ' . $moduleCos->getModuleId() . '-'.$moduleCos->getCosId());
                     $this->dic->fau()->campo()->repo()->saveModuleCos($moduleCos);
                     break;
                 case DipData::DELETED:
+                    $this->info('Delete ModuleCos ' . $moduleCos->getModuleId() . '-'.$moduleCos->getCosId());
                     $this->dic->fau()->campo()->repo()->deleteModuleCos($moduleCos);
                     break;
             }
@@ -150,6 +158,7 @@ class SyncWithCampo
      */
     protected function syncEducations()
     {
+        $this->info('syncEducations...');
         foreach ($this->dic->fau()->staging()->repo()->getEducationsToDo() as $record) {
 
             if (!empty($user_id = $this->dic->fau()->user()->findUserIdByIdmUid($record->getIdmUid()))) {
@@ -164,16 +173,28 @@ class SyncWithCampo
                 switch ($record->getDipStatus()) {
                     case DipData::INSERTED:
                     case DipData::CHANGED:
+                        $this->info('Save Education ' . $education->getTitle() .':'.$education->getText());
                         $this->dic->fau()->user()->repo()->saveEducation($education);
                         break;
                     case DipData::DELETED:
+                        $this->info('Delete Education ' . $education->getTitle() .':'.$education->getText());
                         $this->dic->fau()->user()->repo()->deleteEducation($education);
                         break;
                 }
                 //$this->dic->fau()->staging()->repo()->setModuleDone($record);
-
             }
         }
+    }
+
+    /**
+     * Add an info text to the console anf to the log
+     */
+    protected function info(?string $text)
+    {
+        if (!\ilContext::usesHTTP()) {
+            echo $text . "\n";
+        }
+        $this->dic->logger()->fau()->info($text);
     }
 }
 

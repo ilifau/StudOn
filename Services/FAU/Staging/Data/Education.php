@@ -55,8 +55,8 @@ class Education extends DipData
         $clone->type = $row['type'] ?? '';
         $clone->key =  $row['key'] ?? '';
         $clone->value = $row['value'] ?? '';
-        $clone->key_title = $row['value'] ?? null;
-        $clone->value_text = $row['value'] ?? null;
+        $clone->key_title = $row['key_title'] ?? null;
+        $clone->value_text = $row['value_text'] ?? null;
         return $clone;
     }
 
