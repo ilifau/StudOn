@@ -22,7 +22,8 @@ abstract class RecordRepo
     protected function queryRecords(string $query, RecordData $prototype) : array
     {
         $records = [];
-        while ($row = $this->db->fetchAssoc($this->db->query($query))) {
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
             $records[] = $prototype->withTableRow($row);
         }
         return $records;
