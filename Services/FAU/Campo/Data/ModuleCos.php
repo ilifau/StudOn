@@ -43,8 +43,8 @@ class ModuleCos extends RecordData
     public function withTableRow(array $row) : self
     {
         $clone = clone $this;
-        $clone->module_id = $row['module_id'] ?? 0;
-        $clone->cos_id = $row['module_id'] ?? 0;
+        $clone->module_id = (int) $row['module_id'];
+        $clone->cos_id = (int) $row['module_id'];
         return $clone;
     }
 

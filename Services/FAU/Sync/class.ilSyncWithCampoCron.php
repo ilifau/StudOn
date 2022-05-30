@@ -52,6 +52,8 @@ class ilSyncWithCampoCron extends ilCronJob
         $service = $DIC->fau()->sync()->campo();
         $result = new \ilCronJobResult();
 
+        $service->synchronize();
+
         if ($service->hasErrors()) {
             $result->setStatus(\ilCronJobResult::STATUS_FAIL);
             $result->setMessage(implode(', ', $service->getErrors()));

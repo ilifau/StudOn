@@ -82,8 +82,9 @@ class SyncWithCampo
      * Synchronize data found in the staging table campo_module
      * todo: treat event relationship
      */
-    public function syncCampoModule()
+    protected function syncCampoModule()
     {
+        $moduleDone=[];
         foreach ($this->dic->fau()->staging()->repo()->getModulesToDo() as $record) {
             $module = (new Module())
                 ->withModuleId($record->getModuleId())
@@ -93,12 +94,17 @@ class SyncWithCampo
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
-                    $this->dic->fau()->campo()->repo()->saveModule($module);
+                    if (!isset($moduleDone[$record->getModuleId()])) {
+                        $this->dic->fau()->campo()->repo()->saveModule($module);
+                    }
                     break;
                 case DipData::DELETED:
-                    $this->dic->fau()->campo()->repo()->deleteModule($module);
+                    if (!isset($moduleDone[$record->getModuleId()])) {
+                        $this->dic->fau()->campo()->repo()->deleteModule($module);
+                    }
                     break;
             }
+            $moduleDone[$record->getModuleId()]=true;
             //$this->dic->fau()->staging()->repo()->setModuleDone($record);
         }
     }
@@ -106,8 +112,9 @@ class SyncWithCampo
     /**
      * Synchronize data found in the staging table campo_module_cos
      */
-    public function syncCampoModuleCos()
+    protected function syncCampoModuleCos()
     {
+        $cosDone=[];
         foreach ($this->dic->fau()->staging()->repo()->getModuleCosToDo() as $record) {
             $cos = (new CourseOfStudy())
                 ->withCosId($record->getCosId())
@@ -124,13 +131,16 @@ class SyncWithCampo
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
-                    $this->dic->fau()->campo()->repo()->saveCos($cos);
+                    if (!isset($cosDone[$record->getCosId()])) {
+                        $this->dic->fau()->campo()->repo()->saveCos($cos);
+                    }
                     $this->dic->fau()->campo()->repo()->saveModuleCos($moduleCos);
                     break;
                 case DipData::DELETED:
                     $this->dic->fau()->campo()->repo()->deleteModuleCos($moduleCos);
                     break;
             }
+            $cosDone[$record->getCosId()]=true;
             //$this->dic->fau()->staging()->repo()->setModuleCosDone($record);
         }
     }
@@ -138,7 +148,7 @@ class SyncWithCampo
     /**
      * Synchronize data found in the staging table campo_specific_educations
      */
-    public function syncEducations()
+    protected function syncEducations()
     {
         foreach ($this->dic->fau()->staging()->repo()->getEducationsToDo() as $record) {
 

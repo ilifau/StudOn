@@ -46,8 +46,8 @@ class Module extends DipData
     public function withTableRow(array $row) : self
     {
         $clone = parent::withTableRow($row);
-        $clone->event_id = $row['event_id'] ?? 0;
-        $clone->module_id = $row['module_id'] ?? 0;
+        $clone->event_id = (int) $row['event_id'];
+        $clone->module_id = (int) $row['module_id'];
         $clone->module_nr =  $row['module_nr'] ?? null;
         $clone->module_name = $row['module_name'] ?? null;
         return $clone;

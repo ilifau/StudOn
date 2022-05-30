@@ -54,7 +54,7 @@ class CourseOfStudy extends RecordData
     public function withTableRow(array $row) : self
     {
         $clone = clone $this;
-        $clone->cos_id = $row['cos_id'] ?? 0;
+        $clone->cos_id = (int) $row['cos_id'];
         $clone->degree =  $row['degree'] ?? null;
         $clone->subject = $row['subject'] ?? null;
         $clone->major = $row['major'] ?? null;
