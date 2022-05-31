@@ -7,6 +7,19 @@ namespace FAU\Staging\Data;
  */
 class Education extends DipData
 {
+    protected const tableName = 'campo_specific_educations';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'idm_uid' => 'text',
+        'type' => 'text',
+        'key' => 'text'
+    ];
+    protected const otherTypes = [
+        'value' => 'text',
+        'key_title' => 'text',
+        'value_text' => 'text',
+    ];
+
     protected string $idm_uid = '';
     protected string $type = '';
     protected string $key = '';
@@ -14,6 +27,22 @@ class Education extends DipData
     protected ?string $key_title;
     protected ?string $value_text;
 
+    public function __construct(
+        string $idm_uid,
+        string $type,
+        string $key,
+        string $value,
+        ?string $key_title,
+        ?string $value_text
+    )
+    {
+        $this->idm_uid = $idm_uid;
+        $this->type = $type;
+        $this->key = $key;
+        $this->value = $value;
+        $this->key_title = $key_title;
+        $this->value_text = $value_text;
+    }
 
     public function info() : string
     {
@@ -22,53 +51,31 @@ class Education extends DipData
 
     public static function model(): self
     {
-        return new self;
+        return new self('', '', '', '', null, null);
     }
 
-    public static function getTableName() : string
-    {
-        return 'campo_specific_educations';
-    }
-
-    public static function getTableKeyTypes() : array
-    {
-        return [
-            'idm_uid' => 'text',
-            'type' => 'text',
-            'key' => 'text'
-        ];
-    }
-
-    public static function getTableOtherTypes() : array
-    {
-        return array_merge(parent::getTableOtherTypes(), [
-            'value' => 'text',
-            'key_title' => 'text',
-            'value_text' => 'text',
-        ]);
-    }
-
-    public function getTableRow() : array {
-        return array_merge(parent::getTableRow(), [
+    public function row() : array {
+        return array_merge([
             'idm_uid' => $this->idm_uid,
             'type' => $this->type,
             'key' => $this->key,
             'value' => $this->value,
             'key_title' => $this->key_title,
             'value_text' => $this->value_text
-        ]);
+        ], $this->getDipData());
     }
 
-    public function withTableRow(array $row): self
+    public static function from(array $row): self
     {
-        $clone = parent::withTableRow($row);
-        $clone->idm_uid = $row['idm_uid'] ?? '';
-        $clone->type = $row['type'] ?? '';
-        $clone->key =  $row['key'] ?? '';
-        $clone->value = $row['value'] ?? '';
-        $clone->key_title = $row['key_title'] ?? null;
-        $clone->value_text = $row['value_text'] ?? null;
-        return $clone;
+        return (new self(
+            $row['idm_uid'] ?? '',
+            $row['type'] ?? '',
+            $row['key'] ?? '',
+            $row['value'] ?? '',
+            $row['key_title'] ?? null,
+            $row['value_text'] ?? null
+            )
+        )->withDipData($row);
     }
 
     /**

@@ -9,42 +9,28 @@ use FAU\RecordData;
  */
 abstract class DipData extends RecordData
 {
+    protected const otherTypes = [
+        'dip_status' => 'text',
+        'dip_timestamp' => 'text'
+    ];
+
     public const INSERTED = 'inserted';
     public const CHANGED = 'changed';
     public const DELETED = 'deleted';
     public const MARKED = 'marked';
 
-
     protected ?string $dip_status;
     protected ?string $dip_timestamp;
 
-    public static function getTableOtherTypes() : array
+
+    public static function tableOtherTypes() : array
     {
-        return [
+        return array_merge(static::tableOtherTypes(), [
             'dip_status' => 'text',
             'dip_timestamp' => 'text'
-        ];
+        ]);
     }
 
-    public function getTableRow() : array
-    {
-        return [
-            'dip_status' => $this->dip_status,
-            'dip_timestamp' => $this->dip_timestamp
-        ];
-    }
-
-    /**
-     * Get the record with processed status
-     * @return static
-     */
-    public function withTableRow(array $row)
-    {
-        $clone = clone $this;
-        $clone->dip_status = $row['dip_status'] ?? null;
-        $clone->dip_timestamp = $row['dip_timestamp'] ?? null;
-        return $clone;
-    }
 
     /**
      * Get the status of the last change by DIP
@@ -60,6 +46,31 @@ abstract class DipData extends RecordData
     public function getDipTimestamp() : ?string
     {
         return $this->dip_timestamp;
+    }
+
+    /**
+     * Get an array of the DIP data from the object
+     * This must be merged with other row data in the row() function
+     */
+    public function getDipData() : array
+    {
+        return [
+            'dip_status' => $this->dip_status,
+            'dip_timestamp' => $this->dip_timestamp
+        ];
+    }
+
+    /**
+     * Get the object with DIP data set from a database row
+     * This must called in the from() function
+     * @return static
+     */
+    public function withDipData(array $data)
+    {
+        $clone = clone $this;
+        $clone->dip_status = $data['dip_status'] ?? null;
+        $clone->dip_timestamp = $data['dip_timestamp'] ?? null;
+        return $clone;
     }
 
     /**

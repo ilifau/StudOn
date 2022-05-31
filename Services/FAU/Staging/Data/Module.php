@@ -7,61 +7,66 @@ namespace FAU\Staging\Data;
  */
 class Module extends DipData
 {
+    protected const tableName = 'campo_module';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'event_id' => 'integer',
+        'module_id' => 'integer'
+    ];
+    protected const otherTypes = [
+        'module_nr' => 'text',
+        'module_name' => 'text',
+    ];
+
     protected int $event_id;
     protected int $module_id;
     protected string $module_nr;
     protected string $module_name;
 
 
+    public function __construct(
+        int $event_id,
+        int $module_id,
+        string $module_nr,
+        string $module_name
+    )
+    {
+        $this->event_id = $event_id;
+        $this->module_id = $module_id;
+        $this->module_nr = $module_nr;
+        $this->module_name = $module_name;
+    }
+
+    public static function model(): self
+    {
+        return new self (0,0,'','');
+    }
+
+    public static function from(array $row) : self
+    {
+        return (new self(
+            (int) $row['event_id'],
+            (int) $row['module_id'],
+            $row['module_nr'] ?? null,
+            $row['module_name'] ?? null
+            )
+        )->withDipData($row);
+    }
+
+    public function row() : array {
+        return array_merge([
+            'event_id' => $this->event_id,
+            'module_id' => $this->module_id,
+            'module_nr' => $this->module_nr,
+            'module_name' => $this->module_name
+        ], $this->getDipData());
+    }
+
     public function info() : string
     {
         return ('event_id: ' . $this->event_id . ' | module_id: ' . $this->module_id . ' | module_name: ' . $this->module_name);
     }
 
-    public static function model(): self
-    {
-        return new self;
-    }
-
-    public static function getTableName() : string
-    {
-        return 'campo_module';
-    }
-
-    public static function getTableKeyTypes() : array
-    {
-        return [
-            'event_id' => 'integer',
-            'module_id' => 'integer'
-        ];
-    }
-
-    public static function getTableOtherTypes() : array
-    {
-        return array_merge(parent::getTableOtherTypes(), [
-            'module_nr' => 'text',
-            'module_name' => 'text',
-        ]);
-    }
-
-    public function getTableRow() : array {
-        return array_merge(parent::getTableRow(), [
-            'event_id' => $this->event_id,
-            'module_id' => $this->module_id,
-            'module_nr' => $this->module_nr,
-            'module_name' => $this->module_name
-        ]);
-    }
-
-    public function withTableRow(array $row) : self
-    {
-        $clone = parent::withTableRow($row);
-        $clone->event_id = (int) $row['event_id'];
-        $clone->module_id = (int) $row['module_id'];
-        $clone->module_nr =  $row['module_nr'] ?? null;
-        $clone->module_name = $row['module_name'] ?? null;
-        return $clone;
-    }
 
     /**
      * @return int

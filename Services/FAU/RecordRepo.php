@@ -26,7 +26,7 @@ abstract class RecordRepo
         $records = [];
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
-            $record = $model->withTableRow($row);
+            $record = $model::from($row);
             $this->logAction('READ', $record);
             $records[] = $record;
         }
@@ -39,13 +39,13 @@ abstract class RecordRepo
      */
     protected function insertRecord(RecordData $record) : RecordData
     {
-        if ($record::hasTableSequence() && empty($record->getTableSequence())) {
-            $record = $record->withTableSequence($this->db->nextId($record::getTableName()));
+        if ($record::tableHasSequence() && empty($record->sequence())) {
+            $record = $record->withTableSequence($this->db->nextId($record::tableName()));
         }
-        $types = array_merge($record::getTableKeyTypes(), $record::getTableOtherTypes());
+        $types = array_merge($record::tableKeyTypes(), $record::tableOtherTypes());
         $fields = $this->getFieldsArray($record, $types);
         $this->logAction('INSERT', $record);
-        $this->db->insert($record::getTableName(), $fields);
+        $this->db->insert($record::tableName(), $fields);
         return $record;
     }
 
@@ -55,13 +55,13 @@ abstract class RecordRepo
      */
     protected function replaceRecord(RecordData $record) : RecordData
     {
-        if ($record::hasTableSequence() && empty($record->getTableSequence())) {
-            $record = $record->withTableSequence($this->db->nextId($record::getTableName()));
+        if ($record::tableHasSequence() && empty($record->sequence())) {
+            $record = $record->withTableSequence($this->db->nextId($record::tableName()));
         }
-        $key_fields = $this->getFieldsArray($record, $record::getTableKeyTypes());
-        $other_fields = $this->getFieldsArray($record, $record::getTableOtherTypes());
+        $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
+        $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes());
         $this->logAction('REPLACE', $record);
-        $this->db->replace($record::getTableName(), $key_fields, $other_fields);
+        $this->db->replace($record::tableName(), $key_fields, $other_fields);
         return $record;
     }
 
@@ -70,10 +70,10 @@ abstract class RecordRepo
      */
     protected function updateRecord(RecordData $record)
     {
-        $key_fields = $this->getFieldsArray($record, $record::getTableKeyTypes());
-        $other_fields = $this->getFieldsArray($record, $record::getTableOtherTypes());
+        $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
+        $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes());
         $this->logAction('UPDATE', $record);
-        $this->db->update($record::getTableName(), array_merge($key_fields, $other_fields), $key_fields);
+        $this->db->update($record::tableName(), array_merge($key_fields, $other_fields), $key_fields);
     }
 
     /**
@@ -82,10 +82,10 @@ abstract class RecordRepo
     protected function deleteRecord(RecordData $record)
     {
         $conditions[] = '';
-        foreach($this->getFieldsArray($record, $record::getTableKeyTypes()) as $quotedKey => $field) {
+        foreach($this->getFieldsArray($record, $record::tableKeyTypes()) as $quotedKey => $field) {
             $conditions[] = $quotedKey . " = " . $this->db->quote($field[1], $field[0]);
         }
-        $query = "DELETE FROM " . $this->db->quoteIdentifier($record::getTableName())
+        $query = "DELETE FROM " . $this->db->quoteIdentifier($record::tableName())
             . " WHERE " . implode(" AND ", $conditions);
         $this->logAction('DELETE', $record);
         $this->db->manipulate($query);
@@ -100,7 +100,7 @@ abstract class RecordRepo
     private function getFieldsArray(RecordData $record, array $types) : array
     {
         $fields = [];
-        foreach ($record->getTableRow() as $key => $value) {
+        foreach ($record->row() as $key => $value) {
             if (isset($types[$key])) {
                 $fields[$this->db->quoteIdentifier($key)] = [$types[$key], $value];
             }

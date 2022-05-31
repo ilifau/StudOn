@@ -6,13 +6,25 @@ use FAU\RecordData;
 
 class Education extends RecordData
 {
+    protected const tableName = 'fau_user_educations';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'user_id' => 'integer',
+        'type' => 'text',
+        'key' => 'text'
+    ];
+    protected const otherTypes = [
+        'value' => 'text',
+        'key_title' => 'text',
+        'value_text' => 'text'
+    ];
+
     protected int $user_id;
     protected string $type;
     protected string $key;
     protected string $value;
     protected ?string $key_title;
     protected ?string $value_text;
-
 
     public function __construct(
         int $user_id,
@@ -30,41 +42,25 @@ class Education extends RecordData
         $this->key_title = $key_title;
         $this->value_text = $value_text;
     }
-    
-    public function info() : string
-    {
-        return ('user_id: ' . $this->user_id . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
-    }
 
     public static function model(): self
     {
         return new self(0,'','','', null, null);
     }
 
-    public static function getTableName() : string
+    public static function from (array $row) : self
     {
-        return 'fau_user_educations';
+        return new self (
+            (int) $row['user_id'],
+            $row['type'] ?? '',
+            $row['key'] ?? '',
+            $row['value'] ?? '',
+            $row['key_title'] ?? null,
+            $row['value_text'] ?? null
+        );
     }
 
-    public static function getTableKeyTypes() : array
-    {
-        return [
-            'user_id' => 'integer',
-            'type' => 'text',
-            'key' => 'text'
-        ];
-    }
-
-    public static function getTableOtherTypes() : array
-    {
-        return [
-            'value' => 'text',
-            'key_title' => 'text',
-            'value_text' => 'text'
-        ];
-    }
-
-    public function getTableRow() : array
+    public function row() : array
     {
         return [
             'user_id' => $this->user_id,
@@ -76,19 +72,10 @@ class Education extends RecordData
         ];
     }
 
-    public function withTableRow(array $row) : self
+    public function info() : string
     {
-        $clone = clone $this;
-        $clone->user_id = (int) $row['user_id'];
-        $clone->type = $row['type'] ?? '';
-        $clone->key =  $row['key'] ?? '';
-        $clone->value = $row['value'] ?? '';
-        $clone->key_title = $row['key_title'] ?? null;
-        $clone->value_text = $row['value_text'] ?? null;
-        return $clone;
+        return ('user_id: ' . $this->user_id . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
     }
-
-
 
     /**
      * User id to which this education is assigned

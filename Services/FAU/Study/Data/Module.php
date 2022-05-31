@@ -8,6 +8,16 @@ use FAU\RecordData;
  */
 class Module extends RecordData
 {
+    protected const tableName = 'fau_study_modules';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'module_id' => 'integer'
+    ];
+    protected const otherTypes = [
+        'module_nr' => 'text',
+        'module_name' => 'text',
+    ];
+
     protected int $module_id;
     protected ?string $module_nr;
     protected ?string $module_name;
@@ -23,37 +33,21 @@ class Module extends RecordData
         $this->module_name = $module_name;
     }
 
-    public function info() : string
-    {
-        return ('id: ' . $this->module_id . ' | name: ' . $this->module_name);
-    }
-
-    public static function model(): self
+    public static function model() : self
     {
         return new self(0,null,null);
     }
 
-    public static function getTableName() : string
+    public static function from(array $row) : self
     {
-        return 'fau_study_modules';
+        return new self (
+            (int) $row['module_id'],
+            $row['module_nr'] ?? null,
+            $row['module_name'] ?? null
+        );
     }
 
-    public static function getTableKeyTypes() : array
-    {
-        return [
-            'module_id' => 'integer'
-        ];
-    }
-
-    public static function getTableOtherTypes() : array
-    {
-        return [
-            'module_nr' => 'text',
-            'module_name' => 'text',
-        ];
-    }
-
-    public function getTableRow() : array {
+    public function row() : array {
         return  [
             'module_id' => $this->module_id,
             'module_nr' => $this->module_nr,
@@ -61,13 +55,9 @@ class Module extends RecordData
         ];
     }
 
-    public function withTableRow(array $row) : self
+    public function info() : string
     {
-        $clone = clone $this;
-        $clone->module_id = (int) $row['module_id'];
-        $clone->module_nr =  $row['module_nr'] ?? null;
-        $clone->module_name = $row['module_name'] ?? null;
-        return $clone;
+        return ('id: ' . $this->module_id . ' | name: ' . $this->module_name);
     }
 
     public function getModuleId() : int
@@ -84,26 +74,4 @@ class Module extends RecordData
     {
         return $this->module_name;
     }
-
-    public function withModuleId(int $module_id) : Module
-    {
-        $clone = clone $this;
-        $clone->module_id = $module_id;
-        return $clone;
-    }
-
-    public function withModuleNr(?string $module_nr) : Module
-    {
-        $clone = clone $this;
-        $clone->module_nr = $module_nr;
-        return $clone;
-    }
-
-    public function withModuleName(?string $module_name) : Module
-    {
-        $clone = clone $this;
-        $clone->module_name = $module_name;
-        return $clone;
-    }
-
 }

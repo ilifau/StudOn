@@ -9,6 +9,19 @@ use FAU\RecordData;
  */
 class CourseOfStudy extends RecordData
 {
+    protected const tableName = 'fau_study_cos';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'cos_id' => 'integer'
+    ];
+    protected const otherTypes = [
+        'degree' => 'text',
+        'subject' => 'text',
+        'major' => 'text',
+        'subject_indicator' => 'text',
+        'version' => 'text'
+    ];
+
     protected int $cos_id;
     protected ?string $degree;
     protected ?string $subject;
@@ -33,41 +46,24 @@ class CourseOfStudy extends RecordData
         $this->version = $version;
     }
 
-
-    public function info() : string
-    {
-        return ('id: ' . $this->cos_id . ' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
-    }
-
     public static function model(): self
     {
         return new self(0,null,null,null,null,null);
     }
 
-    public static function getTableName() : string
+    public static function from(array $row) : self
     {
-        return 'fau_study_cos';
+        return new self (
+            (int) $row['cos_id'],
+            $row['degree'] ?? null,
+            $row['subject'] ?? null,
+            $row['major'] ?? null,
+            $row['subject_indicator'] ?? null,
+            $row['version'] ?? null
+        );
     }
 
-    public static function getTableKeyTypes() : array
-    {
-        return [
-            'cos_id' => 'integer'
-        ];
-    }
-
-    public static function getTableOtherTypes() : array
-    {
-        return [
-            'degree' => 'text',
-            'subject' => 'text',
-            'major' => 'text',
-            'subject_indicator' => 'text',
-            'version' => 'text'
-        ];
-    }
-
-    public function getTableRow() : array {
+    public function row() : array {
         return [
             'cos_id' => $this->cos_id,
             'degree' => $this->degree,
@@ -78,17 +74,11 @@ class CourseOfStudy extends RecordData
         ];
     }
 
-    public function withTableRow(array $row) : self
+    public function info() : string
     {
-        $clone = clone $this;
-        $clone->cos_id = (int) $row['cos_id'];
-        $clone->degree =  $row['degree'] ?? null;
-        $clone->subject = $row['subject'] ?? null;
-        $clone->major = $row['major'] ?? null;
-        $clone->subject_indicator = $row['subject_indicator'] ?? null;
-        $clone->version = $row['version'] ?? null;
-        return $clone;
+        return ('id: ' . $this->cos_id . ' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
     }
+
 
     public function getCosId() : int
     {
@@ -118,48 +108,5 @@ class CourseOfStudy extends RecordData
     public function getVersion() : ?string
     {
         return $this->version;
-    }
-
-
-    public function withCosId(int $cos_id) : CourseOfStudy
-    {
-        $clone = clone $this;
-        $clone->cos_id = $cos_id;
-        return $clone;
-    }
-
-    public function withDegree(?string $degree) : CourseOfStudy
-    {
-        $clone = clone $this;
-        $clone->degree = $degree;
-        return $clone;
-    }
-
-    public function withSubject(?string $subject) : CourseOfStudy
-    {
-        $clone = clone $this;
-        $clone->subject = $subject;
-        return $clone;
-    }
-
-    public function withMajor(?string $major) : CourseOfStudy
-    {
-        $clone = clone $this;
-        $clone->major = $major;
-        return $clone;
-    }
-
-    public function withSubjectIndicator(?string $subject_indicator) : CourseOfStudy
-    {
-        $clone = clone $this;
-        $clone->subject_indicator = $subject_indicator;
-        return $clone;
-    }
-
-    public function withVersion(?string $version) : CourseOfStudy
-    {
-        $clone = clone $this;
-        $clone->version = $version;
-        return $clone;
     }
 }

@@ -18,7 +18,7 @@ class Repository extends RecordRepo
      */
     public function getEducationsToDo() : array
     {
-        return $this->getDipRecords(new Education());
+        return $this->getDipRecords(Education::model());
     }
 
     public function setEducationDone(Education $record)
@@ -31,7 +31,7 @@ class Repository extends RecordRepo
      */
     public function getModulesToDo() : array
     {
-        return $this->getDipRecords(new Module());
+        return $this->getDipRecords(Module::model());
     }
 
     public function setModuleDone(Module $record)
@@ -45,7 +45,7 @@ class Repository extends RecordRepo
      */
     public function getModuleCosToDo() : array
     {
-        return $this->getDipRecords(new ModuleCos());
+        return $this->getDipRecords(ModuleCos::model());
     }
 
     public function setModuleCosDone(ModuleCos $record)
@@ -61,7 +61,7 @@ class Repository extends RecordRepo
      */
     protected function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
     {
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::getTableName())
+        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName())
             . " WHERE " . $this->getDipStatusCondition($dip_status)
             . " ORDER BY dip_timestamp ASC ";
         return $this->queryRecords($query, $model);

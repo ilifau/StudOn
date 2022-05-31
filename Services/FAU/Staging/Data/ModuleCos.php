@@ -7,6 +7,20 @@ namespace FAU\Staging\Data;
  */
 class ModuleCos extends DipData
 {
+    protected const tableName = 'campo_module_cos';
+    protected const hasSequence = false;
+    protected const keyTypes =  [
+        'module_id' => 'integer',
+        'cos_id' => 'integer'
+    ];
+    protected const otherTypes = [
+        'degree' => 'text',
+        'subject' => 'text',
+        'major' => 'text',
+        'subject_indicator' => 'text',
+        'version' => 'text'
+    ];
+
     protected int $module_id;
     protected int $cos_id;
     protected string $degree;
@@ -15,42 +29,46 @@ class ModuleCos extends DipData
     protected string $subject_indicator;
     protected string $version;
 
-    public function info() : string
-    {
-        return ('module_id: ' . $this->module_id . 'cos_id:' . $this->cos_id .' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
+    public function __construct(
+        int $module_id,
+        int $cos_id,
+        string $degree,
+        string $subject,
+        string $major,
+        string $subject_indicator,
+        string $version
+    ) {
+
+        $this->module_id = $module_id;
+        $this->cos_id = $cos_id;
+        $this->degree = $degree;
+        $this->subject = $subject;
+        $this->major = $major;
+        $this->subject_indicator = $subject_indicator;
+        $this->version = $version;
     }
 
     public static function model(): self
     {
-        return new self;
+        return new self(0,0,'','','','','');
     }
 
-    public static function getTableName() : string
+    public static function from(array $row) : self
     {
-        return 'campo_module_cos';
+        return (new self (
+            (int) $row['module_id'],
+            (int) $row['cos_id'],
+            $row['degree'] ?? null,
+            $row['subject'] ?? null,
+            $row['major'] ?? null,
+            $row['subject_indicator'] ?? null,
+            $row['version'] ?? null
+            )
+        )->withDipData($row);
     }
 
-    public static function getTableKeyTypes() : array
-    {
-        return [
-            'module_id' => 'integer',
-            'cos_id' => 'integer'
-        ];
-    }
-
-    public static function getTableOtherTypes() : array
-    {
-        return array_merge(parent::getTableOtherTypes(), [
-            'degree' => 'text',
-            'subject' => 'text',
-            'major' => 'text',
-            'subject_indicator' => 'text',
-            'version' => 'text'
-        ]);
-    }
-
-    public function getTableRow() : array {
-        return array_merge(parent::getTableRow(), [
+    public function row() : array {
+        return array_merge([
             'module_id' => $this->module_id,
             'cos_id' => $this->cos_id,
             'degree' => $this->degree,
@@ -58,20 +76,12 @@ class ModuleCos extends DipData
             'major' => $this->major,
             'subject_indicator' => $this->subject_indicator,
             'version' => $this->version
-        ]);
+        ], $this->getDipData());
     }
 
-    public function withTableRow(array $row) : self
+    public function info() : string
     {
-        $clone = parent::withTableRow($row);
-        $clone->module_id = (int) $row['module_id'];
-        $clone->cos_id = (int) $row['cos_id'];
-        $clone->degree =  $row['degree'] ?? null;
-        $clone->subject = $row['subject'] ?? null;
-        $clone->major = $row['major'] ?? null;
-        $clone->subject_indicator = $row['subject_indicator'] ?? null;
-        $clone->version = $row['version'] ?? null;
-        return $clone;
+        return ('module_id: ' . $this->module_id . 'cos_id:' . $this->cos_id .' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
     }
 
     /**
