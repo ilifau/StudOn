@@ -59,12 +59,12 @@ class Repository extends RecordRepo
      * Get the record objects for DIP table rows with a certain status
      * @return DipData[]
      */
-    protected function getDipRecords(DipData $prototype, string $dip_status = DipData::MARKED) : array
+    protected function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
     {
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier($prototype::getTableName())
+        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::getTableName())
             . " WHERE " . $this->getDipStatusCondition($dip_status)
             . " ORDER BY dip_timestamp ASC ";
-        return $this->queryRecords($query, $prototype);
+        return $this->queryRecords($query, $model);
     }
 
     /**

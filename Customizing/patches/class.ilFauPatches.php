@@ -7,7 +7,7 @@ class ilFauPatches
 	public function createFauTables()
 	{
         global $DIC;
-        $DIC->fau()->campo()->migration()->createTables();
+        $DIC->fau()->study()->migration()->createTables();
         $DIC->fau()->user()->migration()->createTables();
 	}
 

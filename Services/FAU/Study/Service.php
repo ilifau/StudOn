@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Campo;
+namespace FAU\Study;
 
 use ILIAS\DI\Container;
 
@@ -28,7 +28,7 @@ class Service
     public function repo() : Repository
     {
         if(!isset($this->repository)) {
-            $this->repository = new Repository($this->dic->database());
+            $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
         }
         return $this->repository;
     }

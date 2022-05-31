@@ -14,6 +14,33 @@ class Education extends RecordData
     protected ?string $value_text;
 
 
+    public function __construct(
+        int $user_id,
+        string $type,
+        string $key,
+        string $value,
+        ?string $key_title,
+        ?string $value_text
+    )
+    {
+        $this->user_id = $user_id;
+        $this->type = $type;
+        $this->key = $key;
+        $this->value = $value;
+        $this->key_title = $key_title;
+        $this->value_text = $value_text;
+    }
+    
+    public function info() : string
+    {
+        return ('user_id: ' . $this->user_id . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
+    }
+
+    public static function model(): self
+    {
+        return new self(0,'','','', null, null);
+    }
+
     public static function getTableName() : string
     {
         return 'fau_user_educations';
@@ -129,47 +156,4 @@ class Education extends RecordData
     {
         return $this->value_text ?? $this->value;
     }
-
-    public function withUserId(int $user_id) : Education
-    {
-        $clone = clone $this;
-        $clone->user_id = $user_id;
-        return $clone;
-    }
-
-    public function withType(string $type) : Education
-    {
-        $clone = clone $this;
-        $clone->type = $type;
-        return $clone;
-    }
-
-    public function withKey(string $key) : Education
-    {
-        $clone = clone $this;
-        $clone->key = $key;
-        return $clone;
-    }
-
-    public function withValue(string $value) : Education
-    {
-        $clone = clone $this;
-        $clone->value = $value;
-        return $clone;
-    }
-
-    public function withKeyTitle(?string $key_title) : Education
-    {
-        $clone = clone $this;
-        $clone->key_title = $key_title;
-        return $clone;
-    }
-
-    public function withValueText(?string $value_text) : Education
-    {
-        $clone = clone $this;
-        $clone->value_text = $value_text;
-        return $clone;
-    }
-
 }

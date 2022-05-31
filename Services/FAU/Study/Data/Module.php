@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Campo\Data;
-
-
+namespace FAU\Study\Data;
 use FAU\RecordData;
 
 /**
@@ -15,9 +13,29 @@ class Module extends RecordData
     protected ?string $module_name;
 
 
+    public function __construct(
+        int $module_id,
+        ?string $module_nr,
+        ?string $module_name
+    ) {
+        $this->module_id = $module_id;
+        $this->module_nr = $module_nr;
+        $this->module_name = $module_name;
+    }
+
+    public function info() : string
+    {
+        return ('id: ' . $this->module_id . ' | name: ' . $this->module_name);
+    }
+
+    public static function model(): self
+    {
+        return new self(0,null,null);
+    }
+
     public static function getTableName() : string
     {
-        return 'fau_campo_modules';
+        return 'fau_study_modules';
     }
 
     public static function getTableKeyTypes() : array

@@ -4,7 +4,7 @@ namespace FAU\User;
 
 use FAU\User\Data\Education;
 use FAU\RecordRepo;
-
+use FAU\RecordData;
 
 /**
  * Repository for accessing FAU user data
@@ -29,16 +29,25 @@ class Repository extends RecordRepo
         if (isset($type))  {
             $query .= " AND " . $this->db->quoteIdentifier('type') . ' = ' . $this->db->quote($type, 'text');
         }
-        return $this->queryRecords($query, new Education());
+        return $this->queryRecords($query, Education::model());
     }
 
-    public function saveEducation(Education $record)
+    /**
+     * Save record data of an allowed type
+     * @param Education $record
+     */
+    public function save(RecordData $record)
     {
         $this->replaceRecord($record);
     }
-    public function deleteEducation(Education $record)
+
+
+    /**
+     * Delete record data of an allowed type
+     * @param Education $record
+     */
+    public function delete(RecordData $record)
     {
         $this->deleteRecord($record);
     }
-
 }

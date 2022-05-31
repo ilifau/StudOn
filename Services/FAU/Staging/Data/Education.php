@@ -14,6 +14,17 @@ class Education extends DipData
     protected ?string $key_title;
     protected ?string $value_text;
 
+
+    public function info() : string
+    {
+        return ('idm_uid: ' . $this->idm_uid . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
+    }
+
+    public static function model(): self
+    {
+        return new self;
+    }
+
     public static function getTableName() : string
     {
         return 'campo_specific_educations';

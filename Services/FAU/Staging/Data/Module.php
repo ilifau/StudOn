@@ -13,6 +13,16 @@ class Module extends DipData
     protected string $module_name;
 
 
+    public function info() : string
+    {
+        return ('event_id: ' . $this->event_id . ' | module_id: ' . $this->module_id . ' | module_name: ' . $this->module_name);
+    }
+
+    public static function model(): self
+    {
+        return new self;
+    }
+
     public static function getTableName() : string
     {
         return 'campo_module';

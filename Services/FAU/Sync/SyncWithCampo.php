@@ -5,9 +5,9 @@ namespace FAU\Sync;
 
 use ILIAS\DI\Container;
 use FAU\Staging\Data\DipData;
-use FAU\Campo\Data\Module;
-use FAU\Campo\Data\ModuleCos;
-use FAU\Campo\Data\CourseOfStudy;
+use FAU\Study\Data\Module;
+use FAU\Study\Data\ModuleCos;
+use FAU\Study\Data\CourseOfStudy;
 use FAU\User\Data\Education;
 
 class SyncWithCampo
@@ -88,23 +88,21 @@ class SyncWithCampo
         $this->info('syncCampoModule...');
         $moduleDone=[];
         foreach ($this->dic->fau()->staging()->repo()->getModulesToDo() as $record) {
-            $module = (new Module())
-                ->withModuleId($record->getModuleId())
-                ->withModuleNr($record->getModuleNr())
-                ->withModuleName($record->getModuleName());
-
+            $module = new Module(
+                $record->getModuleId(),
+                $record->getModuleNr(),
+                $record->getModuleName()
+            );
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
                     if (!isset($moduleDone[$record->getModuleId()])) {
-                        $this->info('Save Module ' . $module->getModuleId());
-                        $this->dic->fau()->campo()->repo()->saveModule($module);
+                        $this->dic->fau()->study()->repo()->save($module);
                     }
                     break;
                 case DipData::DELETED:
                     if (!isset($moduleDone[$record->getModuleId()])) {
-                        $this->info('Delete Module ' . $module->getModuleId());
-                        $this->dic->fau()->campo()->repo()->deleteModule($module);
+                        $this->dic->fau()->study()->repo()->delete($module);
                     }
                     break;
             }
@@ -121,31 +119,28 @@ class SyncWithCampo
         $this->info('syncCampoModuleCos...');
         $cosDone=[];
         foreach ($this->dic->fau()->staging()->repo()->getModuleCosToDo() as $record) {
-            $cos = (new CourseOfStudy())
-                ->withCosId($record->getCosId())
-                ->withDegree($record->getDegree())
-                ->withSubject($record->getSubject())
-                ->withMajor($record->getMajor())
-                ->withSubjectIndicator($record->getSubjectIndicator())
-                ->withVersion($record->getVersion());
-
-            $moduleCos = (new ModuleCos())
-                ->withCosId($record->getCosId())
-                ->withModuleId($record->getModuleId());
-
+            $cos = new CourseOfStudy(
+                $record->getCosId(),
+                $record->getDegree(),
+                $record->getSubject(),
+                $record->getMajor(),
+                $record->getSubjectIndicator(),
+                $record->getVersion()
+            );
+            $moduleCos = new ModuleCos(
+                $record->getModuleId(),
+                $record->getCosId()
+            );
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
                     if (!isset($cosDone[$record->getCosId()])) {
-                        $this->info('Save CourseOfStudy ' . $cos->getCosId());
-                        $this->dic->fau()->campo()->repo()->saveCos($cos);
+                        $this->dic->fau()->study()->repo()->save($cos);
                     }
-                    $this->info('Save ModuleCos ' . $moduleCos->getModuleId() . '-'.$moduleCos->getCosId());
-                    $this->dic->fau()->campo()->repo()->saveModuleCos($moduleCos);
+                    $this->dic->fau()->study()->repo()->save($moduleCos);
                     break;
                 case DipData::DELETED:
-                    $this->info('Delete ModuleCos ' . $moduleCos->getModuleId() . '-'.$moduleCos->getCosId());
-                    $this->dic->fau()->campo()->repo()->deleteModuleCos($moduleCos);
+                    $this->dic->fau()->study()->repo()->delete($moduleCos);
                     break;
             }
             $cosDone[$record->getCosId()]=true;
@@ -160,25 +155,22 @@ class SyncWithCampo
     {
         $this->info('syncEducations...');
         foreach ($this->dic->fau()->staging()->repo()->getEducationsToDo() as $record) {
-
             if (!empty($user_id = $this->dic->fau()->user()->findUserIdByIdmUid($record->getIdmUid()))) {
-                $education = (new Education())
-                    ->withUserId($user_id)
-                    ->withType($record->getType())
-                    ->withKey($record->getKey())
-                    ->withValue($record->getValue())
-                    ->withKeyTitle($record->getKeyTitle())
-                    ->withValueText($record->getValueText());
-
+                $education = new Education(
+                    $user_id,
+                    $record->getType(),
+                    $record->getKey(),
+                    $record->getValue(),
+                    $record->getKeyTitle(),
+                    $record->getValueText()
+                );
                 switch ($record->getDipStatus()) {
                     case DipData::INSERTED:
                     case DipData::CHANGED:
-                        $this->info('Save Education ' . $education->getTitle() .':'.$education->getText());
-                        $this->dic->fau()->user()->repo()->saveEducation($education);
+                        $this->dic->fau()->user()->repo()->save($education);
                         break;
                     case DipData::DELETED:
-                        $this->info('Delete Education ' . $education->getTitle() .':'.$education->getText());
-                        $this->dic->fau()->user()->repo()->deleteEducation($education);
+                        $this->dic->fau()->user()->repo()->delete($education);
                         break;
                 }
                 //$this->dic->fau()->staging()->repo()->setModuleDone($record);

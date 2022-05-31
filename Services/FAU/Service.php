@@ -7,7 +7,7 @@ use ILIAS\DI\Container;
 class Service
 {
     protected Container $dic;
-    protected Campo\Service $campoService;
+    protected Study\Service $studyService;
     protected User\Service $userService;
     protected Staging\Service $stagingService;
     protected Sync\Service $syncService;
@@ -21,12 +21,12 @@ class Service
     /**
      * Get the Service for Campo data
      */
-    public function campo() : Campo\Service
+    public function study() : Study\Service
     {
-        if (!isset($this->campoService)) {
-            $this->campoService = new Campo\Service($this->dic);
+        if (!isset($this->studyService)) {
+            $this->studyService = new Study\Service($this->dic);
         }
-        return $this->campoService;
+        return $this->studyService;
     }
 
 

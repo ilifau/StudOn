@@ -47,7 +47,7 @@ class Service
                     $this->dic->logger()->root()->warning($e->getMessage());
                     return null;
             }
-            $this->repository = new Repository($db);
+            $this->repository = new Repository($db, $this->dic->logger()->fau());
         }
         return $this->repository;
     }

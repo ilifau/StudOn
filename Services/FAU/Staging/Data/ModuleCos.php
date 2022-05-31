@@ -15,6 +15,15 @@ class ModuleCos extends DipData
     protected string $subject_indicator;
     protected string $version;
 
+    public function info() : string
+    {
+        return ('module_id: ' . $this->module_id . 'cos_id:' . $this->cos_id .' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
+    }
+
+    public static function model(): self
+    {
+        return new self;
+    }
 
     public static function getTableName() : string
     {

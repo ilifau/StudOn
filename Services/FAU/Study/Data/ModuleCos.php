@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Campo\Data;
+namespace FAU\Study\Data;
 
 
 use FAU\RecordData;
@@ -13,10 +13,27 @@ class ModuleCos extends RecordData
     protected int $module_id;
     protected int $cos_id;
 
+    public function __construct (
+        int $module_id,
+        int $cos_id
+    ) {
+        $this->module_id = $module_id;
+        $this->cos_id = $cos_id;
+    }
+
+    public function info() : string
+    {
+        return ('module_id: ' . $this->module_id . ' | cos_id: ' . $this->cos_id);
+    }
+
+    public static function model(): self
+    {
+        return new self(0,0);
+    }
 
     public static function getTableName() : string
     {
-        return 'fau_campo_module_cos';
+        return 'fau_study_module_cos';
     }
 
     public static function getTableKeyTypes() : array

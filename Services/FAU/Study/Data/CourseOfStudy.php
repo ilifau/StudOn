@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Campo\Data;
+namespace FAU\Study\Data;
 
 use FAU\RecordData;
 
@@ -16,10 +16,37 @@ class CourseOfStudy extends RecordData
     protected ?string $subject_indicator;
     protected ?string $version;
 
+    public function __construct(
+        int $cos_id,
+        ?string $degree,
+        ?string $subject,
+        ?string $major,
+        ?string $subject_indicator,
+        ?string $version
+    )
+    {
+        $this->cos_id = $cos_id;
+        $this->degree = $degree;
+        $this->subject = $subject;
+        $this->major = $major;
+        $this->subject_indicator = $subject_indicator;
+        $this->version = $version;
+    }
+
+
+    public function info() : string
+    {
+        return ('id: ' . $this->cos_id . ' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
+    }
+
+    public static function model(): self
+    {
+        return new self(0,null,null,null,null,null);
+    }
 
     public static function getTableName() : string
     {
-        return 'fau_campo_cos';
+        return 'fau_study_cos';
     }
 
     public static function getTableKeyTypes() : array

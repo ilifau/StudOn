@@ -3,28 +3,32 @@
 namespace FAU;
 
 /**
- * Base class of a database repository handling record data
+ * Base class of a database repository handling RecordData objects
  * @see RecordData
  */
 abstract class RecordRepo
 {
     protected \ilDBInterface $db;
+    protected \ilLogger $logger;
 
-    public function __construct(\ilDBInterface $a_db)
+    public function __construct(\ilDBInterface $a_db, \ilLogger $logger)
     {
         $this->db = $a_db;
+        $this->logger = $logger;
     }
 
     /**
      * Query for records
      * @return RecordData[]
      */
-    protected function queryRecords(string $query, RecordData $prototype) : array
+    protected function queryRecords(string $query, RecordData $model, $useCache = true) : array
     {
         $records = [];
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
-            $records[] = $prototype->withTableRow($row);
+            $record = $model->withTableRow($row);
+            $this->logAction('READ', $record);
+            $records[] = $record;
         }
         return $records;
     }
@@ -40,6 +44,7 @@ abstract class RecordRepo
         }
         $types = array_merge($record::getTableKeyTypes(), $record::getTableOtherTypes());
         $fields = $this->getFieldsArray($record, $types);
+        $this->logAction('INSERT', $record);
         $this->db->insert($record::getTableName(), $fields);
         return $record;
     }
@@ -55,9 +60,9 @@ abstract class RecordRepo
         }
         $key_fields = $this->getFieldsArray($record, $record::getTableKeyTypes());
         $other_fields = $this->getFieldsArray($record, $record::getTableOtherTypes());
+        $this->logAction('REPLACE', $record);
         $this->db->replace($record::getTableName(), $key_fields, $other_fields);
         return $record;
-
     }
 
     /**
@@ -67,6 +72,7 @@ abstract class RecordRepo
     {
         $key_fields = $this->getFieldsArray($record, $record::getTableKeyTypes());
         $other_fields = $this->getFieldsArray($record, $record::getTableOtherTypes());
+        $this->logAction('UPDATE', $record);
         $this->db->update($record::getTableName(), array_merge($key_fields, $other_fields), $key_fields);
     }
 
@@ -81,6 +87,7 @@ abstract class RecordRepo
         }
         $query = "DELETE FROM " . $this->db->quoteIdentifier($record::getTableName())
             . " WHERE " . implode(" AND ", $conditions);
+        $this->logAction('DELETE', $record);
         $this->db->manipulate($query);
     }
 
@@ -99,5 +106,28 @@ abstract class RecordRepo
             }
         }
         return $fields;
+    }
+
+    /**
+     * Log a database action for the record
+     * @param string     $action
+     * @param RecordData $record
+     */
+    protected function logAction(string $action, RecordData $record)
+    {
+        if ($this->logger->isHandling(\ilLogLevel::DEBUG)) {
+            $entry = $action . ' ' . get_class($record) . ' | ' . $record->debug();
+            $this->logger->debug($entry);
+            if (!\ilContext::usesHTTP()) {
+                echo $entry . "\n";
+            }
+        }
+        if ($this->logger->isHandling(\ilLogLevel::INFO)) {
+            $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
+            $this->logger->info($entry);
+            if (!\ilContext::usesHTTP()) {
+                echo $entry . "\n";
+            }
+        }
     }
 }
