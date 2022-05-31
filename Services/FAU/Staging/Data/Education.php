@@ -44,14 +44,22 @@ class Education extends DipData
         $this->value_text = $value_text;
     }
 
-    public function info() : string
-    {
-        return ('idm_uid: ' . $this->idm_uid . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
-    }
-
     public static function model(): self
     {
         return new self('', '', '', '', null, null);
+    }
+
+    public static function from(array $row): self
+    {
+        return (new self(
+            $row['idm_uid'] ?? '',
+            $row['type'] ?? '',
+            $row['key'] ?? '',
+            $row['value'] ?? '',
+            $row['key_title'] ?? null,
+            $row['value_text'] ?? null
+        )
+        )->withDipData($row);
     }
 
     public function row() : array {
@@ -65,17 +73,9 @@ class Education extends DipData
         ], $this->getDipData());
     }
 
-    public static function from(array $row): self
+    public function info() : string
     {
-        return (new self(
-            $row['idm_uid'] ?? '',
-            $row['type'] ?? '',
-            $row['key'] ?? '',
-            $row['value'] ?? '',
-            $row['key_title'] ?? null,
-            $row['value_text'] ?? null
-            )
-        )->withDipData($row);
+        return ('idm_uid: ' . $this->idm_uid . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
     }
 
     /**
