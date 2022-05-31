@@ -69,3 +69,6 @@ Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datens
 - [RecordData](RecordData.php) definiert Funktionen einer Datenklasse, um Werte-Arrays aus Datenbank-Abfragen zu laden oder für sie zu liefern.
 - [RecordRepo](RecordRepo.php) enthält Lese, Schreib- und Löschfunktionen für Datenklassen, die RecordData implementieren.
 
+### Query Cache
+
+Die Funktion RecordRepo::queryRecords() unterstützt standardmäßig ein Caching der Datenbank-Abfragen, d.h. die zurückgegebene Liste der RecordData-Objekte wird bei erneutem Aufruf mit der gleichen Abfrage im selben Request nicht erneut aus der Datenbank gelesen. Sollte das unterdrückt werden, weil aktuelle Daten benörigt werden, oder weil zu viele Ergebnisse zu viel Speicher benötigen würden, muss der letzte Parameter des Aufrufs auf *false* gesetzt werden.  

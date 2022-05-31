@@ -64,7 +64,8 @@ class Repository extends RecordRepo
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName())
             . " WHERE " . $this->getDipStatusCondition($dip_status)
             . " ORDER BY dip_timestamp ASC ";
-        return $this->queryRecords($query, $model);
+        // DIP Records are read once - no caching needed
+        return $this->queryRecords($query, $model, false);
     }
 
     /**

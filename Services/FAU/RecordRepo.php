@@ -11,6 +11,12 @@ abstract class RecordRepo
     protected \ilDBInterface $db;
     protected \ilLogger $logger;
 
+    /**
+     * Cached query results
+     * @var RecordData[][]  query hash => recordData[]
+     */
+    protected $queryCache = [];
+
     public function __construct(\ilDBInterface $a_db, \ilLogger $logger)
     {
         $this->db = $a_db;
@@ -23,12 +29,21 @@ abstract class RecordRepo
      */
     protected function queryRecords(string $query, RecordData $model, $useCache = true) : array
     {
+        $hash = md5($query);
+        if ($useCache && isset($this->queryCache[$hash])) {
+            return $this->queryCache[$hash];
+        }
+
         $records = [];
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
             $record = $model::from($row);
             $this->logAction('READ', $record);
             $records[] = $record;
+        }
+
+        if ($useCache) {
+            $this->queryCache[$hash] = $records;
         }
         return $records;
     }
