@@ -38,28 +38,6 @@ class Module extends RecordData
         return new self(0,null,null);
     }
 
-    public static function from(array $row) : self
-    {
-        return new self (
-            (int) $row['module_id'],
-            $row['module_nr'] ?? null,
-            $row['module_name'] ?? null
-        );
-    }
-
-    public function row() : array {
-        return  [
-            'module_id' => $this->module_id,
-            'module_nr' => $this->module_nr,
-            'module_name' => $this->module_name
-        ];
-    }
-
-    public function info() : string
-    {
-        return ('id: ' . $this->module_id . ' | name: ' . $this->module_name);
-    }
-
     public function getModuleId() : int
     {
         return $this->module_id;

@@ -35,26 +35,6 @@ class ModuleCos extends RecordData
         return new self(0,0);
     }
 
-    public static function from(array $row) : self
-    {
-        return new self (
-            (int) $row['module_id'],
-            (int) $row['cos_id']
-        );
-    }
-
-    public function row() : array {
-        return  [
-            'module_id' => $this->module_id,
-            'cos_id' => $this->cos_id,
-        ];
-    }
-
-    public function info() : string
-    {
-        return ('module_id: ' . $this->module_id . ' | cos_id: ' . $this->cos_id);
-    }
-
     public function getModuleId() : int
     {
         return $this->module_id;

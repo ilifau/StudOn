@@ -20,15 +20,15 @@ class Module extends DipData
 
     protected int $event_id;
     protected int $module_id;
-    protected string $module_nr;
-    protected string $module_name;
+    protected ?string $module_nr;
+    protected ?string $module_name;
 
 
     public function __construct(
         int $event_id,
         int $module_id,
-        string $module_nr,
-        string $module_name
+        ?string $module_nr,
+        ?string $module_name
     )
     {
         $this->event_id = $event_id;
@@ -39,34 +39,8 @@ class Module extends DipData
 
     public static function model(): self
     {
-        return new self (0,0,'','');
+        return new self (0,0,null,null);
     }
-
-    public static function from(array $row) : self
-    {
-        return (new self(
-            (int) $row['event_id'],
-            (int) $row['module_id'],
-            $row['module_nr'] ?? null,
-            $row['module_name'] ?? null
-            )
-        )->withDipData($row);
-    }
-
-    public function row() : array {
-        return array_merge([
-            'event_id' => $this->event_id,
-            'module_id' => $this->module_id,
-            'module_nr' => $this->module_nr,
-            'module_name' => $this->module_name
-        ], $this->getDipData());
-    }
-
-    public function info() : string
-    {
-        return ('event_id: ' . $this->event_id . ' | module_id: ' . $this->module_id . ' | module_name: ' . $this->module_name);
-    }
-
 
     /**
      * @return int
@@ -85,17 +59,17 @@ class Module extends DipData
     }
 
     /**
-     * @return string
+     * @return ?string
      */
-    public function getModuleNr() : string
+    public function getModuleNr() : ?string
     {
         return $this->module_nr;
     }
 
     /**
-     * @return string
+     * @return ?string
      */
-    public function getModuleName() : string
+    public function getModuleName() : ?string
     {
         return $this->module_name;
     }

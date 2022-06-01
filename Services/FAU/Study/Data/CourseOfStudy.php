@@ -51,35 +51,6 @@ class CourseOfStudy extends RecordData
         return new self(0,null,null,null,null,null);
     }
 
-    public static function from(array $row) : self
-    {
-        return new self (
-            (int) $row['cos_id'],
-            $row['degree'] ?? null,
-            $row['subject'] ?? null,
-            $row['major'] ?? null,
-            $row['subject_indicator'] ?? null,
-            $row['version'] ?? null
-        );
-    }
-
-    public function row() : array {
-        return [
-            'cos_id' => $this->cos_id,
-            'degree' => $this->degree,
-            'subject' => $this->subject,
-            'major' => $this->major,
-            'subject_indicator' => $this->subject_indicator,
-            'version' => $this->version
-        ];
-    }
-
-    public function info() : string
-    {
-        return ('id: ' . $this->cos_id . ' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
-    }
-
-
     public function getCosId() : int
     {
         return $this->cos_id;

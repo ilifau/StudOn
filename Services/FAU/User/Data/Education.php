@@ -48,35 +48,6 @@ class Education extends RecordData
         return new self(0,'','','', null, null);
     }
 
-    public static function from (array $row) : self
-    {
-        return new self (
-            (int) $row['user_id'],
-            $row['type'] ?? '',
-            $row['key'] ?? '',
-            $row['value'] ?? '',
-            $row['key_title'] ?? null,
-            $row['value_text'] ?? null
-        );
-    }
-
-    public function row() : array
-    {
-        return [
-            'user_id' => $this->user_id,
-            'type' => $this->type,
-            'key' => $this->key,
-            'value' => $this->value,
-            'key_title' => $this->key_title,
-            'value_text' => $this->value_text
-        ];
-    }
-
-    public function info() : string
-    {
-        return ('user_id: ' . $this->user_id . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
-    }
-
     /**
      * User id to which this education is assigned
      */

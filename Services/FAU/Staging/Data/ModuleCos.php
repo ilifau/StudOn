@@ -23,20 +23,20 @@ class ModuleCos extends DipData
 
     protected int $module_id;
     protected int $cos_id;
-    protected string $degree;
-    protected string $subject;
-    protected string $major;
-    protected string $subject_indicator;
-    protected string $version;
+    protected ?string $degree;
+    protected ?string $subject;
+    protected ?string $major;
+    protected ?string $subject_indicator;
+    protected ?string $version;
 
     public function __construct(
         int $module_id,
         int $cos_id,
-        string $degree,
-        string $subject,
-        string $major,
-        string $subject_indicator,
-        string $version
+        ?string $degree,
+        ?string $subject,
+        ?string $major,
+        ?string $subject_indicator,
+        ?string $version
     ) {
 
         $this->module_id = $module_id;
@@ -50,38 +50,7 @@ class ModuleCos extends DipData
 
     public static function model(): self
     {
-        return new self(0,0,'','','','','');
-    }
-
-    public static function from(array $row) : self
-    {
-        return (new self (
-            (int) $row['module_id'],
-            (int) $row['cos_id'],
-            $row['degree'] ?? null,
-            $row['subject'] ?? null,
-            $row['major'] ?? null,
-            $row['subject_indicator'] ?? null,
-            $row['version'] ?? null
-            )
-        )->withDipData($row);
-    }
-
-    public function row() : array {
-        return array_merge([
-            'module_id' => $this->module_id,
-            'cos_id' => $this->cos_id,
-            'degree' => $this->degree,
-            'subject' => $this->subject,
-            'major' => $this->major,
-            'subject_indicator' => $this->subject_indicator,
-            'version' => $this->version
-        ], $this->getDipData());
-    }
-
-    public function info() : string
-    {
-        return ('module_id: ' . $this->module_id . 'cos_id:' . $this->cos_id .' | degree: ' . $this->degree . ' | subject: ' . $this->subject);
+        return new self(0,0,null, null, null, null, null);
     }
 
     /**
@@ -101,42 +70,44 @@ class ModuleCos extends DipData
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDegree() : string
+    public function
+    getDegree() : ?string
     {
         return $this->degree;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSubject() : string
+    public function getSubject() : ?string
     {
         return $this->subject;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getMajor() : string
+    public function getMajor() : ?string
     {
         return $this->major;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSubjectIndicator() : string
+    public function getSubjectIndicator() : ?string
     {
         return $this->subject_indicator;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getVersion() : string
+    public function getVersion() : ?string
     {
         return $this->version;
     }
+
 }

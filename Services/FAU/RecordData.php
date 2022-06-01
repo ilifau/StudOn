@@ -6,6 +6,11 @@ namespace FAU;
  * Base class for representing objects of database records
  * The functions defined in this base class are intended to be used by the corresponding repository
  *
+ * Requirements for child classes:
+ * The property names must exactly match the database field names given in the constants keyTypes ans otherTypes
+ * Their types must be compatible with the database field types
+ * If the database field allows null, then the property must also allow null
+ *
  * @see RecordRepo
  * @todo: replace 'static' type hints with return types in PHP 8
  */
@@ -43,9 +48,52 @@ abstract class RecordData
 
     /**
      * Get an instance with the single row data of a database query
+     * This will only work if the property names and types match the constants keyTypes and otherTypes
      * @return static
      */
-    abstract public static function from(array $row);
+    public static function from(array $row)
+    {
+        $instance = static::model();
+        foreach (array_merge(static::tableKeyTypes(), static::tableOtherTypes()) as $key => $type) {
+            if (isset($row[$key])) {
+                switch ($type) {
+                    case 'text':
+                    case 'date':
+                    case 'time':
+                    case 'timestamp':
+                    case 'clob':
+                        $instance->$key = (string) $row[$key];
+                        break;
+                    case 'integer':
+                        $instance->$key = (int) $row[$key];
+                        break;
+                    case 'float':
+                        $instance->$key = (float) $row[$key];
+                        break;
+                    default:
+                        $instance->$key = $row[$key];
+                }
+            }
+            else {
+                $instance->$key = null;
+            }
+        }
+        return $instance;
+    }
+
+    /**
+     * Get the database row data from an instance
+     * This will only work if the property names and types match the constants keyTypes and otherTypes
+     * @return array
+     */
+    public function row() : array
+    {
+        $row = [];
+        foreach (array_merge(static::tableKeyTypes(), static::tableOtherTypes()) as $key => $type) {
+            $row[$key] = $this->$key;
+        }
+        return $row;
+    }
 
     /**
      * Get the sequence value (if a sequence exists)
@@ -104,7 +152,18 @@ abstract class RecordData
      * The class name does not need to be included
      * @return string
      */
-    abstract public function info() : string;
+    public function info() : string
+    {
+        $parts = [];
+        foreach (array_merge(static::tableKeyTypes(), static::tableOtherTypes()) as $key => $type) {
+            $parts[] = $key . ': ' . $this->$key;
+        }
+        $info = implode(' | ', $parts);
+        if (strlen($info) > 200) {
+            $info = substr($info, 0, 197) . '...';
+        }
+        return $info;
+    }
 
     /**
      *  Provide a string of all properties for logging with debug level

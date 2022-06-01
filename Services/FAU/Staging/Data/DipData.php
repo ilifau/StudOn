@@ -25,12 +25,9 @@ abstract class DipData extends RecordData
 
     public static function tableOtherTypes() : array
     {
-        return array_merge(static::tableOtherTypes(), [
-            'dip_status' => 'text',
-            'dip_timestamp' => 'text'
-        ]);
+        // add the DIP fields defined here to the other fields defined in the child class
+        return array_merge(static::otherTypes, self::otherTypes);
     }
-
 
     /**
      * Get the status of the last change by DIP
@@ -48,30 +45,6 @@ abstract class DipData extends RecordData
         return $this->dip_timestamp;
     }
 
-    /**
-     * Get an array of the DIP data from the object
-     * This must be merged with other row data in the row() function
-     */
-    public function getDipData() : array
-    {
-        return [
-            'dip_status' => $this->dip_status,
-            'dip_timestamp' => $this->dip_timestamp
-        ];
-    }
-
-    /**
-     * Get the object with DIP data set from a database row
-     * This must called in the from() function
-     * @return static
-     */
-    public function withDipData(array $data)
-    {
-        $clone = clone $this;
-        $clone->dip_status = $data['dip_status'] ?? null;
-        $clone->dip_timestamp = $data['dip_timestamp'] ?? null;
-        return $clone;
-    }
 
     /**
      * Get the record with processed status

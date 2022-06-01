@@ -49,35 +49,6 @@ class Education extends DipData
         return new self('', '', '', '', null, null);
     }
 
-    public static function from(array $row): self
-    {
-        return (new self(
-            $row['idm_uid'] ?? '',
-            $row['type'] ?? '',
-            $row['key'] ?? '',
-            $row['value'] ?? '',
-            $row['key_title'] ?? null,
-            $row['value_text'] ?? null
-        )
-        )->withDipData($row);
-    }
-
-    public function row() : array {
-        return array_merge([
-            'idm_uid' => $this->idm_uid,
-            'type' => $this->type,
-            'key' => $this->key,
-            'value' => $this->value,
-            'key_title' => $this->key_title,
-            'value_text' => $this->value_text
-        ], $this->getDipData());
-    }
-
-    public function info() : string
-    {
-        return ('idm_uid: ' . $this->idm_uid . ' | type: ' . $this->type . ' | key: ' . $this->key . ' | value: ' . $this->value);
-    }
-
     /**
      * @return string
      */
