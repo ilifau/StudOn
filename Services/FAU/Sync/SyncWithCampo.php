@@ -107,7 +107,7 @@ class SyncWithCampo
                     break;
             }
             $moduleDone[$record->getModuleId()]=true;
-            //$this->dic->fau()->staging()->repo()->setModuleDone($record);
+            $this->dic->fau()->staging()->repo()->setDipProcessed($record);
         }
     }
 
@@ -144,7 +144,7 @@ class SyncWithCampo
                     break;
             }
             $cosDone[$record->getCosId()]=true;
-            //$this->dic->fau()->staging()->repo()->setModuleCosDone($record);
+            $this->dic->fau()->staging()->repo()->setDipProcessed($record);
         }
     }
 
@@ -173,7 +173,7 @@ class SyncWithCampo
                         $this->dic->fau()->user()->repo()->delete($education);
                         break;
                 }
-                //$this->dic->fau()->staging()->repo()->setModuleDone($record);
+                $this->dic->fau()->staging()->repo()->setDipProcessed($record);
             }
         }
     }

@@ -7,12 +7,56 @@ use FAU\Staging\Data\DipData;
 use FAU\RecordRepo;
 use FAU\Staging\Data\Module;
 use FAU\Staging\Data\ModuleCos;
+use FAU\Staging\Data\Achievement;
+use FAU\Staging\Data\Course;
+use FAU\Staging\Data\CourseResponsible;
+use FAU\Staging\Data\Event;
+use FAU\Staging\Data\EventOrgunit;
+use FAU\Staging\Data\EventResponsible;
+use FAU\Staging\Data\IndividualDate;
+use FAU\Staging\Data\IndividualInstructor;
+use FAU\Staging\Data\Instructor;
+use FAU\Staging\Data\ModuleRestriction;
+use FAU\Staging\Data\PlannedDate;
+use FAU\Staging\Data\Restriction;
 
 /**
  * Repository for accessing the staging database
+ * @todo: replace 'static' type hints with return types in PHP 8
  */
 class Repository extends RecordRepo
 {
+    /**
+     * Set the status of procesed DIP records in the database
+     * TRUE in production
+     * FALSE in development
+     */
+    protected bool $setProcessed = false;
+
+    /**
+     * @return Achievement[]
+     */
+    public function getAchievementsToDo() : array
+    {
+        return $this->getDipRecords(Achievement::model());
+    }
+
+    /**
+     * @return Course[]
+     */
+    public function getCoursesToDo() : array
+    {
+        return $this->getDipRecords(Course::model());
+    }
+
+    /**
+     * @return CourseResponsible[]
+     */
+    public function getCourseResponsiblesToDo() : array
+    {
+        return $this->getDipRecords(CourseResponsible::model());
+    }
+
     /**
      * @return Education[]
      */
@@ -21,9 +65,52 @@ class Repository extends RecordRepo
         return $this->getDipRecords(Education::model());
     }
 
-    public function setEducationDone(Education $record)
+    /**
+     * @return Event[]
+     */
+    public function getEventsToDo() : array
     {
-        $this->setDipRecordAsProcessed($record);
+        return $this->getDipRecords(Event::model());
+    }
+
+    /**
+     * @return EventOrgunit[]
+     */
+    public function getEventOrgunitsToDo() : array
+    {
+        return $this->getDipRecords(EventOrgunit::model());
+    }
+
+    /**
+     * @return EventResponsible[]
+     */
+    public function getEventResponsiblesToDo() : array
+    {
+        return $this->getDipRecords(EventResponsible::model());
+    }
+
+    /**
+     * @return IndividualDate[]
+     */
+    public function getIndividualDatesToDo() : array
+    {
+        return $this->getDipRecords(IndividualDate::model());
+    }
+
+    /**
+     * @return IndividualInstructor[]
+     */
+    public function getIndividualInstructorsToDo() : array
+    {
+        return $this->getDipRecords(IndividualInstructor::model());
+    }
+
+    /**
+     * @return Instructor[]
+     */
+    public function getInstructorsToDo() : array
+    {
+        return $this->getDipRecords(Instructor::model());
     }
 
     /**
@@ -33,13 +120,6 @@ class Repository extends RecordRepo
     {
         return $this->getDipRecords(Module::model());
     }
-
-    public function setModuleDone(Module $record)
-    {
-        $this->setDipRecordAsProcessed($record);
-    }
-
-
     /**
      * @return ModuleCos[]
      */
@@ -48,18 +128,36 @@ class Repository extends RecordRepo
         return $this->getDipRecords(ModuleCos::model());
     }
 
-    public function setModuleCosDone(ModuleCos $record)
+    /**
+     * @return ModuleRestriction[]
+     */
+    public function getModuleRestrictionsToDo() : array
     {
-        $this->setDipRecordAsProcessed($record);
+        return $this->getDipRecords(ModuleRestriction::model());
     }
 
+    /**
+     * @return PlannedDate[]
+     */
+    public function getPlannedDatesToDo() : array
+    {
+        return $this->getDipRecords(PlannedDate::model());
+    }
+
+    /**
+     * @return Restriction[]
+     */
+    public function getRestrictionsToDo() : array
+    {
+        return $this->getDipRecords(Restriction::model());
+    }
 
 
     /**
      * Get the record objects for DIP table rows with a certain status
-     * @return DipData[]
+     * @return static[]
      */
-    protected function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
+    public function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName())
             . " WHERE " . $this->getDipStatusCondition($dip_status)
@@ -69,10 +167,14 @@ class Repository extends RecordRepo
     }
 
     /**
-     * @param DipData $record
+     * @param static $record
      */
-    protected function setDipRecordAsProcessed(DipData $record)
+    public function setDipProcessed(DipData $record)
     {
+        if (!$this->setProcessed) {
+            return;
+        }
+
         switch ($record->getDipStatus()) {
             case DipData::INSERTED:
             case DipData::CHANGED:

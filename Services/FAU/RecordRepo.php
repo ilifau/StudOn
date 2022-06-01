@@ -139,7 +139,7 @@ abstract class RecordRepo
         }
         if ($this->logger->isHandling(\ilLogLevel::INFO)) {
             $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
-            $this->logger->info($entry);
+            //$this->logger->info($entry);
             if (!\ilContext::usesHTTP()) {
                 echo $entry . "\n";
             }
