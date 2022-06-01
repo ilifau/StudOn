@@ -2,9 +2,10 @@
 
 namespace FAU\Staging;
 
+use FAU\RecordData;
+use FAU\RecordRepo;
 use FAU\Staging\Data\Education;
 use FAU\Staging\Data\DipData;
-use FAU\RecordRepo;
 use FAU\Staging\Data\Module;
 use FAU\Staging\Data\ModuleCos;
 use FAU\Staging\Data\Achievement;
@@ -19,6 +20,18 @@ use FAU\Staging\Data\Instructor;
 use FAU\Staging\Data\ModuleRestriction;
 use FAU\Staging\Data\PlannedDate;
 use FAU\Staging\Data\Restriction;
+use FAU\Staging\Data\DocProgramme;
+use FAU\Staging\Data\Exam;
+use FAU\Staging\Data\ExamExaminer;
+use FAU\Staging\Data\ExamParticipant;
+use FAU\Staging\Data\Orgunit;
+use FAU\Staging\Data\StudyDegree;
+use FAU\Staging\Data\StudyEnrolment;
+use FAU\Staging\Data\StudyField;
+use FAU\Staging\Data\StudyForm;
+use FAU\Staging\Data\StudySchool;
+use FAU\Staging\Data\StudySubject;
+use FAU\Staging\Data\Identity;
 
 /**
  * Repository for accessing the staging database
@@ -27,12 +40,26 @@ use FAU\Staging\Data\Restriction;
 class Repository extends RecordRepo
 {
     /**
-     * Set the status of procesed DIP records in the database
+     * Set the status of processed DIP records in the database
      * TRUE in production
      * FALSE in development
      */
-    protected bool $setProcessed = false;
+    private bool $setProcessed = false;
 
+    /**
+     * Get the identity of a user
+     */
+    public function getIdentity(string $uid) : ?Identity
+    {
+        $query = "SELECT * from identities WHERE pk_persistent_id = " . $this->db->quote($uid, 'text');
+        /** @var Identity[] $identities */
+        $identities = $this->queryRecords($query, Identity::model());
+        if (count($identities) == 1) {
+            return $identities[0];
+        }
+        return null;
+    }
+    
     /**
      * @return Achievement[]
      */
@@ -152,12 +179,116 @@ class Repository extends RecordRepo
         return $this->getDipRecords(Restriction::model());
     }
 
+    /**
+     * @return DocProgramme[]
+     */
+    public function getDocProgrammes() : array
+    {
+        return $this->getAllRecords(DocProgramme::model());
+    }
+
+    /**
+     * @return Exam[]
+     */
+    public function getExams() : array
+    {
+        return $this->getAllRecords(Exam::model());
+    }
+
+    /**
+     * Get the examiners of an exam
+     * @return ExamExaminer[]
+     */
+    public function getExamExaminers(string $porgnr) : array
+    {
+        $query = "SELECT * FROM campo_exam_examiner WHERE porgnr = " . $this->db->quote($porgnr, 'text');
+        return $this->queryRecords($query, ExamExaminer::model());
+    }
+
+    /**
+     * Get the participants of an exam
+     * @return ExamParticipant[]
+     */
+    public function getExamParticipants(string $porgnr) : array
+    {
+        $query = "SELECT * FROM campo_exam_participant WHERE porgnr = " . $this->db->quote($porgnr, 'text');
+        return $this->queryRecords($query, ExamParticipant::model());
+    }
+
+    /**
+     * @return Orgunit[]
+     */
+    public function getOrgunits() : array
+    {
+        return $this->getAllRecords(Orgunit::model());
+    }
+
+    /**
+     * @return StudyDegree[]
+     */
+    public function getStudyDegrees() : array
+    {
+        return $this->getAllRecords(StudyDegree::model());
+    }
+
+    /**
+     * @return StudyEnrolment[]
+     */
+    public function getStudyEnrolments() : array
+    {
+        return $this->getAllRecords(StudyEnrolment::model());
+    }
+
+    /**
+     * @return StudyField[]
+     */
+    public function getStudyFields() : array
+    {
+        return $this->getAllRecords(StudyField::model());
+    }
+
+    /**
+     * @return StudyForm[]
+     */
+    public function getStudyForms() : array
+    {
+        return $this->getAllRecords(StudyForm::model());
+    }
+
+    /**
+     * @return StudySchool[]
+     */
+    public function getStudySchools() : array
+    {
+        return $this->getAllRecords(StudySchool::model());
+    }
+
+    /**
+     * @return StudySubject[]
+     */
+    public function getStudySubjects() : array
+    {
+        return $this->getAllRecords(StudySubject::model());
+    }
+
+    /**
+     * Get the record objects for standard tables
+     * The tables should be short enough to get all records
+     * @return static[]
+     */
+    private function getAllRecords(RecordData $model) : array
+    {
+        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
+        return $this->queryRecords($query, $model);
+    }
+
 
     /**
      * Get the record objects for DIP table rows with a certain status
+     *
      * @return static[]
      */
-    public function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
+    private function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName())
             . " WHERE " . $this->getDipStatusCondition($dip_status)
