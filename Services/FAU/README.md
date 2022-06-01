@@ -20,7 +20,7 @@ Die Verzeichnisse des Service entsprechen seinen Teil-Services:
 
 Die Teil-Services liegen Unterverzeichnissen von Services/FAU. Der Einstieg erfolgt über eine Service-Klasse, die über den Dependency Injection Container von ILIAS aufgerufen werden kann. Die Service-Klasse dient als Factory für weitere Klassen des Services, z.B. das Repository zum Datenzugriff oder Migration für Änderungen am Datenschema.
 
-````
+````php
 global $DIC;
 $userService = $DIC->fau()->user();
 $userRepository = $DIC->fau()->user()->repo();
@@ -34,7 +34,7 @@ $userMigration = $DIC->fau()->user()->migration();
 
 Der Service verwendet Namespaces in allen Klassen mit Ausnahme der von ILIAS abgeleiteten Klassen, z.B. `ilSyncWithCampoCron`.
 
-````
+````php
 namespace FAU\Sync;
 use FAU\User\Data\Education;
 ````
@@ -47,7 +47,7 @@ Alle Klassen im Service werden beim ILIAS-Setup oder mit `composer dump-autoload
 
 Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt über Repository-Klassen in den Services.
 
-````
+````php
 // Example: move educations from one user account to another
 global $DIC;
 $repo = $DIC->fau()->user()->repo();
