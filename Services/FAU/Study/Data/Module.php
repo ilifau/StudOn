@@ -4,7 +4,7 @@ namespace FAU\Study\Data;
 use FAU\RecordData;
 
 /**
- * Record of the fau_campo_modules table
+ * Record of the fau_study_modules table
  */
 class Module extends RecordData
 {

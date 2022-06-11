@@ -5,7 +5,7 @@ namespace FAU\Study\Data;
 use FAU\RecordData;
 
 /**
- * Record of the fau_campo_cos table
+ * Record of the fau_study_cos table
  */
 class CourseOfStudy extends RecordData
 {

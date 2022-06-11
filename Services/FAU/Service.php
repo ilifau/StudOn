@@ -7,15 +7,27 @@ use ILIAS\DI\Container;
 class Service
 {
     protected Container $dic;
-    protected Study\Service $studyService;
-    protected User\Service $userService;
+    protected Org\Service $orgService;
     protected Staging\Service $stagingService;
+    protected Study\Service $studyService;
     protected Sync\Service $syncService;
     protected Tools\Service $toolsService;
+    protected User\Service $userService;
 
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+    }
+
+    /**
+     * Get the Service for FUA org data
+     */
+    public function org() : Org\Service
+    {
+        if (!isset($this->orgService)) {
+            $this->orgService = new Org\Service($this->dic);
+        }
+        return $this->orgService;
     }
 
     /**
@@ -28,7 +40,6 @@ class Service
         }
         return $this->studyService;
     }
-
 
     /**
      * Get the Service for User data

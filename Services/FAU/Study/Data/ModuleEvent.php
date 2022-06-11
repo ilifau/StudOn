@@ -6,28 +6,28 @@ namespace FAU\Study\Data;
 use FAU\RecordData;
 
 /**
- * Record of the fau_study_module_cos table
+ * Record of the fau_study_module_event table
  */
-class ModuleCos extends RecordData
+class ModuleEvent extends RecordData
 {
-    protected const tableName = 'fau_study_module_cos';
+    protected const tableName = 'fau_study_module_events';
     protected const hasSequence = false;
     protected const keyTypes = [
         'module_id' => 'integer',
-        'cos_id' => 'integer'
+        'event_id' => 'integer'
     ];
     protected const otherTypes = [
     ];
 
     protected int $module_id;
-    protected int $cos_id;
+    protected int $event_id;
 
     public function __construct (
         int $module_id,
-        int $cos_id
+        int $event_id
     ) {
         $this->module_id = $module_id;
-        $this->cos_id = $cos_id;
+        $this->event_id = $event_id;
     }
 
     public static function model(): self
@@ -40,8 +40,8 @@ class ModuleCos extends RecordData
         return $this->module_id;
     }
 
-    public function getCosId() : int
+    public function getEventId() : int
     {
-        return $this->cos_id;
+        return $this->event_id;
     }
 }

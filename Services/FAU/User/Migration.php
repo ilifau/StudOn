@@ -12,8 +12,21 @@ class Migration
     }
 
     public function createTables() {
+        $this->createUserAchievementsTable();
         $this->createUserEducationsTable();
     }
+
+    protected function createUserAchievementsTable()
+    {
+        $this->db->createTable('fau_user_achievements', [
+            'person_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'requirement_id'  => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+       ],
+            true
+        );
+        $this->db->addPrimaryKey('fau_user_achievements', ['person_id', 'requirement_id']);
+    }
+
 
     protected function createUserEducationsTable()
     {

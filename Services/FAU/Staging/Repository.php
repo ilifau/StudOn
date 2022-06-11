@@ -271,17 +271,6 @@ class Repository extends RecordRepo
         return $this->getAllRecords(StudySubject::model());
     }
 
-    /**
-     * Get the record objects for standard tables
-     * The tables should be short enough to get all records
-     * @return static[]
-     */
-    private function getAllRecords(RecordData $model) : array
-    {
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
-        return $this->queryRecords($query, $model);
-    }
-
 
     /**
      * Get the record objects for DIP table rows with a certain status

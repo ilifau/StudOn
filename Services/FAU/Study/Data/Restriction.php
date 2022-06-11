@@ -1,10 +1,12 @@
 <?php  declare(strict_types=1);
 
-namespace FAU\Staging\Data;
+namespace FAU\Study\Data;
 
-class Restriction extends DipData
+use FAU\RecordData;
+
+class Restriction extends RecordData
 {
-    protected const tableName = 'campo_restrictions';
+    protected const tableName = 'fau_study_restrictions';
     protected const hasSequence = false;
     protected const keyTypes = [
         'id' => 'integer',

@@ -24,8 +24,22 @@ abstract class RecordRepo
     }
 
     /**
+     * Get the record objects for standard tables
+     * The tables should be short enough to get all records
+     * @return static[]
+     */
+    protected function getAllRecords(RecordData $model) : array
+    {
+        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
+        return $this->queryRecords($query, $model);
+    }
+
+
+    /**
      * Query for records
-     * @return RecordData[]
+     * If the model has a single key field then this field value is used as the array index
+     *
+     * @return RecordData[]     key value => RecordData
      */
     protected function queryRecords(string $query, RecordData $model, $useCache = true) : array
     {
@@ -34,12 +48,21 @@ abstract class RecordRepo
             return $this->queryCache[$hash];
         }
 
+        if (count($model::tableKeyTypes()) == 1) {
+            $singleKey = array_keys($model::tableKeyTypes())[0];
+        }
+
         $records = [];
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
             $record = $model::from($row);
             $this->logAction('READ', $record);
-            $records[] = $record;
+            if (isset($singleKey)) {
+                $records[$model->$singleKey] = $record;
+            }
+            else {
+                $records[] = $record;
+            }
         }
 
         if ($useCache) {
