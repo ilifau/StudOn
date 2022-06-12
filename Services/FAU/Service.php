@@ -7,6 +7,7 @@ use ILIAS\DI\Container;
 class Service
 {
     protected Container $dic;
+    protected Cond\Service $condService;
     protected Org\Service $orgService;
     protected Staging\Service $stagingService;
     protected Study\Service $studyService;
@@ -20,7 +21,19 @@ class Service
     }
 
     /**
-     * Get the Service for FUA org data
+     * Get the Service for Registration Conditions
+     */
+    public function cond() : Cond\Service
+    {
+        if (!isset($this->condService)) {
+            $this->condService = new Cond\Service($this->dic);
+        }
+        return $this->condService;
+    }
+
+
+    /**
+     * Get the Service for FAU org data
      */
     public function org() : Org\Service
     {

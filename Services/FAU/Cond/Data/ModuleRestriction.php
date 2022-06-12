@@ -1,12 +1,12 @@
 <?php  declare(strict_types=1);
 
-namespace FAU\Study\Data;
+namespace FAU\Cond\Data;
 
 use FAU\RecordData;
 
 class ModuleRestriction extends RecordData
 {
-    protected const tableName = 'fau_study_mod_rests';
+    protected const tableName = 'fau_cond_mod_rests';
     protected const hasSequence = false;
     protected const keyTypes = [
         'module_id' => 'integer',

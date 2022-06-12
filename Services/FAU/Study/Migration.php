@@ -25,8 +25,6 @@ class Migration
         $this->createModuleCosTable($drop);
         $this->createModuleEventsTable($drop);
         $this->createPlannedDatesTable($drop);
-        $this->createRequirementsTable($drop);
-        $this->createModuleRestrictionsTable($drop);
         $this->createStudyDegreesTable($drop);
         $this->createStudyEnrolmentsTable($drop);
         $this->createStudyFieldsTable($drop);
@@ -221,19 +219,6 @@ class Migration
         $this->db->addIndex('fau_study_mod_events', ['event_id'], 'i1');
     }
 
-    protected function createModuleRestrictionsTable(bool $drop = false)
-    {
-        $this->db->createTable('fau_study_mod_rests', [
-            'module_id'         => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'restriction'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
-            'requirement_id'    => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'compulsory'        => ['type' => 'text',       'length' => 250,    'notnull' => true],
-        ],
-            $drop
-        );
-        $this->db->addPrimaryKey('fau_study_mod_rests', ['module_id', 'restriction', 'requirement_id']);
-    }
-
     protected function createPlannedDatesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_plan_dates', [
@@ -255,33 +240,6 @@ class Migration
         );
         $this->db->addPrimaryKey('fau_study_plan_dates', ['planned_dates_id']);
         $this->db->addIndex('fau_study_plan_dates', ['course_id'], 'i1');
-    }
-
-    protected function createRequirementsTable(bool $drop = false)
-    {
-        $this->db->createTable('fau_study_requirements', [
-            'requirement_id'    => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'requirement_name'  => ['type' => 'text',       'length' => 250,    'notnull' => true],
-        ],
-            $drop
-        );
-        $this->db->addPrimaryKey('fau_study_requirements', ['requirement_id']);
-    }
-
-    protected function createRestrictionsTable(bool $drop = false)
-    {
-        $this->db->createTable('fau_study_restrictions', [
-            'id'            => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'restriction'   => ['type' => 'text',       'length' => 250,    'notnull' => true],
-            'type'          => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
-            'compare'       => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
-            'number'        => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
-            'compulsory'       => ['type' => 'text',    'length' => 4000,   'notnull' => false, 'default' => null],
-        ],
-            $drop
-        );
-        $this->db->addPrimaryKey('fau_study_restrictions', ['id']);
-        $this->db->addIndex('fau_study_restrictions', ['restriction'], 'i1');
     }
 
 

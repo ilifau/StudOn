@@ -1,12 +1,12 @@
 <?php  declare(strict_types=1);
 
-namespace FAU\Study\Data;
+namespace FAU\Cond\Data;
 
 use FAU\RecordData;
 
 class Requirement extends RecordData
 {
-    protected const tableName = 'fau_study_requirements';
+    protected const tableName = 'fau_cond_requirements';
     protected const hasSequence = false;
     protected const keyTypes = [
         'requirement_id' => 'integer',
