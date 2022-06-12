@@ -11,24 +11,23 @@ class Migration
         $this->db = $a_db;
     }
 
-    public function createTables() {
-        $this->createUserAchievementsTable();
-        $this->createUserEducationsTable();
+    public function createTables(bool $drop = false) {
+        $this->createUserAchievementsTable($drop);
+        $this->createUserEducationsTable($drop);
     }
 
-    protected function createUserAchievementsTable()
+    protected function createUserAchievementsTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_achievements', [
             'person_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'requirement_id'  => ['type' => 'integer',    'length' => 4,      'notnull' => true],
        ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_user_achievements', ['person_id', 'requirement_id']);
     }
 
-
-    protected function createUserEducationsTable()
+    protected function createUserEducationsTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_educations', [
             'user_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -38,7 +37,7 @@ class Migration
             'key_title'     => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'value_text'    => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_user_educations', ['user_id', 'type', 'key']);
     }

@@ -10,7 +10,7 @@ use FAU\RecordData;
  */
 class ModuleEvent extends RecordData
 {
-    protected const tableName = 'fau_study_module_events';
+    protected const tableName = 'fau_study_mod_events';
     protected const hasSequence = false;
     protected const keyTypes = [
         'module_id' => 'integer',

@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class ModuleRestriction extends RecordData
 {
-    protected const tableName = 'fau_study_module_restrictions';
+    protected const tableName = 'fau_study_mod_rests';
     protected const hasSequence = false;
     protected const keyTypes = [
         'module_id' => 'integer',

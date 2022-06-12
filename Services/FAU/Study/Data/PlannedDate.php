@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class PlannedDate extends RecordData
 {
-    protected const tableName = 'fau_study_planned_dates';
+    protected const tableName = 'fau_study_plan_dates';
     protected const hasSequence = false;
     protected const keyTypes = [
         'planned_dates_id' => 'integer',

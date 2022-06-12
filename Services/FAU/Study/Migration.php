@@ -11,31 +11,31 @@ class Migration
         $this->db = $a_db;
     }
 
-    public function createTables() {
-        $this->createCourseTable();
-        $this->createCourseOfStudyTable();
-        $this->createDocProgrammes();
-        $this->createEventsTable();
-        $this->createEventOrgunitsTable();
-        $this->createEventResponsiblesTable();
-        $this->createIndividualDatesTable();
-        $this->createIndividualInstructorsTable();
-        $this->createInstructorsTable();
-        $this->createModulesTable();
-        $this->createModuleCosTable();
-        $this->createModuleEventsTable();
-        $this->createPlannedDatesTable();
-        $this->createRequirementsTable();
-        $this->createModuleRestrictionsTable();
-        $this->createStudyDegreesTable();
-        $this->createStudyEnrolmentsTable();
-        $this->createStudyFieldsTable();
-        $this->createStudyFormsTable();
-        $this->createStudySchoolsTable();
-        $this->createStudySubjectsTable();
+    public function createTables(bool $drop = false) {
+        $this->createCourseTable($drop);
+        $this->createCourseOfStudyTable($drop);
+        $this->createDocProgrammes($drop);
+        $this->createEventsTable($drop);
+        $this->createEventOrgunitsTable($drop);
+        $this->createEventResponsiblesTable($drop);
+        $this->createIndividualDatesTable($drop);
+        $this->createIndividualInstructorsTable($drop);
+        $this->createInstructorsTable($drop);
+        $this->createModulesTable($drop);
+        $this->createModuleCosTable($drop);
+        $this->createModuleEventsTable($drop);
+        $this->createPlannedDatesTable($drop);
+        $this->createRequirementsTable($drop);
+        $this->createModuleRestrictionsTable($drop);
+        $this->createStudyDegreesTable($drop);
+        $this->createStudyEnrolmentsTable($drop);
+        $this->createStudyFieldsTable($drop);
+        $this->createStudyFormsTable($drop);
+        $this->createStudySchoolsTable($drop);
+        $this->createStudySubjectsTable($drop);
     }
 
-    protected function createCourseTable()
+    protected function createCourseTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_course', [
             'course_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -54,14 +54,14 @@ class Migration
             'literature'            => ['type' => 'text',       'length' => 4000,   'notnull' => false],
             'ilias_obj_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => false],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_course', ['course_id']);
         $this->db->addIndex('fau_study_course', ['event_id'], 'i1');
         $this->db->addIndex('fau_study_course', ['ilias_obj_id'], 'i2');
     }
 
-    protected function createCourseOfStudyTable()
+    protected function createCourseOfStudyTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_cos', [
             'cos_id'            => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -71,36 +71,36 @@ class Migration
             'subject_indicator' => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'version'           => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_cos', ['cos_id']);
     }
 
-    protected function createCourseResponsiblesTable()
+    protected function createCourseResponsiblesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_course_responsibles', [
             'course_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'person_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_course_responsibles', ['course_id', 'person_id']);
         $this->db->addIndex('fau_study_course_responsibles', ['person_id'], 'i1');
     }
 
-    protected function createDocProgrammes()
+    protected function createDocProgrammes(bool $drop = false)
     {
-        $this->db->createTable('fau_study_doc_programmes', [
+        $this->db->createTable('fau_study_doc_progs', [
             'prog_code'         => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'prog_text'         => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'prog_end_date'     => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
-        $this->db->addPrimaryKey('fau_study_doc_programmes', ['prog_code']);
+        $this->db->addPrimaryKey('fau_study_doc_progs', ['prog_code']);
     }
 
-    protected function createEventsTable()
+    protected function createEventsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_events', [
             'event_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -111,39 +111,39 @@ class Migration
             'guest'         => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
             'ilias_obj_id'  => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_events', ['event_id']);
         $this->db->addIndex('fau_study_events', ['ilias_obj_id'], 'i1');
     }
 
-    protected function createEventOrgunitsTable()
+    protected function createEventOrgunitsTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_event_orgunits', [
+        $this->db->createTable('fau_study_event_orgs', [
             'event_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'fauorg_nr'     => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
-        $this->db->addPrimaryKey('fau_study_event_orgunits', ['event_id']);
-        $this->db->addIndex('fau_study_event_orgunits', ['fauorg_nr'], 'i1');
+        $this->db->addPrimaryKey('fau_study_event_orgs', ['event_id']);
+        $this->db->addIndex('fau_study_event_orgs', ['fauorg_nr'], 'i1');
     }
 
-    protected function createEventResponsiblesTable()
+    protected function createEventResponsiblesTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_event_responsibles', [
+        $this->db->createTable('fau_study_event_resps', [
             'event_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'person_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
         ],
-            true
+            $drop
         );
-        $this->db->addPrimaryKey('fau_study_event_responsibles', ['event_id']);
-        $this->db->addIndex('fau_study_event_responsibles', ['person_id'], 'i1');
+        $this->db->addPrimaryKey('fau_study_event_resps', ['event_id']);
+        $this->db->addIndex('fau_study_event_resps', ['person_id'], 'i1');
     }
 
-    protected function createIndividualDatesTable()
+    protected function createIndividualDatesTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_individual_dates', [
+        $this->db->createTable('fau_study_indi_dates', [
             'individual_dates_id'   => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'planned_dates_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
             'term_year'             => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
@@ -154,83 +154,89 @@ class Migration
             'famos_code'            => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'comment'               => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
             'cancelled'             => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
-        ]);
-        $this->db->addPrimaryKey('fau_study_individual_dates', ['individual_dates_id']);
-        $this->db->addIndex('fau_study_individual_dates', ['planned_dates_id'], 'i1');
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_indi_dates', ['individual_dates_id']);
+        $this->db->addIndex('fau_study_indi_dates', ['planned_dates_id'], 'i1');
     }
 
-    protected function createIndividualInstructorsTable()
+    protected function createIndividualInstructorsTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_individual_instructors', [
+        $this->db->createTable('fau_study_indi_insts', [
             'individual_dates_id'   => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'person_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-        ]);
-        $this->db->addPrimaryKey('fau_study_individual_instructors', ['individual_dates_id']);
-        $this->db->addIndex('fau_study_individual_instructors', ['person_id'], 'i1');
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id']);
+        $this->db->addIndex('fau_study_indi_insts', ['person_id'], 'i1');
     }
 
-    protected function createInstructorsTable()
+    protected function createInstructorsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_instructors', [
             'planned_dates_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'person_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-        ]);
+        ],
+            $drop
+        );
         $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id']);
         $this->db->addIndex('fau_study_instructors', ['person_id'], 'i1');
     }
 
-    protected function createModulesTable()
+    protected function createModulesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_modules', [
             'module_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'module_nr'     => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'module_name'   => ['type' => 'text',       'length' => 1000,   'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_modules', ['module_id']);
     }
 
-    protected function createModuleCosTable()
+    protected function createModuleCosTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_module_cos', [
             'module_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'cos_id'        => ['type' => 'integer',    'length' => 4,      'notnull' => true],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_module_cos', ['module_id', 'cos_id']);
         $this->db->addIndex('fau_study_module_cos', ['cos_id'], 'i1');
     }
 
-    protected function createModuleEventsTable()
+    protected function createModuleEventsTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_module_events', [
+        $this->db->createTable('fau_study_mod_events', [
             'module_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'event_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => true],
         ],
-            true
+            $drop
         );
-        $this->db->addPrimaryKey('fau_study_module_events', ['module_id', 'event_id']);
-        $this->db->addIndex('fau_study_module_events', ['event_id'], 'i1');
+        $this->db->addPrimaryKey('fau_study_mod_events', ['module_id', 'event_id']);
+        $this->db->addIndex('fau_study_mod_events', ['event_id'], 'i1');
     }
 
-    protected function createModuleRestrictionsTable()
+    protected function createModuleRestrictionsTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_module_restrictions', [
+        $this->db->createTable('fau_study_mod_rests', [
             'module_id'         => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'restriction'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'requirement_id'    => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'compulsory'        => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
-        $this->db->addPrimaryKey('fau_study_module_restrictions', ['module_id', 'restriction', 'requirement_id']);
+        $this->db->addPrimaryKey('fau_study_mod_rests', ['module_id', 'restriction', 'requirement_id']);
     }
 
-    protected function createPlannedDatesTable()
+    protected function createPlannedDatesTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_planned_dates', [
+        $this->db->createTable('fau_study_plan_dates', [
             'planned_dates_id'  => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'course_id'         => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
             'term_year'         => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
@@ -245,24 +251,24 @@ class Migration
             'expected_attendees'=> ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
             'comment'           => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
-        $this->db->addPrimaryKey('fau_study_planned_dates', ['planned_dates_id']);
-        $this->db->addIndex('fau_study_planned_dates', ['course_id'], 'i1');
+        $this->db->addPrimaryKey('fau_study_plan_dates', ['planned_dates_id']);
+        $this->db->addIndex('fau_study_plan_dates', ['course_id'], 'i1');
     }
 
-    protected function createRequirementsTable()
+    protected function createRequirementsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_requirements', [
             'requirement_id'    => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'requirement_name'  => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_requirements', ['requirement_id']);
     }
 
-    protected function createRestrictionsTable()
+    protected function createRestrictionsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_restrictions', [
             'id'            => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -272,14 +278,14 @@ class Migration
             'number'        => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
             'compulsory'       => ['type' => 'text',    'length' => 4000,   'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_restrictions', ['id']);
         $this->db->addIndex('fau_study_restrictions', ['restriction'], 'i1');
     }
 
 
-    protected function createStudyDegreesTable()
+    protected function createStudyDegreesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_degrees', [
             'degree_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -287,12 +293,12 @@ class Migration
             'degree_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'degree_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_degrees', ['degree_his_id']);
     }
 
-    protected function createStudyEnrolmentsTable()
+    protected function createStudyEnrolmentsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_enrolments', [
             'enrolment_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -300,12 +306,12 @@ class Migration
             'enrolment_title'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'enrolment_title_en'    => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_enrolments', ['enrolment_id']);
     }
 
-    protected function createStudyFieldsTable()
+    protected function createStudyFieldsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_fields', [
             'field_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -313,12 +319,12 @@ class Migration
             'field_title'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'field_title_en'    => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_fields', ['field_id']);
     }
 
-    protected function createStudyFormsTable()
+    protected function createStudyFormsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_forms', [
             'form_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -326,12 +332,12 @@ class Migration
             'form_title'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'form_title_en'    => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_forms', ['form_id']);
     }
 
-    protected function createStudySchoolsTable()
+    protected function createStudySchoolsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_schools', [
             'school_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -339,12 +345,12 @@ class Migration
             'school_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'school_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_schools', ['school_his_id']);
     }
 
-    protected function createStudySubjectsTable()
+    protected function createStudySubjectsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_subjects', [
             'subject_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
@@ -352,7 +358,7 @@ class Migration
             'subject_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'subject_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
-            true
+            $drop
         );
         $this->db->addPrimaryKey('fau_study_subjects', ['subject_his_id']);
     }

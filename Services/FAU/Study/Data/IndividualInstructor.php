@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class IndividualInstructor extends RecordData
 {
-    protected const tableName = 'fau_study_individual_instructors';
+    protected const tableName = 'fau_study_indi_insts';
     protected const hasSequence = false;
     protected const keyTypes = [
         'individual_dates_id' => 'integer',

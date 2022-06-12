@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class EventOrgunit extends RecordData
 {
-    protected const tableName = 'fau_study_event_orgunits';
+    protected const tableName = 'fau_study_event_orgs';
     protected const hasSequence = false;
     protected const keyTypes = [
         'event_id' => 'integer',

@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class EventResponsible extends RecordData
 {
-    protected const tableName = 'fau_study_event_responsible';
+    protected const tableName = 'fau_study_event_resps';
     protected const hasSequence = false;
     protected const keyTypes = [
         'event_id' => 'integer',

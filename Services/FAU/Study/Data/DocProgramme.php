@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class DocProgramme extends RecordData
 {
-    protected const tableName = 'fau_study_doc_programmes';
+    protected const tableName = 'fau_study_doc_progs';
     protected const hasSequence = false;
     protected const keyTypes = [
         'prog_code' => 'text',
