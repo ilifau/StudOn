@@ -337,6 +337,9 @@ class ilInternalLinkGUI
         $tpl->setVariable("FORMACTION", $this->ctrl->getFormAction($this, "changeLinkType", "", true));
         $tpl->setVariable("FORMACTION2", $this->ctrl->getFormAction($this));
         $tpl->setVariable("TXT_HELP_HEADER", $this->lng->txt("cont_link_select"));
+        // fau: mediaSelectInternalLinkInfo - add infotext to link modal 
+        $tpl->setVariable("TXT_INFO", $this->lng->txt("cont_link_info"));
+        // fau. 
         $tpl->setVariable("TXT_TYPE", $this->lng->txt("cont_link_type"));
 
 

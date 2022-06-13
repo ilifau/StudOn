@@ -1243,7 +1243,9 @@ class ilObjectCopyGUI
         $orig = ilObjectFactory::getInstanceByRefId($this->getFirstSource());
         $result = $orig->cloneAllObject(
             $_COOKIE[session_name()],
-            $_COOKIE['ilClientId'],
+            // fau: clientByUrl - fix determination of client ini
+            CLIENT_ID,
+            // fau.
             $this->getType(),
             $a_target,
             $this->getFirstSource(),
