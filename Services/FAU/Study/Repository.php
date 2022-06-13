@@ -8,6 +8,7 @@ use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\ModuleCos;
 use FAU\RecordData;
 use FAU\Study\Data\ModuleEvent;
+use FAU\Study\Data\EventModule;
 
 /**
  * Repository for accessing FAU user data

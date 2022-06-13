@@ -2,11 +2,10 @@
 
 namespace FAU\Staging;
 
-use FAU\RecordData;
 use FAU\RecordRepo;
 use FAU\Staging\Data\Education;
 use FAU\Staging\Data\DipData;
-use FAU\Staging\Data\Module;
+use FAU\Staging\Data\EventModule;
 use FAU\Staging\Data\ModuleCos;
 use FAU\Staging\Data\Achievement;
 use FAU\Staging\Data\Course;
@@ -101,6 +100,14 @@ class Repository extends RecordRepo
     }
 
     /**
+     * @return EventModule[]
+     */
+    public function getEventModulesToDo() : array
+    {
+        return $this->getDipRecords(EventModule::model());
+    }
+
+    /**
      * @return EventOrgunit[]
      */
     public function getEventOrgunitsToDo() : array
@@ -140,13 +147,6 @@ class Repository extends RecordRepo
         return $this->getDipRecords(Instructor::model());
     }
 
-    /**
-     * @return Module[]
-     */
-    public function getModulesToDo() : array
-    {
-        return $this->getDipRecords(Module::model());
-    }
     /**
      * @return ModuleCos[]
      */

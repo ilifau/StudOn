@@ -9,105 +9,57 @@ use FAU\Study\Data\Module;
 use FAU\Study\Data\ModuleCos;
 use FAU\Study\Data\CourseOfStudy;
 use FAU\User\Data\Education;
+use FAU\Study\Data\ModuleEvent;
 
-class SyncWithCampo
+/**
+ * Synchronisation of data coming from campo
+ */
+class SyncWithCampo extends syncBase
 {
     protected Container $dic;
 
-    protected int $courses_added = 0;
-    protected int $courses_updated = 0;
-    protected int $courses_deleted = 0;
-
-    protected array $errors = [];
-
     /**
-     * Constructor
+     * Synchronize data (called by cron job)
+     * Counted items are the campo courses
      */
-    public function __construct(Container $dic)
+    public function synchronize() : void
     {
-        $this->dic = $dic;
-    }
-
-    /**
-     * Get the number of added course
-     */
-    public function getCoursesAdded() : int
-    {
-        return $this->courses_added;
-    }
-
-    /**
-     * Get the number of updated course
-     */
-    public function getCoursesUpdated() : int
-    {
-        return $this->courses_updated;
-    }
-
-    /**
-     * Get the number of deleted courses
-     */
-    public function getCoursesDeleted() : int
-    {
-        return $this->courses_deleted;
-    }
-
-    /**
-     * Check if the call produced an error
-     */
-    public function hasErrors() : bool
-    {
-        return !empty($this->errors);
-    }
-
-    /**
-     * Get a list of error messages
-     */
-    public function getErrors() : array
-    {
-        return $this->errors;
-    }
-
-    /**
-     * Synchronize StudOn with campo
-     * (called by cron job)
-     */
-    public function synchronize()
-    {
-        $this->syncCampoModule();
+        $this->syncEventModules();
         $this->syncCampoModuleCos();
         $this->syncEducations();
     }
 
     /**
      * Synchronize data found in the staging table campo_module
-     * todo: treat event relationship
      */
-    protected function syncCampoModule()
+    protected function syncEventModules()
     {
-        $this->info('syncCampoModule...');
-        $moduleDone=[];
-        foreach ($this->dic->fau()->staging()->repo()->getModulesToDo() as $record) {
+        $this->info('syncEventModules...');
+        $moduleSaved=[];
+        foreach ($this->staging->repo()->getEventModulesToDo() as $record) {
             $module = new Module(
                 $record->getModuleId(),
                 $record->getModuleNr(),
                 $record->getModuleName()
             );
+            $moduleEvent = new ModuleEvent(
+                $record->getModuleId(),
+                $record->getEventId(),
+            );
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
-                    if (!isset($moduleDone[$record->getModuleId()])) {
-                        $this->dic->fau()->study()->repo()->save($module);
+                    if (!isset($moduleSaved[$record->getModuleId()])) {
+                        $this->study->repo()->save($module);
+                        $moduleSaved[$record->getModuleId()]=true;
                     }
+                    $this->study->repo()->save($moduleEvent);
                     break;
                 case DipData::DELETED:
-                    if (!isset($moduleDone[$record->getModuleId()])) {
-                        $this->dic->fau()->study()->repo()->delete($module);
-                    }
+                    $this->study->repo()->delete($moduleEvent);
                     break;
             }
-            $moduleDone[$record->getModuleId()]=true;
-            $this->dic->fau()->staging()->repo()->setDipProcessed($record);
+            $this->staging->repo()->setDipProcessed($record);
         }
     }
 
@@ -117,8 +69,8 @@ class SyncWithCampo
     protected function syncCampoModuleCos()
     {
         $this->info('syncCampoModuleCos...');
-        $cosDone=[];
-        foreach ($this->dic->fau()->staging()->repo()->getModuleCosToDo() as $record) {
+        $cosSaved=[];
+        foreach ($this->staging->repo()->getModuleCosToDo() as $record) {
             $cos = new CourseOfStudy(
                 $record->getCosId(),
                 $record->getDegree(),
@@ -134,17 +86,17 @@ class SyncWithCampo
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
-                    if (!isset($cosDone[$record->getCosId()])) {
-                        $this->dic->fau()->study()->repo()->save($cos);
+                    if (!isset($cosSaved[$record->getCosId()])) {
+                        $this->study->repo()->save($cos);
+                        $cosSaved[$record->getCosId()]=true;
                     }
-                    $this->dic->fau()->study()->repo()->save($moduleCos);
+                    $this->study->repo()->save($moduleCos);
                     break;
                 case DipData::DELETED:
-                    $this->dic->fau()->study()->repo()->delete($moduleCos);
+                    $this->study->repo()->delete($moduleCos);
                     break;
             }
-            $cosDone[$record->getCosId()]=true;
-            $this->dic->fau()->staging()->repo()->setDipProcessed($record);
+            $this->staging->repo()->setDipProcessed($record);
         }
     }
 
@@ -154,8 +106,8 @@ class SyncWithCampo
     protected function syncEducations()
     {
         $this->info('syncEducations...');
-        foreach ($this->dic->fau()->staging()->repo()->getEducationsToDo() as $record) {
-            if (!empty($user_id = $this->dic->fau()->user()->findUserIdByIdmUid($record->getIdmUid()))) {
+        foreach ($this->staging->repo()->getEducationsToDo() as $record) {
+            if (!empty($user_id = $this->user->findUserIdByIdmUid($record->getIdmUid()))) {
                 $education = new Education(
                     $user_id,
                     $record->getType(),
@@ -167,26 +119,16 @@ class SyncWithCampo
                 switch ($record->getDipStatus()) {
                     case DipData::INSERTED:
                     case DipData::CHANGED:
-                        $this->dic->fau()->user()->repo()->save($education);
+                        $this->user->repo()->save($education);
                         break;
                     case DipData::DELETED:
-                        $this->dic->fau()->user()->repo()->delete($education);
+                        $this->user->repo()->delete($education);
                         break;
                 }
-                $this->dic->fau()->staging()->repo()->setDipProcessed($record);
+                $this->staging->repo()->setDipProcessed($record);
             }
         }
     }
 
-    /**
-     * Add an info text to the console anf to the log
-     */
-    protected function info(?string $text)
-    {
-        if (!\ilContext::usesHTTP()) {
-            echo $text . "\n";
-        }
-        $this->dic->logger()->fau()->info($text);
-    }
 }
 

@@ -19,6 +19,7 @@ class Migration
     {
         $this->db->createTable('fau_org_orgunits', [
             'id'                => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'path'              => ['type' => 'text',       'length' => 1000,   'notnull' => true],
             'parent_id'         => ['type' => 'integer',    'length' => 4,      'notnull' => false,    'default' => null],
             'assignable'        => ['type' => 'integer',    'length' => 4,      'notnull' => false,    'default' => null],
             'fauorg_nr'         => ['type' => 'text',       'length' => 250,    'notnull' => false,    'default' => null],
@@ -36,6 +37,7 @@ class Migration
         $this->db->addPrimaryKey('fau_org_orgunits', ['id']);
         $this->db->addIndex('fau_org_orgunits', ['parent_id'], 'i1');
         $this->db->addIndex('fau_org_orgunits', ['fauorg_nr'], 'i2');
+        $this->db->addIndex('fau_org_orgunits', ['path'], 'i3');
     }
 
 

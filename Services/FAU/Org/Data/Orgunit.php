@@ -1,6 +1,6 @@
 <?php  declare(strict_types=1);
 
-namespace FAU\Orgunit\Data;
+namespace FAU\Org\Data;
 
 use FAU\RecordData;
 
@@ -12,6 +12,7 @@ class Orgunit extends RecordData
         'id' => 'integer',
     ];
     protected const otherTypes = [
+        'path' => 'text',
         'parent_id' => 'integer',
         'assignable' => 'integer',
         'fauOrgKey' => 'text',
@@ -26,6 +27,7 @@ class Orgunit extends RecordData
     ];
 
     protected int $id;
+    protected string $path;
     protected ?int $parent_id;
     protected ?int $assignable;
     protected ?string $fauOrgKey;
@@ -41,6 +43,7 @@ class Orgunit extends RecordData
 
     public function __construct(
         int $id,
+        string $path,
         ?int $parent_id,
         ?int $assignable,
         ?string $fauOrgKey,
@@ -55,6 +58,7 @@ class Orgunit extends RecordData
     )
     {
         $this->id = $id;
+        $this->path = $path;
         $this->parent_id = $parent_id;
         $this->assignable = $assignable;
         $this->fauOrgKey = $fauOrgKey;
@@ -70,7 +74,7 @@ class Orgunit extends RecordData
 
     public static function model(): self
     {
-        return new self(0,null,null,null,null,null,null,
+        return new self(0,'',null,null,null,null,null,null,
         '',null,null, null, null);
     }
 
@@ -80,6 +84,14 @@ class Orgunit extends RecordData
     public function getId() : int
     {
         return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath() : string
+    {
+        return $this->path;
     }
 
     /**
@@ -155,6 +167,134 @@ class Orgunit extends RecordData
     }
 
     /**
+     * @return int|null
+     */
+    public function getNoManager() : ?int
+    {
+        return $this->no_manager;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getCollectCourses() : ?int
+    {
+        return $this->collect_courses;
+    }
+
+    /**
+     * @param int $id
+     * @return self
+     */
+    public function withId(int $id) : self
+    {
+        $clone = clone $this;
+        $clone->id = $id;
+        return $clone;
+    }
+
+    /**
+     * @param string $path
+     * @return self
+     */
+    public function withPath(string $path) : self
+    {
+        $clone = clone $this;
+        $clone->path = $path;
+        return $clone;
+    }
+
+
+    /**
+     * @param int|null $parent_id
+     * @return self
+     */
+    public function withParentId(?int $parent_id) : self
+    {
+        $clone = clone $this;
+        $clone->parent_id = $parent_id;
+        return $clone;
+    }
+
+
+    /**
+     * @param int|null $assignable
+     * @return self
+     */
+    public function withAssignable(?int $assignable) : self
+    {
+        $clone = clone $this;
+        $clone->assignable = $assignable;
+        return $clone;
+    }
+
+    /**
+     * @param string|null $fauOrgKey
+     * @return self
+     */
+    public function withFauOrgKey(?string $fauOrgKey) : self
+    {
+        $clone = clone $this;
+        $clone->fauOrgKey = $fauOrgKey;
+        return $clone;
+    }
+
+    /**
+     * @param string|null $valid_from
+     * @return self
+     */
+    public function withValidFrom(?string $valid_from) : self
+    {
+        $clone = clone $this;
+        $clone->valid_from = $valid_from;
+        return $clone;
+    }
+
+    /**
+     * @param string|null $valid_to
+     * @return self
+     */
+    public function withValidTo(?string $valid_to) : self
+    {
+        $clone = clone $this;
+        $clone->valid_to = $valid_to;
+        return $clone;
+    }
+
+    /**
+     * @param string|null $shorttext
+     * @return self
+     */
+    public function withShorttext(?string $shorttext) : self
+    {
+        $clone = clone $this;
+        $clone->shorttext = $shorttext;
+        return $clone;
+    }
+
+    /**
+     * @param string $defaulttext
+     * @return self
+     */
+    public function withDefaulttext(string $defaulttext) : self
+    {
+        $clone = clone $this;
+        $clone->defaulttext = $defaulttext;
+        return $clone;
+    }
+
+    /**
+     * @param string|null $longtext
+     * @return self
+     */
+    public function withLongtext(?string $longtext) : self
+    {
+        $clone = clone $this;
+        $clone->longtext = $longtext;
+        return $clone;
+    }
+
+    /**
      * @param string|null $ilias_ref_id
      * @return Orgunit
      */
@@ -166,14 +306,6 @@ class Orgunit extends RecordData
     }
 
     /**
-     * @return int|null
-     */
-    public function getNoManager() : ?int
-    {
-        return $this->no_manager;
-    }
-
-    /**
      * @param int|null $no_manager
      * @return Orgunit
      */
@@ -182,14 +314,6 @@ class Orgunit extends RecordData
         $clone = clone $this;
         $clone->no_manager = $no_manager;
         return $clone;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getCollectCourses() : ?int
-    {
-        return $this->collect_courses;
     }
 
     /**

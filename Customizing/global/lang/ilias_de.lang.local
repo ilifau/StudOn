@@ -469,8 +469,10 @@ content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
-cron#:#campo_data_update#:#Campo-Daten aktualisieren
-cron#:#campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+cron#:#fau_campo_data_update#:#Campo-Daten aktualisieren###fau: fauService
+cron#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System###fau: fauService
+cron#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren###fau: fauService
+cron#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU###fau: fauService
 cron#:#cron_mycampus_sync#:#Synchronisation mit mein campus
 cron#:#cron_mycampus_sync_added#:#Neue Kursmitglieder: %s
 cron#:#cron_mycampus_sync_info#:#Nimmt in mein campus angemeldete Kursteilnehmer auf
