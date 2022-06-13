@@ -48,17 +48,15 @@ abstract class RecordRepo
             return $this->queryCache[$hash];
         }
 
-        if (count($model::tableKeyTypes()) == 1) {
-            $singleKey = array_keys($model::tableKeyTypes())[0];
-        }
+        $hasSingleKey = (count($model::tableKeyTypes()) == 1);
 
         $records = [];
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
             $record = $model::from($row);
             $this->logAction('READ', $record);
-            if (isset($singleKey)) {
-                $records[$model->$singleKey] = $record;
+            if ($hasSingleKey) {
+                $records[$record->key()] = $record;
             }
             else {
                 $records[] = $record;

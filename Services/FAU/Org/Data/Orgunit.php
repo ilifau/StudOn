@@ -15,7 +15,7 @@ class Orgunit extends RecordData
         'path' => 'text',
         'parent_id' => 'integer',
         'assignable' => 'integer',
-        'fauOrgKey' => 'text',
+        'fauorg_nr' => 'text',
         'valid_from' => 'date',
         'valid_to' => 'date',
         'shorttext' => 'text',
@@ -30,7 +30,7 @@ class Orgunit extends RecordData
     protected string $path;
     protected ?int $parent_id;
     protected ?int $assignable;
-    protected ?string $fauOrgKey;
+    protected ?string $fauorg_nr;
     protected ?string $valid_from;
     protected ?string $valid_to;
     protected ?string $shorttext;
@@ -46,7 +46,7 @@ class Orgunit extends RecordData
         string $path,
         ?int $parent_id,
         ?int $assignable,
-        ?string $fauOrgKey,
+        ?string $fauorg_nr,
         ?string $valid_from,
         ?string $valid_to,
         ?string $shorttext,
@@ -61,7 +61,7 @@ class Orgunit extends RecordData
         $this->path = $path;
         $this->parent_id = $parent_id;
         $this->assignable = $assignable;
-        $this->fauOrgKey = $fauOrgKey;
+        $this->fauorg_nr = $fauorg_nr;
         $this->valid_from = $valid_from;
         $this->valid_to = $valid_to;
         $this->shorttext = $shorttext;
@@ -113,9 +113,9 @@ class Orgunit extends RecordData
     /**
      * @return string|null
      */
-    public function getFauOrgKey() : ?string
+    public function getFauorgNr() : ?string
     {
-        return $this->fauOrgKey;
+        return $this->fauorg_nr;
     }
 
     /**
@@ -232,10 +232,10 @@ class Orgunit extends RecordData
      * @param string|null $fauOrgKey
      * @return self
      */
-    public function withFauOrgKey(?string $fauOrgKey) : self
+    public function withFauorgNr(?string $fauorg_nr) : self
     {
         $clone = clone $this;
-        $clone->fauOrgKey = $fauOrgKey;
+        $clone->fauorg_nr = $fauorg_nr;
         return $clone;
     }
 
@@ -298,7 +298,7 @@ class Orgunit extends RecordData
      * @param string|null $ilias_ref_id
      * @return Orgunit
      */
-    public function withIliasRefId(?string $ilias_ref_id) : Orgunit
+    public function withIliasRefId(?string $ilias_ref_id) : self
     {
         $clone = clone $this;
         $clone->ilias_ref_id = $ilias_ref_id;

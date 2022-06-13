@@ -21,13 +21,19 @@ class Service
         $this->dic = $dic;
     }
 
-    /**
-     * Get the Migration Handler
-     */
     public function campo() : SyncWithCampo
     {
         return new SyncWithCampo($this->dic);
     }
 
+    public function org() : SyncWithOrg
+    {
+        return new SyncWithOrg($this->dic);
+    }
+
+    public function idm() : SyncWithIdm
+    {
+        return new SyncWithIdm($this->dic);
+    }
 
 }

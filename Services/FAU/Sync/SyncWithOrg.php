@@ -62,6 +62,7 @@ class SyncWithOrg extends SyncBase
                     ->withPath($this->getIdPath($unit, $stagingUnits))
                     ->withParentId($unit->getParentId())
                     ->withAssignable($unit->getAssignable())
+                    ->withFauorgNr($unit->getFauOrgKey())
                     ->withValidFrom($unit->getValidFrom())
                     ->withValidTo($unit->getValidTo())
                     ->withShorttext($unit->getShorttext())
@@ -87,6 +88,7 @@ class SyncWithOrg extends SyncBase
         $path = (string) $unit->getId();
         while ($unit->getParentId() !== null && isset($allUnits[$unit->getParentId()])) {
             $path = $unit->getParentId() . '.' . $path;
+            $unit = $allUnits[$unit->getParentId()];
         }
         return $path;
     }

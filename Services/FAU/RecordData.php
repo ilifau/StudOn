@@ -96,6 +96,27 @@ abstract class RecordData
     }
 
     /**
+     * Get a representation of the table key that can be used as an array index
+     * @return mixed
+     */
+    public function key()
+    {
+        $keyvals = [];
+        foreach (static::tableKeyTypes() as $key => $type) {
+            $keyvals[] = $this->$key;
+        }
+
+        if (count($keyvals) == 1) {
+            // return a single key with unchanged type
+            return $keyvals[0];
+        }
+        else {
+            // return a composite key as serialized string
+            return serialize($keyvals);
+        }
+    }
+
+    /**
      * Get the sequence value (if a sequence exists)
      */
     public function sequence() : ?int

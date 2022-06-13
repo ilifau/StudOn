@@ -14,7 +14,7 @@ use FAU\Study\Data\ModuleEvent;
 /**
  * Synchronisation of data coming from campo
  */
-class SyncWithCampo extends syncBase
+class SyncWithCampo extends SyncBase
 {
     protected Container $dic;
 

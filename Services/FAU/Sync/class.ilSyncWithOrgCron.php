@@ -49,7 +49,7 @@ class ilSyncWithOrgCron extends ilCronJob
     {
         global $DIC;
 
-        $service = $DIC->fau()->sync()->campo();
+        $service = $DIC->fau()->sync()->org();
         $result = new \ilCronJobResult();
 
         $service->synchronize();
