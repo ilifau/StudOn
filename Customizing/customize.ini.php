@@ -57,6 +57,8 @@ mycampus_soap_url = ""                  ;url of the my campus SOAP service
 mycampus_soap_client = ""               ;client for calling the my campus SOAP service
 mycampus_soap_user = ""                 ;user for calling the my campus SOAP service
 mycampus_soap_password = ""             ;password for calling the my campus SOAP service
+mycampus_sync_waitinglist = "0"         ;add users of waiting list in mein campus to waiting list in studon
+                                        ;(use only once before disconnecting)
 
 mycampus_sync_enabled = "0"				;enable synchronisation by chron-job
 mycampus_sync_logfile = ""				;logfile to be written for mycampus synchronisation

@@ -194,7 +194,7 @@ class ilMyCampusSynchronisation
                         $members_obj->add($user_id, IL_CRS_MEMBER);
                         $added[] = $identity;
                     }
-                } elseif ($part[2] == "WAITINGLIST") {
+                } elseif ($part[2] == "WAITINGLIST" && ilCust::get('mycampus_sync_waitinglist')) {
                     $user_id = ilObjUser::_findUserIdByAccount($identity);
                     if (!$user_id) {
                         $this->message('Create User...: ' . $identity, false);
@@ -213,14 +213,14 @@ class ilMyCampusSynchronisation
                 }
             }
             if (count($added)) {
-                $this->message('Added: ' . implode(', ', $added) . $info, true);
+                $this->message('Added as member: ' . implode(', ', $added) . $info, true);
                 $this->sum_added += count($added);
-            } else {
-                $this->message('In Sync.' . $info);
             }
-
             if (count($waiting)) {
                 $this->message('Added to waiting list: ' . implode(', ', $waiting) . $info, true);
+            }
+            if (empty($added) && empty($waiting)) {
+                $this->message('In Sync.' . $info, true);
             }
         }
     }
@@ -234,7 +234,7 @@ class ilMyCampusSynchronisation
      */
     private function message($a_message, $a_log = false)
     {
-        if (isset($this->log)) {
+        if ($a_log and isset($this->log)) {
             $this->log->write($a_message);
         }
         
