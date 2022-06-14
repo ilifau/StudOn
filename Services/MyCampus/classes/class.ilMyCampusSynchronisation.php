@@ -171,6 +171,7 @@ class ilMyCampusSynchronisation
             }
             
             $members_obj = ilCourseParticipants::_getInstanceByObjId($object['obj_id']);
+            $list_obj = new ilCourseWaitingList($object['obj_id']);
 
             $added = array();
             $waiting = array();
@@ -194,7 +195,21 @@ class ilMyCampusSynchronisation
                         $added[] = $identity;
                     }
                 } elseif ($part[2] == "WAITINGLIST") {
-                    $waiting[] = $identity;
+                    $user_id = ilObjUser::_findUserIdByAccount($identity);
+                    if (!$user_id) {
+                        $this->message('Create User...: ' . $identity, false);
+                        $user_id = ilUserUtil::_createDummyAccount(
+                            $identity,
+                            $lng->txt('dummy_user_firstname_mycampus'),
+                            $lng->txt('dummy_user_lastname_mycampus'),
+                            $ilSetting->get('mail_external_sender_noreply')
+                        );
+                    }
+                    if (!$members_obj->isAssigned($user_id) && !$list_obj->isOnList($user_id)) {
+                        $this->message('Add to Waiting List...: ' . $identity . $info, false);
+                        $list_obj->addToList($user_id);
+                        $waiting[] = $identity;
+                    }
                 }
             }
             if (count($added)) {
@@ -205,7 +220,7 @@ class ilMyCampusSynchronisation
             }
 
             if (count($waiting)) {
-                $this->message('On waiting list in my campus: ' . implode(', ', $waiting) . $info);
+                $this->message('Added to waiting list: ' . implode(', ', $waiting) . $info, true);
             }
         }
     }
@@ -219,7 +234,7 @@ class ilMyCampusSynchronisation
      */
     private function message($a_message, $a_log = false)
     {
-        if ($a_log and isset($this->log)) {
+        if (isset($this->log)) {
             $this->log->write($a_message);
         }
         
@@ -260,7 +275,6 @@ class ilMyCampusSynchronisation
                 "MyCampus Synchronisation",
                 $this->mail_text,
                 array(),
-                array("system"),
                 false
             );
                             
