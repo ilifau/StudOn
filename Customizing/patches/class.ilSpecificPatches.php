@@ -737,5 +737,65 @@ class ilSpecificPatches
         }
     }
     // fau.
+
+
+    // fau: campusSub - patch to change the registration settings of mycampus courses
+    public function migrateMyCampusCourses($params = [])
+    {
+        require_once "Modules/Course/classes/class.ilCourseConstants.php";
+
+        global $DIC;
+        $db = $DIC->database();
+        $import = new ilUnivisImport();
+
+        echo "Migrate courses with my campus registrartion...";
+
+        $query = "
+            SELECT r.ref_id, s.obj_id 
+            FROM crs_settings s 
+            JOIN object_reference r on r.obj_id = s.obj_id
+            WHERE s.sub_limitation_type = " . $db->quote(IL_CRS_SUBSCRIPTION_MYCAMPUS, 'integer');
+        $result = $db->query($query);
+
+        while ($row = $db->fetchAssoc($result)) {
+
+            $crs = new ilObjCourse($row['ref_id'], true);
+            $part = new ilCourseParticipants($crs->getId());
+
+            echo "\nhttps://www.studon.fau.de/" . $crs->getRefId() . " " . substr($crs->getTitle(), 0 , 20);
+
+            // important default settings
+            $crs->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
+            $crs->setSubscriptionType(IL_CRS_SUBSCRIPTION_DIRECT);
+            $crs->enableWaitingList(true);
+            $crs->setSubscriptionAutoFill(false);
+            $crs->setWaitingListAutoFill(false);
+
+            // specific values from univis, if possible
+            if (ilUnivisLecture::_isIliasImportId($crs->getImportId())) {
+                $import->cleanupLectures();
+                if ($import->importLecture($crs->getImportId())) {
+                    foreach (ilUnivisLecture::_getLecturesData() as $lecture_id => $data) {
+                        $lecture = new ilUnivisLecture($lecture_id);
+                        echo " ... update from UnivIS " . $crs->getImportId();
+
+                        $start = $lecture->getRegStart()->get(IL_CAL_UNIX);
+                        $end = $lecture->getRegEnd()->get(IL_CAL_UNIX);
+                        $crs->setSubscriptionStart($start);
+                        $crs->setSubscriptionEnd($end);
+
+                        $maxturnout = $lecture->getMaxturnout();
+                        $crs->enableSubscriptionMembershipLimitation($maxturnout > 0 ? 1 : 0);
+                        $crs->setSubscriptionMaxMembers((int) $maxturnout);
+                        $crs->enableWaitingList($lecture->hasWaitingList());
+                        break;
+                    }
+                }
+            }
+
+            $crs->update();
+        }
+    }
+    // fau.
 }
 

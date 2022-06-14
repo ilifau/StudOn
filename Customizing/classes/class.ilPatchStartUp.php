@@ -8,7 +8,6 @@
  */
 class ilPatchStartUp
 {
-    private $client = '';
     private $username = '';
     private $password = '';
 
@@ -16,18 +15,16 @@ class ilPatchStartUp
     private $authSession;
 
     /**
-     * @param $a_client_id
      * @param $a_login
      * @param $a_password
-     * @param ilAuthSession|null $authSession
      */
     public function __construct(
-        $a_client_id,
         $a_login,
-        $a_password,
-        ilAuthSession $authSession = null
+        $a_password
     ) {
-        $this->client = $a_client_id;
+        /** @var \ILIAS\DI\Container */
+        global $DIC;
+
         $this->username = $a_login;
         $this->password = $a_password;
 
@@ -39,18 +36,10 @@ class ilPatchStartUp
         include_once './Services/Context/classes/class.ilContext.php';
         ilContext::init(ilContext::CONTEXT_PATCH);
 
-        // define client
-        // @see mantis 20371
-        $_GET['client_id'] = $this->client;
-
         require_once("Services/Init/classes/class.ilInitialisation.php");
         ilInitialisation::initILIAS();
 
-        if (null === $authSession) {
-            global $DIC;
-            $authSession = $DIC['ilAuthSession'];
-        }
-        $this->authSession = $authSession;
+        $this->authSession = $DIC['ilAuthSession'];
     }
 
 
@@ -63,20 +52,9 @@ class ilPatchStartUp
             $this->authenticate();
         }
         catch(Exception $e) {
-            $this->logout();
             echo $e->getMessage()."\n";
             exit(1);
         }
-    }
-
-
-    /**
-     * Closes the current auth session
-     */
-    public function logout()
-    {
-        ilSession::setClosingContext(ilSession::SESSION_CLOSE_USER);
-        $this->authSession->logout();
     }
 
     /**
