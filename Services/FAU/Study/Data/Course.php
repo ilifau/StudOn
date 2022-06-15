@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class Course extends RecordData
 {
-    protected const tableName = 'fau_study_course';
+    protected const tableName = 'fau_study_courses';
     protected const hasSequence = false;
     protected const keyTypes = [
         'course_id' => 'integer',

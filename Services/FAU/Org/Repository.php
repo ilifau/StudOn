@@ -8,6 +8,7 @@ use FAU\RecordData;
 
 /**
  * Repository for accessing organisational data
+ * @todo replace type hints with union types in PHP 8
  */
 class Repository extends RecordRepo
 {

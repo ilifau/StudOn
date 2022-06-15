@@ -62,9 +62,9 @@ class Repository extends RecordRepo
     /**
      * @return Achievement[]
      */
-    public function getAchievementsToDo() : array
+    public function getAchievements() : array
     {
-        return $this->getDipRecords(Achievement::model());
+        return $this->getAllRecords(Achievement::model(), false);
     }
 
     /**

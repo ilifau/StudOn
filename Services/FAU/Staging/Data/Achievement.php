@@ -8,8 +8,7 @@ class Achievement extends DipData
     protected const hasSequence = false;
     protected const keyTypes = [
         'requirement_id' => 'integer',
-        'person_id' => 'text'
-        // idm_uid is ignored
+        'person_id' => 'integer'
     ];
     protected const otherTypes = [
     ];

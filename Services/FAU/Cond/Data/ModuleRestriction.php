@@ -26,7 +26,6 @@ class ModuleRestriction extends RecordData
         int $module_id,
         string $restriction,
         int $requirement_id,
-        ?string $requirement_name,
         ?string $compulsory
     )
     {

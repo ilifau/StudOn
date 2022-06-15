@@ -28,10 +28,10 @@ abstract class RecordRepo
      * The tables should be short enough to get all records
      * @return static[]
      */
-    protected function getAllRecords(RecordData $model) : array
+    protected function getAllRecords(RecordData $model, $useCache = true) : array
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
-        return $this->queryRecords($query, $model);
+        return $this->queryRecords($query, $model, $useCache);
     }
 
 

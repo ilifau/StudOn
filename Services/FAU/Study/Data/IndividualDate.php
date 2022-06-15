@@ -47,6 +47,7 @@ class IndividualDate extends RecordData
         ?int $cancelled
     )
     {
+        $this->individual_dates_id = $individual_dates_id;
         $this->planned_dates_id = $planned_dates_id;
         $this->term_year = $term_year;
         $this->term_type_id = $term_type_id;

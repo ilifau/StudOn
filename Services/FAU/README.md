@@ -15,7 +15,7 @@ Die Verzeichnisse des Service entsprechen seinen Teil-Services:
 - **Org** - Verwaltung der Organisationsstruktur: Org-Einheiten, Gebäude, Räume. Verknüpfung der Org-Einheiten mit Kategorien in StudOn.
 - **Study** - Verwaltung allgemeiner Daten: Studiengänge, Module, Lehrveranstaltungen, Voraussetzungen, Verantwortliche. Verknüpfung dieser Daten mit den Kursen und Gruppen in StudOn.
 - **User** - Verwaltung nutzerbezogener Daten: Benutzergruppe, Rollen, Studienfächer, Leistungen, Qualifikationsstufen. Verknüpfung dieser Daten mit den StudOn-Benuteraccounts.
-- **Cond** - "Harte" Voraussetzungen (von Campo) für die Belegung von Lehrveranstaltungen. "Weiche" Bedingungen (in StudOn definiert) für den direkten Beitritt zu Kursen oder Gruppen, die mit Aufnahmeantrag gelöst werden können.
+- **Cond** - "Harte" Beschränkungen (von Campo) für die Belegung von Lehrveranstaltungen. "Weiche" Bedingungen (in StudOn definiert) für den direkten Beitritt zu Kursen oder Gruppen, die mit Aufnahmeantrag gelöst werden können.
 - **Staging** - Zugriff auf die Stanging-Datenbank 'IDM', über die Daten mit anderen Systemen synchronisiert werden.
 - **Sync** - Synchronisation der Daten zwischen Staging-Datenbank und StudOn. Anlegen und Aktualisieren der Kurse und Gruppen.
 
@@ -41,12 +41,12 @@ use FAU\User\Data\Education;
 ````
 
 Die Dateinamen das Klassen im FAU-Namespace entsprechen den Klassennamen ohne Präfix 'class'.
-Alle Klassen im Service werden beim ILIAS-Setup oder mit `composer dump-autoload -o` ins Autoload-Feature aufgenommen.
+Alle Klassen im Service werden beim ILIAS-Setup oder mit `composer dump-autoload -o` ins Autoload-Feature von PHP aufgenommen.
 
 
 ### Repository Pattern
 
-Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt über Repository-Klassen in den Services.
+Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenobjekte haben keine eigenen Lese- und Schreiboperationen.
 
 ````php
 // Example: move educations from one user account to another
@@ -68,8 +68,8 @@ Die Services und Datenklassen verwenden typisierte Parameter und Rückgabewerte,
 Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, könenn die Datenklassen und Ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
 
 - [RecordData](RecordData.php) definiert Funktionen einer Datenklasse, um Werte-Arrays aus Datenbank-Abfragen zu laden oder für sie zu liefern.
-- [RecordRepo](RecordRepo.php) enthält Lese, Schreib- und Löschfunktionen für Datenklassen, die RecordData implementieren.
+- [RecordRepo](RecordRepo.php) enthält generelle Lese, Schreib- und Löschfunktionen für Datenklassen, die RecordData implementieren.
 
 ### Query Cache
 
-Die Funktion RecordRepo::queryRecords() unterstützt standardmäßig ein Caching der Datenbank-Abfragen, d.h. die zurückgegebene Liste der RecordData-Objekte wird bei erneutem Aufruf mit der gleichen Abfrage im selben Request nicht erneut aus der Datenbank gelesen. Sollte das unterdrückt werden, weil aktuelle Daten benörigt werden, oder weil zu viele Ergebnisse zu viel Speicher benötigen würden, muss der letzte Parameter des Aufrufs auf *false* gesetzt werden.  
+Die Funktion ``RecordRepo::queryRecords()`` unterstützt standardmäßig ein Caching der Datenbank-Abfragen, d.h. die zurückgegebene Liste der RecordData-Objekte wird bei erneutem Aufruf mit der gleichen Abfrage im selben Request nicht erneut aus der Datenbank gelesen. Sollte das unterdrückt werden, weil aktuelle Daten benötigt werden, oder weil zu viele Ergebnisse zu viel Speicher benötigen würden, muss der letzte Parameter des Aufrufs auf *false* gesetzt werden.  

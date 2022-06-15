@@ -10,7 +10,7 @@ class Achievement extends RecordData
     protected const hasSequence = false;
     protected const keyTypes = [
         'requirement_id' => 'integer',
-        'person_id' => 'text'
+        'person_id' => 'integer'
     ];
     protected const otherTypes = [
     ];

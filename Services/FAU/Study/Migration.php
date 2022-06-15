@@ -12,8 +12,9 @@ class Migration
     }
 
     public function createTables(bool $drop = false) {
-        $this->createCourseTable($drop);
+        $this->createCoursesTable($drop);
         $this->createCourseOfStudyTable($drop);
+        $this->createCourseResponsiblesTable($drop);
         $this->createDocProgrammes($drop);
         $this->createEventsTable($drop);
         $this->createEventOrgunitsTable($drop);
@@ -33,9 +34,9 @@ class Migration
         $this->createStudySubjectsTable($drop);
     }
 
-    protected function createCourseTable(bool $drop = false)
+    protected function createCoursesTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_course', [
+        $this->db->createTable('fau_study_courses', [
             'course_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'event_id'              => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'term_year'             => ['type' => 'integer',    'length' => 4,      'notnull' => false],
@@ -54,9 +55,9 @@ class Migration
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_course', ['course_id']);
-        $this->db->addIndex('fau_study_course', ['event_id'], 'i1');
-        $this->db->addIndex('fau_study_course', ['ilias_obj_id'], 'i2');
+        $this->db->addPrimaryKey('fau_study_courses', ['course_id']);
+        $this->db->addIndex('fau_study_courses', ['event_id'], 'i1');
+        $this->db->addIndex('fau_study_courses', ['ilias_obj_id'], 'i2');
     }
 
     protected function createCourseOfStudyTable(bool $drop = false)
@@ -76,14 +77,14 @@ class Migration
 
     protected function createCourseResponsiblesTable(bool $drop = false)
     {
-        $this->db->createTable('fau_study_course_responsibles', [
+        $this->db->createTable('fau_study_course_resps', [
             'course_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'person_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_course_responsibles', ['course_id', 'person_id']);
-        $this->db->addIndex('fau_study_course_responsibles', ['person_id'], 'i1');
+        $this->db->addPrimaryKey('fau_study_course_resps', ['course_id', 'person_id']);
+        $this->db->addIndex('fau_study_course_resps', ['person_id'], 'i1');
     }
 
     protected function createDocProgrammes(bool $drop = false)
@@ -247,9 +248,9 @@ class Migration
     {
         $this->db->createTable('fau_study_degrees', [
             'degree_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'degree_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'degree_title'      => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'degree_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
-            'degree_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
             $drop
         );
@@ -299,9 +300,9 @@ class Migration
     {
         $this->db->createTable('fau_study_schools', [
             'school_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'school_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'school_title'      => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'school_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
-            'school_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
             $drop
         );
@@ -312,9 +313,9 @@ class Migration
     {
         $this->db->createTable('fau_study_subjects', [
             'subject_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'subject_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'subject_title'      => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'subject_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
-            'subject_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
         ],
             $drop
         );

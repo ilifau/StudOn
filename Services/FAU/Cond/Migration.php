@@ -24,7 +24,7 @@ class Migration
             'module_id'         => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'restriction'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
             'requirement_id'    => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'compulsory'        => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'compulsory'        => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
         ],
             $drop
         );

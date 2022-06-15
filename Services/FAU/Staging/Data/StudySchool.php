@@ -12,32 +12,32 @@ class StudySchool extends RecordData
         'school_his_id' => 'integer',       // this ID corresponds with fau_studydata
     ];
     protected const otherTypes = [
+        'school_uniquename' => 'text',
         'school_title' => 'text',
         'school_title_en' => 'text',
-        'school_uniquename' => 'text',
     ];
-    
+
     protected int $school_his_id;
+    protected string $school_uniquename;
     protected string $school_title;
     protected ?string $school_title_en;
-    protected string $school_uniquename;
 
     public function __construct(
         int $school_his_id,
+        string $school_uniquename,
         string $school_title,
-        ?string $school_title_en,
-        string $school_uniquename
+        ?string $school_title_en
     )
     {
         $this->school_his_id = $school_his_id;
+        $this->school_uniquename = $school_uniquename;
         $this->school_title = $school_title;
         $this->school_title_en = $school_title_en;
-        $this->school_uniquename = $school_uniquename;
     }
 
     public static function model(): self
     {
-        return new self(0, '', null, '');
+        return new self(0, '', '', null);
     }
 
     /**
