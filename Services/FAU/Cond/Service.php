@@ -5,12 +5,14 @@ namespace FAU\Cond;
 use ILIAS\DI\Container;
 
 /**
- * Service for user related data
+ * Service for registration restrictions and conditions
  */
 class Service
 {
-    protected Container $dic;
-    protected Repository $repository;
+    protected ?Container $dic;
+    protected ?Repository $repository;
+    protected ?HardRestrictions $hard;
+    protected ?SoftConditions $soft;
 
 
     /**
@@ -20,7 +22,6 @@ class Service
     {
         $this->dic = $dic;
     }
-
 
     /**
      * Get the repository for user data
@@ -34,10 +35,33 @@ class Service
     }
 
     /**
-     * Get the Migration Handler
+     * Get the handler for date scheme migrations (no caching needed)
      */
     public function migration() : Migration
     {
         return new Migration($this->dic->database());
     }
+
+    /**
+     * Get the handler for hard restrictions
+     */
+    public function hard() : HardRestrictions
+    {
+        if (!isset($this->hard)) {
+            $this->hard = new HardRestrictions($this->dic);
+        }
+        return $this->hard;
+    }
+
+    /**
+     * Get the handler for soft conditions
+     */
+    public function soft() : SoftConditions
+    {
+        if (!isset($this->soft)) {
+            $this->soft = new SoftConditions($this->dic);
+        }
+        return $this->soft;
+    }
+
 }

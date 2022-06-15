@@ -6,6 +6,7 @@ use FAU\Staging\Data\Orgunit;
 
 /**
  * Synchronisation of data coming from fau.org
+ * This will update data of the org service
  */
 class SyncWithOrg extends SyncBase
 {

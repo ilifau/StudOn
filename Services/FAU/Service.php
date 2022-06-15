@@ -4,6 +4,10 @@ namespace FAU;
 
 use ILIAS\DI\Container;
 
+/**
+ * Main Service for FAU integration
+ * This works as a factory for the sub services (Study, User ...)
+ */
 class Service
 {
     protected Container $dic;
@@ -21,7 +25,7 @@ class Service
     }
 
     /**
-     * Get the Service for Registration Conditions
+     * Get the service for Registration Conditions
      */
     public function cond() : Cond\Service
     {
@@ -33,7 +37,7 @@ class Service
 
 
     /**
-     * Get the Service for FAU org data
+     * Get the service for organisational data
      */
     public function org() : Org\Service
     {
@@ -44,7 +48,7 @@ class Service
     }
 
     /**
-     * Get the Service for Campo data
+     * Get the service for study related data
      */
     public function study() : Study\Service
     {
@@ -55,7 +59,7 @@ class Service
     }
 
     /**
-     * Get the Service for User data
+     * Get the service for user data
      */
     public function user() : User\Service
     {
@@ -66,7 +70,7 @@ class Service
     }
 
     /**
-     * Get the Service for Staging data
+     * Get the service for staging data
      */
     public function staging() : Staging\Service
     {
@@ -77,7 +81,7 @@ class Service
     }
 
     /**
-     * Get the Service for Synchronization of data
+     * Get the service for synchronization of data
      */
     public function sync() : Sync\Service
     {
@@ -88,7 +92,7 @@ class Service
     }
 
     /**
-     * Get the Service for Tools
+     * Get the service for tools
      */
     public function tools() : Tools\Service
     {

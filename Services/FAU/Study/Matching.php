@@ -5,6 +5,9 @@ namespace FAU\Study;
 use ILIAS\DI\Container;
 use FAU\Study\Data\ModuleCos;
 
+/**
+ * Calculating matchings between study data of students and events
+ */
 class Matching
 {
     protected Container $dic;

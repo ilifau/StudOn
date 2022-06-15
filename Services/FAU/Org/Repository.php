@@ -7,7 +7,7 @@ use FAU\Org\Data\Orgunit;
 use FAU\RecordData;
 
 /**
- * Repository for accessing FAU user data
+ * Repository for accessing organisational data
  */
 class Repository extends RecordRepo
 {

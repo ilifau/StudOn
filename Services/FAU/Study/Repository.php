@@ -8,10 +8,9 @@ use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\ModuleCos;
 use FAU\RecordData;
 use FAU\Study\Data\ModuleEvent;
-use FAU\Study\Data\EventModule;
 
 /**
- * Repository for accessing FAU user data
+ * Repository for accessing data of study related data
  * @todo replace type hints with union types in PHP 8
  */
 class Repository extends RecordRepo

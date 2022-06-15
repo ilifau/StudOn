@@ -6,7 +6,7 @@ use ILIAS\DI\Container;
 use FAU\User\Migration;
 
 /**
- * Service for user related data
+ * Service for synhronizing data between staging database and studon
  */
 class Service
 {

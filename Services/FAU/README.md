@@ -12,6 +12,7 @@ Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, au
 
 Die Verzeichnisse des Service entsprechen seinen Teil-Services: 
 
+- **Org** - Verwaltung der Organisationsstruktur: Org-Einheiten, Gebäude, Räume. Verknüpfung der Org-Einheiten mit Kategorien in StudOn.
 - **Study** - Verwaltung allgemeiner Daten: Studiengänge, Module, Lehrveranstaltungen, Voraussetzungen, Verantwortliche. Verknüpfung dieser Daten mit den Kursen und Gruppen in StudOn.
 - **User** - Verwaltung nutzerbezogener Daten: Benutzergruppe, Rollen, Studienfächer, Leistungen, Qualifikationsstufen. Verknüpfung dieser Daten mit den StudOn-Benuteraccounts.
 - **Cond** - "Harte" Voraussetzungen (von Campo) für die Belegung von Lehrveranstaltungen. "Weiche" Bedingungen (in StudOn definiert) für den direkten Beitritt zu Kursen oder Gruppen, die mit Aufnahmeantrag gelöst werden können.

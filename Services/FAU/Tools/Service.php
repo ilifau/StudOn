@@ -4,6 +4,9 @@ namespace FAU\Tools;
 
 use ILIAS\DI\Container;
 
+/**
+ * Tools needed for data processing
+ */
 class Service
 {
     protected Container $dic;

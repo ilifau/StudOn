@@ -7,7 +7,7 @@ use FAU\RecordRepo;
 use FAU\RecordData;
 
 /**
- * Repository for accessing FAU user data
+ * Repository for accessing condition data
  */
 class Repository extends RecordRepo
 {

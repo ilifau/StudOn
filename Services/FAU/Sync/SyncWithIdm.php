@@ -7,6 +7,7 @@ use ILIAS\DI\Container;
 
 /**
  * Synchronisation of data coming from IDM
+ * This will update data of the User service
  */
 class SyncWithIdm extends SyncBase
 {

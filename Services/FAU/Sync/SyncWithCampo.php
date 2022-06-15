@@ -13,6 +13,7 @@ use FAU\Study\Data\ModuleEvent;
 
 /**
  * Synchronisation of data coming from campo
+ * This will update data of the Study and the User service
  */
 class SyncWithCampo extends SyncBase
 {
@@ -25,7 +26,7 @@ class SyncWithCampo extends SyncBase
     public function synchronize() : void
     {
         $this->syncEventModules();
-        $this->syncCampoModuleCos();
+        $this->syncModuleCos();
         $this->syncEducations();
     }
 
@@ -66,7 +67,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_module_cos
      */
-    protected function syncCampoModuleCos()
+    protected function syncModuleCos()
     {
         $this->info('syncCampoModuleCos...');
         $cosSaved=[];

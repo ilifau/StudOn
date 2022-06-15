@@ -5,7 +5,7 @@ namespace FAU\Org;
 use ILIAS\DI\Container;
 
 /**
- * Service for user related data
+ * Service for organisational data
  */
 class Service
 {
@@ -22,7 +22,7 @@ class Service
     }
 
     /**
-     * Get the Migration Handler
+     * Get the handler for date scheme migrations (no caching needed)
      */
     public function migration() : Migration
     {

@@ -5,7 +5,7 @@ namespace FAU\Staging;
 use ILIAS\DI\Container;
 
 /**
- * Service for handling staging data
+ * Service for data in the staging database
  */
 class Service
 {
