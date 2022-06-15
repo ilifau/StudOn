@@ -23,7 +23,8 @@ class Orgunit extends RecordData
         'longtext' => 'text',
         'ilias_ref_id' => 'integer',
         'no_manager' => 'integer',
-        'collect_courses' => 'integer'
+        'collect_courses' => 'integer',
+        'problem' => 'text'
     ];
 
     protected int $id;
@@ -36,9 +37,10 @@ class Orgunit extends RecordData
     protected ?string $shorttext;
     protected string $defaulttext;
     protected ?string $longtext;
-    protected ?string $ilias_ref_id;        // ref id of assigned ILIAS category
+    protected ?int $ilias_ref_id;           // ref id of assigned ILIAS category
     protected ?int $no_manager;             // prevent automated manager role assignment in this category
     protected ?int $collect_courses;        // automatically create the courses of child organisations here
+    protected ?string $problem;             // problem notice from the check function
 
 
     public function __construct(
@@ -54,7 +56,8 @@ class Orgunit extends RecordData
         ?string $longtext,
         ?string $ilias_ref_id,
         ?int $no_manager,
-        ?int $collect_courses
+        ?int $collect_courses,
+        ?string $problem
     )
     {
         $this->id = $id;
@@ -70,12 +73,13 @@ class Orgunit extends RecordData
         $this->ilias_ref_id = $ilias_ref_id;
         $this->no_manager = $no_manager;
         $this->collect_courses = $collect_courses;
+        $this->problem = $problem;
     }
 
     public static function model(): self
     {
         return new self(0,'',null,null,null,null,null,null,
-        '',null,null, null, null);
+        '',null,null, null, null,null);
     }
 
     /**
@@ -92,6 +96,18 @@ class Orgunit extends RecordData
     public function getPath() : string
     {
         return $this->path;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getPathIds(): array
+    {
+        $ids = [];
+        foreach (explode('.', $this->path) as $id) {
+            $ids[] = (int) $id;
+        }
+        return $ids;
     }
 
     /**
@@ -159,9 +175,9 @@ class Orgunit extends RecordData
     }
 
     /**
-     * @return string|null
+     * @return int|null
      */
-    public function getIliasRefId() : ?string
+    public function getIliasRefId() : ?int
     {
         return $this->ilias_ref_id;
     }
@@ -180,6 +196,14 @@ class Orgunit extends RecordData
     public function getCollectCourses() : ?int
     {
         return $this->collect_courses;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProblem() : ?string
+    {
+        return $this->problem;
     }
 
     /**
@@ -295,10 +319,10 @@ class Orgunit extends RecordData
     }
 
     /**
-     * @param string|null $ilias_ref_id
+     * @param int|null $ilias_ref_id
      * @return Orgunit
      */
-    public function withIliasRefId(?string $ilias_ref_id) : self
+    public function withIliasRefId(?int $ilias_ref_id) : self
     {
         $clone = clone $this;
         $clone->ilias_ref_id = $ilias_ref_id;
@@ -324,6 +348,17 @@ class Orgunit extends RecordData
     {
         $clone = clone $this;
         $clone->collect_courses = $collect_courses;
+        return $clone;
+    }
+
+    /**
+     * @param string|null $problem
+     * @return Orgunit
+     */
+    public function withProblem(?string $problem) : self
+    {
+        $clone = clone $this;
+        $clone->problem = $problem;
         return $clone;
     }
 }

@@ -49,6 +49,7 @@ class SyncWithOrg extends SyncBase
                     null,
                     false,
                     false,
+                    null
                 );
                 $this->org->repo()->save($newUnit);
                 $this->increaseItemsAdded();

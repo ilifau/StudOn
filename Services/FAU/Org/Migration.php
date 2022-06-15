@@ -31,6 +31,7 @@ class Migration
             'ilias_ref_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => false,    'default' => null],
             'no_manager'        => ['type' => 'integer',    'length' => 4,      'notnull' => false,    'default' => null],
             'collect_courses'   => ['type' => 'integer',    'length' => 4,      'notnull' => false,    'default' => null],
+            'problem'           => ['type' => 'text',       'length' => 4000,    'notnull' => false,    'default' => null],
        ],
             $drop
         );

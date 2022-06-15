@@ -151,19 +151,18 @@ abstract class RecordRepo
      */
     protected function logAction(string $action, RecordData $record)
     {
+        $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
+        if (!\ilContext::usesHTTP()) {
+            echo $entry . "\n";
+        }
+
         if ($this->logger->isHandling(\ilLogLevel::DEBUG)) {
             $entry = $action . ' ' . get_class($record) . ' | ' . $record->debug();
-            $this->logger->debug($entry);
-            if (!\ilContext::usesHTTP()) {
-                echo $entry . "\n";
-            }
+            //$this->logger->debug($entry);
         }
         if ($this->logger->isHandling(\ilLogLevel::INFO)) {
             $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
             //$this->logger->info($entry);
-            if (!\ilContext::usesHTTP()) {
-                echo $entry . "\n";
-            }
         }
     }
 }

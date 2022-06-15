@@ -13,8 +13,11 @@ $p->login();
  * Patches for FAU
  ********************/
 
-$p->applyPatch('ilFauPatches.createFauTables', []);
+//$p->applyPatch('ilFauPatches.createFauTables');
 
+//$p->applyPatch('ilFauPatches.createOrgTable');
+//$p->applyPatch('ilFauPatches.syncOrgTable');
+//$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 
 /*****************
 * Specific actions

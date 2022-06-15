@@ -20,6 +20,16 @@ class Repository extends RecordRepo
     }
 
     /**
+     * @return Orgunit[]
+     */
+    public function getOrgunitsWithRefId() : array
+    {
+       $query = "SELECT * FROM fau_org_orgunits WHERE ilias_ref_id IS NOT NULL";
+       return $this->queryRecords($query, Orgunit::model(), false);
+    }
+
+
+    /**
      * Save record data of an allowed type
      * @param Orgunit $record
      */
