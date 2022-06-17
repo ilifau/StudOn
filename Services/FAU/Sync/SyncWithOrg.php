@@ -23,9 +23,7 @@ class SyncWithOrg extends SyncBase
 
     /**
      * Synchronize data found in the staging table fau_orgunit
-     * @todo treat studon category assignment
      * @todo respect valid period
-     * @todo delete orgunits (needed?)
      */
     protected function syncOrgunits()
     {

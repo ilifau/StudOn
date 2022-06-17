@@ -25,7 +25,8 @@ class Course extends RecordData
         'compulsory_requirement' => 'text',
         'contents' => 'clob',
         'literature' => 'text',
-        'ilias_obj_id' => 'integer'
+        'ilias_obj_id' => 'integer',
+        'ilias_dirty_since' => 'text'
     ];
     protected int $course_id;
     protected ?int $event_id;
@@ -41,7 +42,10 @@ class Course extends RecordData
     protected ?string $compulsory_requirement;
     protected ?string $contents;
     protected ?string $literature;
-    protected ?int $ilias_obj_id;
+
+    // not in constructor, added later
+    protected ?int $ilias_obj_id = null;
+    protected ?string $ilias_dirty_since = null;
 
     public function __construct(
         int $course_id,
@@ -57,8 +61,7 @@ class Course extends RecordData
         ?string $teaching_language,
         ?string $compulsory_requirement,
         ?string $contents,
-        ?string $literature,
-        ?int $ilias_obj_id
+        ?string $literature
     )
     {
         $this->course_id = $course_id;
@@ -75,7 +78,6 @@ class Course extends RecordData
         $this->compulsory_requirement = $compulsory_requirement;
         $this->contents = $contents;
         $this->literature = $literature;
-        $this->ilias_obj_id = $ilias_obj_id;
     }
 
     public static function model(): self
@@ -206,6 +208,15 @@ class Course extends RecordData
         return $this->ilias_obj_id;
     }
 
+
+    /**
+     * @return string|null
+     */
+    public function getIliasDirtySince() : ?string
+    {
+        return $this->ilias_dirty_since;
+    }
+
     /**
      * @param int|null $ilias_obj_id
      * @return Course
@@ -214,6 +225,31 @@ class Course extends RecordData
     {
         $clone = clone $this;
         $clone->ilias_obj_id = $ilias_obj_id;
+        return $clone;
+    }
+
+    /**
+     * Note that course data has changed
+     * If there is an ILIAS course or group, this should force an update of the data
+     * @param bool $changed
+     * @return Course
+     */
+    public function asChanged(bool $changed) : self
+    {
+        $clone = clone $this;
+        if ($changed) {
+            if (isset($clone->ilias_obj_id) && !isset($clone->ilias_dirty_since)) {
+                try {
+                    $clone->ilias_dirty_since = (new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME);
+                }
+                catch (\Throwable $throwable) {
+                }
+            }
+        }
+        else {
+            $clone->ilias_dirty_since = null;
+        }
+
         return $clone;
     }
 }

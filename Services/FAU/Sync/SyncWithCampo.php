@@ -30,6 +30,7 @@ use FAU\Study\Data\StudyForm;
 use FAU\Study\Data\StudySchool;
 use FAU\Study\Data\StudySubject;
 use FAU\Study\Data\Course;
+use FAU\Study\Data\Term;
 
 /**
  * Synchronisation of data coming from campo
@@ -42,6 +43,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data (called by cron job)
      * Counted items are the campo courses
+     * @todo configure terms
      */
     public function synchronize() : void
     {
@@ -55,7 +57,7 @@ class SyncWithCampo extends SyncBase
         $this->syncStudySubjects();
 
         // study structure
-
+        $this->syncCourses();
         $this->syncEvents();
         $this->syncEventOrgunits();
         $this->syncEventModules();
@@ -68,22 +70,29 @@ class SyncWithCampo extends SyncBase
         $this->syncRestrictions();
 
         // person assignments
-        $this->syncAchievements();
-        $this->syncCourseResponsibles();
         $this->syncEventResponsibles();
-        $this->syncEducations();
-        $this->syncIndividualInstructors();
+        $this->syncCourseResponsibles();
         $this->syncInstructors();
+        $this->syncIndividualInstructors();
+        $this->syncAchievements();
+        $this->syncEducations();
 
-        // at the end sync courses and create the course and group objects
-        // all needed data is now synced
+        // creation and update of ILIAS courses
+        // now all relevant data is updated
+        $terms = [
+            new Term(2022, 1)
+        ];
+        foreach ($terms as $term) {
+            $this->increaseItemsAdded($this->study->manager()->createCourses($term));
+            $this->increaseItemsUpdated($this->study->manager()->updateCourses($term));
+        }
     }
 
     /**
      * Synchronize the data found in the staging table campo_achievements
      * No change marks by DIP are available => all data has to be compared
      */
-    public function syncAchievements() : void
+    protected function syncAchievements() : void
     {
         $this->info('syncAchievements...');
 
@@ -141,10 +150,9 @@ class SyncWithCampo extends SyncBase
                 $record->getCompulsoryRequirement(),
                 $record->getContents(),
                 $record->getLiterature(),
-                null
             );
             if ($existing = $this->study->repo()->getCourse($record->getCourseId())) {
-                $course = $course->withIliasObjId($existing->getIliasObjId());
+                $course = $course->withIliasObjId($existing->getIliasObjId())->asChanged(true);
             }
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
@@ -178,6 +186,10 @@ class SyncWithCampo extends SyncBase
                 case DipData::DELETED:
                     $this->study->repo()->delete($responsible);
                     break;
+            }
+            // mark course as changed to trigger a role update in the related ILIAS course or group
+            if ($course = $this->study->repo()->getCourse($record->getCourseId())) {
+                $this->study->repo()->save($course->asChanged(true));
             }
             $this->staging->repo()->setDipProcessed($record);
         }
@@ -222,11 +234,10 @@ class SyncWithCampo extends SyncBase
                 $record->getTitle(),
                 $record->getShorttext(),
                 $record->getComment(),
-                $record->getGuest(),
-                null
+                $record->getGuest()
             );
             if ($existing = $this->study->repo()->getEvent($record->getEventId())) {
-                $event = $event->withIliasObjId($existing->getIliasObjId());
+                $event = $event->withIliasObjId($existing->getIliasObjId())->asChanged(true);
             }
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
@@ -284,6 +295,10 @@ class SyncWithCampo extends SyncBase
                 case DipData::DELETED:
                     $this->study->repo()->delete($responsible);
                     break;
+            }
+            // mark event as changed to trigger a role update in the related ILIAS course
+            if ($event = $this->study->repo()->getEvent($record->getEventId())) {
+                $this->study->repo()->save($event->asChanged(true));
             }
             $this->staging->repo()->setDipProcessed($record);
         }
@@ -410,6 +425,11 @@ class SyncWithCampo extends SyncBase
                     $this->study->repo()->delete($instructor);
                     break;
             }
+
+            // mark course as changed to trigger a role update in the related ILIAS course or group
+            if ($course = $this->study->repo()->getCourseOfIndividualDate($record->getIndividualDatesId())) {
+                $this->study->repo()->save($course->asChanged(true));
+            }
             $this->staging->repo()->setDipProcessed($record);
         }
     }
@@ -434,6 +454,11 @@ class SyncWithCampo extends SyncBase
                     $this->study->repo()->delete($instructor);
                     break;
             }
+            // mark course as changed to trigger a role update in the related ILIAS course or group
+            if ($course = $this->study->repo()->getCourseOfPlannedDate($record->getPlannedDatesId())) {
+                $this->study->repo()->save($course->asChanged(true));
+            }
+
             $this->staging->repo()->setDipProcessed($record);
         }
     }

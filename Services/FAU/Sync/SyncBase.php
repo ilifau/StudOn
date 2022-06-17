@@ -100,9 +100,9 @@ abstract class SyncBase
     /**
      * Increase the number of added items
      */
-    protected function increaseItemsAdded()
+    protected function increaseItemsAdded(int $number = 1)
     {
-        $this->items_added++;
+        $this->items_added += $number;
     }
 
     /**
@@ -116,9 +116,9 @@ abstract class SyncBase
     /**
      * Increase the number of updated items
      */
-    protected function increaseItemsUpdated()
+    protected function increaseItemsUpdated(int $number = 1)
     {
-        $this->items_updated++;
+        $this->items_updated += $number;
     }
 
     /**
@@ -132,9 +132,9 @@ abstract class SyncBase
     /**
      * Increase the number of deleted items
      */
-    protected function increaseItemsDeleted()
+    protected function increaseItemsDeleted(int $number = 1)
     {
-        $this->items_deleted++;
+        $this->items_deleted += $number;
     }
 
 

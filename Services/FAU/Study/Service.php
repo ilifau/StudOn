@@ -12,6 +12,7 @@ class Service
     protected Container $dic;
     protected Repository $repository;
     protected Matching $matching;
+    protected CourseManager $manager;
     protected Gui $gui;
 
 
@@ -30,6 +31,18 @@ class Service
     {
         return new Migration($this->dic->database());
     }
+
+    /**
+     * Cet the class for managing course and group creation and update
+     */
+    public function manager() : CourseManager
+    {
+        if (!isset($this->manager)) {
+            $this->manager = new CourseManager($this->dic);
+        }
+        return $this->manager;
+    }
+
 
 
     /**

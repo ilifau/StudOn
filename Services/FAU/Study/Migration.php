@@ -11,7 +11,8 @@ class Migration
         $this->db = $a_db;
     }
 
-    public function createTables(bool $drop = false) {
+    public function createTables(bool $drop = false)
+    {
         $this->createCoursesTable($drop);
         $this->createCourseOfStudyTable($drop);
         $this->createCourseResponsiblesTable($drop);
@@ -52,12 +53,16 @@ class Migration
             'contents'              => ['type' => 'clob',                           'notnull' => false],
             'literature'            => ['type' => 'text',       'length' => 4000,   'notnull' => false],
             'ilias_obj_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => false],
+            'ilias_dirty_since'     => ['type' => 'timestamp',                      'notnull' => false],
         ],
             $drop
         );
         $this->db->addPrimaryKey('fau_study_courses', ['course_id']);
         $this->db->addIndex('fau_study_courses', ['event_id'], 'i1');
-        $this->db->addIndex('fau_study_courses', ['ilias_obj_id'], 'i2');
+        $this->db->addIndex('fau_study_courses', ['term_year'], 'i2');
+        $this->db->addIndex('fau_study_courses', ['title'], 'i3');
+        $this->db->addIndex('fau_study_courses', ['ilias_obj_id'], 'i4');
+        $this->db->addIndex('fau_study_courses', ['ilias_dirty_since'], 'i5');
     }
 
     protected function createCourseOfStudyTable(bool $drop = false)
@@ -102,18 +107,21 @@ class Migration
     protected function createEventsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_events', [
-            'event_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'eventtype'     => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
-            'title'         => ['type' => 'text',       'length' => 1000,   'notnull' => false, 'default' => null],
-            'shorttext'     => ['type' => 'text',       'length' => 1000,   'notnull' => false, 'default' => null],
-            'comment'       => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
-            'guest'         => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
-            'ilias_obj_id'  => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
+            'event_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'eventtype'         => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
+            'title'             => ['type' => 'text',       'length' => 1000,   'notnull' => false, 'default' => null],
+            'shorttext'         => ['type' => 'text',       'length' => 1000,   'notnull' => false, 'default' => null],
+            'comment'           => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
+            'guest'             => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
+            'ilias_obj_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
+            'ilias_dirty_since' => ['type' => 'timestamp',                      'notnull' => false],
         ],
             $drop
         );
         $this->db->addPrimaryKey('fau_study_events', ['event_id']);
-        $this->db->addIndex('fau_study_events', ['ilias_obj_id'], 'i1');
+        $this->db->addIndex('fau_study_events', ['title'], 'i1');
+        $this->db->addIndex('fau_study_events', ['ilias_obj_id'], 'i2');
+        $this->db->addIndex('fau_study_events', ['ilias_dirty_since'], 'i3');
     }
 
     protected function createEventOrgunitsTable(bool $drop = false)
