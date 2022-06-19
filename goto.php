@@ -50,6 +50,15 @@ if (substr($_GET['target'], 0, 6) == 'lcode_') {
 }
 // fau.
 
+// fau
+
+// fau: campoLink - treat course link from campo
+if (substr($_GET['target'], 0, 6) == 'campo_') {
+    ilUtil::sendFailure($lng->txt('campo_course_not_found'), true);
+    ilUtil::redirect(ilUserUtil::getStartingPointAsUrl());
+}
+// fau.
+
 // fau: numericLink - lookup the type when only the ref_id or obj_id is given
 if (is_numeric($_GET['target'])) {
     $type = ilObject::_lookupType((int) $_GET['target'], true);
