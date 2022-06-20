@@ -45,12 +45,16 @@ class Term
 
     /**
      * @param string $string
-     * @return static
+     * @return ?self
      */
-    public static function fromString(string $string) : self
+    public static function fromString(string $string) : ?self
     {
         $year = (int) substr($string, 0, 4);
         $type_id = (int) substr($string, 4, 1);
+
+        if ($year < 2000 || $type_id < 1 || $type_id > 2) {
+            return null;
+        }
 
         return new self($year, $type_id);
     }

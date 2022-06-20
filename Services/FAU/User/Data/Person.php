@@ -1,6 +1,6 @@
 <?php  declare(strict_types=1);
 
-namespace FAU\Staging\Data;
+namespace FAU\User\Data;
 
 use FAU\RecordData;
 
@@ -34,6 +34,8 @@ class Person extends RecordData
     protected ?string $studydata;
     protected ?string $orgdata;
 
+    protected array $studies = [];
+
     public function __construct(
         int $user_id,
         int $person_id,
@@ -57,6 +59,12 @@ class Person extends RecordData
         $this->doc_programmes_code = $doc_programmes_code;
         $this->studydata = $studydata;
         $this->orgdata = $orgdata;
+
+        if (isset($this->studydata)) {
+            foreach ((array) $this->studydata as $period => $data) {
+                $this->studies[$period] = new Study($data);
+            }
+        }
     }
 
     public static function model(): self
@@ -146,9 +154,17 @@ class Person extends RecordData
     }
 
     /**
-     * @param int $user_id
-     * @return Person
+     * @return Study[]
      */
+    public function getStudies() : array
+    {
+        return $this->studies;
+    }
+
+    /**
+     * @param int $user_id
+    * @return Person
+    */
     public function withUserId(int $user_id) : Person
     {
         $clone = clone $this;
@@ -167,91 +183,4 @@ class Person extends RecordData
         return $clone;
     }
 
-    /**
-     * @param string|null $employee
-     * @return Person
-     */
-    public function withEmployee(?string $employee) : Person
-    {
-        $clone = clone $this;
-        $clone->employee = $employee;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $student
-     * @return Person
-     */
-    public function withStudent(?string $student) : Person
-    {
-        $clone = clone $this;
-        $clone->student = $student;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $guest
-     * @return Person
-     */
-    public function withGuest(?string $guest) : Person
-    {
-        $clone = clone $this;
-        $clone->guest = $guest;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $doc_approval_date
-     * @return Person
-     */
-    public function withDocApprovalDate(?string $doc_approval_date) : Person
-    {
-        $clone = clone $this;
-        $clone->doc_approval_date = $doc_approval_date;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $doc_programmes_text
-     * @return Person
-     */
-    public function withDocProgrammesText(?string $doc_programmes_text) : Person
-    {
-        $clone = clone $this;
-        $clone->doc_programmes_text = $doc_programmes_text;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $doc_programmes_code
-     * @return Person
-     */
-    public function withDocProgrammesCode(?string $doc_programmes_code) : Person
-    {
-        $clone = clone $this;
-        $clone->doc_programmes_code = $doc_programmes_code;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $studydata
-     * @return Person
-     */
-    public function withStudydata(?string $studydata) : Person
-    {
-        $clone = clone $this;
-        $clone->studydata = $studydata;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $orgdata
-     * @return Person
-     */
-    public function withOrgdata(?string $orgdata) : Person
-    {
-        $clone = clone $this;
-        $clone->orgdata = $orgdata;
-        return $clone;
-    }
 }

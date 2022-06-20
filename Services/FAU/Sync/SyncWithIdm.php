@@ -3,13 +3,11 @@
 namespace FAU\Sync;
 
 
-use ILIAS\DI\Container;
 use FAU\Staging\Data\Identity;
 use ilObjUser;
 use ilCust;
-use ilDateTime;
 use ilShibbolethRoleAssignmentRules;
-use FAU\Staging\Data\Person;
+use FAU\User\Data\Person;
 
 /**
  * Synchronisation of data coming from IDM
@@ -116,8 +114,17 @@ class SyncWithIdm extends SyncBase
         $this->user->repo()->save($person);
 
 
-        // todo: update org role assignments
+        $this->updateOrgAccess($person);
     }
+
+    /**
+     * Todo: Update the access to categories of organisations
+     */
+    protected function updateOrgAccess(Person $person)
+    {
+
+    }
+
 
     /**
      * Get an updated person record (not yet saved)
