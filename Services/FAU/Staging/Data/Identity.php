@@ -17,7 +17,7 @@ class Identity extends RecordData
         'given_name' => 'text',
         'mail' => 'text',
         'schac_gender' => 'text',
-        'schac_personal_unique_code' => 'text',     // enthält Matrikelnummer
+        'schac_personal_unique_code' => 'text',     // has matriculation number
         'user_password' => 'text',
         'fau_employee' => 'text',
         'fau_student' => 'text',
@@ -240,5 +240,58 @@ class Identity extends RecordData
     public function getFauOrgdata() : ?string
     {
         return $this->fau_orgdata;
+    }
+
+    /**
+     * Get the matriculation number
+     * @return string
+     */
+    public function getMatriculation() : string
+    {
+        $code = $this->getSchacPersonalUniqueCode();
+        $pattern = 'uni-erlangen.de:Matrikelnummer:';
+        $pos = strpos($code, $pattern);
+        if ($pos !== false) {
+            return trim(substr($code, $pos + strlen($pattern)));
+        } else {
+            return '';
+        }
+    }
+
+    /**
+     * Get the gender in the format expected by ILIAS
+     * @return string
+     */
+    public function getIliasGender() : string
+    {
+        switch ($this->getSchacGender()) {
+            case '1':
+                return 'f';
+            case '2':
+                return 'm';
+            default:
+                return 'n';
+        }
+    }
+
+    /**
+     * Get the data as array of shibboleth attributes
+     * This is used for shibboleth role assignment rules
+     * @return array
+     */
+    public function getShibbolethAttributes() : array
+    {
+        return [
+            'pk_persistent_id' => $this->getPkPersistentId(),
+            'eduPersonPrincipalName' => $this->getPkPersistentId() . '@uni-erlangen.de',
+            'givenName' => $this->getGivenName(),
+            'sn' => $this->getSn(),
+            'mail' => $this->getMail(),
+            'gender' => $this->getIliasGender(),
+            'matriculation' => $this->getMatriculation(),
+            'fau_employee' => $this->getFauEmployee(),
+            'fau_student' => $this->getFauStudent(),
+            'fau_guest' => $this->getFauGuest()
+        ];
     }
 }
