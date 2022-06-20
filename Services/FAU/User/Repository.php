@@ -6,6 +6,7 @@ use FAU\User\Data\Education;
 use FAU\RecordRepo;
 use FAU\RecordData;
 use FAU\User\Data\Achievement;
+use FAU\Staging\Data\Person;
 
 /**
  * Repository for accessing FAU user data
@@ -13,6 +14,20 @@ use FAU\User\Data\Achievement;
  */
 class Repository extends RecordRepo
 {
+
+    /**
+     * Get the person data of an ILIAS user
+     */
+    public function getPersonOfUser(int $user_id) : ?Person {
+        $query = "SELECT * FROM fau_user_persons WHERE user_id =" . $this->db->quote($user_id, 'integer');
+        /** @var Person $person */
+        foreach($this->queryRecords($query, Person::model()) as $person) {
+            return $person;
+        }
+        return null;
+    }
+
+
     /**
      * Delete the educations of a user account (e.g. if user is deleted)
      */
@@ -55,7 +70,7 @@ class Repository extends RecordRepo
 
     /**
      * Save record data of an allowed type
-     * @param Achievement|Education $record
+     * @param Achievement|Education|Person $record
      */
     public function save(RecordData $record)
     {
@@ -65,7 +80,7 @@ class Repository extends RecordRepo
 
     /**
      * Delete record data of an allowed type
-     * @param Achievement|Education $record
+     * @param Achievement|Education|Person $record
      */
     public function delete(RecordData $record)
     {

@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class Person extends RecordData
 {
-    protected const tableName = '';
+    protected const tableName = 'fau_user_persons';
     protected const hasSequence = false;
     protected const keyTypes = [
         'user_id' => 'integer',
@@ -22,10 +22,8 @@ class Person extends RecordData
         'studydata' => 'clob',
         'orgdata' => 'clob'
     ];
+
     protected int $user_id;
-    /**
-     * @var int
-     */
     protected int $person_id;
     protected ?string $employee;
     protected ?string $student;
@@ -110,6 +108,14 @@ class Person extends RecordData
     /**
      * @return string|null
      */
+    public function getDocApprovalDate() : ?string
+    {
+        return $this->doc_approval_date;
+    }
+
+    /**
+     * @return string|null
+     */
     public function getDocProgrammesText() : ?string
     {
         return $this->doc_programmes_text;
@@ -137,6 +143,28 @@ class Person extends RecordData
     public function getOrgdata() : ?string
     {
         return $this->orgdata;
+    }
+
+    /**
+     * @param int $user_id
+     * @return Person
+     */
+    public function withUserId(int $user_id) : Person
+    {
+        $clone = clone $this;
+        $clone->user_id = $user_id;
+        return $clone;
+    }
+
+    /**
+     * @param int $person_id
+     * @return Person
+     */
+    public function withPersonId(int $person_id) : Person
+    {
+        $clone = clone $this;
+        $clone->person_id = $person_id;
+        return $clone;
     }
 
     /**
@@ -173,11 +201,14 @@ class Person extends RecordData
     }
 
     /**
-     * @return string|null
+     * @param string|null $doc_approval_date
+     * @return Person
      */
-    public function getDocApprovalDate() : ?string
+    public function withDocApprovalDate(?string $doc_approval_date) : Person
     {
-        return $this->doc_approval_date;
+        $clone = clone $this;
+        $clone->doc_approval_date = $doc_approval_date;
+        return $clone;
     }
 
     /**
