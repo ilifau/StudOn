@@ -32,7 +32,9 @@ class Migration
         $this->createStudyFieldsTable($drop);
         $this->createStudyFormsTable($drop);
         $this->createStudySchoolsTable($drop);
+        $this->createStudyStatusTable($drop);
         $this->createStudySubjectsTable($drop);
+        $this->createStudyTypesTable($drop);
     }
 
     protected function createCoursesTable(bool $drop = false)
@@ -317,6 +319,20 @@ class Migration
         $this->db->addPrimaryKey('fau_study_schools', ['school_his_id']);
     }
 
+    protected function createStudyStatusTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_study_status', [
+            'status_his_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'status_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'status_title'      => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'status_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_status', ['status_his_id']);
+    }
+
+
     protected function createStudySubjectsTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_subjects', [
@@ -328,6 +344,18 @@ class Migration
             $drop
         );
         $this->db->addPrimaryKey('fau_study_subjects', ['subject_his_id']);
+    }
+
+    protected function createStudyTypesTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_study_types', [
+            'type_uniquename' => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'type_title'      => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'type_title_en'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_types', ['type_uniquename']);
     }
 
 }
