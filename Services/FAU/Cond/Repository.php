@@ -8,12 +8,34 @@ use FAU\RecordData;
 use FAU\Cond\Data\ModuleRestriction;
 use FAU\Cond\Data\Requirement;
 use FAU\Cond\Data\Restriction;
+use FAU\Cond\Data\CosCondition;
+use FAU\Cond\Data\DocCondition;
 
 /**
  * Repository for accessing condition data
  */
 class Repository extends RecordRepo
 {
+
+    /**
+     * Get the course of study conditions for an ilias object
+     */
+    public function getCosConditions(int $ilias_obj_id)
+    {
+        $query = "SELECT * FROM fau_cond_cos WHERE ilias_obj_id = " . $this->db->quote($ilias_obj_id, 'integer');
+        return $this->queryRecords($query, CosCondition::model());
+    }
+
+
+    /**
+     * Get the doc program conditions for an ilias object
+     */
+    public function getDocConditions(int $ilias_obj_id)
+    {
+        $query = "SELECT * FROM fau_cond_doc_prog WHERE ilias_obj_id = " . $this->db->quote($ilias_obj_id, 'integer');
+        return $this->queryRecords($query, DocCondition::model());
+    }
+
 
     /**
      * Save record data of an allowed type
