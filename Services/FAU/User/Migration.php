@@ -51,6 +51,7 @@ class Migration
             'employee'              => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'student'               => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'guest'                 => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
+            'doc_approval_date'     => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'doc_programmes_text'   => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
             'doc_programmes_code'   => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
             'studydata'             => ['type' => 'clob',                           'notnull' => false, 'default' => null],

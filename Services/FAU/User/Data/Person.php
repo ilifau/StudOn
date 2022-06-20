@@ -16,6 +16,7 @@ class Person extends RecordData
         'employee' => 'text',
         'student' => 'text',
         'guest' => 'text',
+        'doc_approval_date' => 'date',
         'doc_programmes_text' => 'text',
         'doc_programmes_code' => 'integer',
         'studydata' => 'clob',
@@ -29,6 +30,7 @@ class Person extends RecordData
     protected ?string $employee;
     protected ?string $student;
     protected ?string $guest;
+    protected ?string $doc_approval_date;
     protected ?string $doc_programmes_text;
     protected ?string $doc_programmes_code;
     protected ?string $studydata;
@@ -40,6 +42,7 @@ class Person extends RecordData
         ?string $employee,
         ?string $student,
         ?string $guest,
+        ?string $doc_approval_date,
         ?string $doc_programmes_text,
         ?string $doc_programmes_code,
         ?string $studydata,
@@ -51,6 +54,7 @@ class Person extends RecordData
         $this->employee = $employee;
         $this->student = $student;
         $this->guest = $guest;
+        $this->doc_approval_date = $doc_approval_date;
         $this->doc_programmes_text = $doc_programmes_text;
         $this->doc_programmes_code = $doc_programmes_code;
         $this->studydata = $studydata;
@@ -60,7 +64,7 @@ class Person extends RecordData
     public static function model(): self
     {
         return new self(0,0,null,null,null,
-            null,null,null,null);
+            null,null,null,null,null);
     }
 
     /**
@@ -166,6 +170,14 @@ class Person extends RecordData
         $clone = clone $this;
         $clone->guest = $guest;
         return $clone;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDocApprovalDate() : ?string
+    {
+        return $this->doc_approval_date;
     }
 
     /**
