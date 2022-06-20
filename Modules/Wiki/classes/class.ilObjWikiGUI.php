@@ -1664,6 +1664,9 @@ class ilObjWikiGUI extends ilObjectGUI
         // :TODO: fixing css dummy parameters
         $html = preg_replace("/\?dummy\=[0-9]+/", "", $html);
         $html = preg_replace("/\?vers\=[0-9A-Za-z\-]+/", "", $html);
+        // fau: fixWikiPdfExportRemoveVersionParams - remove version params in css/js urls for wiki pdf export 
+        $html = preg_replace("/(&|\?)version\=[0-9A-Za-z\-\.\_]+/", '', $html);
+        // fau.
         $html = str_replace('.css$Id$', ".css", $html);
 
         if (false) {
