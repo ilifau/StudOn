@@ -106,6 +106,7 @@ class ilLink
 
         // determine shortlink path (/ for studon, /dev/ for studon-dev)
         $path = $parsed['path'];
+        $path = str_replace('/VHBSSO', '', $path);      //if error raised from vhb authenticaion
         $path = str_replace('/studon-', '', $path);
         $path = str_replace('/studon', '', $path);
         $path = empty($path) ? '/' : '/' . $path . '/';
