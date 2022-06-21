@@ -157,7 +157,15 @@ class ilObjTestGUI extends ilObjectGUI
         $ilias = $DIC['ilias'];
         $ilUser = $DIC['ilUser'];
 
+        // fau: teststatement - save status of authorship statement checkbox to be available after password was entered if password is needed for test       
+        if (isset($_GET["cmd"])) {
+            $cmd = $_GET["cmd"];
+        }
+        $previousCmd = $cmd;
         $cmd = $this->ctrl->getCmd("infoScreen");
+        if($cmd == "startPlayer" && $previousCmd=="post")
+            $_SESSION["chb_authorship_statement"] = $_POST["chb_authorship_statement"];
+        // fau.  
 
         $cmdsDisabledDueToOfflineStatus = array(
             'resumePlayer', 'resumePlayer', 'outUserResultsOverview', 'outUserListOfAnswerPasses'
