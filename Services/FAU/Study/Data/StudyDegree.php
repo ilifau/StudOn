@@ -49,19 +49,15 @@ class StudyDegree extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getDegreeTitle() : string
+    public function getDegreeTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->degree_title_en)) {
+            return $this->degree_title_en;
+        }
         return $this->degree_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDegreeTitleEn() : ?string
-    {
-        return $this->degree_title_en;
     }
 
     /**

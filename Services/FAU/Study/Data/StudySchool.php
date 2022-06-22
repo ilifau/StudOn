@@ -49,19 +49,15 @@ class StudySchool extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getSchoolTitle() : string
+    public function getSchoolTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->school_title_en)) {
+            return $this->school_title_en;
+        }
         return $this->school_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getSchoolTitleEn() : ?string
-    {
-        return $this->school_title_en;
     }
 
     /**

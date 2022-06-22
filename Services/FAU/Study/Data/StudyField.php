@@ -57,18 +57,14 @@ class StudyField extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getFieldTitle() : string
+    public function getFieldTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->field_title_en)) {
+            return $this->field_title_en;
+        }
         return $this->field_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getFieldTitleEn() : ?string
-    {
-        return $this->field_title_en;
     }
 }

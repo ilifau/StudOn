@@ -6,25 +6,33 @@ use FAU\User\Data\Education;
 use FAU\RecordRepo;
 use FAU\RecordData;
 use FAU\User\Data\Achievement;
-use FAU\Staging\Data\Person;
+use FAU\User\Data\Person;
 
 /**
  * Repository for accessing FAU user data
+ * The main data from IDM is stored in a "Person" record
  * @todo replace type hints with union types in PHP 8
  */
 class Repository extends RecordRepo
 {
 
     /**
-     * Get the person data of an ILIAS user
+     * Check if a user has a person record assigned
      */
-    public function getPersonOfUser(int $user_id) : ?Person {
+    public function checkUserHasPerson(int $user_id) : bool
+    {
+        $query = "SELECT 1 FROM fau_user_persons WHERE user_id =" . $this->db->quote($user_id, 'integer');
+        return $this->hasRecord($query);
+    }
+
+    /**
+     * Get the person data of an ILIAS user
+     * @return ?Person
+     */
+    public function getPersonOfUser(int $user_id) : ?RecordData
+    {
         $query = "SELECT * FROM fau_user_persons WHERE user_id =" . $this->db->quote($user_id, 'integer');
-        /** @var Person $person */
-        foreach($this->queryRecords($query, Person::model()) as $person) {
-            return $person;
-        }
-        return null;
+        return $this->getSingleRecord($query, Person::model());
     }
 
 

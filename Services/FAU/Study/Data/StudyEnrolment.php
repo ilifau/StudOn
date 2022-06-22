@@ -57,18 +57,14 @@ class StudyEnrolment extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getEnrolmentTitle() : string
+    public function getEnrolmentTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->enrolment_title_en)) {
+            return $this->enrolment_title_en;
+        }
         return $this->enrolment_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getEnrolmentTitleEn() : ?string
-    {
-        return $this->enrolment_title_en;
     }
 }

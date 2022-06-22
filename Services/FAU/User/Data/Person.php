@@ -3,6 +3,8 @@
 namespace FAU\User\Data;
 
 use FAU\RecordData;
+use ILIAS\DI\Exceptions\Exception;
+use FAU\Study\Data\Term;
 
 class Person extends RecordData
 {
@@ -35,6 +37,8 @@ class Person extends RecordData
     protected ?string $orgdata;
 
     protected array $studies = [];
+    protected array $org_roles = [];
+
 
     public function __construct(
         int $user_id,
@@ -61,8 +65,17 @@ class Person extends RecordData
         $this->orgdata = $orgdata;
 
         if (isset($this->studydata)) {
-            foreach ((array) $this->studydata as $period => $data) {
-                $this->studies[$period] = new Study($data);
+            foreach ((array) json_decode($this->studydata, true) as $period => $studies) {
+                foreach ((array) $studies as $index => $data) {
+                    $study = new Study($data);
+                    $this->studies[$period][sprintf('%02d.%02d', (int) $study->getStudynumber(), $index)] = $study;
+                }
+            }
+        }
+
+        if (isset($this->orgdata)) {
+            foreach ((array) json_decode($this->orgdata, true) as $data) {
+                $this->org_roles[] = new OrgRole($data);
             }
         }
     }
@@ -121,6 +134,17 @@ class Person extends RecordData
         return $this->doc_approval_date;
     }
 
+    public function getDocApprovalDateObject() : ?\ilDate
+    {
+        if (isset($this->doc_approval_date)) {
+            try {
+                return new \ilDate($this->doc_approval_date, IL_CAL_DATE);
+            }
+            catch (Exception $e) {}
+        }
+        return null;
+    }
+
     /**
      * @return string|null
      */
@@ -154,12 +178,38 @@ class Person extends RecordData
     }
 
     /**
+     * Get the studies of a given term
      * @return Study[]
      */
-    public function getStudies() : array
+    public function getStudiesOfTerm(?Term $term) : array
     {
-        return $this->studies;
+        if (!isset($term) || !$term->isValid()) {
+            return [];
+        }
+        return $this->studies[$term->toString()] ?? [];
     }
+
+    /**
+     * Get the maximum term that has study data for this person
+     * @return Term|null
+     */
+    public function getMaxTerm() : ?Term
+    {
+        if (empty($this->studies)) {
+            return null;
+        }
+        return Term::fromString(max(array_keys($this->studies)));
+    }
+
+
+    /**
+     * @return OrgRole[]
+     */
+    public function getOrgRoles() : array
+    {
+        return $this->org_roles;
+    }
+
 
     /**
      * @param int $user_id

@@ -589,26 +589,23 @@ class ilMemberExport
                         break;
 
 
-                    // fau: memberExport - add studydata
-                    // fau: studyData - add studydata
+                    // fau: memberExport - add studydata and educations
+                    // fau: userData - add studydata and educations
                     case 'studydata':
                         global $DIC;
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
-                            $studydata = ilStudyAccess::_getDataText($usr_id);
+                            $studydata = $DIC->fau()->user()->getStudiesAsText((int) $usr_id);
                             $studydata = $DIC->fau()->tools()->quoteForExport($studydata);
                             $this->addCol($studydata, $row, $col++);
                         } else {
                             $this->addCol('', $row, $col++);
                         }
                         break;
-                    // fau.
 
-                    // fau: memberExport - add educations
-                    // fau: userData - add educations
                     case 'educations':
                         global $DIC;
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
-                            $educations = $DIC->fau()->user()->getEducationsAsText((int)$usr_id);
+                            $educations = $DIC->fau()->user()->getEducationsAsText((int) $usr_id);
                             $educations = $DIC->fau()->tools()->quoteForExport($educations);
                             $this->addCol($educations, $row, $col++);
                         } else {

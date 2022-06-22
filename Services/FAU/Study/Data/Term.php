@@ -4,57 +4,55 @@ namespace FAU\Study\Data;
 
 class Term
 {
-    const TYPE_ID_SS = 1;
-    const TYPE_ID_WS = 2;
+    const TYPE_ID_SUMMER = 1;
+    const TYPE_ID_WINTER = 2;
 
-    private int $year;
-    private int $type_id;
+    private bool $valid = false;
+
+    private ?int $year;
+    private ?int $type_id;
 
     public function __construct(
-        int $year,
-        int $type_id
+        ?int $year,
+        ?int $type_id
     )
     {
+        if ($year == null || $year < 2000 || $type_id == null || $type_id < 1 || $type_id > 2) {
+            $this->year = null;
+            $this->type_id = null;
+            $this->valid = false;
+        }
         $this->year = $year;
         $this->type_id = $type_id;
+        $this->valid = true;
     }
 
-    /**
-     * @return int
-     */
-    public function getYear() : int
+     public function getYear() : ?int
     {
         return $this->year;
     }
 
-    /**
-     * @return int
-     */
-    public function getTypeId() : int
+    public function getTypeId() : ?int
     {
         return $this->type_id;
     }
 
-    /**
-     * @return string
-     */
-    public function getString() : string
+
+     public function isValid() : bool
     {
-        return $this->getYear() . $this->getTypeId();
+        return $this->valid;
     }
 
-    /**
-     * @param string $string
-     * @return ?self
-     */
-    public static function fromString(string $string) : ?self
+    public function toString() : ?string
+    {
+        return $this->isValid() ? sprintf("%04d%01d", $this->year, $this->type_id) : null;
+    }
+
+
+    public static function fromString(?string $string) : self
     {
         $year = (int) substr($string, 0, 4);
         $type_id = (int) substr($string, 4, 1);
-
-        if ($year < 2000 || $type_id < 1 || $type_id > 2) {
-            return null;
-        }
 
         return new self($year, $type_id);
     }

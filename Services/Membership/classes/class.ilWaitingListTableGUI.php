@@ -322,11 +322,10 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     break;
 
 
-                // fau: studyData - format table output of studydata
+                // fau: userData - format table output of studydata and educations
                 case 'studydata':
                     $a_set['studydata'] = nl2br($a_set['studydata']);
-                // fau.
-                // fau: userData - format table output of educations
+
                 case 'educations':
                     ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
                     $a_set['educations'] = str_replace("\n", ', ', ilUtil::shortenText($a_set['educations'], 20, true));

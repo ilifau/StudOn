@@ -325,13 +325,11 @@ class ilUserQuery
                 continue;
             }
 
-            // fau: studyData - don't query for studydata directly, add them later
+            // fau: userData - don't query for studydata and educations directly, add them later
             if ($field == 'studydata') {
                 $add_studydata = true;
                 continue;
             }
-            // fau.
-            // fau: userData - don't query for educations directly, add them later
             if ($field == 'educations') {
                 $add_educations = true;
                 continue;
@@ -534,11 +532,8 @@ class ilUserQuery
                 }
                 break;
 
-            // fau: studyData - don't oreder by studydata
+            // fau: userData - don't order by studydata or educations
             case "studydata":
-                break;
-            // fau.
-            // fau: userData - don't oreder by educations
             case "educations":
                 break;
             // fau.
@@ -590,12 +585,10 @@ class ilUserQuery
         $result = array();
 
         while ($rec = $ilDB->fetchAssoc($set)) {
-            // fau: studyData - optionally add the studydata
+            // fau: userData - optionally add the studydata and educations
             if ($add_studydata) {
-                $rec['studydata'] = ilStudyAccess::_getDataText($rec['usr_id']);
+                $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
             }
-            // fau.
-            // fau: userData - optionally add the educations
             if ($add_educations) {
                 $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id']);
             }

@@ -200,10 +200,10 @@ class ilRbacSystem
 
         $operations = explode(",", $a_operations);
         foreach ($operations as $operation) {
-            // fau: studyData - add check for studydata based access
+            // fau: userData - add check for studydata based access
             // a grant overrules the rbac access
             if ($operation == "read" or $operation == "visible") {
-                if (ilStudyAccess::_checkAccess($a_ref_id, $a_user_id)) {
+                if ($DIC->fau()->cond()->soft()->checkAccess($a_ref_id, $a_user_id)) {
                     continue;
                 }
             }

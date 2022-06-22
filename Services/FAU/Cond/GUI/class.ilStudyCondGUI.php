@@ -1,8 +1,9 @@
 <?php
-/* fau: studyCond - new class for handling conditions. */
 
-include_once "Services/StudyData/classes/class.ilStudyCourseCond.php";
-include_once "Services/StudyData/classes/class.ilStudyDocCond.php";
+use ILIAS\DI\Container;
+use FAU\Cond\Data\CosCondition;
+use FAU\Cond\Data\DocCondition;
+use FAU\Study\Data\Term;
 
 /**
 * Class ilStudyCondGUI
@@ -11,6 +12,8 @@ include_once "Services/StudyData/classes/class.ilStudyDocCond.php";
 */
 class ilStudyCondGUI
 {
+    protected Container $dic;
+
     /** @var  string  */
     protected $headline;
     /** @var  string  */
@@ -19,7 +22,7 @@ class ilStudyCondGUI
     protected $with_backlink;
     /** @var ilCtrl */
     protected $ctrl;
-    /** @var ilTemplate */
+    /** @var ilGlobalTemplate */
     protected $tpl;
     /** @var ilLanguage */
     protected $lng;
@@ -38,10 +41,12 @@ class ilStudyCondGUI
     public function __construct($a_parent_gui)
     {
         global $DIC;
-
+        $this->dic = $DIC;
         $this->ctrl = $DIC->ctrl();
-        $this->tpl = $DIC['tpl'];
+        $this->tpl = $DIC->ui()->mainTemplate();
         $this->lng = $DIC->language();
+        $this->err = $DIC['ilErr'];
+
         $this->parent_gui = $a_parent_gui;
         $this->parent_obj_id = $this->parent_gui->object->getId();
         $this->parent_ref_id = $this->parent_gui->object->getRefId();
@@ -58,13 +63,9 @@ class ilStudyCondGUI
     */
     public function executeCommand()
     {
-        global $DIC;
-
-        $ilErr = $DIC['ilErr'];
-
         // access to all functions in this class are only allowed if edit_permission is granted
-        if (!$DIC->access()->checkAccess("write", "edit", $this->parent_ref_id, "", $this->parent_obj_id)) {
-            $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
+        if (!$this->dic->access()->checkAccess("write", "edit", $this->parent_ref_id, "", $this->parent_obj_id)) {
+            $this->err->raiseError($this->lng->txt("permission_denied"), $this->err->MESSAGE);
         }
 
         // NOT NICE
@@ -131,17 +132,14 @@ class ilStudyCondGUI
      */
     private function show($a_html)
     {
-        global $DIC;
-        $ilToolbar = $DIC->toolbar();
-
         if ($this->isWithBacklink()) {
             $back = ilLinkButton::getInstance();
             $back->setUrl($this->ctrl->getLinkTarget($this, 'back'));
             $back->setCaption('back');
-            $ilToolbar->addButtonInstance($back);
+            $this->dic->toolbar()->addButtonInstance($back);
         }
 
-        $tpl = new ilTemplate("tpl.list_study_cond.html", true, true, "Services/StudyData");
+        $tpl = new ilTemplate("tpl.list_study_cond.html", true, true, "Services/FAU/Cond/GUI");
         $tpl->setVariable("CONDITIONS_HEADLINE", $this->getHeadline());
         $tpl->setVariable("CONDITIONS_COMBI_INFO", $this->getInfo());
         $tpl->setVariable("CONDITIONS_CONTENT", $a_html);
@@ -156,24 +154,17 @@ class ilStudyCondGUI
      */
     protected function listConditions()
     {
-        global $DIC;
-        $ilToolbar = $DIC->toolbar();
-
         $but1 = ilLinkButton::getInstance();
         $but1->setUrl($this->ctrl->getLinkTarget($this, 'createCourseCond'));
         $but1->setCaption('studycond_add_course_condition');
-        $ilToolbar->addButtonInstance($but1);
+        $this->dic->toolbar()->addButtonInstance($but1);
 
         $but2 = ilLinkButton::getInstance();
         $but2->setUrl($this->ctrl->getLinkTarget($this, 'createDocCond'));
         $but2->setCaption('studycond_add_doc_condition');
-        $ilToolbar->addButtonInstance($but2);
+        $this->dic->toolbar()->addButtonInstance($but2);
 
-
-        require_once 'Services/StudyData/classes/class.ilStudyCourseCondTableGUI.php';
-        $table1 = new ilStudyCourseCondTableGUI($this, "listConditions", $this->parent_obj_id);
-
-        require_once 'Services/StudyData/classes/class.ilStudyDocCondTableGUI.php';
+        $table1 = new ilStudyCosCondTableGUI($this, "listConditions", $this->parent_obj_id);
         $table2 = new ilStudyDocCondTableGUI($this, "listConditions", $this->parent_obj_id);
 
         $this->show($table1->getHTML() . $table2->getHTML());
@@ -194,7 +185,7 @@ class ilStudyCondGUI
      */
     protected function createCourseCond()
     {
-        $this->initCourseForm("create");
+        $this->initCourseForm("create", CosCondition::model());
         $this->show($this->form_gui->getHtml());
     }
 
@@ -204,7 +195,7 @@ class ilStudyCondGUI
      */
     protected function createDocCond()
     {
-        $this->initDocForm("create");
+        $this->initDocForm("create", DocCondition::model());
         $this->show($this->form_gui->getHtml());
     }
 
@@ -215,9 +206,8 @@ class ilStudyCondGUI
      */
     protected function editCourseCond()
     {
-        $condition = new ilStudyCourseCond((int) $_GET["cond_id"]);
-
-        $this->initCourseForm("edit", $this->getCourseValues($condition));
+        $condition = $this->dic->fau()->cond()->repo()->getCosCondition((int) $_GET["cond_id"], CosCondition::model());
+        $this->initCourseForm("edit", $condition);
         $this->show($this->form_gui->getHtml());
     }
 
@@ -227,8 +217,8 @@ class ilStudyCondGUI
      */
     protected function editDocCond()
     {
-        $condition = new ilStudyDocCond((int) $_GET["cond_id"]);
-        $this->initDocForm("edit", $this->getDocValues($condition));
+        $condition = $this->dic->fau()->cond()->repo()->getDocCondition((int) $_GET["cond_id"], DocCondition::model());
+        $this->initDocForm("edit", $condition);
         $this->show($this->form_gui->getHtml());
     }
 
@@ -239,12 +229,10 @@ class ilStudyCondGUI
      */
     protected function saveCourseCond()
     {
-        $this->initCourseForm("create");
+        $this->initCourseForm("create", CosCondition::model());
         if ($this->form_gui->checkInput()) {
-            $condition = new ilStudyCourseCond;
-            $condition->obj_id = $this->parent_obj_id;
-            $this->setCourseValues($condition);
-            $condition->write();
+            $condition = $this->getCosConditionFromForm(0, $this->parent_obj_id, $this->form_gui);
+            $this->dic->fau()->cond()->repo()->save($condition);
             
             ilUtil::sendInfo($this->lng->txt("studycond_condition_saved"), true);
             $this->ctrl->redirect($this, 'listConditions');
@@ -260,12 +248,10 @@ class ilStudyCondGUI
      */
     protected function saveDocCond()
     {
-        $this->initDocForm("create");
+        $this->initDocForm("create", DocCondition::model());
         if ($this->form_gui->checkInput()) {
-            $condition = new ilStudyDocCond;
-            $condition->obj_id = $this->parent_obj_id;
-            $this->setDocValues($condition);
-            $condition->write();
+            $condition = $this->getDocConditionFromForm(0, $this->parent_obj_id, $this->form_gui);
+            $this->dic->fau()->cond()->repo()->save($condition);
 
             ilUtil::sendInfo($this->lng->txt("studycond_condition_saved"), true);
             $this->ctrl->redirect($this, 'listConditions');
@@ -283,12 +269,11 @@ class ilStudyCondGUI
     protected function updateCourseCond()
     {
         $this->ctrl->saveParameter($this, "cond_id");
-        $this->initCourseForm("edit");
+        $this->initCourseForm("edit", CosCondition::model());
         
         if ($this->form_gui->checkInput()) {
-            $condition = new ilStudyCourseCond((int) $_GET["cond_id"]);
-            $this->setCourseValues($condition);
-            $condition->write();
+            $condition = $this->getCosConditionFromForm($_GET["cond_id"], $this->parent_obj_id, $this->form_gui);
+            $this->dic->fau()->cond()->repo()->save($condition);
             
             ilUtil::sendInfo($this->lng->txt("studycond_condition_updated"), true);
             $this->ctrl->redirect($this, 'listConditions');
@@ -305,12 +290,11 @@ class ilStudyCondGUI
     protected function updateDocCond()
     {
         $this->ctrl->saveParameter($this, "cond_id");
-        $this->initDocForm("edit");
+        $this->initDocForm("edit", DocCondition::model());
 
         if ($this->form_gui->checkInput()) {
-            $condition = new ilStudyDocCond((int) $_GET["cond_id"]);
-            $this->setDocValues($condition);
-            $condition->write();
+            $condition = $this->getDocConditionFromForm($_GET["cond_id"], $this->parent_obj_id, $this->form_gui);
+            $this->dic->fau()->cond()->repo()->save($condition);
 
             ilUtil::sendInfo($this->lng->txt("studycond_condition_updated"), true);
             $this->ctrl->redirect($this, 'listConditions');
@@ -326,10 +310,11 @@ class ilStudyCondGUI
     */
     protected function deleteCourseCond()
     {
-        $cond = new ilStudyCourseCond($_GET["cond_id"]);
-        if ($cond->obj_id == $this->parent_obj_id) {
-            $cond->delete();
-            ilUtil::sendInfo($this->lng->txt("studycond_condition_deleted"), true);
+        if (!empty($cond = $this->dic->fau()->cond()->repo()->getCosCondition($_GET["cond_id"]))) {
+            if ($cond->getIliasObjId() == $this->parent_obj_id) {
+                $this->dic->fau()->cond()->repo()->delete($cond);
+                ilUtil::sendInfo($this->lng->txt("studycond_condition_deleted"), true);
+            }
         }
         $this->ctrl->redirect($this, 'listConditions');
     }
@@ -339,153 +324,116 @@ class ilStudyCondGUI
      */
     protected function deleteDocCond()
     {
-        $cond = new ilStudyDocCond($_GET["cond_id"]);
-        if ($cond->obj_id == $this->parent_obj_id) {
-            $cond->delete();
-            ilUtil::sendInfo($this->lng->txt("studycond_condition_deleted"), true);
+        if (!empty($cond = $this->dic->fau()->cond()->repo()->getDocCondition($_GET["cond_id"]))) {
+            if ($cond->getIliasObjId() == $this->parent_obj_id) {
+                $this->dic->fau()->cond()->repo()->delete($cond);
+                ilUtil::sendInfo($this->lng->txt("studycond_condition_deleted"), true);
+            }
         }
         $this->ctrl->redirect($this, 'listConditions');
     }
 
-
     /**
-     * Get the values of a web form into property gui
-     * @param    ilStudyCourseCond  $a_condition
-     * @return array;
+     * Get a course of study condition from form inputs
      */
-    private function getCourseValues($a_condition)
+    private function getCosConditionFromForm(int $id, int $obj_id, ilPropertyFormGUI $form_gui) : CosCondition
     {
-        $values = [];
-        $values["subject_id"] = $a_condition->subject_id;
-        $values["degree_id"] = $a_condition->degree_id;
-        $values["min_semester"] = $a_condition->min_semester;
-        $values["max_semester"] = $a_condition->max_semester;
-        $values["ref_semester"] = $a_condition->ref_semester;
-        $values["study_type"] = $a_condition->study_type;
-
-        return $values;
-    }
-
-    /**
-     * Get the values of a web form into property gui
-     * @param    ilStudyDocCond  $a_condition
-     * @return  array
-     */
-    private function getDocValues($a_condition)
-    {
-        $values = [];
-        $values['prog_id'] = $a_condition->prog_id;
-        $values['min_approval_date'] = $a_condition->min_approval_date;
-        $values['max_approval_date'] = $a_condition->max_approval_date;
-
-        return $values;
-    }
-
-
-
-    /**
-    * Set the values of the property gui into a webform
-    * @param    ilStudyCourseCond  $a_condition
-    */
-    private function setCourseValues($a_condition)
-    {
-        $form_gui = $this->form_gui;
-
         $subject_id = $form_gui->getInput("subject_id");
-        $a_condition->subject_id = ($subject_id < 0 ? null : $subject_id);
-
         $degree_id = $form_gui->getInput("degree_id");
-        $a_condition->degree_id = ($degree_id < 0 ? null : $degree_id);
-
         $min_semester = $form_gui->getInput("min_semester");
-        $a_condition->min_semester = (empty($min_semester) ? null : $min_semester);
-
         $max_semester = $form_gui->getInput("max_semester");
-        $a_condition->max_semester = (empty($max_semester) ? null : $max_semester);
-
         $ref_semester = $form_gui->getInput("ref_semester");
-        $a_condition->ref_semester = (empty($ref_semester) ? null : $ref_semester);
+        $study_enrolment = $form_gui->getInput("study_enrolment");
 
-        $study_type = $form_gui->getInput("study_type");
-        $a_condition->study_type = (empty($study_type) ? null : $study_type);
+        return new CosCondition(
+            $id,
+            $obj_id,
+            empty($subject_id) ? null : $subject_id,
+            empty($degree_id) ? null : $degree_id,
+            null,
+            empty($study_enrolment) ? null : $study_enrolment,
+            empty($min_semester) ? null : $min_semester,
+            empty($max_semester) ? null : $max_semester,
+            empty($ref_semester) ? null : Term::fromString($ref_semester)->getYear(),
+            empty($ref_semester) ? null : Term::fromString($ref_semester)->getTypeId()
+        );
     }
 
     /**
-     * Set the values of the property gui into a webform
-     * @param    ilStudyDocCond  $a_condition
+     * Get a doc program condition from form inputs
      */
-    private function setDocValues($a_condition)
+    private function getDocConditionFromForm(int $id, int $obj_id, ilPropertyFormGUI $form_gui) : DocCondition
     {
-        $this->form_gui->setValuesByPost();
-
-        $prog_id = $this->form_gui->getInput("prog_id");
-        $a_condition->prog_id = ($prog_id < 0  ? null : $prog_id);
-
+        $prog_code = $form_gui->getInput("prog_code");
 
         /** @var ilDateTimeInputGUI $item */
-        $item = $this->form_gui->getItemByPostVar('min_approval_date');
-        $a_condition->min_approval_date = $item->getDate();
+        /** @var ilDate $min_approval_date */
+        $item = $form_gui->getItemByPostVar('min_approval_date');
+        $min_approval_date = $item->getDate();
 
         /** @var ilDateTimeInputGUI $item */
-        $item = $this->form_gui->getItemByPostVar('max_approval_date');
-        $a_condition->max_approval_date = $item->getDate();
+        /** @var ilDate $max_approval_date */
+        $item = $form_gui->getItemByPostVar('max_approval_date');
+        $max_approval_date = $item->getDate();
+
+        return new DocCondition(
+            $id,
+            $obj_id,
+            empty($prog_code) ? null : $prog_code,
+            empty($min_approval_date) ? null : $min_approval_date->get(IL_CAL_DATE),
+            empty($max_approval_date) ? null : $max_approval_date->get(IL_CAL_DATE),
+        );
     }
 
 
     /**
      * Initialize the form GUI
-     * @param    int     $a_mode form mode ("create" or "edit")
-     * @param   array   $a_values
      */
-    private function initCourseForm($a_mode, $a_values = [])
+    private function initCourseForm(string $a_mode, CosCondition $condition)
     {
-        require_once("Services/StudyData/classes/class.ilStudyCourseData.php");
-        require_once("Services/StudyData/classes/class.ilStudyOptionSubject.php");
-        require_once("Services/StudyData/classes/class.ilStudyOptionDegree.php");
-
         $this->form_gui = new ilPropertyFormGUI();
         $this->form_gui->setFormAction($this->ctrl->getFormAction($this));
 
         // subject
         $item = new ilSelectInputGUI($this->lng->txt("studycond_field_subject"), "subject_id");
         $item->setInfo($this->lng->txt("studycond_field_subject_info"));
-        $item->setOptions(ilStudyOptionSubject::_getSelectOptions(-1, $a_values['subject_id']));
-        $item->setValue($a_values['subject_id']);
+        $item->setOptions($this->dic->fau()->study()->getSubjectSelectOptions(0, $condition->getSubjectHisId()));
+        $item->setValue($condition->getSubjectHisId());
         $this->form_gui->addItem($item);
 
         // degree
         $item = new ilSelectInputGUI($this->lng->txt("studycond_field_degree"), "degree_id");
         $item->setInfo($this->lng->txt("studycond_field_degree_info"));
-        $item->setOptions(ilStudyOptionDegree::_getSelectOptions(-1, $a_values['degree_id']));
-        $item->setValue($a_values['degree_id']);
+        $item->setOptions($this->dic->fau()->study()->getDegreeSelectOptions(0, $condition->getSchoolHisId()));
+        $item->setValue($condition->getDegreeHisId());
         $this->form_gui->addItem($item);
 
-        // study_type
-        $item = new ilSelectInputGUI($this->lng->txt("studydata_type"), "study_type");
-        $item->setOptions(ilStudyCourseData::_getStudyTypeSelectOptions());
-        $item->setInfo($this->lng->txt("studycond_field_studytype_info"));
-        $item->setValue($a_values['study_type']);
+        // enrolment
+        $item = new ilSelectInputGUI($this->lng->txt("studycond_field_enrolment"), "study_enrolment");
+        $item->setOptions($this->dic->fau()->study()->getEnrolmentSelectOptions(0, $condition->getEnrolmentId()));
+        $item->setInfo($this->lng->txt("studycond_field_enrolment_info"));
+        $item->setValue($condition->getEnrolmentId());
         $this->form_gui->addItem($item);
 
         // min semester
         $item = new ilNumberInputGUI($this->lng->txt("studycond_field_min_semester"), "min_semester");
         $item->setInfo($this->lng->txt("studycond_field_min_semester_info"));
         $item->setSize(2);
-        $item->setValue($a_values['min_semester']);
+        $item->setValue($condition->getMinSemester());
         $this->form_gui->addItem($item);
 
         // max semester
         $item = new ilNumberInputGUI($this->lng->txt("studycond_field_max_semester"), "max_semester");
         $item->setInfo($this->lng->txt("studycond_field_max_semester_info"));
         $item->setSize(2);
-        $item->setValue($a_values['max_semester']);
+        $item->setValue($condition->getMaxSemester());
         $this->form_gui->addItem($item);
 
         // ref semester
         $item = new ilSelectInputGUI($this->lng->txt("studycond_field_ref_semester"), "ref_semester");
         $item->setInfo($this->lng->txt("studycond_field_ref_semester_info"));
-        $item->setOptions(ilStudyCourseData::_getSemesterSelectOptions());
-        $item->setValue($a_values['ref_semester']);
+        $item->setOptions($this->dic->fau()->study()->getTermSelectOptions('', $condition->getRefTerm()->toString()));
+        $item->setValue($condition->getRefTerm()->toString());
         $this->form_gui->addItem($item);
 
         // save and cancel commands
@@ -502,32 +450,28 @@ class ilStudyCondGUI
 
     /**
      * Initialize the form GUI
-     * @param    int        $a_mode form mode ("create" or "edit")
-     * @param    array      $a_values
      */
-    private function initDocForm($a_mode, $a_values = [])
+    private function initDocForm(string $a_mode, DocCondition $condition)
     {
-        require_once("Services/StudyData/classes/class.ilStudyOptionDocProgram.php");
-
         $this->form_gui = new ilPropertyFormGUI();
         $this->form_gui->setFormAction($this->ctrl->getFormAction($this));
 
-        // subject
-        $item = new ilSelectInputGUI($this->lng->txt("studycond_field_doc_program"), "prog_id");
-        $item->setOptions(ilStudyOptionDocProgram::_getSelectOptions(-1, $a_values['prog_id']));
-        $item->setValue($a_values['prog_id']);
+        // Prog code
+        $item = new ilSelectInputGUI($this->lng->txt("studycond_field_doc_program"), "prog_code");
+        $item->setOptions($this->dic->fau()->study()->getDocProgSelectOptions('', $condition->getProgCode()));
+        $item->setValue($condition->getProgCode());
         $this->form_gui->addItem($item);
 
         // min approval date
         $item = new ilDateTimeInputGUI($this->lng->txt('studycond_field_min_approval_date'), 'min_approval_date');
         $item->setShowTime(false);
-        $item->setDate($a_values['min_approval_date']);
+        $item->setDate(empty($condition->getMinApprovalDate()) ? null : new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE));
         $this->form_gui->addItem($item);
 
         // max approval date
         $item = new ilDateTimeInputGUI($this->lng->txt('studycond_field_max_approval_date'), 'max_approval_date');
         $item->setShowTime(false);
-        $item->setDate($a_values['max_approval_date']);
+        $item->setDate(empty($condition->getMaxApprovalDate()) ? null : new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE));
         $this->form_gui->addItem($item);
 
 

@@ -26,7 +26,7 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
  * @ilCtrl_Calls ilObjCourseGUI: ilMemberExportSettingsGUI
  * @ilCtrl_Calls ilObjCourseGUI: ilLTIProviderObjectSettingGUI, ilObjectTranslationGUI, ilBookingGatewayGUI, ilRepUtilGUI
  *
- * fau: studyData - added ilStudyCondGUI to call structure
+ * fau: studyCond - added ilStudyCondGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
  * fau.
  * fau: univisImport - added ilUnivisImportLecturesGUI to call structure
@@ -462,8 +462,8 @@ class ilObjCourseGUI extends ilContainerGUI
                 }
 // fau.
 // fau: studyCond - generate text for suscription with condition
-                if (ilStudyAccess::_hasConditions($this->object->getId())) {
-                    $ctext = ilStudyAccess::_getConditionsText($this->object->getId());
+                if ($DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->object->getId())) {
+                    $ctext = $DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId());
                     switch ($this->object->getSubscriptionType()) {
                         case IL_CRS_SUBSCRIPTION_DIRECT:
                             $subscription_text = sprintf($this->lng->txt('crs_subscription_options_direct_studycond'), $ctext);
@@ -477,7 +477,7 @@ class ilObjCourseGUI extends ilContainerGUI
                             break;
                     }
                     $ilUser = $DIC->user();
-                    if (ilStudyAccess::_checkSubscription($this->object->getId(), $ilUser->getId())) {
+                    if (!$DIC->fau()->cond()->soft()->check($this->object->getId(), $ilUser->getId())) {
                         $subscription_type = $this->object->getSubscriptionType();
                     } else {
                         $subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
@@ -1543,9 +1543,10 @@ class ilObjCourseGUI extends ilContainerGUI
 
 
         // fau: studyCond - add studycond setting
+        global $DIC;
         $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/StudyData");
         $stpl->setCurrentBlock('condition');
-        $stpl->setVariable("CONDITION_TEXT", nl2br(ilStudyAccess::_getConditionsText($this->object->getId())));
+        $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
         $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
         $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
         $stpl->parseCurrentBlock();

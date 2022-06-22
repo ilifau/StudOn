@@ -11,9 +11,6 @@ require_once "./Services/Object/classes/class.ilObjectGUI.php";
 * @version $Id$
 *
 * @ilCtrl_Calls ilObjUserGUI: ilLearningProgressGUI, ilObjectOwnershipManagementGUI
-* fau: studyData - studydata tab
-* @ilCtrl_Calls ilObjUserGUI: ilStudyDataGUI
-* fau.
 *
 * @ingroup ServicesUser
 */
@@ -113,14 +110,6 @@ class ilObjUserGUI extends ilObjectGUI
         $this->prepareOutput();
 
         switch ($next_class) {
-// fau: studyData - show StudyDataGUI
-            case "ilstudydatagui":
-                include_once './Services/StudyData/classes/class.ilStudyDataGUI.php';
-                $new_gui = new ilStudyDataGUI($this->object);
-                $this->ctrl->forwardCommand($new_gui);
-                break;
-// fau.
-
             case "illearningprogressgui":
                 include_once './Services/Tracking/classes/class.ilLearningProgressGUI.php';
                 $new_gui = new ilLearningProgressGUI(ilLearningProgressGUI::LP_CONTEXT_USER_FOLDER, USER_FOLDER_ID, $this->object->getId());
@@ -217,16 +206,6 @@ class ilObjUserGUI extends ilObjectGUI
                 get_class($this)
             );
         }
-
-        // fau: studyData - add studydata tab
-        $this->lng->loadLanguageModule("registration");
-        $this->tabs_gui->addTarget(
-            'study_data',
-            $this->ctrl->getLinkTargetByClass('ilstudydatagui', ''),
-            '',
-            'ilstudydatagui'
-        );
-        // fau.
 
         $this->tabs_gui->addTarget(
             "role_assignment",
@@ -1397,13 +1376,11 @@ class ilObjUserGUI extends ilObjectGUI
             $this->form_gui->addItem($mr);
         }
 
-        // fau: studyData - add row for studydata
+        // fau: userData - add rows for studydata and educations
         $stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
-        $stu->setHTML(nl2br(ilStudyAccess::_getDataText($this->object->getId())));
+        $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText($this->object->getId())));
         $this->form_gui->addItem($stu);
-        // fau.
 
-        // fau: userData - add row for educations
         $edu = new ilNonEditableValueGUI($lng->txt('fau_educations'), 'educations', true);
         $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($this->object->getId())));
         $this->form_gui->addItem($edu);

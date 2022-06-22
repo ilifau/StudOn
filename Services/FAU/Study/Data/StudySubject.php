@@ -49,20 +49,17 @@ class StudySubject extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getSubjectTitle() : string
+    public function getSubjectTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->subject_title_en)) {
+            return $this->subject_title_en;
+        }
         return $this->subject_title;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getSubjectTitleEn() : ?string
-    {
-        return $this->subject_title_en;
-    }
 
     /**
      * @return string

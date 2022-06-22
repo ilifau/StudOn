@@ -57,18 +57,14 @@ class StudyStatus extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getStatusTitle() : string
+    public function getStatusTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->status_title_en)) {
+            return $this->status_title_en;
+        }
         return $this->status_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getStatusTitleEn() : ?string
-    {
-        return $this->status_title_en;
     }
 }

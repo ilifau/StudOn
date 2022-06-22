@@ -3,6 +3,7 @@
 namespace FAU\Cond\Data;
 
 use FAU\RecordData;
+use FAU\Study\Data\Term;
 
 class CosCondition extends RecordData
 {
@@ -143,5 +144,28 @@ class CosCondition extends RecordData
     public function getRefTermTypeId() : ?int
     {
         return $this->ref_term_type_id;
+    }
+
+    /**
+     * Get the reference term
+     * @return Term|null
+     */
+    public function getRefTerm(): ?Term
+    {
+        if (isset($this->ref_term_year) && isset($this->ref_term_type_id)) {
+            return new Term($this->ref_term_year, $this->ref_term_type_id);
+        }
+        return null;
+    }
+
+    /**
+     * Get a clone for a new ilias object
+     */
+    public function cloneFor(int $obj_id) : self
+    {
+        $clone = clone $this;
+        $clone->id = 0;
+        $clone->ilias_obj_id = $obj_id;
+        return $clone;
     }
 }

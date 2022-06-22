@@ -51,11 +51,10 @@ class Repository extends RecordRepo
     public function getIdentity(string $uid) : ?Identity
     {
         $query = "SELECT * from identities WHERE pk_persistent_id = " . $this->db->quote($uid, 'text');
-        /** @var Identity[] $identities */
-        $identities = $this->queryRecords($query, Identity::model());
-        if (count($identities) == 1) {
-            return $identities[0];
-        }
+        /** @var Identity $identity */
+       foreach ($this->queryRecords($query, Identity::model()) as $identity) {
+           return $identity;
+       }
         return null;
     }
     

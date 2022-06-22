@@ -1,9 +1,5 @@
 <?php
-/* fau: studyCond - new table class. */
 
-require_once 'Services/Table/classes/class.ilTable2GUI.php';
-require_once "Services/StudyData/classes/class.ilStudyDocCond.php";
-require_once "Services/StudyData/classes/class.ilStudyOptionDocProgram.php";
 
 class ilStudyDocCondTableGUI extends ilTable2GUI
 {
@@ -44,14 +40,18 @@ class ilStudyDocCondTableGUI extends ilTable2GUI
     */
     private function readData()
     {
-        $data = array();
+        global $DIC;
 
-        foreach (ilStudyDocCond::_get($this->obj_id) as $cond) {
+        $data = array();
+        foreach ($DIC->fau()->cond()->repo()->getDocConditionsForObject($this->obj_id) as $condition) {
+
+            $program = $DIC->fau()->study()->repo()->getDocProgramme($condition->getProgCode(), \FAU\Study\Data\DocProgramme::model());
+
             $row = [];
-            $row['cond_id'] = $cond->cond_id;
-            $row['program'] = ilStudyOptionDocProgram::_lookupText($cond->prog_id);
-            $row['min_approval_date'] = $cond->min_approval_date;
-            $row['max_approval_date'] = $cond->max_approval_date;
+            $row['cond_id'] = $condition->getId();
+            $row['program'] = $program->getProgText();
+            $row['min_approval_date'] = empty($condition->getMinApprovalDate()) ? null : new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE);
+            $row['max_approval_date'] = empty($condition->getMaxApprovalDate()) ? null : new ilDate($condition->getMaxApprovalDate(), IL_CAL_DATE);
             $data[] = $row;
         }
         $this->setData($data);
@@ -70,7 +70,7 @@ class ilStudyDocCondTableGUI extends ilTable2GUI
         if ($a_set["min_approval_date"] instanceof ilDate) {
             $this->tpl->setVariable("MIN_APPROVAL_DATE", ilDatePresentation::formatDate($a_set["min_approval_date"]));
         }
-        if ($a_set["max_approval_date"]) {
+        if ($a_set["max_approval_date"] instanceof ilDate) {
             $this->tpl->setVariable("MAX_APPROVAL_DATE", ilDatePresentation::formatDate($a_set["max_approval_date"]));
         }
 

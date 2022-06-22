@@ -24,6 +24,8 @@ use FAU\Study\Data\StudyForm;
 use FAU\Study\Data\StudySchool;
 use FAU\Study\Data\StudySubject;
 use FAU\Study\Data\Course;
+use FAU\Study\Data\StudyStatus;
+use FAU\Study\Data\StudyType;
 
 /**
  * Repository for accessing data of study related data
@@ -80,6 +82,15 @@ class Repository extends RecordRepo
     }
 
     /**
+     * @return StudyStatus[]
+     */
+    public function getStudyStatuses() : array
+    {
+        return $this->getAllRecords(StudyStatus::model());
+    }
+
+
+    /**
      * @return StudySubject[]
      */
     public function getStudySubjects() : array
@@ -87,64 +98,152 @@ class Repository extends RecordRepo
         return $this->getAllRecords(StudySubject::model());
     }
 
+    /**
+     * @return StudyType[]
+     */
+    public function getStudyTypes() : array
+    {
+        return $this->getAllRecords(StudyType::model());
+    }
+
+    /**
+     * Get a single Doc Programme
+     * @return DocProgramme|null
+     */
+    public function getDocProgramme(string $prog_code, ?DocProgramme $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_doc_progs WHERE prog_code = " . $this->db->quote($prog_code, 'text');
+        return $this->getSingleRecord($query, DocProgramme::model(), $default);
+    }
+
+    /**
+     * Get a single Study Degree
+     * @return StudyDegree|null
+     */
+    public function getStudyDegree(int $id, ?StudyDegree $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_degrees WHERE degree_his_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudyDegree::model(), $default);
+    }
+
+    /**
+     * Get a single Study Enrolment
+     * @return StudyEnrolment|null
+     */
+    public function getStudyEnrolment(int $id, ?StudyEnrolment $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_enrolments WHERE enrolment_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudyEnrolment::model(), $default);
+    }
+
+
+    /**
+     * Get a single Study Field
+     * @return StudyField|null
+     */
+    public function getStudyField(int $id, ?StudyField $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_fields WHERE field_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudyField::model(), $default);
+    }
+
+    /**
+     * Get a single Study Form
+     * @return StudyForm|null
+     */
+    public function getStudyForm(int $id, ?StudyForm $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_forms WHERE form_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudyForm::model(), $default);
+    }
+
+
+    /**
+     * Get a single Study School
+     * @return StudySchool|null
+     */
+    public function getStudySchool(int $id, ?StudySchool $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_schools WHERE school_his_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudySchool::model(), $default);
+    }
+
+    /**
+     * Get a single Study Status
+     * @return StudyStatus|null
+     */
+    public function getStudyStatus(int $id, ?StudyStatus $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_status WHERE status_his_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudyStatus::model(), $default);
+    }
+
+    /**
+     * Get a single Study Subject
+     * @return StudySubject|null
+     */
+    public function getStudySubject(int $id, ?StudySubject $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_subjects WHERE subject_his_id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, StudySubject::model(), $default);
+    }
+
+    /**
+     * Get a single Study Type
+     * @return StudyType|null
+     */
+    public function getStudyType(string $uniquename, ?StudyType $default = null) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_types WHERE type_uniquename = " . $this->db->quote($uniquename, 'text');
+        return $this->getSingleRecord($query, StudyType::model(), $default);
+    }
+
 
     /**
      * Gat a single Event
      * @return Event|null
      */
-    public function getEvent(int $event_id) : ?RecordData
+    public function getEvent(int $event_id, ?Event $default = null) : ?RecordData
     {
         $query = "SELECT * from fau_study_events WHERE event_id = " . $this->db->quote($event_id, 'integer');
-        foreach ($this->queryRecords($query, Event::model()) as $event) {
-            return  $event;
-        }
-        return null;
+        return $this->getSingleRecord($query, Event::model(), $default);
     }
 
     /**
      * Gat a single Course
      * @return Course|null
      */
-    public function getCourse(int $course_id) : ?RecordData
+    public function getCourse(int $course_id, ?Course $default = null) : ?RecordData
     {
         $query = "SELECT * from fau_study_courses WHERE course_id = " . $this->db->quote($course_id, 'integer');
-        foreach ($this->queryRecords($query, Course::model()) as $course) {
-            return  $course;
-        }
-        return null;
+        return $this->getSingleRecord($query, Course::model(), $default);
     }
 
     /**
      * Get the course of a planned date
      * @return Course|null
      */
-    public function getCourseOfPlannedDate(int $planned_dates_id) : ?RecordData
+    public function getCourseOfPlannedDate(int $planned_dates_id, ?Course $default = null) : ?RecordData
     {
         $query = "
             SELECT c.* from fau_study_courses c
             JOIN fau_study_plan_dates p ON p.course_id = c.course_id
             WHERE p.planned_dates_id = " . $this->db->quote($planned_dates_id, 'integer');
-        foreach ($this->queryRecords($query, Course::model()) as $course) {
-            return  $course;
-        }
-        return null;
+        return $this->getSingleRecord($query, Course::model(), $default);
     }
 
     /**
      * Get the course of an individual date
      * @return Course|null
      */
-    public function getCourseOfIndividualDate(int $individual_dates_id) : ?RecordData
+    public function getCourseOfIndividualDate(int $individual_dates_id, ?Course $default = null) : ?RecordData
     {
         $query = "
             SELECT c.* from fau_study_courses c
             JOIN fau_study_plan_dates p ON p.course_id = c.course_id
             JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id
             WHERE i.individual_dates_id = " . $this->db->quote($individual_dates_id, 'integer');
-        foreach ($this->queryRecords($query, Course::model()) as $course) {
-            return  $course;
-        }
-        return null;
+        return $this->getSingleRecord($query, Course::model(), $default);
     }
 
     /**

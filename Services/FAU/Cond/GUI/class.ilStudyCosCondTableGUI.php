@@ -1,14 +1,11 @@
 <?php
-/* fau: studyCond - new table class. */
 
-require_once 'Services/Table/classes/class.ilTable2GUI.php';
-require_once "Services/StudyData/classes/class.ilStudyCourseData.php";
-require_once "Services/StudyData/classes/class.ilStudyCourseCond.php";
-require_once "Services/StudyData/classes/class.ilStudyOptionSubject.php";
-require_once "Services/StudyData/classes/class.ilStudyOptionDegree.php";
+use FAU\Study\Data\Term;
+use FAU\Study\Data\StudySubject;
+use FAU\Study\Data\StudyDegree;
+use FAU\Study\Data\StudyEnrolment;
 
-
-class ilStudyCourseCondTableGUI extends ilTable2GUI
+class ilStudyCosCondTableGUI extends ilTable2GUI
 {
     public $obj_id;
     
@@ -20,14 +17,14 @@ class ilStudyCourseCondTableGUI extends ilTable2GUI
     */
     public function __construct($a_parent_obj, $a_parent_cmd, $a_obj_id)
     {
-        $this->setId('ilStudyCorseCondTableGUI');
+        $this->setId('ilStudyCosCondTableGUI');
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->obj_id = $a_obj_id;
 
         $this->addColumn($this->lng->txt("studycond_field_subject"), "subject", "20%");
         $this->addColumn($this->lng->txt("studycond_field_degree"), "degree", "20%");
-        $this->addColumn($this->lng->txt("studydata_type"), "study_type", "10%");
+        $this->addColumn($this->lng->txt("studycond_field_enrolment"), "enrolment", "10%");
         $this->addColumn($this->lng->txt("studycond_field_min_semester"), "min_semester", "10%");
         $this->addColumn($this->lng->txt("studycond_field_max_semester"), "max_semester", "10%");
         $this->addColumn($this->lng->txt("studycond_field_ref_semester"), "ref_semester", "10%");
@@ -38,10 +35,10 @@ class ilStudyCourseCondTableGUI extends ilTable2GUI
         $this->setEnableNumInfo(false);
         $this->setExternalSegmentation(true);
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
-        $this->setRowTemplate("tpl.study_course_cond_row.html", "Services/StudyData");
+        $this->setRowTemplate("tpl.study_cos_cond_row.html", "Services/StudyData");
         $this->setDefaultOrderField("subject");
         $this->setDefaultOrderDirection("asc");
-        $this->setPrefix("study_course_cond");
+        $this->setPrefix("study_cos_cond");
         $this->readData();
     }
 
@@ -50,17 +47,23 @@ class ilStudyCourseCondTableGUI extends ilTable2GUI
     */
     private function readData()
     {
+        global $DIC;
         $data = array();
 
-        foreach (ilStudyCourseCond::_get($this->obj_id) as $cond) {
+        foreach ($DIC->fau()->cond()->repo()->getCosConditionsForObject($this->obj_id) as $condition) {
+
+            $subject = $DIC->fau()->study()->repo()->getStudySubject($condition->getSubjectHisId(), StudySubject::model());
+            $degree = $DIC->fau()->study()->repo()->getStudyDegree($condition->getDegreeHisId(), StudyDegree::model());
+            $enrolment = $DIC->fau()->study()->repo()->getStudyEnrolment($condition->getEnrolmentId(), StudyEnrolment::model());
+
             $row = [];
-            $row['cond_id'] = $cond->cond_id;
-            $row['subject'] = ilStudyOptionSubject::_lookupText($cond->subject_id);
-            $row['degree'] = ilStudyOptionDegree::_lookupText($cond->degree_id);
-            $row['min_semester'] = $cond->min_semester;
-            $row['max_semester'] = $cond->max_semester;
-            $row['ref_semester'] = $cond->ref_semester;
-            $row['study_type'] = $cond->study_type;
+            $row['cond_id'] = $condition->getId();
+            $row['subject'] = $subject->getSubjectTitle($DIC->language()->getLangKey());
+            $row['degree'] = $degree->getDegreeTitle($DIC->language()->getLangKey());
+            $row['enrolment'] = $enrolment->getEnrolmentTitle($DIC->language()->getLangKey());
+            $row['min_semester'] = $condition->getMinSemester();
+            $row['max_semester'] = $condition->getMaxSemester();
+            $row['ref_semester'] = (new Term($condition->getRefTermYear(), $condition->getRefTermTypeId()))->toString();
             $data[] = $row;
         }
         $this->setData($data);
@@ -72,11 +75,14 @@ class ilStudyCourseCondTableGUI extends ilTable2GUI
      */
     protected function fillRow($a_set)
     {
+        global $DIC;
+
         $this->ctrl->setParameter($this->getParentObject(), "cond_id", $a_set["cond_id"]);
         $this->tpl->setVariable("LINK_EDIT", $this->ctrl->getLinkTarget($this->getParentObject(), "editCourseCond"));
         $this->tpl->setVariable("LINK_DELETE", $this->ctrl->getLinkTarget($this->getParentObject(), "deleteCourseCond"));
         $this->tpl->setVariable("SUBJECT", $a_set["subject"]);
         $this->tpl->setVariable("DEGREE", $a_set["degree"]);
+        $this->tpl->setVariable("ENROLMENT",  $a_set["enrolment"]);
         if ($a_set["min_semester"]) {
             $this->tpl->setVariable("MIN_SEMESTER", $a_set["min_semester"]);
         }
@@ -84,12 +90,9 @@ class ilStudyCourseCondTableGUI extends ilTable2GUI
             $this->tpl->setVariable("MAX_SEMESTER", $a_set["max_semester"]);
         }
         if ($a_set["ref_semester"]) {
-            $this->tpl->setVariable("REF_SEMESTER", ilStudyCourseData::_getRefSemesterText($a_set["ref_semester"]));
+            $this->tpl->setVariable("REF_SEMESTER", $DIC->fau()->study()->getReferenceTermText(Term::fromString($a_set['ref_semester'])));
         }
-        if ($a_set["study_type"]) {
-            $this->tpl->setVariable("STUDY_TYPE", ilStudyCourseData::_getStudyTypeText($a_set["study_type"]));
-        }
-        
+
         $this->tpl->setVariable("TXT_EDIT", $this->lng->txt('edit'));
         $this->tpl->setVariable("TXT_DELETE", $this->lng->txt('delete'));
     }

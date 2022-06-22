@@ -25,14 +25,20 @@ class SyncWithIdm extends SyncBase
 
     }
 
+
+    public function syncPersonData()
+    {
+
+    }
+
+
     /**
      * Apply the basic IDM data to a user account
      * Note: the id must exist
      * @param Identity $identity    data from the identity management
      * @param ilObjUser $userObj    ILIAS user object (already with id)
-     * @param bool $is_new          user object is newly created
      */
-    public function applyToUser(Identity $identity, ilObjUser $userObj, $is_new = false)
+    public function applyIdentityToUser(Identity $identity, ilObjUser $userObj)
     {
         // always update the matriculation number
         if (!empty($identity->getMatriculation())) {
@@ -77,28 +83,6 @@ class SyncWithIdm extends SyncBase
             }
         }
 
-        // time limit and activation
-        if ($is_new) {
-            // can be used in test platform for limited access
-            if (ilCust::get('shib_create_limited')) {
-                $userObj->setTimeLimitUnlimited(0);
-                $userObj->setTimeLimitFrom(time() - 10);
-                $userObj->setTimeLimitUntil($this->tools->dbDateToUnix(
-                    ilCust::get('shib_create_limited')));
-            } else {
-                $userObj->setTimeLimitUnlimited(1);
-                $userObj->setTimeLimitFrom(time());
-                $userObj->setTimeLimitUntil(time());
-            }
-        }
-        $userObj->setActive(1, 6);
-        $userObj->setTimeLimitOwner(7);
-
-        // insert the user data if account is newly created
-        if ($is_new) {
-            $userObj->saveAsNew();
-        }
-
         // always update the account (this also updates the object title and description)
         $userObj->update();
 
@@ -113,7 +97,7 @@ class SyncWithIdm extends SyncBase
         $person = $this->getPersonUpdate($person, $identity);
         $this->user->repo()->save($person);
 
-
+        // give write access to organisational categories
         $this->updateOrgAccess($person);
     }
 
@@ -134,18 +118,10 @@ class SyncWithIdm extends SyncBase
      */
     protected function getPersonUpdate(Person $person, Identity $identity) : Person
     {
-        $studydata = json_decode($person->getStudydata(), true) ?? [];
-        $fau_studydata = json_decode($identity->getFauStudydata(), true) ?? [];
-        $fau_studydata_next = json_decode($identity->getFauStudydata(), true) ?? [];
-
-        // merge the studydata
-        // person keeps study data of older semesters
-        if (isset($fau_studydata['period'])) {
-            $studydata[$fau_studydata['period']] = $fau_studydata;
-        }
-        if (isset($fau_studydata_next['period'])) {
-            $studydata[$fau_studydata_next['period']] = $fau_studydata_next;
-        }
+        $studydata = array_merge(
+            (array) json_decode($person->getStudydata(), true),
+            $this->getStudydataByPeriod((array) json_decode($identity->getFauStudydata(), true)),
+            $this->getStudydataByPeriod((array) json_decode($identity->getFauStudydataNext(), true)));
 
         // reformat the approval date to match the date datatype
         $doc_approval_date = null;
@@ -164,11 +140,27 @@ class SyncWithIdm extends SyncBase
             $doc_approval_date,
             $identity->getFauDocProgrammesText(),
             $identity->getFauDocProgrammesCode(),
-            $studydata,
+            json_encode($studydata),
             $identity->getFauOrgdata()
         );
 
         return $person;
+    }
+
+    /**
+     * Nest a float list of study data by the period of the studies
+     * @param $studydata
+     * @return array
+     */
+    protected function getStudydataByPeriod($studydata) {
+
+        $indexed = [];
+        foreach ($studydata as $study) {
+            if (isset($study['period'])) {
+                $indexed[$study['period']][] = $study;
+            }
+        }
+        return $indexed;
     }
 
 

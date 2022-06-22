@@ -2,6 +2,8 @@
 
 namespace FAU\User\Data;
 
+use FAU\Study\Data\Term;
+
 class Study
 {
     private ?int $studynumber;
@@ -55,6 +57,11 @@ class Study
     public function getPeriod() : ?string
     {
         return $this->period;
+    }
+
+    public function getTerm() : ?Term
+    {
+        return Term::fromString($this->period);
     }
 
     /**

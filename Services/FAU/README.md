@@ -8,6 +8,10 @@
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 
+## Abgelöste Anpassungen
+
+- **idmData** 
+
 ## Struktur
 
 Die Verzeichnisse des Service entsprechen seinen Teil-Services: 
@@ -47,7 +51,7 @@ Alle Klassen im Service werden beim ILIAS-Setup oder mit `composer dump-autoload
 
 ### Repository Pattern
 
-Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenobjekte haben keine eigenen Lese- und Schreiboperationen.
+Die Teil-Services verwenden das [Repository-Pattern](/docs/development/repository-pattern.md) von ILIAS. Daten werden über Immutable Data Objects ausgetauscht, die in den Unterverzeichnissen *Data* der Services definiert sind. Lesen und Schreiben dieser Daten erfolgt nur über Repository-Klassen in den Services. Die Datenklassen haben keine eigenen Lese- und Schreiboperationen und sollten einfach und ohne Abhängigkeiten gehalten werden.
 
 ````php
 // Example: move educations from one user account to another

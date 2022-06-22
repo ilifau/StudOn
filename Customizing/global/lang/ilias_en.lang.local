@@ -286,76 +286,6 @@ common#:#shib_user_not_found#:#No useraccount has been found for your user ident
 common#:#start#:#Start
 common#:#studon_login_exportrequest#:#Please log in to make an export application!
 common#:#studon_ref_id#:#StudOn-ID
-common#:#studycond_add_condition#:#add condition
-common#:#studycond_add_course_condition#:#Add Study Condition
-common#:#studycond_add_doc_condition#:#Add Promotion Condition
-common#:#studycond_back#:#back to the settings
-common#:#studycond_condition#:#joining condition
-common#:#studycond_condition_combi_info#:#You can add more conditions here, that shall count alternatively, means if one is complied its enough for joining. within a condition all criteria have to be complied, thereby the condition is complied.
-common#:#studycond_condition_deleted#:#The condition has been deleted.
-common#:#studycond_condition_delimiter#:#<br />or
-common#:#studycond_condition_headline#:#Conditions for direct Joining and Joining with password
-common#:#studycond_condition_info#:#If you have chosen "direct Joining" or "Joining with password" as joining procedure, you can here determine conditions under which it should be possible. For the remaining users "application with confirmation" takes effect automatically.
-common#:#studycond_condition_info_create#:#After application you can here determine study path specific conditions for direct joining or joining with password.
-common#:#studycond_condition_saved#:#The conditions have been saved.
-common#:#studycond_condition_updated#:#The condition has been saved..
-common#:#studycond_criteria_delimiter#:#,
-common#:#studycond_edit_condition#:#Edit Condition
-common#:#studycond_edit_conditions#:#Determine Condition
-common#:#studycond_field_degree#:#Expected Graduation
-common#:#studycond_field_degree_info#:#Choose a  graduation or let the choice open, if the expected graduation can be any.
-common#:#studycond_field_doc_program#:#Stuctured Promotion Program
-common#:#studycond_field_max_approval_date#:#Latest Approval Date
-common#:#studycond_field_max_semester#:#Until Semester
-common#:#studycond_field_max_semester_info#:#Please set the latest subjectsemester. 0 means any.
-common#:#studycond_field_min_approval_date#:#Earliest Approvel Date
-common#:#studycond_field_min_semester#:#From Semester
-common#:#studycond_field_min_semester_info#:#Please set the earliest subjectsemester. 0 means any.
-common#:#studycond_field_ref_semester#:#Reference-Semester
-common#:#studycond_field_ref_semester_info#:#Set here on which semester the subjectsemester-conditions refer to. If you let the choice open, the conditions refer to the moment of Joining.
-common#:#studycond_field_studytype_info#:#Choose a study type or let the choice open, if the type can be any.
-common#:#studycond_field_subject#:#studysubject
-common#:#studycond_field_subject_info#:#Choose a given studysubject or let the choice open, if the subject can be any.
-common#:#studycond_max_approval_date#:#Approval until %s
-common#:#studycond_max_semester#:#until %s. subjectsemester (%s)
-common#:#studycond_min_approval_date#:#Approval on/after %s
-common#:#studycond_min_max_approval_date#:#Approval in Period %s
-common#:#studycond_min_max_semester#:#%s. until %s. subjectsemester (%s)
-common#:#studycond_min_semester#:#from %s. subjectsemester (%s)
-common#:#studycond_no_condition_defined#:#No conditions determined.
-common#:#studydata#:#Study data
-common#:#studydata_degree#:#Expected Graduation
-common#:#studydata_doc_prog_until#:#bis
-common#:#studydata_edit#:#Edit study data
-common#:#studydata_long#:#Study Data (subject, semester, graduation, faculty)
-common#:#studydata_msg_incomplete#:#The study data are not complete! A study course must have a reference semester, a graduation, a faculty and a least one subject. A subject must be specified with a name and the semester number.
-common#:#studydata_options_update#:#Update Study Data Options
-common#:#studydata_options_update_info#:#Updates the lists for degrees, schools, subjects and structured promotion programs from the IDM database
-common#:#studydata_promotion#:#Promotion
-common#:#studydata_promotion_approval#:#approved
-common#:#studydata_promotion_approval_date#:#Approval Date
-common#:#studydata_promotion_program#:#Stuctured Promotion Program
-common#:#studydata_ref_semester#:#Reference Semester
-common#:#studydata_ref_semester_any#:#without date
-common#:#studydata_ref_semester_summer#:#in the summer %s
-common#:#studydata_ref_semester_winter#:#in the winter %s/%s
-common#:#studydata_school#:#Faculty
-common#:#studydata_semester#:#Semester
-common#:#studydata_semester_subject_no#:#Semester subject %s
-common#:#studydata_semester_text#:#%s. semester
-common#:#studydata_study_no#:#Study course %s
-common#:#studydata_subject#:#Subject
-common#:#studydata_subject_no#:#Fach %s
-common#:#studydata_type#:#Study Type
-common#:#studydata_type_any#:#Any
-common#:#studydata_type_full#:#Full time
-common#:#studydata_type_none#:#Unknown
-common#:#studydata_type_part#:#Part time
-common#:#studydata_unknown_degree#:#Unknown Degree
-common#:#studydata_unknown_doc_program#:#Unknown Promotion Program
-common#:#studydata_unknown_school#:#Unknown Faculty
-common#:#studydata_unknown_subject#:#Unknown Suject
-common#:#study_data#:#study data
 common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
 common#:#sub_added_member#:#One new member was added.
 common#:#sub_added_members#:#%s new members were added.
@@ -685,6 +615,77 @@ exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
 exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
+fau#:#studycond_add_condition#:#add condition
+fau#:#studycond_add_course_condition#:#Add Study Condition
+fau#:#studycond_add_doc_condition#:#Add Promotion Condition
+fau#:#studycond_back#:#back to the settings
+fau#:#studycond_condition#:#joining condition
+fau#:#studycond_condition_combi_info#:#You can add more conditions here, that shall count alternatively, means if one is complied its enough for joining. within a condition all criteria have to be complied, thereby the condition is complied.
+fau#:#studycond_condition_deleted#:#The condition has been deleted.
+fau#:#studycond_condition_delimiter#:#<br />or
+fau#:#studycond_condition_headline#:#Conditions for direct Joining and Joining with password
+fau#:#studycond_condition_info#:#If you have chosen "direct Joining" or "Joining with password" as joining procedure, you can here determine conditions under which it should be possible. For the remaining users "application with confirmation" takes effect automatically.
+fau#:#studycond_condition_info_create#:#After application you can here determine study path specific conditions for direct joining or joining with password.
+fau#:#studycond_condition_saved#:#The conditions have been saved.
+fau#:#studycond_condition_updated#:#The condition has been saved..
+fau#:#studycond_criteria_delimiter#:#,
+fau#:#studycond_edit_condition#:#Edit Condition
+fau#:#studycond_edit_conditions#:#Determine Condition
+fau#:#studycond_field_degree#:#Expected Graduation
+fau#:#studycond_field_degree_info#:#Choose a  graduation or let the choice open, if the expected graduation can be any.
+fau#:#studycond_field_doc_program#:#Stuctured Promotion Program
+fau#:#studycond_field_max_approval_date#:#Latest Approval Date
+fau#:#studycond_field_max_semester#:#Until Semester
+fau#:#studycond_field_max_semester_info#:#Please set the latest subjectsemester. 0 means any.
+fau#:#studycond_field_min_approval_date#:#Earliest Approvel Date
+fau#:#studycond_field_min_semester#:#From Semester
+fau#:#studycond_field_min_semester_info#:#Please set the earliest subjectsemester. 0 means any.
+fau#:#studycond_field_ref_semester#:#Reference-Semester
+fau#:#studycond_field_ref_semester_info#:#Set here on which semester the subjectsemester-conditions refer to. If you let the choice open, the conditions refer to the moment of Joining.
+fau#:#studyconf_field_enrolment#:#Enrolment Type
+fau#:#studyconf_field_enrolment_info#:#Choose an enrolment type or let the choice open, if the type can be any.
+fau#:#studycond_field_subject#:#studysubject
+fau#:#studycond_field_subject_info#:#Choose a given studysubject or let the choice open, if the subject can be any.
+fau#:#studycond_max_approval_date#:#Approval until %s
+fau#:#studycond_max_semester#:#until %s. subjectsemester (%s)
+fau#:#studycond_min_approval_date#:#Approval on/after %s
+fau#:#studycond_min_max_approval_date#:#Approval in Period %s
+fau#:#studycond_min_max_semester#:#%s. until %s. subjectsemester (%s)
+fau#:#studycond_min_semester#:#from %s. subjectsemester (%s)
+fau#:#studycond_no_condition_defined#:#No conditions determined.
+fau#:#studydata#:#Study data
+fau#:#studydata_degree#:#Expected Graduation
+fau#:#studydata_doc_prog_until#:#bis
+fau#:#studydata_edit#:#Edit study data
+fau#:#studydata_long#:#Study Data (subject, semester, graduation, faculty)
+fau#:#studydata_msg_incomplete#:#The study data are not complete! A study course must have a reference semester, a graduation, a faculty and a least one subject. A subject must be specified with a name and the semester number.
+fau#:#studydata_options_update#:#Update Study Data Options
+fau#:#studydata_options_update_info#:#Updates the lists for degrees, schools, subjects and structured promotion programs from the IDM database
+fau#:#studydata_promotion#:#Promotion
+fau#:#studydata_promotion_approval#:#approved
+fau#:#studydata_promotion_approval_date#:#Approval Date
+fau#:#studydata_promotion_program#:#Stuctured Promotion Program
+fau#:#studydata_ref_semester#:#Reference Term
+fau#:#studydata_ref_semester_any#:#without term
+fau#:#studydata_ref_semester_summer#:#in the summer term  %s
+fau#:#studydata_ref_semester_winter#:#in the winter term %s/%s
+fau#:#studydata_ref_semester_invalid#:#invalid term
+fau#:#studydata_school#:#Faculty
+fau#:#studydata_semester#:#Term
+fau#:#studydata_semester_summer#:#Summer Term %s
+fau#:#studydata_semester_winter#:#Winter Term %s/%s
+fau#:#studydata_semester_text#:#%s. semester
+fau#:#studydata_study_no#:#Study course %s
+fau#:#studydata_subject#:#Subject
+fau#:#studydata_subject_no#:#Fach %s
+fau#:#studydata_enrolment:#Enrolment
+fau#:#studydata_unknown_degree#:#Unknown Degree
+fau#:#studydata_unknown_doc_program#:#Unknown Promotion Program
+fau#:#studydata_unknown_school#:#Unknown Faculty
+fau#:#studydata_unknown_subject#:#Unknown Subject
+fau#:#studydata_unknown_enrolment#:#Unknown Enrolment
+fau#:#studydata_unknown_semester#:#Unknown Term
+fau#:#study_data#:#study data
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

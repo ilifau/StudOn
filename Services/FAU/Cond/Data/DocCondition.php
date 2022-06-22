@@ -83,4 +83,16 @@ class DocCondition extends RecordData
     {
         return $this->max_approval_date;
     }
+
+    /**
+     * Get a clone for a new ilias object
+     */
+    public function cloneFor(int $obj_id) : self
+    {
+        $clone = clone $this;
+        $clone->id = 0;
+        $clone->ilias_obj_id = $obj_id;
+        return $clone;
+    }
+
 }

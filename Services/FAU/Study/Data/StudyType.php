@@ -45,18 +45,14 @@ class StudyType extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getTypeTitle() : string
+    public function getTypeTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->type_title_en)) {
+            return $this->type_title_en;
+        }
         return $this->type_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTypeTitleEn() : ?string
-    {
-        return $this->type_title_en;
     }
 }

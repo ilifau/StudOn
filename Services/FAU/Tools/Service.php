@@ -4,6 +4,8 @@ namespace FAU\Tools;
 
 use ILIAS\DI\Container;
 use Throwable;
+use ilLanguage;
+use FAU\Study\Data\Term;
 
 /**
  * Tools needed for data processing
@@ -11,6 +13,7 @@ use Throwable;
 class Service
 {
     protected Container $dic;
+    protected ilLanguage $lng;
 
     /**
      * Constructor
@@ -18,6 +21,7 @@ class Service
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+        $this->lng = $dic->language();
     }
 
 

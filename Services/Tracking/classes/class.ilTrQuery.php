@@ -373,13 +373,9 @@ class ilTrQuery
                 $a_result["set"][$idx] = $row = array_merge($row, $udf[$row["usr_id"]]);
             }
 
-            // fau: studyData - get studydata if allowed
+            // fau: userData - get studydata  and educations if allowed
             if (!$a_check_agreement or in_array($row["usr_id"], $agreements)) {
-                $a_result["set"][$idx]['studydata'] = ilStudyAccess::_getDataText($row["usr_id"]);
-            }
-            // fau.
-            // fau: userData - get educations if allowed
-            if (!$a_check_agreement or in_array($row["usr_id"], $agreements)) {
+                $a_result["set"][$idx]['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $row["usr_id"]);
                 $a_result["set"][$idx]['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $row["usr_id"]);
             }
             // fau.
@@ -1143,11 +1139,8 @@ class ilTrQuery
                     }
 
                     switch ($field) {
-                        // fau: studyData - don't get the studydata directly from user table
+                        // fau: userData - don't get the studydata and educations directly from user table
                         case "studydata":
-                            break;
-                        // fau.
-                        // fau: userData - don't get the educations directly from user table
                         case "educations":
                             break;
                         // fau.

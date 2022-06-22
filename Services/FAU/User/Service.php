@@ -3,6 +3,8 @@
 namespace FAU\User;
 
 use ILIAS\DI\Container;
+use ilLanguage;
+use ilDatePresentation;
 
 /**
  * Service for FAU user related data
@@ -10,6 +12,7 @@ use ILIAS\DI\Container;
 class Service
 {
     protected Container $dic;
+    protected ilLanguage $lng;
     protected Repository $repository;
 
 
@@ -19,6 +22,7 @@ class Service
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+        $this->lng = $dic->language();
     }
 
 
@@ -54,6 +58,58 @@ class Service
         }
         return implode("\n", $texts);
     }
+
+    /**
+     * Get the studies of a user as text
+     * Studies are separated by newlines
+     * @param int $user_id
+     * @return string
+     */
+    public function getStudiesAsText(int $user_id) : string
+    {
+        if (empty($person = $this->repo()->getPersonOfUser($user_id))) {
+            return '';
+        }
+
+        $texts = [];
+
+        // Study data
+        if (empty($studies = $person->getStudiesOfTerm($this->dic->fau()->study()->getCurrentTerm()))) {
+            $studies = $studies($person->getStudiesOfTerm($person->getMaxTerm()));
+        }
+        foreach ($studies as $study) {
+            $text = $this->dic->fau()->study()->getReferenceTermText($study->getTerm());
+            $text .= empty($study->getEnrollmentName()) ? '' : ' (' . $study->getEnrollmentName() . ')';
+            $text .= ':';
+
+            $subject_texts = [];
+            foreach ($study->getSubjects() as $subject) {
+                $subject_texts[] = $subject->getSubjectName()
+                . sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester());
+            }
+            $text .= empty($subject_texts) ? '' : " \n" . implode(', ', $subject_texts);
+
+            $text .= empty($study->getDegreeName()) ? '' : " \n" . $study->getDegreeName();
+            $texts[] = $text;
+        }
+
+        // Promotion data
+        $text = '';
+        if (!empty($person->getDocProgrammesText())) {
+            $text = $person->getDocProgrammesText();
+        }
+        if (!empty($date = $person->getDocApprovalDateObject())) {
+            if (empty($text)) {
+                $text = $this->lng->txt('studydata_promotion');
+            }
+            $text .= ', ' . $this->lng->txt('studydata_promotion_approval') . ' ';
+            $text .= ilDatePresentation::formatDate($date);
+            $texts[] = $text;
+        }
+
+        return implode(" \n\n", $texts);
+    }
+
 
     /**
      * Find the Id of a studOn user by the IDM id

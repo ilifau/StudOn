@@ -15,8 +15,17 @@ abstract class RecordRepo
      * Cached query results
      * @var RecordData[][]  query hash => recordData[]
      */
-    protected $queryCache = [];
+    private $recordCache = [];
 
+    /**
+     * Cached checks for existence
+     * @var bool[]      query hash => record exists
+     */
+    private $boolCache = [];
+
+    /**
+     * Constructor
+     */
     public function __construct(\ilDBInterface $a_db, \ilLogger $logger)
     {
         $this->db = $a_db;
@@ -24,14 +33,44 @@ abstract class RecordRepo
     }
 
     /**
+     * Check if a query has a record
+     */
+    protected function hasRecord(string $query, $useCache = true) : bool
+    {
+        $hash = md5($query);
+        if ($useCache && isset($this->boolCache[$hash])) {
+            return $this->boolCache[$hash];
+        }
+        $result = $this->db->query($query);
+        $exists = !empty($this->db->fetchAssoc($result));
+
+        if ($useCache) {
+            $this->boolCache[$hash] = $exists;
+        }
+        return $exists;
+    }
+
+    /**
      * Get the record objects for standard tables
      * The tables should be short enough to get all records
-     * @return static[]
+     * @return RecordData[]
      */
     protected function getAllRecords(RecordData $model, $useCache = true) : array
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
         return $this->queryRecords($query, $model, $useCache);
+    }
+
+    /**
+     * Get a single record from a query
+     * Optionally provide a default instance
+     */
+    protected function getSingleRecord(string $query, RecordData $model, ?RecordData $default = null, $useCache = true) : ?RecordData
+    {
+        foreach ($this->queryRecords($query, $model, $useCache) as $record) {
+            return $record;
+        }
+        return $default;
     }
 
 
@@ -44,8 +83,8 @@ abstract class RecordRepo
     protected function queryRecords(string $query, RecordData $model, $useCache = true) : array
     {
         $hash = md5($query);
-        if ($useCache && isset($this->queryCache[$hash])) {
-            return $this->queryCache[$hash];
+        if ($useCache && isset($this->recordCache[$hash])) {
+            return $this->recordCache[$hash];
         }
 
         $hasSingleKey = (count($model::tableKeyTypes()) == 1);
@@ -64,7 +103,7 @@ abstract class RecordRepo
         }
 
         if ($useCache) {
-            $this->queryCache[$hash] = $records;
+            $this->recordCache[$hash] = $records;
         }
         return $records;
     }

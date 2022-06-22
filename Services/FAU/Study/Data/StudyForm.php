@@ -57,18 +57,14 @@ class StudyForm extends RecordData
     }
 
     /**
+     * @param string $lang language code ('en)
      * @return string
      */
-    public function getFormTitle() : string
+    public function getFormTitle(string $lang = '') : string
     {
+        if ($lang == 'en' && !empty($this->form_title_en)) {
+            return $this->form_title_en;
+        }
         return $this->form_title;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getFormTitleEn() : ?string
-    {
-        return $this->form_title_en;
     }
 }
