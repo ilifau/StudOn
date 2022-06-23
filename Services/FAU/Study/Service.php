@@ -107,6 +107,8 @@ class Service
         if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
             $options[$chosenId] = $this->lng->txt('studydata_unknown_subject');
         }
+
+        asort($options,  SORT_NATURAL);
         return $options;
     }
 
@@ -132,6 +134,8 @@ class Service
         if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
             $options[$chosenId] = $this->lng->txt('studydata_unknown_degree');
         }
+
+        asort($options,  SORT_NATURAL);
         return $options;
     }
 
@@ -156,6 +160,8 @@ class Service
         if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
             $options[$chosenId] = $this->lng->txt('studydata_unknown_enrolment');
         }
+
+        asort($options,  SORT_NATURAL);
         return $options;
     }
 
@@ -181,6 +187,8 @@ class Service
         if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
             $options[$chosenId] = $this->lng->txt('studydata_unknown_school');
         }
+
+        asort($options,  SORT_NATURAL);
         return $options;
     }
 
