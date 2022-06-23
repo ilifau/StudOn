@@ -33,7 +33,26 @@ class ilFauPatches
     }
 
     /**
-     * temporary
+     * todo: temporary
+     */
+    public function createPersonsTable()
+    {
+        $this->dic->fau()->user()->migration()->createUserPersonsTable(true);
+    }
+
+
+    /**
+     * todo: move to cron job if performance is ok
+     */
+    public function syncPersonData()
+    {
+        $service = $this->dic->fau()->sync()->idm();
+        $service->synchronize();
+    }
+
+
+    /**
+     * todo: temporary
      */
     public function createOrgTable()
     {
@@ -42,7 +61,7 @@ class ilFauPatches
 
 
     /**
-     * temporary
+     * todo: temporary
      */
     public function syncOrgTable()
     {
@@ -51,6 +70,9 @@ class ilFauPatches
     }
 
 
+    /**
+     * todo: move to cron job when finished
+     */
     public function checkOrgUnitRelations()
     {
         $service = $this->dic->fau()->org();

@@ -19,6 +19,9 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncOrgTable');
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 
+$p->applyPatch('ilFauPatches.createPersonsTable');
+$p->applyPatch('ilFauPatches.syncPersonData');
+
 /*****************
 * Specific actions
 ******************/

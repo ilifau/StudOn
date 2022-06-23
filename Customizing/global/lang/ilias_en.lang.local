@@ -642,8 +642,8 @@ fau#:#studycond_field_min_semester#:#From Semester
 fau#:#studycond_field_min_semester_info#:#Please set the earliest subjectsemester. 0 means any.
 fau#:#studycond_field_ref_semester#:#Reference-Semester
 fau#:#studycond_field_ref_semester_info#:#Set here on which semester the subjectsemester-conditions refer to. If you let the choice open, the conditions refer to the moment of Joining.
-fau#:#studyconf_field_enrolment#:#Enrolment Type
-fau#:#studyconf_field_enrolment_info#:#Choose an enrolment type or let the choice open, if the type can be any.
+fau#:#studycond_field_enrolment#:#Enrolment Type
+fau#:#studycond_field_enrolment_info#:#Choose an enrolment type or let the choice open, if the type can be any.
 fau#:#studycond_field_subject#:#studysubject
 fau#:#studycond_field_subject_info#:#Choose a given studysubject or let the choice open, if the subject can be any.
 fau#:#studycond_max_approval_date#:#Approval until %s

@@ -57,6 +57,14 @@ class Repository extends RecordRepo
        }
         return null;
     }
+
+    /**
+     * @return Identity[]
+     */
+    public function getIdentities() : array
+    {
+        return $this->getAllRecords(Identity::model());
+    }
     
     /**
      * @return Achievement[]

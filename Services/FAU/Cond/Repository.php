@@ -20,8 +20,8 @@ class Repository extends RecordRepo
      */
     public function checkObjectHasSoftCondition(int $obj_id) : bool
     {
-        $query1 = "SELECT 1 FROM fau_cond_cos WHERE obj_id =" . $this->db->quote($obj_id, 'integer');
-        $query2 = "SELECT 1 FROM fau_cond_doc_prog WHERE obj_id =" . $this->db->quote($obj_id, 'integer');
+        $query1 = "SELECT 1 FROM fau_cond_cos WHERE ilias_obj_id =" . $this->db->quote($obj_id, 'integer');
+        $query2 = "SELECT 1 FROM fau_cond_doc_prog WHERE ilias_obj_id =" . $this->db->quote($obj_id, 'integer');
         return $this->hasRecord($query1) || $this->hasRecord($query2);
     }
 

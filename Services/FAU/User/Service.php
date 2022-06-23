@@ -75,21 +75,34 @@ class Service
 
         // Study data
         if (empty($studies = $person->getStudiesOfTerm($this->dic->fau()->study()->getCurrentTerm()))) {
-            $studies = $studies($person->getStudiesOfTerm($person->getMaxTerm()));
+            $studies = $person->getStudiesOfTerm($person->getMaxTerm());
         }
+
+//        if ($user_id == 28442) {
+//            echo "<pre>";
+//            echo "Current: ". $this->dic->fau()->study()->getCurrentTerm()->toString();
+//            echo " Max: ". ($person->getMaxTerm() ? $person->getMaxTerm()->toString() : '');
+//            echo " Person: ";
+//            print_r($person);
+//            exit;
+//        }
+
         foreach ($studies as $study) {
             $text = $this->dic->fau()->study()->getReferenceTermText($study->getTerm());
             $text .= empty($study->getEnrollmentName()) ? '' : ' (' . $study->getEnrollmentName() . ')';
             $text .= ':';
 
             $subject_texts = [];
+            $faculty_texts = [];
             foreach ($study->getSubjects() as $subject) {
-                $subject_texts[] = $subject->getSubjectName()
-                . sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester());
+                $subject_texts[] = $subject->getSubjectName() . ' [' . $subject->getSubjectId() .'] '
+                .sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester());
+                $faculty_texts[] = $subject->getFacultyName() . ' [' . $subject->getCalculatedSchoolId() . ']';
             }
-            $text .= empty($subject_texts) ? '' : " \n" . implode(', ', $subject_texts);
+            $text .= empty($subject_texts) ? '' : (" \n" . implode(', ', $subject_texts));
+            $text .= empty($study->getDegreeName()) ? '' : (" \n" . $study->getDegreeName() . ' [' . $study->getDegreeId() .']');
+            $text .= empty($faculty_texts) ? '' : (" \n" . implode(', ', array_unique($faculty_texts)));
 
-            $text .= empty($study->getDegreeName()) ? '' : " \n" . $study->getDegreeName();
             $texts[] = $text;
         }
 

@@ -291,7 +291,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
         foreach ($this->getSelectedColumns() as $field) {
 
-            // fau: userData - generate cel_id fpr tooltip
+            // fau: userData - generate cell_id for tooltip
             $cell_id =  rand(1000000,9999999);
             // fau.
 

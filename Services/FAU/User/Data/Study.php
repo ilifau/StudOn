@@ -9,11 +9,20 @@ class Study
     private ?int $studynumber;
     private ?string $period;
 
+    // integer database ids, corresponding to the his_ids in the value tables
+    // these ids are not shown, but used for conditions
     private ?int $degreeDbId;
-    private ?string $typeOfStudyId;
     private ?int $enrollmentDbId;
     private ?int $formOfStudiesDbId;
     private ?int $studentstatusDbId;
+
+    // string ids, corresponding to the uniquenames in the value tables
+    // these ids are shown in the textual study data
+    private ?string $degreeId;
+    private ?string $typeOfStudyId;
+    private ?string $enrollmentId;
+    private ?string $formOfStudiesId;
+    private ?string $studentstatusId;
 
     private string $degreeName;
     private string $degreeShort;
@@ -27,13 +36,18 @@ class Study
     public function __construct(array $data)
     {
         $this->studynumber = isset($data['studynumber']) ? (int) $data['studynumber'] : null;
-        $this->period = isset($data['$period']) ? (string) $data['$period'] : null;
+        $this->period = isset($data['period']) ? (string) $data['period'] : null;
 
         $this->degreeDbId = isset($data['degreeDbId']) ? (int) $data['degreeDbId'] : null;
-        $this->typeOfStudyId = isset($data['typeOfStudyId']) ? (string) $data['typeOfStudyId'] : null;
         $this->enrollmentDbId = isset($data['enrollmentDbId']) ? (int) $data['enrollmentDbId'] : null;
         $this->formOfStudiesDbId = isset($data['formOfStudiesDbId']) ? (int) $data['formOfStudiesDbId'] : null;
         $this->studentstatusDbId = isset($data['studentstatusDbId']) ? (int) $data['studentstatusDbId'] : null;
+
+        $this->degreeId = isset($data['degreeId']) ? (string) $data['degreeId'] : null;
+        $this->typeOfStudyId = isset($data['typeOfStudyId']) ? (string) $data['typeOfStudyId'] : null;
+        $this->enrollmentId = isset($data['enrollmentId']) ? (string) $data['enrollmentId'] : null;
+        $this->formOfStudiesId = isset($data['formOfStudiesId']) ? (string) $data['formOfStudiesId'] : null;
+        $this->studentstatusId = isset($data['studentstatusId']) ? (string) $data['studentstatusId'] : null;
 
         $this->degreeName = isset($data['degreeName']) ? (string) $data['degreeName'] : '';
         $this->degreeShort = isset($data['degreeShort']) ? (string) $data['degreeShort'] : '';
@@ -80,13 +94,6 @@ class Study
         return $this->degreeDbId;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getTypeOfStudyId() : ?string
-    {
-        return $this->typeOfStudyId;
-    }
 
     /**
      * @return int|null
@@ -110,6 +117,46 @@ class Study
     public function getStudentstatusDbId() : ?int
     {
         return $this->studentstatusDbId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDegreeId() : ?string
+    {
+        return $this->degreeId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTypeOfStudyId() : ?string
+    {
+        return $this->typeOfStudyId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEnrollmentId() : ?string
+    {
+        return $this->enrollmentId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFormOfStudiesId() : ?string
+    {
+        return $this->formOfStudiesId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getStudentstatusId() : ?string
+    {
+        return $this->studentstatusId;
     }
 
     /**

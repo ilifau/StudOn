@@ -22,7 +22,7 @@ class Course extends DipData
         'teaching_language' => 'text',
         'compulsory_requirement' => 'text',
         'contents' => 'clob',
-        'literature' => 'text',
+        'literature' => 'clob',
     ];
     protected int $course_id;
     protected ?int $event_id;

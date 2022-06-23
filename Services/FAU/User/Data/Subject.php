@@ -7,11 +7,17 @@ class Subject
     private ?int $subjectnumber;
     private ?int $studySemester;
 
+    // integer database ids, corresponding to the his_ids in the value tables
+    // these ids are not shown, but used for conditions
     private ?int $subjectDbId;
     private ?string $subjectIndicatorId;
     private ?int $placeOfStudiesDbId;
     private ?int $examinationDbId;
     private ?int $courseOfStudyDbId;
+
+    // string ids, corresponding to the uniquenames in the value tables
+    // these ids are shown in the textual study data and in value lists
+    private ?string $subjectId;
     private ?string $facultyId;
 
     private string $subjectName;
@@ -31,6 +37,8 @@ class Subject
         $this->examinationDbId = isset($data['examinationDbId']) ? (int) $data['examinationDbId'] : null;
         $this->placeOfStudiesDbId = isset($data['placeOfStudiesDbId']) ? (int) $data['placeOfStudiesDbId'] : null;
         $this->courseOfStudyDbId = isset($data['courseOfStudyDbId']) ? (int) $data['courseOfStudyDbId'] : null;
+
+        $this->subjectId = isset($data['subjectId']) ? (string) $data['subjectId'] : null;
         $this->facultyId = isset($data['facultyId']) ? (string) $data['facultyId'] : null;
 
         $this->subjectName = isset($data['subjectName']) ? (string) $data['subjectName'] : '';
@@ -97,12 +105,42 @@ class Subject
         return $this->courseOfStudyDbId;
     }
 
+
+    /**
+     * @return string|null
+     */
+    public function getSubjectId() : ?string
+    {
+        return $this->subjectId;
+    }
+
     /**
      * @return string|null
      */
     public function getFacultyId() : ?string
     {
         return $this->facultyId;
+    }
+
+    /**
+     * Calculate the school id from the faculty id
+     *
+     * @return string|null
+     */
+    public function getCalculatedSchoolId() : ?string
+    {
+        if (!isset($this->facultyId)) {
+            return null;
+        }
+
+        // remove trailing zeroes and convert to integer
+        $number = (int) str_replace('0', '', $this->facultyId);
+
+        // use modulus 10 because e.g. PhilFak has the coding 1, 11, 21 etc.
+        $number = $number % 10;
+
+        //re-convert to string to be comparable with a uniquename
+        return (string) $number;
     }
 
     /**

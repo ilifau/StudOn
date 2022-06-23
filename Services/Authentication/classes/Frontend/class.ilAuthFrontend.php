@@ -350,7 +350,7 @@ class ilAuthFrontend
         // fau: userData - apply IDM data at login
         global $DIC;
         if (!empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getLogin())) ||
-            !empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getExternalAccount()))
+            (!empty($user->getExternalAccount() && !empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getExternalAccount()))))
         )
         {
             $DIC->fau()->sync()->idm()->applyIdentityToUser($identity, $user, false);

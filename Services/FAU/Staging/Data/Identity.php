@@ -6,7 +6,7 @@ use FAU\RecordData;
 
 class Identity extends RecordData
 {
-    protected const tableName = '';
+    protected const tableName = 'identities';
     protected const hasSequence = false;
     protected const keyTypes = [
         'pk_persistent_id' => 'text',
@@ -92,7 +92,7 @@ class Identity extends RecordData
 
     public static function model(): self
     {
-        return new self(0,null,null,null,null,null,
+        return new self('',null,null,null,null,null,
             null,null,null,null,null,
             null,null,null,null,
             null,null,null,);
@@ -248,7 +248,7 @@ class Identity extends RecordData
      */
     public function getMatriculation() : string
     {
-        $code = $this->getSchacPersonalUniqueCode();
+        $code = (string) $this->getSchacPersonalUniqueCode();
         $pattern = 'uni-erlangen.de:Matrikelnummer:';
         $pos = strpos($code, $pattern);
         if ($pos !== false) {

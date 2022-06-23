@@ -20,13 +20,13 @@ class Person extends RecordData
         'guest' => 'text',
         'doc_approval_date' => 'date',
         'doc_programmes_text' => 'text',
-        'doc_programmes_code' => 'integer',
+        'doc_programmes_code' => 'text',
         'studydata' => 'clob',
         'orgdata' => 'clob'
     ];
 
     protected int $user_id;
-    protected int $person_id;
+    protected ?int $person_id;
     protected ?string $employee;
     protected ?string $student;
     protected ?string $guest;
@@ -42,7 +42,7 @@ class Person extends RecordData
 
     public function __construct(
         int $user_id,
-        int $person_id,
+        ?int $person_id,
         ?string $employee,
         ?string $student,
         ?string $guest,
@@ -64,6 +64,27 @@ class Person extends RecordData
         $this->studydata = $studydata;
         $this->orgdata = $orgdata;
 
+        $this->buildArrays();
+    }
+
+    public static function model(): self
+    {
+        return new self(0,null,null,null,null,
+            null,null,null,null,null);
+    }
+
+
+    public static function from(array $row)
+    {
+       $instance = parent::from($row);
+       $instance->buildArrays();
+       return $instance;
+    }
+
+    /**
+     * Build the data arrays from the record fields
+     */
+    protected function buildArrays() {
         if (isset($this->studydata)) {
             foreach ((array) json_decode($this->studydata, true) as $period => $studies) {
                 foreach ((array) $studies as $index => $data) {
@@ -80,12 +101,6 @@ class Person extends RecordData
         }
     }
 
-    public static function model(): self
-    {
-        return new self(0,0,null,null,null,
-            null,null,null,null,null);
-    }
-
     /**
      * @return int
      */
@@ -95,9 +110,9 @@ class Person extends RecordData
     }
 
     /**
-     * @return int
+     * @return ?int
      */
-    public function getPersonId() : int
+    public function getPersonId() : ?int
     {
         return $this->person_id;
     }
@@ -138,9 +153,12 @@ class Person extends RecordData
     {
         if (isset($this->doc_approval_date)) {
             try {
-                return new \ilDate($this->doc_approval_date, IL_CAL_DATE);
+                $date = new \ilDate($this->doc_approval_date, IL_CAL_DATE);
+                return $date;
             }
-            catch (Exception $e) {}
+            catch (\ilDateTimeException $e) {
+                return null;
+            }
         }
         return null;
     }
@@ -179,6 +197,7 @@ class Person extends RecordData
 
     /**
      * Get the studies of a given term
+     * The Term is matched by the "Period" index, having a "P" prefix to avoid numeric indexing
      * @return Study[]
      */
     public function getStudiesOfTerm(?Term $term) : array
@@ -186,7 +205,7 @@ class Person extends RecordData
         if (!isset($term) || !$term->isValid()) {
             return [];
         }
-        return $this->studies[$term->toString()] ?? [];
+        return ($this->studies['P' . $term->toString()] ?? []);
     }
 
     /**
@@ -198,7 +217,7 @@ class Person extends RecordData
         if (empty($this->studies)) {
             return null;
         }
-        return Term::fromString(max(array_keys($this->studies)));
+        return Term::fromString(substr(max(array_keys($this->studies)),1));
     }
 
 
@@ -221,16 +240,4 @@ class Person extends RecordData
         $clone->user_id = $user_id;
         return $clone;
     }
-
-    /**
-     * @param int $person_id
-     * @return Person
-     */
-    public function withPersonId(int $person_id) : Person
-    {
-        $clone = clone $this;
-        $clone->person_id = $person_id;
-        return $clone;
-    }
-
 }

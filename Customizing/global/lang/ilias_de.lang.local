@@ -644,8 +644,8 @@ fau#:#studycond_field_min_semester#:#Von Semester
 fau#:#studycond_field_min_semester_info#:#Geben Sie das früheste Fachsemester an. 0 bedeutet beliebig.
 fau#:#studycond_field_ref_semester#:#Bezugs-Semester
 fau#:#studycond_field_ref_semester_info#:#Geben Sie hier an, auf welches Semester sich die Fachsemester-Bedingungen beziehen. Wenn Sie diese Auswahl offen lassen, beziehen sich die Bedingungen auf den Zeitpunkt des Beitritts.
-fau#:#studyconf_field_enrolment#:#Typ des Studiums
-fau#:#studyconf_field_enrolment_info#:#Wählen Sie einen Typ des Studiums oder lassen Sie die Auswahl offen, wenn der Typ beliebig sein kann.
+fau#:#studycond_field_enrolment#:#Typ des Studiums
+fau#:#studycond_field_enrolment_info#:#Wählen Sie einen Typ des Studiums oder lassen Sie die Auswahl offen, wenn der Typ beliebig sein kann.
 fau#:#studycond_field_subject#:#Studienfach
 fau#:#studycond_field_subject_info#:#Wählen Sie ein vorgegebenes Studienfach oder lassen Sie die Auswahl offen, wenn das Fach beliebig sein kann.
 fau#:#studycond_max_approval_date#:#Zulassung bis %s

@@ -22,13 +22,37 @@ class SyncWithIdm extends SyncBase
      */
     public function synchronize() : void
     {
-
+        $this->syncPersonData();
     }
 
-
+    /**
+     * Synchronize the person data of all idm accounts
+     * @see \ilAuthProviderSamlStudOn::generateLogin()
+     * @see \ilAuthProviderSamlStudOn::getUpdatedUser()
+     */
     public function syncPersonData()
     {
+        $this->info('syncPersonData...');
+        foreach ($this->staging->repo()->getIdentities() as $identity) {
+            $user_id = 0;
 
+             // Try the identity as login
+            if ($login = ilObjUser::_findLoginByField('login', $identity->getPkPersistentId())) {
+                $user_id = (int) ilObjUser::_lookupId($login);
+            }
+            // Try the identity as external account
+            else if ($login = ilObjUser::_findLoginByField('ext_account', $identity->getPkPersistentId())) {
+                $user_id = (int) ilObjUser::_lookupId($login);
+            }
+
+            // update the found user
+            if (!empty($user_id)) {
+                $userObj = new ilObjUser($user_id);
+                $this->info('UPDATE ' . $userObj->getFullname() . ' (' . $userObj->getLogin() .') ...') ;
+                $this->applyIdentityToUser($identity, $userObj);
+                $this->increaseItemsUpdated();
+            }
+        }
     }
 
 
@@ -127,7 +151,7 @@ class SyncWithIdm extends SyncBase
         $doc_approval_date = null;
         if ((!empty($date = $identity->getFauDocApprovalDate()))) {
             $doc_approval_date = substr($date, 0, 4) . '-'
-                . substr($date, 0, 4) . '-'
+                . substr($date, 4, 2) . '-'
                 . substr($date, 6, 2);
         }
 
@@ -148,7 +172,9 @@ class SyncWithIdm extends SyncBase
     }
 
     /**
-     * Nest a float list of study data by the period of the studies
+     * Nest a flat list of study data by the period of the studies
+     * Add "P" as prefix for the
+     *
      * @param $studydata
      * @return array
      */
@@ -157,7 +183,7 @@ class SyncWithIdm extends SyncBase
         $indexed = [];
         foreach ($studydata as $study) {
             if (isset($study['period'])) {
-                $indexed[$study['period']][] = $study;
+                $indexed['P' . $study['period']][] = $study;
             }
         }
         return $indexed;
