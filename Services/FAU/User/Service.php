@@ -109,7 +109,7 @@ class Service
         // Promotion data
         $text = '';
         if (!empty($person->getDocProgrammesText())) {
-            $text = $person->getDocProgrammesText();
+            $text = $person->getDocProgrammesText() . ' [' . $person->getDocProgrammesCode() . ']';
         }
         if (!empty($date = $person->getDocApprovalDateObject())) {
             if (empty($text)) {

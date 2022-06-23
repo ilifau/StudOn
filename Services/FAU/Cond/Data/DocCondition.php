@@ -7,7 +7,7 @@ use FAU\RecordData;
 class DocCondition extends RecordData
 {
     protected const tableName = 'fau_cond_doc_prog';
-    protected const hasSequence = false;
+    protected const hasSequence = true;
     protected const keyTypes = [
         'id' => 'integer',
     ];

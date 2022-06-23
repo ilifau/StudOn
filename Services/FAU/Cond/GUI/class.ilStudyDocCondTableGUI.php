@@ -1,5 +1,6 @@
 <?php
 
+use FAU\Study\Data\DocProgramme;
 
 class ilStudyDocCondTableGUI extends ilTable2GUI
 {
@@ -28,7 +29,7 @@ class ilStudyDocCondTableGUI extends ilTable2GUI
         $this->setEnableNumInfo(false);
         $this->setExternalSegmentation(true);
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
-        $this->setRowTemplate("tpl.study_doc_cond_row.html", "Services/StudyData");
+        $this->setRowTemplate("tpl.study_doc_cond_row.html", "Services/FAU/Cond/GUI");
         $this->setDefaultOrderField("program");
         $this->setDefaultOrderDirection("asc");
         $this->setPrefix("study_doc_cond");
@@ -45,11 +46,11 @@ class ilStudyDocCondTableGUI extends ilTable2GUI
         $data = array();
         foreach ($DIC->fau()->cond()->repo()->getDocConditionsForObject($this->obj_id) as $condition) {
 
-            $program = $DIC->fau()->study()->repo()->getDocProgramme($condition->getProgCode(), \FAU\Study\Data\DocProgramme::model());
+            $program = $DIC->fau()->study()->repo()->getDocProgramme($condition->getProgCode(), DocProgramme::model());
 
             $row = [];
             $row['cond_id'] = $condition->getId();
-            $row['program'] = $program->getProgText();
+            $row['program'] = $program ? $program->getProgText() . ' [' . $program->getProgCode() . ']' : '';
             $row['min_approval_date'] = empty($condition->getMinApprovalDate()) ? null : new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE);
             $row['max_approval_date'] = empty($condition->getMaxApprovalDate()) ? null : new ilDate($condition->getMaxApprovalDate(), IL_CAL_DATE);
             $data[] = $row;

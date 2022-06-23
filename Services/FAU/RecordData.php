@@ -118,19 +118,30 @@ abstract class RecordData
 
     /**
      * Get the sequence value (if a sequence exists)
+     * Assume that a record with sequence has only one integer key
      */
     public function sequence() : ?int
     {
+        if (static::tableHasSequence()) {
+            $key = array_keys(static::tableKeyTypes())[0];
+            return $this->$key;
+        }
         return null;
     }
 
     /**
      * Get a clone with a sequence value
+     * Assume that a record with sequence has only one integer key
      * @return static
      */
     public function withTableSequence(int $value)
     {
-        return clone $this;
+        $clone = clone $this;
+        if (static::tableHasSequence()) {
+            $key = array_keys(static::tableKeyTypes())[0];
+            $clone->$key = $value;
+        }
+        return $clone;
     }
 
     /**
@@ -181,7 +192,7 @@ abstract class RecordData
         }
         $info = implode(' | ', $parts);
         if (strlen($info) > 200) {
-            $info = substr($info, 0, 197) . '...';
+            $info = substr($info, 0, 147) . '...';
         }
         return $info;
     }

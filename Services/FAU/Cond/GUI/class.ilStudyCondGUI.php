@@ -430,10 +430,11 @@ class ilStudyCondGUI
         $this->form_gui->addItem($item);
 
         // ref semester
+        $ref_semester = empty($condition->getRefTerm()) ? '' : $condition->getRefTerm()->toString();
         $item = new ilSelectInputGUI($this->lng->txt("studycond_field_ref_semester"), "ref_semester");
         $item->setInfo($this->lng->txt("studycond_field_ref_semester_info"));
-        $item->setOptions($this->dic->fau()->study()->getTermSelectOptions('', $condition->getRefTerm()->toString()));
-        $item->setValue($condition->getRefTerm()->toString());
+        $item->setOptions($this->dic->fau()->study()->getTermSelectOptions('',$ref_semester));
+        $item->setValue($ref_semester);
         $this->form_gui->addItem($item);
 
         // save and cancel commands
@@ -471,7 +472,7 @@ class ilStudyCondGUI
         // max approval date
         $item = new ilDateTimeInputGUI($this->lng->txt('studycond_field_max_approval_date'), 'max_approval_date');
         $item->setShowTime(false);
-        $item->setDate(empty($condition->getMaxApprovalDate()) ? null : new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE));
+        $item->setDate(empty($condition->getMaxApprovalDate()) ? null : new ilDate($condition->getMaxApprovalDate(), IL_CAL_DATE));
         $this->form_gui->addItem($item);
 
 

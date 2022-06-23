@@ -97,7 +97,7 @@ class Service
     {
         $options = [];
         if (isset($emptyId)) {
-            $return[$emptyId] = $this->lng->txt("please_select");
+            $options[$emptyId] = $this->lng->txt("please_select");
         }
         foreach ($this->repo()->getStudySubjects() as $subject) {
             $title = $subject->getSubjectTitle($this->lng->getLangKey()) ?? $this->lng->txt('studydata_unknown_subject');
@@ -150,7 +150,7 @@ class Service
         }
         foreach ($this->repo()->getStudyEnrolments() as $enrolment) {
             $title = $enrolment->getEnrolmentTitle($this->lng->getLangKey()) ?? $this->lng->txt('studydata_unknown_enrolment');
-            $options[$enrolment->getEnrolmentId()] = $title . ' [' . $enrolment->getEnrolmentTitle() . ']';
+            $options[$enrolment->getEnrolmentId()] = $title . ' [' . $enrolment->getEnrolmentUniquename() . ']';
 
         }
         if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
@@ -200,12 +200,14 @@ class Service
         }
         foreach ($this->repo()->getDocProgrammes() as $prog) {
             $title = $prog->getProgText() ?? $this->lng->txt('studydata_unknown_doc_program');
-            $options[$prog->getProgCode()] = $title . ' [' . $prog->getProgText() . ']';
+            $options[$prog->getProgCode()] = $title . ' [' . $prog->getProgCode() . ']';
 
         }
         if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
             $options[$chosenId] = $this->lng->txt('studydata_unknown_doc_program');
         }
+
+        asort($options,  SORT_NATURAL);
         return $options;
     }
 

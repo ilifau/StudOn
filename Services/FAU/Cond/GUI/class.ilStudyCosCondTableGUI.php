@@ -35,7 +35,7 @@ class ilStudyCosCondTableGUI extends ilTable2GUI
         $this->setEnableNumInfo(false);
         $this->setExternalSegmentation(true);
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj));
-        $this->setRowTemplate("tpl.study_cos_cond_row.html", "Services/StudyData");
+        $this->setRowTemplate("tpl.study_cos_cond_row.html", "Services/FAU/Cond/GUI");
         $this->setDefaultOrderField("subject");
         $this->setDefaultOrderDirection("asc");
         $this->setPrefix("study_cos_cond");
@@ -52,18 +52,18 @@ class ilStudyCosCondTableGUI extends ilTable2GUI
 
         foreach ($DIC->fau()->cond()->repo()->getCosConditionsForObject($this->obj_id) as $condition) {
 
-            $subject = $DIC->fau()->study()->repo()->getStudySubject($condition->getSubjectHisId(), StudySubject::model());
-            $degree = $DIC->fau()->study()->repo()->getStudyDegree($condition->getDegreeHisId(), StudyDegree::model());
-            $enrolment = $DIC->fau()->study()->repo()->getStudyEnrolment($condition->getEnrolmentId(), StudyEnrolment::model());
+            $subject = $DIC->fau()->study()->repo()->getStudySubject((int) $condition->getSubjectHisId());
+            $degree = $DIC->fau()->study()->repo()->getStudyDegree((int) $condition->getDegreeHisId());
+            $enrolment = $DIC->fau()->study()->repo()->getStudyEnrolment((int) $condition->getEnrolmentId());
 
             $row = [];
             $row['cond_id'] = $condition->getId();
-            $row['subject'] = $subject->getSubjectTitle($DIC->language()->getLangKey());
-            $row['degree'] = $degree->getDegreeTitle($DIC->language()->getLangKey());
-            $row['enrolment'] = $enrolment->getEnrolmentTitle($DIC->language()->getLangKey());
+            $row['subject'] = $subject ? $subject->getSubjectTitle($DIC->language()->getLangKey()) . ' [' . $subject->getSubjectUniquename() . ']' : '';
+            $row['degree'] = $degree ? $degree->getDegreeTitle($DIC->language()->getLangKey()) . ' [' . $degree->getDegreeUniquename() . ']' : '';
+            $row['enrolment'] = $enrolment ? $enrolment->getEnrolmentTitle($DIC->language()->getLangKey()) . ' [' . $enrolment->getEnrolmentUniquename() .']' : '';
             $row['min_semester'] = $condition->getMinSemester();
             $row['max_semester'] = $condition->getMaxSemester();
-            $row['ref_semester'] = (new Term($condition->getRefTermYear(), $condition->getRefTermTypeId()))->toString();
+            $row['ref_semester'] = $DIC->fau()->study()->getReferenceTermText($condition->getRefTerm());
             $data[] = $row;
         }
         $this->setData($data);
@@ -75,8 +75,6 @@ class ilStudyCosCondTableGUI extends ilTable2GUI
      */
     protected function fillRow($a_set)
     {
-        global $DIC;
-
         $this->ctrl->setParameter($this->getParentObject(), "cond_id", $a_set["cond_id"]);
         $this->tpl->setVariable("LINK_EDIT", $this->ctrl->getLinkTarget($this->getParentObject(), "editCourseCond"));
         $this->tpl->setVariable("LINK_DELETE", $this->ctrl->getLinkTarget($this->getParentObject(), "deleteCourseCond"));
@@ -90,7 +88,7 @@ class ilStudyCosCondTableGUI extends ilTable2GUI
             $this->tpl->setVariable("MAX_SEMESTER", $a_set["max_semester"]);
         }
         if ($a_set["ref_semester"]) {
-            $this->tpl->setVariable("REF_SEMESTER", $DIC->fau()->study()->getReferenceTermText(Term::fromString($a_set['ref_semester'])));
+            $this->tpl->setVariable("REF_SEMESTER", $a_set["ref_semester"]);
         }
 
         $this->tpl->setVariable("TXT_EDIT", $this->lng->txt('edit'));

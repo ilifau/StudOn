@@ -8,7 +8,7 @@ use FAU\Study\Data\Term;
 class CosCondition extends RecordData
 {
     protected const tableName = 'fau_cond_cos';
-    protected const hasSequence = false;
+    protected const hasSequence = true;
     protected const keyTypes = [
         'id' => 'integer',
     ];

@@ -73,14 +73,14 @@ class SoftConditions
             $reftext = $this->dic->fau()->study()->getReferenceTermText($cond->getRefTerm());
 
             $ctext = [];
-            if (!empty($subject = $this->dic->fau()->study()->repo()->getStudySubject($cond->getSubjectHisId()))) {
-                $ctext[] = $subject->getSubjectTitle($this->lng->getLangKey());
+            if (!empty($subject = $this->dic->fau()->study()->repo()->getStudySubject((int) $cond->getSubjectHisId()))) {
+                $ctext[] = $subject->getSubjectTitle($this->lng->getLangKey()) . ' [' . $subject->getSubjectUniquename() . ']';
             }
-            if (!empty($degree = $this->dic->fau()->study()->repo()->getStudyDegree($cond->getDegreeHisId()))) {
-                $ctext[] = $degree->getDegreeTitle($this->lng->getLangKey());
+            if (!empty($degree = $this->dic->fau()->study()->repo()->getStudyDegree((int) $cond->getDegreeHisId()))) {
+                $ctext[] = $degree->getDegreeTitle($this->lng->getLangKey()). ' [' . $degree->getDegreeUniquename() . ']';
             }
-            if (!empty($enrolment = $this->dic->fau()->study()->repo()->getStudyEnrolment($cond->getEnrolmentId()))) {
-                $ctext[] = $enrolment->getEnrolmentTitle($this->lng->getLangKey());
+            if (!empty($enrolment = $this->dic->fau()->study()->repo()->getStudyEnrolment((int) $cond->getEnrolmentId()))) {
+                $ctext[] = $enrolment->getEnrolmentTitle($this->lng->getLangKey()) . ' [' . $enrolment->getEnrolmentUniquename() . ']';;
             }
             if (!empty($cond->getMinSemester()) && !empty($cond->getMaxSemester())) {
                 $ctext[] = sprintf($this->lng->txt('studycond_min_max_semester'), $cond->getMinSemester(), $cond->getMaxSemester(), $reftext);
@@ -91,19 +91,22 @@ class SoftConditions
             elseif (!empty($cond->getMaxSemester())) {
                 $ctext[] = sprintf($this->lng->txt('studycond_max_semester'), $cond->getMaxSemester(), $reftext);
             }
+            elseif(!empty($reftext)) {
+                $ctext[] = $reftext;
+            }
 
-            $text[] = implode($this->lng->txt('studycond_criteria_delimiter') . ' ', $ctext);
+            $texts[] = implode($this->lng->txt('studycond_criteria_delimiter') . ' ', $ctext);
         }
 
         foreach ($this->repo->getDocConditionsForObject($obj_id) as $cond) {
 
             $ctext = [];
             if (!empty($program = $this->dic->fau()->study()->repo()->getDocProgramme($cond->getProgCode()))) {
-                $ctext[] = $program->getProgText();
+                $ctext[] = $program->getProgText() . ' [' . $program->getProgCode() . ']';
             }
 
-            $min_approval_date = $cond->getMinApprovalDate() ? new ilDate($cond->getMinApprovalDate()) : null;
-            $max_approval_date = $cond->getMaxApprovalDate() ? new ilDate($cond->getMaxApprovalDate()) : null;
+            $min_approval_date = $cond->getMinApprovalDate() ? new ilDate($cond->getMinApprovalDate(), IL_CAL_DATE) : null;
+            $max_approval_date = $cond->getMaxApprovalDate() ? new ilDate($cond->getMaxApprovalDate(), IL_CAL_DATE) : null;
 
             if (!empty($min_approval_date) && !empty($max_approval_date)) {
                 $ctext[] = sprintf(

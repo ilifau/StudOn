@@ -27,10 +27,6 @@ include_once('Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition
 include_once('Services/User/classes/class.ilUserDefinedData.php');
 include_once('Services/User/classes/class.ilUserFormSettings.php');
 
-// fau: memberExport - includes needed for additional export data
-include_once('Services/StudyData/classes/class.ilStudyAccess.php');
-// fau.
-
 define("IL_MEMBER_EXPORT_CSV_FIELD_SEPERATOR", ',');
 define("IL_MEMBER_EXPORT_CSV_STRING_DELIMITER", '"');
 

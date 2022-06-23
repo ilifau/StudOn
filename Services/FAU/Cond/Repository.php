@@ -42,7 +42,7 @@ class Repository extends RecordRepo
     public function getDocCondition(int $id, ?DocCondition $default = null) : ?RecordData
     {
         $query = "SELECT * FROM fau_cond_doc_prog WHERE id = " . $this->db->quote($id, 'integer');
-        return $this->getSingleRecord($query, CosCondition::model(), $default);
+        return $this->getSingleRecord($query, DocCondition::model(), $default);
     }
 
 

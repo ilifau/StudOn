@@ -115,7 +115,7 @@ abstract class RecordRepo
     protected function insertRecord(RecordData $record) : RecordData
     {
         if ($record::tableHasSequence() && empty($record->sequence())) {
-            $record = $record->withTableSequence($this->db->nextId($record::tableName()));
+            $record = $record->withTableSequence((int) $this->db->nextId($record::tableName()));
         }
         $types = array_merge($record::tableKeyTypes(), $record::tableOtherTypes());
         $fields = $this->getFieldsArray($record, $types);
@@ -131,7 +131,7 @@ abstract class RecordRepo
     protected function replaceRecord(RecordData $record) : RecordData
     {
         if ($record::tableHasSequence() && empty($record->sequence())) {
-            $record = $record->withTableSequence($this->db->nextId($record::tableName()));
+            $record = $record->withTableSequence((int) $this->db->nextId($record::tableName()));
         }
         $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
         $other_fields = $this->getFieldsArray($record, $record::tableOtherTypes());
@@ -156,7 +156,7 @@ abstract class RecordRepo
      */
     protected function deleteRecord(RecordData $record)
     {
-        $conditions[] = '';
+        $conditions = [];
         foreach($this->getFieldsArray($record, $record::tableKeyTypes()) as $quotedKey => $field) {
             $conditions[] = $quotedKey . " = " . $this->db->quote($field[1], $field[0]);
         }
