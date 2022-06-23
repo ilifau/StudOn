@@ -14,6 +14,9 @@ require_once("Services/Init/classes/class.ilInitialisation.php");
 ilInitialisation::initILIAS();
 
 $ilCtrl->initBaseClass("ilStartUpGUI");
+// fau: fixLogoutBeforeRegister - logout before register to avoid redirect to register page
+$GLOBALS['DIC']['ilAuthSession']->logout();
+// fau.
 $ilCtrl->setCmd("jumpToRegistration");
 $ilCtrl->callBaseClass();
 $ilBench->save();
