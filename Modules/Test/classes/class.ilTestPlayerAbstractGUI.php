@@ -558,7 +558,7 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
      */
     public function checkAuthorshipStatement()
     {
-        if (empty($_SESSION['chb_authorship_statement'])) {
+        if (empty($_SESSION['chb_authorship_statement_'.(string)$this->object->getTestId()])) {
             if ($this->testSession->hasAuthorshipStatement()) {
                 $this->testSession->setAuthorshipStatement(false);
                 $this->testSession->saveToDb();

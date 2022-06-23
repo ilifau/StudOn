@@ -161,10 +161,15 @@ class ilObjTestGUI extends ilObjectGUI
         if (isset($_GET["cmd"])) {
             $cmd = $_GET["cmd"];
         }
-        $previousCmd = $cmd;
+        /*
+            We need the previousCmd because command startPlayer is called twice: first time after the infoscreen and second time after test passwort was saved. 
+            Only in the first case the previous command is "post"
+        */
+        $previousCmd = $cmd; 
         $cmd = $this->ctrl->getCmd("infoScreen");
-        if($cmd == "startPlayer" && $previousCmd=="post")
-            $_SESSION["chb_authorship_statement"] = $_POST["chb_authorship_statement"];
+        if(($cmd == "startPlayer" || $cmd == "resumePlayer") && $previousCmd=="post")
+            $_SESSION["chb_authorship_statement_".(string)$this->object->getTestId()] = $_POST["chb_authorship_statement"];
+            
         // fau.  
 
         $cmdsDisabledDueToOfflineStatus = array(
