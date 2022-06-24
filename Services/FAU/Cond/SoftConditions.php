@@ -196,6 +196,9 @@ class SoftConditions
             $term = $this->dic->fau()->study()->getCurrentTerm();
         }
 
+        log_var($condition);
+        log_var($person);
+
         // check the criteria for each study
         // all defined criteria must be satisfied
         // continue with next study on failure
@@ -226,21 +229,21 @@ class SoftConditions
             foreach ($study->getSubjects() as $subject) {
 
                 if (!empty($condition->getSubjectHisId())
-                    && (empty($subject->getSubjectDbId() || $subject->getSubjectDbId() != $condition->getSubjectHisId()))
+                    && (empty($subject->getSubjectDbId()) || $subject->getSubjectDbId() != $condition->getSubjectHisId())
                 ) {
                     //log_line('subject_failed');
                     continue; // failed;
                 }
 
                 if (!empty($condition->getMinSemester())
-                    && (empty($subject->getStudySemester() || $subject->getStudySemester() < $condition->getMinSemester()))
+                    && (empty($subject->getStudySemester()) || $subject->getStudySemester() < $condition->getMinSemester())
                 ) {
                     //log_line('min_semester_failed');
                     continue; // failed;
                 }
 
                 if (!empty($condition->getMaxSemester())
-                    && (empty($subject->getStudySemester() || $subject->getStudySemester() > $condition->getMaxSemester()))
+                    && (empty($subject->getStudySemester()) || $subject->getStudySemester() > $condition->getMaxSemester())
                 ) {
                     //log_line('max_semester_failed');
                     continue; // failed;
@@ -279,9 +282,9 @@ class SoftConditions
                return false;
            }
            try {
-               $minData = new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE);
+               $minDate = new ilDate($condition->getMinApprovalDate(), IL_CAL_DATE);
                $docDate =new ilDate($person->getDocApprovalDate(), IL_CAL_DATE);
-               if (ilDate::_before($docDate, $minData)) {
+               if (ilDate::_before($docDate, $minDate)) {
                    return false;
                }
            }
@@ -295,9 +298,9 @@ class SoftConditions
                 return false;
             }
             try {
-                $maxData = new ilDate($condition->getMaxApprovalDate(), IL_CAL_DATE);
+                $maxDate = new ilDate($condition->getMaxApprovalDate(), IL_CAL_DATE);
                 $docDate =new ilDate($person->getDocApprovalDate(), IL_CAL_DATE);
-                if (ilDate::_after($docDate, $maxData)) {
+                if (ilDate::_after($docDate, $maxDate)) {
                     return false;
                 }
             }
