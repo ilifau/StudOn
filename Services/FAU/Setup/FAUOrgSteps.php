@@ -40,6 +40,7 @@ class FAUOrgSteps
         $this->db->addIndex('fau_org_orgunits', ['parent_id'], 'i1');
         $this->db->addIndex('fau_org_orgunits', ['fauorg_nr'], 'i2');
         $this->db->addIndex('fau_org_orgunits', ['path'], 'i3');
+        $this->db->addIndex('fau_org_orgunits', ['ilias_ref_id'], 'i4');
     }
 
 
