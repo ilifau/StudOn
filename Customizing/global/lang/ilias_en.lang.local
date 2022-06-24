@@ -159,12 +159,6 @@ common#:#cont_zipped_html_info#:#You may upload a zipped media package, e.g. cre
 common#:#crs_create_exco#:#Create new external content
 common#:#crs_create_perc#:#Create new Perception-Assessment
 common#:#distinct_registrations#:#Different registrations
-common#:#docorder_err_course_not_closed#:#The StudOn-course "%s" is not suitable for the granting of ordered documents. Please consider that the granting can only take place in StudOn-courses in which its membercycle has been limited by a joiningprocess.
-common#:#docorder_err_course_not_found#:#To the course number %s no StudOn-course has been found!
-common#:#docorder_err_no_course_found#:#No suitable target course has been found in StudOn. Please consider that the Granting can only take place in StudOn-courses, in which you have write-permission and which membercycle has been limited by a Joiningprocess.
-common#:#docorder_err_no_user_found#:#For your UB-User number no StudOn-useraccount has been found. To be able to use the essay delivery service for granting on StudOn, please insert your UB-usernumber in "personal profile" in StudOn.
-common#:#docorder_err_no_write_access#:#You do not have write-permission in the StudOn-course "%s"
-common#:#docorder_err_wrong_request#:#This request has not been found!
 common#:#dummy_admin_firstname_tca#:#TCA
 common#:#dummy_admin_lastname_tca#:#Course adminstrator
 common#:#dummy_user_firstname_mycampus#:#mein campus
@@ -399,13 +393,6 @@ content#:#cont_layout_help#:#Help
 content#:#cont_layout_help_desc#:#Layout for the StudOn Help Modules
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout for 'Informations On StudOn'
-cron#:#fau_campo_data_update#:#Update Campo Data###fau: fauService
-cron#:#fau_campo_data_update_info#:#Updates the data for lectures from campo###fau: fauService
-cron#:#fau_org_data_update#:#Update FAU.Org-Data###fau: fauService
-cron#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU###fau: fauService
-cron#:#cron_mycampus_sync#:#Synchronisation with mein campus
-cron#:#cron_mycampus_sync_added#:#New course members: %s
-cron#:#cron_mycampus_sync_info#:#Add course registrations from my campus as course members
 cron#:#cron_set_last_run#:#Set Last Run
 cron#:#cron_set_last_run_info#:#the next run start by the schedule based on the last run
 crs#:#crs_choose_one_event#:#Please choose a date!
@@ -615,6 +602,12 @@ exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
 exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
+fau#:#fau_campo_data_update#:#Update Campo Data
+fau#:#fau_campo_data_update_info#:#Updates the data for lectures from campo
+fau#:#fau_idm_data_update#:#Update IDM Data
+fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
+fau#:#fau_org_data_update#:#Update FAU.Org-Data
+fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
 fau#:#studycond_add_condition#:#add condition
 fau#:#studycond_add_course_condition#:#Add Study Condition
 fau#:#studycond_add_doc_condition#:#Add Promotion Condition
@@ -678,7 +671,7 @@ fau#:#studydata_semester_text#:#%s. semester
 fau#:#studydata_study_no#:#Study course %s
 fau#:#studydata_subject#:#Subject
 fau#:#studydata_subject_no#:#Fach %s
-fau#:#studydata_enrolment:#Enrolment
+fau#:#studydata_enrolment#:#Enrolment
 fau#:#studydata_unknown_degree#:#Unknown Degree
 fau#:#studydata_unknown_doc_program#:#Unknown Promotion Program
 fau#:#studydata_unknown_school#:#Unknown Faculty

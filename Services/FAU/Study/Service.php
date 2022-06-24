@@ -29,14 +29,6 @@ class Service
     }
 
     /**
-     * Get the handler for date scheme migrations (no caching needed)
-     */
-    public function migration() : Migration
-    {
-        return new Migration($this->dic->database());
-    }
-
-    /**
      * Cet the class for managing course and group creation and update
      */
     public function manager() : CourseManager

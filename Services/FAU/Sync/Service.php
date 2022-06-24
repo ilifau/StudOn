@@ -3,8 +3,6 @@
 namespace FAU\Sync;
 
 use ILIAS\DI\Container;
-use FAU\User\Migration;
-
 /**
  * Service for synchronizing data between staging database and studon
  */

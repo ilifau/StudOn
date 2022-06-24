@@ -13,14 +13,9 @@ $p->login();
  * Patches for FAU
  ********************/
 
-//$p->applyPatch('ilFauPatches.createFauTables');
-
-//$p->applyPatch('ilFauPatches.createOrgTable');
-//$p->applyPatch('ilFauPatches.syncOrgTable');
+//$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 
-$p->applyPatch('ilFauPatches.createPersonsTable');
-$p->applyPatch('ilFauPatches.syncPersonData');
 
 /*****************
 * Specific actions

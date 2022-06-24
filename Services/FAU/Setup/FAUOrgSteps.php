@@ -1,18 +1,19 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Org;
+namespace FAU\Setup;
 
-class Migration
+class FAUOrgSteps
 {
     protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $a_db)
+    public function prepare(\ilDBInterface $a_db)
     {
         $this->db = $a_db;
     }
 
-    public function createTables(bool $drop = false) {
-        $this->createOrgUnitsTable($drop);
+    public function custom_step_94()
+    {
+        $this->createOrgUnitsTable(false);
     }
 
     protected function createOrgUnitsTable(bool $drop = false)

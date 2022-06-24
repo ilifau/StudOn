@@ -37,13 +37,6 @@ class Service
         return $this->repository;
     }
 
-    /**
-     * Get the handler for date scheme migrations (no caching needed)
-     */
-    public function migration() : Migration
-    {
-        return new Migration($this->dic->database());
-    }
 
     /**
      * Get the educations of a user as text

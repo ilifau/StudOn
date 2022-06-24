@@ -1,29 +1,38 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Cond;
+namespace FAU\Setup;
 
-use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
+use ILIAS\DI\Container;
 
-class Migration
+class FAUCondSteps
+
 {
     protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $a_db)
+    public function prepare(\ilDBInterface $a_db)
     {
         $this->db = $a_db;
     }
 
-    public function createTables(bool $drop = false)
+    public function custom_step_93()
     {
         // hard restrictions
-        $this->createModuleRestrictionsTable($drop);
-        $this->createRequirementsTable($drop);
-        $this->createRestrictionsTable($drop);
+        $this->createModuleRestrictionsTable(false);
+        $this->createRequirementsTable(false);
+        $this->createRestrictionsTable(false);
 
         // soft conditions
-        $this->createCosConditionsTable($drop);
-        $this->createDocConditionsTable($drop);
+        $this->createCosConditionsTable(false);
+        $this->createDocConditionsTable(false);
+    }
+
+    public function custom_step_97()
+    {
+        /** @var Container */
+        global $DIC;
+        $this->fillCosConditionsFromStudydata($DIC->fau()->staging()->database());
+        $this->fillDocConditionsFromStudydata();
     }
 
     protected function createModuleRestrictionsTable(bool $drop = false)
@@ -110,7 +119,7 @@ class Migration
      * Access to the idm database is needed for looking up the old ids
      * @param \ilDBInterface $idm   database connection to the idm database
      */
-    public function fillCosConditionsFromStudydata(\ilDBInterface $idm)
+    protected function fillCosConditionsFromStudydata(\ilDBInterface $idm)
     {
         $degree_his = [];
         $query = "SELECT degree_id, degree_his_id FROM study_degrees";
@@ -162,7 +171,7 @@ class Migration
     /**
      * Transfer the doc program conditions
      */
-    public function fillDocConditionsFromStudydata()
+    protected function fillDocConditionsFromStudydata()
     {
         $query = "SELECT * FROM study_doc_cond";
         $result = $this->db->query($query);

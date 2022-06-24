@@ -1,40 +1,40 @@
 <?php declare(strict_types=1);
 
-namespace FAU\Study;
+namespace FAU\Setup;
 
-class Migration
+class FAUStudySteps
 {
     protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $a_db)
+    public function prepare(\ilDBInterface $a_db)
     {
         $this->db = $a_db;
     }
 
-    public function createTables(bool $drop = false)
+    public function custom_step_95()
     {
-        $this->createCoursesTable($drop);
-        $this->createCourseOfStudyTable($drop);
-        $this->createCourseResponsiblesTable($drop);
-        $this->createDocProgrammes($drop);
-        $this->createEventsTable($drop);
-        $this->createEventOrgunitsTable($drop);
-        $this->createEventResponsiblesTable($drop);
-        $this->createIndividualDatesTable($drop);
-        $this->createIndividualInstructorsTable($drop);
-        $this->createInstructorsTable($drop);
-        $this->createModulesTable($drop);
-        $this->createModuleCosTable($drop);
-        $this->createModuleEventsTable($drop);
-        $this->createPlannedDatesTable($drop);
-        $this->createStudyDegreesTable($drop);
-        $this->createStudyEnrolmentsTable($drop);
-        $this->createStudyFieldsTable($drop);
-        $this->createStudyFormsTable($drop);
-        $this->createStudySchoolsTable($drop);
-        $this->createStudyStatusTable($drop);
-        $this->createStudySubjectsTable($drop);
-        $this->createStudyTypesTable($drop);
+        $this->createCoursesTable(false);
+        $this->createCourseOfStudyTable(false);
+        $this->createCourseResponsiblesTable(false);
+        $this->createDocProgrammes(false);
+        $this->createEventsTable(false);
+        $this->createEventOrgunitsTable(false);
+        $this->createEventResponsiblesTable(false);
+        $this->createIndividualDatesTable(false);
+        $this->createIndividualInstructorsTable(false);
+        $this->createInstructorsTable(false);
+        $this->createModulesTable(false);
+        $this->createModuleCosTable(false);
+        $this->createModuleEventsTable(false);
+        $this->createPlannedDatesTable(false);
+        $this->createStudyDegreesTable(false);
+        $this->createStudyEnrolmentsTable(false);
+        $this->createStudyFieldsTable(false);
+        $this->createStudyFormsTable(false);
+        $this->createStudySchoolsTable(false);
+        $this->createStudyStatusTable(false);
+        $this->createStudySubjectsTable(false);
+        $this->createStudyTypesTable(false);
     }
 
     protected function createCoursesTable(bool $drop = false)

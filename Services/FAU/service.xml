@@ -3,6 +3,7 @@
 	<crons>
 		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" path="Services/FAU/Sync/" />
 		<cron id="fau_sync_with_org" class="ilSyncWithOrgCron" path="Services/FAU/Sync/" />
+		<cron id="fau_sync_with_idm" class="ilSyncWithIdmCron" path="Services/FAU/Sync/" />
 	</crons>
 	<baseclasses />
 	<logging />

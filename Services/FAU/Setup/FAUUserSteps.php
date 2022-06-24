@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace FAU\User;
+namespace FAU\Setup;
 
-class Migration
+class FAUUserSteps
 {
     protected \ilDBInterface $db;
 
-    public function __construct(\ilDBInterface $a_db)
+    public function prepare(\ilDBInterface $a_db)
     {
         $this->db = $a_db;
     }
 
-    public function createTables(bool $drop = false) {
-        $this->createUserAchievementsTable($drop);
-        $this->createUserEducationsTable($drop);
-        $this->createUserPersonsTable($drop);
+    public function custom_step_96() {
+        $this->createUserAchievementsTable(false);
+        $this->createUserEducationsTable(false);
+        $this->createUserPersonsTable(false);
     }
 
     protected function createUserAchievementsTable(bool $drop = false)

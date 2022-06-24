@@ -22,15 +22,6 @@ class Service
     }
 
     /**
-     * Get the handler for date scheme migrations (no caching needed)
-     */
-    public function migration() : Migration
-    {
-        return new Migration($this->dic->database());
-    }
-
-
-    /**
      * Get the repository for user data
      */
     public function repo() : Repository

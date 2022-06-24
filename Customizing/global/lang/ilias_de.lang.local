@@ -159,12 +159,6 @@ common#:#cont_zipped_html_info#:#Sie können auch ein geziptes Medienpaket hochl
 common#:#crs_create_exco#:#Neuen externen Inhalt anlegen
 common#:#crs_create_perc#:#Neues Perception-Assessment anlegen
 common#:#distinct_registrations#:#Verschiedene Anmeldungen
-common#:#docorder_err_course_not_closed#:#Der StudOn-Kurs "%s" ist nicht zur Bereitstellung von bestellten Dokumenten geeignet. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
-common#:#docorder_err_course_not_found#:#Zur Kursnummer %s wurde kein StudOn-Kurs gefunden!
-common#:#docorder_err_no_course_found#:#In StudOn wurde kein geeigneter Zielkurs gefunden. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, in denen Sie Schreibrecht haben und deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
-common#:#docorder_err_no_user_found#:#Zu Ihrer UB-Benutzernummer wurde kein StudOn-Benutzerkonto gefunden. Um den Aufsatzlieferdienst zur Bereitstellung in StudOn nutzen zu können, tragen Sie bitte in StudOn unter "persönliches Profil" Ihre UB-Benutzernummer ein.
-common#:#docorder_err_no_write_access#:#Sie haben kein Schreibrecht im StudOn-Kurs "%s"
-common#:#docorder_err_wrong_request#:#Diese Anfrage wurde nicht erkannt!
 common#:#dummy_admin_firstname_tca#:#TCA
 common#:#dummy_admin_lastname_tca#:#Kursadminstrator
 common#:#dummy_user_firstname_mycampus#:#mein campus
@@ -399,17 +393,8 @@ content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
-cron#:#fau_campo_data_update#:#Campo-Daten aktualisieren###fau: fauService
-cron#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System###fau: fauService
-cron#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren###fau: fauService
-cron#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU###fau: fauService
-cron#:#cron_mycampus_sync#:#Synchronisation mit mein campus
-cron#:#cron_mycampus_sync_added#:#Neue Kursmitglieder: %s
-cron#:#cron_mycampus_sync_info#:#Nimmt in mein campus angemeldete Kursteilnehmer auf
 cron#:#cron_set_last_run#:#Setze letzten Durchlauf
 cron#:#cron_set_last_run_info#:#Der nächste Start wird ausgehend vom letzten Durchlauf anhand des Zeitplans bestimmt
-cron#:#fau_org_data_update#:#FAU.org-Daten aktualisieren
-cron#:#fau_org_data_update_info#:#Aktualisiert die Daten zu den FAU-Organisationseinheiten aus FAU.org
 crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
 crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!
@@ -617,6 +602,12 @@ exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
 exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
+fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
+fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
+fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
+fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
+fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
 fau#:#studycond_add_condition#:#Bedingung hinzufügen
 fau#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen
 fau#:#studycond_add_doc_condition#:#Promotions-Bedingung hinzufügen
