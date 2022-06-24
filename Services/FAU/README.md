@@ -23,7 +23,6 @@ Die Verzeichnisse des Service entsprechen seinen Teil-Services:
 - **Staging** - Zugriff auf die Stanging-Datenbank 'IDM', über die Daten mit anderen Systemen synchronisiert werden.
 - **Sync** - Synchronisation der Daten zwischen Staging-Datenbank und StudOn. Anlegen und Aktualisieren der Kurse und Gruppen. Aktualisierung der Studiengangsdaten und Rollen von Benutzern.
 - **Tools** - Hinfsfunktionen, z.B. zur Datenkonvertierung
-- **Setup** enthält die Datenbank-Migrationsschritte
 
 Die Teil-Services liegen Unterverzeichnissen von Services/FAU. Der Einstieg erfolgt über eine Service-Klasse, die über den Dependency Injection Container von ILIAS aufgerufen werden kann. Die Service-Klasse dient als Factory für weitere Klassen des Services, z.B. das Repository zum Datenzugriff oder Migration für Änderungen am Datenschema.
 

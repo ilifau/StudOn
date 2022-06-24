@@ -2,19 +2,25 @@
 
 namespace FAU\Setup;
 
-use ILIAS\DI\Container;
+
+use ilDBInterface;
 
 /**
- * Setup Service for FAU integration
+ * Setup for FAU integration
  * This works as a factory for the update step classes
  */
-class Service
+class Setup
 {
-    protected Container $dic;
+    protected ilDBInterface $db;
 
-    public function __construct(Container $dic)
+    public function __construct(ilDBInterface $db)
     {
-        $this->dic = $dic;
+        $this->db = $db;
+    }
+
+    public static function instance(ilDBInterface $db) : self
+    {
+        return new self($db);
     }
 
     /**
@@ -23,7 +29,7 @@ class Service
     public function cond() : FAUCondSteps
     {
         $steps = new FAUCondSteps();
-        $steps->prepare($this->dic->database());
+        $steps->prepare($this->db);
         return $steps;
     }
 
@@ -34,7 +40,7 @@ class Service
     public function org() : FAUOrgSteps
     {
         $steps = new FAUOrgSteps();
-        $steps->prepare($this->dic->database());
+        $steps->prepare($this->db);
         return $steps;
     }
 
@@ -44,7 +50,7 @@ class Service
     public function study() : FAUStudySteps
     {
         $steps = new FAUStudySteps();
-        $steps->prepare($this->dic->database());
+        $steps->prepare($this->db);
         return $steps;
     }
 
@@ -54,10 +60,7 @@ class Service
     public function user() : FAUUserSteps
     {
         $steps = new FAUUserSteps();
-        $steps->prepare($this->dic->database());
+        $steps->prepare($this->db);
         return $steps;
     }
-
-
-
 }

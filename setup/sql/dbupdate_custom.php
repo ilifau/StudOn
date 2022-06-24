@@ -1,6 +1,5 @@
 <#1>
 <?php
-    /** @var \ILIAS\DI\Container $DIC */
     /** @var ilDBInterface $ilDB */
     /** @var ilCtrlStructureReader $ilCtrlStructureReader */
 
@@ -1521,34 +1520,34 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
 /**
  * fau: fauService: create the new condition tables
  */
-$DIC->fau()->setup()->cond()->custom_step_93();
+\FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_93();
 ?>
 <#94>
 <?php
 /**
  * fau: fauService: create the new orgunit table
  */
-$DIC->fau()->setup()->org()->custom_step_94();
+\FAU\Setup\Setup::instance($ilDB)->org()->custom_step_94();
 ?>
 <#95>
 <?php
 /**
  * fau: fauService: create the new study tables
  */
-$DIC->fau()->setup()->study()->custom_step_95();
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_95();
 ?>
 <#96>
 <?php
 /**
  * fau: fauService: create the new study tables
  */
-$DIC->fau()->setup()->user()->custom_step_96();
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_96();
 ?>
 <#97>
 <?php
 /**
  * fau: fauService: migrate the old conditions to the new ones
  */
-$DIC->fau()->setup()->cond()->custom_step_97();
+\FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_97();
 ?>
 

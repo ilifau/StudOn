@@ -101,12 +101,4 @@ class Service
         }
         return $this->toolsService;
     }
-
-    /**
-     * Get the setup service (no caching needed)
-     */
-    public function setup() : Setup\Service
-    {
-        return new Setup\Service($this->dic);
-    }
 }
