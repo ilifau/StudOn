@@ -655,7 +655,7 @@ abstract class ilRegistrationGUI
         $this->form->setTitle($this->getFormTitle());
 
         // fau: campoMock - add demo campo course registration fields to form
-        $this->fillCampo();
+        // $this->fillCampo();
         // fau.
 
         $this->fillInformations();

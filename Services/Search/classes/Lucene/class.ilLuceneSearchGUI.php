@@ -351,7 +351,8 @@ class ilLuceneSearchGUI extends ilSearchBaseGUI
         $item->setInfo('Suche nur Lehrveranstaltungen, die für mein Studium und Fachsemester geeignet sind');
         $this->form->addItem($item);
 
-        $html = $this->form->getHTML();
+        $html = '';
+//        $html = $this->form->getHTML();
 
         if ($presentation->render()) {
             $this->tpl->setVariable('SEARCH_RESULTS', $html . $presentation->getHTML(true));
