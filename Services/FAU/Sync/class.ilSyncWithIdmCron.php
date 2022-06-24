@@ -4,7 +4,7 @@
 /**
  * new class for fau.org data update cron job.
  */
-class ilSynWithIdmCron extends ilCronJob
+class ilSyncWithIdmCron extends ilCronJob
 {
     public function getId()
     {

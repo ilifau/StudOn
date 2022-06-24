@@ -13,6 +13,7 @@ $p->login();
  * Patches for FAU
  ********************/
 
+//$p->applyPatch('ilFauPatches.migrateConditions');
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 
