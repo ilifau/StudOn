@@ -3,10 +3,8 @@
 namespace FAU\Setup;
 
 use FAU\Study\Data\Term;
-use ILIAS\DI\Container;
 
 class FAUCondSteps
-
 {
     protected \ilDBInterface $db;
 
@@ -15,6 +13,12 @@ class FAUCondSteps
         $this->db = $a_db;
     }
 
+    /**
+     * Create the new database tables for conditions
+     * Please run the following function as patches after this step
+     * @see fillCosConditionsFromStudydata
+     * @see fillDocConditionsFromStudydata
+     */
     public function custom_step_93()
     {
         // hard restrictions
@@ -27,13 +31,6 @@ class FAUCondSteps
         $this->createDocConditionsTable(false);
     }
 
-    public function custom_step_97()
-    {
-        /** @var Container */
-        global $DIC;
-        $this->fillCosConditionsFromStudydata($DIC->fau()->staging()->database());
-        $this->fillDocConditionsFromStudydata();
-    }
 
     protected function createModuleRestrictionsTable(bool $drop = false)
     {
@@ -115,11 +112,11 @@ class FAUCondSteps
 
     /**
      * Transfer the study data conditions
-     * switch old ids (numeric uniquename) to the new his_id which match the values in the JSON of identities.fau_studydata
+     * switch old ids (numeric uniquenames) to the new his_id which match the values in the JSON of identities.fau_studydata
      * Access to the idm database is needed for looking up the old ids
      * @param \ilDBInterface $idm   database connection to the idm database
      */
-    protected function fillCosConditionsFromStudydata(\ilDBInterface $idm)
+    public function fillCosConditionsFromStudydata(\ilDBInterface $idm)
     {
         $degree_his = [];
         $query = "SELECT degree_id, degree_his_id FROM study_degrees";
@@ -171,7 +168,7 @@ class FAUCondSteps
     /**
      * Transfer the doc program conditions
      */
-    protected function fillDocConditionsFromStudydata()
+    public function fillDocConditionsFromStudydata()
     {
         $query = "SELECT * FROM study_doc_cond";
         $result = $this->db->query($query);

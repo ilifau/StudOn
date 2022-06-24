@@ -1543,11 +1543,3 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_96();
 ?>
-<#97>
-<?php
-/**
- * fau: fauService: migrate the old conditions to the new ones
- */
-\FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_97();
-?>
-

@@ -1,6 +1,7 @@
 <?php
 
 use ILIAS\DI\Container;
+use FAU\Setup\Setup;
 
 /**
  * fau: fauService - patch to create the tables
@@ -24,6 +25,15 @@ class ilFauPatches
     {
         $service = $this->dic->fau()->sync()->idm();
         $service->synchronize();
+    }
+
+    /**
+     * Migrate the conditions from the old study tables to the new fau_study tables
+     */
+    public function migrateConditions()
+    {
+        Setup::instance($this->dic->database())->cond()->fillCosConditionsFromStudydata($this->dic->fau()->staging()->database());
+        Setup::instance($this->dic->database())->cond()->fillDocConditionsFromStudydata();
     }
 
 
