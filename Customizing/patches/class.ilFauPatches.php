@@ -18,6 +18,11 @@ class ilFauPatches
         $this->dic = $DIC;
     }
 
+    public function syncCampoData()
+    {
+        $service = $this->dic->fau()->sync()->campo();
+        $service->synchronize();
+    }
     /**
      * todo: move to cron job if performance is ok
      */
