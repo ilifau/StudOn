@@ -24,6 +24,13 @@ abstract class RecordRepo
     private $boolCache = [];
 
     /**
+     * Cached counts of records
+     * @var integer[]   query hash => count
+     */
+    private $countCache = [];
+
+
+    /**
      * Constructor
      */
     public function __construct(\ilDBInterface $a_db, \ilLogger $logger)
@@ -48,6 +55,31 @@ abstract class RecordRepo
             $this->boolCache[$hash] = $exists;
         }
         return $exists;
+    }
+
+    /**
+     * Count the records of a query
+     * The query must one field with the counter value
+     */
+    protected function countRecords(string $query, $useCache = true) : int
+    {
+        $hash = md5($query);
+        if ($useCache && isset($this->countCache[$hash])) {
+            return $this->countCache[$hash];
+        }
+        $count = 0;
+        $result = $this->db->query($query);
+        if ($row = $this->db->fetchAssoc($result)) {
+           foreach ($row as $value) {
+               $count = (int) $value;
+               break;
+           }
+        }
+
+        if ($useCache) {
+            $this->countCache[$hash] = $count;
+        }
+        return $count;
     }
 
     /**

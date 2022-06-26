@@ -26,6 +26,7 @@ use FAU\Study\Data\StudySubject;
 use FAU\Study\Data\Course;
 use FAU\Study\Data\StudyStatus;
 use FAU\Study\Data\StudyType;
+use FAU\Study\Data\Term;
 
 /**
  * Repository for accessing data of study related data
@@ -210,6 +211,41 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the list of responsible org units for an event
+     * @return EventOrgunit[]
+     */
+    public function getEventOrgunitsByEventId(int $event_id) : array
+    {
+        $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        return $this->queryRecords($query, EventOrgunit::model());
+    }
+
+    /**
+     * Count the courses an event has in a term
+     * @param Term $term
+     * @return int
+     */
+    public function countCoursesOfEventInTerm(int $event_id, Term $term) : int
+    {
+        $query = "SELECT COUNT(*) FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
+        . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+        . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->countRecords($query);
+    }
+
+    /**
+     * Get the courses of an event
+     * @param int  $event_id
+     * @param bool $useCache
+     * @return Course[]
+     */
+    public function getCoursesOfEvent(int $event_id, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
      * Gat a single Course
      * @return Course|null
      */
@@ -244,6 +280,33 @@ class Repository extends RecordRepo
             JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id
             WHERE i.individual_dates_id = " . $this->db->quote($individual_dates_id, 'integer');
         return $this->getSingleRecord($query, Course::model(), $default);
+    }
+
+    /**
+     * Get the courses of a term that need to be created in StudOn
+     * @param Term $term
+     * @return Course[]
+     */
+    public function getCoursesByTermToCreate(Term $term) : array
+    {
+        $query = "SELECT * FROM fau_study_courses WHERE ilias_obj_id IS NULL"
+            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->queryRecords($query, Course::model(), false);
+    }
+
+    /**
+     * Get the courses of a term that need to be updated in StudOn
+     * Either the courses or their events have a dirty flag
+     * @param Term $term
+     * @return Course[]
+     */
+    public function getCoursesByTermToUpdate(Term $term) : array
+    {
+        $query = "SELECT * FROM fau_study_courses WHERE ilias_dirty_since IS NOT NULL"
+            . " AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->queryRecords($query, Course::model(), false);
     }
 
     /**

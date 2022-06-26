@@ -17,8 +17,6 @@ class Event extends RecordData
         'shorttext' => 'text',
         'comment' => 'text',
         'guest' => 'integer',
-        'ilias_obj_id' => 'integer',
-        'ilias_dirty_since' => 'text'
     ];
 
     protected int $event_id;
@@ -27,10 +25,6 @@ class Event extends RecordData
     protected ?string $shorttext;
     protected ?string $comment;
     protected ?int $guest;
-
-    // not in constructor, added later
-    protected ?int $ilias_obj_id = null;
-    protected ?string $ilias_dirty_since = null;
 
     public function __construct(
         int $event_id,
@@ -101,58 +95,4 @@ class Event extends RecordData
     {
         return $this->guest;
     }
-
-    /**
-     * @return int|null
-     */
-    public function getIliasObjId() : ?int
-    {
-        return $this->ilias_obj_id;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getIliasDirtySince() : ?string
-    {
-        return $this->ilias_dirty_since;
-    }
-
-
-    /**
-     * @param int|null $ilias_obj_id
-     * @return Event
-     */
-    public function withIliasObjId(?int $ilias_obj_id) : self
-    {
-        $clone = clone $this;
-        $clone->ilias_obj_id = $ilias_obj_id;
-        return $clone;
-    }
-
-    /**
-     * Note that event data has changed
-     * If there is an ILIAS course, this should force an update of the data
-     * @param bool $changed
-     * @return Event
-     */
-    public function asChanged(bool $changed) : self
-    {
-        $clone = clone $this;
-        if ($changed) {
-            if (isset($clone->ilias_obj_id) && !isset($clone->ilias_dirty_since)) {
-                try {
-                    $clone->ilias_dirty_since = (new \ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME);
-                }
-                catch (\Throwable $throwable) {
-                }
-            }
-        }
-        else {
-            $clone->ilias_dirty_since = null;
-        }
-
-        return $clone;
-    }
-
 }

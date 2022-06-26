@@ -11,6 +11,7 @@ abstract class SyncBase
     protected \FAU\Org\Service $org;
     protected \FAU\Staging\Service $staging;
     protected \FAU\Study\Service $study;
+    protected Service $sync;
     protected \FAU\User\Service $user;
     protected \FAU\Tools\Service $tools;
 
@@ -32,6 +33,7 @@ abstract class SyncBase
         $this->cond = $dic->fau()->cond();
         $this->staging = $dic->fau()->staging();
         $this->study = $dic->fau()->study();
+        $this->sync = $dic->fau()->sync();
         $this->user = $dic->fau()->user();
         $this->tools = $dic->fau()->tools();
     }

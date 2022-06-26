@@ -43,7 +43,6 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data (called by cron job)
      * Counted items are the campo courses
-     * @todo configure terms
      */
     public function synchronize() : void
     {
@@ -57,6 +56,7 @@ class SyncWithCampo extends SyncBase
         $this->syncStudySubjects();
 
         // study structure
+        // courses must be synced first, changes in other data may set the dirty status in the course data
         $this->syncCourses();
         $this->syncEvents();
         $this->syncEventOrgunits();
@@ -76,16 +76,6 @@ class SyncWithCampo extends SyncBase
         $this->syncIndividualInstructors();
         $this->syncAchievements();
         $this->syncEducations();
-
-        // creation and update of ILIAS courses
-        // now all relevant data is updated
-        $terms = [
-            new Term(2022, 1)
-        ];
-        foreach ($terms as $term) {
-            $this->increaseItemsAdded($this->study->manager()->createCourses($term));
-            $this->increaseItemsUpdated($this->study->manager()->updateCourses($term));
-        }
     }
 
     /**
@@ -236,9 +226,6 @@ class SyncWithCampo extends SyncBase
                 $record->getComment(),
                 $record->getGuest()
             );
-            if ($existing = $this->study->repo()->getEvent($record->getEventId())) {
-                $event = $event->withIliasObjId($existing->getIliasObjId())->asChanged(true);
-            }
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
                 case DipData::CHANGED:
@@ -247,6 +234,10 @@ class SyncWithCampo extends SyncBase
                 case DipData::DELETED:
                     $this->study->repo()->delete($event);
                     break;
+            }
+            // set the related courses as changed to trigger an update
+            foreach ($this->study->repo()->getCoursesOfEvent($record->getEventId()) as $course) {
+                $this->study->repo()->save($course->asChanged(true));
             }
             $this->staging->repo()->setDipProcessed($record);
         }
@@ -296,9 +287,9 @@ class SyncWithCampo extends SyncBase
                     $this->study->repo()->delete($responsible);
                     break;
             }
-            // mark event as changed to trigger a role update in the related ILIAS course
-            if ($event = $this->study->repo()->getEvent($record->getEventId())) {
-                $this->study->repo()->save($event->asChanged(true));
+            // set the related courses as changed to trigger an update
+            foreach ($this->study->repo()->getCoursesOfEvent($record->getEventId()) as $course) {
+                $this->study->repo()->save($course->asChanged(true));
             }
             $this->staging->repo()->setDipProcessed($record);
         }

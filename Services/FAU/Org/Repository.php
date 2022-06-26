@@ -13,6 +13,26 @@ use FAU\RecordData;
 class Repository extends RecordRepo
 {
     /**
+     * @param string $fauornr
+     * @return Orgunit|null
+     */
+    public function getOrgunit(int $id) : ?RecordData
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE id = " . $this->db->quote($id, 'integer');
+        return $this->getSingleRecord($query, Orgunit::model());
+    }
+
+    /**
+     * @param string $fauornr
+     * @return Orgunit|null
+     */
+    public function getOrgunitByNumber(string $fauognr) : ?RecordData
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE fauorg_nr = " . $this->db->quote($fauognr, 'text');
+        return $this->getSingleRecord($query, Orgunit::model());
+    }
+
+    /**
      * @return Orgunit[]
      */
     public function getOrgunits() : array

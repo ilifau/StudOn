@@ -34,4 +34,8 @@ class Service
         return new SyncWithIdm($this->dic);
     }
 
+    public function ilias() : SyncWithIlias
+    {
+        return new SyncWithIlias($this->dic);
+    }
 }

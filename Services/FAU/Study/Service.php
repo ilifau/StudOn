@@ -4,6 +4,7 @@ namespace FAU\Study;
 
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
+use FAU\Study\Data\Course;
 
 /**
  * Service for study related data
@@ -15,7 +16,6 @@ class Service
 
     protected Repository $repository;
     protected Matching $matching;
-    protected CourseManager $manager;
     protected Gui $gui;
 
 
@@ -27,18 +27,6 @@ class Service
         $this->dic = $dic;
         $this->lng = $dic->language();
     }
-
-    /**
-     * Cet the class for managing course and group creation and update
-     */
-    public function manager() : CourseManager
-    {
-        if (!isset($this->manager)) {
-            $this->manager = new CourseManager($this->dic);
-        }
-        return $this->manager;
-    }
-
 
 
     /**
@@ -246,20 +234,17 @@ class Service
     {
         $month = (int) date('m');
         if ($month <= 3) {
-            // winter semester of last year
-            $cur_year = (int) date('Y') - 1;
-            $cur_sem = 2;
-        } elseif ($month <= 9) {
-            // summer semester
-            $cur_year = (int) date('Y');
-            $cur_sem = 1;
-        } else {
-            // winter semester of this year
-            $cur_year = (int) date('Y');
-            $cur_sem = 2;
+            // winter term of last year
+            return new Term((int) date('Y') - 1, 2);
         }
-
-        return new Term($cur_year, $cur_sem);
+        elseif ($month <= 9) {
+            // summer term of current year
+            return new Term((int) date('Y'), 1);
+        }
+        else {
+            // winter term of this year
+            return new Term((int) date('Y'), 2);
+        }
     }
 
 

@@ -38,13 +38,19 @@ class Service
      */
     public function checkOrgUnitRelations()
     {
+        // collect the org units by their ilias ref_id
         $unitsById = $this->repo()->getOrgunits();
         $unitsByRefId = [];
         foreach ($this->repo()->getOrgunitsWithRefId() as $unit) {
-            $unitsByRefId[$unit->getIliasRefId()] = $unit;
+            if (!empty($unit->getIliasRefId())) {
+                $unitsByRefId[$unit->getIliasRefId()] = $unit;
+            }
         }
 
+        // check the org units with references for inconsistent paths
         foreach ($unitsByRefId as $ref_id => $unit) {
+
+            // check the basic requirement for a relation: non-deleted category
             if (!\ilObject::_exists($ref_id, true)) {
                 $this->repo()->save($unit->withProblem('ILIAS object does not exist'));
                 continue;
@@ -104,5 +110,4 @@ class Service
             $this->repo()->save($unit->withProblem(null));
         }
     }
-
 }

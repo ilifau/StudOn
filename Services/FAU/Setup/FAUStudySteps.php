@@ -115,15 +115,11 @@ class FAUStudySteps
             'shorttext'         => ['type' => 'text',       'length' => 1000,   'notnull' => false, 'default' => null],
             'comment'           => ['type' => 'text',       'length' => 4000,   'notnull' => false, 'default' => null],
             'guest'             => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
-            'ilias_obj_id'      => ['type' => 'integer',    'length' => 4,      'notnull' => false, 'default' => null],
-            'ilias_dirty_since' => ['type' => 'timestamp',                      'notnull' => false],
         ],
             $drop
         );
         $this->db->addPrimaryKey('fau_study_events', ['event_id']);
         $this->db->addIndex('fau_study_events', ['title'], 'i1');
-        $this->db->addIndex('fau_study_events', ['ilias_obj_id'], 'i2');
-        $this->db->addIndex('fau_study_events', ['ilias_dirty_since'], 'i3');
     }
 
     protected function createEventOrgunitsTable(bool $drop = false)

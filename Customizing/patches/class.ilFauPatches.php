@@ -37,6 +37,12 @@ class ilFauPatches
     }
 
 
+    public function syncWithIlias()
+    {
+        $service = $this->dic->fau()->sync()->ilias();
+        $service->synchronize();
+    }
+
     /**
      * todo: move to cron job when finished
      */

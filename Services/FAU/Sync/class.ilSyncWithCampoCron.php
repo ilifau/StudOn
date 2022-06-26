@@ -49,10 +49,21 @@ class ilSyncWithCampoCron extends ilCronJob
     {
         global $DIC;
 
-        $service = $DIC->fau()->sync()->campo();
         $result = new \ilCronJobResult();
 
+        // First synchronize the campo data from the staging database
+        // this will not set the counters
+        $service = $DIC->fau()->sync()->campo();
         $service->synchronize();
+        if ($service->hasErrors()) {
+            $result->setStatus(\ilCronJobResult::STATUS_FAIL);
+            $result->setMessage(implode(', ', $service->getErrors()));
+            return $result;
+        }
+
+        // Then create or update the ilias courses based on that data
+//        $service = $DIC->fau()->sync()->ilias();
+//        $service->synchronize();
 
         if ($service->hasErrors()) {
             $result->setStatus(\ilCronJobResult::STATUS_FAIL);
@@ -63,7 +74,6 @@ class ilSyncWithCampoCron extends ilCronJob
                 . 'Updated Courses: ' . $service->getItemsUpdated() . ', '
             );
         }
-        
         return $result;
     }
 }
