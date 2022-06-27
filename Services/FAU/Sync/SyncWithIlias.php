@@ -53,21 +53,27 @@ class SyncWithIlias extends SyncBase
             $this->info('CREATE' . $course->getTitle() . '...');
 
             if ($this->study->repo()->countCoursesOfEventInTerm($course->getEventId(), $term) > 0) {
-                // todo: treat multiple parallel
+                // todo: treat multiple parallel groups
                 // check if existing objects are ILIAS courses or groups
                 // if groups: create another group in the same course
                 // if courses: create another course
                 // in both cases: create a membership limitation or add the object
             }
 
-            if (empty($responsible = $this->getResponsibleOrgUnit($course))) {
-                // todo: mark course as problem or take a common fallback unit
-                continue;
-            };
-            if (empty($creation = $this->findOrgUnitForCourseCreation($responsible))) {
-                $this->info('No ILIAS category found for course creation');
-                $this->org->repo()->save($responsible->withProblem('No ILIAS category found for course creation'));
+            $creationUnit = null;
+            foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $event_orgunit) {
+                if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($event_orgunit->getFauorgNr()))) {
+                    $this->study->repo()->save($course->withIliasProblem(
+                        'Responsible Org Unit ' . $event_orgunit->getFauorgNr() . ' not fond!'));
+                    continue;
+                }
+
+                if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
+                    $this->org->repo()->save($responsibleUnit->withProblem('No ILIAS category found for course creation'));
+                }
             }
+
+
         }
 
         return 0;
@@ -84,23 +90,6 @@ class SyncWithIlias extends SyncBase
         return 0;
     }
 
-
-    /**
-     * Get the organisational unit that is responsible for a course
-     * There may be more units responsible => take the first found
-     * @param Course $course
-     * @return ?Orgunit
-     */
-    protected function getResponsibleOrgUnit(Course $course) : ?Orgunit
-    {
-        foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $event_orgunit) {
-            if ($unit = $this->org->repo()->getOrgunitByNumber($event_orgunit->getFauorgNr())) {
-                return $unit;
-            }
-        }
-        return null;
-    }
-
     /**
      * Find an org unit in the path of a unit that should be used for course creation
      * If there is a parent with "collect courses" and an ILIAS ref_id assigned, take this one
@@ -111,16 +100,15 @@ class SyncWithIlias extends SyncBase
     protected function findOrgUnitForCourseCreation(Orgunit $unit) : ?Orgunit
     {
         $found = null;
-        foreach (array_reverse($unit->getPathIds()) as $id) {
-            $pathunit = $this->org->repo()->getOrgunit($id);
+        foreach (array_reverse($this->org->getPathUnits($unit)) as $pathUnit) {
 
             // always take the highest collector if ilias object is assigned
-            if (!empty($pathunit->getIliasRefId()) && $pathunit->getCollectCourses()) {
-                $found = $pathunit;
+            if (!empty($pathUnit->getIliasRefId()) && $pathUnit->getCollectCourses()) {
+                $found = $pathUnit;
             }
             // take the nearest parent if ilias object is assigned
-            elseif (!empty($pathunit->getIliasRefId()) && !$pathunit->getNoManager() &&  empty($found)) {
-                $found = $pathunit;
+            elseif (!empty($pathUnit->getIliasRefId()) && !$pathUnit->getNoManager() && empty($found)) {
+                $found = $pathUnit;
             }
         }
         return $found;

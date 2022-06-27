@@ -3,6 +3,7 @@
 namespace FAU\Org;
 
 use ILIAS\DI\Container;
+use FAU\Org\Data\Orgunit;
 
 /**
  * Service for organisational data
@@ -30,6 +31,62 @@ class Service
             $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
         }
         return $this->repository;
+    }
+
+    /**
+     * Get the org units from the path of a units
+     * @param Orgunit $unit
+     * @return Orgunit[]
+     */
+    public function getPathUnits(OrgUnit $unit) : array
+    {
+        $path = [];
+        foreach ($unit->getPathIds() as $id) {
+            $path[] = $this->repository->getOrgunit($id);
+        }
+        return $path;
+    }
+
+    /**
+     * Get lines with titles and links of the org unit path
+     * @param Orgunit $unit
+     * @return string[]
+     */
+    public function getOrgPathLog(Orgunit $unit) : array
+    {
+        $list = [];
+        foreach ($this->getPathUnits($unit) as $pathUnit) {
+            if ($pathUnit->getId() == 1 || $pathUnit->getId() == $unit->getId()) {
+                continue;
+            }
+            $text = $pathUnit->getLongtext() . ' [' . $pathUnit->getShorttext() . ']';
+            if (!empty($pathUnit->getIliasRefId())) {
+                $text .= ' (https://studon.fau.de/' . $pathUnit->getIliasRefId() . ')';
+            }
+            $list[] = $text;
+        }
+        return $list;
+    }
+
+
+    /**
+     * Get lines with titles and links of the ILIAS path
+     * @param Orgunit $unit
+     * @return string[]
+     */
+    public function getIliasPathLog(Orgunit $unit) : array
+    {
+        $list = [];
+        if (!empty($unit->getIliasRefId())) {
+            foreach ($this->dic->repositoryTree()->getPathId($unit->getIliasRefId()) as $path_ref_id) {
+                if ($path_ref_id == 1 || $path_ref_id == $unit->getIliasRefId()) {
+                    continue;
+                }
+                $list[] = \ilObject::_lookupTitle(\IlObject::_lookupObjId($path_ref_id))
+                    . ' (https://studon.fau.de/' . $path_ref_id . ')';
+            }
+        }
+        return $list;
     }
 
     /**
@@ -64,50 +121,32 @@ class Service
                 continue;
             }
 
-            // get the path of unit by organisational relationship
+            // get the path to the unit by organisational relationship
+            // add only org units with assigned ILIAS category
             $refsByOrg = [];
-            $listByOrg = [];
             foreach ($unit->getPathIds() as $path_org_id) {
-                if ($path_org_id == 1 || $path_org_id == $unit->getId()) {
-                    continue;
-                }
                 $pathUnit = $unitsById[$path_org_id];
-                $text = $pathUnit->getLongtext() . ' [' . $pathUnit->getShorttext() . ']';
-
-                if (!empty($pathUnit->getIliasRefId())) {
-                    $text .= ' (https://studon.fau.de/' . $pathUnit->getIliasRefId() . ')';
+                if ($pathUnit->getId() != 1 && $pathUnit->getId() != $unit->getId() && !empty($pathUnit->getIliasRefId())) {
                     $refsByOrg[] = $pathUnit->getIliasRefId();
                 }
-//                else {
-//                    $refsByOrg[] = 0;     // to find missing parent relations
-//                }
-                $listByOrg[] = $text;
             }
 
+            // get the path to the unit's category by ILIAS tree
+            // add only ILIAS categories with assigned org unit
             $refsByTree = [];
-            $listByTree = [];
             foreach ($this->dic->repositoryTree()->getPathId($ref_id) as $path_ref_id) {
-                if ($path_ref_id == 1 || $path_ref_id == $unit->getIliasRefId()) {
-                    continue;
-                }
-                $listByTree[] = \ilObject::_lookupTitle(\IlObject::_lookupObjId($path_ref_id))
-                    . ' (https://studon.fau.de/' . $path_ref_id . ')';
-
-                if (isset($unitsByRefId[$path_ref_id])) {
+                if ($path_ref_id != 1 && $path_ref_id != $unit->getIliasRefId() &&  !empty($unitsByRefId[$path_ref_id])) {
                     $refsByTree[] = $path_ref_id;
                 }
             }
 
+            // check if both reduced paths are the same
             if (implode('.', $refsByOrg) != implode('.', $refsByTree)) {
-                $problem =
-                     "FAU parents: \n    " . implode("\n    ", $listByOrg). "\n"
-                    . "ILIAS parents: \n    " . implode("\n    ", $listByTree);
-
-                $this->repo()->save($unit->withProblem($problem));
-                continue;
+                $this->repo()->save($unit->withProblem(
+                     "FAU parents: \n    " . implode("\n    ", $this->getOrgPathLog($unit)). "\n"
+                    . "ILIAS parents: \n    " . implode("\n    ", $this->getIliasPathLog($unit))
+                ));
             }
-
-            $this->repo()->save($unit->withProblem(null));
         }
     }
 }

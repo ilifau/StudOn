@@ -142,7 +142,10 @@ class SyncWithCampo extends SyncBase
                 $record->getLiterature(),
             );
             if ($existing = $this->study->repo()->getCourse($record->getCourseId())) {
-                $course = $course->withIliasObjId($existing->getIliasObjId())->asChanged(true);
+                $course = $course
+                    ->withIliasObjId($existing->getIliasObjId())
+                    ->withIliasProblem($existing->getIliasProblem())
+                    ->asChanged(true);
             }
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:

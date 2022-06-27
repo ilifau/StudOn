@@ -26,7 +26,8 @@ class Course extends RecordData
         'contents' => 'clob',
         'literature' => 'text',
         'ilias_obj_id' => 'integer',
-        'ilias_dirty_since' => 'text'
+        'ilias_dirty_since' => 'text',
+        'ilias_problem' => 'clob'
     ];
     protected int $course_id;
     protected ?int $event_id;
@@ -46,6 +47,7 @@ class Course extends RecordData
     // not in constructor, added later
     protected ?int $ilias_obj_id = null;
     protected ?string $ilias_dirty_since = null;
+    protected ?string $ilias_problem;
 
     public function __construct(
         int $course_id,
@@ -217,6 +219,16 @@ class Course extends RecordData
         return $this->ilias_dirty_since;
     }
 
+
+    /**
+     * @return string|null
+     */
+    public function getIliasProblem() : ?string
+    {
+        return $this->ilias_problem;
+    }
+
+
     /**
      * @param int|null $ilias_obj_id
      * @return Course
@@ -227,6 +239,18 @@ class Course extends RecordData
         $clone->ilias_obj_id = $ilias_obj_id;
         return $clone;
     }
+
+    /**
+     * @param string|null $ilias_problem
+     * @return Course
+     */
+    public function withIliasProblem(?string $ilias_problem) : self
+    {
+        $clone = clone $this;
+        $clone->ilias_problem = $ilias_problem;
+        return $clone;
+    }
+
 
     /**
      * Note that course data has changed
