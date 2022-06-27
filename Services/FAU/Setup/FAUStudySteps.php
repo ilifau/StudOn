@@ -56,6 +56,7 @@ class FAUStudySteps
             'literature'            => ['type' => 'text',       'length' => 4000,   'notnull' => false],
             'ilias_obj_id'          => ['type' => 'integer',    'length' => 4,      'notnull' => false],
             'ilias_dirty_since'     => ['type' => 'timestamp',                      'notnull' => false],
+            'ilias_problem'         => ['type' => 'text',       'length' => 4000,   'notnull' => false],
         ],
             $drop
         );
