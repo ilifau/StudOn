@@ -290,6 +290,11 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->tpl->setVariable('VAL_NAME', $a_set['lastname'] . ', ' . $a_set['firstname']);
 
         foreach ($this->getSelectedColumns() as $field) {
+
+            // fau: userData - generate cell_id for tooltip
+            $cell_id =  rand(1000000,9999999);
+            // fau.
+
             switch ($field) {
                 case 'gender':
                     $a_set['gender'] = $a_set['gender'] ? $this->lng->txt('gender_' . $a_set['gender']) : '';
@@ -317,13 +322,20 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     break;
 
 
-// fau: studyData - format table output of studydata
+                // fau: userData - format table output of studydata and educations
                 case 'studydata':
                     $a_set['studydata'] = nl2br($a_set['studydata']);
-// fau.
-// no break
+
+                case 'educations':
+                    ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    $a_set['educations'] = str_replace("\n", ', ', ilUtil::shortenText($a_set['educations'], 20, true));
+                // fau.
+                // no break
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
+                    // fau: userData - set cell id for tooltip
+                    $this->tpl->setVariable('ID_CUST', $cell_id);
+                    // fau.
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
                     $this->tpl->parseCurrentBlock();
                     break;

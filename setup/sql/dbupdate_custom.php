@@ -1515,3 +1515,31 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
     $ilDB->addIndex('ut_auth', ['username'], 'i2');
 }
 ?>
+<#93>
+<?php
+/**
+ * fau: fauService: create the new condition tables
+ */
+\FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_93();
+?>
+<#94>
+<?php
+/**
+ * fau: fauService: create the new orgunit table
+ */
+\FAU\Setup\Setup::instance($ilDB)->org()->custom_step_94();
+?>
+<#95>
+<?php
+/**
+ * fau: fauService: create the new study tables
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_95();
+?>
+<#96>
+<?php
+/**
+ * fau: fauService: create the new study tables
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_96();
+?>

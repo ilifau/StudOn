@@ -115,17 +115,18 @@ class ilAuthProviderDatabase extends ilAuthProvider implements ilAuthProviderInt
 
 
         // fau: loginFallback - check password from an idm account
+        // fau: userData - check password from an idm account
         if (ilCust::get('local_auth_idm')) {
             // take the user that is already found
             if ($user instanceof ilObjUser) {
                 $this->getLogger()->debug('Trying to authenticate with idm account: ' . $user->getExternalAccount());
-                require_once('Services/Idm/classes/class.ilIdmData.php');
-                $idmData = new ilIdmData();
-                if (!$idmData->read($user->getExternalAccount())) {
+
+                global $DIC;
+                if (empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getExternalAccount()))) {
                     $this->getLogger()->debug('idm data not found');
                 }
                 else {
-                    $idmUser = $idmData->getDummyUser();
+                    $idmUser = $DIC->fau()->sync()->idm()->getDummyUserForLocalAuth($identity);
                     if (ilUserPasswordManager::getInstance()->verifyPassword($idmUser, $this->getCredentials()->getPassword())) {
                         $this->getLogger()->debug('Successfully authenticated idm user: ' . $user->getExternalAccount());
                         $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);

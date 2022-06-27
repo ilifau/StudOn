@@ -160,12 +160,6 @@ common#:#cont_zipped_html_info#:#Sie können auch ein geziptes Medienpaket hochl
 common#:#crs_create_exco#:#Neuen externen Inhalt anlegen
 common#:#crs_create_perc#:#Neues Perception-Assessment anlegen
 common#:#distinct_registrations#:#Verschiedene Anmeldungen
-common#:#docorder_err_course_not_closed#:#Der StudOn-Kurs "%s" ist nicht zur Bereitstellung von bestellten Dokumenten geeignet. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
-common#:#docorder_err_course_not_found#:#Zur Kursnummer %s wurde kein StudOn-Kurs gefunden!
-common#:#docorder_err_no_course_found#:#In StudOn wurde kein geeigneter Zielkurs gefunden. Bitte beachten Sie, dass die Bereitstellung nur in StudOn-Kursen erfolgen kann, in denen Sie Schreibrecht haben und deren Mitgliederkreis durch ein Beitrittsverfahren beschränkt ist.
-common#:#docorder_err_no_user_found#:#Zu Ihrer UB-Benutzernummer wurde kein StudOn-Benutzerkonto gefunden. Um den Aufsatzlieferdienst zur Bereitstellung in StudOn nutzen zu können, tragen Sie bitte in StudOn unter "persönliches Profil" Ihre UB-Benutzernummer ein.
-common#:#docorder_err_no_write_access#:#Sie haben kein Schreibrecht im StudOn-Kurs "%s"
-common#:#docorder_err_wrong_request#:#Diese Anfrage wurde nicht erkannt!
 common#:#dummy_admin_firstname_tca#:#TCA
 common#:#dummy_admin_lastname_tca#:#Kursadminstrator
 common#:#dummy_user_firstname_mycampus#:#mein campus
@@ -287,76 +281,6 @@ common#:#shib_user_not_found#:#Zu Ihrer Benutzerkennung wurde in dieser Installa
 common#:#start#:#Start
 common#:#studon_login_exportrequest#:#Bitte loggen Sie sich ein, um den Exportantrag zu stellen!
 common#:#studon_ref_id#:#StudOn-ID
-common#:#studycond_add_condition#:#Bedingung hinzufügen
-common#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen
-common#:#studycond_add_doc_condition#:#Promotions-Bedingung hinzufügen
-common#:#studycond_back#:#Zurück zu den Einstellungen
-common#:#studycond_condition#:#Beitrittsbedingung
-common#:#studycond_condition_combi_info#:#Sie können hier mehrere Bedingungen hinzufügen, die alternativ gelten sollen, d.h. es genügt eine erfüllte zum Beitritt. Innerhalb einer Bedingung müssen alle Kriterien erfüllt sein, damit die Bedingung erfüllt ist.
-common#:#studycond_condition_deleted#:#Die Bedingung wurde gelöscht.
-common#:#studycond_condition_delimiter#:#<br />oder
-common#:#studycond_condition_headline#:#Bedingungen für direkten Beitritt und Beitritt mit Passwort
-common#:#studycond_condition_info#:#Wenn Sie als Beitrittssverfahren "Direkter Beitritt" oder "Beitritt mit Passwort" gewählt habe, können Sie hier Studiums-bezogene festlegen, mit denen das möglich sein soll. Für die übrigen Nutzer gilt dann automatisch "Antrag mit Bestätigung".
-common#:#studycond_condition_info_create#:#Nach dem Anlegen können Sie hier Studiengangsbezogene Bedingungen für einen direkten Beitritt oder Beitritt mit Passwort festlegen.
-common#:#studycond_condition_saved#:#Die Bedingung wurde gespeichert.
-common#:#studycond_condition_updated#:#Die Bedingung wurde gespeichert.
-common#:#studycond_criteria_delimiter#:#,
-common#:#studycond_edit_condition#:#Bedingung bearbeiten
-common#:#studycond_edit_conditions#:#Bedingungen festlegen
-common#:#studycond_field_degree#:#Angehender Abschluß
-common#:#studycond_field_degree_info#:#Wählen Sie einen Abschluss aus oder lassen Sie die Auswahl offen, wenn der angehende Abschluss beliebig sein kann.
-common#:#studycond_field_doc_program#:#Strukturiertes Promotionsprogramm
-common#:#studycond_field_max_approval_date#:#Spätestes Zulassungsdatum
-common#:#studycond_field_max_semester#:#Bis Semester
-common#:#studycond_field_max_semester_info#:#Geben Sie das späteste Fachsemester an. 0 bedeutet beliebig.
-common#:#studycond_field_min_approval_date#:#Frühestes Zulassungsdatum
-common#:#studycond_field_min_semester#:#Von Semester
-common#:#studycond_field_min_semester_info#:#Geben Sie das früheste Fachsemester an. 0 bedeutet beliebig.
-common#:#studycond_field_ref_semester#:#Bezugs-Semester
-common#:#studycond_field_ref_semester_info#:#Geben Sie hier an, auf welches Semester sich die Fachsemester-Bedingungen beziehen. Wenn Sie diese Auswahl offen lassen, beziehen sich die Bedingungen auf den Zeitpunkt des Beitritts.
-common#:#studycond_field_studytype_info#:#Wählen Sie einen Studientyp oder lassen Sie die Auswahl offen, wenn der Typ beliebig sein kann.
-common#:#studycond_field_subject#:#Studienfach
-common#:#studycond_field_subject_info#:#Wählen Sie ein vorgegebenes Studienfach oder lassen Sie die Auswahl offen, wenn das Fach beliebig sein kann.
-common#:#studycond_max_approval_date#:#Zulassung bis %s
-common#:#studycond_max_semester#:#bis %s. Fachsemester (%s)
-common#:#studycond_min_approval_date#:#Zulassung ab %s
-common#:#studycond_min_max_approval_date#:#Zulassung im Zeitraum %s
-common#:#studycond_min_max_semester#:#%s. bis %s. Fachsemester (%s)
-common#:#studycond_min_semester#:#ab %s. Fachsemester (%s)
-common#:#studycond_no_condition_defined#:#Keine Bedingung festgelegt.
-common#:#studydata#:#Studiengangsdaten
-common#:#studydata_degree#:#Angehender Abschluss
-common#:#studydata_doc_prog_until#:#bis
-common#:#studydata_edit#:#Studiengangsdaten bearbeiten
-common#:#studydata_long#:#Studiengangsdaten (Fach, Semester, Abschluss, Fakultät)
-common#:#studydata_msg_incomplete#:#Die Studiendaten sind nicht vollständig! Zu einem Studiengang müssen Bezugs-Semester, Abschluss, Fakultät und mindestens ein Fach angegeben sein. Zu einem Fach müssen der Name und das Semester angegeben sein.
-common#:#studydata_options_update#:#Studiendaten-Auswahlen aktualisieren
-common#:#studydata_options_update_info#:#Aktualisiert die Listen für Abschlüsse, Fakultäten, Fächer und strukturierte Promotionsprogramme aus der IDM-Datenbank
-common#:#studydata_promotion#:#Promotion
-common#:#studydata_promotion_approval#:#zugelassen
-common#:#studydata_promotion_approval_date#:#Zulassungsdatum
-common#:#studydata_promotion_program#:#Strukturiertes Promotionsprogramm
-common#:#studydata_ref_semester#:#Bezugs-Semester
-common#:#studydata_ref_semester_any#:#Ohne Zeitangabe
-common#:#studydata_ref_semester_summer#:#Im Sommer %s
-common#:#studydata_ref_semester_winter#:#Im Winter %s/%s
-common#:#studydata_school#:#Fakultät
-common#:#studydata_semester#:#Semester
-common#:#studydata_semester_subject_no#:#Semester Fach %s
-common#:#studydata_semester_text#:# %s. Semester
-common#:#studydata_study_no#:#Studiengang %s
-common#:#studydata_subject#:#Fach
-common#:#studydata_subject_no#:#Fach %s
-common#:#studydata_type#:#Studientyp
-common#:#studydata_type_any#:#Beliebig
-common#:#studydata_type_full#:#Vollzeit
-common#:#studydata_type_none#:#Unbekannt
-common#:#studydata_type_part#:#Teilzeit
-common#:#studydata_unknown_degree#:#Unbekannter Abschluss
-common#:#studydata_unknown_doc_program#:#Unbekanntes Promotionsprogramm
-common#:#studydata_unknown_school#:#Unbekannte Fakultät
-common#:#studydata_unknown_subject#:#Unbekanntes Fach
-common#:#study_data#:#Studiendaten
 common#:#subscribers_or_waiting_list#:#Aufnahmeanträge/Warteliste
 common#:#sub_added_member#:#Ein neues Mitglied wurde aufgenommen.
 common#:#sub_added_members#:#%s neue Mitglieder wurden aufgenommen.
@@ -470,15 +394,8 @@ content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
-cron#:#campo_data_update#:#Campo-Daten aktualisieren
-cron#:#campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
-cron#:#cron_mycampus_sync#:#Synchronisation mit mein campus
-cron#:#cron_mycampus_sync_added#:#Neue Kursmitglieder: %s
-cron#:#cron_mycampus_sync_info#:#Nimmt in mein campus angemeldete Kursteilnehmer auf
 cron#:#cron_set_last_run#:#Setze letzten Durchlauf
 cron#:#cron_set_last_run_info#:#Der nächste Start wird ausgehend vom letzten Durchlauf anhand des Zeitplans bestimmt
-cron#:#fau_org_data_update#:#FAU.org-Daten aktualisieren
-cron#:#fau_org_data_update_info#:#Aktualisiert die Daten zu den FAU-Organisationseinheiten aus FAU.org
 crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
 crs#:#crs_error_preconditions#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_event_registration_not_possible#:#Die Anmeldung zum Termin '%s' ist nicht möglich!
@@ -685,6 +602,84 @@ exc#:#label_scored_pass#:#Bewerteter Durchlauf: ###fau: exAssTest
 exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
 exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
+fau#:#educations#:#Bildungen
+fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
+fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
+fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
+fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
+fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
+fau#:#studycond_add_condition#:#Bedingung hinzufügen
+fau#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen
+fau#:#studycond_add_doc_condition#:#Promotions-Bedingung hinzufügen
+fau#:#studycond_back#:#Zurück zu den Einstellungen
+fau#:#studycond_condition#:#Beitrittsbedingung
+fau#:#studycond_condition_combi_info#:#Sie können hier mehrere Bedingungen hinzufügen, die alternativ gelten sollen, d.h. es genügt eine erfüllte zum Beitritt. Innerhalb einer Bedingung müssen alle Kriterien erfüllt sein, damit die Bedingung erfüllt ist.
+fau#:#studycond_condition_deleted#:#Die Bedingung wurde gelöscht.
+fau#:#studycond_condition_delimiter#:#<br />oder
+fau#:#studycond_condition_headline#:#Bedingungen für direkten Beitritt und Beitritt mit Passwort
+fau#:#studycond_condition_info#:#Wenn Sie als Beitrittssverfahren "Direkter Beitritt" oder "Beitritt mit Passwort" gewählt habe, können Sie hier Studiums-bezogene festlegen, mit denen das möglich sein soll. Für die übrigen Nutzer gilt dann automatisch "Antrag mit Bestätigung".
+fau#:#studycond_condition_info_create#:#Nach dem Anlegen können Sie hier Studiengangsbezogene Bedingungen für einen direkten Beitritt oder Beitritt mit Passwort festlegen.
+fau#:#studycond_condition_saved#:#Die Bedingung wurde gespeichert.
+fau#:#studycond_condition_updated#:#Die Bedingung wurde gespeichert.
+fau#:#studycond_criteria_delimiter#:#,
+fau#:#studycond_edit_condition#:#Bedingung bearbeiten
+fau#:#studycond_edit_conditions#:#Bedingungen festlegen
+fau#:#studycond_field_degree#:#Angehender Abschluß
+fau#:#studycond_field_degree_info#:#Wählen Sie einen Abschluss aus oder lassen Sie die Auswahl offen, wenn der angehende Abschluss beliebig sein kann.
+fau#:#studycond_field_doc_program#:#Strukturiertes Promotionsprogramm
+fau#:#studycond_field_max_approval_date#:#Spätestes Zulassungsdatum
+fau#:#studycond_field_max_semester#:#Bis Semester
+fau#:#studycond_field_max_semester_info#:#Geben Sie das späteste Fachsemester an. 0 bedeutet beliebig.
+fau#:#studycond_field_min_approval_date#:#Frühestes Zulassungsdatum
+fau#:#studycond_field_min_semester#:#Von Semester
+fau#:#studycond_field_min_semester_info#:#Geben Sie das früheste Fachsemester an. 0 bedeutet beliebig.
+fau#:#studycond_field_ref_semester#:#Bezugs-Semester
+fau#:#studycond_field_ref_semester_info#:#Geben Sie hier an, auf welches Semester sich die Fachsemester-Bedingungen beziehen. Wenn Sie diese Auswahl offen lassen, beziehen sich die Bedingungen auf den Zeitpunkt des Beitritts.
+fau#:#studycond_field_enrolment#:#Typ des Studiums
+fau#:#studycond_field_enrolment_info#:#Wählen Sie einen Typ des Studiums oder lassen Sie die Auswahl offen, wenn der Typ beliebig sein kann.
+fau#:#studycond_field_subject#:#Studienfach
+fau#:#studycond_field_subject_info#:#Wählen Sie ein vorgegebenes Studienfach oder lassen Sie die Auswahl offen, wenn das Fach beliebig sein kann.
+fau#:#studycond_max_approval_date#:#Zulassung bis %s
+fau#:#studycond_max_semester#:#bis %s. Fachsemester (%s)
+fau#:#studycond_min_approval_date#:#Zulassung ab %s
+fau#:#studycond_min_max_approval_date#:#Zulassung im Zeitraum %s
+fau#:#studycond_min_max_semester#:#%s. bis %s. Fachsemester (%s)
+fau#:#studycond_min_semester#:#ab %s. Fachsemester (%s)
+fau#:#studycond_no_condition_defined#:#Keine Bedingung festgelegt.
+fau#:#studydata#:#Studiengangsdaten
+fau#:#studydata_degree#:#Angehender Abschluss
+fau#:#studydata_doc_prog_until#:#bis
+fau#:#studydata_edit#:#Studiengangsdaten bearbeiten
+fau#:#studydata_long#:#Studiengangsdaten (Fach, Semester, Abschluss, Fakultät)
+fau#:#studydata_msg_incomplete#:#Die Studiendaten sind nicht vollständig! Zu einem Studiengang müssen Bezugs-Semester, Abschluss, Fakultät und mindestens ein Fach angegeben sein. Zu einem Fach müssen der Name und das Semester angegeben sein.
+fau#:#studydata_options_update#:#Studiendaten-Auswahlen aktualisieren
+fau#:#studydata_options_update_info#:#Aktualisiert die Listen für Abschlüsse, Fakultäten, Fächer und strukturierte Promotionsprogramme aus der IDM-Datenbank
+fau#:#studydata_promotion#:#Promotion
+fau#:#studydata_promotion_approval#:#zugelassen
+fau#:#studydata_promotion_approval_date#:#Zulassungsdatum
+fau#:#studydata_promotion_program#:#Strukturiertes Promotionsprogramm
+fau#:#studydata_ref_semester#:#Bezugs-Semester
+fau#:#studydata_ref_semester_any#:#Ohne Semesterangabe
+fau#:#studydata_ref_semester_summer#:#Im Sommer %s
+fau#:#studydata_ref_semester_winter#:#Im Winter %s/%s
+fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
+fau#:#studydata_school#:#Fakultät
+fau#:#studydata_semester#:#Semester
+fau#:#studydata_semester_summer#:#Sommersemester %s
+fau#:#studydata_semester_winter#:#Wintersemester %s/%s
+fau#:#studydata_semester_text#:# %s. Semester
+fau#:#studydata_study_no#:#Studiengang %s
+fau#:#studydata_subject#:#Fach
+fau#:#studydata_subject_no#:#Fach %s
+fau#:#studydata_enrolment#:#Typ des Studiums
+fau#:#studydata_unknown_degree#:#Unbekannter Abschluss
+fau#:#studydata_unknown_doc_program#:#Unbekanntes Promotionsprogramm
+fau#:#studydata_unknown_school#:#Unbekannte Fakultät
+fau#:#studydata_unknown_subject#:#Unbekanntes Fach
+fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
+fau#:#studydata_unknown_semester#:#Unbekanntes Semester
+fau#:#study_data#:#Studiendaten
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

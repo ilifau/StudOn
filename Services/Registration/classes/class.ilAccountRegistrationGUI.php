@@ -764,6 +764,7 @@ class ilAccountRegistrationGUI
     // fau: regCodes - new function __generateLogin
     protected function __generateLogin()
     {
+        global $DIC;
         $base_login = '';
 
         switch ($this->registration_settings->loginGenerationType()) {
@@ -777,9 +778,10 @@ class ilAccountRegistrationGUI
                 break;
 
             case ilRegistrationSettings::LOGIN_GEN_GUEST_LISTENER:
+                $semester = $DIC->fau()->study()->getCurrentTerm()->toString();
                 $base_login = 'gh'
-                    . (substr(ilStudyAccess::_getRunningSemesterString(), 4, 1) == '1' ? 's' : 'w')
-                    . substr(ilStudyAccess::_getRunningSemesterString(), 2, 2)
+                    . (substr($semester, 4, 1) == '1' ? 's' : 'w')
+                    . substr($semester, 2, 2)
                     . substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_firstname'))), 0, 2)
                     . substr(ilUtil::getASCIIFilename(strtolower($this->form->getInput('usr_lastname'))), 0, 4);
                 break;

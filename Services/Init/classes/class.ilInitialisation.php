@@ -1047,10 +1047,6 @@ class ilInitialisation
         );
 
         require_once "./Services/Conditions/classes/class.ilConditionHandler.php";
-
-        // fau: studyData - require ilStudyAccess
-        require_once "./Services/StudyData/classes/class.ilStudyAccess.php";
-        // fau.
     }
 
     /**
@@ -1329,6 +1325,9 @@ class ilInitialisation
         self::initTermsOfService($GLOBALS['DIC']);
         self::initAccessibilityControlConcept($GLOBALS['DIC']);
 
+        // fau: fauService - call initialisation of the service factory
+        self::initFau($GLOBALS['DIC']);
+        // fau.
 
         // --- needs settings
 
@@ -1376,6 +1375,18 @@ class ilInitialisation
         // Init GlobalScreen
         self::initGlobalScreen($DIC);
     }
+
+    // fau: fauService - new function to init the service factory
+    /**
+     * @param \ILIAS\DI\Container $c
+     */
+    protected static function initFau(\ILIAS\DI\Container $c)
+    {
+        $c["fau"] = function ($c) {
+            return new \FAU\Service($c);
+        };
+    }
+    // fau.
 
     /**
      * Init user / authentification (level 2)

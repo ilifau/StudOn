@@ -116,7 +116,6 @@ class ilObjGroupGUI extends ilContainerGUI
 
 // fau: studyCond - add command class
             case 'ilstudycondgui':
-                include_once("./Services/StudyData/classes/class.ilStudyCondGUI.php");
                 $cond_gui = new ilStudyCondGUI($this, 'edit');
                 $this->ctrl->setReturn($this, 'edit');
                 $this->ctrl->forwardCommand($cond_gui);
@@ -1482,8 +1481,8 @@ class ilObjGroupGUI extends ilContainerGUI
         // fau.
         else {
             // fau: studyCond - generate text for suscription with condition
-            if (ilStudyAccess::_hasConditions($this->object->getId())) {
-                $ctext = ilStudyAccess::_getConditionsText($this->object->getId());
+            if ($DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->object->getId())) {
+                $ctext = $DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId());
                 switch ($this->object->getRegistrationType()) {
                     case GRP_REGISTRATION_DIRECT:
                         $registration_text = sprintf($this->lng->txt('group_req_direct_studycond'), $ctext);
@@ -1497,7 +1496,7 @@ class ilObjGroupGUI extends ilContainerGUI
                         break;
                 }
                 $ilUser = $DIC->user();
-                if (ilStudyAccess::_checkSubscription($this->object->getId(), $ilUser->getId())) {
+                if (!$DIC->fau()->cond()->soft()->check($this->object->getId(), $ilUser->getId())) {
                     $registration_type = $this->object->getRegistrationType();
                 } else {
                     $registration_type = GRP_REGISTRATION_REQUEST;
@@ -1990,10 +1989,10 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
             // fau: studyCond - add studycond setting
-            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/StudyData");
+            $stpl = new ilTemplate("tpl.show_mem_study_cond.html", true, true, "Services/FAU/Cond/GUI");
             if ($a_mode == 'edit') {
                 $stpl->setCurrentBlock('condition');
-                $stpl->setVariable("CONDITION_TEXT", nl2br(ilStudyAccess::_getConditionsText($this->object->getId())));
+                $stpl->setVariable("CONDITION_TEXT", nl2br($DIC->fau()->cond()->soft()->getConditionsAsText($this->object->getId())));
                 $stpl->setVariable("LINK_CONDITION", $this->ctrl->getLinkTargetByClass('ilstudycondgui', ''));
                 $stpl->setVariable("TXT_CONDITION", $this->lng->txt("studycond_edit_conditions"));
                 $stpl->parseCurrentBlock();

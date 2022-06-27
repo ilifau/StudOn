@@ -347,11 +347,13 @@ class ilAuthFrontend
         // reset counter for failed logins
         ilObjUser::_resetLoginAttempts($user->getId());
 
-        // fau: idmData - apply IDM data at login
-        include_once "Services/Idm/classes/class.ilIdmData.php";
-        $idmData = new ilIdmData();
-        if ($idmData->read($user->getLogin()) || $idmData->read($user->getExternalAccount())) {
-            $idmData->applyToUser($user, 'update');
+        // fau: userData - apply IDM data at login
+        global $DIC;
+        if (!empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getLogin())) ||
+            (!empty($user->getExternalAccount() && !empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getExternalAccount()))))
+        )
+        {
+            $DIC->fau()->sync()->idm()->applyIdentityToUser($identity, $user, false);
         }
         // fau.
 

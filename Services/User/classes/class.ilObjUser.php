@@ -1489,8 +1489,13 @@ class ilObjUser extends ilObject
         // Delete user defined field entries
         $this->deleteUserDefinedFieldEntries();
 
-        // fau: studyData - delete the study data
-        ilStudyAccess::_deleteData($this->getId());
+        // fau: userData - delete the study data
+        if (!empty($person = $DIC->fau()->user()->repo()->getPersonOfUser($this->getId()))) {
+            $DIC->fau()->user()->repo()->delete($person);
+        }
+        // fau.
+        // fau: userData - delete the assigned data
+        $DIC->fau()->user()->repo()->deleteEducationsOfUser($this->getId());
         // fau.
 
         // Delete clipboard entries

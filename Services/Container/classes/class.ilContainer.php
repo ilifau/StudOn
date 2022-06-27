@@ -604,7 +604,8 @@ class ilContainer extends ilObject
         $mom_noti->cloneSettings($new_obj->getRefId());
 
         // fau: studyCond - clone conditions when container is cloned
-        ilStudyAccess::_cloneConditions($this->getId(), $new_obj->getId());
+        global $DIC;
+        $DIC->fau()->cond()->soft()->cloneConditions($this->getId(), $new_obj->getId());
         // fau.
 
         return $new_obj;
@@ -742,7 +743,8 @@ class ilContainer extends ilObject
         $this->obj_trans->delete();
 
         // fau: studyCond - delete conditions when the container is deleted
-        ilStudyAccess::_deleteConditions($this->getId());
+        global $DIC;
+        $DIC->fau()->cond()->soft()->deleteConditionsOfObject($this->getId());
         // fau.
         return true;
     }

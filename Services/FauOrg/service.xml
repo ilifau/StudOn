@@ -1,8 +1,0 @@
-<?xml version = "1.0" encoding = "UTF-8"?>
-<service xmlns="http://www.w3.org" version="$Id$" id="fau_org">
-	<crons>
-		<cron id="fau_org_data_update_cron" class="ilFauOrgDataUpdateCron" />
-	</crons>
-    <baseclasses />
-	<logging />
-</service>

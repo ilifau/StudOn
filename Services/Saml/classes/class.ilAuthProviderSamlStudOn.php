@@ -1,18 +1,14 @@
 <?php
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once('./Services/Idm/classes/class.ilIdmData.php');
-require_once('./Services/StudyData/classes/class.ilStudyCourseData.php');
+use FAU\Staging\Data\Identity;
 
 /**
  * fau: samlAuth new class for saml authentication in studon
  */
 class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 {
-    /**
-     * @var ilIdmData   data provided by idm
-     */
-    protected $data = null;
+    protected Identity $identity;
 
     /**
      * @inheritdoc
@@ -47,9 +43,9 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
             // get the idm data
             if (DEVMODE and ilCust::get('shib_devmode_identity')) {
-                $this->fetchIdmData(ilCust::get('shib_devmode_identity'));
+                $this->fetchIdentity(ilCust::get('shib_devmode_identity'));
             } else {
-                $this->fetchIdmData();
+                $this->fetchIdentity();
             }
 
             // get the studon login name for the idm data
@@ -61,8 +57,10 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
             // set and update the user object
             if ($id = (int) ilObjUser::_lookupId($login)) {
+                // existing user account matches
                 $user = $this->getUpdatedUser($id);
-            } else {
+            }
+            else {
                 // check general possibility for creating accounts
                 if (!ilCust::get('shib_allow_create')) {
                     $this->getLogger()->warning('Creation of new users from SAML authentication is prevented.');
@@ -71,11 +69,8 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 }
 
                 // check the minimum attributes needed for new users
-                if (
-                    empty($this->data->firstname)
-                    || empty($this->data->lastname)
-                ) {
-                    $this->getLogger()->warning('Could not create new user because firstname, lastname or gender is m missing in SAML attributes.');
+                if (empty($this->identity->getGivenName()) || empty($this->identity->getSn())) {
+                    $this->getLogger()->warning('Could not create new user because firstname or lastname is m missing in SAML attributes.');
                     $this->handleAuthenticationFail($status, 'shib_data_missing');
                     return false;
                 }
@@ -102,25 +97,25 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
     protected function generateLogin()
     {
         // Try the identity as login
-        if ($login = ilObjUser::_findLoginByField('login', $this->data->identity)) {
+        if ($login = ilObjUser::_findLoginByField('login', $this->identity->getPkPersistentId())) {
             return $login;
         }
 
         // Try the identity as external account
-        if ($login = ilObjUser::_findLoginByField('ext_account', $this->data->identity)) {
+        if ($login = ilObjUser::_findLoginByField('ext_account', $this->identity->getPkPersistentId())) {
             return $login;
         }
 
         // Try the matriculation number
-        if (!empty($this->data->matriculation)) {
-            if ($login = ilObjUser::_findLoginByField('matriculation', $this->data->matriculation)) {
+        if (!empty($this->identity->getMatriculation())) {
+            if ($login = ilObjUser::_findLoginByField('matriculation', $this->identity->getMatriculation())) {
                 return $login;
             }
         }
 
         // use the identity directly if no account is found
         // a new account will be created with this identity as login
-        return $this->data->identity;
+        return $this->identity->getPkPersistentId();
     }
 
     /**
@@ -130,7 +125,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
      */
     protected function getNewUser($login)
     {
-        global $ilSetting, $lng;
+        global $DIC;
 
         // create an empty user object (this makes the user id available)
         $userObj = new ilObjUser();
@@ -138,16 +133,30 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
         // set basic account data
         $userObj->setLogin($login);
-        $userObj->setPasswd(end(ilUtil::generatePasswords(1)), IL_PASSWD_PLAIN);
-        $userObj->setLanguage($lng->getLangKey());
+        $userObj->setPasswd(ilUtil::generatePasswords(1)[0], IL_PASSWD_PLAIN);
+        $userObj->setLanguage($DIC->language()->getLangKey());
         $userObj->setAuthMode('shibboleth');
 
-        // apply the IDM data and save the user data
-        $this->data->applyToUser($userObj, 'create');
+        // can be used in test platform for limited access
+        if (ilCust::get('shib_create_limited')) {
+            $userObj->setTimeLimitUnlimited(0);
+            $userObj->setTimeLimitFrom(time() - 10);
+            $userObj->setTimeLimitUntil($DIC->fau()->tools()->dbDateToUnix(ilCust::get('shib_create_limited')));
+        } else {
+            $userObj->setTimeLimitUnlimited(1);
+            $userObj->setTimeLimitFrom(time());
+            $userObj->setTimeLimitUntil(time());
+        }
+        $userObj->setActive(1, 6);
+        $userObj->setTimeLimitOwner(7);
+        $userObj->saveAsNew();
+
+        // apply the IDM data and update the user
+        $DIC->fau()->sync()->idm()->applyIdentityToUser($this->identity, $userObj, true);
 
         // write the preferences
-        $userObj->setPref('hits_per_page', $ilSetting->get('hits_per_page'));
-        $userObj->setPref('show_users_online', $ilSetting->get('show_users_online', 'y'));
+        $userObj->setPref('hits_per_page', $DIC->settings()->get('hits_per_page'));
+        $userObj->setPref('show_users_online', $DIC->settings()->get('show_users_online', 'y'));
         $userObj->writePrefs();
 
         return $userObj;
@@ -162,6 +171,8 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
      */
     protected function getUpdatedUser($user_id)
     {
+        global $DIC;
+
         $userObj = new ilObjUser($user_id);
         $login = $userObj->getLogin();
 
@@ -171,12 +182,12 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 strpos($login, '.') === false       // keep firstname.lastname
             ) {
 
-            if ($login != $this->data->identity) {
-                $userObj->updateLogin($this->data->identity);
+            if ($login != $this->identity->getPkPersistentId()) {
+                $userObj->updateLogin($this->identity->getPkPersistentId());
             }
 
             // set the authentication mode to shibboleth
-            // this will cause the profile fields to be updated in ilIdmData::applyToUser
+            // this will cause the profile fields to be updated in applyIdentityToUser
             $userObj->setAuthMode("shibboleth");
         }
 
@@ -187,11 +198,12 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
         // activate an inactive or timed out account via shibboleth
         // it is assumed that all users coming from shibboleth are allowed to access studon
-        $userObj->setActive(true);
+        $userObj->setActive(1, 6);
         $userObj->setTimeLimitUnlimited(true);
+        $userObj->setTimeLimitOwner(7);
 
         // apply the IDM data and update the user
-        $this->data->applyToUser($userObj, 'update');
+        $DIC->fau()->sync()->idm()->applyIdentityToUser($this->identity, $userObj, false);
 
         return $userObj;
     }
@@ -216,40 +228,14 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
     /**
      * Fetch the idm data either from database or from shibboleth attributes
-     * @param   string  $a_identity     identity to be used (optional)
+     * @param   string  $a_uid     user id to be used (optional)
      */
-    protected function fetchIdmData($a_identity = '')
+    protected function fetchIdentity($a_uid = '')
     {
-        $this->data = new ilIdmData();
-
-        // set the identity to find the data in the database
-        if (!empty($a_identity)) {
-            $this->data->identity = $a_identity;
-        } else {
-            $this->data->identity = $this->uid;
-        }
-
-        // try to read the idm data from the database
-        if ($this->data->read() == false) {
-            // not existent in database, the get the data from the shibboleth attributes
-            $rawdata = array();
-            $rawdata['last_change'] = date('Y-m-d H:i:s', time());
-            $rawdata['pk_persistent_id'] = $this->uid;
-            $rawdata['sn'] = $this->attributes['urn:mace:dir:attribute-def:sn'][0];
-            $rawdata['given_name'] = $this->attributes['urn:mace:dir:attribute-def:givenName'][0];
-            $rawdata['mail'] = $this->attributes['urn:mace:dir:attribute-def:mail'][0];
-            $rawdata['schac_gender'] = $this->attributes['urn:mace:terena.org:attribute-def:schacGender'][0];
-            $rawdata['unscoped_affiliation'] = implode(';', (array) $this->attributes['urn:mace:dir:attribute-def:eduPersonAffiliation']);
-            // Passwords by SSO have {CRYPT} prefix - not yet supported by StudOn
-            //$rawdata['user_password']               = $this->attributes['urn:mace:dir:attribute-def:userPassword'][0];
-            $rawdata['schac_personal_unique_code'] = $this->attributes['urn:mace:terena.org:attribute-def:schacPersonalUniqueCode'][0];
-            $rawdata['fau_features_of_study'] = '';
-            $rawdata['fau_employee'] = null;
-            $rawdata['fau_student'] = null;
-            $rawdata['fau_guest'] = null;
-            $rawdata['fau_studytype'] = null;
-
-            $this->data->setRawData($rawdata, true);
+        global $DIC;
+        $this->identity = $DIC->fau()->staging()->repo()->getIdentity(empty($a_uid) ? $this->uid : $a_uid);
+        if (!isset($this->identity)) {
+            $this->identity = Identity::model();
         }
     }
 }

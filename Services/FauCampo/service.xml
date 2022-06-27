@@ -1,8 +1,0 @@
-<?xml version = "1.0" encoding = "UTF-8"?>
-<service xmlns="http://www.w3.org" version="$Id$" id="fau_campo">
-	<crons>
-		<cron id="campo_data_update_cron" class="ilCampoDataUpdateCron" />
-	</crons>
-    <baseclasses />
-	<logging />
-</service>

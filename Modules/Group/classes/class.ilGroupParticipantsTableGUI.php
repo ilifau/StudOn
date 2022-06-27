@@ -198,11 +198,13 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                     $this->tpl->setVariable('VAL_CUST', (string) ilOrgUnitPathStorage::getTextRepresentationOfUsersOrgUnits($a_set['usr_id']));
                     $this->tpl->parseCurrentBlock();
                     break;
-// fau: studyData - format table output of studydata
+                // fau: userData - format table output of studydata and educations
                 case 'studydata':
+                case 'educations':
                     $a_set['studydata'] = nl2br($a_set['studydata']);
-// fau.
-// no break
+                    $a_set['educations'] = nl2br($a_set['educations']);
+                // fau.
+                // no break
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
