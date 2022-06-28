@@ -4,7 +4,7 @@
 
 - **fauService** - Einbindung des Service bei der ILIAS-Initialisierung
 - **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von studyData)
-- ...
+- **studyCond** - Verwaltung und Prüfung vin "weichen" Beitrittsbedingungen für Kurse und Gruppen.
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 
@@ -70,7 +70,7 @@ foreach ($repo->getEducationsOfUser($old_user_id) as $oldEducation) {
 ````
 Die Services und Datenklassen verwenden typisierte Parameter und Rückgabewerte, auch für skalare Typen.
 
-Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, könenn die Datenklassen und Ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
+Um das Lesen und Schreiben von Datenobjekten zu erleichtern, die sich auf Datensätze einzelner Tabellen beziehen, können die Datenklassen und Ihr Repository von den folgenden abstrakten Basisklassen abgleitet werden:
 
 - [RecordData](RecordData.php) definiert Funktionen einer Datenklasse, um Werte-Arrays aus Datenbank-Abfragen zu laden oder für sie zu liefern.
 - [RecordRepo](RecordRepo.php) enthält generelle Lese, Schreib- und Löschfunktionen für Datenklassen, die RecordData implementieren.

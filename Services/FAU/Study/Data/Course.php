@@ -27,7 +27,7 @@ class Course extends RecordData
         'literature' => 'text',
         'ilias_obj_id' => 'integer',
         'ilias_dirty_since' => 'text',
-        'ilias_problem' => 'clob'
+        'ilias_problem' => 'text'
     ];
     protected int $course_id;
     protected ?int $event_id;

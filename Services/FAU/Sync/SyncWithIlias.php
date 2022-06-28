@@ -31,15 +31,49 @@ class SyncWithIlias extends SyncBase
     }
 
     /**
-     * Get the terms for which the courses should be synced
-     *  @todo: configure terms
+     * Get the terms for which the courses should be created or updated
+     * End synchronisation with the end of the semester
+     * Start synchronisation for next semester at 1st of June and 1st of December
      * @return Term[]
      */
     protected function getTermsToSync() : array
     {
-        return [
-            new Term(2022, 2)
-        ];
+        $year = (int) date('Y');
+        $month = (int) date('m');
+
+        if ($year == 2022 && $month < 12) {
+               return [
+                   new Term($year, 2)           // start with winter term 2022
+               ];
+        }
+        elseif ($month < 4) {
+            return [
+                new Term($year - 1, 2),     // current winter term
+                new Term($year, 1),              // next summer term
+            ];
+        }
+        elseif ($month < 6) {
+            return [
+                new Term($year, 1),              // current summer term
+            ];
+        }
+        elseif ($month < 10) {
+            return [
+                new Term($year, 1),              // current summer term
+                new Term($year, 2),              // next winter term
+            ];
+        }
+        elseif ($month < 12) {
+            return [
+                new Term($year, 2),             // current winter term
+            ];
+        }
+        else {
+            return [
+                new Term($year, 2),              // current winter term
+                new Term($year + 1, 1)      // next summer term
+            ];
+        }
     }
 
 
@@ -61,19 +95,29 @@ class SyncWithIlias extends SyncBase
             }
 
             $creationUnit = null;
-            foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $event_orgunit) {
-                if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($event_orgunit->getFauorgNr()))) {
+            foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $eventOrgunit) {
+                if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr()))) {
                     $this->study->repo()->save($course->withIliasProblem(
-                        'Responsible Org Unit ' . $event_orgunit->getFauorgNr() . ' not fond!'));
-                    continue;
+                        'Responsible Org Unit ' . $eventOrgunit->getFauorgNr() . ' not found!'));
+                    continue; // next eventOrgunit
                 }
 
                 if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
-                    $this->org->repo()->save($responsibleUnit->withProblem('No ILIAS category found for course creation'));
+                    $this->org->repo()->save($responsibleUnit->withProblem(
+                        "No category found for course creation!\n    "
+                            . implode("\n    ", $this->org->getOrgPathLog($responsibleUnit,true))
+                    ));
+                    continue;   // next eventOrgunit
                 }
+                break;  // creationUnit found
+            }
+            if (empty($creationUnit)) {
+                $this->study->repo()->save($course->withIliasProblem("No ILIAS category found for course creation!"));
+                continue; // next course
             }
 
-
+            // just for test
+            $this->study->repo()->save($course->withIliasObjId($creationUnit->getIliasRefId()));
         }
 
         return 0;

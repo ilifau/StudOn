@@ -196,8 +196,8 @@ class SoftConditions
             $term = $this->dic->fau()->study()->getCurrentTerm();
         }
 
-        log_var($condition);
-        log_var($person);
+        //log_var($condition);
+        //log_var($person);
 
         // check the criteria for each study
         // all defined criteria must be satisfied

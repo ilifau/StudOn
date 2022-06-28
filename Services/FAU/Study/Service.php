@@ -232,18 +232,20 @@ class Service
      */
     public function getCurrentTerm() : Term
     {
+        $year = (int) date('Y');
         $month = (int) date('m');
-        if ($month <= 3) {
+
+        if ($month < 4) {
             // winter term of last year
-            return new Term((int) date('Y') - 1, 2);
+            return new Term($year - 1, 2);
         }
-        elseif ($month <= 9) {
+        elseif ($month < 10) {
             // summer term of current year
-            return new Term((int) date('Y'), 1);
+            return new Term($year, 1);
         }
         else {
             // winter term of this year
-            return new Term((int) date('Y'), 2);
+            return new Term($year, 2);
         }
     }
 

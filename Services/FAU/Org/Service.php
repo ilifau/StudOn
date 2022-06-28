@@ -52,11 +52,11 @@ class Service
      * @param Orgunit $unit
      * @return string[]
      */
-    public function getOrgPathLog(Orgunit $unit) : array
+    public function getOrgPathLog(Orgunit $unit, $include_unit = false) : array
     {
         $list = [];
         foreach ($this->getPathUnits($unit) as $pathUnit) {
-            if ($pathUnit->getId() == 1 || $pathUnit->getId() == $unit->getId()) {
+            if ($pathUnit->getId() == 1 || ($pathUnit->getId() == $unit->getId() && !$include_unit)) {
                 continue;
             }
             $text = $pathUnit->getLongtext() . ' [' . $pathUnit->getShorttext() . ']';
@@ -74,12 +74,12 @@ class Service
      * @param Orgunit $unit
      * @return string[]
      */
-    public function getIliasPathLog(Orgunit $unit) : array
+    public function getIliasPathLog(Orgunit $unit, $include_unit = false) : array
     {
         $list = [];
         if (!empty($unit->getIliasRefId())) {
             foreach ($this->dic->repositoryTree()->getPathId($unit->getIliasRefId()) as $path_ref_id) {
-                if ($path_ref_id == 1 || $path_ref_id == $unit->getIliasRefId()) {
+                if ($path_ref_id == 1 || ($path_ref_id == $unit->getIliasRefId() && !$include_unit)) {
                     continue;
                 }
                 $list[] = \ilObject::_lookupTitle(\IlObject::_lookupObjId($path_ref_id))

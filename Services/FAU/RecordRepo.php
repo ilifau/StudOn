@@ -59,7 +59,7 @@ abstract class RecordRepo
 
     /**
      * Count the records of a query
-     * The query must one field with the counter value
+     * The query must deliver one field with the counter value
      */
     protected function countRecords(string $query, $useCache = true) : int
     {
@@ -142,7 +142,7 @@ abstract class RecordRepo
 
     /**
      * Insert the records
-     * @return RecordData  the inserted record (eventually wit the new sequence number
+     * @return RecordData  the inserted record (eventually wit the new sequence number)
      */
     protected function insertRecord(RecordData $record) : RecordData
     {
