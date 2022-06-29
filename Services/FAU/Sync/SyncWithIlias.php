@@ -6,6 +6,7 @@ use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\Org\Data\Orgunit;
 use FAU\Study\Data\Course;
+use FAU\Study\Data\Event;
 
 /**
  * Synchronize the campo courses with the related ILIAS objects
@@ -86,38 +87,98 @@ class SyncWithIlias extends SyncBase
         foreach ($this->study->repo()->getCoursesByTermToCreate($term) as $course) {
             $this->info('CREATE' . $course->getTitle() . '...');
 
-            if ($this->study->repo()->countCoursesOfEventInTerm($course->getEventId(), $term) > 0) {
-                // todo: treat multiple parallel groups
-                // check if existing objects are ILIAS courses or groups
-                // if groups: create another group in the same course
-                // if courses: create another course
-                // in both cases: create a membership limitation or add the object
+            $event = $this->study->repo()->getEvent($course->getEventId());
+            $parent_ref = null;
+            $other_refs = [];
+            $action = '';
+
+            //
+            // check what to create
+            //
+            if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) == 1) {
+                // single parallel groups are created as courses
+                $action = 'create_single_course';
+            }
+            else {
+                // multiple parallel groups are created as groups in a course by default
+                $action = "create_course_and_group";
+
+                foreach ($this->study->repo()->getCoursesOfEvent($event->getEventId()) as $other) {
+                    foreach (\ilObject::_getAllReferences($other->getIliasObjId()) as $ref_id) {
+                        if (!\ilObject::_isInTrash($ref_id)) {
+                            $other_refs[] = $ref_id;
+                            switch (\ilObject::_lookupType($ref_id, true)) {
+                                case 'crs':
+                                    // other parallel groups are already ilias courses, create the same
+                                    $action = 'create_single_course';
+                                    break;
+                                case 'grp':
+                                    // other parallel groups are ilias groups, create the new in the same course
+                                    $action = 'create_group_in_course';
+                                    $parent_ref = $this->dic->repositoryTree()->getParentId($ref_id);
+                            }
+                        }
+                    }
+                }
             }
 
-            $creationUnit = null;
-            foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $eventOrgunit) {
-                if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr()))) {
-                    $this->study->repo()->save($course->withIliasProblem(
-                        'Responsible Org Unit ' . $eventOrgunit->getFauorgNr() . ' not found!'));
-                    continue; // next eventOrgunit
-                }
-
-                if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
-                    $this->org->repo()->save($responsibleUnit->withProblem(
-                        "No category found for course creation!\n    "
+            //
+            // get or create the place for a new course
+            //
+            if (empty($parent_ref) && !empty($action)) {
+                $creationUnit = null;
+                foreach ($this->study->repo()->getEventOrgunitsByEventId($event->getEventId()) as $eventOrgunit) {
+                    if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr()))) {
+                        $this->study->repo()->save($course->withIliasProblem(
+                            'Responsible Org Unit ' . $eventOrgunit->getFauorgNr() . ' not found!'));
+                        continue; // next eventOrgunit
+                    }
+                    if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
+                        $this->org->repo()->save($responsibleUnit->withProblem(
+                            "No category found for course creation!\n    "
                             . implode("\n    ", $this->org->getOrgPathLog($responsibleUnit,true))
-                    ));
-                    continue;   // next eventOrgunit
+                        ));
+                        continue;   // next eventOrgunit
+                    }
+                    break;  // creationUnit found
                 }
-                break;  // creationUnit found
-            }
-            if (empty($creationUnit)) {
-                $this->study->repo()->save($course->withIliasProblem("No ILIAS category found for course creation!"));
-                continue; // next course
+                if (empty($creationUnit)) {
+                    $this->study->repo()->save($course->withIliasProblem("No ILIAS category found for course creation!"));
+                    continue; // next course
+                }
+                if (empty($parent_ref = $this->findCourseCategoryForTerm($creationUnit->getIliasRefId(), $term))) {
+                    $parent_ref = $this->createCourseCategoryForTerm($creationUnit->getIliasRefId(), $term);
+                }
             }
 
-            // just for test
-            $this->study->repo()->save($course->withIliasObjId($creationUnit->getIliasRefId()));
+            //
+            // create the object(s)
+            //
+            switch ($action) {
+                case 'create_single_course':
+                    $ref_id = $this->createIliasCourse($parent_ref, $event, $course);
+                    $this->updateIliasCourse($ref_id, $event, $course);
+                    break;
+
+                case 'create_course_and_group':
+                    $course_ref = $this->createIliasCourse($parent_ref, $event, null);
+                    $this->updateIliasCourse($ref_id, $event, null);
+
+                    $ref_id = $this->createIliasGroup($course_ref, $course);
+                    $this->updateIliasGroup($ref_id, $course);
+                    break;
+
+                case 'create_group_in_course':
+                    $ref_id = $this->createIliasGroup($parent_ref, $course);
+                    $this->updateIliasGroup($ref_id, $course);
+                    break;
+
+            }
+
+            // create or update the membership limitation
+            if (!empty($other_refs)) {
+                // todo: update membership limitation
+            }
         }
 
         return 0;
@@ -156,5 +217,131 @@ class SyncWithIlias extends SyncBase
             }
         }
         return $found;
+    }
+
+    /**
+     * Find the ref_id of a category that should get new courses of a semester
+     */
+    protected function findCourseCategoryForTerm(int $parent_ref_id, Term $term): ?int
+    {
+        foreach($this->dic->repositoryTree()->getChildsByType($parent_ref_id, 'cat') as $node) {
+            if (\ilObject::_lookupImportId($node['obj_id']) == $this->getCourseContainerImportId($term)) {
+                return $node['child'];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create the category hat should get new courses of a semester
+     */
+    protected function createCourseCategoryForTerm(int $parent_ref_id, Term $term): int
+    {
+        $lng = $this->dic->language();
+
+        $category = new \ilObjCategory();
+        $category->setTitle($lng->txtlng('fau', 'fau_campo_courses', 'de')
+            . ': ' . $this->study->getTermTextForLang($term, 'de'));
+        $category->setDescription($lng->txtlng('fau', 'fau_campo_courses_desc', 'de'));
+        $category->create();
+
+        $trans = $category->getObjectTranslation();
+        $trans->addLanguage('de',
+            $lng->txtlng('fau', 'fau_campo_courses', 'de')
+                    . ': ' . $this->study->getTermTextForLang($term, 'de'),
+            $lng->txtlng('fau', 'fau_campo_courses_desc', 'de'),
+            true);
+        $trans->addLanguage('en',
+            $lng->txtlng('fau', 'fau_campo_courses', 'en')
+                    . ': ' . $this->study->getTermTextForLang($term, 'en'),
+            $lng->txtlng('fau', 'fau_campo_courses_desc', 'en'),
+            false);
+        $trans->save();
+
+        $category->createReference();
+        $category->putInTree($parent_ref_id);
+        $category->setPermissions($parent_ref_id);
+        return $category->getRefId();
+    }
+
+    /**
+     * Get the import id of category objects that get the courses of a semester
+     */
+    protected function getCourseContainerImportId(Term $term) : string
+    {
+        return "FAUCampoCoursesFor" . (string) $term->toString();
+    }
+
+    /**
+     * Create an ILIAS course for a campo event and/or course (parallel group)
+     * The ilias course will always work as a container for the event
+     * If a campo course is given then the ilias course should work as container for that parallel group
+     * @return int  ref_id of the course
+     */
+    protected function createIliasCourse(int $parent_ref_id, Event $event, ?Course $course): int
+    {
+        $object = new \IlObjCourse();
+        if (isset($course)) {
+            $object->setTitle($course->getTitle());
+            $object->setSyllabus($course->getContents());
+            $object->setImportantInformation($course->getCompulsoryRequirement());
+        }
+        else {
+            $object->setTitle($event->getTitle());
+            $object->setImportantInformation($event->getComment());
+        }
+        $object->setDescription($event->getEventtype() . ($event->getShorttext() ? ' (' . $event->getShorttext() . ')' : ''));
+
+        $object->create();
+        $object->putInTree($parent_ref_id);
+        $object->setPermissions($parent_ref_id);
+
+        if (isset($course)) {
+            $this->study->repo()->save($course->withIliasObjId($object->getId())->withIliasProblem(null));
+        }
+        return $object->getRefId();
+    }
+
+    /**
+     * Create an ILIAS group for a campo course (parallel group)
+     * @return int  ref_id of the course
+     */
+    protected function createIliasGroup(int $parent_ref_id, Course $course): int
+    {
+        $object = new \ilObjGroup();
+        $object->setInformation(
+            \ilUtil::secureString($course->getContents()) . "\n"
+            . \ilUtil::secureString($course->getCompulsoryRequirement()));
+
+        // todo: set didactic template for parallel group
+
+        $object->create();
+        $object->putInTree($parent_ref_id);
+        $object->setPermissions($parent_ref_id);
+
+        $this->study->repo()->save($course->withIliasObjId($object->getId())->withIliasProblem(null));
+        return $object->getRefId();
+    }
+
+
+    /**
+     * Update the ILIAS course for a campo event and/or course (parallel group)
+     * The ilias course will always work as a container for the event
+     * If a campo course is provided then the ilias course should work as container for that parallel group
+     */
+    protected function updateIliasCourse(int $ref_id, Event $event, ?Course $course)
+    {
+        // todo: update course data if last_update does not differ from create_date
+        // todo: update the course admins
+    }
+
+    /**
+     * Update an ILIAS group for a campo course (parallel group)
+     */
+    protected function updateIliasGroup(int $ref_id, Course $course)
+    {
+        // todo: update group data if last_update does not differ from create_date
+        // todo: update the group admins
+        // todo: update the course tutors in upper course
     }
 }

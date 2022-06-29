@@ -222,8 +222,6 @@ class Repository extends RecordRepo
 
     /**
      * Count the courses an event has in a term
-     * @param Term $term
-     * @return int
      */
     public function countCoursesOfEventInTerm(int $event_id, Term $term) : int
     {
@@ -231,6 +229,18 @@ class Repository extends RecordRepo
         . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
         . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         return $this->countRecords($query);
+    }
+
+    /**
+     * Get the courses an event has in a term
+     * @return Course[]
+     */
+    public function getCoursesOfEventInTerm(int $event_id, Term $term) : array
+    {
+        $query = "SELECT * FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
+            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->queryRecords($query, Course::model());
     }
 
     /**

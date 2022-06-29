@@ -251,7 +251,7 @@ class Service
 
 
     /**
-     * Get the text for a reference term
+     * Get the text for a term (current language)
      */
     public function getTermText(?Term $term) : string
     {
@@ -267,6 +267,26 @@ class Service
         }
         else {
             return $this->lng->txt('studydata_ref_semester_invalid');
+        }
+    }
+
+    /**
+     * Get the text for a term in a specific language
+     */
+    public function getTermTextForLang(?Term $term, string $lang_code) : string
+    {
+        if (!isset($term)) {
+            return $this->lng->txtlng('fau','studydata_unknown_semester', $lang_code);
+        }
+        elseif ($term->getTypeId() == Term::TYPE_ID_SUMMER) {
+            return sprintf($this->lng->txtlng('fau','studydata_semester_summer', $lang_code), $term->getYear());
+        }
+        elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
+            $next = substr((string) $term->getYear(), 2,2);
+            return sprintf($this->lng->txtlng('fau', 'studydata_semester_winter', $lang_code), $term->getYear(), $next);
+        }
+        else {
+            return $this->lng->txtlng('fau', 'studydata_ref_semester_invalid', $lang_code);
         }
     }
 

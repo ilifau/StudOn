@@ -14,8 +14,8 @@ $p->login();
  ********************/
 
 //$p->applyPatch('ilFauPatches.migrateConditions');
-//$p->applyPatch('ilFauPatches.syncCampoData');
-//$p->applyPatch('ilFauPatches.syncPersonData');
+$p->applyPatch('ilFauPatches.syncCampoData');
+$p->applyPatch('ilFauPatches.syncPersonData');
 
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
