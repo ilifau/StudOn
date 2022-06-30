@@ -7,6 +7,7 @@ use FAU\RecordRepo;
 use FAU\RecordData;
 use FAU\User\Data\Achievement;
 use FAU\User\Data\Person;
+use FAU\User\Data\Member;
 
 /**
  * Repository for accessing FAU user data
@@ -74,6 +75,16 @@ class Repository extends RecordRepo
     {
         $query = "SELECT * FROM fau_user_achievements WHERE person_id = " . $this->db->quote($person_id, 'integer');
         return $this->queryRecords($query, Achievement::model());
+    }
+
+    /**
+     * Get the members of a course
+     * @return Member[]
+     */
+    public function getMembersOfCourse(int $course_id) : array
+    {
+        $query = "SELECT * FROM fau_user_members WHERE course_id = " . $this->db->quote($course_id, 'integer');
+        return $this->queryRecords($query, Member::model());
     }
 
     /**
