@@ -150,7 +150,6 @@ if (!ilStartUpGUI::_checkGoto($_GET["target"])) {
 if ($target_type == 'studon') {
     switch ($target_id) {
         case "exportrequest":
-            include_once 'Services/StudyData/classes/class.ilStudyExportRequestGUI.php';
             $ilCtrl->setTargetScript("goto.php");
             $ilCtrl->getCallStructure("ilstudyexportrequestgui");
             $ilCtrl->setParameterByClass("ilstudyexportrequestgui", "target", "studon_exportrequest");

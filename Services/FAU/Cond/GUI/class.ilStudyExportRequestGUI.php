@@ -50,7 +50,7 @@ class ilStudyExportRequestGUI
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         $privacy = ilPrivacySettings::_getInstance();
 
-        $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/StudyData");
+        $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/FAU/Cond/GUI");
 
         if ($ilUser->getId() == ANONYMOUS_USER_ID) {
             $link = "login.php?target=" . $_GET["target"] . "&cmd=force_login&lang=" . $ilUser->getCurrentLanguage();
@@ -76,7 +76,7 @@ class ilStudyExportRequestGUI
     {
         global $ilUser;
 
-        $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/StudyData");
+        $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/FAU/Cond/GUI");
         $tpl->setCurrentBlock('export_mail');
         $tpl->setVariable("LOGIN", $ilUser->getLogin());
         ilDatePresentation::setUseRelativeDates(false);
@@ -98,7 +98,7 @@ class ilStudyExportRequestGUI
             false
         );
             
-        $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/StudyData");
+        $tpl = new ilTemplate("tpl.export_request.html", true, true, "Services/FAU/Cond/GUI");
         $tpl->touchBlock('sent_message');
         $this->tpl->setContent($tpl->get());
         $this->tpl->printToStdout();
