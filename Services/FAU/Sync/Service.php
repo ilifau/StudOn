@@ -3,13 +3,14 @@
 namespace FAU\Sync;
 
 use ILIAS\DI\Container;
+
 /**
  * Service for synchronizing data between staging database and studon
  */
 class Service
 {
     protected Container $dic;
-
+    protected Repository $repository;
 
     /**
      * Constructor
@@ -38,4 +39,16 @@ class Service
     {
         return new SyncWithIlias($this->dic);
     }
+
+    /**
+     * Get the repository for user data
+     */
+    public function repo() : Repository
+    {
+        if(!isset($this->repository)) {
+            $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
+        }
+        return $this->repository;
+    }
+
 }

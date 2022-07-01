@@ -3,13 +3,41 @@
 namespace FAU\User\Data;
 
 use FAU\RecordData;
+use FAU\Sync\SyncWithIlias;
 
+/**
+ * Member status in an ilias course or group concerning campo
+ *
+ * This record exists only if the ilias object (course or group) and the ilias user exists
+ * It is created and updated in the synchronisation of ilias courses and groups
+ * It is created when a new user is created in ilias which has related campo data
+ *
+ * Compared with the course or group participants this table reflects the updates from campo
+ * Persons maintained in campo should be added or deleted in the course or group
+ * While the persons added directly in the ilias membership should not be touched
+ *
+ * Admins/Tutors:
+ * Event responsibles should become course admins
+ * Course responsibles and instructors should become course admins or course tutors and group admins
+ *
+ * Members:
+ * Members get their record once they selected a module for the course
+ *
+ * @see SyncWithIlias::updateIliasCourse()
+ * @see SyncWithIlias::updateIliasGroup()
+ */
 class Member extends RecordData
 {
+    const ROLE_EVENT_RESPONSIBLE = 'event_responsible';
+    const ROLE_COURSE_RESPONSIBLE = 'course_responsible';
+    const ROLE_INSTRUCTOR = 'instructor';
+    const ROLE_INDIVIDUAL_INSTRUCTOR = 'individual_instructor';
+
+
     protected const tableName = 'fau_user_members';
     protected const hasSequence = false;
     protected const keyTypes = [
-        'course_id' => 'integer',
+        'obj_id' => 'integer',
         'user_id' => 'integer',
     ];
     protected const otherTypes = [
@@ -20,27 +48,28 @@ class Member extends RecordData
         'individual_instructor' => 'integer',
     ];
 
-    protected int $course_id;
+    protected int $obj_id;
     protected int $user_id;
-    protected ?int $module_id;
-    protected int $event_responsible;
-    protected int $course_responsible;
-    protected int $instructor;
-    protected int $individual_instructor;
+    protected ?int $module_id = null;
+    private bool $event_responsible = false;
+    private bool $course_responsible = false;
+    private bool $instructor = false;
+    private bool $individual_instructor = false;
 
     public function __construct(
-        int $course_id,
+        int $obj_id,
         int $user_id,
-        ?int $module_id,
-        int $event_responsible,
-        int $course_responsible,
-        int $instructor,
-        int $individual_instructor
+        ?int $module_id = null ,
+        bool $event_responsible = false,
+        bool $course_responsible = false,
+        bool $instructor = false,
+        bool $individual_instructor = false
     )
     {
-        $this->course_id = $course_id;
+        $this->obj_id = $obj_id;
         $this->user_id = $user_id;
         $this->module_id = $module_id;
+
         $this->event_responsible = $event_responsible;
         $this->course_responsible = $course_responsible;
         $this->instructor = $instructor;
@@ -49,15 +78,15 @@ class Member extends RecordData
 
     public static function model(): self
     {
-        return new self(0,0,null,0,0,0,0);
+        return new self(0,0);
     }
 
     /**
      * @return int
      */
-    public function getCourseId() : int
+    public function getObjId() : int
     {
-        return $this->course_id;
+        return $this->obj_id;
     }
 
     /**
@@ -77,35 +106,121 @@ class Member extends RecordData
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getEventResponsible() : int
+    public function isEventResponsible() : bool
     {
         return $this->event_responsible;
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getCourseResponsible() : int
+    public function isCourseResponsible() : bool
     {
         return $this->course_responsible;
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getInstructor() : int
+    public function isInstructor() : bool
     {
         return $this->instructor;
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    public function getIndividualInstructor() : int
+    public function isIndividualInstructor() : bool
     {
         return $this->individual_instructor;
     }
 
+    /**
+     * @param int|null $module_id
+     * @return Member
+     */
+    public function withModuleId(?int $module_id) : Member
+    {
+        $clone = clone $this;
+        $clone->module_id = $module_id;
+        return $clone;
+    }
+
+    /**
+     * @param bool $event_responsible
+     * @return Member
+     */
+    public function withEventResponsible(bool $event_responsible) : Member
+    {
+        $clone = clone $this;
+        $clone->event_responsible = $event_responsible;
+        return $clone;
+    }
+
+    /**
+     * @param bool $course_responsible
+     * @return Member
+     */
+    public function withCourseResponsible(bool $course_responsible) : Member
+    {
+        $clone = clone $this;
+        $clone->course_responsible = $course_responsible;
+        return $clone;
+    }
+
+    /**
+     * @param bool $instructor
+     * @return Member
+     */
+    public function withInstructor(bool $instructor) : Member
+    {
+        $clone = clone $this;
+        $clone->instructor = $instructor;
+        return $clone;
+    }
+
+    /**
+     * @param bool $individual_instructor
+     * @return Member
+     */
+    public function withIndividualInstructor(bool $individual_instructor) : Member
+    {
+        $clone = clone $this;
+        $clone->individual_instructor = $individual_instructor;
+        return $clone;
+    }
+
+    /**
+     * Check if the member has either a specific role or a selected module
+     */
+    public function hasData() : bool
+    {
+        return (
+            isset($this->module_id)
+            || $this->event_responsible
+            || $this->course_responsible
+            || $this->instructor
+            || $this->individual_instructor
+        );
+    }
+
+    /**
+     * Check if a certain role is set
+     */
+    public function hasRole(string $role) : bool
+    {
+        return (bool) $this->$role;
+    }
+
+    /**
+     * Set a certain role
+     */
+    public function withRole(string $role, bool $flag) : Member
+    {
+        $clone = clone($this);
+        $clone->$role = $flag;
+        return $clone;
+    }
 }

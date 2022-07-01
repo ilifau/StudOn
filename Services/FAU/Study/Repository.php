@@ -235,12 +235,12 @@ class Repository extends RecordRepo
      * Get the courses an event has in a term
      * @return Course[]
      */
-    public function getCoursesOfEventInTerm(int $event_id, Term $term) : array
+    public function getCoursesOfEventInTerm(int $event_id, Term $term, $useCache = true) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
             . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-        return $this->queryRecords($query, Course::model());
+        return $this->queryRecords($query, Course::model(), $useCache);
     }
 
     /**

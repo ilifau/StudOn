@@ -71,7 +71,7 @@ class FAUUserSteps
     protected function createMembersTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_members', [
-            'course_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'obj_id'                => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'user_id'               => ['type' => 'integer',    'length' => 4,      'notnull' => true],
             'module_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => false],
             'event_responsible'     => ['type' => 'integer',    'length' => 4,      'notnull' => true, 'default' => false],
@@ -81,7 +81,7 @@ class FAUUserSteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_user_members', ['course_id', 'user_id']);
+        $this->db->addPrimaryKey('fau_user_members', ['obj_id', 'user_id']);
         $this->db->addIndex('fau_user_members', ['user_id'], 'i1');
     }
 

@@ -764,6 +764,7 @@ abstract class ilParticipants
     
     /**
      * fau: heavySub - get the actual role id of a role type
+     * fau: fauService - role id
      *
      * needed to check membership and count of members
      * to avoid overbooking by heavy traffic

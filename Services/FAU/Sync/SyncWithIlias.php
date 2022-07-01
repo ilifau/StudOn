@@ -13,6 +13,10 @@ use IlObjCourse;
 use FAU\Study\Data\ImportId;
 use ilObjGroup;
 use ilUtil;
+use ilParticipants;
+use FAU\User\Data\Member;
+use ilCourseParticipants;
+use ilGroupParticipants;
 
 /**
  * Synchronize the campo courses with the related ILIAS objects
@@ -35,6 +39,15 @@ class SyncWithIlias extends SyncBase
             $this->increaseItemsAdded($this->createCourses($term));
             $this->increaseItemsUpdated($this->updateCourses($term));
         }
+    }
+
+    /**
+     * Init the participations of a new user
+     * @param $user_id
+     */
+    public function initUser($user_id) : void
+    {
+        // todo
     }
 
     /**
@@ -88,8 +101,9 @@ class SyncWithIlias extends SyncBase
      * Create the ilias objects for courses (parallel groups) of a term
      * @return int number of created courses
      */
-    public function createCourses(Term $term) : int
+    protected function createCourses(Term $term) : int
     {
+        $created = 0;
         foreach ($this->study->repo()->getCoursesByTermToCreate($term) as $course) {
             $this->info('CREATE' . $course->getTitle() . '...');
 
@@ -107,7 +121,8 @@ class SyncWithIlias extends SyncBase
                 $action = "create_course_and_group";
 
                 // check if other parallel groups already have ilias objects
-                foreach ($this->study->repo()->getCoursesOfEvent($event->getEventId()) as $other) {
+                // don't use cache because we are in an update loop
+                foreach ($this->study->repo()->getCoursesOfEventInTerm($event->getEventId(), $term, false) as $other) {
                     foreach (ilObject::_getAllReferences($other->getIliasObjId()) as $ref_id) {
                         if (!ilObject::_isInTrash($ref_id)) {
                             $other_refs[] = $ref_id;
@@ -136,20 +151,23 @@ class SyncWithIlias extends SyncBase
             switch ($action) {
                 case 'create_single_course':
                     $ref_id = $this->createIliasCourse($parent_ref, $event, $course, $term);
-                    $this->updateIliasCourse($ref_id, $event, $course);
+                    $this->updateIliasCourse($ref_id, $event, $course, $term);
+                    $this->updateIliasParticipants($course->getCourseId(), $ref_id, $ref_id);
                     break;
 
                 case 'create_course_and_group':
-                    $course_ref = $this->createIliasCourse($parent_ref, $event, null, $term);
-                    $this->updateIliasCourse($course_ref, $event, null);
+                    $parent_ref = $this->createIliasCourse($parent_ref, $event, null, $term);
+                    $ref_id = $this->createIliasGroup($parent_ref, $event, $course, $term);
 
-                    $ref_id = $this->createIliasGroup($course_ref, $event, $course, $term);
-                    $this->updateIliasGroup($ref_id, $course);
+                    $this->updateIliasCourse($parent_ref, $event, null, $term);
+                    $this->updateIliasGroup($ref_id, $event, $course, $term);
+                    $this->updateIliasParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
 
                 case 'create_group_in_course':
                     $ref_id = $this->createIliasGroup($parent_ref, $event, $course, $term);
-                    $this->updateIliasGroup($ref_id, $course);
+                    $this->updateIliasGroup($ref_id, $event, $course, $term);
+                    $this->updateIliasParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
             }
 
@@ -157,9 +175,10 @@ class SyncWithIlias extends SyncBase
             if (!empty($other_refs)) {
                 // todo: update membership limitation
             }
-        }
 
-        return 0;
+            $created++;
+        }
+        return $created;
     }
 
 
@@ -168,9 +187,52 @@ class SyncWithIlias extends SyncBase
      * This should also treat the event related courses
      * @return int number of updated courses
      */
-    public function updateCourses(Term $term) : int
+    protected function updateCourses(Term $term) : int
     {
-        return 0;
+        $updated = 0;
+        foreach ($this->study->repo()->getCoursesByTermToUpdate($term) as $course) {
+            $this->info('UPDATE' . $course->getTitle() . '...');
+
+            $event = $this->study->repo()->getEvent($course->getEventId());
+
+            // get the reference to the ilias course or group
+            $ref_id = null;
+            if (!empty($course->getIliasObjId())) {
+                foreach (ilObject::_getAllReferences($course->getIliasObjId()) as $check_id) {
+                    if (!ilObject::_isInTrash($check_id)) {
+                        $ref_id = $check_id;
+                        break;
+                    }
+                }
+            }
+            if (empty($ref_id)) {
+                $this->study->repo()->save($course->withIliasProblem("ILIAS object does not exist or is deleted!"));
+                continue;
+            }
+
+            switch (ilObject::_lookupType($course->getIliasObjId())) {
+                case 'crs':
+                    // ilias course is used for campo event and course
+                    $this->updateIliasCourse($ref_id, $event, $course, $term);
+                    break;
+
+                case 'grp':
+                    // ilias course is used for the campo event
+                    if ($course_ref = $this->findParentCourse($ref_id)) {
+                        $this->updateIliasCourse($course_ref, $event, null, $term);
+                    }
+                    // ilias group is used for the campo course
+                    $this->updateIliasGroup($ref_id, $event, $course, $term);
+                    break;
+
+                default:
+                    $this->study->repo()->save($course->withIliasProblem("ILIAS object "));
+                    continue 2;
+            }
+            $updated++;
+        }
+        return $updated;
+
     }
 
     /**
@@ -242,6 +304,19 @@ class SyncWithIlias extends SyncBase
     }
 
     /**
+     * Find the parent course of a group
+     */
+    protected function findParentCourse(int $ref_id) : ?int
+    {
+        foreach ($this->dic->repositoryTree()->getPathId($ref_id) as $path_id) {
+            if (ilObject::_lookupType($path_id, true) == 'crs') {
+                return $path_id;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Create the category hat should get new courses of a term
      */
     protected function createCourseCategory(int $parent_ref_id, Term $term): int
@@ -275,7 +350,7 @@ class SyncWithIlias extends SyncBase
      * If a campo course is given then the ilias course should work as container for that parallel group
      * @return int  ref_id of the course
      */
-    protected function createIliasCourse(int $parent_ref_id, Event $event, ?Course $course, ?Term $term): int
+    protected function createIliasCourse(int $parent_ref_id, Event $event, ?Course $course, Term $term): int
     {
         $object = new IlObjCourse();
         if (isset($course)) {
@@ -303,7 +378,7 @@ class SyncWithIlias extends SyncBase
      * Create an ILIAS group for a campo course (parallel group)
      * @return int  ref_id of the course
      */
-    protected function createIliasGroup(int $parent_ref_id, Event $event, Course $course, ?Term $term): int
+    protected function createIliasGroup(int $parent_ref_id, Event $event, Course $course, Term $term): int
     {
         $object = new ilObjGroup();
         $object->setInformation(
@@ -326,19 +401,243 @@ class SyncWithIlias extends SyncBase
      * The ilias course will always work as a container for the event
      * If a campo course is provided then the ilias course should work as container for that parallel group
      */
-    protected function updateIliasCourse(int $ref_id, Event $event, ?Course $course)
+    protected function updateIliasCourse(int $ref_id, Event $event, ?Course $course, Term $term)
     {
-        // todo: update course data if last_update does not differ from create_date
-        // todo: update the course admins
+        // todo
+    }
+
+
+    /**
+     * Update the ILIAS group for a campo course (parallel group)
+     * The ilias group will always work as a container for the course
+     */
+    protected function updateIliasGroup(int $ref_id, Event $event, Course $course, Term $term)
+    {
+        // todo
+    }
+
+
+    /**
+     * Update the roles of responsibles and instructors in an ilias course or group
+     * This is done by comparing the actual responsibles and instructors tables with the members table
+     * @see Member
+     */
+    protected function updateIliasParticipants(int $course_id, int $ref_id_for_event, int $ref_id_for_course)
+    {
+        $obj_id_for_event = ilObject::_lookupObjId($ref_id_for_event);
+        $obj_id_for_course = ilObject::_lookupObjId($ref_id_for_course);
+
+        if ($obj_id_for_course == $obj_id_for_event) {
+            // one ilias course for campo event and course
+            $crs_participants = new ilCourseParticipants($obj_id_for_event);
+            $grp_participants = null;
+        }
+        else {
+            // ilias course for campo event with ilias group for campo course
+            $crs_participants = new ilCourseParticipants($obj_id_for_event);
+            $grp_participants = new ilGroupParticipants($obj_id_for_course);
+        }
+
+        // don't use cache because members table is updated during sync
+        $members = $this->user->repo()->getMembersOfObjects($obj_id_for_course, false);
+        $touched = [];
+
+        $this->updateRole(
+            Member::ROLE_EVENT_RESPONSIBLE,
+            $this->sync->repo()->getUserIdsOfEventResponsibles($course_id),
+            $obj_id_for_course,
+            $crs_participants,
+            $grp_participants,
+            $members,
+            $touched
+        );
+
+        $this->updateRole(
+            Member::ROLE_COURSE_RESPONSIBLE,
+            $this->sync->repo()->getUserIdsOfCourseResponsibles($course_id),
+            $obj_id_for_course,
+            $crs_participants,
+            $grp_participants,
+            $members,
+            $touched
+        );
+
+        $this->updateRole(
+            Member::ROLE_INSTRUCTOR,
+            $this->sync->repo()->getUserIdsOfInstructors($course_id),
+            $obj_id_for_course,
+            $crs_participants,
+            $grp_participants,
+            $members,
+            $touched
+        );
+
+        $this->updateRole(
+            Member::ROLE_INDIVIDUAL_INSTRUCTOR,
+            $this->sync->repo()->getUserIdsOfIndividualInstructors($course_id),
+            $obj_id_for_course,
+            $crs_participants,
+            $grp_participants,
+            $members,
+            $touched
+        );
+
+        // save or delete the modified member records
+        foreach ($touched as $member) {
+            if ($member->hasData()) {
+                $this->user->repo()->save($member);
+            }
+            else {
+                $this->user->repo()->delete($member);
+            }
+        }
     }
 
     /**
-     * Update an ILIAS group for a campo course (parallel group)
+     * Update the setting of a certain role for users in object
+     *
+     * @param string $mem_role                          role that should be checked in a member record
+     * @param int[] $user_ids                           list of users that should get the role
+     * @param int $mem_obj_id                           object id for new member records
+     * @param ilCourseParticipants $crs_participants    participants of ilias course
+     * @param ?ilGroupParticipants $grp_participants    participants of ilias group
+     * @param Member[] &$members                        array of member data (user_id => Member) to be checked
+     * @param Member[] &$touched                        array of member data (user_id => Member) to be saved later
      */
-    protected function updateIliasGroup(int $ref_id, Course $course)
+    protected function updateRole (
+        string $mem_role,
+        array $user_ids,
+        int $mem_obj_id,
+        ilCourseParticipants $crs_participants,
+        ?ilGroupParticipants $grp_participants,
+        array &$members,
+        array &$touched
+    )
     {
-        // todo: update group data if last_update does not differ from create_date
-        // todo: update the group admins
-        // todo: update the course tutors in upper course
+        switch ($mem_role)
+        {
+            case Member::ROLE_EVENT_RESPONSIBLE:
+                $crs_role = IL_CRS_ADMIN;
+                $grp_role = null;
+                break;
+
+            case Member::ROLE_COURSE_RESPONSIBLE:
+            case Member::ROLE_INSTRUCTOR:
+            case Member::ROLE_INDIVIDUAL_INSTRUCTOR:
+                $crs_role = isset($grp_participants) ?  IL_CRS_TUTOR : IL_CRS_ADMIN;
+                $grp_role = isset($grp_participants) ? IL_GRP_ADMIN : null;
+                break;
+        }
+
+        $mem_ids = [];
+        foreach ($members as $user_id => $member) {
+            if ($member->hasRole($mem_role)) {
+                $mem_ids[] = $user_id;
+            }
+        }
+
+        // added users
+        foreach (array_diff($user_ids, $mem_ids) as $user_id) {
+
+            $member = $members[$user_id] ?? new Member($mem_obj_id, $user_id);
+            $member = $member->withRole($mem_role, true);
+            $members[$user_id] = $member;
+            $touched[$user_id] = $member;
+
+            $this->addRole($crs_participants, $user_id, $crs_role);
+            if (isset($grp_participants) && isset($grp_role)) {
+                $this->addRole($grp_participants, $user_id, $grp_role);
+            }
+        }
+
+        // removed users
+        foreach (array_diff($mem_ids, $user_ids) as $user_id) {
+
+            $member = $members[$user_id] ?? new Member($mem_obj_id, $user_id);
+            $member = $member->withRole($mem_role, false);
+            $members[$user_id] = $member;
+            $touched[$user_id] = $member;
+
+            $this->removeRole($crs_participants, $user_id, $crs_role);
+            if (isset($grp_participants) && isset($grp_role)) {
+                $this->removeRole($grp_participants, $user_id, $grp_role);
+            }
+        }
     }
+
+
+    protected function createIliasCourseRolesForNewUser(int $user_id)
+    {
+        // todo
+    }
+
+    protected function createIliasGroupRolesForNewUser(int $user_id)
+    {
+        // todo
+    }
+
+    /**
+     * Add a user with a certain role to the ilias object
+     */
+    protected function addRole(ilParticipants $participants, int $user_id, int $role_type)
+    {
+        switch($role_type)
+        {
+            case IL_CRS_ADMIN;
+            case IL_GRP_ADMIN:
+                if ($participants->isAdmin($user_id)) {
+                    return;
+                }
+                elseif ($participants->isAssigned($user_id)) {
+                    $participants->updateRoleAssignments($user_id, [$participants->getRoleId($role_type)]);
+
+                }
+                else {
+                    $participants->add($user_id, $role_type);
+                }
+                break;
+
+            case IL_CRS_TUTOR:
+                if ($participants->isTutor($user_id)) {
+                    return;
+                }
+                elseif ($participants->isAssigned($user_id)) {
+                    // Don't decrease a course role from admin to tutor
+                    if (!$participants->isAdmin($user_id)) {
+                        $participants->updateRoleAssignments($user_id, [$participants->getRoleId($role_type)]);
+                    }
+                }
+                else {
+                    $participants->add($user_id, $role_type);
+                }
+                break;
+        }
+    }
+
+    /**
+     * Remove a user with a certain role from the ilias object
+     */
+    protected function removeRole(ilParticipants $participants, int $user_id, int $role_type)
+    {
+        if (!$participants->isAssigned($user_id)) {
+            return; //already no participant
+        }
+
+        switch ($role_type)
+        {
+            case IL_CRS_ADMIN:
+            case IL_GRP_ADMIN:
+                if ($participants->isAdmin($user_id)) {
+                    $participants->delete($user_id);
+                }
+                break;
+
+            case IL_CRS_TUTOR:
+                if ($participants->isTutor($user_id)) {
+                    $participants->delete($user_id);
+                }
+                break;
+        }
+    }
+
 }

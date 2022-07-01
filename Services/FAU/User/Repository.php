@@ -8,6 +8,7 @@ use FAU\RecordData;
 use FAU\User\Data\Achievement;
 use FAU\User\Data\Person;
 use FAU\User\Data\Member;
+use FAU\Study\Data\Term;
 
 /**
  * Repository for accessing FAU user data
@@ -77,15 +78,17 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Achievement::model());
     }
 
+
     /**
-     * Get the members of a course
-     * @return Member[]
+     * Get the members of an ilias object (course or group)
+     * @return Member[]     indexed by user_id
      */
-    public function getMembersOfCourse(int $course_id) : array
+    public function getMembersOfObjects(int $obj_id, bool $useCache = true) : array
     {
-        $query = "SELECT * FROM fau_user_members WHERE course_id = " . $this->db->quote($course_id, 'integer');
-        return $this->queryRecords($query, Member::model());
+        $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        return $this->queryRecords($query, Member::model(), $useCache, 'user_id');
     }
+
 
     /**
      * Save record data of an allowed type
