@@ -53,7 +53,7 @@ class ilFauPatches
      */
     public function checkOrgUnitRelations()
     {
-        $service = $this->dic->fau()->org();
+        $service = $this->dic->fau()->sync()->trees();
         $service->checkOrgUnitRelations();
     }
 

@@ -233,7 +233,7 @@ class Repository extends RecordRepo
 
     /**
      * Get the courses an event has in a term
-     * @return Course[]
+     * @return Course[] indexed by course_id
      */
     public function getCoursesOfEventInTerm(int $event_id, Term $term, $useCache = true) : array
     {
@@ -247,11 +247,21 @@ class Repository extends RecordRepo
      * Get the courses of an event
      * @param int  $event_id
      * @param bool $useCache
-     * @return Course[]
+     * @return Course[] indexed by course_id
      */
     public function getCoursesOfEvent(int $event_id, bool $useCache = true) : array
     {
         $query = "SELECT * from fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
+     * Get the courses with certain ids
+     * @return Course[] indexed by course_id
+     */
+    public function getCoursesByIds(array $ids, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ". $this->db->in('course_id', $ids, false, 'integer');
         return $this->queryRecords($query, Course::model(), $useCache);
     }
 
@@ -264,6 +274,7 @@ class Repository extends RecordRepo
         $query = "SELECT * from fau_study_courses WHERE course_id = " . $this->db->quote($course_id, 'integer');
         return $this->getSingleRecord($query, Course::model(), $default);
     }
+
 
     /**
      * Get the course of a planned date

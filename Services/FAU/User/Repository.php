@@ -17,7 +17,6 @@ use FAU\Study\Data\Term;
  */
 class Repository extends RecordRepo
 {
-
     /**
      * Check if a user has a person record assigned
      */
@@ -87,6 +86,17 @@ class Repository extends RecordRepo
     {
         $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
         return $this->queryRecords($query, Member::model(), $useCache, 'user_id');
+    }
+
+
+    /**
+     * Get the member records of an ilias user
+     * @return Member[]     indexed by obj_id
+     */
+    public function getMembersOfUser(int $user_id, bool $useCache = true) : array
+    {
+        $query = "SELECT * FROM fau_user_members WHERE user_id = " . $this->db->quote($user_id, 'integer');
+        return $this->queryRecords($query, Member::model(), $useCache, 'obj_id');
     }
 
 

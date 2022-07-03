@@ -62,6 +62,70 @@ class Repository extends RecordRepo
         return $this->getIntegerList($query, 'user_id');
     }
 
+    /**
+     * Get the ids of courses in a term where a user is responsible for the event
+     * @return int[]
+     */
+    public function getCourseIdsOfEventResponsible(int $user_id, Term $term) : array
+    {
+        $query = "SELECT c.course_id FROM fau_user_persons p"
+            ." JOIN fau_study_event_resps e ON e.person_id = p.person_id"
+            ." JOIN fau_study_course c ON c.event_id = e.event_id"
+            ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
+            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
+            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->getIntegerList($query, 'course_id');
+    }
+
+    /**
+     *  Get the ids of courses in a term where a user is responsible for the course
+     * @return int[]
+     */
+    public function getCourseIdsOfCourseResponsible(int $user_id, Term $term) : array
+    {
+        $query = "SELECT c.course_id FROM fau_user_persons p"
+            ." JOIN fau_study_course_resps r ON r.person_id = p.person_id"
+            ." JOIN fau_study_course c ON c.course_id = r.course_id"
+            ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
+            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
+            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->getIntegerList($query, 'course_id');
+    }
+
+    /**
+     * Get the ids of courses in a term where a user is instructor
+     * @return int[]
+     */
+    public function getCourseIdsOfInstructor(int $user_id, Term $term) : array
+    {
+        $query = "SELECT c.course_id FROM fau_user_persons p"
+            ." JOIN fau_study_instructors i ON i.person_id = p.person_id"
+            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = planned_dates_id"
+            ." JOIN fau_study_course c ON c.course_id = d.course_id"
+            ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
+            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
+            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->getIntegerList($query, 'course_id');
+    }
+
+    /**
+     * Get the ids of existing users for the individual instructors in a course
+     * @return int[]
+     */
+    public function getCourseIdsOfIndividualInstructor(int $user_id, Term $term) : array
+    {
+        $query = "SELECT c.course_id FROM fau_user_persons p"
+            ." JOIN fau_study_indi_insts i ON i.person_id = p.person_id"
+            ." JOIN fau_study_indi_dates id ON id.individual_dates_id = i.individual_dates_id"
+            ." JOIN fau_study_plan_dates pd ON d.planned_dates_id = pd.planned_dates_id"
+            ." JOIN fau_study_course c ON c.course_id = pd.course_id"
+            ." WHERE p.user_id =" . $this->db->quote($user_id, 'integer')
+            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
+            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->getIntegerList($query, 'course_id');
+    }
+
+
 
     /**
      * Get the ids of existing ilias objects for an event in a term

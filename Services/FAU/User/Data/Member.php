@@ -14,7 +14,7 @@ use FAU\Sync\SyncWithIlias;
  *
  * Compared with the course or group participants this table reflects the updates from campo
  * Person assignments in campo should be saved here and the ilias course or group roles if their users should be updated
- * ILIAS users which are directly added in the ilias course and group membership administration should not be touched
+ * ILIAS users which are directly maintained in the ilias course and group membership administration should not be touched
  *
  * Admins/Tutors:
  * Event responsibles should become course admins

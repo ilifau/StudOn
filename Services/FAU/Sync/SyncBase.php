@@ -3,10 +3,12 @@
 namespace FAU\Sync;
 
 use ILIAS\DI\Container;
+use ilLanguage;
 
 abstract class SyncBase
 {
     protected Container $dic;
+    protected ilLanguage $lng;
     protected \FAU\Cond\Service $cond;
     protected \FAU\Org\Service $org;
     protected \FAU\Staging\Service $staging;
@@ -30,6 +32,7 @@ abstract class SyncBase
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+        $this->lng = $dic->language();
         $this->org = $dic->fau()->org();
         $this->cond = $dic->fau()->cond();
         $this->staging = $dic->fau()->staging();
