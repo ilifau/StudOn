@@ -3,22 +3,15 @@
 namespace FAU\Sync;
 
 use ILIAS\DI\Container;
+use FAU\SubService;
 
 /**
  * Service for synchronizing data between staging database and studon
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
     protected Repository $repository;
 
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-    }
 
     public function campo() : SyncWithCampo
     {

@@ -10,31 +10,31 @@ namespace FAU\Study\Data;
  */
 class ImportId
 {
+    private ?string $term_id;
     private ?int $event_id;
     private ?int $course_id;
-    private ?string $term_id;
 
-    public function __construct(?int $event_id, ?int $course_id, ?string $term_id)
+    public function __construct(?string $term_id = null, ?int $event_id = null, ?int $course_id = null)
     {
+        $this->term_id = $term_id;
         $this->event_id = $event_id;
         $this->course_id = $course_id;
-        $this->term_id = $term_id;
     }
 
-    public static function fromObjects(?Event $event, ?Course $course, ?Term $term) : self
+    public static function fromObjects(?Term $term = null, ?Event $event = null, ?Course $course = null)  : self
     {
         return new self(
+            isset($term) ? $term->toString() : null,
             isset($event) ? $event->getEventId() : null,
             isset($course) ? $course->getCourseId() : null,
-            isset($term) ? $term->toString() : null
         );
     }
 
-    public static function fromString(?string $id) : self
+    public static function fromString(?string $id = '') : self
     {
+        $term_id = null;
         $event_id = null;
         $course_id = null;
-        $term_id = null;
 
         $parts = (array) explode('/', $id);
         if (isset($parts[0]) && $parts[0] == 'FAU') {
@@ -42,33 +42,34 @@ class ImportId
                 list($key, $value) = array_pad(explode( '=', $part), 2, '');
                 if (!empty($value)) {
                     switch ($key) {
+                        case 'Term':
+                            $term_id = (string) $value;
+                            break;
                         case 'Event':
                             $event_id = (int) $value;
                             break;
                         case 'Course':
                             $course_id = (int) $value;
                             break;
-                        case 'Term':
-                            $term_id = (string) $value;
-                            break;
                     }
                 }
             }
         }
-        return new self($event_id, $course_id, $term_id);
+        return new self($term_id, $event_id, $course_id);
     }
 
     public function toString() : ?string
     {
         $id = "";
+        // ad the term first - this allows a "LIKE" search by Term using an index on object_data.import_id
+        if (isset($this->term_id)) {
+            $id .= '/Term=' . $this->term_id;
+        }
         if (isset($this->event_id)) {
             $id .= '/Event=' . $this->event_id;
         }
         if (isset($this->course_id)) {
             $id .= '/Course=' . $this->course_id;
-        }
-        if (isset($this->term_id)) {
-            $id .= '/Term=' . $this->term_id;
         }
         if (!empty($id)) {
             return 'FAU' . $id;
@@ -76,6 +77,13 @@ class ImportId
         return null;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getTermId() : ?string
+    {
+        return $this->term_id;
+    }
 
     /**
      * @return int|null
@@ -91,13 +99,5 @@ class ImportId
     public function getCourseId() : ?int
     {
         return $this->course_id;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTermId() : ?string
-    {
-        return $this->term_id;
     }
 }

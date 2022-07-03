@@ -5,26 +5,13 @@ namespace FAU\Tools;
 use ILIAS\DI\Container;
 use Throwable;
 use ilLanguage;
-use FAU\Study\Data\Term;
+use FAU\SubService;
 
 /**
  * Tools needed for data processing
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
-    protected ilLanguage $lng;
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-        $this->lng = $dic->language();
-    }
-
-
     /**
      * Quote a text for Export in Excel or CSV
      */

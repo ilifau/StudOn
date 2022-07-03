@@ -11,9 +11,10 @@ abstract class SyncBase
     protected \FAU\Org\Service $org;
     protected \FAU\Staging\Service $staging;
     protected \FAU\Study\Service $study;
-    protected Service $sync;
+    protected \FAU\Sync\Service $sync;
     protected \FAU\User\Service $user;
     protected \FAU\Tools\Service $tools;
+    protected \FAU\Settings $settings;
 
 
     private int $items_added = 0;
@@ -36,6 +37,7 @@ abstract class SyncBase
         $this->sync = $dic->fau()->sync();
         $this->user = $dic->fau()->user();
         $this->tools = $dic->fau()->tools();
+        $this->settings = $dic->fau()->settings();
     }
 
     /**

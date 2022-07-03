@@ -18,6 +18,7 @@ class Service
     protected Sync\Service $syncService;
     protected Tools\Service $toolsService;
     protected User\Service $userService;
+    protected Settings $settings;
 
     public function __construct(Container $dic)
     {
@@ -100,5 +101,17 @@ class Service
             $this->toolsService = new Tools\Service($this->dic);
         }
         return $this->toolsService;
+    }
+
+    /**
+     * Get the settings for the FAU service
+     * @return Settings
+     */
+    public function settings() : Settings
+    {
+        if (!isset($this->settings)) {
+            $this->settings = new Settings($this->dic);
+        }
+        return $this->settings;
     }
 }

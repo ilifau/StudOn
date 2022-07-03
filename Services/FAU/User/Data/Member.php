@@ -6,15 +6,15 @@ use FAU\RecordData;
 use FAU\Sync\SyncWithIlias;
 
 /**
- * Member status in an ilias course or group concerning campo
+ * Member status of an ILIAS user in an ilias course or group concerning campo
  *
- * This record exists only if the ilias object (course or group) and the ilias user exists
+ * This record exists only if the ilias object (course or group) and the ilias user exist
  * It is created and updated in the synchronisation of ilias courses and groups
  * It is created when a new user is created in ilias which has related campo data
  *
  * Compared with the course or group participants this table reflects the updates from campo
- * Persons maintained in campo should be added or deleted in the course or group
- * While the persons added directly in the ilias membership should not be touched
+ * Person assignments in campo should be saved here and the ilias course or group roles if their users should be updated
+ * ILIAS users which are directly added in the ilias course and group membership administration should not be touched
  *
  * Admins/Tutors:
  * Event responsibles should become course admins

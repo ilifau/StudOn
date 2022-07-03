@@ -4,23 +4,14 @@ namespace FAU\Org;
 
 use ILIAS\DI\Container;
 use FAU\Org\Data\Orgunit;
+use FAU\SubService;
 
 /**
  * Service for organisational data
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
     protected Repository $repository;
-
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-    }
 
     /**
      * Get the repository for user data

@@ -4,29 +4,19 @@ namespace FAU\Study;
 
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
-use FAU\Study\Data\Course;
+use FAU\SubService;
 
 /**
  * Service for study related data
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
     protected \ilLanguage $lng;
 
     protected Repository $repository;
     protected Matching $matching;
     protected Gui $gui;
 
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-        $this->lng = $dic->language();
-    }
 
 
     /**

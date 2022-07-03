@@ -76,4 +76,14 @@ class Repository extends RecordRepo
             . " AND c. term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         return $this->getIntegerList($query, 'ilias_obj_id', $useCache = true);
     }
+
+    /**
+     * Reset the last update date of an object to the create date
+     * @param int $obj_id
+     */
+    public function resetObjectLastUpdate(int $obj_id)
+    {
+        $query = "UPDATE object_data SET last_update = create_date WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        $this->db->manipulate($query);
+    }
 }

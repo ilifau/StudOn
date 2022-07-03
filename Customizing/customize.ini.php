@@ -34,8 +34,9 @@ grp_enable_reg_codes = "1"				;enable the use of registration codes
 fair_admin_role_id = ""                 ;Role Id of users who are allowed to deactivate the fair time for registrations
 help_show_ids = "0"						;show the screen and tooltip IDs
 
-ilias_guest_role_id = "5"				;Role Id of Guests
+fau_default_owner_login = "root"        ;default login for the owner of auto-created objects
 
+ilias_guest_role_id = "5"				;Role Id of Guests
 ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
 ilias_copy_always_mail ="0"             ;fau: copyBySoap - always send an e-mail confirmation
 ilias_log_request_ips = ""              ;fau: requestLog - comma separates list of ip adresses for which a request log should be written

@@ -5,26 +5,14 @@ namespace FAU\User;
 use ILIAS\DI\Container;
 use ilLanguage;
 use ilDatePresentation;
+use FAU\SubService;
 
 /**
  * Service for FAU user related data
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
-    protected ilLanguage $lng;
     protected Repository $repository;
-
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-        $this->lng = $dic->language();
-    }
-
 
     /**
      * Get the repository for user data

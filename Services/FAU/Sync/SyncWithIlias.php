@@ -35,17 +35,19 @@ class SyncWithIlias extends SyncBase
      */
     public function synchronize() : void
     {
+
         foreach ($this->getTermsToSync() as $term) {
+            $this->info('SYNC term ' . $term->toString() . '...');
             $this->increaseItemsAdded($this->createCourses($term));
             $this->increaseItemsUpdated($this->updateCourses($term));
         }
     }
 
     /**
-     * Init the participations of a new user
+     * Sync the memberships of a new user
      * @param $user_id
      */
-    public function initUser($user_id) : void
+    public function syncNewUser($user_id) : void
     {
         // todo
     }
@@ -142,7 +144,8 @@ class SyncWithIlias extends SyncBase
                 }
             }
 
-            // get or create the place for a new course
+            // get or create the place for a new course if no parent_ref is set above
+            // don't create the object for this course if no parent_ref can be found
             if (empty($parent_ref = $parent_ref ?? $this->findOrCreateCourseCategory($course, $term))) {
                 continue;
             }
@@ -150,23 +153,25 @@ class SyncWithIlias extends SyncBase
             // create the object(s)
             switch ($action) {
                 case 'create_single_course':
-                    $ref_id = $this->createIliasCourse($parent_ref, $event, $course, $term);
-                    $this->updateIliasCourse($ref_id, $event, $course, $term);
+                    $ref_id = $this->createIliasCourse($parent_ref, $term, $event, $course);
+                    $this->updateIliasCourse($ref_id, $term, $event, $course);
                     $this->updateIliasParticipants($course->getCourseId(), $ref_id, $ref_id);
                     break;
 
                 case 'create_course_and_group':
-                    $parent_ref = $this->createIliasCourse($parent_ref, $event, null, $term);
-                    $ref_id = $this->createIliasGroup($parent_ref, $event, $course, $term);
+                    $parent_ref = $this->createIliasCourse($parent_ref, $term, $event, null);
+                    $ref_id = $this->createIliasGroup($parent_ref,  $term, $event, $course);
 
-                    $this->updateIliasCourse($parent_ref, $event, null, $term);
-                    $this->updateIliasGroup($ref_id, $event, $course, $term);
+                    // don't use course data for the event - courses are the groups inside
+                    $this->updateIliasCourse($parent_ref, $term, $event, null) ;
+                    $this->updateIliasGroup($ref_id, $term, $event, $course);
                     $this->updateIliasParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
 
                 case 'create_group_in_course':
-                    $ref_id = $this->createIliasGroup($parent_ref, $event, $course, $term);
-                    $this->updateIliasGroup($ref_id, $event, $course, $term);
+                    // course for the event already exists
+                    $ref_id = $this->createIliasGroup($parent_ref, $term, $event, $course);
+                    $this->updateIliasGroup($ref_id, $term, $event, $course);
                     $this->updateIliasParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
             }
@@ -213,20 +218,27 @@ class SyncWithIlias extends SyncBase
             switch (ilObject::_lookupType($course->getIliasObjId())) {
                 case 'crs':
                     // ilias course is used for campo event and course
-                    $this->updateIliasCourse($ref_id, $event, $course, $term);
+                    $this->updateIliasCourse($ref_id, $term, $event, $course);
+                    $this->updateIliasParticipants($course->getCourseId(), $ref_id, $ref_id);
                     break;
 
                 case 'grp':
                     // ilias course is used for the campo event
-                    if ($course_ref = $this->findParentCourse($ref_id)) {
-                        $this->updateIliasCourse($course_ref, $event, null, $term);
+                    if ($parent_ref = $this->findParentCourse($ref_id)) {
+                        $this->updateIliasCourse($parent_ref, $term, $event, null);
                     }
+                    else {
+                        $this->study->repo()->save($course->withIliasProblem("Parent ILIAS course of group not found!"));
+                        continue 2;
+                    }
+
                     // ilias group is used for the campo course
-                    $this->updateIliasGroup($ref_id, $event, $course, $term);
+                    $this->updateIliasGroup($ref_id, $term, $event, $course);
+                    $this->updateIliasParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
 
                 default:
-                    $this->study->repo()->save($course->withIliasProblem("ILIAS object "));
+                    $this->study->repo()->save($course->withIliasProblem("ILIAS object for course is neither a course nor a group!"));
                     continue 2;
             }
             $updated++;
@@ -327,7 +339,8 @@ class SyncWithIlias extends SyncBase
         $category->setTitle($lng->txtlng('fau', 'fau_campo_courses', 'de')
             . ': ' . $this->study->getTermTextForLang($term, 'de'));
         $category->setDescription($lng->txtlng('fau', 'fau_campo_courses_desc', 'de'));
-        $category->setImportId(ImportId::fromObjects(null, null, $term)->toString());
+        $category->setImportId(ImportId::fromObjects($term)->toString());
+        $category->setOwner($this->settings->getDefaultOwnerId());
         $category->create();
 
         $trans = $category->getObjectTranslation();
@@ -350,20 +363,12 @@ class SyncWithIlias extends SyncBase
      * If a campo course is given then the ilias course should work as container for that parallel group
      * @return int  ref_id of the course
      */
-    protected function createIliasCourse(int $parent_ref_id, Event $event, ?Course $course, Term $term): int
+    protected function createIliasCourse(int $parent_ref_id, Term $term, Event $event, ?Course $course): int
     {
         $object = new IlObjCourse();
-        if (isset($course)) {
-            $object->setTitle($course->getTitle());
-            $object->setSyllabus($course->getContents());
-            $object->setImportantInformation($course->getCompulsoryRequirement());
-        }
-        else {
-            $object->setTitle($event->getTitle());
-            $object->setImportantInformation($event->getComment());
-        }
-        $object->setDescription($event->getEventtype() . ($event->getShorttext() ? ' (' . $event->getShorttext() . ')' : ''));
-        $object->setImportId(ImportId::fromObjects($event, $course, $term)->toString());
+        $object->setTitle($event->getTitle()); // will be changed updateIliasCourse
+        $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
+        $object->setOwner($this->settings->getDefaultOwnerId());
         $object->create();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
@@ -378,13 +383,12 @@ class SyncWithIlias extends SyncBase
      * Create an ILIAS group for a campo course (parallel group)
      * @return int  ref_id of the course
      */
-    protected function createIliasGroup(int $parent_ref_id, Event $event, Course $course, Term $term): int
+    protected function createIliasGroup(int $parent_ref_id, Term $term, Event $event, Course $course): int
     {
         $object = new ilObjGroup();
-        $object->setInformation(
-            ilUtil::secureString($course->getContents()) . "\n"
-            . ilUtil::secureString($course->getCompulsoryRequirement()));
-        $object->setImportId(ImportId::fromObjects($event, $course, $term)->toString());
+        $object->setTitle($course->getTitle());
+        $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
+        $object->setOwner($this->settings->getDefaultOwnerId());
         $object->create();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
@@ -400,26 +404,78 @@ class SyncWithIlias extends SyncBase
      * Update the ILIAS course for a campo event and/or course (parallel group)
      * The ilias course will always work as a container for the event
      * If a campo course is provided then the ilias course should work as container for that parallel group
+     * The Course is only updated if it is not yed manually changed
      */
-    protected function updateIliasCourse(int $ref_id, Event $event, ?Course $course, Term $term)
+    protected function updateIliasCourse(int $ref_id, Term $term, Event $event, ?Course $course)
     {
-        // todo
+        $object = new ilObjCourse($ref_id);
+
+        if (!$this->isObjectManuallyChanged($object)) {
+            if (isset($course)) {
+                $object->setTitle($course->getTitle());
+                $object->setSyllabus($course->getContents());
+                $object->setImportantInformation($course->getCompulsoryRequirement());
+                if(empty($course->getAttendeeMaximum())) {
+                   $object->enableSubscriptionMembershipLimitation(false);
+                   $object->setSubscriptionMaxMembers(0);
+                }
+                else {
+                    $object->enableSubscriptionMembershipLimitation(true);
+                    $object->setSubscriptionMaxMembers($course->getAttendeeMaximum());
+                }
+            }
+            else {
+                $object->setTitle($event->getTitle());
+                $object->setImportantInformation($event->getComment());
+            }
+            $object->setDescription($event->getEventtype() . ($event->getShorttext() ? ' (' . $event->getShorttext() . ')' : ''));
+            $object->update();
+            $this->sync->repo()->resetObjectLastUpdate($object->getId());
+        }
+
+        if (isset($course)) {
+            $this->study->repo()->save($course->asChanged(null));
+        }
     }
 
 
     /**
      * Update the ILIAS group for a campo course (parallel group)
      * The ilias group will always work as a container for the course
+     * The group is only updated if it is not yed manually changed
      */
-    protected function updateIliasGroup(int $ref_id, Event $event, Course $course, Term $term)
+    protected function updateIliasGroup(int $ref_id, Term $term, Event $event, Course $course)
     {
-        // todo
+        $object = new ilObjGroup($ref_id);
+
+        if(!$this->isObjectManuallyChanged($object)) {
+            $object->setTitle($course->getTitle());
+            $object->setInformation(
+                ilUtil::secureString($course->getContents()) . "\n"
+                . ilUtil::secureString($course->getCompulsoryRequirement()));
+
+            if(empty($course->getAttendeeMaximum())) {
+                $object->enableMembershipLimitation(false);
+                $object->setMaxMembers(0);
+            }
+            else {
+                $object->enableMembershipLimitation(true);
+                $object->setMaxMembers($course->getAttendeeMaximum());
+            }
+            $object->update();
+            $this->sync->repo()->resetObjectLastUpdate($object->getId());
+        }
+
+        $this->study->repo()->save($course->asChanged(null));
     }
 
 
     /**
      * Update the roles of responsibles and instructors in an ilias course or group
      * This is done by comparing the actual responsibles and instructors tables with the members table
+     * At the end the members table should reflect the status in campo for existing users
+     *
+     *
      * @see Member
      */
     protected function updateIliasParticipants(int $course_id, int $ref_id_for_event, int $ref_id_for_course)
@@ -491,10 +547,18 @@ class SyncWithIlias extends SyncBase
                 $this->user->repo()->delete($member);
             }
         }
+
+        // remove the default owner from the participants
+        $crs_participants->delete($this->settings->getDefaultOwnerId());
+        if (isset($grp_participants)) {
+            $grp_participants->delete($this->settings->getDefaultOwnerId());
+        }
     }
 
     /**
-     * Update the setting of a certain role for users in object
+     * Update the users of a certain ilias course or group role
+     * Update the role setting in the members table of these users
+     *
      *
      * @param string $mem_role                          role that should be checked in a member record
      * @param int[] $user_ids                           list of users that should get the role
@@ -640,4 +704,15 @@ class SyncWithIlias extends SyncBase
         }
     }
 
+    /**
+     * Check if an object has been manually changed
+     */
+    protected function isObjectManuallyChanged(ilObject $object) : bool
+    {
+        $created = (int) $this->tools->dbTimestampToUnix($object->getCreateDate());
+        $updated = (int) $this->tools->dbTimestampToUnix($object->getLastUpdateDate());
+
+        // give 5 min tolerance
+        return $updated > $created + 300;
+    }
 }
