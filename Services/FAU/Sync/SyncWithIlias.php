@@ -108,13 +108,21 @@ class SyncWithIlias extends SyncBase
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
                     $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
+
+                default:
+                    continue 2;
             }
 
             // create or update the membership limitation
             if (!empty($other_refs)) {
-                // todo: update membership limitation
+               if (!empty($grouping = $this->sync->groupings()->findCommonGrouping($other_refs))) {
+                  $this->sync->groupings()->addReferenceToGrouping($ref_id, $grouping);
+               }
+               else {
+                   array_push($other_refs, $ref_id);
+                   $this->sync->groupings()->createCommonGrouping($other_refs, $event->getTitle());
+               }
             }
-
             $created++;
         }
         return $created;
