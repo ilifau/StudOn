@@ -9,6 +9,7 @@ use ilObjUser;
 class Settings
 {
     const DEFAULT_OWNER_ID = 'default_owner_id';
+    const GROUP_DTPL_ID = 'group_dtpl_id';
 
     protected Container $dic;
 
@@ -35,14 +36,28 @@ class Settings
 
         $login = (string) ilCust::get('fau_default_owner_login');
         if (empty($value = (int) ilObjUser::_lookupId($login))) {
-            $value = 6; // root user
+            $value = 6; // root user as default
         }
 
-        if (isset($value)) {
-            $this->cache[self::DEFAULT_OWNER_ID] = $value;
-
-        }
+        $this->cache[self::DEFAULT_OWNER_ID] = $value;
         return $value;
-
     }
+
+
+    /**
+     * Get the default didactic template id for group creation
+     * @return int
+     */
+    public function getGroupDidacticTemplateId() : int
+    {
+        if (isset($this->cache[self::GROUP_DTPL_ID])) {
+            return $this->cache[self::GROUP_DTPL_ID];
+        }
+
+        $value = (int) ilCust::get('fau_course_group_dtpl_id');
+
+        $this->cache[self::GROUP_DTPL_ID] = $value;
+        return $value;
+    }
+
 }

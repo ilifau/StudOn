@@ -48,6 +48,7 @@ abstract class SyncBase
      */
     public function addError(string $error) : void
     {
+        $this->info('ERROR:' .$error);
         $this->errors[] = $error;
     }
 
@@ -72,6 +73,7 @@ abstract class SyncBase
      */
     public function addWarning(string $warning) : void
     {
+        $this->info('WARNING:' .$warning);
         $this->warnings[] = $warning;
     }
 

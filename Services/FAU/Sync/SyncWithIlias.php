@@ -24,11 +24,34 @@ class SyncWithIlias extends SyncBase
     protected Container $dic;
     protected Service $service;
 
+    protected int $owner_id;
+    protected int $didactic_template_id;
+
     /**
      * Synchronize the campo courses for selected terms
      */
     public function synchronize() : void
     {
+        // ensure that new objects are created with a specific owner
+        $this->owner_id = $this->settings->getDefaultOwnerId();
+        if (empty($this->owner_id || $this->owner_id == 6)) {
+            $this->addError('Missing owner id for the creation of objects!');
+            return;
+        }
+
+        // ensure that a didactic template exists for the creation of groups
+        $this->didactic_template_id = $this->settings->getGroupDidacticTemplateId();
+        if (empty($this->didactic_template_id)) {
+            $this->addError('Missing didactic template id for the creation of groups!');
+            return;
+        }
+        $template = new \ilDidacticTemplateSetting( $this->didactic_template_id);
+        if (!isset($template) || !$template->isEnabled()) {
+            $this->addError('Didactic template ' . $this->didactic_template_id . " not found or not enabled!");
+            return;
+        }
+
+
         foreach ($this->sync->getTermsToSync() as $term) {
             $this->info('SYNC term ' . $term->toString() . '...');
             $this->increaseItemsAdded($this->createCourses($term));
@@ -192,7 +215,7 @@ class SyncWithIlias extends SyncBase
         $object = new IlObjCourse();
         $object->setTitle($event->getTitle()); // will be changed updateIliasCourse
         $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
-        $object->setOwner($this->settings->getDefaultOwnerId());
+        $object->setOwner($this->owner_id);
         $object->create();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
@@ -212,12 +235,11 @@ class SyncWithIlias extends SyncBase
         $object = new ilObjGroup();
         $object->setTitle($course->getTitle());
         $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
-        $object->setOwner($this->settings->getDefaultOwnerId());
+        $object->setOwner($this->owner_id);
         $object->create();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
-
-        // todo: set didactic template for parallel group
+        $object->applyDidacticTemplate($this->didactic_template_id);
 
         $this->study->repo()->save($course->withIliasObjId($object->getId())->withIliasProblem(null));
         return $object->getRefId();

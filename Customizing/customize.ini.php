@@ -35,6 +35,7 @@ fair_admin_role_id = ""                 ;Role Id of users who are allowed to dea
 help_show_ids = "0"						;show the screen and tooltip IDs
 
 fau_default_owner_login = "root"        ;default login for the owner of auto-created objects
+fau_course_group_dtpl_id = ""           ;id of the didactic template for auto-generated course groups
 
 ilias_guest_role_id = "5"				;Role Id of Guests
 ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects
