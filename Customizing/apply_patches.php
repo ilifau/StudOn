@@ -20,6 +20,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 
+//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => [313368, 313371, 313372, 313373]]);
+//$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => [313368, 313371, 313372, 313373]]);
 
 /*****************
 * Specific actions

@@ -6,32 +6,32 @@ use FAU\Study\Data\Term;
 
 class Study
 {
-    private ?int $studynumber;
-    private ?string $period;
+    protected ?int $studynumber;
+    protected ?string $period;
 
     // integer database ids, corresponding to the his_ids in the value tables
     // these ids are not shown, but used for conditions
-    private ?int $degreeDbId;
-    private ?int $enrollmentDbId;
-    private ?int $formOfStudiesDbId;
-    private ?int $studentstatusDbId;
+    protected ?int $degreeDbId;
+    protected ?int $enrollmentDbId;
+    protected ?int $formOfStudiesDbId;
+    protected ?int $studentstatusDbId;
 
     // string ids, corresponding to the uniquenames in the value tables
     // these ids are shown in the textual study data
-    private ?string $degreeId;
-    private ?string $typeOfStudyId;
-    private ?string $enrollmentId;
-    private ?string $formOfStudiesId;
-    private ?string $studentstatusId;
+    protected ?string $degreeId;
+    protected ?string $typeOfStudyId;
+    protected ?string $enrollmentId;
+    protected ?string $formOfStudiesId;
+    protected ?string $studentstatusId;
 
-    private string $degreeName;
-    private string $degreeShort;
-    private string $typeOfStudyName;
-    private string $enrollmentName;
-    private string $formOfStudiesName;
-    private string $studentstatusName;
+    protected string $degreeName;
+    protected string $degreeShort;
+    protected string $typeOfStudyName;
+    protected string $enrollmentName;
+    protected string $formOfStudiesName;
+    protected string $studentstatusName;
 
-    private array $subjects = [];
+    protected array $subjects = [];
 
     public function __construct(array $data)
     {

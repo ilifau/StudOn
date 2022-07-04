@@ -9,8 +9,6 @@ use ilParticipants;
 use ilCourseParticipants;
 use ilGroupParticipants;
 use ilObject;
-use FAU\User\Data\Person;
-use FAU\Study\Data\Term;
 
 /**
  * Functions for matching the persons related to campo events and courses with ilias course and group roles
@@ -257,8 +255,6 @@ class RoleMatching
         array &$touched
     )
     {
-
-
         // determine which course/group roles should be set
         switch ($mem_role)
         {
@@ -327,7 +323,7 @@ class RoleMatching
                 $this->removeRole($grp_participants, $user_id, $grp_role);
             }
         }
-//
+
 //        echo "\nMembers after: ";
 //        var_dump($members);
     }

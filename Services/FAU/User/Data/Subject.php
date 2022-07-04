@@ -4,28 +4,28 @@ namespace FAU\User\Data;
 
 class Subject
 {
-    private ?int $subjectnumber;
-    private ?int $studySemester;
+    protected ?int $subjectnumber;
+    protected ?int $studySemester;
 
     // integer database ids, corresponding to the his_ids in the value tables
     // these ids are not shown, but used for conditions
-    private ?int $subjectDbId;
-    private ?string $subjectIndicatorId;
-    private ?int $placeOfStudiesDbId;
-    private ?int $examinationDbId;
-    private ?int $courseOfStudyDbId;
+    protected ?int $subjectDbId;
+    protected ?string $subjectIndicatorId;
+    protected ?int $placeOfStudiesDbId;
+    protected ?int $examinationDbId;
+    protected ?int $courseOfStudyDbId;
 
     // string ids, corresponding to the uniquenames in the value tables
     // these ids are shown in the textual study data and in value lists
-    private ?string $subjectId;
-    private ?string $facultyId;
+    protected ?string $subjectId;
+    protected ?string $facultyId;
 
-    private string $subjectName;
-    private string $subjectIndicatorName;
-    private string $examinationName;
-    private string $placeOfStudiesName;
-    private string $courseOfStudyName;
-    private string $facultyName;
+    protected string $subjectName;
+    protected string $subjectIndicatorName;
+    protected string $examinationName;
+    protected string $placeOfStudiesName;
+    protected string $courseOfStudyName;
+    protected string $facultyName;
 
 
     public function __construct (array $data) {

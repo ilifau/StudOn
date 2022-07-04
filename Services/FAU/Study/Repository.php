@@ -325,8 +325,8 @@ class Repository extends RecordRepo
     public function getCoursesByTermToUpdate(Term $term) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE ilias_dirty_since IS NOT NULL"
-            . " AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            . " AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, Course::model(), false);
     }
 

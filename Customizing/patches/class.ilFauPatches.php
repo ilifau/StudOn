@@ -2,6 +2,7 @@
 
 use ILIAS\DI\Container;
 use FAU\Setup\Setup;
+use FAU\Study\Data\Term;
 
 /**
  * fau: fauService - patch to create the tables
@@ -57,5 +58,22 @@ class ilFauPatches
         $service->checkOrgUnitRelations();
     }
 
+    /**
+     * Create the courses of a term or with specific ids
+     */
+    public function createCourses($params = ['term' => '20222', 'course_ids' => null])
+    {
+        $service = $this->dic->fau()->sync()->ilias();
+        $service->createCourses(Term::fromString($params['term']), $params['course_ids']);
+    }
+
+    /**
+     * Create the courses of a term or with specific ids
+     */
+    public function updateCourses($params = ['term' => '20222', 'course_ids' => null])
+    {
+        $service = $this->dic->fau()->sync()->ilias();
+        $service->updateCourses(Term::fromString($params['term']), $params['course_ids']);
+    }
 
 }

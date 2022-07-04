@@ -51,10 +51,10 @@ class Member extends RecordData
     protected int $obj_id;
     protected int $user_id;
     protected ?int $module_id = null;
-    private bool $event_responsible = false;
-    private bool $course_responsible = false;
-    private bool $instructor = false;
-    private bool $individual_instructor = false;
+    protected int $event_responsible = 0;
+    protected int $course_responsible = 0;
+    protected int $instructor = 0;
+    protected int $individual_instructor = 0;
 
     public function __construct(
         int $obj_id,
@@ -70,10 +70,10 @@ class Member extends RecordData
         $this->user_id = $user_id;
         $this->module_id = $module_id;
 
-        $this->event_responsible = $event_responsible;
-        $this->course_responsible = $course_responsible;
-        $this->instructor = $instructor;
-        $this->individual_instructor = $individual_instructor;
+        $this->event_responsible = (int) $event_responsible;
+        $this->course_responsible = (int) $course_responsible;
+        $this->instructor = (int) $instructor;
+        $this->individual_instructor = (int) $individual_instructor;
     }
 
     public static function model(): self
@@ -110,7 +110,7 @@ class Member extends RecordData
      */
     public function isEventResponsible() : bool
     {
-        return $this->event_responsible;
+        return (bool) $this->event_responsible;
     }
 
     /**
@@ -118,7 +118,7 @@ class Member extends RecordData
      */
     public function isCourseResponsible() : bool
     {
-        return $this->course_responsible;
+        return (bool) $this->course_responsible;
     }
 
     /**
@@ -126,7 +126,7 @@ class Member extends RecordData
      */
     public function isInstructor() : bool
     {
-        return $this->instructor;
+        return (bool) $this->instructor;
     }
 
     /**
@@ -134,7 +134,7 @@ class Member extends RecordData
      */
     public function isIndividualInstructor() : bool
     {
-        return $this->individual_instructor;
+        return (bool) $this->individual_instructor;
     }
 
     /**
@@ -155,7 +155,7 @@ class Member extends RecordData
     public function withEventResponsible(bool $event_responsible) : Member
     {
         $clone = clone $this;
-        $clone->event_responsible = $event_responsible;
+        $clone->event_responsible = (int) $event_responsible;
         return $clone;
     }
 
@@ -166,7 +166,7 @@ class Member extends RecordData
     public function withCourseResponsible(bool $course_responsible) : Member
     {
         $clone = clone $this;
-        $clone->course_responsible = $course_responsible;
+        $clone->course_responsible = (int) $course_responsible;
         return $clone;
     }
 
@@ -177,7 +177,7 @@ class Member extends RecordData
     public function withInstructor(bool $instructor) : Member
     {
         $clone = clone $this;
-        $clone->instructor = $instructor;
+        $clone->instructor = (int) $instructor;
         return $clone;
     }
 
@@ -188,7 +188,7 @@ class Member extends RecordData
     public function withIndividualInstructor(bool $individual_instructor) : Member
     {
         $clone = clone $this;
-        $clone->individual_instructor = $individual_instructor;
+        $clone->individual_instructor = (int) $individual_instructor;
         return $clone;
     }
 
@@ -220,7 +220,7 @@ class Member extends RecordData
     public function withRole(string $role, bool $flag) : Member
     {
         $clone = clone($this);
-        $clone->$role = $flag;
+        $clone->$role = (int) $flag;
         return $clone;
     }
 }

@@ -28,34 +28,43 @@ class SyncWithIlias extends SyncBase
     protected int $didactic_template_id;
 
     /**
-     * Synchronize the campo courses for selected terms
+     * Initialize the class variables
      */
-    public function synchronize() : void
+    protected function init() : bool
     {
         // ensure that new objects are created with a specific owner
         $this->owner_id = $this->settings->getDefaultOwnerId();
         if (empty($this->owner_id || $this->owner_id == 6)) {
             $this->addError('Missing owner id for the creation of objects!');
-            return;
+            return false;
         }
 
         // ensure that a didactic template exists for the creation of groups
         $this->didactic_template_id = $this->settings->getGroupDidacticTemplateId();
         if (empty($this->didactic_template_id)) {
             $this->addError('Missing didactic template id for the creation of groups!');
-            return;
+            return false;
         }
         $template = new \ilDidacticTemplateSetting( $this->didactic_template_id);
         if (!isset($template) || !$template->isEnabled()) {
             $this->addError('Didactic template ' . $this->didactic_template_id . " not found or not enabled!");
-            return;
+            return false;
         }
+        return true;
+    }
 
 
-        foreach ($this->sync->getTermsToSync() as $term) {
-            $this->info('SYNC term ' . $term->toString() . '...');
-            $this->increaseItemsAdded($this->createCourses($term));
-            $this->increaseItemsUpdated($this->updateCourses($term));
+    /**
+     * Synchronize the campo courses for selected terms
+     */
+    public function synchronize() : void
+    {
+        if ($this->init()) {
+            foreach ($this->sync->getTermsToSync() as $term) {
+                $this->info('SYNC term ' . $term->toString() . '...');
+                $this->increaseItemsAdded($this->createCourses($term));
+                $this->increaseItemsUpdated($this->updateCourses($term));
+            }
         }
     }
 
@@ -63,13 +72,26 @@ class SyncWithIlias extends SyncBase
      * Create the ilias objects for courses (parallel groups) of a term
      * @return int number of created courses
      */
-    protected function createCourses(Term $term) : int
+    public function createCourses(Term $term, ?array $course_ids = null) : int
     {
+        if (!$this->init()) {
+            return 0;
+        }
+        elseif (isset($course_ids)) {
+            $courses = $this->study->repo()->getCoursesByIds($course_ids);
+        }
+        else {
+            $courses = $this->study->repo()->getCoursesByTermToCreate($term);
+        }
+
         $created = 0;
-//      foreach ($this->study->repo()->getCoursesByIds([302532]) as $course) {
-        foreach ($this->study->repo()->getCoursesByTermToCreate($term) as $course) {
+        foreach ($courses as $course) {
             $this->info('CREATE ' . $course->getTitle() . '...');
 
+            if (!empty($course->getIliasObjId())) {
+                $this->info('Already created.');
+                continue;
+            }
             if (empty($event = $this->study->repo()->getEvent($course->getEventId()))) {
                 $this->info('Failed: Event for course not found.');
                 $this->study->repo()->save($course->withIliasProblem('Event not found for this course!'));
@@ -173,10 +195,20 @@ class SyncWithIlias extends SyncBase
      * This should also treat the event related courses
      * @return int number of updated courses
      */
-    protected function updateCourses(Term $term) : int
+    public function updateCourses(Term $term, ?array $course_ids = null) : int
     {
+        if (!$this->init()) {
+            return 0;
+        }
+        elseif (isset($course_ids)) {
+            $courses = $this->study->repo()->getCoursesByIds($course_ids);
+        }
+        else {
+            $courses = $this->study->repo()->getCoursesByTermToUpdate($term);
+        }
+
         $updated = 0;
-        foreach ($this->study->repo()->getCoursesByTermToUpdate($term) as $course) {
+        foreach ($courses as $course) {
             $this->info('UPDATE ' . $course->getTitle() . '...');
 
             $event = $this->study->repo()->getEvent($course->getEventId());
@@ -309,6 +341,7 @@ class SyncWithIlias extends SyncBase
 
         if(!$this->isObjectManuallyChanged($object)) {
             $object->setTitle($course->getTitle());
+            $object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
             $object->setInformation(
                 ilUtil::secureString($course->getContents()) . "\n"
                 . ilUtil::secureString($course->getCompulsoryRequirement()));

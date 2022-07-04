@@ -7,10 +7,10 @@ class Term
     const TYPE_ID_SUMMER = 1;
     const TYPE_ID_WINTER = 2;
 
-    private bool $valid = false;
+    protected bool $valid = false;
 
-    private ?int $year;
-    private ?int $type_id;
+    protected ?int $year;
+    protected ?int $type_id;
 
     public function __construct(
         ?int $year,
