@@ -7,7 +7,7 @@ use FAU\Study\Data\Term;
 use FAU\Study\Data\Course;
 use FAU\Study\Data\Event;
 use ilObject;
-use IlObjCourse;
+use ilObjCourse;
 use FAU\Study\Data\ImportId;
 use ilObjGroup;
 use ilUtil;
@@ -66,10 +66,16 @@ class SyncWithIlias extends SyncBase
     protected function createCourses(Term $term) : int
     {
         $created = 0;
+//      foreach ($this->study->repo()->getCoursesByIds([302532]) as $course) {
         foreach ($this->study->repo()->getCoursesByTermToCreate($term) as $course) {
-            $this->info('CREATE' . $course->getTitle() . '...');
+            $this->info('CREATE ' . $course->getTitle() . '...');
 
-            $event = $this->study->repo()->getEvent($course->getEventId());
+            if (empty($event = $this->study->repo()->getEvent($course->getEventId()))) {
+                $this->info('Failed: Event for course not found.');
+                $this->study->repo()->save($course->withIliasProblem('Event not found for this course!'));
+                continue;
+            }
+
             $parent_ref = null;
             $other_refs = [];
 
@@ -105,6 +111,7 @@ class SyncWithIlias extends SyncBase
             // get or create the place for a new course if no parent_ref is set above
             // don't create the object for this course if no parent_ref can be found
             if (empty($parent_ref = $parent_ref ?? $this->sync->trees()->findOrCreateCourseCategory($course, $term))) {
+                $this->info('Failed: no suitable parent found.');
                 continue;
             }
 
@@ -133,6 +140,7 @@ class SyncWithIlias extends SyncBase
                     break;
 
                 default:
+                    $this->info('Failed: unknown action.');
                     continue 2;
             }
 
@@ -146,6 +154,14 @@ class SyncWithIlias extends SyncBase
                    $this->sync->groupings()->createCommonGrouping($other_refs, $event->getTitle());
                }
             }
+
+            // set the course as proceeded
+            $this->study->repo()->save(
+                $course->withIliasObjId(ilObject::_lookupObjId($ref_id))
+                ->withIliasProblem(null)
+                ->asChanged(false)
+            );
+
             $created++;
         }
         return $created;
@@ -161,7 +177,7 @@ class SyncWithIlias extends SyncBase
     {
         $updated = 0;
         foreach ($this->study->repo()->getCoursesByTermToUpdate($term) as $course) {
-            $this->info('UPDATE' . $course->getTitle() . '...');
+            $this->info('UPDATE ' . $course->getTitle() . '...');
 
             $event = $this->study->repo()->getEvent($course->getEventId());
 
@@ -197,6 +213,11 @@ class SyncWithIlias extends SyncBase
                     $this->study->repo()->save($course->withIliasProblem("ILIAS object for course is neither a course nor a group!"));
                     continue 2;
             }
+
+            // set the course as proceeded
+            $this->study->repo()->save(
+                $course->withIliasProblem(null)->asChanged(false)
+            );
             $updated++;
         }
         return $updated;
@@ -212,17 +233,14 @@ class SyncWithIlias extends SyncBase
      */
     protected function createIliasCourse(int $parent_ref_id, Term $term, Event $event, ?Course $course): int
     {
-        $object = new IlObjCourse();
+        $object = new ilObjCourse();
         $object->setTitle($event->getTitle()); // will be changed updateIliasCourse
         $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
         $object->setOwner($this->owner_id);
         $object->create();
+        $object->createReference();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
-
-        if (isset($course)) {
-            $this->study->repo()->save($course->withIliasObjId($object->getId())->withIliasProblem(null));
-        }
         return $object->getRefId();
     }
 
@@ -237,11 +255,10 @@ class SyncWithIlias extends SyncBase
         $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
         $object->setOwner($this->owner_id);
         $object->create();
+        $object->createReference();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
         $object->applyDidacticTemplate($this->didactic_template_id);
-
-        $this->study->repo()->save($course->withIliasObjId($object->getId())->withIliasProblem(null));
         return $object->getRefId();
     }
 
@@ -278,10 +295,6 @@ class SyncWithIlias extends SyncBase
             $object->update();
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
         }
-
-        if (isset($course)) {
-            $this->study->repo()->save($course->asChanged(null));
-        }
     }
 
 
@@ -311,8 +324,6 @@ class SyncWithIlias extends SyncBase
             $object->update();
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
         }
-
-        $this->study->repo()->save($course->asChanged(null));
     }
 
     /**

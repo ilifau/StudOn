@@ -2,6 +2,8 @@
 
 namespace FAU;
 
+use ilContext;
+
 /**
  * Base class of a database repository handling RecordData objects
  * @see RecordData
@@ -10,6 +12,12 @@ abstract class RecordRepo
 {
     protected \ilDBInterface $db;
     protected \ilLogger $logger;
+
+    /**
+     * Echo all read and save actions if called from the console
+     * logging is determined by the log level
+     */
+    private $echoActions = false;
 
     /**
      * Cached query results
@@ -253,7 +261,7 @@ abstract class RecordRepo
     protected function logAction(string $action, RecordData $record)
     {
         $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
-        if (!\ilContext::usesHTTP()) {
+        if ($this->echoActions && !ilContext::usesHTTP()) {
             echo $entry . "\n";
         }
 

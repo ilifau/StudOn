@@ -18,7 +18,7 @@ class Repository extends RecordRepo
     {
         $query = "SELECT p.user_id FROM fau_user_persons p"
             ." JOIN fau_study_event_resps e ON e.person_id = p.person_id"
-            ." JOIN fau_study_course c ON c.event_id = e.event_id"
+            ." JOIN fau_study_courses c ON c.event_id = e.event_id"
             ." WHERE c.course_id =" . $this->db->quote($course_id, 'integer');
         return $this->getIntegerList($query, 'user_id');
     }
@@ -43,7 +43,7 @@ class Repository extends RecordRepo
     {
         $query = "SELECT p.user_id FROM fau_user_persons p"
             ." JOIN fau_study_instructors i ON i.person_id = p.person_id"
-            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = planned_dates_id"
+            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = i.planned_dates_id"
             ." WHERE d.course_id =" . $this->db->quote($course_id, 'integer');
         return $this->getIntegerList($query, 'user_id');
     }
@@ -57,7 +57,7 @@ class Repository extends RecordRepo
         $query = "SELECT p.user_id FROM fau_user_persons p"
             ." JOIN fau_study_indi_insts i ON i.person_id = p.person_id"
             ." JOIN fau_study_indi_dates id ON id.individual_dates_id = i.individual_dates_id"
-            ." JOIN fau_study_plan_dates pd ON d.planned_dates_id = pd.planned_dates_id"
+            ." JOIN fau_study_plan_dates pd ON pd.planned_dates_id = id.planned_dates_id"
             ." WHERE pd.course_id =" . $this->db->quote($course_id, 'integer');
         return $this->getIntegerList($query, 'user_id');
     }
@@ -70,7 +70,7 @@ class Repository extends RecordRepo
     {
         $query = "SELECT c.course_id FROM fau_user_persons p"
             ." JOIN fau_study_event_resps e ON e.person_id = p.person_id"
-            ." JOIN fau_study_course c ON c.event_id = e.event_id"
+            ." JOIN fau_study_courses c ON c.event_id = e.event_id"
             ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
             ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
             ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
@@ -85,7 +85,7 @@ class Repository extends RecordRepo
     {
         $query = "SELECT c.course_id FROM fau_user_persons p"
             ." JOIN fau_study_course_resps r ON r.person_id = p.person_id"
-            ." JOIN fau_study_course c ON c.course_id = r.course_id"
+            ." JOIN fau_study_courses c ON c.course_id = r.course_id"
             ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
             ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
             ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
@@ -100,8 +100,8 @@ class Repository extends RecordRepo
     {
         $query = "SELECT c.course_id FROM fau_user_persons p"
             ." JOIN fau_study_instructors i ON i.person_id = p.person_id"
-            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = planned_dates_id"
-            ." JOIN fau_study_course c ON c.course_id = d.course_id"
+            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = i.planned_dates_id"
+            ." JOIN fau_study_courses c ON c.course_id = d.course_id"
             ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
             ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
             ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
@@ -117,8 +117,8 @@ class Repository extends RecordRepo
         $query = "SELECT c.course_id FROM fau_user_persons p"
             ." JOIN fau_study_indi_insts i ON i.person_id = p.person_id"
             ." JOIN fau_study_indi_dates id ON id.individual_dates_id = i.individual_dates_id"
-            ." JOIN fau_study_plan_dates pd ON d.planned_dates_id = pd.planned_dates_id"
-            ." JOIN fau_study_course c ON c.course_id = pd.course_id"
+            ." JOIN fau_study_plan_dates pd ON pd.planned_dates_id = id.planned_dates_id"
+            ." JOIN fau_study_courses c ON c.course_id = pd.course_id"
             ." WHERE p.user_id =" . $this->db->quote($user_id, 'integer')
             ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
             ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');

@@ -48,13 +48,13 @@ class TreeMatching
     {
         // search for an org unit that allows course creation and has an ilias category assigned
         foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $unit) {
-            if (empty($responsibleUnit = $$this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
+            if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
                 $this->study->repo()->save($course->withIliasProblem(
                     'Responsible org unit ' . $unit->getFauorgNr() . ' not found!'));
                 continue; // next unit
             }
             if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
-                $$this->org->repo()->save($responsibleUnit->withProblem(
+                $this->org->repo()->save($responsibleUnit->withProblem(
                     "No org unit with ilias category found for course creation!\n    "
                     . implode("\n    ", $this->getOrgPathLog($responsibleUnit,true))
                 ));

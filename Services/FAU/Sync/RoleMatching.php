@@ -257,6 +257,8 @@ class RoleMatching
         array &$touched
     )
     {
+
+
         // determine which course/group roles should be set
         switch ($mem_role)
         {
@@ -283,6 +285,16 @@ class RoleMatching
                 $mem_ids[] = $user_id;
             }
         }
+
+//        echo "\nmem_role: " . $mem_role;
+//        echo "\ncrs_role: " . $crs_role;
+//        echo "\ngrp_role: " . $grp_role;
+//        echo "\nuser_ids: " . implode(',', $user_ids);
+//        echo "\nmem_obj_id: " . $mem_obj_id;
+//        echo "\nmem_ids: " . implode(',', $user_ids);
+//
+//        echo "\nMembers before: ";
+//        var_dump($members);
 
         // added users
         foreach (array_diff($user_ids, $mem_ids) as $user_id) {
@@ -311,10 +323,13 @@ class RoleMatching
             if (isset($crs_role) && isset($crs_participants)) {
                 $this->removeRole($crs_participants, $user_id, $crs_role);
             }
-            if (isset($grp_participants) && isset($grp_role)) {
+            if (isset($grp_role) && isset($grp_participants) ) {
                 $this->removeRole($grp_participants, $user_id, $grp_role);
             }
         }
+//
+//        echo "\nMembers after: ";
+//        var_dump($members);
     }
 
     /**
