@@ -61,19 +61,19 @@ class ilFauPatches
     /**
      * Create the courses of a term or with specific ids
      */
-    public function createCourses($params = ['term' => '20222', 'course_ids' => null])
+    public function createCourses($params = ['term' => '20222', 'course_ids' => null, 'test_run' => true])
     {
         $service = $this->dic->fau()->sync()->ilias();
-        $service->createCourses(Term::fromString($params['term']), $params['course_ids']);
+        $service->createCourses(Term::fromString($params['term']), $params['course_ids'], $params['test_run']);
     }
 
     /**
      * Create the courses of a term or with specific ids
      */
-    public function updateCourses($params = ['term' => '20222', 'course_ids' => null])
+    public function updateCourses($params = ['term' => '20222', 'course_ids' => null, 'test_run' => true])
     {
         $service = $this->dic->fau()->sync()->ilias();
-        $service->updateCourses(Term::fromString($params['term']), $params['course_ids']);
+        $service->updateCourses(Term::fromString($params['term']), $params['course_ids'], $params['test_run']);
     }
 
 }

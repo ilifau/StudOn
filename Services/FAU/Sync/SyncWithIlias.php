@@ -11,11 +11,12 @@ use ilObjCourse;
 use FAU\Study\Data\ImportId;
 use ilObjGroup;
 use ilUtil;
+use ilDidacticTemplateSetting;
 
 /**
  * Synchronize the campo courses with the related ILIAS objects
  *
- * The relation of campo courses to ilias objects is given by the property ilias_ref_id
+ * The relation of campo courses to ilias objects is given by the property ilias_obj_id
  * Campo courses that need an update of the related object are marked with ilias_dirty_since
  * The dirty flag is deleted when the ilias objects are updated
  */
@@ -45,7 +46,7 @@ class SyncWithIlias extends SyncBase
             $this->addError('Missing didactic template id for the creation of groups!');
             return false;
         }
-        $template = new \ilDidacticTemplateSetting( $this->didactic_template_id);
+        $template = new ilDidacticTemplateSetting( $this->didactic_template_id);
         if (!isset($template) || !$template->isEnabled()) {
             $this->addError('Didactic template ' . $this->didactic_template_id . " not found or not enabled!");
             return false;
@@ -72,7 +73,7 @@ class SyncWithIlias extends SyncBase
      * Create the ilias objects for courses (parallel groups) of a term
      * @return int number of created courses
      */
-    public function createCourses(Term $term, ?array $course_ids = null) : int
+    public function createCourses(Term $term, ?array $course_ids = null, bool $test_run = false) : int
     {
         if (!$this->init()) {
             return 0;
@@ -137,6 +138,11 @@ class SyncWithIlias extends SyncBase
                 continue;
             }
 
+            if ($test_run) {
+                $this->study->repo()->save($course->withIliasProblem(null));
+                continue;
+            }
+
             // create the object(s)
             switch ($action) {
                 case 'create_single_course':
@@ -195,7 +201,7 @@ class SyncWithIlias extends SyncBase
      * This should also treat the event related courses
      * @return int number of updated courses
      */
-    public function updateCourses(Term $term, ?array $course_ids = null) : int
+    public function updateCourses(Term $term, ?array $course_ids = null, bool $test_run = false) : int
     {
         if (!$this->init()) {
             return 0;
@@ -219,31 +225,47 @@ class SyncWithIlias extends SyncBase
                 continue;
             }
 
-            switch (ilObject::_lookupType($course->getIliasObjId())) {
+            $parent_ref = null;
+            switch (ilObject::_lookupType($course->getIliasObjId()))
+            {
                 case 'crs':
-                    // ilias course is used for campo event and course
-                    $this->updateIliasCourse($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $ref_id, $ref_id);
+                    $action = 'update_single_course';
                     break;
 
                 case 'grp':
-                    // ilias course is used for the campo event
-                    if ($parent_ref = $this->sync->trees()->findParentIliasCourse($ref_id)) {
-                        $this->updateIliasCourse($parent_ref, $term, $event, null);
-                    }
-                    else {
+                    $action = 'update_group_in_course';
+                    if (empty($parent_ref = $this->sync->trees()->findParentIliasCourse($ref_id))) {
                         $this->study->repo()->save($course->withIliasProblem("Parent ILIAS course of group not found!"));
                         continue 2;
                     }
-
-                    // ilias group is used for the campo course
-                    $this->updateIliasGroup($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
 
                 default:
                     $this->study->repo()->save($course->withIliasProblem("ILIAS object for course is neither a course nor a group!"));
                     continue 2;
+            }
+
+
+            if ($test_run) {
+                $this->study->repo()->save($course->withIliasProblem(null));
+                continue;
+            }
+
+            switch ($action)
+            {
+                case 'update_single_course':
+                    // ilias course is used for campo event and course
+                    $this->updateIliasCourse($ref_id, $term, $event, $course);
+                    $this->sync->roles()->updateParticipants($course->getCourseId(), $ref_id, $ref_id);
+                    break;
+
+                case 'update_group_in_course':
+                    // ilias course is used for the campo event
+                    $this->updateIliasCourse($parent_ref, $term, $event, null);
+                    // ilias group is used for the campo course
+                    $this->updateIliasGroup($ref_id, $term, $event, $course);
+                    $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
+                    break;
             }
 
             // set the course as proceeded
