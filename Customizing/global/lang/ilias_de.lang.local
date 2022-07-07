@@ -614,6 +614,7 @@ fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-
 fau#:#fau_import_id#:#Import-ID
 fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
 fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
+fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
 fau#:#studycond_add_condition#:#Bedingung hinzufügen
 fau#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen
 fau#:#studycond_add_doc_condition#:#Promotions-Bedingung hinzufügen

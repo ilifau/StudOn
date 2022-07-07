@@ -116,7 +116,12 @@ class ilMainMenuSearchGUI
             $this->tpl->setVariable('HREF_SEARCH_LINK', "ilias.php?baseClass=ilSearchController");
             $this->tpl->setVariable('TXT_SEARCH_LINK', $lng->txt("last_search_result"));
         }
-        
+
+        // fau: fauService - link the search GUI
+        $this->tpl->setVariable('HREF_FAU_SEARCH_LINK', $ilCtrl->getLinkTargetByClass('fau\study\gui\search'));
+        $this->tpl->setVariable('TXT_FAU_SEARCH_LINK', $lng->txt("fau_search"));
+        // fau.
+
         // #10555 - we need the overlay for the autocomplete which is always active
         $this->tpl->setVariable('TXT_SEARCH', $lng->txt("search"));
         include_once("./Services/UIComponent/Overlay/classes/class.ilOverlayGUI.php");
