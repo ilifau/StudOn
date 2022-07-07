@@ -607,6 +607,8 @@ fau#:#fau_campo_courses#:#Courses from Campo
 fau#:#fau_campo_courses_desc#:#These courses were created automatically. They can be moved to suitable places.
 fau#:#fau_campo_data_update#:#Update Campo Data
 fau#:#fau_campo_data_update_info#:#Updates the data for lectures from campo
+fau#:#fau_course#:#Parallel Group
+fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
 fau#:#fau_org_data_update#:#Update FAU.Org-Data

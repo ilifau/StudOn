@@ -101,7 +101,10 @@ class TreeMatching
                 $found = $pathUnit;
             }
             // take the nearest parent if ilias object is assigned
-            elseif (!empty($pathUnit->getIliasRefId()) && !$pathUnit->getNoManager() && empty($found)) {
+            elseif (!empty($pathUnit->getIliasRefId())
+                && !$pathUnit->getNoManager()
+                && empty($found)
+            ) {
                 $found = $pathUnit;
             }
         }

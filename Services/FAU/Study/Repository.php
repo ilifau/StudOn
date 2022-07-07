@@ -216,7 +216,8 @@ class Repository extends RecordRepo
      */
     public function getEventOrgunitsByEventId(int $event_id) : array
     {
-        $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer')
+            ." ORDER BY fauorg_nr";
         return $this->queryRecords($query, EventOrgunit::model());
     }
 

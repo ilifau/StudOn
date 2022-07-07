@@ -10,6 +10,7 @@ class Settings
 {
     const DEFAULT_OWNER_ID = 'default_owner_id';
     const GROUP_DTPL_ID = 'group_dtpl_id';
+    const COURSE_DTPL_ID = 'course_dtpl_id';
 
     protected Container $dic;
 
@@ -54,10 +55,26 @@ class Settings
             return $this->cache[self::GROUP_DTPL_ID];
         }
 
-        $value = (int) ilCust::get('fau_course_group_dtpl_id');
+        $value = (int) ilCust::get('fau_group_dtpl_id');
 
         $this->cache[self::GROUP_DTPL_ID] = $value;
         return $value;
     }
 
+
+    /**
+     * Get the default didactic template id for course creation
+     * @return int
+     */
+    public function getCourseDidacticTemplateId() : int
+    {
+        if (isset($this->cache[self::COURSE_DTPL_ID])) {
+            return $this->cache[self::COURSE_DTPL_ID];
+        }
+
+        $value = (int) ilCust::get('fau_course_dtpl_id');
+
+        $this->cache[self::COURSE_DTPL_ID] = $value;
+        return $value;
+    }
 }

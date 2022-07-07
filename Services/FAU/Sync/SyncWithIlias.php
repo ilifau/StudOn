@@ -26,7 +26,8 @@ class SyncWithIlias extends SyncBase
     protected Service $service;
 
     protected int $owner_id;
-    protected int $didactic_template_id;
+    protected int $group_didactic_template_id;
+    protected int $course_didactic_template_id;
 
     /**
      * Initialize the class variables
@@ -41,16 +42,29 @@ class SyncWithIlias extends SyncBase
         }
 
         // ensure that a didactic template exists for the creation of groups
-        $this->didactic_template_id = $this->settings->getGroupDidacticTemplateId();
-        if (empty($this->didactic_template_id)) {
+        $this->group_didactic_template_id = $this->settings->getGroupDidacticTemplateId();
+        if (empty($this->group_didactic_template_id)) {
             $this->addError('Missing didactic template id for the creation of groups!');
             return false;
         }
-        $template = new ilDidacticTemplateSetting( $this->didactic_template_id);
+        $template = new ilDidacticTemplateSetting( $this->group_didactic_template_id);
         if (!isset($template) || !$template->isEnabled()) {
-            $this->addError('Didactic template ' . $this->didactic_template_id . " not found or not enabled!");
+            $this->addError('Didactic template ' . $this->group_didactic_template_id . " not found or not enabled!");
             return false;
         }
+
+        // ensure that didactic templates exist for the creation of courses and groups
+        $this->course_didactic_template_id = $this->settings->getCourseDidacticTemplateId();
+        if (empty($this->course_didactic_template_id)) {
+            $this->addError('Missing didactic template id for the creation of courses!');
+            return false;
+        }
+        $template = new ilDidacticTemplateSetting( $this->course_didactic_template_id);
+        if (!isset($template) || !$template->isEnabled()) {
+            $this->addError('Didactic template ' . $this->course_didactic_template_id . " not found or not enabled!");
+            return false;
+        }
+
         return true;
     }
 
@@ -295,6 +309,9 @@ class SyncWithIlias extends SyncBase
         $object->createReference();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
+        if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
+            $object->applyDidacticTemplate($this->course_didactic_template_id);
+        }
         return $object->getRefId();
     }
 
@@ -305,14 +322,14 @@ class SyncWithIlias extends SyncBase
     protected function createIliasGroup(int $parent_ref_id, Term $term, Event $event, Course $course): int
     {
         $object = new ilObjGroup();
-        $object->setTitle($course->getTitle());
+        $object->setTitle($course->getTitle()); // will be changed updateIliasGroup
         $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
         $object->setOwner($this->owner_id);
         $object->create();
         $object->createReference();
         $object->putInTree($parent_ref_id);
         $object->setPermissions($parent_ref_id);
-        $object->applyDidacticTemplate($this->didactic_template_id);
+        $object->applyDidacticTemplate($this->group_didactic_template_id);
         return $object->getRefId();
     }
 
@@ -326,12 +343,10 @@ class SyncWithIlias extends SyncBase
     protected function updateIliasCourse(int $ref_id, Term $term, Event $event, ?Course $course)
     {
         $object = new ilObjCourse($ref_id);
-
         if (!$this->isObjectManuallyChanged($object)) {
             if (isset($course)) {
-                $object->setTitle($course->getTitle());
                 $object->setSyllabus($course->getContents());
-                $object->setImportantInformation($course->getCompulsoryRequirement());
+
                 if(empty($course->getAttendeeMaximum())) {
                    $object->enableSubscriptionMembershipLimitation(false);
                    $object->setSubscriptionMaxMembers(0);
@@ -341,11 +356,9 @@ class SyncWithIlias extends SyncBase
                     $object->setSubscriptionMaxMembers($course->getAttendeeMaximum());
                 }
             }
-            else {
-                $object->setTitle($event->getTitle());
-                $object->setImportantInformation($event->getComment());
-            }
-            $object->setDescription($event->getEventtype() . ($event->getShorttext() ? ' (' . $event->getShorttext() . ')' : ''));
+            $object->setTitle($this->buildTitle($term, $event, $course));
+            $object->setDescription($this->buildDescription($event, $course));
+            $object->setImportantInformation($event->getComment());
             $object->update();
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
         }
@@ -362,12 +375,7 @@ class SyncWithIlias extends SyncBase
         $object = new ilObjGroup($ref_id);
 
         if(!$this->isObjectManuallyChanged($object)) {
-            $object->setTitle($course->getTitle());
-            $object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
-            $object->setInformation(
-                ilUtil::secureString($course->getContents()) . "\n"
-                . ilUtil::secureString($course->getCompulsoryRequirement()));
-
+            $object->setInformation(ilUtil::secureString($course->getContents())); // remove html
             if(empty($course->getAttendeeMaximum())) {
                 $object->enableMembershipLimitation(false);
                 $object->setMaxMembers(0);
@@ -376,9 +384,54 @@ class SyncWithIlias extends SyncBase
                 $object->enableMembershipLimitation(true);
                 $object->setMaxMembers($course->getAttendeeMaximum());
             }
+            $object->setTitle($this->buildTitle($term, $event, $course));
+            $object->setDescription($this->buildDescription($event, $course));
+            $object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
             $object->update();
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
         }
+    }
+
+    /**
+     * Build the object title
+     */
+    protected function buildTitle(Term $term, Event $event, ?Course $course) : string
+    {
+        if (isset($course)) {
+            $title = $course->getTitle();
+            if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
+                $title .= $course->getKParallelgroupId() ? ' ( ' . $this->lng->txt('fau_course') . ' ' . $course->getKParallelgroupId() . ')' : '';
+            }
+        }
+        else {
+            $title = $event->getTitle();
+        }
+
+        return (string) $title;
+    }
+
+    /**
+     * Build the object description
+     */
+    protected function buildDescription(Event $event, ?Course $course) : string
+    {
+        $desc = [];
+        if ($event->getEventtype()) {
+            $desc[] = $event->getEventtype();
+        }
+        if ($event->getShorttext()) {
+            $desc[] = $event->getShorttext();
+        }
+        if (isset($course)) {
+            if ($course->getHoursPerWeek()) {
+                $desc[] = $course->getHoursPerWeek() . ' ' . $this->lng->txt('fau_sws');
+            }
+            if ($course->getTeachingLanguage()) {
+                $desc[] = $course->getTeachingLanguage();
+            }
+        }
+
+        return implode(', ', $desc);
     }
 
     /**
