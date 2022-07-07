@@ -995,13 +995,6 @@ class ilObjCourseGUI extends ilContainerGUI
 
         // check successful
 
-        // fau: univisAdmin - save univis_id if edited by global admin
-        global $rbacsystem;
-        if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
-            $this->object->setImportId(ilUtil::stripSlashes($_POST['import_id']));
-        }
-        // fau.
-
         // title/desc
         $this->object->setTitle($form->getInput('title'));
         $this->object->setDescription($form->getInput('desc'));
@@ -1350,18 +1343,6 @@ class ilObjCourseGUI extends ilContainerGUI
         
         // Show didactic template type
         $this->initDidacticTemplate($form);
-
-        // fau: univisAdmin - make univis id editable for global admins
-        global $rbacsystem;
-        if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
-            $import = new ilTextInputGUI($this->lng->txt('univis_id'), 'import_id');
-            $import->setValue($this->object->getImportId());
-            $import->setInfo($this->lng->txt('univis_id_info'));
-            $import->setSize(50);
-            $import->setMaxLength(50);
-            $form->addItem($import);
-        }
-        // fau.
 
         // period
         include_once "Services/Form/classes/class.ilDateDurationInputGUI.php";

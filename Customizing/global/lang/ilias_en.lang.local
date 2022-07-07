@@ -611,6 +611,7 @@ fau#:#fau_course#:#Parallel Group
 fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
+fau#:#fau_import_id#:#Import-ID
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
 fau#:#studycond_add_condition#:#add condition

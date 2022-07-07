@@ -11,6 +11,7 @@ Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, au
 ## Abgelöste Anpassungen
 
 - **idmData** 
+- **univisAdmin**
 
 ## Struktur
 

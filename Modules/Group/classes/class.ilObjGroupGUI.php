@@ -638,12 +638,6 @@ class ilObjGroupGUI extends ilContainerGUI
 
             $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
             $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
-            // fau: univisAdmin - save univis_id if edited by global admin
-            global $rbacsystem;
-            if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
-                $this->object->setImportId(ilUtil::stripSlashes($form->getInput('import_id')));
-            }
-            // fau.
             $this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
             $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
             $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
@@ -1773,18 +1767,6 @@ class ilObjGroupGUI extends ilContainerGUI
         
         // title/description
         $this->initFormTitleDescription($form);
-
-        // fau: univisAdmin - make univis id editable for global admins
-        global $rbacsystem;
-        if ($rbacsystem->checkAccess("visible,read", SYSTEM_FOLDER_ID)) {
-            $import = new ilTextInputGUI($this->lng->txt('univis_id'), 'import_id');
-            $import->setValue($this->object->getImportId());
-            $import->setInfo($this->lng->txt('univis_id_info'));
-            $import->setSize(50);
-            $import->setMaxLength(50);
-            $form->addItem($import);
-        }
-        // fau.
 
         $form = $this->initDidacticTemplate($form);
 
