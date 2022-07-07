@@ -2,6 +2,11 @@
 
 namespace FAU;
 
+/**
+ * Search for events from campo
+ *
+ * @ilCtrl_calls FAU\ServiceGUI:
+ */
 class ServiceGUI extends BaseGUI
 {
     public function executeCommand()
