@@ -62,26 +62,32 @@ class TreeMatching
             }
             break;  // creationUnit found
         }
+        // try fallback parent category
         if (empty($creationUnit)) {
             $this->study->repo()->save($course->withIliasProblem("No org unit found for course creation!"));
-            return null;
+            $parent_ref_id = $this->settings->getFallbackParentCatId();
+            if (empty($parent_ref_id)) {
+                return null;
+            }
         }
-
         // check if the assigned ilias reference is a category and not deleted
-        if (ilObject::_lookupType($creationUnit->getIliasRefId(), true) != 'cat'
+        elseif (ilObject::_lookupType($creationUnit->getIliasRefId(), true) != 'cat'
             || ilObject::_isInTrash($creationUnit->getIliasRefId())) {
             $this->study->repo()->save($creationUnit->withProblem('No ILIAS category found for the ref_id'));
             $this->study->repo()->save($course->withIliasProblem("No org unit found for course creation!"));
             return null;
         }
+        else {
+            $parent_ref_id = $creationUnit->getIliasRefId();
+        }
 
         // find the sub category for course creation in the term
-        foreach($this->dic->repositoryTree()->getChildsByType($creationUnit->getIliasRefId(), 'cat') as $node) {
+        foreach($this->dic->repositoryTree()->getChildsByType($parent_ref_id, 'cat') as $node) {
             if (ImportId::fromString(ilObject::_lookupImportId($node['obj_id']))->getTermId() == $term->toString()) {
                 return (int) $node['child'];
             }
         }
-        return  $this->createCourseCategory($creationUnit->getIliasRefId(), $term);
+        return  $this->createCourseCategory($parent_ref_id, $term);
     }
 
     /**
@@ -94,15 +100,30 @@ class TreeMatching
     protected function findOrgUnitForCourseCreation(Orgunit $unit) : ?Orgunit
     {
         $found = null;
-        foreach (array_reverse($this->org->getPathUnits($unit)) as $pathUnit) {
+
+        // reverse: from unit to root
+        $pathUnits = array_reverse($this->org->getPathUnits($unit));
+
+        // take faculty as fallback (univ is last index)
+        $fallback_index = count($pathUnits) - 2;
+        foreach ($pathUnits as $index => $pathUnit) {
 
             // always take the highest collector if ilias object is assigned
-            if (!empty($pathUnit->getIliasRefId()) && $pathUnit->getCollectCourses()) {
+            if (!empty($pathUnit->getIliasRefId())
+                && $pathUnit->getCollectCourses()
+            ) {
                 $found = $pathUnit;
             }
-            // take the nearest parent if ilias object is assigned
+            // take the nearest parent if possible
             elseif (!empty($pathUnit->getIliasRefId())
                 && !$pathUnit->getNoManager()
+                && empty($found)
+            ) {
+                $found = $pathUnit;
+            }
+            // take the faculty even if it has "no_manager"
+            elseif(!empty($pathUnit->getIliasRefId())
+                && $index == $fallback_index
                 && empty($found)
             ) {
                 $found = $pathUnit;

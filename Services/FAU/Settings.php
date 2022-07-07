@@ -11,6 +11,7 @@ class Settings
     const DEFAULT_OWNER_ID = 'default_owner_id';
     const GROUP_DTPL_ID = 'group_dtpl_id';
     const COURSE_DTPL_ID = 'course_dtpl_id';
+    const FALLBACK_PARENT_CAT_ID = 'fallback_parent_cat_id';
 
     protected Container $dic;
 
@@ -77,4 +78,21 @@ class Settings
         $this->cache[self::COURSE_DTPL_ID] = $value;
         return $value;
     }
+
+    /**
+     * Get the default didactic template id for course creation
+     * @return int
+     */
+    public function getFallbackParentCatId() : int
+    {
+        if (isset($this->cache[self::FALLBACK_PARENT_CAT_ID])) {
+            return $this->cache[self::FALLBACK_PARENT_CAT_ID];
+        }
+
+        $value = (int) ilCust::get('fau_fallback_parent_cat_id');
+
+        $this->cache[self::FALLBACK_PARENT_CAT_ID] = $value;
+        return $value;
+    }
+
 }
