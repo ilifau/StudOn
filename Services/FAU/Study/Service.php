@@ -272,7 +272,7 @@ class Service extends SubService
             return sprintf($this->lng->txtlng('fau','studydata_semester_summer', $lang_code), $term->getYear());
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
-            $next = substr((string) $term->getYear(), 2,2);
+            $next = substr((string) $term->getYear(), 2,2) + 1;
             return sprintf($this->lng->txtlng('fau', 'studydata_semester_winter', $lang_code), $term->getYear(), $next);
         }
         else {

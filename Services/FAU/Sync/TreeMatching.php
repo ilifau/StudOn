@@ -11,7 +11,8 @@ use FAU\Study\Data\Course;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\ImportId;
 use FAU\Org\Data\Orgunit;
-use FAU\Sync\SyncWithIlias;
+use FAU\Settings;
+use ilContainer;
 
 /**
  * Functions for matching the orgunit and repository tree
@@ -24,7 +25,7 @@ class TreeMatching
     protected ilLanguage $lng;
     protected \FAU\Org\Service $org;
     protected \FAU\Study\Service $study;
-    protected \FAU\Settings $settings;
+    protected Settings $settings;
 
 
     /**
@@ -46,6 +47,8 @@ class TreeMatching
      */
     public function findOrCreateCourseCategory(Course $course, Term $term) : ?int
     {
+        $creationUnit = null;
+
         // search for an org unit that allows course creation and has an ilias category assigned
         foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $unit) {
             if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
@@ -87,15 +90,13 @@ class TreeMatching
                 return (int) $node['child'];
             }
         }
-        return  $this->createCourseCategory($parent_ref_id, $term);
+        return  $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
     }
 
     /**
      * Find an org unit in the path of a unit that should be used for course creation
      * If there is a parent with "collect courses" and an ILIAS ref_id assigned, take this one
      * Otherwise take the nearest ancestor with ref_id assigned and not "no_manager"
-     * @param Orgunit $unit
-     * @return Orgunit|null
      */
     protected function findOrgUnitForCourseCreation(Orgunit $unit) : ?Orgunit
     {
@@ -134,8 +135,6 @@ class TreeMatching
 
     /**
      * Get the reference to the ilias course or group for a course
-     * @param Course $course
-     * @return int|null
      */
     public function getIliasRefIdForCourse(Course $course) : ?int
     {
@@ -165,11 +164,13 @@ class TreeMatching
     /**
      * Create the category hat should get new courses of a term
      */
-    protected function createCourseCategory(int $parent_ref_id, Term $term): int
+    protected function createCourseCategory(int $parent_ref_id, Term $term, ?Orgunit $unit): int
     {
         $category = new ilObjCategory();
         $category->setTitle($this->lng->txtlng('fau', 'fau_campo_courses', 'de')
-            . ': ' . $this->study->getTermTextForLang($term, 'de'));
+            . ': ' . $this->study->getTermTextForLang($term, 'de')
+            . (isset($unit) ? ' [' . $unit->getShorttext() . ']' : '')
+        );
         $category->setDescription($this->lng->txtlng('fau', 'fau_campo_courses_desc', 'de'));
         $category->setImportId(ImportId::fromObjects($term)->toString());
         $category->setOwner($this->settings->getDefaultOwnerId());
@@ -186,13 +187,13 @@ class TreeMatching
         $category->createReference();
         $category->putInTree($parent_ref_id);
         $category->setPermissions($parent_ref_id);
+        ilContainer::_writeContainerSetting($category->getId(), "block_limit", 100);
         return $category->getRefId();
     }
 
 
     /**
      * Get lines with titles and links of the org unit path
-     * @param Orgunit $unit
      * @return string[]
      */
     public function getOrgPathLog(Orgunit $unit, $include_unit = false) : array
@@ -214,7 +215,6 @@ class TreeMatching
 
     /**
      * Get lines with titles and links of the ILIAS path
-     * @param Orgunit $unit
      * @return string[]
      */
     public function getIliasPathLog(Orgunit $unit, $include_unit = false) : array
@@ -259,7 +259,7 @@ class TreeMatching
                 $this->org->repo()->save($unit->withProblem('ILIAS object is not a category'));
                 continue;
             }
-            if (\ilObject::_isInTrash($ref_id, true)) {
+            if (\ilObject::_isInTrash($ref_id)) {
                 $this->org->repo()->save($unit->withProblem('ILIAS object is in trash'));
                 continue;
             }

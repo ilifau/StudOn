@@ -312,6 +312,8 @@ class SyncWithIlias extends SyncBase
         if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
             $object->applyDidacticTemplate($this->course_didactic_template_id);
         }
+        $object->setOfflineStatus(false);
+        $object->update();
         return $object->getRefId();
     }
 
