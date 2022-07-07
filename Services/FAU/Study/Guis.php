@@ -3,8 +3,9 @@
 namespace FAU\Study;
 
 use ILIAS\DI\Container;
+use FAU\Study\GUI\Search;
 
-class Gui
+class Guis
 {
     protected Container $dic;
     protected Service $service;
@@ -20,6 +21,13 @@ class Gui
         $this->repo = $dic->fau()->study()->repo();
     }
 
+    /**
+     * Get the Search GUI
+     */
+    public function search(): Search
+    {
+        return new Search();
+    }
 
 
     public function getStudyModuleSelectionForSearch(int $user_id)

@@ -15,7 +15,7 @@ class Service extends SubService
 
     protected Repository $repository;
     protected Matching $matching;
-    protected Gui $gui;
+    protected Guis $guis;
 
 
 
@@ -45,12 +45,12 @@ class Service extends SubService
     /**
      * Get the GUI Handler
      */
-    public function gui() : Gui
+    public function guis() : Guis
     {
-        if(!isset($this->gui)) {
-            $this->gui = new Gui($this->dic);
+        if(!isset($this->guis)) {
+            $this->guis = new Guis($this->dic);
         }
-        return $this->gui;
+        return $this->guis;
     }
 
 
