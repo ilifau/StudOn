@@ -74,9 +74,16 @@ class SyncWithIlias extends SyncBase
      */
     public function synchronize(?int $orgunit_id = null) : void
     {
-        if (!empty($unit = $this->org->repo()->getOrgunit($orgunit_id))) {
-            $units_ids = $this->org->repo()->getOrgunitIdsByPath($unit->getPath());
+        $unit_ids = null;
+        if (!empty($orgunit_id)) {
+            if (!empty($unit = $this->org->repo()->getOrgunit($orgunit_id))) {
+                $units_ids = $this->org->repo()->getOrgunitIdsByPath($unit->getPath());
+            }
+            else {
+                $unit_ids = [];
+            }
         }
+
 
         if ($this->init()) {
             foreach ($this->sync->getTermsToSync() as $term) {
@@ -104,7 +111,8 @@ class SyncWithIlias extends SyncBase
             return 0;
         }
         elseif (isset($course_ids)) {
-            $courses = $this->study->repo()->getCoursesByIds($course_ids);
+            // no cache because the same query is used in the update afterwards
+            $courses = $this->study->repo()->getCoursesByIds($course_ids, false);
         }
         else {
             $courses = $this->study->repo()->getCoursesByTermToCreate($term);
@@ -232,7 +240,8 @@ class SyncWithIlias extends SyncBase
             return 0;
         }
         elseif (isset($course_ids)) {
-            $courses = $this->study->repo()->getCoursesByIds($course_ids);
+            // no cache because the same query is used in the create before
+            $courses = $this->study->repo()->getCoursesByIds($course_ids, false);
         }
         else {
             $courses = $this->study->repo()->getCoursesByTermToUpdate($term);

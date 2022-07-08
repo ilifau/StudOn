@@ -252,7 +252,7 @@ class Repository extends RecordRepo
     public function getCourseIdsOfOrgUnitsInTerm(array $unit_ids, Term $term, $useCache = true) : array
     {
         $query = "
-        SELECT c.course_id, c.title
+        SELECT c.course_id
         FROM fau_study_courses c
         JOIN fau_study_events e ON e.event_id = c.event_id
         JOIN fau_study_event_orgs o ON o.event_id = e.event_id
