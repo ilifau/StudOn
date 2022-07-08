@@ -66,7 +66,7 @@ class RoleMatching
         }
 
         // don't use cache because members table is updated during sync
-        $members = $this->user->repo()->getMembersOfObjects($obj_id_for_course, false);
+        $members = $this->user->repo()->getMembersOfObject($obj_id_for_course, false);
         $touched = [];
 
         $this->updateRole(

@@ -168,7 +168,7 @@ class TreeMatching
     {
         $category = new ilObjCategory();
         $category->setTitle($this->lng->txtlng('fau', 'fau_campo_courses', 'de')
-            . ': ' . $this->study->getTermTextForLang($term, 'de')
+            . ': ' . $this->study->getTermTextForLang($term, 'de', true)
             . (isset($unit) ? ' [' . $unit->getShorttext() . ']' : '')
         );
         $category->setDescription($this->lng->txtlng('fau', 'fau_campo_courses_desc', 'de'));

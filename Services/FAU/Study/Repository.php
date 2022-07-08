@@ -267,6 +267,16 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the courses with certain ilias_obj_ids
+     * @return Course[] indexed by course_id
+     */
+    public function getCoursesByIliasObjId(int $id, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ilias_obj_id = ". $this->db->quote($id, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
      * Gat a single Course
      * @return Course|null
      */

@@ -82,7 +82,7 @@ class Repository extends RecordRepo
      * Get the members of an ilias object (course or group)
      * @return Member[]     indexed by user_id
      */
-    public function getMembersOfObjects(int $obj_id, bool $useCache = true) : array
+    public function getMembersOfObject(int $obj_id, bool $useCache = true) : array
     {
         $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
         return $this->queryRecords($query, Member::model(), $useCache, 'user_id');

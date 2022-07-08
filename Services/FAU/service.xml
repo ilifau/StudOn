@@ -8,6 +8,12 @@
 	<baseclasses>
 		<baseclass name="fauStudySearchGUI" dir="Study/GUI" />
 	</baseclasses>
+	<events>
+		<event type="listen" id="Modules/Group" />
+		<event type="listen" id="Modules/Course" />
+		<event type="listen" id="Services/Object" />
+		<event type="listen" id="Services/User" />
+	</events>
 	<logging />
 </service>
 

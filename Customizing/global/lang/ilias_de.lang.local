@@ -603,7 +603,7 @@ exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
 exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
-fau#:#fau_campo_courses#:#Kurse aus Campo
+fau#:#fau_campo_courses#:#Campo-Kurse
 fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie können an geeignete Stellen verschoben werden.
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
@@ -673,7 +673,8 @@ fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
-fau#:#studydata_semester_winter#:#Wintersemester %s/%s
+fau#:#studydata_semester_summer_short#:#SS %s
+fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_semester_text#:# %s. Semester
 fau#:#studydata_study_no#:#Studiengang %s
 fau#:#studydata_subject#:#Fach

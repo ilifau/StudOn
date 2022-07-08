@@ -143,11 +143,20 @@ class Repository extends RecordRepo
 
     /**
      * Reset the last update date of an object to the create date
-     * @param int $obj_id
      */
     public function resetObjectLastUpdate(int $obj_id)
     {
         $query = "UPDATE object_data SET last_update = create_date WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        $this->db->manipulate($query);
+    }
+
+    /**
+     * Remove the import id from an object
+     */
+    public function removeObjectFauImportId(int $obj_id)
+    {
+        $query = "UPDATE object_data set import_id = NULL WHERE import_id LIKE 'FAU%'"
+                ." AND obj_id = ". $this->db->quote($obj_id, 'integer');
         $this->db->manipulate($query);
     }
 }
