@@ -68,17 +68,28 @@ class SyncWithIlias extends SyncBase
         return true;
     }
 
-
     /**
      * Synchronize the campo courses for selected terms
+     * @param int|null $orgunit_id optional restriction to an orgunit and their subunits
      */
-    public function synchronize() : void
+    public function synchronize(?int $orgunit_id = null) : void
     {
+        if (!empty($unit = $this->org->repo()->getOrgunit($orgunit_id))) {
+            $units_ids = $this->org->repo()->getOrgunitIdsByPath($unit->getPath());
+        }
+
         if ($this->init()) {
             foreach ($this->sync->getTermsToSync() as $term) {
                 $this->info('SYNC term ' . $term->toString() . '...');
-                $this->increaseItemsAdded($this->createCourses($term));
-                $this->increaseItemsUpdated($this->updateCourses($term));
+
+                // restrict to the courses within the units, if given
+                $course_ids = null;
+                if (isset($units_ids)) {
+                    $course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($units_ids, $term);
+                }
+
+                $this->increaseItemsAdded($this->createCourses($term, $course_ids));
+                $this->increaseItemsUpdated($this->updateCourses($term, $course_ids));
             }
         }
     }
