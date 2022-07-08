@@ -5,7 +5,7 @@ namespace FAU;
 /**
  * Search for events from campo
  *
- * @ilCtrl_calls FAU\ServiceGUI:
+ * @ilCtrl_Calls FAU\ServiceGUI: FAU/Study/GUI/Search
  */
 class ServiceGUI extends BaseGUI
 {
