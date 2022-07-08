@@ -19,7 +19,7 @@ abstract class BaseGUI
     protected ilCtrl $ctrl;
     protected ilTabsGUI $tabs;
     /** @var ilGlobalTemplateInterface $tpl  */
-    protected ilTemplate $tpl;
+    protected $tpl;
     protected ilLanguage $lng;
     protected ilToolbarGUI $toolbar;
     protected Factory $factory;
@@ -38,7 +38,7 @@ abstract class BaseGUI
         $this->toolbar = $this->dic->toolbar();
         $this->lng = $this->dic->language();
         $this->tpl = $this->dic->ui()->mainTemplate();
-        $this->uiFactory = $this->dic->ui()->factory();
+        $this->factory = $this->dic->ui()->factory();
         $this->renderer = $this->dic->ui()->renderer();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
