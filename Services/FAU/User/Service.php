@@ -5,26 +5,14 @@ namespace FAU\User;
 use ILIAS\DI\Container;
 use ilLanguage;
 use ilDatePresentation;
+use FAU\SubService;
 
 /**
  * Service for FAU user related data
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
-    protected ilLanguage $lng;
     protected Repository $repository;
-
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-        $this->lng = $dic->language();
-    }
-
 
     /**
      * Get the repository for user data
@@ -126,5 +114,14 @@ class Service
            return (int) $id;
        }
        return null;
+    }
+
+    /**
+     * Check if a user can delete courses or groups for campo courses
+     */
+    public function canDeleteObjectsForCourses(int $user_id)
+    {
+        // only system administrators
+        return $this->dic->rbac()->system()->checkAccessOfUser($user_id, "visible", SYSTEM_FOLDER_ID);
     }
 }

@@ -3,23 +3,15 @@
 namespace FAU\Staging;
 
 use ILIAS\DI\Container;
+use FAU\SubService;
 
 /**
  * Service for data in the staging database
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
     protected Repository $repository;
     protected \ilDBInterface $database;
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-    }
 
 
     /**

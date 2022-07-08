@@ -143,7 +143,7 @@ class FAUStudySteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_event_resps', ['event_id']);
+        $this->db->addPrimaryKey('fau_study_event_resps', ['event_id', 'person_id']);
         $this->db->addIndex('fau_study_event_resps', ['person_id'], 'i1');
     }
 

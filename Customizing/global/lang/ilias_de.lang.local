@@ -603,12 +603,20 @@ exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
 exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
+fau#:#fau_campo_courses#:#Campo-Kurse
+fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie können an geeignete Stellen verschoben werden.
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+fau#:#fau_course#:#Parallelgruppe
+fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
+fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
+fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
+fau#:#fau_import_id#:#Import-ID
 fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
 fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
+fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
 fau#:#studycond_add_condition#:#Bedingung hinzufügen
 fau#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen
 fau#:#studycond_add_doc_condition#:#Promotions-Bedingung hinzufügen
@@ -667,7 +675,8 @@ fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
-fau#:#studydata_semester_winter#:#Wintersemester %s/%s
+fau#:#studydata_semester_summer_short#:#SS %s
+fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_semester_text#:# %s. Semester
 fau#:#studydata_study_no#:#Studiengang %s
 fau#:#studydata_subject#:#Fach
@@ -680,6 +689,7 @@ fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#study_data#:#Studiendaten
+fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 12. Juli eingestellt werden.
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

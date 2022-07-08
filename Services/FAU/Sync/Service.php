@@ -2,22 +2,21 @@
 
 namespace FAU\Sync;
 
-use ILIAS\DI\Container;
+use FAU\SubService;
+use FAU\Study\Data\Term;
+
 /**
  * Service for synchronizing data between staging database and studon
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
+    protected Repository $repository;
+    protected TreeMatching $trees;
+    protected RoleMatching $roles;
+    protected Groupings $groupings;
 
 
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-    }
+    // Synchronisation Workers
 
     public function campo() : SyncWithCampo
     {
@@ -37,5 +36,87 @@ class Service
     public function ilias() : SyncWithIlias
     {
         return new SyncWithIlias($this->dic);
+    }
+
+    // Service and helper classes
+
+    public function repo() : Repository
+    {
+        if(!isset($this->repository)) {
+            $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
+        }
+        return $this->repository;
+    }
+
+    public function roles() : RoleMatching
+    {
+        if (!isset($this->roles)) {
+            $this->roles = new RoleMatching($this->dic);
+        }
+        return $this->roles;
+    }
+
+    public function trees() : TreeMatching
+    {
+        if (!isset($this->trees)) {
+            $this->trees = new TreeMatching($this->dic);
+        }
+        return $this->trees;
+    }
+
+    public function groupings() : Groupings
+    {
+        if (!isset($this->groupings)) {
+            $this->groupings = new Groupings($this->dic);
+        }
+        return $this->groupings;
+    }
+
+
+
+    /**
+     * Get the terms for which the courses should be created or updated
+     * End synchronisation with the end of the semester
+     * Start synchronisation for next semester at 1st of June and 1st of December
+     * @return Term[]
+     */
+    public function getTermsToSync() : array
+    {
+        $year = (int) date('Y');
+        $month = (int) date('m');
+
+        if ($year == 2022 && $month < 12) {
+            return [
+                new Term($year, 2)           // start with winter term 2022
+            ];
+        }
+        elseif ($month < 4) {
+            return [
+                new Term($year - 1, 2),     // current winter term
+                new Term($year, 1),              // next summer term
+            ];
+        }
+        elseif ($month < 6) {
+            return [
+                new Term($year, 1),              // current summer term
+            ];
+        }
+        elseif ($month < 10) {
+            return [
+                new Term($year, 1),              // current summer term
+                new Term($year, 2),              // next winter term
+            ];
+        }
+        elseif ($month < 12) {
+            return [
+                new Term($year, 2),             // current winter term
+            ];
+        }
+        else {
+            return [
+                new Term($year, 2),              // current winter term
+                new Term($year + 1, 1)      // next summer term
+            ];
+        }
     }
 }

@@ -20,6 +20,14 @@ $p->login();
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 
+// Create ILI courses
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
+
+//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
+//$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
+
+//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => [313368, 313371, 313372, 313373], 'test_run' => false]);
+//$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => [313368, 313371, 313372, 313373], 'test_run' => false]);
 
 /*****************
 * Specific actions

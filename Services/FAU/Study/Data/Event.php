@@ -4,6 +4,10 @@ namespace FAU\Study\Data;
 
 use FAU\RecordData;
 
+/**
+ * An event represents a generic lecture in campo
+ * It has "Courses" as instances in different terms
+ */
 class Event extends RecordData
 {
     protected const tableName = 'fau_study_events';

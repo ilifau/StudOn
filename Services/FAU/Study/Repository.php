@@ -27,6 +27,7 @@ use FAU\Study\Data\Course;
 use FAU\Study\Data\StudyStatus;
 use FAU\Study\Data\StudyType;
 use FAU\Study\Data\Term;
+use FAU\Study\Data\ImportId;
 
 /**
  * Repository for accessing data of study related data
@@ -216,14 +217,13 @@ class Repository extends RecordRepo
      */
     public function getEventOrgunitsByEventId(int $event_id) : array
     {
-        $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer')
+            ." ORDER BY fauorg_nr";
         return $this->queryRecords($query, EventOrgunit::model());
     }
 
     /**
      * Count the courses an event has in a term
-     * @param Term $term
-     * @return int
      */
     public function countCoursesOfEventInTerm(int $event_id, Term $term) : int
     {
@@ -234,14 +234,65 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the courses an event has in a term
+     * @return Course[] indexed by course_id
+     */
+    public function getCoursesOfEventInTerm(int $event_id, Term $term, $useCache = true) : array
+    {
+        $query = "SELECT * FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
+            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
+     * Get the course ids of courses offered by org units with given ids
+     * @return int[]
+     */
+    public function getCourseIdsOfOrgUnitsInTerm(array $unit_ids, Term $term, $useCache = true) : array
+    {
+        $query = "
+        SELECT c.course_id, c.title
+        FROM fau_study_courses c
+        JOIN fau_study_events e ON e.event_id = c.event_id
+        JOIN fau_study_event_orgs o ON o.event_id = e.event_id
+        JOIN fau_org_orgunits u ON u.fauorg_nr = o.fauorg_nr
+        WHERE " . $this->db->in('u.id', $unit_ids, false, 'integer')
+        . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+        . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->getIntegerList($query, 'course_id', $useCache);
+    }
+
+
+    /**
      * Get the courses of an event
      * @param int  $event_id
      * @param bool $useCache
-     * @return Course[]
+     * @return Course[] indexed by course_id
      */
     public function getCoursesOfEvent(int $event_id, bool $useCache = true) : array
     {
         $query = "SELECT * from fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
+     * Get the courses with certain ids
+     * @return Course[] indexed by course_id
+     */
+    public function getCoursesByIds(array $ids, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ". $this->db->in('course_id', $ids, false, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+    /**
+     * Get the courses with certain ilias_obj_ids
+     * @return Course[] indexed by course_id
+     */
+    public function getCoursesByIliasObjId(int $id, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ilias_obj_id = ". $this->db->quote($id, 'integer');
         return $this->queryRecords($query, Course::model(), $useCache);
     }
 
@@ -254,6 +305,7 @@ class Repository extends RecordRepo
         $query = "SELECT * from fau_study_courses WHERE course_id = " . $this->db->quote($course_id, 'integer');
         return $this->getSingleRecord($query, Course::model(), $default);
     }
+
 
     /**
      * Get the course of a planned date
@@ -304,9 +356,29 @@ class Repository extends RecordRepo
     public function getCoursesByTermToUpdate(Term $term) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE ilias_dirty_since IS NOT NULL"
-            . " AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            . " AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, Course::model(), false);
+    }
+
+    /**
+     * Check if an object id of ilias is stored in records of campo courses
+     */
+    public function isIliasObjIdUsedInCourses(int $obj_id) : bool
+    {
+        $query = "SELECT course_id FROM fau_study_courses WHERE ilias_obj_id = " . $this->db->quote($obj_id, 'integer');
+        return $this->hasRecord($query);
+    }
+
+    /**
+     * Get the Import id from an ilias object
+     */
+    public function getImportId(int $obj_id) : ImportId
+    {
+        $query = "SELECT import_id FROM object_data WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        $result = $this->db->query($query);
+        $row = $this->db->fetchAssoc($result);
+        return ImportId::fromString($row['import_id'] ?? '');
     }
 
     /**

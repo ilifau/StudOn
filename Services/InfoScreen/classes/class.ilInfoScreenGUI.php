@@ -608,18 +608,12 @@ class ilInfoScreenGUI
             }
         }
 
-        // fau: infoScreen - show the ref_id (and the obj_id to admins)
+        // fau: infoScreen - show the ref_id (and the obj_id and import id to admins)
         $this->addProperty($this->lng->txt('studon_ref_id'), $a_obj->getRefId());
         if (ilCust::administrationIsVisible()) {
             $this->addProperty($this->lng->txt('object_id'), $a_obj->getId());
-        }
-        // fau.
-
-        // fau: infoScreen - show the univis id
-        if ($import_id = $a_obj->getImportId()) {
-            require_once('./Services/UnivIS/classes/class.ilUnivisLecture.php');
-            if (ilUnivisLecture::_isIliasImportId($import_id)) {
-                $this->addProperty($this->lng->txt('univis_id'), $import_id);
+            if ($import_id = $a_obj->getImportId()) {
+                $this->addProperty($this->lng->txt('fau_import_id'), $import_id);
             }
         }
         // fau.

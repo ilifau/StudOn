@@ -115,23 +115,20 @@ class SyncWithIdm extends SyncBase
             $userObj->getId(), $identity->getShibbolethAttributes());
 
         // update or create the assigned person data
+        $new = false;
         if (empty($person = $this->user->repo()->getPersonOfUser($userObj->getId()))) {
             $person = Person::model()->withUserId($userObj->getId());
+            $new = true;
         }
         $person = $this->getPersonUpdate($person, $identity);
         $this->user->repo()->save($person);
 
-        // give write access to organisational categories
-        $this->updateOrgAccess($person);
+        // set the responsible or instructor roles for a newly created account
+        if ($new) {
+            $this->sync->roles()->updateUserParticipation($userObj->getId());
+        }
     }
 
-    /**
-     * Todo: Update the access to categories of organisations
-     */
-    protected function updateOrgAccess(Person $person)
-    {
-
-    }
 
 
     /**

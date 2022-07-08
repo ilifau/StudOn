@@ -121,6 +121,18 @@ class ilObjGroupAccess extends ilObjectAccess
         }
 
         switch ($a_permission) {
+            // fau: preventCampoDelete - check if group can be deleted
+            // unlike courses, groups for campo should also not be moved from their parent course
+            // so the command does not need to be checked to distinct cut from delete
+            case 'delete':
+                if (!$DIC->fau()->user()->canDeleteObjectsForCourses((int) $a_user_id)
+                    && $DIC->fau()->study()->isObjectForCampo((int) $a_obj_id)
+                ) {
+                    $ilAccess->addInfoItem(IL_NO_OBJECT_ACCESS, $lng->txt("fau_delete_group_blocked"));
+                    return false;
+                }
+                break;
+            // fau.
             case 'leave':
                 include_once './Modules/Group/classes/class.ilObjGroup.php';
                 return ilObjGroup::mayLeave($a_obj_id, $a_user_id);

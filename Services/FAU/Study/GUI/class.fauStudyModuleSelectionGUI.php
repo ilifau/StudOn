@@ -4,7 +4,7 @@ use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\Module;
 use FAU\Study\Data\ModuleCos;
 
-class ilStudyModuleSelectionGUI extends ilFormPropertyGUI
+class fauStudyModuleSelectionGUI extends ilFormPropertyGUI
 {
     /** @var CourseOfStudy[] */
     protected $cos = [];

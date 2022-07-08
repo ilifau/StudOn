@@ -2,6 +2,8 @@
 
 namespace FAU;
 
+use ilContext;
+
 /**
  * Base class of a database repository handling RecordData objects
  * @see RecordData
@@ -10,6 +12,12 @@ abstract class RecordRepo
 {
     protected \ilDBInterface $db;
     protected \ilLogger $logger;
+
+    /**
+     * Echo all read and save actions if called from the console
+     * logging is determined by the log level
+     */
+    private $echoActions = false;
 
     /**
      * Cached query results
@@ -24,11 +32,17 @@ abstract class RecordRepo
     private $boolCache = [];
 
     /**
-     * Cached counts of records
-     * @var integer[]   query hash => count
+     * Cache of integers as query results
+     * @var integer[]   query hash => int
      */
-    private $countCache = [];
+    private $integerCache = [];
 
+
+    /**
+     * Cache of integers lists as query results
+     * @var integer[][]   query hash => int[]
+     */
+    private $integerListCache = [];
 
     /**
      * Constructor
@@ -64,8 +78,8 @@ abstract class RecordRepo
     protected function countRecords(string $query, $useCache = true) : int
     {
         $hash = md5($query);
-        if ($useCache && isset($this->countCache[$hash])) {
-            return $this->countCache[$hash];
+        if ($useCache && isset($this->integerCache[$hash])) {
+            return $this->integerCache[$hash];
         }
         $count = 0;
         $result = $this->db->query($query);
@@ -75,12 +89,33 @@ abstract class RecordRepo
                break;
            }
         }
-
         if ($useCache) {
-            $this->countCache[$hash] = $count;
+            $this->integerCache[$hash] = $count;
         }
         return $count;
     }
+
+    /**
+     * Get a list of integers from a query
+     * @return int[]
+     */
+    protected function getIntegerList(string $query, string $key, $useCache = true) : array
+    {
+        $hash = md5($query);
+        if ($useCache && isset($this->integerListCache[$hash])) {
+            return $this->integerListCache[$hash];
+        }
+        $result = $this->db->query($query);
+        $list = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $list[] = (int) $row[$key];
+        }
+        if ($useCache) {
+            $this->integerListCache[$hash] = $list;
+        }
+        return $list;
+    }
+
 
     /**
      * Get the record objects for standard tables
@@ -112,7 +147,7 @@ abstract class RecordRepo
      *
      * @return RecordData[]     key value => RecordData
      */
-    protected function queryRecords(string $query, RecordData $model, $useCache = true) : array
+    protected function queryRecords(string $query, RecordData $model, bool $useCache = true, ?string $indexKey = null) : array
     {
         $hash = md5($query);
         if ($useCache && isset($this->recordCache[$hash])) {
@@ -126,6 +161,9 @@ abstract class RecordRepo
         while ($row = $this->db->fetchAssoc($result)) {
             $record = $model::from($row);
             $this->logAction('READ', $record);
+            if (isset($indexKey)) {
+                $records[$row[$indexKey]] = $record;
+            }
             if ($hasSingleKey) {
                 $records[$record->key()] = $record;
             }
@@ -223,7 +261,7 @@ abstract class RecordRepo
     protected function logAction(string $action, RecordData $record)
     {
         $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
-        if (!\ilContext::usesHTTP()) {
+        if ($this->echoActions && !ilContext::usesHTTP()) {
             echo $entry . "\n";
         }
 

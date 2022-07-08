@@ -4,29 +4,19 @@ namespace FAU\Study;
 
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
-use FAU\Study\Data\Course;
+use FAU\SubService;
 
 /**
  * Service for study related data
  */
-class Service
+class Service extends SubService
 {
-    protected Container $dic;
     protected \ilLanguage $lng;
 
     protected Repository $repository;
     protected Matching $matching;
-    protected Gui $gui;
+    protected Guis $guis;
 
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-        $this->lng = $dic->language();
-    }
 
 
     /**
@@ -55,15 +45,22 @@ class Service
     /**
      * Get the GUI Handler
      */
-    public function gui() : Gui
+    public function guis() : Guis
     {
-        if(!isset($this->gui)) {
-            $this->gui = new Gui($this->dic);
+        if(!isset($this->guis)) {
+            $this->guis = new Guis($this->dic);
         }
-        return $this->gui;
+        return $this->guis;
     }
 
-
+    /**
+     * Check if an object is needed for campo
+     */
+    public function isObjectForCampo(int $obj_id) : bool
+    {
+        return $this->repo()->isIliasObjIdUsedInCourses($obj_id)
+            || $this->repo()->getImportId($obj_id)->isForCampo();
+    }
 
 
     /**
@@ -251,7 +248,7 @@ class Service
 
 
     /**
-     * Get the text for a reference term
+     * Get the text for a term (current language)
      */
     public function getTermText(?Term $term) : string
     {
@@ -267,6 +264,38 @@ class Service
         }
         else {
             return $this->lng->txt('studydata_ref_semester_invalid');
+        }
+    }
+
+    /**
+     * Get the text for a term in a specific language
+     */
+    public function getTermTextForLang(?Term $term, string $lang_code, bool $short = false) : string
+    {
+        if (!isset($term)) {
+            return $this->lng->txtlng('fau','studydata_unknown_semester', $lang_code);
+        }
+        elseif ($term->getTypeId() == Term::TYPE_ID_SUMMER) {
+            if ($short) {
+                $year = substr((string) $term->getYear(), 2,2);
+                return sprintf($this->lng->txtlng('fau','studydata_semester_summer_short', $lang_code), $year);
+            }
+            else {
+                return sprintf($this->lng->txtlng('fau','studydata_semester_summer', $lang_code), $term->getYear());
+            }
+        }
+        elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
+            $year = substr((string) $term->getYear(), 2,2);
+            $next = substr((string) $term->getYear(), 2,2) + 1;
+            if ($short) {
+                return sprintf($this->lng->txtlng('fau', 'studydata_semester_winter_short', $lang_code), $year, $next);
+            }
+            else {
+                return sprintf($this->lng->txtlng('fau', 'studydata_semester_winter_short', $lang_code), $term->getYear(), $next);
+            }
+        }
+        else {
+            return $this->lng->txtlng('fau', 'studydata_ref_semester_invalid', $lang_code);
         }
     }
 

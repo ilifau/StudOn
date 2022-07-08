@@ -4,6 +4,11 @@ namespace FAU\Study\Data;
 
 use FAU\RecordData;
 
+/**
+ * The Course represents a "parallel group" in campo
+ * This is the instance of an event in an actual term
+ * An event may have only one multiple courses in a term
+ */
 class Course extends RecordData
 {
     protected const tableName = 'fau_study_courses';
@@ -44,10 +49,11 @@ class Course extends RecordData
     protected ?string $contents;
     protected ?string $literature;
 
-    // not in constructor, added later
+    // not in constructor, added later, initialisation needed
+    // obj_id is stored because ref_id may change when course is moved
     protected ?int $ilias_obj_id = null;
     protected ?string $ilias_dirty_since = null;
-    protected ?string $ilias_problem;
+    protected ?string $ilias_problem = null;
 
     public function __construct(
         int $course_id,

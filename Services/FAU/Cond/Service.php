@@ -3,25 +3,17 @@
 namespace FAU\Cond;
 
 use ILIAS\DI\Container;
+use FAU\SubService;
 
 /**
  * Service for registration restrictions and conditions
  */
-class Service
+class Service extends SubService
 {
-    protected ?Container $dic;
     protected ?Repository $repository;
     protected ?HardRestrictions $hard;
     protected ?SoftConditions $soft;
 
-
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic)
-    {
-        $this->dic = $dic;
-    }
 
     /**
      * Get the repository for user data

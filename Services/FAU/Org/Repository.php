@@ -49,6 +49,18 @@ class Repository extends RecordRepo
        return $this->queryRecords($query, Orgunit::model(), false);
     }
 
+    /**
+     * Get the ids of orgunits within a certain path
+     * @return int[]
+     */
+    public function getOrgunitIdsByPath(string $path, bool $includeParent = true, bool $useCache = true) : array
+    {
+        $query = "SELECT id FROM fau_org_orgunits"
+            . " WHERE path LIKE " . $this->db->quote($path . '.%', 'text')
+            . ( $includeParent ? ' OR path = ' . $this->db->quote($path, 'text') : '');
+        return $this->getIntegerList($query, 'id', $useCache);
+    }
+
 
     /**
      * Save record data of an allowed type

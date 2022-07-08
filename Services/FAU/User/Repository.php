@@ -7,6 +7,8 @@ use FAU\RecordRepo;
 use FAU\RecordData;
 use FAU\User\Data\Achievement;
 use FAU\User\Data\Person;
+use FAU\User\Data\Member;
+use FAU\Study\Data\Term;
 
 /**
  * Repository for accessing FAU user data
@@ -15,7 +17,6 @@ use FAU\User\Data\Person;
  */
 class Repository extends RecordRepo
 {
-
     /**
      * Check if a user has a person record assigned
      */
@@ -75,6 +76,29 @@ class Repository extends RecordRepo
         $query = "SELECT * FROM fau_user_achievements WHERE person_id = " . $this->db->quote($person_id, 'integer');
         return $this->queryRecords($query, Achievement::model());
     }
+
+
+    /**
+     * Get the members of an ilias object (course or group)
+     * @return Member[]     indexed by user_id
+     */
+    public function getMembersOfObject(int $obj_id, bool $useCache = true) : array
+    {
+        $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        return $this->queryRecords($query, Member::model(), $useCache, 'user_id');
+    }
+
+
+    /**
+     * Get the member records of an ilias user
+     * @return Member[]     indexed by obj_id
+     */
+    public function getMembersOfUser(int $user_id, bool $useCache = true) : array
+    {
+        $query = "SELECT * FROM fau_user_members WHERE user_id = " . $this->db->quote($user_id, 'integer');
+        return $this->queryRecords($query, Member::model(), $useCache, 'obj_id');
+    }
+
 
     /**
      * Save record data of an allowed type

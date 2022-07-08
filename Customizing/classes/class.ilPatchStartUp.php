@@ -76,15 +76,16 @@ class ilPatchStartUp
         $object = new $class;
 
         // call the patch method
-        $error = $object->$method($a_params);
+        try {
+            $object->$method($a_params);
+        }
+        catch (Exception $e) {
+            echo "\n" . $e->getMessage() ;
+            echo "\n" .$e->getTraceAsString();
+            exit;
+        }
 
-        // output the result and remember success
-        if ($error != "") {
-            echo $error . "\nFailed.";
-        }
-        else {
-            echo "\nDone";
-        }
+        echo "\nDone";
         echo "\nTime (s): " .(time() - $start) . "\n\n";
     }
 

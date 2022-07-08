@@ -17,6 +17,10 @@ class FAUUserSteps
         $this->createUserPersonsTable(false);
     }
 
+    public function custom_step_97() {
+        $this->createMembersTable(false);
+    }
+
     protected function createUserAchievementsTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_achievements', [
@@ -62,4 +66,23 @@ class FAUUserSteps
         $this->db->addPrimaryKey('fau_user_persons', ['user_id']);
         $this->db->addIndex('fau_user_persons', ['person_id'], 'i1');
     }
+
+
+    protected function createMembersTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_user_members', [
+            'obj_id'                => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'user_id'               => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'module_id'             => ['type' => 'integer',    'length' => 4,      'notnull' => false],
+            'event_responsible'     => ['type' => 'integer',    'length' => 4,      'notnull' => true, 'default' => false],
+            'course_responsible'    => ['type' => 'integer',    'length' => 4,      'notnull' => true, 'default' => false],
+            'instructor'            => ['type' => 'integer',    'length' => 4,      'notnull' => true, 'default' => false],
+            'individual_instructor' => ['type' => 'integer',    'length' => 4,      'notnull' => true, 'default' => false],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_user_members', ['obj_id', 'user_id']);
+        $this->db->addIndex('fau_user_members', ['user_id'], 'i1');
+    }
+
 }

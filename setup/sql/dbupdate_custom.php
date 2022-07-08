@@ -1539,7 +1539,14 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
 <#96>
 <?php
 /**
- * fau: fauService: create the new study tables
+ * fau: fauService: create the new user tables
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_96();
+?>
+<#97>
+<?php
+/**
+ * fau: fauService: create the new members table
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_97();
 ?>

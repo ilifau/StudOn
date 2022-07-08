@@ -76,8 +76,10 @@ class ilMainMenuSearchGUI
         $this->tpl = new ilTemplate('tpl.main_menu_search.html', true, true, 'Services/Search');
         
         if ($ilUser->getId() != ANONYMOUS_USER_ID) {
-            $this->tpl->setVariable('LABEL_SEARCH_OPTIONS', $lng->txt("label_search_options"));
+            // fau: studySearch - show options only when possible
             if (ilSearchSettings::getInstance()->isLuceneUserSearchEnabled() or (int) $_GET['ref_id']) {
+                $this->tpl->setVariable('LABEL_SEARCH_OPTIONS', $lng->txt("label_search_options"));
+                // fau.
                 $this->tpl->setCurrentBlock("position");
                 $this->tpl->setVariable('TXT_GLOBALLY', $lng->txt("search_globally"));
                 $this->tpl->setVariable('ROOT_ID', ROOT_FOLDER_ID);
@@ -116,7 +118,12 @@ class ilMainMenuSearchGUI
             $this->tpl->setVariable('HREF_SEARCH_LINK', "ilias.php?baseClass=ilSearchController");
             $this->tpl->setVariable('TXT_SEARCH_LINK', $lng->txt("last_search_result"));
         }
-        
+
+        // fau: studySearch - link the search GUI
+//        $this->tpl->setVariable('HREF_FAU_SEARCH_LINK', $ilCtrl->getLinkTargetByClass('fauStudySearchGUI'));
+//        $this->tpl->setVariable('TXT_FAU_SEARCH_LINK', $lng->txt("fau_search"));
+        // fau.
+
         // #10555 - we need the overlay for the autocomplete which is always active
         $this->tpl->setVariable('TXT_SEARCH', $lng->txt("search"));
         include_once("./Services/UIComponent/Overlay/classes/class.ilOverlayGUI.php");

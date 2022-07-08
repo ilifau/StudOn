@@ -603,12 +603,20 @@ exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
 exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
+fau#:#fau_campo_courses#:#Campo Courses
+fau#:#fau_campo_courses_desc#:#These courses were created automatically. They can be moved to suitable places.
 fau#:#fau_campo_data_update#:#Update Campo Data
 fau#:#fau_campo_data_update_info#:#Updates the data for lectures from campo
+fau#:#fau_course#:#Parallel Group
+fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
+fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.
+fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
+fau#:#fau_import_id#:#Import-ID
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
+fau#:#fau_search#:#Search Events from Campo
 fau#:#studycond_add_condition#:#add condition
 fau#:#studycond_add_course_condition#:#Add Study Condition
 fau#:#studycond_add_doc_condition#:#Add Promotion Condition
@@ -668,6 +676,8 @@ fau#:#studydata_school#:#Faculty
 fau#:#studydata_semester#:#Term
 fau#:#studydata_semester_summer#:#Summer Term %s
 fau#:#studydata_semester_winter#:#Winter Term %s/%s
+fau#:#studydata_semester_summer_short#:#Summer %s
+fau#:#studydata_semester_winter_short#:#Winter %s/%s
 fau#:#studydata_semester_text#:#%s. semester
 fau#:#studydata_study_no#:#Study course %s
 fau#:#studydata_subject#:#Subject
@@ -680,6 +690,7 @@ fau#:#studydata_unknown_subject#:#Unknown Subject
 fau#:#studydata_unknown_enrolment#:#Unknown Enrolment
 fau#:#studydata_unknown_semester#:#Unknown Term
 fau#:#study_data#:#study data
+fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 12.
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"
