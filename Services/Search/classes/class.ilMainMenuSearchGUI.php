@@ -118,7 +118,7 @@ class ilMainMenuSearchGUI
         }
 
         // fau: fauService - link the search GUI
-        $this->tpl->setVariable('HREF_FAU_SEARCH_LINK', $ilCtrl->getLinkTargetByClass('fau\study\gui\search'));
+        $this->tpl->setVariable('HREF_FAU_SEARCH_LINK', $ilCtrl->getLinkTargetByClass('fauStudySearchGUI'));
         $this->tpl->setVariable('TXT_FAU_SEARCH_LINK', $lng->txt("fau_search"));
         // fau.
 
