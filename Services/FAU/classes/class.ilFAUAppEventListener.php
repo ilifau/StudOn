@@ -3,7 +3,7 @@
 use ILIAS\DI\Container;
 
 
-class ilFauAppEventListener implements ilAppEventListener
+class ilFAUAppEventListener implements ilAppEventListener
 {
     protected Container $dic;
     protected \ilLogger $log;
@@ -44,7 +44,7 @@ class ilFauAppEventListener implements ilAppEventListener
             case 'Services/User':
                 switch ($a_event) {
                     case 'deleteUser':
-                        (new self($DIC))->handleUserDelete((int) $a_parameter['user_id']);
+                        (new self($DIC))->handleUserDelete((int) $a_parameter['usr_id']);
                         break;
                 }
                 break;
