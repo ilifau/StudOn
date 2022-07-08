@@ -1464,6 +1464,14 @@ class ilObjCourseGUI extends ilContainerGUI
         $opt->setInfo($this->lng->txt('crs_registration_deactivated'));
         $reg_proc->addOption($opt);
 
+        // fau: campoSub - currently prevent the subscription
+        global $DIC;
+        if ($DIC->fau()->study()->isObjectForCampo($this->object->getId())) {
+            $reg_proc->setDisabled(true);
+            $reg_proc->setAlert($this->lng->txt('fau_sub_after_date'));
+        }
+        // fau.
+
         $form->addItem($reg_proc);
 
         // fau: courseGroupRegCodes - customize use of registration codes
