@@ -4,7 +4,8 @@
 
 - **fauService** - Einbindung des Service bei der ILIAS-Initialisierung
 - **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von studyData)
-- **studyCond** - Verwaltung und Prüfung vin "weichen" Beitrittsbedingungen für Kurse und Gruppen.
+- **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
+- **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind. Administratoren könenn löschen (die Verbindung zu Campo wird dann aufgehoben). Kurse dürfen verschoben werden, Gruppen nicht.
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 

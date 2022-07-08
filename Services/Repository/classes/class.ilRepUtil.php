@@ -86,10 +86,19 @@ class ilRepUtil
                 if ($node['type'] == 'rolf') {
                     continue;
                 }
-                if (!$rbacsystem->checkAccess('delete', $node["child"])) {
+                 if (!$rbacsystem->checkAccess('delete', $node["child"])) {
                     $not_deletable[] = $node["child"];
                     $perform_delete = false;
                 }
+                // fau: preventCampoDelete - don't delete containers with protected courses or groups inside
+                elseif (($node['type'] == 'crs' || $node['type'] == 'grp')
+                    && !$DIC->fau()->user()->canDeleteObjectsForCourses((int) $user->getId())
+                    && $DIC->fau()->study()->isObjectForCampo((int) $node["obj_id"])
+                ) {
+                    $not_deletable[] = $node["child"];
+                    $perform_delete = false;
+                }
+                // fau.
             }
         }
 

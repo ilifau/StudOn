@@ -53,6 +53,14 @@ class Service extends SubService
         return $this->guis;
     }
 
+    /**
+     * Check if an object is needed for campo
+     */
+    public function isObjectForCampo(int $obj_id) : bool
+    {
+        return $this->repo()->isIliasObjIdUsedInCourses($obj_id)
+            || $this->repo()->getImportId($obj_id)->isForCampo();
+    }
 
 
     /**

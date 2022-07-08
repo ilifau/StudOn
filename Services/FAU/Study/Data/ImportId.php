@@ -100,4 +100,12 @@ class ImportId
     {
         return $this->course_id;
     }
+
+    /**
+     * Check if the ilias object is aligned with a campo event or course
+     */
+    public function isForCampo()
+    {
+        return !empty($this->event_id) || !empty($this->course_id);
+    }
 }

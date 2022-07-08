@@ -27,6 +27,7 @@ use FAU\Study\Data\Course;
 use FAU\Study\Data\StudyStatus;
 use FAU\Study\Data\StudyType;
 use FAU\Study\Data\Term;
+use FAU\Study\Data\ImportId;
 
 /**
  * Repository for accessing data of study related data
@@ -339,6 +340,26 @@ class Repository extends RecordRepo
             . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, Course::model(), false);
+    }
+
+    /**
+     * Check if an object id of ilias is stored in records of campo courses
+     */
+    public function isIliasObjIdUsedInCourses(int $obj_id) : bool
+    {
+        $query = "SELECT course_id FROM fau_study_courses WHERE ilias_obj_id = " . $this->db->quote($obj_id, 'integer');
+        return $this->hasRecord($query);
+    }
+
+    /**
+     * Get the Import id from an ilias object
+     */
+    public function getImportId(int $obj_id) : ImportId
+    {
+        $query = "SELECT import_id FROM object_data WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        $result = $this->db->query($query);
+        $row = $this->db->fetchAssoc($result);
+        return ImportId::fromString($row['import_id'] ?? '');
     }
 
     /**

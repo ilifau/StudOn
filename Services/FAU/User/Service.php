@@ -115,4 +115,13 @@ class Service extends SubService
        }
        return null;
     }
+
+    /**
+     * Check if a user can delete courses or groups for campo courses
+     */
+    public function canDeleteObjectsForCourses(int $user_id)
+    {
+        // only system administrators
+        return $this->dic->rbac()->system()->checkAccessOfUser($user_id, "visible", SYSTEM_FOLDER_ID);
+    }
 }

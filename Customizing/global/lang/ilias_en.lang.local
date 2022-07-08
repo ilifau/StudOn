@@ -608,6 +608,8 @@ fau#:#fau_campo_courses_desc#:#These courses were created automatically. They ca
 fau#:#fau_campo_data_update#:#Update Campo Data
 fau#:#fau_campo_data_update_info#:#Updates the data for lectures from campo
 fau#:#fau_course#:#Parallel Group
+fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
+fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.
 fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
