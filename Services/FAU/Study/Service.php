@@ -222,6 +222,33 @@ class Service extends SubService
         return $options;
     }
 
+    /**
+     * Get the options to search for courses in a term
+     * Here the empty option refers to 'no term' before winter 2022
+     * Actual terms start with winter 2022
+     * @param ?string $chosenId   add a 'unknown option' at the end if that id is not in the list
+     * @return array    id => text
+     */
+    public function getTermSearchOptions(?string $chosenId = null) : array
+    {
+        $options = [];
+        $options[''] = $this->lng->txt("studydata_no_or_former_semester");
+
+        for ($year = 2022; $year < date('Y') + 2; $year++) {
+            if ($year > 2022) {
+                $term = new Term($year, 1);
+                $options[$term->toString()] = $this->getTermText($term);
+            }
+            $term = new Term($year, 2);
+            $options[$term->toString()] = $this->getTermText($term);
+        }
+        if (isset($chosenId) && !isset($options[$chosenId]) && (!isset($emptyId) || $chosenId != $emptyId)) {
+            $term = Term::fromString($chosenId);
+            $options[$chosenId] = $this->getTermText($term);
+        }
+        return $options;
+    }
+
 
     /**
      * Get the term for the current semester

@@ -19,6 +19,7 @@ class Service
     protected Tools\Service $toolsService;
     protected User\Service $userService;
     protected Settings $settings;
+    protected Preferences $preferences;
 
     public function __construct(Container $dic)
     {
@@ -104,8 +105,7 @@ class Service
     }
 
     /**
-     * Get the settings for the FAU service
-     * @return Settings
+     * Get the system settings for the FAU service
      */
     public function settings() : Settings
     {
@@ -114,4 +114,16 @@ class Service
         }
         return $this->settings;
     }
+
+    /**
+     * Get the user preferences for the FAU service
+     */
+    public function preferences() : Preferences
+    {
+        if (!isset($this->preferences)) {
+            $this->preferences = new Preferences($this->dic);
+        }
+        return $this->preferences;
+    }
+
 }

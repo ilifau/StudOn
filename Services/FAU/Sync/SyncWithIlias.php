@@ -126,6 +126,10 @@ class SyncWithIlias extends SyncBase
                 $this->info('Already created.');
                 continue;
             }
+            if (!empty($course->getCancelled())) {
+                $this->info('Course is cancelled.');
+                continue;
+            }
             if (empty($event = $this->study->repo()->getEvent($course->getEventId()))) {
                 $this->info('Failed: Event for course not found.');
                 $this->study->repo()->save($course->withIliasProblem('Event not found for this course!'));

@@ -655,6 +655,7 @@ fau#:#studycond_min_max_approval_date#:#Zulassung im Zeitraum %s
 fau#:#studycond_min_max_semester#:#%s. bis %s. Fachsemester (%s)
 fau#:#studycond_min_semester#:#ab %s. Fachsemester (%s)
 fau#:#studycond_no_condition_defined#:#Keine Bedingung festgelegt.
+fau#:#studydata_no_or_former_semester#:#Bis Sommersemester 2022 / ohne Semesterangabe
 fau#:#studydata#:#Studiengangsdaten
 fau#:#studydata_degree#:#Angehender Abschluss
 fau#:#studydata_doc_prog_until#:#bis

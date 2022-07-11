@@ -41,6 +41,10 @@ class ilPDSelectedItemsBlockMembershipsProvider implements ilPDSelectedItemsBloc
             $DIC->database(),
             RECOVERY_FOLDER_ID
         );
+
+        // fau: filterMyMem - set the filter for the repository
+        $this->repository->setFilterTermId($DIC->fau()->preferences()->getTermIdForMyMemberships());
+        // fau.
     }
 
     /**
