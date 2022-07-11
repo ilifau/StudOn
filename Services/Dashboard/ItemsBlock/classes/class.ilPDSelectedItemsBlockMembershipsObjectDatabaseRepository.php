@@ -75,14 +75,14 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
 
         // fau: filterMyMem - add term filter to query, if defined
         $termFilter = '';
-        if (isset($this->filterTermId)) {
-            if ($this->filterTermId == '') {
-                // term since ws 20222
-                $termFilter = ' AND od.import_id LIKE ' . $this->db->quote('FAU/Term=' . $this->filterTermId . '%', 'text');
+        if (!empty($this->filterTermId)) {
+            if ($this->filterTermId == 'none') {
+                // former or no term
+                $termFilter = ' AND od.import_id NOT LIKE ' . $this->db->quote('FAU/Term%%', 'text');
             }
             else {
-                // former or no term
-                $termFilter = ' AND od.import_id NOT LIKE ' . $this->db->quote('FAU/Term%', 'text');
+                // with term
+                $termFilter = ' AND od.import_id LIKE ' . $this->db->quote('FAU/Term=' . $this->filterTermId . '%%', 'text');
             }
         }
 

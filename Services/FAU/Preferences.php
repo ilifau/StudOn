@@ -30,7 +30,7 @@ class Preferences
      */
     public function setTermIdForMyMemberships(?string $term_id)
     {
-        $this->setPreference(self::TERM_FOR_MY_MEMBERSHIPS, $term_id);
+        $this->setPreference(self::TERM_FOR_MY_MEMBERSHIPS, (string) $term_id);
     }
 
 

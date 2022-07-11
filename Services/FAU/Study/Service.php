@@ -232,7 +232,7 @@ class Service extends SubService
     public function getTermSearchOptions(?string $chosenId = null) : array
     {
         $options = [];
-        $options[''] = $this->lng->txt("studydata_no_or_former_semester");
+        $options['none'] = $this->lng->txt("studydata_no_or_former_semester");
 
         for ($year = 2022; $year < date('Y') + 2; $year++) {
             if ($year > 2022) {
