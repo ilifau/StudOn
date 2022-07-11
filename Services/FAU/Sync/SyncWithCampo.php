@@ -30,7 +30,6 @@ use FAU\Study\Data\StudyForm;
 use FAU\Study\Data\StudySchool;
 use FAU\Study\Data\StudySubject;
 use FAU\Study\Data\Course;
-use FAU\Study\Data\Term;
 
 /**
  * Synchronisation of data coming from campo

@@ -242,7 +242,7 @@ abstract class RecordRepo
      * @param array $types  field name => type
      * @return array    quoted field name => [type, value]
      */
-    private function getFieldsArray(RecordData $record, array $types) : array
+    protected function getFieldsArray(RecordData $record, array $types) : array
     {
         $fields = [];
         foreach ($record->row() as $key => $value) {

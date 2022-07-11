@@ -43,7 +43,7 @@ class Repository extends RecordRepo
      * TRUE in production
      * FALSE in development
      */
-    private bool $setProcessed = false;
+    private bool $setProcessed = true;
 
     /**
      * Get the identity of a user
@@ -305,8 +305,14 @@ class Repository extends RecordRepo
         switch ($record->getDipStatus()) {
             case DipData::INSERTED:
             case DipData::CHANGED:
-                $this->updateRecord($record->asProcessed());
+                $dip_fields = [
+                    'dip_status' => ['text', null],
+                    'dip_timestamp' => ['text', null]
+                ];
+                $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
+                $this->db->update($record::tableName(), $dip_fields, $key_fields);
                 break;
+
             case DipData::DELETED:
                 $this->deleteRecord($record);
         }
