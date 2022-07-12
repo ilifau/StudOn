@@ -4,7 +4,7 @@
  * Input for repository selection
  * NOTE: this can only be used ONCE in a property form!
  *
- * @ilCtrl_IsCalledBy fauRepositorySelectInputGUI: ilFormPropertyDispatchGUI
+ * @ilCtrl_IsCalledBy fauRepositorySelectorInputGUI: ilFormPropertyDispatchGUI
  */
 class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
 {
