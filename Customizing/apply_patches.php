@@ -18,7 +18,9 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncPersonData');
 
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
-//$p->applyPatch('ilFauPatches.syncWithIlias');
+
+// Ohne Sprachenzentrum
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit' => 245, 'negate' => true]);
 
 // Create ILI courses
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);

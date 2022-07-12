@@ -71,8 +71,9 @@ class SyncWithIlias extends SyncBase
     /**
      * Synchronize the campo courses for selected terms
      * @param int|null $orgunit_id optional restriction to an orgunit and their subunits
+     * @param bool $negate negate the restriction (find courses not within the orgunit)
      */
-    public function synchronize(?int $orgunit_id = null) : void
+    public function synchronize(?int $orgunit_id = null, bool $negate = false) : void
     {
         $unit_ids = null;
         if (!empty($orgunit_id)) {
@@ -89,10 +90,10 @@ class SyncWithIlias extends SyncBase
             foreach ($this->sync->getTermsToSync() as $term) {
                 $this->info('SYNC term ' . $term->toString() . '...');
 
-                // restrict to the courses within the units, if given
+                // restrict to the courses within or not within the units, if given
                 $course_ids = null;
                 if (isset($units_ids)) {
-                    $course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($units_ids, $term);
+                    $course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($units_ids, $term, $negate);
                 }
 
                 $this->increaseItemsAdded($this->createCourses($term, $course_ids));
