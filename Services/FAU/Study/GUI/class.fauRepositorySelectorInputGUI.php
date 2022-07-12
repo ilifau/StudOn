@@ -26,7 +26,6 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
         $this->explorer_gui = new fauRepositorySelectionExplorerGUI(
             array('ilpropertyformgui', 'ilformpropertydispatchgui', 'fauRepositorySelectorInputGUI'),
             'handleExplorerCommand');
-
         $this->explorer_gui->setSelectMode($a_postvar.'_sel', $a_multi);
 
         parent::__construct($title, $a_postvar, $this->explorer_gui, $a_multi);
@@ -34,14 +33,20 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
     }
 
     /**
-     * Set the types that can be selected
-     * @param array $a_types
+     * Set the types that should be shown
      */
-    public function setSelectableTypes($a_types)
+    public function setTypeWhitelist(array$a_types)
+    {
+        $this->explorer_gui->setTypeWhiteList($a_types);
+    }
+    /**
+     * Set the types that can be selected
+     * @param string[] $a_types
+     */
+    public function setSelectableTypes(array $a_types)
     {
         $this->explorer_gui->setSelectableTypes($a_types);
     }
-
 
     /**
      * {@inheritdoc}
