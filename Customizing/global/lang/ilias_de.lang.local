@@ -143,7 +143,7 @@ common#:#accept_updated_user_agreement#:#Die Nutzungsbedingungen wurden neu form
 common#:#accept_user_agreement#:#Bitte akzeptieren Sie die Nutzungsvereinbarung am Ende dieser Seite, um das System nutzen zu können.
 common#:#archive_structure#:#Archiv-Struktur
 common#:#caches_flushed#:#Die Caches wurden aktualisiert.
-common#:#campo_course_not_found#:#Mit dieser Lehrveranstaltung ist noch kein StudOn-Kurs verbunden. Bitte beachten Sie, dass die Kurse für das Wintersemester 2022/23 ab dem 25. Juli erstellt werden. Sie müssen anschließend von den Lehrenden noch zur Anmeldung freigegeben werden.###fau: campoLink
+common#:#campo_course_not_found#:#Mit dieser Lehrveranstaltung ist noch kein StudOn-Kurs verbunden.###fau: campoLink
 common#:#cat_create_exco#:#Neuen externen Inhalt anlegen
 common#:#cat_create_perc#:#Neues Perception-Assessment anlegen
 common#:#cont_limit_starts#:#Beschränkte Wiedergaben

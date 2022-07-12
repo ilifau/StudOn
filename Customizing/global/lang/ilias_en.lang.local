@@ -143,7 +143,7 @@ common#:#accept_updated_user_agreement#:#The terms of use have been reformulated
 common#:#accept_user_agreement#:#Please accept the terms of use at the end of this page to still be able using the system.
 common#:#archive_structure#:#Archive Structure
 common#:#caches_flushed#:#The Caches were flushed.
-common#:#campo_course_not_found#:#There is no StudOn course associated with this course yet. Please note that courses for the winter semester 2022/23 will be created starting July 25. They still have to be released for registration by the instructors afterwards.###fau: campoLink
+common#:#campo_course_not_found#:#There is no StudOn course associated with this course yet.###fau: campoLink
 common#:#cat_create_exco#:#Create new external content
 common#:#cat_create_perc#:#Create new Perception-Assessment
 common#:#cont_limit_starts#:#Limited Playbacks

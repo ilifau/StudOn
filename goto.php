@@ -54,8 +54,8 @@ if (substr($_GET['target'], 0, 6) == 'lcode_') {
 
 // fau: campoLink - treat course link from campo
 if (substr($_GET['target'], 0, 6) == 'campo_') {
-    ilUtil::sendFailure($lng->txt('campo_course_not_found'), true);
-    ilUtil::redirect(ilUserUtil::getStartingPointAsUrl());
+    global $DIC;
+    $DIC->fau()->study()->redirectFromTarget($_GET['target']);
 }
 // fau.
 

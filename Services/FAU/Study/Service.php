@@ -5,6 +5,8 @@ namespace FAU\Study;
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\SubService;
+use ilLink;
+use ilUtil;
 
 /**
  * Service for study related data
@@ -344,6 +346,31 @@ class Service extends SubService
         else {
             return $this->lng->txt('studydata_ref_semester_invalid');
         }
+    }
+
+    /**
+     * Resolve a link target coming frm campo
+     */
+    public function redirectFromTarget(string $target)
+    {
+        $parts = explode('_', $target);
+
+        if ($parts[0] == 'campo') {
+
+            if ($parts[1] == 'course') {
+
+                $course_id = (int) $parts[2];
+
+                if (!empty($course = $this->repo()->getCourse($course_id))) {
+                    if (!empty($ref_id = $this->dic->fau()->sync()->trees()->getIliasRefIdForCourse($course))) {
+                        $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
+                    }
+                }
+
+                ilUtil::sendFailure($this->lng->txt('campo_course_not_found'), true);
+            }
+        }
+        ilUtil::redirect(\ilUserUtil::getStartingPointAsUrl());
     }
 
 }
