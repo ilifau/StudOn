@@ -17,6 +17,8 @@ class Service extends SubService
 
     protected Repository $repository;
     protected Matching $matching;
+    protected Search $search;
+
     protected Guis $guis;
 
 
@@ -43,6 +45,16 @@ class Service extends SubService
         return $this->matching;
     }
 
+    /**
+     * Get the searching functions
+     */
+    public function search() : Search
+    {
+        if(!isset($this->search)) {
+            $this->search = new Search($this->dic);
+        }
+        return $this->search;
+    }
 
     /**
      * Get the GUI Handler
@@ -228,13 +240,17 @@ class Service extends SubService
      * Get the options to search for courses in a term
      * Here the empty option refers to 'no term' before winter 2022
      * Actual terms start with winter 2022
-     * @param ?string $chosenId   add a 'unknown option' at the end if that id is not in the list
+     * @param ?string $chosenId   add at the end if that id is not in the list
+     * @param bool $addNone   add a 'none' option at the beginning of the list
      * @return array    id => text
      */
-    public function getTermSearchOptions(?string $chosenId = null) : array
+    public function getTermSearchOptions(?string $chosenId = null, bool $addNone = true) : array
     {
         $options = [];
-        $options['none'] = $this->lng->txt("studydata_no_or_former_semester");
+
+        if ($addNone) {
+            $options['none'] = $this->lng->txt("studydata_no_or_former_semester");
+        }
 
         for ($year = 2022; $year < date('Y') + 2; $year++) {
             if ($year > 2022) {

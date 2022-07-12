@@ -617,6 +617,8 @@ fau#:#fau_import_id#:#Import-ID
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
 fau#:#fau_search#:#Search Events from Campo
+fau#:#fau_search_title#:#Event Title
+fau#:#fau_search_title_info#:#Searching from the start of the title. Use * as placeholder.
 fau#:#studycond_add_condition#:#add condition
 fau#:#studycond_add_course_condition#:#Add Study Condition
 fau#:#studycond_add_doc_condition#:#Add Promotion Condition

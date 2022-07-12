@@ -7,6 +7,7 @@
 - **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
 - **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind. Administratoren könenn löschen (die Verbindung zu Campo wird dann aufgehoben). Kurse dürfen verschoben werden, Gruppen nicht.
 - **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
+- **studySearch** Suchseite nach Lehrveranstaltungen
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 

@@ -4,17 +4,54 @@ namespace FAU;
 
 use ILIAS\DI\Container;
 use ilSession;
-
+use FAU\Study\Data\SearchCondition;
 
 class Preferences
 {
     const TERM_FOR_MY_MEMBERSHIPS = 'fau_term_for_my_memberships';
+
+    const SEARCH_PATTERN = 'fau_search_pattern';
+    const SEARCH_TERM_ID = 'fau_search_term_id';
+    const SEARCH_COS_ID = 'fau_search_cos_id';
+    const SEARCH_MODULE_ID = 'fau_search_module_id';
+    const SEARCH_REF_ID = 'fau_search_ref_id';
+    const SEARCH_FITTING = 'fau_search_fitting';
+
 
     protected Container $dic;
 
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+    }
+
+    /**
+     * Get the search condition
+     */
+    public function getSearchCondition() : SearchCondition
+    {
+        return new SearchCondition(
+            (string) $this->getPreference(self::SEARCH_PATTERN),
+            (string) $this->getPreference(self::SEARCH_TERM_ID),
+            (int) $this->getPreference(self::SEARCH_COS_ID),
+            (int) $this->getPreference(self::SEARCH_MODULE_ID),
+            (int) $this->getPreference(self::SEARCH_REF_ID),
+            (bool) $this->getPreference(self::SEARCH_FITTING)
+        );
+    }
+
+    /**
+     * Set the search condition
+     * @param SearchCondition $condition
+     */
+    public function setSearchCondition(SearchCondition $condition)
+    {
+        $this->setPreference(self::SEARCH_PATTERN, (string) $condition->getPattern());
+        $this->setPreference(self::SEARCH_TERM_ID, (string) $condition->getTermId());
+        $this->setPreference(self::SEARCH_COS_ID, (string) $condition->getCosId());
+        $this->setPreference(self::SEARCH_MODULE_ID, (string) $condition->getModuleId());
+        $this->setPreference(self::SEARCH_REF_ID, (string) $condition->getIliasRefId());
+        $this->setPreference(self::SEARCH_FITTING, (string) $condition->getFitting());
     }
 
     /**

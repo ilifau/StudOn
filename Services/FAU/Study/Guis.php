@@ -3,7 +3,6 @@
 namespace FAU\Study;
 
 use ILIAS\DI\Container;
-use FAU\Study\GUI\Search;
 
 class Guis
 {
@@ -19,14 +18,6 @@ class Guis
         $this->dic = $dic;
         $this->service = $dic->fau()->study();
         $this->repo = $dic->fau()->study()->repo();
-    }
-
-    /**
-     * Get the Search GUI
-     */
-    public function search(): Search
-    {
-        return new Search();
     }
 
 
