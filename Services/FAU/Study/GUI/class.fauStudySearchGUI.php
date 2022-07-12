@@ -80,7 +80,7 @@ class fauStudySearchGUI extends BaseGUI
         $term_id->setRequired(true);
         $form->addItem($term_id);
 
-        $ref_id = new ilRepositorySelector2InputGUI($this->lng->txt('search_area'), 'ref_id');
+        $ref_id = new fauRepositorySelectorInputGUI($this->lng->txt('search_area'), 'ref_id');
         $ref_id->setValue($condition->getIliasRefId());
         $form->addItem($ref_id);
 
@@ -92,7 +92,7 @@ class fauStudySearchGUI extends BaseGUI
     {
         /** @var ilSelectInputGUI $term_id */
         $term_id = $form->getItemByPostVar('term_id');
-        /** @var ilRepositorySelector2InputGUI $ref_id */
+        /** @var fauRepositorySelectorInputGUI $ref_id */
         $ref_id = $form->getItemByPostVar('ref_id');
 
 
