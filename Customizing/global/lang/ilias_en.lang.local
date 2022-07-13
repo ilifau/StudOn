@@ -691,7 +691,7 @@ fau#:#studydata_unknown_subject#:#Unknown Subject
 fau#:#studydata_unknown_enrolment#:#Unknown Enrolment
 fau#:#studydata_unknown_semester#:#Unknown Term
 fau#:#study_data#:#study data
-fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 14.
+fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 18.
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

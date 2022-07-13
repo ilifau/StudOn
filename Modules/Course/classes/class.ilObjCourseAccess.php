@@ -160,7 +160,7 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
                     && $DIC->fau()->study()->isObjectForCampo((int) $a_obj_id)
                 ) {
                     $ilAccess->addInfoItem(IL_NO_OBJECT_ACCESS, $lng->txt("fau_delete_course_blocked"));
-                    log_line("delete blocked for ref $a_ref_id with command $a_cmd");
+                    //log_line("delete blocked for ref $a_ref_id with command $a_cmd");
                     return false;
                 }
                 break;
