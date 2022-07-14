@@ -37,6 +37,11 @@ class FAUStudySteps
         $this->createStudyTypesTable(false);
     }
 
+    public function custom_step_98()
+    {
+        $this->addCourseDeleted();
+    }
+
     protected function createCoursesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_courses', [
@@ -353,6 +358,15 @@ class FAUStudySteps
             $drop
         );
         $this->db->addPrimaryKey('fau_study_types', ['type_uniquename']);
+    }
+
+    protected function addCourseDeleted()
+    {
+        if (!$this->db->tableColumnExists('fau_study_courses', 'deleted')) {
+            $this->db->addTableColumn('fau_study_courses','deleted',
+                ['type' => 'integer',    'length' => 4,      'notnull' => false],
+            );
+        }
     }
 
 }

@@ -191,4 +191,12 @@ class Course extends DipData
     {
         return $this->literature;
     }
+
+    /**
+     * @return bool
+     */
+    public function getDeleted() : bool
+    {
+        return $this->getDipStatus() == DipData::DELETED;
+    }
 }

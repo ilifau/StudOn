@@ -1550,3 +1550,10 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_97();
 ?>
+<#98>
+<?php
+/**
+ * fau: fauService: add the 'deleted' colum to the table of courses
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_98();
+?>

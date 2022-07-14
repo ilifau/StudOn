@@ -337,13 +337,17 @@ class Repository extends RecordRepo
     /**
      * Get the courses of a term that need to be created in StudOn
      * @param Term $term
+     * @param int[] $course_ids
      * @return Course[]
      */
-    public function getCoursesByTermToCreate(Term $term) : array
+    public function getCoursesByTermToCreate(Term $term, ?array $course_ids = null) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE ilias_obj_id IS NULL"
             . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        if (is_array($course_ids)) {
+            $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
+        }
         return $this->queryRecords($query, Course::model(), false);
     }
 
@@ -351,13 +355,17 @@ class Repository extends RecordRepo
      * Get the courses of a term that need to be updated in StudOn
      * Either the courses or their events have a dirty flag
      * @param Term $term
+     * @param int[] $course_ids
      * @return Course[]
      */
-    public function getCoursesByTermToUpdate(Term $term) : array
+    public function getCoursesByTermToUpdate(Term $term, ?array $course_ids = null) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE ilias_dirty_since IS NOT NULL"
             . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        if (is_array($course_ids)) {
+            $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
+        }
         return $this->queryRecords($query, Course::model(), false);
     }
 

@@ -2,6 +2,7 @@
 
 namespace FAU\Sync;
 
+use Exception;
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\Course;
@@ -85,7 +86,6 @@ class SyncWithIlias extends SyncBase
             }
         }
 
-
         if ($this->init()) {
             foreach ($this->sync->getTermsToSync() as $term) {
                 $this->info('SYNC term ' . $term->toString() . '...');
@@ -93,7 +93,7 @@ class SyncWithIlias extends SyncBase
                 // restrict to the courses within or not within the units, if given
                 $course_ids = null;
                 if (isset($units_ids)) {
-                    $course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($units_ids, $term, $negate);
+                    $course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($units_ids, $term, false, $negate);
                 }
 
                 $this->increaseItemsAdded($this->createCourses($term, $course_ids));
@@ -111,24 +111,22 @@ class SyncWithIlias extends SyncBase
         if (!$this->init()) {
             return 0;
         }
-        elseif (isset($course_ids)) {
-            // no cache because the same query is used in the update afterwards
-            $courses = $this->study->repo()->getCoursesByIds($course_ids, false);
-        }
-        else {
-            $courses = $this->study->repo()->getCoursesByTermToCreate($term);
-        }
 
         $created = 0;
-        foreach ($courses as $course) {
+        foreach ($this->study->repo()->getCoursesByTermToCreate($term, $course_ids) as $course) {
             $this->info('CREATE ' . $course->getTitle() . '...');
 
             if (!empty($course->getIliasObjId())) {
                 $this->info('Already created.');
                 continue;
             }
-            if (!empty($course->getCancelled())) {
+            if ($course->isCancelled()) {
                 $this->info('Course is cancelled.');
+                continue;
+            }
+            if ($course->isDeleted()) {
+                // deleted course without ilias object needs no processing - just remove it
+                $this->study->repo()->delete($course);
                 continue;
             }
             if (empty($event = $this->study->repo()->getEvent($course->getEventId()))) {
@@ -244,23 +242,22 @@ class SyncWithIlias extends SyncBase
         if (!$this->init()) {
             return 0;
         }
-        elseif (isset($course_ids)) {
-            // no cache because the same query is used in the create before
-            $courses = $this->study->repo()->getCoursesByIds($course_ids, false);
-        }
-        else {
-            $courses = $this->study->repo()->getCoursesByTermToUpdate($term);
-        }
 
         $updated = 0;
-        foreach ($courses as $course) {
+        foreach ($this->study->repo()->getCoursesByTermToUpdate($term, $course_ids) as $course) {
             $this->info('UPDATE ' . $course->getTitle() . '...');
 
             $event = $this->study->repo()->getEvent($course->getEventId());
 
             // get the reference to the ilias course or group
-            if (empty($ref_id = $this->sync->trees()->getIliasRefIdForCourse($course))) {
-                $this->study->repo()->save($course->withIliasProblem("ILIAS object does not exist or is deleted!"));
+            $ref_id = $this->sync->trees()->getIliasRefIdForCourse($course);
+            if (empty($ref_id)) {
+                if ($course->isDeleted()) {
+                    $this->study->repo()->delete($course);
+                }
+                else {
+                    $this->study->repo()->save($course->withIliasObjId(null));
+                }
                 continue;
             }
 
@@ -290,10 +287,15 @@ class SyncWithIlias extends SyncBase
                 continue;
             }
 
+            if ($this->handleDeleted($ref_id, $course)) {
+                $updated++;
+                continue;
+            }
+
             switch ($action)
             {
                 case 'update_single_course':
-                    // ilias course is used for campo event and course
+                    // ilias course is used for campo event and course, ref_ids are the same
                     $this->updateIliasCourse($ref_id, $term, $event, $course);
                     $this->sync->roles()->updateParticipants($course->getCourseId(), $ref_id, $ref_id);
                     break;
@@ -301,7 +303,7 @@ class SyncWithIlias extends SyncBase
                 case 'update_group_in_course':
                     // ilias course is used for the campo event
                     $this->updateIliasCourse($parent_ref, $term, $event, null);
-                    // ilias group is used for the campo course
+                    // ilias group is used for the campo course, ref_ids are different
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
                     $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
@@ -362,6 +364,51 @@ class SyncWithIlias extends SyncBase
 
 
     /**
+     * @param int $ref_id
+     * @param Course $course
+     * @return bool     ilias object is now deleted and should not be updated
+     */
+    protected function handleDeleted(int $ref_id, $course) : bool
+    {
+        if (!$course->isDeleted()) {
+            return false;
+        }
+        if (ilObject::_lookupType($ref_id, true)) {
+            $object = new ilObjCourse($ref_id);
+        }
+        else {
+            $object = new ilObjGroup($ref_id);
+        }
+
+        $object->setImportId(null);
+        $object->update();
+
+
+        if (!$this->isObjectManuallyChanged($object)) {
+            // object is not yed changed => object can be deleted
+            try {
+                \ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($ref_id), $ref_id);
+            }
+            catch (Exception $e) {
+                // ignore error
+            }
+        }
+        else {
+            // object is changed => at least show an info in the description
+            $object->setDescription($this->lng->txt('fau_campo_course_is_deleted')
+                . '<br />' . $object->getDescription()
+            );
+            $object->update();
+        }
+
+        $this->study->repo()->save(
+            $course->withIliasObjId(null)->withIliasProblem(null)->asChanged(false)
+        );
+
+        return true;
+    }
+
+    /**
      * Update the ILIAS course for a campo event and/or course (parallel group)
      * The ilias course will always work as a container for the event
      * If a campo course is provided then the ilias course should work as container for that parallel group
@@ -370,24 +417,37 @@ class SyncWithIlias extends SyncBase
     protected function updateIliasCourse(int $ref_id, Term $term, Event $event, ?Course $course)
     {
         $object = new ilObjCourse($ref_id);
+
         if (!$this->isObjectManuallyChanged($object)) {
+
+            $object->setTitle($this->buildTitle($term, $event, $course));
+            $object->setDescription($this->buildDescription($event, $course));
+            $object->setImportantInformation($event->getComment());
+
             if (isset($course)) {
                 $object->setSyllabus($course->getContents());
 
                 if(empty($course->getAttendeeMaximum())) {
-                   $object->enableSubscriptionMembershipLimitation(false);
-                   $object->setSubscriptionMaxMembers(0);
+                    $object->enableSubscriptionMembershipLimitation(false);
+                    $object->setSubscriptionMaxMembers(0);
                 }
                 else {
                     $object->enableSubscriptionMembershipLimitation(true);
                     $object->setSubscriptionMaxMembers($course->getAttendeeMaximum());
                 }
+                if ($course->isCancelled()) {
+                    $object->setDescription($this->lng->txt('fau_campo_course_is_deleted')
+                        . '<br />' . $object->getDescription()
+                    );
+                }
             }
-            $object->setTitle($this->buildTitle($term, $event, $course));
-            $object->setDescription($this->buildDescription($event, $course));
-            $object->setImportantInformation($event->getComment());
             $object->update();
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
+        }
+        elseif (isset($course) && $course->isCancelled()) {
+            $object->setDescription($this->lng->txt('fau_campo_course_is_deleted')
+                . '<br />' . $object->getDescription()
+            );
         }
     }
 
@@ -402,7 +462,12 @@ class SyncWithIlias extends SyncBase
         $object = new ilObjGroup($ref_id);
 
         if(!$this->isObjectManuallyChanged($object)) {
+            $object->setTitle($this->buildTitle($term, $event, $course));
+            $object->setDescription($this->buildDescription($event, $course));
             $object->setInformation(ilUtil::secureString($course->getContents())); // remove html
+            $object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
+            $object->update();
+
             if(empty($course->getAttendeeMaximum())) {
                 $object->enableMembershipLimitation(false);
                 $object->setMaxMembers(0);
@@ -411,11 +476,17 @@ class SyncWithIlias extends SyncBase
                 $object->enableMembershipLimitation(true);
                 $object->setMaxMembers($course->getAttendeeMaximum());
             }
-            $object->setTitle($this->buildTitle($term, $event, $course));
-            $object->setDescription($this->buildDescription($event, $course));
-            $object->setRegistrationType(GRP_REGISTRATION_DEACTIVATED);
-            $object->update();
+            if ($course->isCancelled()) {
+                $object->setDescription($this->lng->txt('fau_campo_course_is_deleted')
+                    . '<br />' . $object->getDescription()
+                );
+            }
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
+        }
+        elseif ($course->isCancelled()) {
+            $object->setDescription($this->lng->txt('fau_campo_course_is_deleted')
+                . '<br />' . $object->getDescription()
+            );
         }
     }
 
@@ -433,7 +504,6 @@ class SyncWithIlias extends SyncBase
         else {
             $title = $event->getTitle();
         }
-
         return (string) $title;
     }
 

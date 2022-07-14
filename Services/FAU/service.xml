@@ -1,9 +1,9 @@
 <?xml version = "1.0" encoding = "UTF-8"?>
 <service xmlns="http://www.w3.org" version="$Id$" id="fau">
 	<crons>
-		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" path="Services/FAU/Sync/" />
-		<cron id="fau_sync_with_org" class="ilSyncWithOrgCron" path="Services/FAU/Sync/" />
-		<cron id="fau_sync_with_idm" class="ilSyncWithIdmCron" path="Services/FAU/Sync/" />
+		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" path="Services/FAU/classes/" />
+		<cron id="fau_sync_with_org" class="ilSyncWithOrgCron" path="Services/FAU/classes/" />
+		<cron id="fau_sync_with_idm" class="ilSyncWithIdmCron" path="Services/FAU/classes/" />
 	</crons>
 	<baseclasses>
 		<baseclass name="fauStudySearchGUI" dir="Study/GUI" />
