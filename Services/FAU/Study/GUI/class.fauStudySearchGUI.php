@@ -26,17 +26,26 @@ class fauStudySearchGUI extends BaseGUI
     public function executeCommand()
     {
         $cmd = $this->ctrl->getCmd('show');
-        switch ($cmd)
-        {
-            case "show":
-            case 'search':
-                $this->$cmd();
+        $next_class = $this->ctrl->getNextClass();
+
+        switch ($next_class) {
+            case strtolower(ilPropertyFormGUI::class):
+                $form = $this->getSearchForm($this->search->getCondition());
+                $this->ctrl->forwardCommand($form);
                 break;
 
             default:
-                $this->tpl->setContent('unknown command: ' . $cmd);
-        }
+                switch ($cmd)
+                {
+                    case "show":
+                    case 'search':
+                        $this->$cmd();
+                        break;
 
+                    default:
+                        $this->tpl->setContent('unknown command: ' . $cmd);
+                }
+        }
         $this->tpl->setTitle($this->lng->txt('fau_search'));
         $this->tpl->setTitleIcon(ilObject::_getIcon("", "big", "src"));
         $this->tpl->printToStdout();
@@ -66,7 +75,6 @@ class fauStudySearchGUI extends BaseGUI
     protected function getSearchForm(SearchCondition $condition): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
-        $form->setTitle($this->lng->txt('filter'));
         $form->setFormAction($this->ctrl->getFormAction($this));
 
         $pattern = new ilTextInputGUI($this->lng->txt('fau_search_title'), 'pattern');
@@ -74,15 +82,16 @@ class fauStudySearchGUI extends BaseGUI
         $pattern->setValue($condition->getPattern());
         $form->addItem($pattern);
 
-        $term_id = new ilSelectInputGUI($this->lng->txt('studydata_semester'), 'term_id');
-        $term_id->setOptions($this->dic->fau()->study()->getTermSearchOptions($condition->getTermId(), false));
-        $term_id->setValue($condition->getIliasRefId());
-        $term_id->setRequired(true);
-        $form->addItem($term_id);
+        $term = new ilSelectInputGUI($this->lng->txt('studydata_semester'), 'term_id');
+        $term->setOptions($this->dic->fau()->study()->getTermSearchOptions($condition->getTermId(), false));
+        $term->setValue($condition->getIliasRefId());
+        $form->addItem($term);
 
-        $ref_id = new fauRepositorySelectorInputGUI($this->lng->txt('search_area'), 'ref_id');
-        $ref_id->setValue($condition->getIliasRefId());
-        $form->addItem($ref_id);
+        $ref = new fauRepositorySelectorInputGUI($this->lng->txt('search_area'), 'search_ref_id');
+        $ref->setTypeWhitelist(['root', 'cat']);
+        $ref->setSelectableTypes(['cat']);
+        $ref->setValue($condition->getIliasRefId());
+        $form->addItem($ref);
 
         $form->addCommandButton('search', $this->lng->txt('search'));
         return $form;
@@ -93,7 +102,7 @@ class fauStudySearchGUI extends BaseGUI
         /** @var ilSelectInputGUI $term_id */
         $term_id = $form->getItemByPostVar('term_id');
         /** @var fauRepositorySelectorInputGUI $ref_id */
-        $ref_id = $form->getItemByPostVar('ref_id');
+        $ref_id = $form->getItemByPostVar('search_ref_id');
 
 
         return new SearchCondition(
@@ -109,10 +118,12 @@ class fauStudySearchGUI extends BaseGUI
 
     protected function getEventList(SearchCondition $condition) : Group
     {
+
+
         $items = [];
 
         $items[] = $this->factory->item()->standard('title')
-            ->withLeadIcon($this->factory->symbol()->icon()->standard('crs', 'course', 'medium'))
+             ->withLeadIcon($this->factory->symbol()->icon()->standard('crs', 'course', 'medium'))
              ->withProperties([
                     'key' => 'value',
              ]);

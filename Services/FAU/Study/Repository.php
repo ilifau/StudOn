@@ -28,6 +28,7 @@ use FAU\Study\Data\StudyStatus;
 use FAU\Study\Data\StudyType;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\ImportId;
+use FAU\Study\Data\SearchCondition;
 
 /**
  * Repository for accessing data of study related data
@@ -453,7 +454,21 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, ModuleEvent::model());
     }
 
+    public function searchEvents(SearchCondition $condition)
+    {
+        $query = "
+        SELECT e.*, c.ilias_obj_id, t.path
+        FROM fau_study_events e
+        JOIN fau_study_courses c ON c.event_id = e.event_id
+        JOIN object_reference r ON r.obj_id = c.ilias_obj_id
+        LEFT JOIN tree t ON t.child = r.ref_id
+        WHERE e.title LIKE 'Lernen%'
+        AND c.term_year = 2022
+        AND c.term_type_id = 2
+        AND t.path LIKE '1.1113.1176267.4617363.%'
+        ";
 
+    }
 
     /**
      * Save record data of an allowed type

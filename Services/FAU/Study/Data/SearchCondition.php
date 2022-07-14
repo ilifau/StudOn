@@ -4,13 +4,17 @@ namespace FAU\Study\Data;
 
 class SearchCondition
 {
-
+    // search input
     private string $pattern;
     private string $term_id;
     private int $cos_id;
     private int $module_id;
     private int $ilias_ref_id;
     private bool $fitting;
+
+    // calculated conditions
+    private ?string $ilias_path;
+
 
     public function __construct(
         string $pattern,
@@ -88,4 +92,24 @@ class SearchCondition
             && empty($this->ilias_ref_id)
             && empty($this->fitting);
     }
+
+    /**
+     * @return string|null
+     */
+    public function getIliasPath() : ?string
+    {
+        return $this->ilias_path;
+    }
+
+    /**
+     * @param string|null $ilias_path
+     * @return SearchCondition
+     */
+    public function withIliasPath(?string $ilias_path) : SearchCondition
+    {
+        $clone = clone($this);
+        $clone->ilias_path = $ilias_path;
+        return $clone;
+    }
+
 }

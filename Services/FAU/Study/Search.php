@@ -54,4 +54,14 @@ class Search
     {
 
     }
+
+    /**
+     * Process calculations on the search condition
+     * @param SearchCondition $condition
+     * @return SearchCondition
+     */
+    public function getProcessedCondition(SearchCondition $condition) : SearchCondition
+    {
+
+    }
 }

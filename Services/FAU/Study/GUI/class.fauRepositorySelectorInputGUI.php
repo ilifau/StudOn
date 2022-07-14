@@ -23,7 +23,7 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
 
         ilOverlayGUI::initJavascript();
 
-        $this->explorer_gui = new fauRepositorySelectionExplorerGUI(
+        $this->explorer_gui = $a_explorer_gui ?? new fauRepositorySelectionExplorerGUI(
             array('ilpropertyformgui', 'ilformpropertydispatchgui', 'fauRepositorySelectorInputGUI'),
             'handleExplorerCommand');
         $this->explorer_gui->setSelectMode($a_postvar.'_sel', $a_multi);
@@ -34,8 +34,9 @@ class fauRepositorySelectorInputGUI extends ilExplorerSelectInputGUI
 
     /**
      * Set the types that should be shown
+     * @param string[] $a_types
      */
-    public function setTypeWhitelist(array$a_types)
+    public function setTypeWhitelist(array $a_types)
     {
         $this->explorer_gui->setTypeWhiteList($a_types);
     }
