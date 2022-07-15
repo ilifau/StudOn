@@ -1557,3 +1557,10 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_98();
 ?>
+<#99>
+<?php
+/**
+ * fau: fauService: add the 'relation_id' colum to the table of event orgunits
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_99();
+?>

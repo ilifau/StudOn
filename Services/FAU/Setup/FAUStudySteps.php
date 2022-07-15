@@ -42,6 +42,11 @@ class FAUStudySteps
         $this->addCourseDeleted();
     }
 
+    public function custom_step_99()
+    {
+        $this->addEventOrgunitRelationId();
+    }
+
     protected function createCoursesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_courses', [
@@ -368,5 +373,15 @@ class FAUStudySteps
             );
         }
     }
+
+    protected function addEventOrgunitRelationId()
+    {
+        if (!$this->db->tableColumnExists('fau_study_event_orgs', 'relation_id')) {
+            $this->db->addTableColumn('fau_study_event_orgs','relation_id',
+                ['type' => 'integer',    'length' => 4,      'notnull' => false],
+            );
+        }
+    }
+
 
 }
