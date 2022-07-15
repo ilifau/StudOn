@@ -213,12 +213,13 @@ class Repository extends RecordRepo
 
     /**
      * Get the list of responsible org units for an event
+     * The list is ordered by the relation id which leads to preference by assigning records
      * @return EventOrgunit[]
      */
     public function getEventOrgunitsByEventId(int $event_id) : array
     {
         $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer')
-            ." ORDER BY fauorg_nr";
+            ." ORDER BY relation_id";
         return $this->queryRecords($query, EventOrgunit::model());
     }
 

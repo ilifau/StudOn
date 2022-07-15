@@ -250,6 +250,7 @@ class SyncWithCampo extends SyncBase
             $eventUnit = new EventOrgunit(
                 $record->getEventId(),
                 $record->getFauorgNr(),
+                $record ->getRelationId()
             );
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:

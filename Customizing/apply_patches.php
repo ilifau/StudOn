@@ -14,14 +14,14 @@ $p->login();
  ********************/
 
 //$p->applyPatch('ilFauPatches.migrateConditions');
-//$p->applyPatch('ilFauPatches.syncCampoData');
+$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 
-// Create ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
+// Create or Update ILI courses
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
