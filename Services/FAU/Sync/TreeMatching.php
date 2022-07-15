@@ -162,6 +162,21 @@ class TreeMatching
     }
 
     /**
+     * @param int $ref_id
+     * @return bool
+     */
+    public function hasUndeletedContents(int $ref_id) : bool
+    {
+        /** @noinspection PhpParamsInspection */
+        foreach ($this->dic->repositoryTree()->getChildIds($ref_id) as $child_id) {
+            if (!ilObject::_isInTrash($child_id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Create the category hat should get new courses of a term
      */
     protected function createCourseCategory(int $parent_ref_id, Term $term, ?Orgunit $unit): int

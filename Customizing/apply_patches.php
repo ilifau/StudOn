@@ -16,18 +16,12 @@ $p->login();
 //$p->applyPatch('ilFauPatches.migrateConditions');
 //$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncPersonData');
-
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
-
-// Ohne Sprachenzentrum
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit' => 245, 'negate' => true]);
+//$p->applyPatch('ilFauPatches.syncWithIlias');
 
 // Create ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
-
-// Sprachenzentrum, Abteilung Italienisch
-// $p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2964]);
 
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);

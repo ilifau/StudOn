@@ -605,8 +605,8 @@ exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
 fau#:#fau_campo_courses#:#Campo Courses
 fau#:#fau_campo_courses_desc#:#These courses were created automatically. They can be moved to suitable places.
-fau#:#fau_campo_course_is_deleted#:#The course in campo is deleted!
-fau#:#fau_campo_course_is_cancelled#:#The course in campo is set to cancelled!
+fau#:#fau_campo_course_is_deleted#:#This event is deleted!
+fau#:#fau_campo_course_is_cancelled#:#This event is cancelled!
 fau#:#fau_campo_data_update#:#Update Campo Data
 fau#:#fau_campo_data_update_info#:#Updates the data for lectures from campo
 fau#:#fau_course#:#Parallel Group

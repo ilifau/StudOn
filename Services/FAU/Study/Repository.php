@@ -224,12 +224,15 @@ class Repository extends RecordRepo
 
     /**
      * Count the courses an event has in a term
+     * Exclude the deleted or cancelled courses
      */
     public function countCoursesOfEventInTerm(int $event_id, Term $term) : int
     {
         $query = "SELECT COUNT(*) FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
         . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
-        . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer')
+        . " AND (deleted IS NULL or deleted = 0)"
+        . " AND (cancelled IS NULL or cancelled = 0)";
         return $this->countRecords($query);
     }
 

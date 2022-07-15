@@ -605,8 +605,8 @@ exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
 fau#:#fau_campo_courses#:#Campo-Kurse
 fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie können an geeignete Stellen verschoben werden.
-fau#:#fau_campo_course_is_deleted#:#Die Parallelgruppe wurde in campo gelöscht!
-fau#:#fau_campo_course_is_cancelled#:#Die Parallelgruppe wurde in campo auf ausgefallen gesetzt!
+fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
+fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
 fau#:#fau_course#:#Parallelgruppe

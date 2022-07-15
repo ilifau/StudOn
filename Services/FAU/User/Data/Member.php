@@ -13,7 +13,7 @@ use FAU\Sync\SyncWithIlias;
  * It is created when a new user is created in ilias which has related campo data
  *
  * Compared with the course or group participants this table reflects the updates from campo
- * Person assignments in campo should be saved here and the ilias course or group roles if their users should be updated
+ * Person assignments in campo should be saved here and the ilias course or group roles of their users should be updated
  * ILIAS users which are directly maintained in the ilias course and group membership administration should not be touched
  *
  * Admins/Tutors:

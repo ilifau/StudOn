@@ -79,13 +79,50 @@ class Repository extends RecordRepo
 
 
     /**
-     * Get the members of an ilias object (course or group)
+     * Get the member records of an ilias object (course or group) which are assigned by campo
      * @return Member[]     indexed by user_id
      */
     public function getMembersOfObject(int $obj_id, bool $useCache = true) : array
     {
         $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
         return $this->queryRecords($query, Member::model(), $useCache, 'user_id');
+    }
+
+    /**
+     * Get the user ids of the members of an ilias object (course or group) which are assigned by campo
+     * The additional conditions can be 1 or 0, null will be ignored
+     * Conditions wil be combined with OR
+     * @return int[]     indexed by user_id
+     */
+    public function getUserIdsOfObjectMembers(
+        int $obj_id,
+        bool $useCache = true,
+        ?bool $event_responsible = null,
+        ?bool $course_responsible = null,
+        ?bool $instructor = null,
+        ?bool $individual_instructor = null
+    ) : array
+    {
+        $query = "SELECT user_id FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+
+        $conditions = [];
+        if (isset($event_responsible)) {
+            $conditions[] = "event_responsible = " . $this->db->quote($event_responsible, 'integer');
+        }
+        if (isset($course_responsible)) {
+            $conditions[] = "course_responsible = " . $this->db->quote($course_responsible, 'integer');
+        }
+        if (isset($instructor)) {
+            $conditions[] = "instructor = " . $this->db->quote($instructor, 'integer');
+        }
+        if (isset($individual_instructor)) {
+            $conditions[] ="individual_instructor = " . $this->db->quote($individual_instructor, 'integer');
+        }
+        if (!empty($conditions)) {
+            $query .= ' AND (' .implode(' OR ', $conditions) . ')';
+        }
+
+        return $this->getIntegerList($query, 'user_id', $useCache);
     }
 
 
