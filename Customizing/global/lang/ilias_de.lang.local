@@ -678,6 +678,7 @@ fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
+fau#:#studydata_semester_winter#:#Wintersemester %s
 fau#:#studydata_semester_summer_short#:#SS %s
 fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_semester_text#:# %s. Semester
