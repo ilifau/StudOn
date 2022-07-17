@@ -605,6 +605,8 @@ exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
 fau#:#fau_campo_courses#:#Campo-Kurse
 fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie können an geeignete Stellen verschoben werden.
+fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
+fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
 fau#:#fau_course#:#Parallelgruppe
@@ -678,6 +680,7 @@ fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
+fau#:#studydata_semester_winter#:#Wintersemester %s
 fau#:#studydata_semester_summer_short#:#SS %s
 fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_semester_text#:# %s. Semester
@@ -692,7 +695,7 @@ fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#study_data#:#Studiendaten
-fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 14. Juli eingestellt werden.
+fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 18. Juli eingestellt werden.
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

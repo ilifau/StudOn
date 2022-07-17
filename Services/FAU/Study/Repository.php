@@ -214,23 +214,27 @@ class Repository extends RecordRepo
 
     /**
      * Get the list of responsible org units for an event
+     * The list is ordered by the relation id which leads to preference by assigning records
      * @return EventOrgunit[]
      */
     public function getEventOrgunitsByEventId(int $event_id) : array
     {
         $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer')
-            ." ORDER BY fauorg_nr";
+            ." ORDER BY relation_id";
         return $this->queryRecords($query, EventOrgunit::model());
     }
 
     /**
      * Count the courses an event has in a term
+     * Exclude the deleted or cancelled courses
      */
     public function countCoursesOfEventInTerm(int $event_id, Term $term) : int
     {
         $query = "SELECT COUNT(*) FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
         . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
-        . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer')
+        . " AND (deleted IS NULL or deleted = 0)"
+        . " AND (cancelled IS NULL or cancelled = 0)";
         return $this->countRecords($query);
     }
 
@@ -338,13 +342,17 @@ class Repository extends RecordRepo
     /**
      * Get the courses of a term that need to be created in StudOn
      * @param Term $term
+     * @param int[] $course_ids
      * @return Course[]
      */
-    public function getCoursesByTermToCreate(Term $term) : array
+    public function getCoursesByTermToCreate(Term $term, ?array $course_ids = null) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE ilias_obj_id IS NULL"
             . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        if (is_array($course_ids)) {
+            $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
+        }
         return $this->queryRecords($query, Course::model(), false);
     }
 
@@ -352,13 +360,17 @@ class Repository extends RecordRepo
      * Get the courses of a term that need to be updated in StudOn
      * Either the courses or their events have a dirty flag
      * @param Term $term
+     * @param int[] $course_ids
      * @return Course[]
      */
-    public function getCoursesByTermToUpdate(Term $term) : array
+    public function getCoursesByTermToUpdate(Term $term, ?array $course_ids = null) : array
     {
         $query = "SELECT * FROM fau_study_courses WHERE ilias_dirty_since IS NOT NULL"
             . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        if (is_array($course_ids)) {
+            $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
+        }
         return $this->queryRecords($query, Course::model(), false);
     }
 

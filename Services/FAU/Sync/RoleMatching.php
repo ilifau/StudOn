@@ -392,4 +392,47 @@ class RoleMatching
         }
     }
 
+    /**
+     * Check if the participant list in the object differs from the remembered list of changes by campo
+     */
+    public function hasLocalMemberChanges($ref_id) : bool
+    {
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        if (ilObject::_lookupType($obj_id) == 'crs') {
+            // in courses the event responsibles are admins, the others are tutors
+            $part_ids = (new ilCourseParticipants($obj_id))->getParticipants();
+            $mem_ids = $this->user->repo()->getUserIdsOfObjectMembers($obj_id, false,
+                1,1,1,1);
+        }
+        elseif (ilObject::_lookupType($obj_id) == 'grp') {
+            // in groups the event responsibles are no participants, the others are admins
+            $part_ids = (new ilGroupParticipants($obj_id))->getParticipants();
+            $mem_ids = $this->user->repo()->getUserIdsOfObjectMembers($obj_id, false,
+                null, 1,1,1,);
+        }
+        else {
+            return true;
+        }
+
+        sort($part_ids);
+        sort($mem_ids);
+
+//        echo "Participants:\n";
+//        foreach ($part_ids as $id) {
+//            echo $id . ": " .  \ilObjUser::_lookupLogin($id) . ' '. \ilObjUser::_lookupFullname($id) . "\n";
+//        }
+//        echo "Members:\n";
+//        foreach ($mem_ids as $id) {
+//            echo $id . ": " .  \ilObjUser::_lookupLogin($id) . ' '. \ilObjUser::_lookupFullname($id) . "\n";
+//        }
+
+        if (!empty(array_diff($part_ids, $mem_ids))) {
+            return true;
+        }
+        if (!empty(array_diff($mem_ids, $part_ids))) {
+            return true;
+        }
+        return false;
+    }
+
 }

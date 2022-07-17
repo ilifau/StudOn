@@ -26,6 +26,7 @@ class Course extends RecordData
         'hours_per_week' => 'float',
         'attendee_maximum' => 'integer',
         'cancelled' => 'integer',
+        'deleted' => 'integer',
         'teaching_language' => 'text',
         'compulsory_requirement' => 'text',
         'contents' => 'clob',
@@ -44,6 +45,7 @@ class Course extends RecordData
     protected ?float $hours_per_week;
     protected ?int $attendee_maximum;
     protected ?int $cancelled;
+    protected ?int $deleted;
     protected ?string $teaching_language;
     protected ?string $compulsory_requirement;
     protected ?string $contents;
@@ -66,6 +68,7 @@ class Course extends RecordData
         ?float $hours_per_week,
         ?int $attendee_maximum,
         ?int $cancelled,
+        ?int $deleted,
         ?string $teaching_language,
         ?string $compulsory_requirement,
         ?string $contents,
@@ -82,6 +85,7 @@ class Course extends RecordData
         $this->hours_per_week = $hours_per_week;
         $this->attendee_maximum = $attendee_maximum;
         $this->cancelled = $cancelled;
+        $this->deleted = $deleted;
         $this->teaching_language = $teaching_language;
         $this->compulsory_requirement = $compulsory_requirement;
         $this->contents = $contents;
@@ -92,7 +96,7 @@ class Course extends RecordData
     {
         return new self(0,null,null,
             null,null,null,null,
-            null,null,null,
+            null,null,null, null,
             null,null,null,null);
     }
 
@@ -169,11 +173,19 @@ class Course extends RecordData
     }
 
     /**
-     * @return int|null
+     * @return bool
      */
-    public function getCancelled() : ?int
+    public function isCancelled() : bool
     {
-        return $this->cancelled;
+        return (bool) $this->cancelled;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return (bool) $this->deleted;
     }
 
     /**

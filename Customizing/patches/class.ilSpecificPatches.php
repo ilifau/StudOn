@@ -797,5 +797,45 @@ class ilSpecificPatches
         }
     }
     // fau.
+
+    /**
+     * switch the exam ids from mein campus to the new ones from campo in in tne ExamOrga object
+     */
+    public function migratePorgNumbers()
+    {
+        $matching = [];
+        include(__DIR__ . '/porgnr.php');
+
+        $query = "
+        SELECT CONCAT('https://www.studon.fau.de/xamo4329790_',id, '.html') link, id, exam_title, exam_ids FROM xamo_record r WHERE obj_id = 5944003 
+        ";
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $id = $row['id'];
+            $link = $row['link'];
+            $title = $row['exam_title'];
+            $exam_ids = explode(', ', $row['exam_ids']);
+
+            $new_ids = [];
+            foreach ($exam_ids as $exam_id) {
+                foreach ($matching as $pair) {
+                    if ($exam_id == $pair[0]) {
+                        $new_ids[] = $pair[1];
+                    }
+                }
+            }
+            $exam_ids = implode(', ', $new_ids);
+
+            if (!empty($exam_ids)) {
+                echo $link . ' | ' . $title . "\n";
+                echo $exam_ids . "\n";
+            }
+
+            $update = "UPDATE xamo_record SET exam_ids = " . $this->db->quote($exam_ids, 'text')
+                . " WHERE id = " . $this->db->quote($id, 'integer');
+
+            $this->db->manipulate($update);
+        }
+    }
 }
 

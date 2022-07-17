@@ -16,18 +16,12 @@ $p->login();
 //$p->applyPatch('ilFauPatches.migrateConditions');
 //$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncPersonData');
-
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
+//$p->applyPatch('ilFauPatches.syncWithIlias');
 
-// Ohne Sprachenzentrum
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit' => 245, 'negate' => true]);
-
-// Create ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
+// Create or Update ILI courses
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
-
-// Sprachenzentrum, Abteilung Italienisch
-// $p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2964]);
 
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => null, 'test_run' => true]);
@@ -55,6 +49,9 @@ $p->login();
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2019-10-14_bis_2020-10-24/online.log'));
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2020-10-24_bis_2021-01-01/online.log'));
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2021-01-01_bis_2021-02-15/online.log'));
+
+
+//$p->applyPatch('ilSpecificPatches.migratePorgNumbers');
 
 /***********
  * Cleanups

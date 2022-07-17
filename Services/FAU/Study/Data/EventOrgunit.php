@@ -11,6 +11,7 @@ class EventOrgunit extends RecordData
     protected const keyTypes = [
         'event_id' => 'integer',
         'fauorg_nr' => 'text',
+        'relation_id' => 'integer'
     ];
     protected const otherTypes = [
     ];
@@ -18,13 +19,24 @@ class EventOrgunit extends RecordData
     protected int $event_id;
     protected string $fauorg_nr;
 
+    /**
+     * Type of orgunit relation
+     * 1: Unit (module) responsible
+     * 2: Main Event responsible
+     * 3: Other Event Responsible
+     * @var ?int
+     */
+    protected ?int $relation_id;
+
     public function __construct(
         int $event_id,
-        string $fauorg_nr
+        string $fauorg_nr,
+        ?int $relation_id
     )
     {
         $this->event_id = $event_id;
         $this->fauorg_nr = $fauorg_nr;
+        $this->relation_id = $relation_id;
     }
 
     public static function model(): self
@@ -46,5 +58,13 @@ class EventOrgunit extends RecordData
     public function getFauorgNr() : string
     {
         return $this->fauorg_nr;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getRelationId() : ?int
+    {
+        return $this->relation_id;
     }
 }

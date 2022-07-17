@@ -135,6 +135,7 @@ class SyncWithCampo extends SyncBase
                 $record->getHoursPerWeek(),
                 $record->getAttendeeMaximum(),
                 $record->getCancelled(),
+                $record->getDeleted(), // deleted courses got their flag copied from the DIP status
                 $record->getTeachingLanguage(),
                 $record->getCompulsoryRequirement(),
                 $record->getContents(),
@@ -146,15 +147,9 @@ class SyncWithCampo extends SyncBase
                     ->withIliasProblem($existing->getIliasProblem())
                     ->asChanged(true);
             }
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($course);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($course);
-                    break;
-            }
+            // 'deleted' is treated like 'changed' here
+            // syncWithIlias will decide what to do afterwards
+            $this->study->repo()->save($course);
             $this->staging->repo()->setDipProcessed($record);
         }
     }
@@ -255,6 +250,7 @@ class SyncWithCampo extends SyncBase
             $eventUnit = new EventOrgunit(
                 $record->getEventId(),
                 $record->getFauorgNr(),
+                $record ->getRelationId()
             );
             switch ($record->getDipStatus()) {
                 case DipData::INSERTED:
