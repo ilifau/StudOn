@@ -2,9 +2,7 @@
 
 namespace FAU\Tools;
 
-use ILIAS\DI\Container;
 use Throwable;
-use ilLanguage;
 use FAU\SubService;
 
 /**

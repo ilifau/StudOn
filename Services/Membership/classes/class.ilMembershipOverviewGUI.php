@@ -97,7 +97,7 @@ class ilMembershipOverviewGUI
     {
         global $DIC;
         $select = $DIC->ui()->factory()->input()->field()->select($this->lng->txt('studydata_semester'), $DIC->fau()->study()->getTermSearchOptions())
-        ->withValue($DIC->fau()->preferences()->getTermIdForMyMemberships());
+        ->withValue($DIC->fau()->tools()->preferences()->getTermIdForMyMemberships());
         $action = $DIC->ctrl()->getLinkTarget($this, "applyFilter", "", true);
         return $DIC->uiService()->filter()->standard("fauFilterMyMem", $action, ["term_id" => $select], [true], true, true);
     }
@@ -108,7 +108,7 @@ class ilMembershipOverviewGUI
     {
         global $DIC;
         $filter_data = $DIC->uiService()->filter()->getData($this->getFilter());
-        $DIC->fau()->preferences()->setTermIdForMyMemberships($filter_data['term_id']);
+        $DIC->fau()->tools()->preferences()->setTermIdForMyMemberships($filter_data['term_id']);
         $this->ctrl->redirect($this, 'show');
     }
     // fau.

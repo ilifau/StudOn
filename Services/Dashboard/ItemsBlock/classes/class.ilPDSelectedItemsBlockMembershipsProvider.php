@@ -43,7 +43,7 @@ class ilPDSelectedItemsBlockMembershipsProvider implements ilPDSelectedItemsBloc
         );
 
         // fau: filterMyMem - set the filter for the repository
-        $this->repository->setFilterTermId($DIC->fau()->preferences()->getTermIdForMyMemberships());
+        $this->repository->setFilterTermId($DIC->fau()->tools()->preferences()->getTermIdForMyMemberships());
         // fau.
     }
 

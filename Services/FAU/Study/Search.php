@@ -31,7 +31,7 @@ class Search
     public function getCondition() : SearchCondition
     {
         if (!isset($this->condition)) {
-            $this->condition = $this->dic->fau()->preferences()->getSearchCondition();
+            $this->condition = $this->dic->fau()->tools()->preferences()->getSearchCondition();
         }
         return $this->condition;
     }
@@ -43,7 +43,7 @@ class Search
     public function setCondition(SearchCondition $condition)
     {
         $this->condition = $condition;
-        $this->dic->fau()->preferences()->setSearchCondition($condition);
+        $this->dic->fau()->tools()->preferences()->setSearchCondition($condition);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU;
+namespace FAU\Tools;
 
 use ILIAS\DI\Container;
 use ilCust;

@@ -18,8 +18,6 @@ class Service
     protected Sync\Service $syncService;
     protected Tools\Service $toolsService;
     protected User\Service $userService;
-    protected Settings $settings;
-    protected Preferences $preferences;
 
     public function __construct(Container $dic)
     {
@@ -27,7 +25,7 @@ class Service
     }
 
     /**
-     * Get the service for Registration Conditions
+     * Get the service for registration conditions
      */
     public function cond() : Cond\Service
     {
@@ -50,7 +48,7 @@ class Service
     }
 
     /**
-     * Get the service for study related data
+     * Get the service for event and course related data
      */
     public function study() : Study\Service
     {
@@ -61,7 +59,7 @@ class Service
     }
 
     /**
-     * Get the service for user data
+     * Get the service for user related data
      */
     public function user() : User\Service
     {
@@ -103,27 +101,4 @@ class Service
         }
         return $this->toolsService;
     }
-
-    /**
-     * Get the system settings for the FAU service
-     */
-    public function settings() : Settings
-    {
-        if (!isset($this->settings)) {
-            $this->settings = new Settings($this->dic);
-        }
-        return $this->settings;
-    }
-
-    /**
-     * Get the user preferences for the FAU service
-     */
-    public function preferences() : Preferences
-    {
-        if (!isset($this->preferences)) {
-            $this->preferences = new Preferences($this->dic);
-        }
-        return $this->preferences;
-    }
-
 }
