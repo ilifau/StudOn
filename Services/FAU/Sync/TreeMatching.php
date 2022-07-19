@@ -11,7 +11,7 @@ use FAU\Study\Data\Course;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\ImportId;
 use FAU\Org\Data\Orgunit;
-use FAU\Settings;
+use FAU\Tools\Settings;
 use ilContainer;
 
 /**
@@ -37,7 +37,7 @@ class TreeMatching
         $this->lng = $dic->language();
         $this->org = $dic->fau()->org();
         $this->study = $dic->fau()->study();
-        $this->settings = $dic->fau()->settings();
+        $this->settings = $dic->fau()->tools()->settings();
     }
 
 

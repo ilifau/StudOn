@@ -25,7 +25,7 @@ class RoleMatching
     protected \FAU\Study\Service $study;
     protected \FAU\Sync\Service $sync;
     protected \FAU\User\Service $user;
-    protected \FAU\Settings $settings;
+    protected \FAU\Tools\Settings $settings;
 
 
     /**
@@ -39,7 +39,7 @@ class RoleMatching
         $this->study = $dic->fau()->study();
         $this->sync = $dic->fau()->sync();
         $this->user = $dic->fau()->user();
-        $this->settings = $dic->fau()->settings();
+        $this->settings = $dic->fau()->tools()->settings();
     }
 
     /**
