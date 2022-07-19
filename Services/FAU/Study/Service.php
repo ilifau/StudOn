@@ -19,9 +19,6 @@ class Service extends SubService
     protected Matching $matching;
     protected Search $search;
 
-    protected Guis $guis;
-
-
 
     /**
      * Get the repository for user data
@@ -56,16 +53,6 @@ class Service extends SubService
         return $this->search;
     }
 
-    /**
-     * Get the GUI Handler
-     */
-    public function guis() : Guis
-    {
-        if(!isset($this->guis)) {
-            $this->guis = new Guis($this->dic);
-        }
-        return $this->guis;
-    }
 
     /**
      * Check if an object is needed for campo
@@ -75,6 +62,54 @@ class Service extends SubService
         return $this->repo()->isIliasObjIdUsedInCourses($obj_id)
             || $this->repo()->getImportId($obj_id)->isForCampo();
     }
+
+    /**
+     * Get the select options for courses of study
+     */
+    public function getCourseOfStudySelectOptions(?int $emptyId = null) : array
+    {
+        $options = [];
+        if (isset($emptyId)) {
+            $options[$emptyId] = $this->lng->txt("please_select");
+        }
+
+        $list = [];
+        foreach ($this->repo()->getCoursesOfStudy() as $cos) {
+            $title = $cos->getSubject() . ', ' . $cos->getDegree()
+                . ', ' . $cos->getSubjectIndicator() . ', ' . $cos->getMajor(); // . ' (' . $cos->getVersion() . ')';
+            $list[$title][] = $cos->getCosId();
+        }
+        foreach ($list as $title => $cos_ids) {
+            $options[implode(',', $cos_ids)] = $title;
+        }
+
+        asort($options,  SORT_NATURAL);
+        return $options;
+    }
+
+
+    /**
+     * Get the select options for study modules
+     */
+    public function getModuleSelectOptions(?int $emptyId = null) : array
+    {
+        $options = [];
+        if (isset($emptyId)) {
+            $options[$emptyId] = $this->lng->txt("please_select");
+        }
+
+        $list = [];
+        foreach ($this->repo()->getModules() as $module) {
+            $title = $module->getModuleName(); // . ' ('. $module->getModuleNr() . ')';
+            $list[$title][] = $module->getModuleId();
+        }
+        foreach ($list as $title => $module_ids) {
+            $options[implode(',', $module_ids)] = $title;
+        }
+        asort($options,  SORT_NATURAL);
+        return $options;
+    }
+
 
 
     /**
@@ -305,7 +340,7 @@ class Service extends SubService
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
             $next = substr((string) $term->getYear(), 2,2);
-            return sprintf($this->lng->txt('studydata_semester_winter'), $term->getYear(), $next +1);
+            return sprintf($this->lng->txt('studydata_semester_winter'), $term->getYear(), $next + 1);
         }
         else {
             return $this->lng->txt('studydata_ref_semester_invalid');

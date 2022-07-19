@@ -39,6 +39,23 @@ interface Standard extends Item
      */
     public function withLeadText(string $text) : Item;
 
+    // fau: studySearch - define checkbox functions
+    /**
+     * Set value for a checkbox
+     */
+    public function withCheckbox(string $name, ?string $value = null) : Item;
+
+    /**
+     * Get the name for a checkbox
+     */
+    public function getCheckboxName() : ?string;
+
+    /**
+     * Get the value for a checkbox
+     */
+    public function getCheckboxValue() : ?string;
+    // fau.
+
     /**
      * Reset lead to null
      */

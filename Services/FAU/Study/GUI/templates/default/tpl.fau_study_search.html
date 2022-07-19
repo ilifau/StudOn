@@ -1,0 +1,16 @@
+{SEARCH_FORM_HTML}
+
+<form id="fau_study_search_select" action ={FORMACTION} method="POST">
+    {RESULT_LIST_HTML}
+    <!-- BEGIN actions_footer -->
+    <div class="tblfooter ilContainerListFooter">
+        <input type="checkbox" name="fau_study_search_check_all" id="fau_study_search_check_all" value="1"
+               onClick="javascript:il.Util.setChecked('fau_study_search_select', '{SEL_ALL_CB_NAME}', this.checked);" />
+        <label for="fau_study_search_check_all" class="small">{TXT_SELECT_ALL}</label>
+        <p>
+            {ICON_DOWNRIGHT} <input name="cmd[move]" class="btn btn-default" type="submit" value="{TXT_MOVE_COURSES}" />
+        </p>
+    </div>
+    <!-- END actions_footer -->
+
+</form>

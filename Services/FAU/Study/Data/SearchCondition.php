@@ -7,8 +7,8 @@ class SearchCondition
     // search input
     private string $pattern;
     private string $term_id;
-    private int $cos_id;
-    private int $module_id;
+    private array $cos_ids;
+    private array $module_ids;
     private int $ilias_ref_id;
     private bool $fitting;
 
@@ -19,15 +19,15 @@ class SearchCondition
     public function __construct(
         string $pattern,
         string $term_id,
-        int $cos_id,
-        int $module_id,
+        array $cos_ids,
+        array $module_ids,
         int $ilias_ref_id,
         bool $fitting
     ) {
         $this->pattern = $pattern;
         $this->term_id = $term_id;
-        $this->cos_id = $cos_id;
-        $this->module_id = $module_id;
+        $this->cos_ids = $cos_ids;
+        $this->module_ids = $module_ids;
         $this->ilias_ref_id = $ilias_ref_id;
         $this->fitting = $fitting;
     }
@@ -49,19 +49,19 @@ class SearchCondition
     }
 
     /**
-     * @return int
+     * @return int[]
      */
-    public function getCosId() : int
+    public function getCosIds() : array
     {
-        return $this->cos_id;
+        return $this->cos_ids;
     }
 
     /**
-     * @return int
+     * @return int[]
      */
-    public function getModuleId() : int
+    public function getModuleIds() : array
     {
-        return $this->module_id;
+        return $this->module_ids;
     }
 
     /**
@@ -87,8 +87,8 @@ class SearchCondition
     {
         return empty($this->pattern)
             && empty($this->term_id)
-            && empty($this->cos_id)
-            && empty($this->module_id)
+            && empty($this->cos_ids)
+            && empty($this->module_ids)
             && empty($this->ilias_ref_id)
             && empty($this->fitting);
     }

@@ -1,0 +1,33 @@
+<style>
+	.autocomplete__input {
+		flex: 1 1 auto;
+		border: solid 1px;
+		border-radius: 0;
+		padding: 3px 3px;
+		font-size: 12px;
+		width: 80%;
+	}
+	.autocomplete__results {
+		z-index:100;
+		background:white;
+
+	}
+	.autocomplete__result {
+		font-size: 12px;
+	}
+
+</style>
+<!-- BEGIN inline_in_bl -->
+<div class="form-inline">
+<!-- END inline_in_bl -->
+	<select style="z-index: 100;" aria-label="{ARIA_LABEL}" class="form-control autocomplete" id="{ID}" name="{POST_VAR}" <!-- BEGIN cust_attr -->{CUSTOM_ATTR}<!-- END cust_attr --> {DISABLED}>
+	<!-- BEGIN prop_select_option -->
+	<option value="{VAL_SELECT_OPTION}" {CHK_SEL_OPTION}>{TXT_SELECT_OPTION}</option>
+	<!-- END prop_select_option -->
+	</select>
+	{HIDDEN_INPUT}
+<!-- BEGIN inline_out_bl -->
+	{MULTI_ICONS}
+</div>
+
+<!-- END inline_out_bl -->

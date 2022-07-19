@@ -616,6 +616,7 @@ fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
 fau#:#fau_import_id#:#Import-ID
+fau#:#fau_move_selected_courses#:#Ausgewählte Kurse verschieben
 fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
 fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
@@ -661,10 +662,12 @@ fau#:#studycond_min_semester#:#ab %s. Fachsemester (%s)
 fau#:#studycond_no_condition_defined#:#Keine Bedingung festgelegt.
 fau#:#studydata_no_or_former_semester#:#Bis Sommersemester 2022 / ohne Semesterangabe
 fau#:#studydata#:#Studiengangsdaten
+fau#:#studydata_cos#:#Studiengang
 fau#:#studydata_degree#:#Angehender Abschluss
 fau#:#studydata_doc_prog_until#:#bis
 fau#:#studydata_edit#:#Studiengangsdaten bearbeiten
 fau#:#studydata_long#:#Studiengangsdaten (Fach, Semester, Abschluss, Fakultät)
+fau#:#studydata_module#:#Modul
 fau#:#studydata_msg_incomplete#:#Die Studiendaten sind nicht vollständig! Zu einem Studiengang müssen Bezugs-Semester, Abschluss, Fakultät und mindestens ein Fach angegeben sein. Zu einem Fach müssen der Name und das Semester angegeben sein.
 fau#:#studydata_options_update#:#Studiendaten-Auswahlen aktualisieren
 fau#:#studydata_options_update_info#:#Aktualisiert die Listen für Abschlüsse, Fakultäten, Fächer und strukturierte Promotionsprogramme aus der IDM-Datenbank
@@ -680,7 +683,7 @@ fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
-fau#:#studydata_semester_winter#:#Wintersemester %s
+fau#:#studydata_semester_winter#:#Wintersemester %s/%s
 fau#:#studydata_semester_summer_short#:#SS %s
 fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_semester_text#:# %s. Semester

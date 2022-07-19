@@ -33,8 +33,8 @@ class Preferences
         return new SearchCondition(
             (string) $this->getPreference(self::SEARCH_PATTERN),
             (string) $this->getPreference(self::SEARCH_TERM_ID),
-            (int) $this->getPreference(self::SEARCH_COS_ID),
-            (int) $this->getPreference(self::SEARCH_MODULE_ID),
+            (array) explode(',', $this->getPreference(self::SEARCH_COS_ID)),
+            (array) explode(',', $this->getPreference(self::SEARCH_MODULE_ID)),
             (int) $this->getPreference(self::SEARCH_REF_ID),
             (bool) $this->getPreference(self::SEARCH_FITTING)
         );
@@ -48,8 +48,8 @@ class Preferences
     {
         $this->setPreference(self::SEARCH_PATTERN, (string) $condition->getPattern());
         $this->setPreference(self::SEARCH_TERM_ID, (string) $condition->getTermId());
-        $this->setPreference(self::SEARCH_COS_ID, (string) $condition->getCosId());
-        $this->setPreference(self::SEARCH_MODULE_ID, (string) $condition->getModuleId());
+        $this->setPreference(self::SEARCH_COS_ID, (implode(',',$condition->getCosIds())));
+        $this->setPreference(self::SEARCH_MODULE_ID, (implode(',',$condition->getModuleIds())));
         $this->setPreference(self::SEARCH_REF_ID, (string) $condition->getIliasRefId());
         $this->setPreference(self::SEARCH_FITTING, (string) $condition->getFitting());
     }

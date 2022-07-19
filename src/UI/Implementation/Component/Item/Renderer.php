@@ -76,6 +76,22 @@ class Renderer extends AbstractComponentRenderer
         }
 
         // lead
+
+        // fau: studySearch - render checkbox
+        if (!empty( $component->getCheckboxName())) {
+            $tpl->setCurrentBlock("checkbox");
+            $tpl->setVariable("CHECKBOX_NAME",  $component->getCheckboxName());
+            if (!empty($component->getCheckboxValue())) {
+                $tpl->setVariable("CHECKBOX_VALUE", $component->getCheckboxValue());
+                $tpl->setVariable("VISIBILITY", 'visible');
+            }
+            else {
+                $tpl->setVariable("VISIBILITY", 'hidden');
+            }
+            $tpl->parseCurrentBlock();
+        }
+        // fau.
+
         $lead = $component->getLead();
         if ($lead != null) {
             if (is_string($lead)) {

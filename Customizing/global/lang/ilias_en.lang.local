@@ -616,6 +616,7 @@ fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
 fau#:#fau_import_id#:#Import-ID
+fau#:#fau_move_selected_courses#:#Move Selected Courses
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
 fau#:#fau_search#:#Search Events from Campo
@@ -661,10 +662,12 @@ fau#:#studycond_min_semester#:#from %s. subjectsemester (%s)
 fau#:#studycond_no_condition_defined#:#No conditions determined.
 fau#:#studydata_no_or_former_semester#:#Until summer term 2022 / without term
 fau#:#studydata#:#Study data
+fau#:#studydata_cos#:#Course Of Study
 fau#:#studydata_degree#:#Expected Graduation
 fau#:#studydata_doc_prog_until#:#bis
 fau#:#studydata_edit#:#Edit study data
 fau#:#studydata_long#:#Study Data (subject, semester, graduation, faculty)
+fau#:#studydata_module#:#Module
 fau#:#studydata_msg_incomplete#:#The study data are not complete! A study course must have a reference semester, a graduation, a faculty and a least one subject. A subject must be specified with a name and the semester number.
 fau#:#studydata_options_update#:#Update Study Data Options
 fau#:#studydata_options_update_info#:#Updates the lists for degrees, schools, subjects and structured promotion programs from the IDM database
