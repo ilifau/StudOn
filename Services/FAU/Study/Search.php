@@ -63,7 +63,9 @@ class Search
         $list = [];
         $result = $this->repo->searchEvents($this->getCondition());
         foreach ($result as $event) {
+
             foreach ($event->getCourses() as $course) {
+
                 $type = ilObject::_lookupType($course->getObjId());
                 if ($type == 'crs') {
                     $ref_id = $course->getRefId();
@@ -73,18 +75,18 @@ class Search
                     $ref_id = $this->dic->fau()->sync()->trees()->findParentIliasCourse($course->getRefId());
                     $obj_id = ilObject::_lookupObjId($ref_id);
                 }
-
                 if (isset($ref_id)) {
                     $event = $event->withIliasRefId($ref_id)
-                       ->withIliasTitle(ilObject::_lookupTitle($obj_id))
-                       ->withIliasDescription(ilObject::_lookupDescription($obj_id))
-                       ->withVisible($this->dic->access()->checkAccess('visible', '', $ref_id))
-                       ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $ref_id));
+                                   ->withIliasTitle(ilObject::_lookupTitle($obj_id))
+                                   ->withIliasDescription(ilObject::_lookupDescription($obj_id))
+                                   ->withVisible($this->dic->access()->checkAccess('visible', '', $ref_id))
+                                   ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $ref_id));
+                    break;
                 }
-
-                // provide sort key
-                $list[($event->getIliasTitle() ?? $event->getEventTitle()) . $event->getEventId()] = $event;
             }
+
+            // provide sort key
+            $list[($event->getIliasTitle() ?? $event->getEventTitle()) . $event->getEventId()] = $event;
         }
 
         ksort($list, SORT_NATURAL);

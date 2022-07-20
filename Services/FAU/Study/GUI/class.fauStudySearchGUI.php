@@ -12,7 +12,7 @@ use ILIAS\UI\Component\Item\Group;
  */
 class fauStudySearchGUI extends BaseGUI
 {
-    const CHECKBOX_NAME = 'fau_study_obj_id[]';
+    const CHECKBOX_NAME = 'id[]';
 
     protected Search $search;
 
@@ -239,12 +239,23 @@ class fauStudySearchGUI extends BaseGUI
 //            ->withCheckbox(self::CHECKBOX_NAME, 3)
 //            ->withDescription('Übung, SZIT2EK3BL, 6 SWS, Italienisch');
 
-        return $this->factory->item()->group('Gefundene Lehrveranstaltungen', $items);
+        if (empty($items)) {
+            return $this->factory->item()->group('Keine Lehrveranstaltungen gefunden', $items);
+        } else {
+            return $this->factory->item()->group('Gefundene Lehrveranstaltungen', $items);
+        }
+
     }
 
 
     protected function move()
     {
-        $this->tpl->setContent('<pre>' . print_r($_POST, true) . '</pre>');
+        ilUtil::sendInfo('Das Verschieben ist in Kürze verfügbar.', true);
+
+//        $_GET['ref_id'] = 1;
+//        $container = new ilContainerGUI(array(), 0, false, false);
+//        $container->cutObject();
+
+        $this->ctrl->redirect($this, 'show');
     }
 }

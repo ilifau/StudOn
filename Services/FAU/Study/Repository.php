@@ -502,7 +502,7 @@ class Repository extends RecordRepo
             $refJoin = 'LEFT JOIN object_reference r ON r.obj_id = c.ilias_obj_id AND r.deleted IS NULL';
         }
         if (!empty($condition->getPattern())) {
-            $pattern = str_replace('*', '%', $condition->getPattern());
+            $pattern = str_replace('*', '%', $condition->getPattern()) . '%';
             $titleCond = "AND ("
                 . $this->db->like('e.title', 'text', $pattern) . " OR "
                 //. $this->db->like('e.shorttext', 'text', $pattern) . " OR "
