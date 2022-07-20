@@ -2,25 +2,41 @@
 
 namespace FAU\Study\Data;
 
-class SearchCondition
+use FAU\RecordData;
+
+class SearchCondition extends RecordData
 {
+    protected const otherTypes = [
+        'pattern' => 'text',
+        'term_id' => 'text',
+        'cos_ids' => 'text',
+        'module_ids' => 'text',
+        'ilias_ref_id' => 'integer',
+        'fitting' => 'integer',
+        'limit' => 'integer',
+        'offset' => 'integer',
+    ];
+
     // search input
-    private string $pattern;
-    private string $term_id;
-    private array $cos_ids;
-    private array $module_ids;
-    private int $ilias_ref_id;
-    private bool $fitting;
+    protected ?string $pattern;
+    protected ?string $term_id;
+    protected ?string $cos_ids;
+    protected ?string $module_ids;
+    protected ?int $ilias_ref_id;
+    protected ?int $fitting;
+
+    // paging
+    protected ?int $limit = null;
+    protected ?int $offset = null;
 
     // calculated conditions
-    private ?string $ilias_path;
-
+    protected ?string $ilias_path = null;
 
     public function __construct(
         string $pattern,
         string $term_id,
-        array $cos_ids,
-        array $module_ids,
+        string $cos_ids,
+        string $module_ids,
         int $ilias_ref_id,
         bool $fitting
     ) {
@@ -29,7 +45,12 @@ class SearchCondition
         $this->cos_ids = $cos_ids;
         $this->module_ids = $module_ids;
         $this->ilias_ref_id = $ilias_ref_id;
-        $this->fitting = $fitting;
+        $this->fitting = (int) $fitting;
+    }
+
+    public static function model() : self
+    {
+        return new self('', '', '', '',0, false);
     }
 
     /**
@@ -37,7 +58,7 @@ class SearchCondition
      */
     public function getPattern() : string
     {
-        return $this->pattern;
+        return (string) $this->pattern;
     }
 
     /**
@@ -45,23 +66,52 @@ class SearchCondition
      */
     public function getTermId() : string
     {
-        return $this->term_id;
+        return (string) $this->term_id;
+    }
+
+    public function getTerm() : Term
+    {
+        return Term::fromString($this->term_id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCosIds() : string
+    {
+        return (string) $this->cos_ids;
     }
 
     /**
      * @return int[]
      */
-    public function getCosIds() : array
+    public function getCosIdsArray() : array
     {
-        return $this->cos_ids;
+        $ids = [];
+        foreach (explode(',', $this->cos_ids) as $id) {
+            $ids[] = (int) trim($id);
+        }
+        return $ids;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleIds() : string
+    {
+        return (string) $this->module_ids;
     }
 
     /**
      * @return int[]
      */
-    public function getModuleIds() : array
+    public function getModuleIdsArray() : array
     {
-        return $this->module_ids;
+        $ids = [];
+        foreach (explode(',', $this->module_ids) as $id) {
+            $ids[] = (int) trim($id);
+        }
+        return $ids;
     }
 
     /**
@@ -69,7 +119,7 @@ class SearchCondition
      */
     public function getIliasRefId() : int
     {
-        return $this->ilias_ref_id;
+        return (int) $this->ilias_ref_id;
     }
 
     /**
@@ -77,7 +127,7 @@ class SearchCondition
      */
     public function getFitting() : bool
     {
-        return $this->fitting;
+        return (bool) $this->fitting;
     }
 
     /**
@@ -102,6 +152,22 @@ class SearchCondition
     }
 
     /**
+     * @return int|null
+     */
+    public function getLimit() : ?int
+    {
+        return $this->limit;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getOffset() : ?int
+    {
+        return $this->offset;
+    }
+
+    /**
      * @param string|null $ilias_path
      * @return SearchCondition
      */
@@ -109,6 +175,28 @@ class SearchCondition
     {
         $clone = clone($this);
         $clone->ilias_path = $ilias_path;
+        return $clone;
+    }
+
+    /**
+     * @param int|null $limit
+     * @return SearchCondition
+     */
+    public function withLimit(?int $limit) : SearchCondition
+    {
+        $clone = clone($this);
+        $clone->limit = $limit;
+        return $clone;
+    }
+
+    /**
+     * @param int|null $offset
+     * @return SearchCondition
+     */
+    public function withOffset(?int $offset) : SearchCondition
+    {
+        $clone = clone($this);
+        $clone->offset = $offset;
         return $clone;
     }
 

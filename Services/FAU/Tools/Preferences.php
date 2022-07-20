@@ -9,14 +9,7 @@ use FAU\Study\Data\SearchCondition;
 class Preferences
 {
     const TERM_FOR_MY_MEMBERSHIPS = 'fau_term_for_my_memberships';
-
-    const SEARCH_PATTERN = 'fau_search_pattern';
-    const SEARCH_TERM_ID = 'fau_search_term_id';
-    const SEARCH_COS_ID = 'fau_search_cos_id';
-    const SEARCH_MODULE_ID = 'fau_search_module_id';
-    const SEARCH_REF_ID = 'fau_search_ref_id';
-    const SEARCH_FITTING = 'fau_search_fitting';
-
+    const SEARCH_CONDITION = 'fau_search_condition';
 
     protected Container $dic;
 
@@ -30,14 +23,7 @@ class Preferences
      */
     public function getSearchCondition() : SearchCondition
     {
-        return new SearchCondition(
-            (string) $this->getPreference(self::SEARCH_PATTERN),
-            (string) $this->getPreference(self::SEARCH_TERM_ID),
-            (array) explode(',', $this->getPreference(self::SEARCH_COS_ID)),
-            (array) explode(',', $this->getPreference(self::SEARCH_MODULE_ID)),
-            (int) $this->getPreference(self::SEARCH_REF_ID),
-            (bool) $this->getPreference(self::SEARCH_FITTING)
-        );
+        return SearchCondition::from((array) json_decode($this->getPreference(self::SEARCH_CONDITION), true));
     }
 
     /**
@@ -46,12 +32,7 @@ class Preferences
      */
     public function setSearchCondition(SearchCondition $condition)
     {
-        $this->setPreference(self::SEARCH_PATTERN, (string) $condition->getPattern());
-        $this->setPreference(self::SEARCH_TERM_ID, (string) $condition->getTermId());
-        $this->setPreference(self::SEARCH_COS_ID, (implode(',',$condition->getCosIds())));
-        $this->setPreference(self::SEARCH_MODULE_ID, (implode(',',$condition->getModuleIds())));
-        $this->setPreference(self::SEARCH_REF_ID, (string) $condition->getIliasRefId());
-        $this->setPreference(self::SEARCH_FITTING, (string) $condition->getFitting());
+        $this->setPreference(self::SEARCH_CONDITION, json_encode($condition->row()));
     }
 
     /**

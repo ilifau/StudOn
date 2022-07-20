@@ -49,29 +49,31 @@ abstract class RecordData
     /**
      * Get an instance with the single row data of a database query
      * This will only work if the property names and types match the constants keyTypes and otherTypes
+     * @param array assoc row data from the query
+     * @param string prefix for all row keys of this record in the result of a join, e.g. 'course_'
      * @return static
      */
-    public static function from(array $row)
+    public static function from(array $row, string $prefix = '')
     {
         $instance = static::model();
         foreach (array_merge(static::tableKeyTypes(), static::tableOtherTypes()) as $key => $type) {
-            if (isset($row[$key])) {
+            if (isset($row[$prefix . $key])) {
                 switch ($type) {
                     case 'text':
                     case 'date':
                     case 'time':
                     case 'timestamp':
                     case 'clob':
-                        $instance->$key = (string) $row[$key];
+                        $instance->$key = (string) $row[$prefix . $key];
                         break;
                     case 'integer':
-                        $instance->$key = (int) $row[$key];
+                        $instance->$key = (int) $row[$prefix . $key];
                         break;
                     case 'float':
-                        $instance->$key = (float) $row[$key];
+                        $instance->$key = (float) $row[$prefix . $key];
                         break;
                     default:
-                        $instance->$key = $row[$key];
+                        $instance->$key = $row[$prefix . $key];
                 }
             }
             else {

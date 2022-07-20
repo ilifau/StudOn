@@ -48,6 +48,7 @@ class fauStudySearchGUI extends BaseGUI
                 {
                     case 'show':
                     case 'search':
+                    case 'reset':
                     case 'move':
                         $this->$cmd();
                         break;
@@ -69,7 +70,7 @@ class fauStudySearchGUI extends BaseGUI
 
         $tpl->setVariable('SEARCH_FORM_HTML', $form->getHTML());
         if (!$cond->isEmpty()) {
-            $tpl->setVariable('RESULT_LIST_HTML', $this->dic->ui()->renderer()->render($this->getEventList($cond)));
+            $tpl->setVariable('RESULT_LIST_HTML', $this->dic->ui()->renderer()->render($this->getList($cond)));
 
             if ($this->allow_move) {
                 $tpl->setVariable('FORMACTION', $this->ctrl->getFormAction($this));
@@ -87,11 +88,16 @@ class fauStudySearchGUI extends BaseGUI
 
     protected function search()
     {
-        var_dump($_POST);
         $form = $this->getSearchForm($this->search->getCondition());
         $form->checkInput();
         $form->setValuesByPost();
         $this->search->setCondition($this->getFormCondition($form));
+        $this->ctrl->redirect($this, 'show');
+    }
+
+    protected function reset()
+    {
+        $this->search->setCondition(SearchCondition::model());
         $this->ctrl->redirect($this, 'show');
     }
 
@@ -106,18 +112,28 @@ class fauStudySearchGUI extends BaseGUI
         $form->addItem($pattern);
 
         $term = new ilSelectInputGUI($this->lng->txt('studydata_semester'), 'term_id');
-        $term->setOptions($this->dic->fau()->study()->getTermSearchOptions($condition->getTermId(), false));
-        $term->setValue($condition->getIliasRefId());
+        $options = $this->dic->fau()->study()->getTermSearchOptions(null, false);
+        $current = $this->dic->fau()->study()->getCurrentTerm()->toString();
+        $term->setOptions($options);
+        if (!empty($condition->getTermId() && isset($options[$condition->getTermId()]))) {
+            $term->setValue($condition->getTermId());
+        }
+        elseif (isset($options[$current])) {
+            $term->setValue($current);
+        }
+        else {
+            $term->setValue((string) current($options));
+        }
         $form->addItem($term);
 
-        $cos = new fauComboInputGUI($this->lng->txt('studydata_cos'), 'cos_id');
+        $cos = new fauComboInputGUI($this->lng->txt('studydata_cos'), 'cos_ids');
         $cos->setOptions($this->dic->fau()->study()->getCourseOfStudySelectOptions(0));
-        $cos->setValue(implode(',', $condition->getCosIds()));
+        $cos->setValue($condition->getCosIds());
         $form->addItem($cos);
 
-        $mod = new fauComboInputGUI($this->lng->txt('studydata_module'), 'module_id');
+        $mod = new fauComboInputGUI($this->lng->txt('studydata_module'), 'module_ids');
         $mod->setOptions($this->dic->fau()->study()->getModuleSelectOptions(0));
-        $mod->setValue(implode(',', $condition->getModuleIds()));
+        $mod->setValue($condition->getModuleIds());
         $form->addItem($mod);
 
         $ref = new fauRepositorySelectorInputGUI($this->lng->txt('search_area'), 'search_ref_id');
@@ -127,6 +143,7 @@ class fauStudySearchGUI extends BaseGUI
         $form->addItem($ref);
 
         $form->addCommandButton('search', $this->lng->txt('search'));
+        $form->addCommandButton('reset', $this->lng->txt('reset'));
         return $form;
     }
 
@@ -139,10 +156,10 @@ class fauStudySearchGUI extends BaseGUI
         $term = $form->getItemByPostVar('term_id');
 
         /** @var fauComboInputGUI $cos */
-        $cos = $form->getItemByPostVar('cos_id');
+        $cos = $form->getItemByPostVar('cos_ids');
 
         /** @var fauComboInputGUI $mod */
-        $mod = $form->getItemByPostVar('module_id');
+        $mod = $form->getItemByPostVar('module_ids');
 
         /** @var fauRepositorySelectorInputGUI $ref */
         $ref = $form->getItemByPostVar('search_ref_id');
@@ -150,16 +167,18 @@ class fauStudySearchGUI extends BaseGUI
         return new SearchCondition(
             (string) $pattern->getValue(),
             (string) $term->getValue(),
-            (array) explode(',', $cos->getValue()),
-            (array) explode(',', $mod->getValue()),
+            (string) $cos->getValue(),
+            (string) $mod->getValue(),
             (int) $ref->getValue(),
             false
         );
     }
 
 
-    protected function getEventList(SearchCondition $condition) : Group
+    protected function getList(SearchCondition $condition) : Group
     {
+        $events = $this->search->getEventList();
+
         $icon = $this->factory->symbol()->icon()->standard('crs', 'course', 'medium');
 
         $this->allow_move = false;
@@ -167,6 +186,10 @@ class fauStudySearchGUI extends BaseGUI
         $items = [];
         $items[] = $this->factory->item()->standard(
             '<a href="#"> Italienisch: Elementarkurs I - ItaliaNet A1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
+            ->withProperties([
+                'Parallelgruppe 1' => 'Dozenten',
+                'Parallelgruppe 2' => 'Dozenten'
+            ])
             ->withLeadIcon($icon)
             ->withCheckbox(self::CHECKBOX_NAME, null)
             ->withDescription('Übung, SZIT1EK1aBL');
