@@ -74,7 +74,7 @@ class Person extends RecordData
     }
 
 
-    public static function from(array $row)
+    public static function from(array $row, string $prefix = '')
     {
        $instance = parent::from($row);
        $instance->buildArrays();
