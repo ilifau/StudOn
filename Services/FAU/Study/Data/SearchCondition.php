@@ -89,7 +89,9 @@ class SearchCondition extends RecordData
     {
         $ids = [];
         foreach (explode(',', $this->cos_ids) as $id) {
-            $ids[] = (int) trim($id);
+            if (!empty($id)) {
+                $ids[] = (int) trim($id);
+            }
         }
         return $ids;
     }
@@ -109,7 +111,9 @@ class SearchCondition extends RecordData
     {
         $ids = [];
         foreach (explode(',', $this->module_ids) as $id) {
-            $ids[] = (int) trim($id);
+            if (!empty($id)) {
+                $ids[] = (int) trim($id);
+            }
         }
         return $ids;
     }

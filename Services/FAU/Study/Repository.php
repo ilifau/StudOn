@@ -512,6 +512,8 @@ class Repository extends RecordRepo
                 . ")";
         }
 
+        // todo: limit
+
         $query = "
             SELECT DISTINCT e.event_id, e.eventtype event_type, e.title event_title, e.shorttext event_shorttext,
             c.course_id, c.title course_title, c.shorttext course_shorttext, c.k_parallelgroup_id group_number, c.hours_per_week, c.cancelled,
@@ -525,9 +527,13 @@ class Repository extends RecordRepo
             $treeJoin
             WHERE c.ilias_obj_id IS NOT null
             AND c.term_year = " . $this->db->quote($condition->getTerm()->getYear(), 'integer') . "
-            AND c.term_type_id = ". $this->db->quote($condition->getTerm()->getYear(), 'integer') . "      
+            AND c.term_type_id = ". $this->db->quote($condition->getTerm()->getTypeId(), 'integer') . "      
             $titleCond
+            LIMIT 100
         ";
+
+        //\ilUtil::sendInfo(nl2br($query), true);
+
         $result = $this->db->query($query);
 
         $events = [];

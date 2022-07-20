@@ -54,7 +54,7 @@ class Search
 
     /**
      * Get a list of ilias courses
-     * @return SearchResultEvent
+     * @return SearchResultEvent[]
      */
     public function getEventList() : array
     {

@@ -179,32 +179,65 @@ class fauStudySearchGUI extends BaseGUI
     {
         $events = $this->search->getEventList();
 
-        $icon = $this->factory->symbol()->icon()->standard('crs', 'course', 'medium');
+        $icon_crs = $this->factory->symbol()->icon()->standard('crs', 'course', 'medium');
+        $icon_missing = $this->factory->symbol()->icon()->standard('pecrs', 'missing', 'medium');
+        $listGui = new ilObjCourseListGUI();;
+
 
         $this->allow_move = false;
 
         $items = [];
-        $items[] = $this->factory->item()->standard(
-            '<a href="#"> Italienisch: Elementarkurs I - ItaliaNet A1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
-            ->withProperties([
-                'Parallelgruppe 1' => 'Dozenten',
-                'Parallelgruppe 2' => 'Dozenten'
-            ])
-            ->withLeadIcon($icon)
-            ->withCheckbox(self::CHECKBOX_NAME, null)
-            ->withDescription('Übung, SZIT1EK1aBL');
+        foreach ($events as $event) {
 
-        $items[] = $this->factory->item()->standard(
-            '<a href="#"> Italienisch: Elementarkurs II - ItaliaNet A2 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
-            ->withLeadIcon($icon)
-            ->withCheckbox(self::CHECKBOX_NAME, '2')
-            ->withDescription('Übung, SZITIKEK2aBL');
+            if(empty($event->getIliasRefId()) || !$event->isVisible()) {
+                $item = $this->factory->item()->standard($event->getEventTitle())
+                    ->withDescription($event->getEventShorttext())
+                    ->withLeadIcon($icon_missing);
+            }
+            else {
+                $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
+                $title = $event->getIliasTitle();
+                $props = [];
+                $listGui->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
+                foreach ($listGui->getProperties() as $property) {
+                    $props[$property['property']] = $property['value'];
+                }
+                $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
+                    ->withDescription($event->getIliasDescription())
+                    ->withLeadIcon($icon_crs)
+                    ->withProperties($props)
+                    ->withCheckbox(self::CHECKBOX_NAME, $event->isMoveable() ? $event->getIliasRefId() : null);
 
-        $items[] = $this->factory->item()->standard(
-            '<a href="#"> Italienisch: Elementarkurs II - ItaliaNet B1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
-            ->withLeadIcon($icon)
-            ->withCheckbox(self::CHECKBOX_NAME, 3)
-            ->withDescription('Übung, SZIT2EK3BL, 6 SWS, Italienisch');
+                if ($event->isMoveable()) {
+                    $this->allow_move = true;
+                }
+            }
+
+            $items[] = $item;
+        }
+
+//        $items = [];
+//        $items[] = $this->factory->item()->standard(
+//            '<a href="#"> Italienisch: Elementarkurs I - ItaliaNet A1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
+//            ->withProperties([
+//                'Parallelgruppe 1' => 'Dozenten',
+//                'Parallelgruppe 2' => 'Dozenten'
+//            ])
+//            ->withLeadIcon($icon)
+//            ->withCheckbox(self::CHECKBOX_NAME, null)
+//            ->withDescription('Übung, SZIT1EK1aBL');
+//
+//        $items[] = $this->factory->item()->standard(
+//            '<a href="#"> Italienisch: Elementarkurs II - ItaliaNet A2 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
+//            ->withLeadIcon($icon)
+//            ->withCheckbox(self::CHECKBOX_NAME, '2')
+//            ->withDescription('Übung, SZITIKEK2aBL');
+//
+//        $items[] = $this->factory->item()->standard(
+//            '<a href="#"> Italienisch: Elementarkurs II - ItaliaNet B1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
+//            ->withLeadIcon($icon)
+//            ->withCheckbox(self::CHECKBOX_NAME, 3)
+//            ->withDescription('Übung, SZIT2EK3BL, 6 SWS, Italienisch');
 
         return $this->factory->item()->group('Gefundene Lehrveranstaltungen', $items);
     }
