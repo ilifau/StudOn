@@ -4,15 +4,17 @@ use FAU\BaseGUI;
 use FAU\Study\Data\SearchCondition;
 use FAU\Study\Search;
 use ILIAS\UI\Component\Item\Group;
+use ILIAS\UI\Component\ViewControl\Pagination;
 
 /**
  * Search for events from campo
  *
- * @ilCtrl_Calls fauStudySearchGUI: ilPropertyFormGUI
+ * @ilCtrl_Calls fauStudySearchGUI: ilPropertyFormGUI, ilContainerGUI
  */
 class fauStudySearchGUI extends BaseGUI
 {
     const CHECKBOX_NAME = 'id[]';
+    const PAGINATION_NAME = 'page';
 
     protected Search $search;
 
@@ -43,13 +45,20 @@ class fauStudySearchGUI extends BaseGUI
                 $this->ctrl->forwardCommand($form);
                 break;
 
+            case strtolower(ilContainerGUI::class):
+                $container = new ilContainerGUI(array(), 0, false, false);
+                $this->ctrl->forwardCommand($container);
+                break;
+
+
             default:
                 switch ($cmd)
                 {
                     case 'show':
+                    case 'page':
                     case 'search':
                     case 'reset':
-                    case 'move':
+                    case 'cut':
                         $this->$cmd();
                         break;
 
@@ -63,14 +72,21 @@ class fauStudySearchGUI extends BaseGUI
 
     protected function show()
     {
+        //ilUtil::sendInfo('<pre>' . print_r($this->search->getCondition(), true) . '</pre>');
+
         $tpl = new ilTemplate("tpl.fau_study_search.html",true,true,"Services/FAU/Study/GUI");
 
-        $cond = $this->search->getCondition();
-        $form = $this->getSearchForm($cond);
-
+        $form = $this->getSearchForm($this->search->getCondition());
         $tpl->setVariable('SEARCH_FORM_HTML', $form->getHTML());
-        if (!$cond->isEmpty()) {
-            $tpl->setVariable('RESULT_LIST_HTML', $this->dic->ui()->renderer()->render($this->getList($cond)));
+
+        if (!$this->search->getCondition()->isEmpty()) {
+
+            // get the paging after the list because it depends on the number of found records
+            $list = $this->getList();
+            $paging = $this->getPaging();
+
+            $tpl->setVariable('RESULT_LIST_HTML', $this->dic->ui()->renderer()->render($list));
+            $tpl->setVariable('RESULT_PAGING_HTML', isset($paging) ? $this->dic->ui()->renderer()->render($paging) : '');
 
             if ($this->allow_move) {
                 $tpl->setVariable('FORMACTION', $this->ctrl->getFormAction($this));
@@ -78,6 +94,7 @@ class fauStudySearchGUI extends BaseGUI
                 $tpl->setVariable('SEL_ALL_CB_NAME', self::CHECKBOX_NAME);
                 $tpl->setVariable('TXT_SELECT_ALL', $this->lng->txt('select_all'));
                 $tpl->setVariable('TXT_MOVE_COURSES', $this->lng->txt('fau_move_selected_courses'));
+                $tpl->setVariable('CMD_MOVE', 'cut');
 
                 $tpl->setVariable('ICON_DOWNRIGHT', $this->renderer->render(
                     $this->factory->image()->standard(ilUtil::getImagePath('arrow_downright.svg'), $this->lng->txt('actions'))));
@@ -86,21 +103,43 @@ class fauStudySearchGUI extends BaseGUI
         $this->tpl->setContent($tpl->get());
     }
 
+     /**
+     * Start a new search
+     */
     protected function search()
     {
         $form = $this->getSearchForm($this->search->getCondition());
         $form->checkInput();
         $form->setValuesByPost();
-        $this->search->setCondition($this->getFormCondition($form));
+        // this also resets the count of found records and the paging
+        $this->search->setCondition($this->getSearchFormCondition($form));
         $this->ctrl->redirect($this, 'show');
     }
 
+    /**
+     * Reset the search conditions
+     */
     protected function reset()
     {
+        // this also resets the count of found records and the paging
         $this->search->setCondition(SearchCondition::model());
         $this->ctrl->redirect($this, 'show');
     }
 
+    /**
+     * Move to another page
+     */
+    protected function page()
+    {
+        $params = $this->dic->http()->request()->getQueryParams();
+        $page = (int) ($params[self::PAGINATION_NAME] ?? 0);
+        $this->search->setCondition($this->search->getCondition()->withPage($page));
+        $this->show();
+    }
+
+    /**
+     * Get the search form
+     */
     protected function getSearchForm(SearchCondition $condition): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
@@ -147,7 +186,10 @@ class fauStudySearchGUI extends BaseGUI
         return $form;
     }
 
-    protected function getFormCondition(ilPropertyFormGUI $form) : SearchCondition
+    /**
+     * Get a new searching condition from the search form
+     */
+    protected function getSearchFormCondition(ilPropertyFormGUI $form) : SearchCondition
     {
         /** @var ilTextInputGUI $pattern */
         $pattern = $form->getItemByPostVar('pattern');
@@ -174,25 +216,29 @@ class fauStudySearchGUI extends BaseGUI
         );
     }
 
-
-    protected function getList(SearchCondition $condition) : Group
+    /**
+     * Get the list of events as an item group
+     * This does the query
+     */
+    protected function getList() : Group
     {
-        $events = $this->search->getEventList();
-
-        $icon_crs = $this->factory->symbol()->icon()->standard('crs', 'course', 'medium');
-        $icon_missing = $this->factory->symbol()->icon()->standard('pecrs', 'missing', 'medium');
-        $listGui = new ilObjCourseListGUI();;
-
-
-        $this->allow_move = false;
+        $icon_crs = $this->factory->symbol()->icon()->standard('crs', $this->lng->txt('fau_search_ilias_course'), 'medium');
+        $icon_missing = $this->factory->symbol()->icon()->standard('pecrs', $this->lng->txt('fau_search_ilias_course_not'), 'medium');
+        $listGui = new ilObjCourseListGUI();
 
         $items = [];
-        foreach ($events as $event) {
+        $this->allow_move = false;
+        foreach ($this->search->getEventList() as $event) {
 
             if(empty($event->getIliasRefId()) || !$event->isVisible()) {
-                $item = $this->factory->item()->standard($event->getEventTitle())
-                    ->withDescription($event->getEventShorttext())
-                    ->withLeadIcon($icon_missing);
+                $item = $this->factory->item()->standard((string) $event->getEventTitle())
+                    ->withDescription((string) $event->getEventShorttext())
+                    ->withLeadIcon($icon_missing)
+                    ->withProperties([
+                        $this->lng->txt('fau_search_ilias_course') => $this->lng->txt(empty($event->getIliasRefId()) ?
+                            'fau_search_ilias_course_not_found' : 'fau_search_ilias_course_not_visible')
+                    ])
+                    ->withCheckbox(self::CHECKBOX_NAME);
             }
             else {
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
@@ -203,7 +249,7 @@ class fauStudySearchGUI extends BaseGUI
                     $props[$property['property']] = $property['value'];
                 }
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
-                    ->withDescription($event->getIliasDescription())
+                    ->withDescription((string) $event->getIliasDescription())
                     ->withLeadIcon($icon_crs)
                     ->withProperties($props)
                     ->withCheckbox(self::CHECKBOX_NAME, $event->isMoveable() ? $event->getIliasRefId() : null);
@@ -216,46 +262,43 @@ class fauStudySearchGUI extends BaseGUI
             $items[] = $item;
         }
 
-//        $items = [];
-//        $items[] = $this->factory->item()->standard(
-//            '<a href="#"> Italienisch: Elementarkurs I - ItaliaNet A1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
-//            ->withProperties([
-//                'Parallelgruppe 1' => 'Dozenten',
-//                'Parallelgruppe 2' => 'Dozenten'
-//            ])
-//            ->withLeadIcon($icon)
-//            ->withCheckbox(self::CHECKBOX_NAME, null)
-//            ->withDescription('Übung, SZIT1EK1aBL');
-//
-//        $items[] = $this->factory->item()->standard(
-//            '<a href="#"> Italienisch: Elementarkurs II - ItaliaNet A2 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
-//            ->withLeadIcon($icon)
-//            ->withCheckbox(self::CHECKBOX_NAME, '2')
-//            ->withDescription('Übung, SZITIKEK2aBL');
-//
-//        $items[] = $this->factory->item()->standard(
-//            '<a href="#"> Italienisch: Elementarkurs II - ItaliaNet B1 (Blended Learning Kurs - 2 SWS in Präsenz)</a>')
-//            ->withLeadIcon($icon)
-//            ->withCheckbox(self::CHECKBOX_NAME, 3)
-//            ->withDescription('Übung, SZIT2EK3BL, 6 SWS, Italienisch');
-
         if (empty($items)) {
-            return $this->factory->item()->group('Keine Lehrveranstaltungen gefunden', $items);
+            return $this->factory->item()->group($this->lng->txt('fau_search_no_events_found'), $items);
         } else {
-            return $this->factory->item()->group('Gefundene Lehrveranstaltungen', $items);
+            $found = $this->search->getCondition()->getFound();
+            return $this->factory->item()->group($this->lng->txt('fau_search_found_events') . ' ' . $found, $items);
         }
 
     }
 
-
-    protected function move()
+    /**
+     * Get the paging control (if needed)
+     */
+    protected function getPaging() : ?Pagination
     {
-        ilUtil::sendInfo('Das Verschieben ist in Kürze verfügbar.', true);
+        $condition = $this->search->getCondition();
+        if (!$condition->needsPaging()) {
+            return null;
+        }
+        return $this->factory->viewControl()->pagination()
+              ->withTargetURL($this->ctrl->getLinkTarget($this, 'page'), self::PAGINATION_NAME)
+              ->withTotalEntries((int) $condition->getFound())
+              ->withPageSize((int) $condition->getLimit())
+              ->withCurrentPage($condition->getPage());
+    }
 
-//        $_GET['ref_id'] = 1;
-//        $container = new ilContainerGUI(array(), 0, false, false);
-//        $container->cutObject();
+    /**
+     * Move selected courses to another location
+     * This command must be named 'cut' because ilContainerGUI expects this
+     */
+    protected function cut()
+    {
+        //ilUtil::sendInfo('Das Verschieben ist in Kürze verfügbar.', true);
 
-        $this->ctrl->redirect($this, 'show');
+        $_GET['ref_id'] = 1;
+        $container = new ilContainerGUI(array(), 0, false, false);
+        $container->cutObject();
+
+        // $this->ctrl->redirect($this, 'show');
     }
 }

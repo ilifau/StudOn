@@ -620,6 +620,12 @@ fau#:#fau_move_selected_courses#:#Ausgewählte Kurse verschieben
 fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
 fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
+fau#:#fau_search_found_events#:#Gefundene Lehrveranstaltungen:
+fau#:#fau_search_no_events_found#:#Keine Lehrveranstaltungen gefunden.
+fau#:#fau_search_ilias_course#:#StudOn-Kurs
+fau#:#fau_search_ilias_course_not#:#Kein StudOn-Kurs
+fau#:#fau_search_ilias_course_not_found#:#Für diese Veranstaltung ist noch kein StudOn-Kurs erstellt.
+fau#:#fau_search_ilias_course_not_visible#:#Der StudOn-Kurs dieser Veranstaltung ist für Sie nicht sichtbar.
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird der Anfang des Titels. Verwenden Sie * als Platzhalter.
 fau#:#studycond_add_condition#:#Bedingung hinzufügen

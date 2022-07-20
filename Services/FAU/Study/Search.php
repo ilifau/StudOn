@@ -4,9 +4,7 @@ namespace FAU\Study;
 
 use ILIAS\DI\Container;
 use FAU\Study\Data\SearchCondition;
-use FAU\Study\Data\Event;
 use FAU\Study\Data\SearchResultEvent;
-use ilObjCourseListGUI;
 use ilObject;
 
 class Search
@@ -17,7 +15,6 @@ class Search
     protected SearchCondition $condition;
 
     protected int $default_limit = 100;
-    protected int $default_offset = 0;
 
 
     /**
@@ -31,8 +28,7 @@ class Search
     }
 
     /**
-     * Get the search
-     * @return SearchCondition
+     * Get the saved search condition
      */
     public function getCondition() : SearchCondition
     {
@@ -43,64 +39,85 @@ class Search
     }
 
     /**
-     * Set the search condition
-     * @param SearchCondition $condition
+     * Set and save the search condition
      */
     public function setCondition(SearchCondition $condition)
     {
-        $this->condition = $condition;
-        $this->dic->fau()->tools()->preferences()->setSearchCondition($condition);
+        $this->condition = $this->getProcessedCondition($condition);
+        $this->dic->fau()->tools()->preferences()->setSearchCondition($this->condition);
     }
 
     /**
-     * Get a list of ilias courses
+     * Get the list of events
+     *
+     * Calls the repo to search for events
+     * Aggregates found ilias groups to their parent course
+     * Stores the number of list entries in the search condition for paging
+     * Returns a slice of the found list according to the paging values in the search condition
+     * (Note: paging can't be done with LIMIT in the repo query because the group to course aggregation is done here)
+     *
      * @return SearchResultEvent[]
      */
     public function getEventList() : array
     {
-        $this->setCondition($this->getProcessedCondition($this->getCondition()));
+        $condition = $this->getCondition();
 
         $list = [];
-        $result = $this->repo->searchEvents($this->getCondition());
+        $result = $this->repo->searchEvents($condition);
         foreach ($result as $event) {
 
-            foreach ($event->getCourses() as $course) {
-
-                $type = ilObject::_lookupType($course->getObjId());
-                if ($type == 'crs') {
-                    $ref_id = $course->getRefId();
-                    $obj_id = $course->getObjId();
-                }
-                else {
-                    $ref_id = $this->dic->fau()->sync()->trees()->findParentIliasCourse($course->getRefId());
-                    $obj_id = ilObject::_lookupObjId($ref_id);
-                }
-                if (isset($ref_id)) {
-                    $event = $event->withIliasRefId($ref_id)
-                                   ->withIliasTitle(ilObject::_lookupTitle($obj_id))
-                                   ->withIliasDescription(ilObject::_lookupDescription($obj_id))
-                                   ->withVisible($this->dic->access()->checkAccess('visible', '', $ref_id))
-                                   ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $ref_id));
-                    break;
-                }
+            if (empty($event->getObjects())) {
+                // add event without ilias object
+                $list[$event->getSortKey()] = $event;
             }
 
-            // provide sort key
-            $list[($event->getIliasTitle() ?? $event->getEventTitle()) . $event->getEventId()] = $event;
+            foreach ($event->getObjects() as $object) {
+
+                $type = ilObject::_lookupType($object->getObjId());
+                if ($type == 'crs') {
+                    $ref_id = $object->getRefId();
+                    $obj_id = $object->getObjId();
+                    $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
+                    $list[$event->getSortKey()] = $event;
+                }
+                elseif ($type == 'grp') {
+                    $ref_id = $this->dic->fau()->sync()->trees()->findParentIliasCourse($object->getRefId());
+                    $obj_id = ilObject::_lookupObjId($ref_id);
+                    $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
+                    $list[$event->getSortKey()] = $event;
+                    break; // only add entry for the parent
+                }
+            }
         }
 
+        // save the total number of list entries
+        $condition = $condition->withFound(count($list));
+        $this->setCondition($condition);
+
+        // sort the list and get only the entries for the current page
         ksort($list, SORT_NATURAL);
+        if (!empty($condition->getLimit())) {
+            $list = array_slice($list, $condition->getOffset(), $condition->getLimit());
+        }
+
+        // do further lookups only for the page entries
+        foreach ($list as $index => $event) {
+            $list[$index] = $event
+                ->withIliasTitle(ilObject::_lookupTitle($event->getIliasObjId()))
+                ->withIliasDescription(ilObject::_lookupDescription($event->getIliasObjId()))
+                ->withVisible($this->dic->access()->checkAccess('visible', '', $event->getIliasRefId()))
+                ->withMoveable($this->dic->access()->checkAccess('delete', 'cut', $event->getIliasRefId()));
+        }
+
         return array_values($list);
     }
 
     /**
-     * Get a condition with added process values
-     * @param SearchCondition $condition
-     * @return SearchCondition
+     * Get a condition with added values
      */
     protected function getProcessedCondition(SearchCondition $condition) : SearchCondition
     {
-        if (!empty($condition->getIliasRefId())) {
+        if (!empty($condition->getIliasRefId()) && empty($condition->getIliasPath())) {
             /** @noinspection PhpParamsInspection */
             $node = $this->dic->repositoryTree()->getNodeTreeData($condition->getIliasRefId());
             $condition = $condition->withIliasPath($node['path']);
@@ -108,10 +125,6 @@ class Search
         if (empty($condition->getLimit())) {
             $condition = $condition->withLimit($this->default_limit);
         }
-        if (empty($condition->getOffset())) {
-            $condition = $condition->withOffset($this->default_offset);
-        }
-
         return $condition;
     }
 }

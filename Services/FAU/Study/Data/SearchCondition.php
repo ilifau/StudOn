@@ -12,7 +12,9 @@ class SearchCondition extends RecordData
         'cos_ids' => 'text',
         'module_ids' => 'text',
         'ilias_ref_id' => 'integer',
+        'ilias_path' => 'text',
         'fitting' => 'integer',
+        'found' => 'integer',
         'limit' => 'integer',
         'offset' => 'integer',
     ];
@@ -23,14 +25,14 @@ class SearchCondition extends RecordData
     protected ?string $cos_ids;
     protected ?string $module_ids;
     protected ?int $ilias_ref_id;
+    protected ?string $ilias_path = null;
     protected ?int $fitting;
 
     // paging
-    protected ?int $limit = null;
+    protected ?int $limit = 100;
     protected ?int $offset = null;
+    protected ?int $found = null;
 
-    // calculated conditions
-    protected ?string $ilias_path = null;
 
     public function __construct(
         string $pattern,
@@ -172,6 +174,30 @@ class SearchCondition extends RecordData
     }
 
     /**
+     * @return int|null
+     */
+    public function getFound() : ?int
+    {
+        return $this->found;
+    }
+
+    /**
+     * Get the page that should be displayed (starting with 0)
+     */
+    public function getPage() : int
+    {
+        if (empty($this->limit) || empty($this->offset)) {
+            return 0;
+        }
+        return (int) ($this->offset / $this->limit);
+    }
+
+    public function needsPaging() : int
+    {
+        return (int) $this->found > (int) $this->limit;
+    }
+
+    /**
      * @param string|null $ilias_path
      * @return SearchCondition
      */
@@ -183,25 +209,46 @@ class SearchCondition extends RecordData
     }
 
     /**
-     * @param int|null $limit
-     * @return SearchCondition
+     * Set the search limit
      */
     public function withLimit(?int $limit) : SearchCondition
     {
         $clone = clone($this);
         $clone->limit = $limit;
+        $clone->offset = 0;
         return $clone;
     }
 
     /**
-     * @param int|null $offset
-     * @return SearchCondition
+     * Set the number of found records
      */
-    public function withOffset(?int $offset) : SearchCondition
+    public function withFound(?int $found) : SearchCondition
     {
         $clone = clone($this);
-        $clone->offset = $offset;
+        if ($found !== $clone->found) {
+            $clone->offset = 0;
+        }
+        $clone->found = $found;
         return $clone;
     }
 
+    /**
+     * Set the page that should be displayed (starting with 0)
+     */
+    public function withPage(int $page) : self
+    {
+        $clone = clone ($this);
+        if (empty($clone->limit)) {
+            $clone->offset = 0;
+            return $clone;
+        }
+
+        // ensure a valid page
+        $page = max($page, 0);
+        $page = min($page, (int) ((int) $clone->found / $clone->limit));
+
+        // set the record offset according to the page
+        $clone->offset = ($page) * $clone->limit;
+        return $clone;
+    }
 }

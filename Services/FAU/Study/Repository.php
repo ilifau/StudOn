@@ -31,6 +31,7 @@ use FAU\Study\Data\ImportId;
 use FAU\Study\Data\SearchCondition;
 use FAU\Study\Data\SearchResultEvent;
 use FAU\Study\Data\SearchResultCourse;
+use FAU\Study\Data\SearchResultObject;
 
 /**
  * Repository for accessing data of study related data
@@ -469,16 +470,14 @@ class Repository extends RecordRepo
     }
 
     /**
-     *
+     * Search for events
      * @param SearchCondition $condition
      * @return SearchResultEvent[]
      */
     public function searchEvents(SearchCondition $condition) : array
     {
-        $cosJoin = '';
         $modJoin = '';
-        $objJoin = '';
-        $refJoin = '';
+        $cosJoin = '';
         $treeJoin = '';
 
         if (!empty($condition->getCosIdsArray())) {
@@ -490,12 +489,11 @@ class Repository extends RecordRepo
             $modJoin = "JOIN fau_study_mod_events me ON me.event_id = c.event_id AND "
                 . $this->db->in('me.module_id', $condition->getModuleIdsArray(), false, 'integer');
         }
-
         if (!empty($condition->getIliasPath())) {
             $objJoin = "JOIN object_data o ON o.obj_id = c.ilias_obj_id";
             $refJoin = "JOIN object_reference r ON r.obj_id = c.ilias_obj_id AND r.deleted IS NULL";
             $treeJoin = "JOIN tree t ON t.child = r.ref_id AND "
-                . $this->db->like('t.path', 'text', $condition->getIliasPath() . '.%');
+                . $this->db->like('t.path', 'text', $condition->getIliasPath() . '%');
         }
         else {
             $objJoin = "LEFT JOIN object_data o ON o.obj_id = c.ilias_obj_id";
@@ -505,47 +503,40 @@ class Repository extends RecordRepo
             $pattern = str_replace('*', '%', $condition->getPattern()) . '%';
             $titleCond = "AND ("
                 . $this->db->like('e.title', 'text', $pattern) . " OR "
-                //. $this->db->like('e.shorttext', 'text', $pattern) . " OR "
                 . $this->db->like('c.title', 'text', $pattern) . " OR "
-                //. $this->db->like('c.shorttext', 'text', $pattern) . " OR "
                 . $this->db->like('o.title', 'text', $pattern)
                 . ")";
         }
 
-        // todo: limit
-
         $query = "
-            SELECT DISTINCT e.event_id, e.eventtype event_type, e.title event_title, e.shorttext event_shorttext,
-            c.course_id, c.title course_title, c.shorttext course_shorttext, c.k_parallelgroup_id group_number, c.hours_per_week, c.cancelled,
-            r.obj_id, r.ref_id
-            FROM fau_study_courses c 
-            JOIN fau_study_events e ON e.event_id = c.event_id
-            $modJoin
+            SELECT DISTINCT e.event_id, e.eventtype , e.title, e.shorttext, e.guest, r.obj_id, r.ref_id
+            FROM fau_study_events e 
+            JOIN fau_study_courses c ON c.event_id = e.event_id
+            $modJoin 
             $cosJoin
             $objJoin
             $refJoin
             $treeJoin
-            WHERE c.ilias_obj_id IS NOT null
-            AND c.term_year = " . $this->db->quote($condition->getTerm()->getYear(), 'integer') . "
+            WHERE c.term_year = " . $this->db->quote($condition->getTerm()->getYear(), 'integer') . "
             AND c.term_type_id = ". $this->db->quote($condition->getTerm()->getTypeId(), 'integer') . "      
             $titleCond
-            LIMIT 100
         ";
 
         //\ilUtil::sendInfo(nl2br($query), true);
-
         $result = $this->db->query($query);
 
         $events = [];
         while ($row = $this->db->fetchAssoc($result)) {
             $event = SearchResultEvent::from($row);
-            $course = SearchResultCourse::from($row);
+            $object = SearchResultObject::from($row);
             if (isset($events[$event->getEventId()])) {
                 $event = $events[$event->getEventId()];
             }
-            $events[$event->getEventId()] = $event->withCourse($course);
+            if ($object->isValid()) {
+                $event = $event->withObject($object);
+            }
+            $events[$event->getEventId()] = $event;
         }
-
         return $events;
     }
 
