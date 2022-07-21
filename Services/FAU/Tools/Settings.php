@@ -12,6 +12,7 @@ class Settings
     const GROUP_DTPL_ID = 'group_dtpl_id';
     const COURSE_DTPL_ID = 'course_dtpl_id';
     const FALLBACK_PARENT_CAT_ID = 'fallback_parent_cat_id';
+    const EXCLUDE_CREATE_ORG_IDS = 'exclude_create_org_ids';
 
     protected Container $dic;
 
@@ -93,6 +94,28 @@ class Settings
 
         $this->cache[self::FALLBACK_PARENT_CAT_ID] = $value;
         return $value;
+    }
+
+
+    /**
+     * Get the ids of org units for which the creation of courses shoud be exluded
+     * Their child units should also be excluded
+     * @return int[]
+     */
+    public function getExcludeCreateOrgIds() : array
+    {
+        if (isset($this->cache[self::EXCLUDE_CREATE_ORG_IDS])) {
+            return $this->cache[self::EXCLUDE_CREATE_ORG_IDS];
+        }
+
+        $list = explode(',', (string) ilCust::get('fau_exclude_create_org_ids'));
+        $ids = [];
+        foreach ($list as $entry) {
+            $ids[] = (int) trim($entry);
+        }
+
+        $this->cache[self::EXCLUDE_CREATE_ORG_IDS] = $ids;
+        return $ids;
     }
 
 }

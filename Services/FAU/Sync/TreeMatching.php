@@ -27,6 +27,7 @@ class TreeMatching
     protected \FAU\Study\Service $study;
     protected Settings $settings;
 
+    protected $exclude_create;
 
     /**
      * Constructor
