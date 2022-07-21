@@ -493,7 +493,7 @@ class Repository extends RecordRepo
             $objJoin = "JOIN object_data o ON o.obj_id = c.ilias_obj_id";
             $refJoin = "JOIN object_reference r ON r.obj_id = c.ilias_obj_id AND r.deleted IS NULL";
             $treeJoin = "JOIN tree t ON t.child = r.ref_id AND "
-                . $this->db->like('t.path', 'text', $condition->getIliasPath() . '%');
+                . $this->db->like('t.path', 'text', $condition->getIliasPath() . '%', false);
         }
         else {
             $objJoin = "LEFT JOIN object_data o ON o.obj_id = c.ilias_obj_id";

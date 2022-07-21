@@ -627,6 +627,7 @@ fau#:#fau_search_ilias_course#:#StudOn-Kurs
 fau#:#fau_search_ilias_course_not#:#Kein StudOn-Kurs
 fau#:#fau_search_ilias_course_not_found#:#Für diese Veranstaltung ist noch kein StudOn-Kurs erstellt.
 fau#:#fau_search_ilias_course_not_visible#:#Der StudOn-Kurs dieser Veranstaltung ist für Sie nicht sichtbar.
+fau#:#fau_search_numbers_of#:#%s bis %s von %s
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird der Anfang des Titels. Verwenden Sie * als Platzhalter.
 fau#:#studycond_add_condition#:#Bedingung hinzufügen

@@ -252,7 +252,6 @@ class fauStudySearchGUI extends BaseGUI
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
-                //$props[$this->lng->txt('path')] = $pathGUI->getPath(1, $event->getIliasRefId());
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
                     ->withDescription((string) $event->getIliasDescription() . ' ' . $pathGUI->getPath(1, $event->getIliasRefId()))
                     ->withLeadIcon($icon_crs)
@@ -263,14 +262,24 @@ class fauStudySearchGUI extends BaseGUI
                     $this->allow_move = true;
                 }
             }
-
             $items[] = $item;
         }
 
         if (empty($items)) {
             return $this->factory->item()->group($this->lng->txt('fau_search_no_events_found'), $items);
-        } else {
-            $found = $this->search->getCondition()->getFound();
+        }
+        else {
+            $cond = $this->search->getCondition();
+            if ($cond->needsPaging()) {
+                $found = sprintf($this->lng->txt('fau_search_numbers_of'),
+                    $cond->getOffset() + 1,
+                    min($cond->getOffset() + $cond->getLimit(), $cond->getFound()),
+                    $cond->getFound()
+                );
+            }
+            else {
+                $found = $cond->getFound();
+            }
             return $this->factory->item()->group($this->lng->txt('fau_search_found_events') . ' ' . $found, $items);
         }
 

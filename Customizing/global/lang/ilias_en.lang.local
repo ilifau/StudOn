@@ -627,6 +627,7 @@ fau#:#fau_search_ilias_course#:#StudOn Course
 fau#:#fau_search_ilias_course_not#:#No StudOn Course
 fau#:#fau_search_ilias_course_not_found#:#This event does not have a StudOn course.
 fau#:#fau_search_ilias_course_not_visible#:#The StudOn course for this event is not visible to you.
+fau#:#fau_search_numbers_of#:#%s to %s of %s
 fau#:#fau_search_title#:#Event Title
 fau#:#fau_search_title_info#:#Searching from the start of the title. Use * as placeholder.
 fau#:#studycond_add_condition#:#add condition

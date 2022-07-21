@@ -14,8 +14,8 @@ class Search
     protected Repository $repo;
     protected SearchCondition $condition;
 
-    protected int $default_limit = 50;
-
+    protected int $default_limit = 100;
+    protected $cache_seconds = 600;
 
     /**
      * Constructor
@@ -62,31 +62,59 @@ class Search
     {
         $condition = $this->getCondition();
 
-        $list = [];
-        $result = $this->repo->searchEvents($condition);
-        foreach ($result as $event) {
+        $cache = new \ilCache('Services/FAU', "Search", true);
+        $cache->setExpiresAfter($this->cache_seconds);
 
-            if (empty($event->getObjects())) {
-                // add event without ilias object
-                $list[$event->getSortKey()] = $event;
+        // try to get the list from the cache
+        $list = null;
+        try {
+            if (!empty($entry = $cache->getEntry($condition->getSignature()))) {
+                $list = unserialize($entry);
+            }
+        }
+        catch (\Exception $e) {
+            // ignore
+        }
+
+        // generate the list, if not taken from cache
+        if (!is_array($list)) {
+            $list = [];
+            $result = $this->repo->searchEvents($condition);
+            foreach ($result as $event) {
+
+                if (empty($event->getObjects())) {
+                    // add event without ilias object
+                    $list[$event->getSortKey()] = $event;
+                }
+
+                foreach ($event->getObjects() as $object) {
+
+                    $type = ilObject::_lookupType($object->getObjId());
+                    if ($type == 'crs') {
+                        $ref_id = $object->getRefId();
+                        $obj_id = $object->getObjId();
+                        $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
+                        $list[$event->getSortKey()] = $event;
+                    }
+                    elseif ($type == 'grp') {
+                        $ref_id = $this->dic->fau()->sync()->trees()->findParentIliasCourse($object->getRefId());
+                        $obj_id = ilObject::_lookupObjId($ref_id);
+                        $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
+                        $list[$event->getSortKey()] = $event;
+                        break; // only add entry for the parent
+                    }
+                }
             }
 
-            foreach ($event->getObjects() as $object) {
+            // sort the list and get only the entries for the current page
+            ksort($list, SORT_NATURAL);
 
-                $type = ilObject::_lookupType($object->getObjId());
-                if ($type == 'crs') {
-                    $ref_id = $object->getRefId();
-                    $obj_id = $object->getObjId();
-                    $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
-                    $list[$event->getSortKey()] = $event;
-                }
-                elseif ($type == 'grp') {
-                    $ref_id = $this->dic->fau()->sync()->trees()->findParentIliasCourse($object->getRefId());
-                    $obj_id = ilObject::_lookupObjId($ref_id);
-                    $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
-                    $list[$event->getSortKey()] = $event;
-                    break; // only add entry for the parent
-                }
+            // store whole result in cache
+            try {
+                $cache->storeEntry($condition->getSignature(), serialize($list));
+            }
+            catch (\Exception $e) {
+                // ignore
             }
         }
 
@@ -94,8 +122,7 @@ class Search
         $condition = $condition->withFound(count($list));
         $this->setCondition($condition);
 
-        // sort the list and get only the entries for the current page
-        ksort($list, SORT_NATURAL);
+        // get only the entries for the current page
         if (!empty($condition->getLimit())) {
             $list = array_slice($list, $condition->getOffset(), $condition->getLimit());
         }

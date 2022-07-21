@@ -56,6 +56,16 @@ class SearchCondition extends RecordData
     }
 
     /**
+     * Get the signature of the conditions (used as cache key)
+     */
+    public function getSignature()
+    {
+        return md5(json_encode([
+            $this->pattern, $this->term_id, $this->cos_ids, $this->module_ids, $this->ilias_ref_id, $this->ilias_path, $this->fitting
+        ]));
+    }
+
+    /**
      * @return string
      */
     public function getPattern() : string
@@ -194,7 +204,7 @@ class SearchCondition extends RecordData
 
     public function needsPaging() : int
     {
-        return (int) $this->found > (int) $this->limit;
+        return !empty($this->limit) && (int) $this->found > (int) $this->limit;
     }
 
     /**
