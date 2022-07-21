@@ -62,8 +62,8 @@ class ilSyncWithCampoCron extends ilCronJob
         }
 
         // Then create or update the ilias courses based on that data
-//        $service = $DIC->fau()->sync()->ilias();
-//        $service->synchronize();
+        $service = $DIC->fau()->sync()->ilias();
+        $service->synchronize();
 
         if ($service->hasErrors()) {
             $result->setStatus(\ilCronJobResult::STATUS_FAIL);
