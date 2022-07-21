@@ -229,6 +229,7 @@ common#:#mem_edit_request#:#edit request
 common#:#mem_external_notification_subject#:#Registration of %s for "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Registration of %s for "%s" changed###fau: courseUdf
 common#:#mem_fill_free_places#:#fill free places
+common#:#mem_max_users#:#Limit:
 common#:#mem_max_users_hidden#:#Info for admins:
 common#:#mem_registration_access_time#:#Registration/First access
 common#:#mem_request_joining#:#Request joining

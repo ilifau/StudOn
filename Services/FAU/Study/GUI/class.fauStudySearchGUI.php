@@ -223,9 +223,12 @@ class fauStudySearchGUI extends BaseGUI
      */
     protected function getList() : Group
     {
+        $listGUI = new ilObjCourseListGUI();
+        $pathGUI = new ilPathGUI();
+        $pathGUI->enableTextOnly(false);
+
         $icon_crs = $this->factory->symbol()->icon()->standard('crs', $this->lng->txt('fau_search_ilias_course'), 'medium');
         $icon_missing = $this->factory->symbol()->icon()->standard('pecrs', $this->lng->txt('fau_search_ilias_course_not'), 'medium');
-        $listGui = new ilObjCourseListGUI();
 
         $items = [];
         $this->allow_move = false;
@@ -245,12 +248,13 @@ class fauStudySearchGUI extends BaseGUI
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
                 $title = $event->getIliasTitle();
                 $props = [];
-                $listGui->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
-                foreach ($listGui->getProperties() as $property) {
+                $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
+                foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
+                //$props[$this->lng->txt('path')] = $pathGUI->getPath(1, $event->getIliasRefId());
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
-                    ->withDescription((string) $event->getIliasDescription())
+                    ->withDescription((string) $event->getIliasDescription() . ' ' . $pathGUI->getPath(1, $event->getIliasRefId()))
                     ->withLeadIcon($icon_crs)
                     ->withProperties($props)
                     ->withCheckbox(self::CHECKBOX_NAME, $event->isMoveable() ? $event->getIliasRefId() : null);
@@ -294,12 +298,8 @@ class fauStudySearchGUI extends BaseGUI
      */
     protected function cut()
     {
-        //ilUtil::sendInfo('Das Verschieben ist in Kürze verfügbar.', true);
-
         $_GET['ref_id'] = 1;
         $container = new ilObjRootFolderGUI(array(), 1, true, false);
         $container->cutObject();
-
-        // $this->ctrl->redirect($this, 'show');
     }
 }

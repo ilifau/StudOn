@@ -229,6 +229,7 @@ common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_external_notification_subject#:#Anmeldung von %s zu "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Anmeldung von %s zu "%s" geändert###fau: courseUdf
 common#:#mem_fill_free_places#:#Freie Plätze auffüllen
+common#:#mem_max_users#:#Begrenzung:
 common#:#mem_max_users_hidden#:#Info für Admins:
 common#:#mem_registration_access_time#:#Anmeldung/Erstzugriff
 common#:#mem_request_joining#:#Aufnahme beantragen

@@ -14,7 +14,7 @@ class Search
     protected Repository $repo;
     protected SearchCondition $condition;
 
-    protected int $default_limit = 100;
+    protected int $default_limit = 50;
 
 
     /**
