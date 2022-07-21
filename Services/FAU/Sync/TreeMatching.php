@@ -27,7 +27,7 @@ class TreeMatching
     protected \FAU\Study\Service $study;
     protected Settings $settings;
 
-    protected $exclude_create;
+    protected $exclude_create_org_paths = null;
 
     /**
      * Constructor
@@ -39,6 +39,26 @@ class TreeMatching
         $this->org = $dic->fau()->org();
         $this->study = $dic->fau()->study();
         $this->settings = $dic->fau()->tools()->settings();
+    }
+
+    /**
+     * Fetch the org unit paths that should be excluded from course creation
+     */
+    protected function getExcludeCreateOrgPaths() : array
+    {
+        if (isset($this->exclude_create_org_paths)) {
+            return $this->exclude_create_org_paths;
+        }
+
+        $paths = [];
+        foreach ($this->dic->fau()->tools()->settings()->getExcludeCreateOrgIds() as $id) {
+            if (!empty($unit = $this->dic->fau()->org()->repo()->getOrgunit($id))) {
+                $paths[] = $unit->getPath();
+            }
+        }
+
+        $this->exclude_create_org_paths = $paths;
+        return $paths;
     }
 
 
@@ -82,6 +102,12 @@ class TreeMatching
             return null;
         }
         else {
+            // check if org unit is excluded from course creation
+            foreach ($this->getExcludeCreateOrgPaths() as $path) {
+                if (substr($creationUnit->getPath(), 0, strlen($path)) == $path) {
+                    return null;
+                }
+            }
             $parent_ref_id = $creationUnit->getIliasRefId();
         }
 
