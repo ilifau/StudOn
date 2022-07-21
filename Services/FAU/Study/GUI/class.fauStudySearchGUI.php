@@ -9,7 +9,7 @@ use ILIAS\UI\Component\ViewControl\Pagination;
 /**
  * Search for events from campo
  *
- * @ilCtrl_Calls fauStudySearchGUI: ilPropertyFormGUI, ilContainerGUI
+ * @ilCtrl_Calls fauStudySearchGUI: ilPropertyFormGUI, ilObjRootFolderGUI
  */
 class fauStudySearchGUI extends BaseGUI
 {
@@ -45,8 +45,9 @@ class fauStudySearchGUI extends BaseGUI
                 $this->ctrl->forwardCommand($form);
                 break;
 
-            case strtolower(ilContainerGUI::class):
-                $container = new ilContainerGUI(array(), 0, false, false);
+            case strtolower(ilObjRootFolderGUI::class):
+                $container = new ilObjRootFolderGUI(array(), 1, true, false);
+                $this->ctrl->setReturn($this, 'show');
                 $this->ctrl->forwardCommand($container);
                 break;
 
@@ -296,7 +297,7 @@ class fauStudySearchGUI extends BaseGUI
         //ilUtil::sendInfo('Das Verschieben ist in Kürze verfügbar.', true);
 
         $_GET['ref_id'] = 1;
-        $container = new ilContainerGUI(array(), 0, false, false);
+        $container = new ilObjRootFolderGUI(array(), 1, true, false);
         $container->cutObject();
 
         // $this->ctrl->redirect($this, 'show');
