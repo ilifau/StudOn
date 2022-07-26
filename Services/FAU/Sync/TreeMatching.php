@@ -189,6 +189,25 @@ class TreeMatching
     }
 
     /**
+     * Find parallel groups that are enclosed in the course
+     */
+    public function findChildParallelGroups(int $ref_id) : array
+    {
+        $ref_ids = [];
+        /** @noinspection PhpParamsInspection */
+        foreach ($this->dic->repositoryTree()->getChildIds($ref_id) as $child_id) {
+            if (ilObject::_lookupType($child_id, true) == 'grp' && !ilObject::_isInTrash($child_id)) {
+                $obj_id = ilObject::_lookupObjId($child_id);
+                if ($this->dic->fau()->study()->isObjectForCampo($obj_id)) {
+                    $ref_ids[] = $child_id;
+                }
+            }
+        }
+        return $ref_ids;
+    }
+    
+
+    /**
      * @param int $ref_id
      * @return bool
      */

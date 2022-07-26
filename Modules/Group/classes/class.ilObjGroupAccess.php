@@ -308,8 +308,9 @@ class ilObjGroupAccess extends ilObjectAccess
         $lng = $DIC['lng'];
 
         // fau: fairSub - query for fair period
+        // fau: paraSub - query for waiting list
         $query = 'SELECT registration_type, registration_enabled, registration_unlimited,  registration_start, ' .
-            'registration_end, registration_mem_limit, registration_max_members, sub_fair FROM grp_settings ' .
+            'registration_end, registration_mem_limit, registration_max_members, sub_fair, waiting_list FROM grp_settings ' .
             'WHERE obj_id = ' . $ilDB->quote($a_obj_id);
         $res = $ilDB->query($query);
         
@@ -329,6 +330,7 @@ class ilObjGroupAccess extends ilObjectAccess
             
             $info['reg_info_enabled'] = $row->registration_enabled;
             $info['reg_info_sub_fair'] = $row->sub_fair;
+            $info['reg_info_waiting_list'] = $row->waiting_list;
         }
         // fau.
 
@@ -395,6 +397,7 @@ class ilObjGroupAccess extends ilObjectAccess
         $free_places = max($max_members - $members, 0);
         $info['reg_info_free_places'] = $free_places;
         $waiting = ilGroupWaitingList::lookupListSize($a_obj_id);
+        $info['reg_info_sbscribers'] = $waiting;
 
         if ($show_mem_limit) {
             $limits = array();

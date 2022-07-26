@@ -1437,6 +1437,12 @@ class ilObjCourseGUI extends ilContainerGUI
             $rep_loc->setValue($locator->getHTML());
             $opt->addSubItem($rep_loc);
         }
+
+        global $DIC;
+        if ($DIC->fau()->study()->isCourseForEventWithGroups($this->object->getId())) {
+            $opt->setDisabled(true);
+            $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
+        }
         $reg_proc->addOption($opt);
         // fau.
 
@@ -1467,8 +1473,8 @@ class ilObjCourseGUI extends ilContainerGUI
         // fau: campoSub - currently prevent the subscription
         global $DIC;
         if ($DIC->fau()->study()->isObjectForCampo($this->object->getId())) {
-            $reg_proc->setDisabled(true);
-            $reg_proc->setAlert($this->lng->txt('fau_sub_after_date'));
+//            $reg_proc->setDisabled(true);
+//            $reg_proc->setAlert($this->lng->txt('fau_sub_after_date'));
         }
         // fau.
 

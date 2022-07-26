@@ -7,6 +7,10 @@ use FAU\Study\Data\Term;
 use FAU\SubService;
 use ilLink;
 use ilUtil;
+use FAU\Study\Data\ImportId;
+use ilObjCourse;
+use ilContainer;
+use ilObject;
 
 /**
  * Service for study related data
@@ -62,6 +66,28 @@ class Service extends SubService
         return $this->repo()->isIliasObjIdUsedInCourses($obj_id)
             || $this->repo()->getImportId($obj_id)->isForCampo();
     }
+
+    /**
+     * Check if an object ia an
+     * @param ilContainer $object
+     * @return false|void
+     */
+    public function isCourseForEventWithGroups($obj_id)
+    {
+        if (ilObject::_lookupType($obj_id) !== 'crs') {
+            return;
+        }
+        $importId = ImportId::fromString(ilObject::_lookupImportId($obj_id));
+        if (!empty($importId->getEventId()) && empty($importId->getCourseId())) {
+            // campo event is set but not the campo course (parallel group)
+            return true;
+        }
+        return false;
+    }
+
+
+
+
 
     /**
      * Get the select options for courses of study

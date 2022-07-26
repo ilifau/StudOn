@@ -507,6 +507,60 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         return true;
     }
 
+    // fau: paraSub - fill form with the selection of parallel groups
+    protected function fillGroupSelection()
+    {
+        global $DIC;
+
+        $ref_ids  = $DIC->fau()->sync()->trees()->findChildParallelGroups($this->ref_id);
+        if (empty($ref_ids)) {
+            return;
+        }
+
+        $groups = [];
+        foreach ($ref_ids as $ref_id) {
+            $obj_id = ilObject::_lookupObjId($ref_id);
+            $info = ilObjGroupAccess::lookupRegistrationInfo($obj_id, $ref_id);
+            $props = [];
+
+            foreach (['reg_info_list_prop', 'reg_info_list_prop_limit', 'reg_info_list_prop_status'] as $key) {
+                if (isset($info[$key])) {
+                    $props[] = implode(': ', [$info[$key]['property'],  $info[$key]['value']]);
+                }
+            }
+
+            // should the group be selected
+            $enabled = empty($info['reg_info_mem_limit']) || !empty($info['reg_info_waiting_list'])
+                || (int) $info['reg_info_suscribers'] < (int) $info['reg_infofree_places'];
+
+            $title = ilObject::_lookupTitle($obj_id);
+            $groups[$title . $ref_id] = [
+                'ref_id' => $ref_id,
+                'obj_id' => $obj_id,
+                'title' =>  $title,
+                'desc' => ilObject::_lookupDescription($obj_id),
+                'props' => $props,
+                'enabled' => $enabled
+            ];
+        }
+
+        $head = new ilFormSectionHeaderGUI();
+        $head->setTitle($this->lng->txt('fau_sub_select_groups'));
+        $head->setInfo($this->lng->txt($this->isDirectJoinPossible() ? 'fau_sub_select_groups_direct' : 'fau_sub_select_groups_wait'));
+        $this->form->addItem($head);
+
+        $cbgroup = new ilCheckboxGroupInputGUI($this->lng->txt('fau_sub_select_groups'), 'group_ref_ids');
+        foreach ($groups as $group) {
+            $option = new ilCheckboxOption($group['title'], $group['ref_id']);
+            $option->setInfo(implode('<br />', $props));
+            $option->setDisabled(!$group['enabled']);
+            $cbgroup->addOption($option);
+        }
+        $this->form->addItem($cbgroup);
+
+    }
+    // fau.
+
     /**
      * Add course specific command buttons
      * @return
@@ -575,6 +629,50 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         }
         
         return true;
+    }
+
+    // fau: paraSub - new function to check if a direct join is possible
+    /**
+     * Check if a direct join is possible
+     * Not race condition save - use only for form display but not when processing a request
+     */
+    protected function isDirectJoinPossible()
+    {
+        global $DIC;
+        $ilUser = $DIC['ilUser'];
+
+        if ($this->participants->isAssigned($ilUser->getId())) {
+            return false;
+        }
+        elseif ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) {
+            return false;
+        }
+        elseif ($this->container->inSubscriptionFairTime()) {
+            return false;
+        }
+        elseif ($this->container->isSubscriptionMembershipLimited() && $this->container->getSubscriptionMaxMembers() > 0) {
+
+            $free = max(0, $this->container->getSubscriptionMaxMembers() - $this->participants->getCountMembers());
+            if ($this->isWaitingListActive()) {
+
+                // add to waiting list if all free places have waiting candidates
+                if ($this->getWaitingList()->getCountUsers() >= $free) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            elseif ($free > 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
     }
 
     // fau: heavySub - avoid failures on heavy concurrency

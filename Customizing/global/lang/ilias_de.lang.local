@@ -707,6 +707,10 @@ fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#study_data#:#Studiendaten
 fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
+fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.
+fau#:#fau_sub_select_groups#:#Gruppenauswahl
+fau#:#fau_sub_select_groups_direct#:#Bitte wählen Sie eine Parallelgruppe dieser Lehrveranstaltung aus. Sie werden direkt in diese Gruppe aufgenommen.
+fau#:#fau_sub_select_groups_wait#:#Bitte wählen Sie die für Sie möglichen Parallelgruppen dieser Lehrveranstaltung aus. Sie werden auf deren Wartelisten gesetzt.
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

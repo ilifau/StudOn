@@ -673,6 +673,13 @@ abstract class ilRegistrationGUI
         if ($this->isRegistrationPossible()) {
             $this->fillMaxMembers();
         }
+
+        // fau: paraSub - list the parallel groups for subscribing to the course
+        if ($this->isRegistrationPossible() && $DIC->fau()->study()->isCourseForEventWithGroups($this->obj_id)) {
+            $this->fillGroupSelection();
+        }
+        // fau.
+
         if ($this->isRegistrationPossible()) {
             $this->fillAgreement();
         }
@@ -924,7 +931,7 @@ abstract class ilRegistrationGUI
 
         // send email to admins
         $mmail = new ilMimeMail();
-        $mmail->From(new ilMailMimeSenderUser($ilSetting, $ilUser));
+        $mmail->From(new ilMailMimeSenderUserById($ilSetting, $ilUser->getId()));
         $mmail->To($ilSetting->get('admin_email'));
         $mmail->Subject($subject);
         $mmail->Body($message);
