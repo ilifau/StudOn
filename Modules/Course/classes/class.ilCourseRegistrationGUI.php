@@ -512,7 +512,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     protected function fillGroupSelection()
     {
         global $DIC;
-        if (empty($groups = $DIC->fau()->tools()->ilias()->getParallelGroupsInfos($this->ref_id))) {
+        if (empty($groups = $DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->ref_id))) {
             return;
         }
 
@@ -525,7 +525,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $cb->setRequired(true);
         foreach ($groups as $group) {
             if ($this->isDirectJoinPossible() && $group->isDirectJoinPossible()) {
-                $group = $group->withProperty(new \FAU\Tools\Data\ListProperty(null, $this->lng->txt('fau_sub_direct_possible')));
+                $group = $group->withProperty(new \FAU\Ilias\Data\ListProperty(null, $this->lng->txt('fau_sub_direct_possible')));
             }
             $option = new ilCheckboxOption($group->getTitle(), $group->getRefId());
             $option->setInfo($group->getInfoHtml());
@@ -758,7 +758,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         //////
         $directGroups = [];
         $waitingGroups = [];
-        $groups = $DIC->fau()->tools()->ilias()->getParallelGroupsInfos($this->container->getRefId());
+        $groups = $DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->container->getRefId());
         if ($this->container->hasParallelGroups() && !empty($_POST['group_ref_ids'])) {
             foreach ($_POST['group_ref_ids'] as $ref_id) {
                 foreach ($groups as $group) {

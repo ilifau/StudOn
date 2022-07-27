@@ -21,6 +21,7 @@ class RoleMatching
 {
     protected Container $dic;
     protected ilLanguage $lng;
+    protected \FAU\Ilias\Service $ilias;
     protected \FAU\Org\Service $org;
     protected \FAU\Study\Service $study;
     protected \FAU\Sync\Service $sync;
@@ -36,6 +37,7 @@ class RoleMatching
     {
         $this->dic = $dic;
         $this->lng = $dic->language();
+        $this->ilias = $dic->fau()->ilias();
         $this->org = $dic->fau()->org();
         $this->study = $dic->fau()->study();
         $this->sync = $dic->fau()->sync();
@@ -157,7 +159,7 @@ class RoleMatching
                 $crs_participants = null;
                 $grp_participants = null;
 
-                if (empty($ref_id = $this->tools->ilias()->getIliasRefIdForCourse($course))) {
+                if (empty($ref_id = $this->ilias->objects()->getIliasRefIdForCourse($course))) {
                     continue;
                 }
                 else {

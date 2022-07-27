@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\Tools\Data;
+namespace FAU\ILIAS\Data;
 
 /**
  * Basic info for courses or groups

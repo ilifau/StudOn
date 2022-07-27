@@ -97,7 +97,7 @@ class Search
                         $list[$event->getSortKey()] = $event;
                     }
                     elseif ($type == 'grp') {
-                        $ref_id = $this->dic->fau()->tools()->ilias()->findParentIliasCourse($object->getRefId());
+                        $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($object->getRefId());
                         $obj_id = ilObject::_lookupObjId($ref_id);
                         $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id)->withNested(true);
                         $list[$event->getSortKey()] = $event;

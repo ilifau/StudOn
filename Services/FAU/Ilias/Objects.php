@@ -1,18 +1,18 @@
 <?php
 
-namespace FAU\Tools;
+namespace FAU\Ilias;
 
 use ILIAS\DI\Container;
 use ilObject;
 use FAU\Study\Data\Course;
 use ilObjGroupAccess;
-use FAU\Tools\Data\ContainerInfo;
-use FAU\Tools\Data\ListProperty;
+use FAU\ILIAS\Data\ContainerInfo;
+use FAU\ILIAS\Data\ListProperty;
 
 /**
  * Functions to handle with ILIAS objects
  */
-class Ilias
+class Objects
 {
     protected Container $dic;
 

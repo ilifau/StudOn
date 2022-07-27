@@ -255,7 +255,7 @@ class fauStudySearchGUI extends BaseGUI
                 }
                 if ($event->isNested()) {
                     $list = [];
-                    foreach ($this->dic->fau()->tools()->ilias()->getParallelGroupsInfos($event->getIliasRefId()) as $group) {
+                    foreach ($this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($event->getIliasRefId()) as $group) {
                         $entry = $group->getTitle();
                         if (!empty($group->getInfoHtml())) {
                             $entry .= '<br><small>' . $group->getInfoHtml() . '</small>';

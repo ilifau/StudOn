@@ -10,6 +10,7 @@ abstract class SyncBase
     protected Container $dic;
     protected ilLanguage $lng;
     protected \FAU\Cond\Service $cond;
+    protected \FAU\Ilias\Service $ilias;
     protected \FAU\Org\Service $org;
     protected \FAU\Staging\Service $staging;
     protected \FAU\Study\Service $study;
@@ -33,6 +34,7 @@ abstract class SyncBase
     {
         $this->dic = $dic;
         $this->lng = $dic->language();
+        $this->ilias = $dic->fau()->ilias();
         $this->org = $dic->fau()->org();
         $this->cond = $dic->fau()->cond();
         $this->staging = $dic->fau()->staging();
