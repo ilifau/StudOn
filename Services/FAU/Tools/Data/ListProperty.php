@@ -40,10 +40,10 @@ class ListProperty
      */
     public function getString() : string
     {
-        if (!isset($this->label)) {
+        if (empty($this->label)) {
             return (string) $this->value;
         }
-        elseif (!isset($this->value)) {
+        elseif (empty($this->value)) {
             return (string) $this->label;
         }
         else {

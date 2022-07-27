@@ -99,7 +99,7 @@ class Search
                     elseif ($type == 'grp') {
                         $ref_id = $this->dic->fau()->tools()->ilias()->findParentIliasCourse($object->getRefId());
                         $obj_id = ilObject::_lookupObjId($ref_id);
-                        $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
+                        $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id)->withNested(true);
                         $list[$event->getSortKey()] = $event;
                         break; // only add entry for the parent
                     }

@@ -140,6 +140,23 @@ class ContainerInfo
         return max(0, $this->max_members - $this->members);
     }
 
+    /**
+     * Get the limit of members that should not be exceeded at registration
+     * Zero means that there is no limit
+     */
+    public function getRegistrationLimit() : int
+    {
+        if (!$this->hasMemLimit()) {
+            return 0;
+        }
+        if ($this->hasWaitingList()) {
+            return max(0, $this->max_members - $this->subscribers);
+        }
+        else {
+            return $this->max_members;
+        }
+    }
+
 
     /**
      * Get the properties
@@ -152,23 +169,19 @@ class ContainerInfo
     /**
      * Get a html code describing the properties
      */
-    public function getPropertiesHtml() : string
+    public function getInfoHtml() : string
     {
         $strings = [];
+        if (!empty($this->description)) {
+            $strings[] = (string) $this->description;
+        }
+
         foreach ($this->props as $prop) {
-            $strings = $prop->getString();
+            $strings[] = $prop->getString();
         }
         return implode('<br />', $strings);
     }
 
-    /**
-     * Get if a registration is possible
-     */
-    public function isSubscriptionPossible() : bool
-    {
-        return !$this->hasMemLimit() || $this->hasWaitingList()
-            || $this->getSubscribers() < $this->getFreePlaces();
-    }
 
     /**
      * Get if a registration is possible
@@ -178,6 +191,16 @@ class ContainerInfo
         return !$this->hasMemLimit()
             || $this->getSubscribers() < $this->getFreePlaces();
     }
+
+
+    /**
+     * Get if a registration is possible
+     */
+    public function isSubscriptionPossible() : bool
+    {
+        return $this->isDirectJoinPossible() || $this->hasWaitingList();
+    }
+
 
     /**
      * Add a property

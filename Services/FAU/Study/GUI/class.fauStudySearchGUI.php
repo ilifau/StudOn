@@ -247,13 +247,27 @@ class fauStudySearchGUI extends BaseGUI
             else {
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
                 $title = $event->getIliasTitle();
+                $description = $event->getIliasDescription() . ' ' . $pathGUI->getPath(1, $event->getIliasRefId());
                 $props = [];
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
+                if ($event->isNested()) {
+                    $list = [];
+                    foreach ($this->dic->fau()->tools()->ilias()->getParallelGroupsInfos($event->getIliasRefId()) as $group) {
+                        $entry = $group->getTitle();
+                        if (!empty($group->getInfoHtml())) {
+                            $entry .= '<br><small>' . $group->getInfoHtml() . '</small>';
+                        }
+                        $list[] = '<li>' . $entry . '</li>';
+                    }
+                    if (!empty($list)) {
+                        $description .= '<ul>'. implode('', $list) . '</ul>';
+                    }
+                }
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
-                    ->withDescription((string) $event->getIliasDescription() . ' ' . $pathGUI->getPath(1, $event->getIliasRefId()))
+                    ->withDescription($description)
                     ->withLeadIcon($icon_crs)
                     ->withProperties($props)
                     ->withCheckbox(self::CHECKBOX_NAME, $event->isMoveable() ? $event->getIliasRefId() : null);

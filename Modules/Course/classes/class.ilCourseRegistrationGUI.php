@@ -527,8 +527,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             if ($this->isDirectJoinPossible() && $group->isDirectJoinPossible()) {
                 $group = $group->withProperty(new \FAU\Tools\Data\ListProperty(null, $this->lng->txt('fau_sub_direct_possible')));
             }
-            $option = new ilCheckboxOption($group['title'], $group->getRefId());
-            $option->setInfo($group->getPropertiesHtml());
+            $option = new ilCheckboxOption($group->getTitle(), $group->getRefId());
+            $option->setInfo($group->getInfoHtml());
             $option->setDisabled(!$group->isSubscriptionPossible());
             $cb->addOption($option);
         }
@@ -707,34 +707,24 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
         ////////////////////////////////////////////////////////////////
 
-        ///////
-        // 1. Handle Group Selection
-        //////
-
-        $directGroup = null;
-        $waitingGroups = [];
-
-        if ($this->container->hasParallelGroups() && !empty($_POST['group_ref_ids'])) {
-
-        }
-
-
-
 
         ///////
-        // 2. decide what to do
+        // 1. decide what to do for the course
         // the sequence and nesting of checks is important!
         //////
         if ($this->participants->isAssigned($ilUser->getId())) {
             // user is already a participant
             $action = 'showAlreadyMember';
-        } elseif ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) {
+        }
+        elseif ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) {
             // always add requests to be confirmed to the waiting list (to keep them in the order)
             $action = 'addToWaitingList';
-        } elseif ($this->container->inSubscriptionFairTime()) {
+        }
+        elseif ($this->container->inSubscriptionFairTime()) {
             // always add to the waiting list if in fair time
             $action = 'addToWaitingList';
-        } elseif ($this->container->isSubscriptionMembershipLimited() && $this->container->getSubscriptionMaxMembers() > 0) {
+        }
+        elseif ($this->container->isSubscriptionMembershipLimited() && $this->container->getSubscriptionMaxMembers() > 0) {
             $max = $this->container->getSubscriptionMaxMembers();
             $free = max(0, $max - $this->participants->getCountMembers());
 
@@ -743,40 +733,108 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 if ($waiting >= $free) {
                     // add to waiting list if all free places have waiting candidates
                     $action = 'addToWaitingList';
-                } elseif ($this->participants->addLimited($ilUser->getId(), IL_CRS_MEMBER, $max - $waiting)) {
-                    // try to add the users
-                    // free places are those without waiting candidates
-
-                    // member could be added
-                    $action = 'notifyAdded';
-                } else {
-                    // maximum members reached
-                    $action = 'addToWaitingList';
                 }
-            } elseif ($this->participants->addLimited($ilUser->getId(), IL_CRS_MEMBER, $max)) {
-                // member could be added
-                $action = 'notifyAdded';
-            } elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
-                // may have been added by a parallel request
-                $action = 'showAlreadyMember';
-            } else {
-                // maximum members reached and no list active
-                $action = 'showLimitReached';
+                else {
+                    // jump over the waiting candidates
+                    $action = 'addAsMember';
+                    $courseLimit = $max - $waiting;
+                }
             }
-        } elseif ($this->participants->addLimited($ilUser->getId(), IL_CRS_MEMBER, 0)) {
-            // member could be added
-            $action = 'notifyAdded';
-        } elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
-            // may have been added by a parallel request
-            $action = 'showAlreadyMember';
-        } else {
-            // show an unspecified error
-            $action = 'showGenericFailure';
+            else {
+                // waiting list not active => try a direct join
+                $action = 'addAsMember';
+                $courseLimit = $max;
+            }
+        }
+        else {
+            // no limit => do a direct join
+            $action = 'addAsMember';
+            $courseLimit = 0;
+        }
+
+
+        ///////
+        // 2. Handle Group Selection (may override the course action)
+        //////
+        $directGroups = [];
+        $waitingGroups = [];
+        $groups = $DIC->fau()->tools()->ilias()->getParallelGroupsInfos($this->container->getRefId());
+        if ($this->container->hasParallelGroups() && !empty($_POST['group_ref_ids'])) {
+            foreach ($_POST['group_ref_ids'] as $ref_id) {
+                foreach ($groups as $group) {
+                    if ((int) $ref_id == $group->getRefId()) {
+                        if ($group->isSubscriptionPossible()) {
+                            $waitingGroups[] = $group;
+                        }
+                        if ($group->isDirectJoinPossible() && $this->isDirectJoinPossible()) {
+                            $directGroups[] = $group;
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($waitingGroups) && empty($directGroups)) {
+            // force adding to the waiting list if no selected group can be directly joined
+            $action = 'addToWaitingList';
         }
 
 
         /////
-        // 3. perform the adding to the waiting list (this may set a new action)
+        // 3. Try a direct join to the course and avoid race conditions
+        ////
+        if ($action == 'addAsMember') {
+
+            if ($this->participants->addLimited($ilUser->getId(), IL_CRS_MEMBER, $courseLimit)) {
+                // member could be added
+                $action = 'notifyAdded';
+            }
+            elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
+                // may have been added by a parallel request
+                $action = 'showAlreadyMember';
+            }
+            elseif ($this->isWaitingListActive()) {
+                // direct join failed but subscription is possible
+                $action = 'addToWaitingList';
+            }
+            else {
+                // maximum members reached and no list active
+                $action = 'showLimitReached';
+            }
+        }
+
+
+        /////
+        // 4. Try a direct join to a parallel group and avoid race conditions
+        ////
+        if ($action == 'notifyAdded' && !empty($directGroups)) {
+
+            $addedGroup = null;
+            foreach ($directGroups as $group) {
+                $groupParticipants = new ilGroupParticipants($group->getObjId());
+                if ($groupParticipants->addLimited($ilUser->getId(), IL_GRP_MEMBER, $group->getRegistrationLimit())) {
+                    $addedGroup = $group;
+                    break;
+                }
+                elseif ($rbacreview->isAssigned($ilUser->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER))) {
+                    $action = 'showAlreadyMember';
+                    break;
+                }
+            }
+            // handle failed direct adding to a group - revert the course join
+            if (empty($addedGroup)) {
+                $this->participants->delete($ilUser->getId());
+                if (!empty($waitingGroups)) {
+                    $action = 'addToWaitingList';
+                }
+                else {
+                    $action = 'showLimitReached';
+                }
+            }
+        }
+
+
+        /////
+        // 5. perform the adding to the waiting list (this may set a new action)
         ////
         if ($action == 'addToWaitingList') {
             $to_confirm = ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) ?
@@ -791,6 +849,16 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                     // maximum members reached
                     $action = 'notifyAddedToWaitingList';
                 }
+
+                //add to the waiting lists of the selected groups
+                foreach ($waitingGroups as $group) {
+                    $groupParticipants = new ilGroupParticipants($group->getObjId());
+                    $groupList = new ilGroupWaitingList($group->getObjId());
+                    $groupList->addWithChecks($ilUser->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER),
+                         $_POST['subject'], $to_confirm, $sub_time);
+                }
+
+
             } elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
                 $action = 'showAlreadyMember';
             } elseif (ilWaitingList::_isOnList($ilUser->getId(), $this->container->getId())) {
@@ -804,7 +872,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
 
         /////
-        // 4. perform the other actions
+        // 6. perform the other actions
         ////
 
         // get the link to the upper container

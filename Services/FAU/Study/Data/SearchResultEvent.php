@@ -28,6 +28,7 @@ class SearchResultEvent extends RecordData
     protected ?string $ilias_description = null;
     protected bool $visible = false;
     protected bool $moveable = false;
+    protected bool $nested = false;
 
     public function __construct (
         int $event_id,
@@ -153,6 +154,15 @@ class SearchResultEvent extends RecordData
         return $this->moveable;
     }
 
+
+    /**
+     * Object is an ilias course with nested parallel groups
+     */
+    public function isNested() : bool
+    {
+        return $this->nested;
+    }
+
     /**
      * @param ?int $ilias_ref_id
      * @return SearchResultEvent
@@ -228,6 +238,17 @@ class SearchResultEvent extends RecordData
     {
         $clone = clone $this;
         $clone->moveable = $moveable;
+        return $clone;
+    }
+
+    /**
+     * @param bool $nested
+     * @return SearchResultEvent
+     */
+    public function withNested(bool $nested) : SearchResultEvent
+    {
+        $clone = clone $this;
+        $clone->nested = $nested;
         return $clone;
     }
 
