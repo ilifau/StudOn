@@ -24,6 +24,7 @@ class RoleMatching
     protected \FAU\Org\Service $org;
     protected \FAU\Study\Service $study;
     protected \FAU\Sync\Service $sync;
+    protected \FAU\Tools\Service $tools;
     protected \FAU\User\Service $user;
     protected \FAU\Tools\Settings $settings;
 
@@ -38,6 +39,7 @@ class RoleMatching
         $this->org = $dic->fau()->org();
         $this->study = $dic->fau()->study();
         $this->sync = $dic->fau()->sync();
+        $this->tools = $dic->fau()->tools();
         $this->user = $dic->fau()->user();
         $this->settings = $dic->fau()->tools()->settings();
     }
@@ -155,7 +157,7 @@ class RoleMatching
                 $crs_participants = null;
                 $grp_participants = null;
 
-                if (empty($ref_id = $this->sync->trees()->getIliasRefIdForCourse($course))) {
+                if (empty($ref_id = $this->tools->ilias()->getIliasRefIdForCourse($course))) {
                     continue;
                 }
                 else {

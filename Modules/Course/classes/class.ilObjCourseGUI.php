@@ -1387,11 +1387,16 @@ class ilObjCourseGUI extends ilContainerGUI
         
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('crs_reg'));
+        // fau: paraSub - add info about parallel group subscription
+        if ($this->object->hasParallelGroups()) {
+            $section->setInfo($this->lng->txt('fau_sub_group_by_course_info'));
+        }
+        // fau.
         $form->addItem($section);
         
         $reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'), 'subscription_type');
         // fau: campusSub - respect also the subscription limitation type for my campus
-        // this us used in studon versions up to 4.3
+        // this is used in studon versions up to 4.3
         if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
             $reg_proc->setValue(IL_CRS_SUBSCRIPTION_MYCAMPUS);
         } else {
@@ -1438,8 +1443,8 @@ class ilObjCourseGUI extends ilContainerGUI
             $opt->addSubItem($rep_loc);
         }
 
-        global $DIC;
-        if ($DIC->fau()->study()->isCourseForEventWithGroups($this->object->getId())) {
+        // fau: paraSub disable combi subscription for courses with parallel groups
+        if ($this->object->hasParallelGroups()) {
             $opt->setDisabled(true);
             $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
         }
@@ -1470,18 +1475,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $opt->setInfo($this->lng->txt('crs_registration_deactivated'));
         $reg_proc->addOption($opt);
 
-        // fau: campoSub - currently prevent the subscription
-        global $DIC;
-        if ($DIC->fau()->study()->isObjectForCampo($this->object->getId())) {
-//            $reg_proc->setDisabled(true);
-//            $reg_proc->setAlert($this->lng->txt('fau_sub_after_date'));
-        }
-        // fau.
-
         $form->addItem($reg_proc);
 
         // fau: courseGroupRegCodes - customize use of registration codes
-
         if (ilCust::get('crs_enable_reg_codes')) {
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'), 'reg_code_enabled');

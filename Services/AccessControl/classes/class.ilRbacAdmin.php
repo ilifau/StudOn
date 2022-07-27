@@ -306,6 +306,8 @@ class ilRbacAdmin
             return false;
         }
 
+        $GLOBALS['DIC']['rbacreview']->setAssignedCacheEntry($a_role_id, $a_usr_id, true);
+
         include_once('Services/LDAP/classes/class.ilLDAPRoleGroupMapping.php');
         $mapping = ilLDAPRoleGroupMapping::_getInstance();
         $mapping->assign($a_role_id, $a_usr_id);

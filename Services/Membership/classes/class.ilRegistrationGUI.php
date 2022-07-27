@@ -36,6 +36,11 @@ abstract class ilRegistrationGUI
 {
     protected $privacy = null;
 
+    /**
+     * fau: paraSub - type hint
+     * @var ilContainer $container
+     * fau.
+     */
     protected $container = null;
     protected $ref_id;
     protected $obj_id;
@@ -675,7 +680,7 @@ abstract class ilRegistrationGUI
         }
 
         // fau: paraSub - list the parallel groups for subscribing to the course
-        if ($this->isRegistrationPossible() && $DIC->fau()->study()->isCourseForEventWithGroups($this->obj_id)) {
+        if ($this->isRegistrationPossible() && $this->container->hasParallelGroups()) {
             $this->fillGroupSelection();
         }
         // fau.

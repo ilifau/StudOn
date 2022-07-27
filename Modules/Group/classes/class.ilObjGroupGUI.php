@@ -639,9 +639,13 @@ class ilObjGroupGUI extends ilContainerGUI
             $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
             $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
             $this->object->setGroupType(ilUtil::stripSlashes($form->getInput('grp_type')));
-            $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
-            $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
-            $this->object->enableUnlimitedRegistration((bool) !$form->getInput('reg_limit_time'));
+            // fau: paraSub - don't set registration type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $this->object->setRegistrationType(ilUtil::stripSlashes($form->getInput('registration_type')));
+                $this->object->setPassword(ilUtil::stripSlashes($form->getInput('password')));
+                $this->object->enableUnlimitedRegistration((bool) !$form->getInput('reg_limit_time'));
+            }
+            // fau.
             $this->object->enableMembershipLimitation((bool) $form->getInput('registration_membership_limited'));
             $this->object->setMinMembers((int) $form->getInput('registration_min_members'));
             $this->object->setMaxMembers((int) $form->getInput('registration_max_members'));
@@ -668,51 +672,60 @@ class ilObjGroupGUI extends ilContainerGUI
                 $grp_period->getEnd()
             );
 
-            $reg = $form->getItemByPostVar("reg");
-            if ($reg->getStart() instanceof ilDateTime && $reg->getEnd() instanceof ilDateTime) {
-                $this->object->enableUnlimitedRegistration(false);
-            } else {
-                $this->object->enableUnlimitedRegistration(true);
-            }
+            // fau: paraSub - don't set registration for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $reg = $form->getItemByPostVar("reg");
+                if ($reg->getStart() instanceof ilDateTime && $reg->getEnd() instanceof ilDateTime) {
+                    $this->object->enableUnlimitedRegistration(false);
+                } else {
+                    $this->object->enableUnlimitedRegistration(true);
+                }
 
-            $this->object->setRegistrationStart($reg->getStart());
-            $this->object->setRegistrationEnd($reg->getEnd());
+                $this->object->setRegistrationStart($reg->getStart());
+                $this->object->setRegistrationEnd($reg->getEnd());
+            }
+            // fau.
 
             $cancel_end = $form->getItemByPostVar("cancel_end");
             $this->object->setCancellationEnd($cancel_end->getDate());
+
+
             // fau: fairSub - save the fair period and waiting list options
             $old_subscription_fair = $this->object->getSubscriptionFair();
-            // check a deactivation of the fair period done in db
-            if ($old_subscription_fair >= 0) {
-                /** @var ilDateTime $sub_fair */
-                $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
-                $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
-            }
+            // fau: paraSub - don't set waiting list options in parallel groups
+            if (!$this->object->isParallelGroup()) {
+                // check a deactivation of the fair period done in db
+                if ($old_subscription_fair >= 0) {
+                    /** @var ilDateTime $sub_fair */
+                    $sub_fair = $form->getItemByPostVar("subscription_fair")->getDate();
+                    $this->object->setSubscriptionFair(isset($sub_fair) ? $sub_fair->get(IL_CAL_UNIX) : null);
+                }
 
-            switch ((string) $_POST['waiting_list']) {
-                case 'auto':
-                    $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(true);
-                    break;
+                switch ((string) $_POST['waiting_list']) {
+                    case 'auto':
+                        $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(true);
+                        break;
 
-                case 'auto_manu':
-                    $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
+                    case 'auto_manu':
+                        $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
 
-                case 'manu':
-                    $this->object->setSubscriptionAutoFill(false);
-                    $this->object->enableWaitingList(true);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
+                    case 'manu':
+                        $this->object->setSubscriptionAutoFill(false);
+                        $this->object->enableWaitingList(true);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
 
-                default:
-                    $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
-                    $this->object->enableWaitingList(false);
-                    $this->object->setWaitingListAutoFill(false);
-                    break;
+                    default:
+                        $this->object->setSubscriptionAutoFill($this->object->getSubscriptionFair() >= 0);
+                        $this->object->enableWaitingList(false);
+                        $this->object->setWaitingListAutoFill(false);
+                        break;
+                }
             }
             // fau.
 
@@ -1794,6 +1807,13 @@ class ilObjGroupGUI extends ilContainerGUI
             // Group registration ############################################################
             $pres = new ilFormSectionHeaderGUI();
             $pres->setTitle($this->lng->txt('grp_setting_header_registration'));
+            // fau: paraSub - disable the reg type for parallel groups
+            if ($this->object->isParallelGroup()) {
+                // show info below form section header
+                $pres->setInfo($this->lng->txt('fau_sub_group_by_course_group_settings'));
+            }
+            // fau.
+
             $form->addItem($pres);
 
             // Registration type
@@ -1842,20 +1862,19 @@ class ilObjGroupGUI extends ilContainerGUI
             $opt_deact = new ilRadioOption($this->lng->txt('grp_reg_no_selfreg'), GRP_REGISTRATION_DEACTIVATED, $this->lng->txt('grp_reg_disabled_info'));
             $reg_type->addOption($opt_deact);
 
-            // fau: courseGroupRegCodes - customize use of registration codes
-            if (ilCust::get('grp_enable_reg_codes')) {
-            // Registration codes
-            $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
-            $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
-            $reg_code->setValue(1);
-            $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
+            // fau: paraSub - disable the reg type for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($reg_type);
             }
-            // fau.
-            $form->addItem($reg_type);
 
             // fau: courseGroupRegCodes - customize use of registration codes
             if (ilCust::get('grp_enable_reg_codes')) {
                 // Registration codes
+                $reg_code = new ilCheckboxInputGUI($this->lng->txt('grp_reg_code'), 'reg_code_enabled');
+                $reg_code->setChecked($this->object->isRegistrationAccessCodeEnabled());
+                $reg_code->setValue(1);
+                $reg_code->setInfo($this->lng->txt('grp_reg_code_enabled_info'));
+
                 if (!$this->object->getRegistrationAccessCode()) {
                     include_once './Services/Membership/classes/class.ilMembershipRegistrationCodeUtils.php';
                     $this->object->setRegistrationAccessCode(ilMembershipRegistrationCodeUtils::generateCode());
@@ -1880,7 +1899,11 @@ class ilObjGroupGUI extends ilContainerGUI
             $dur->setShowTime(true);
             $dur->setStart($this->object->getRegistrationStart());
             $dur->setEnd($this->object->getRegistrationEnd());
-            $form->addItem($dur);
+            // fau: paraSub disable setting of time limit for parallel groups
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($dur);
+            }
+            // fau.
             
             // cancellation limit
             $cancel = new ilDateTimeInputGUI($this->lng->txt('grp_cancellation_end'), 'cancel_end');
@@ -1945,7 +1968,10 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
             $fair_date->setInfo($fair_date_info . (ilCust::deactivateFairTimeIsAllowed() ? $fair_date_link : ''));
-            $lim->addSubItem($fair_date);
+
+            if (!$this->object->isParallelGroup()) {
+                $lim->addSubItem($fair_date);
+            }
 
             $wait = new ilRadioGroupInputGUI($this->lng->txt('grp_waiting_list'), 'waiting_list');
             foreach ($wait_options as $postvalue => $langvar) {
@@ -1964,7 +1990,9 @@ class ilObjGroupGUI extends ilContainerGUI
                 $wait->setValue('no_list');
             }
 
-            $lim->addSubItem($wait);
+            if (!$this->object->isParallelGroup()) {
+                $lim->addSubItem($wait);
+            }
             // fau.
 
             $form->addItem($lim);
@@ -1984,7 +2012,10 @@ class ilObjGroupGUI extends ilContainerGUI
             }
             $studycond = new ilCustomInputGUI($this->lng->txt('studycond_condition'));
             $studycond->setHtml($stpl->get());
-            $form->addItem($studycond);
+
+            if (!$this->object->isParallelGroup()) {
+                $form->addItem($studycond);
+            }
             // fau.
 
             // Group presentation

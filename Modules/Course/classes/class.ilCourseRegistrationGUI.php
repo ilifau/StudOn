@@ -507,41 +507,13 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         return true;
     }
 
+
     // fau: paraSub - fill form with the selection of parallel groups
     protected function fillGroupSelection()
     {
         global $DIC;
-
-        $ref_ids  = $DIC->fau()->sync()->trees()->findChildParallelGroups($this->ref_id);
-        if (empty($ref_ids)) {
+        if (empty($groups = $DIC->fau()->tools()->ilias()->getParallelGroupsInfos($this->ref_id))) {
             return;
-        }
-
-        $groups = [];
-        foreach ($ref_ids as $ref_id) {
-            $obj_id = ilObject::_lookupObjId($ref_id);
-            $info = ilObjGroupAccess::lookupRegistrationInfo($obj_id, $ref_id);
-            $props = [];
-
-            foreach (['reg_info_list_prop', 'reg_info_list_prop_limit', 'reg_info_list_prop_status'] as $key) {
-                if (isset($info[$key])) {
-                    $props[] = implode(': ', [$info[$key]['property'],  $info[$key]['value']]);
-                }
-            }
-
-            // should the group be selected
-            $enabled = empty($info['reg_info_mem_limit']) || !empty($info['reg_info_waiting_list'])
-                || (int) $info['reg_info_suscribers'] < (int) $info['reg_infofree_places'];
-
-            $title = ilObject::_lookupTitle($obj_id);
-            $groups[$title . $ref_id] = [
-                'ref_id' => $ref_id,
-                'obj_id' => $obj_id,
-                'title' =>  $title,
-                'desc' => ilObject::_lookupDescription($obj_id),
-                'props' => $props,
-                'enabled' => $enabled
-            ];
         }
 
         $head = new ilFormSectionHeaderGUI();
@@ -549,14 +521,18 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $head->setInfo($this->lng->txt($this->isDirectJoinPossible() ? 'fau_sub_select_groups_direct' : 'fau_sub_select_groups_wait'));
         $this->form->addItem($head);
 
-        $cbgroup = new ilCheckboxGroupInputGUI($this->lng->txt('fau_sub_select_groups'), 'group_ref_ids');
+        $cb = new ilCheckboxGroupInputGUI($this->lng->txt('fau_sub_select_groups'), 'group_ref_ids');
+        $cb->setRequired(true);
         foreach ($groups as $group) {
-            $option = new ilCheckboxOption($group['title'], $group['ref_id']);
-            $option->setInfo(implode('<br />', $props));
-            $option->setDisabled(!$group['enabled']);
-            $cbgroup->addOption($option);
+            if ($this->isDirectJoinPossible() && $group->isDirectJoinPossible()) {
+                $group = $group->withProperty(new \FAU\Tools\Data\ListProperty(null, $this->lng->txt('fau_sub_direct_possible')));
+            }
+            $option = new ilCheckboxOption($group['title'], $group->getRefId());
+            $option->setInfo($group->getPropertiesHtml());
+            $option->setDisabled(!$group->isSubscriptionPossible());
+            $cb->addOption($option);
         }
-        $this->form->addItem($cbgroup);
+        $this->form->addItem($cb);
 
     }
     // fau.
@@ -678,6 +654,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     // fau: heavySub - avoid failures on heavy concurrency
     // fau: fairSub - add subscription requests and requests in fair time to waiting list
     // fau: studyCond - use condition based subscription type
+    // fau: paraSub - handle subscription to parallel groups
     /**
      * add user
      *
@@ -730,9 +707,22 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
         ////////////////////////////////////////////////////////////////
 
+        ///////
+        // 1. Handle Group Selection
+        //////
+
+        $directGroup = null;
+        $waitingGroups = [];
+
+        if ($this->container->hasParallelGroups() && !empty($_POST['group_ref_ids'])) {
+
+        }
+
+
+
 
         ///////
-        // first decide what to do
+        // 2. decide what to do
         // the sequence and nesting of checks is important!
         //////
         if ($this->participants->isAssigned($ilUser->getId())) {
@@ -786,7 +776,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
 
         /////
-        // second perform the adding to the waiting list (this may set a new action)
+        // 3. perform the adding to the waiting list (this may set a new action)
         ////
         if ($action == 'addToWaitingList') {
             $to_confirm = ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) ?
@@ -814,7 +804,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
 
         /////
-        // third perform the other actions
+        // 4. perform the other actions
         ////
 
         // get the link to the upper container

@@ -68,28 +68,6 @@ class Service extends SubService
     }
 
     /**
-     * Check if an object ia an
-     * @param ilContainer $object
-     * @return false|void
-     */
-    public function isCourseForEventWithGroups($obj_id)
-    {
-        if (ilObject::_lookupType($obj_id) !== 'crs') {
-            return;
-        }
-        $importId = ImportId::fromString(ilObject::_lookupImportId($obj_id));
-        if (!empty($importId->getEventId()) && empty($importId->getCourseId())) {
-            // campo event is set but not the campo course (parallel group)
-            return true;
-        }
-        return false;
-    }
-
-
-
-
-
-    /**
      * Get the select options for courses of study
      */
     public function getCourseOfStudySelectOptions(?int $emptyId = null) : array
@@ -439,7 +417,7 @@ class Service extends SubService
                 $course_id = (int) $parts[2];
 
                 if (!empty($course = $this->repo()->getCourse($course_id))) {
-                    if (!empty($ref_id = $this->dic->fau()->sync()->trees()->getIliasRefIdForCourse($course))) {
+                    if (!empty($ref_id = $this->dic->fau()->tools()->ilias()->getIliasRefIdForCourse($course))) {
                         $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                     }
                 }

@@ -336,19 +336,19 @@ class ilObjGroupAccess extends ilObjectAccess
 
         $registration_possible = $info['reg_info_enabled'];
 
+        // fau: paraSub - show info about registration via course
+        // fau: fairSub - add info about fair period
+        if ($DIC->fau()->study()->isObjectForCampo($a_obj_id)) {
+            $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg');
+            $info['reg_info_list_prop']['value'] = $lng->txt('fau_sub_group_by_course_list_info');
+        }
         // Limited registration (added $registration_possible, see bug 0010157)
-        if (!$info['reg_info_unlimited'] && $registration_possible) {
-            // fau: fairSub - add info about fair period
+        elseif (!$info['reg_info_unlimited'] && $registration_possible) {
             $fair_suffix = '';
             if ($info['reg_info_mem_limit'] > 0 && $info['reg_info_max_members'] > 0) {
                 if ($info['reg_info_sub_fair'] < 0) {
                     $fair_suffix = " - <b>" . $lng->txt('sub_fair_inactive_short') . "</b>";
                 }
-                //				elseif (time() < $info['reg_info_sub_fair'])
-//				{
-//					$fair_suffix = " <br />".$lng->txt('sub_fair_date'). ': '
-//						. ilDatePresentation::formatDate(new ilDateTime($info['reg_info_sub_fair'],IL_CAL_UNIX));
-//				}
             }
 
             $dt = new ilDateTime(time(), IL_CAL_UNIX);
@@ -363,7 +363,7 @@ class ilObjGroupAccess extends ilObjectAccess
                 $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_period');
                 $info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
             }
-            // fau.
+
         } else {
             // added !$registration_possible, see bug 0010157
             if (!$registration_possible) {
@@ -372,6 +372,7 @@ class ilObjGroupAccess extends ilObjectAccess
                 $info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
             }
         }
+        // fau.
 
         // fau: showMemLimit - get info about membership limitations and subscription status
         // fau: fairSub - always query for the free places - info is also used on subscription page
@@ -394,6 +395,9 @@ class ilObjGroupAccess extends ilObjectAccess
 
         $max_members = $info['reg_info_max_members'];
         $members = $partObj->getNumberOfMembers();
+        // fau: paraSub - add members as info
+        $info['reg_info_members'] = $members;
+        // fau.
         $free_places = max($max_members - $members, 0);
         $info['reg_info_free_places'] = $free_places;
         $waiting = ilGroupWaitingList::lookupListSize($a_obj_id);

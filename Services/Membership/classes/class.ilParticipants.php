@@ -1128,7 +1128,10 @@ abstract class ilParticipants
      */
     public function addLimited($a_usr_id, $a_role, $a_max)
     {
-        global $rbacadmin,$ilLog,$ilAppEventHandler;
+        global $DIC;
+
+        $rbacadmin = $DIC->rbac()->admin();
+        $ilAppEventHandler = $DIC->event();
 
         if ($this->isAssigned($a_usr_id)) {
             return null;
@@ -1138,15 +1141,11 @@ abstract class ilParticipants
 
         switch ($a_role) {
             case IL_CRS_MEMBER:
-                $this->members[] = $a_usr_id;
-                break;
-
             case IL_GRP_MEMBER:
                 $this->members[] = $a_usr_id;
                 break;
         }
         $this->participants[] = $a_usr_id;
-        $this->addRecommendation($a_usr_id);
 
         // Delete subscription request
         $this->deleteSubscriber($a_usr_id);
@@ -1154,11 +1153,14 @@ abstract class ilParticipants
         include_once './Services/Membership/classes/class.ilWaitingList.php';
         ilWaitingList::deleteUserEntry($a_usr_id, $this->obj_id);
 
-        if ($this->type == 'crs') {
-            // Add event: used for ecs accounts
-            $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addParticipant');
-            $ilAppEventHandler->raise("Modules/Course", "addParticipant", array('usr_id' => $a_usr_id,'role_id' => $a_role, 'obj_id' =>  $this->obj_id));
-        }
+        $ilAppEventHandler->raise(
+            $this->getComponent(),
+            "addParticipant",
+            array(
+                'obj_id' => $this->obj_id,
+                'usr_id' => $a_usr_id,
+                'role_id' => $a_role)
+        );
         return true;
     }
     // fau.

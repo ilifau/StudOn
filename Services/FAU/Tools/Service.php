@@ -10,99 +10,54 @@ use FAU\SubService;
  */
 class Service extends SubService
 {
+    protected Repository $repository;
+    protected Ilias $ilias;
+    protected Convert $convert;
+    protected Groupings $groupings;
+
     /**
-     * Quote a text for Export in Excel or CSV
+     * Get the tools repository
      */
-    public function quoteForExport(?string $text) : string
+    public function repo() : Repository
     {
-        $text = (string) $text;
-        $text = str_replace('"', '', $text);
-        $text = str_replace("'", '', $text);
-        $text = str_replace("'", '', $text);
-        $text = str_replace(",", ' ', $text);
-        $text = str_replace(";", ' ', $text);
-        $text = str_replace("\n", ' / ', $text);
-
-        return $text;
+        if(!isset($this->repository)) {
+            $this->repository = new Repository($this->dic->database(), $this->dic->logger()->fau());
+        }
+        return $this->repository;
     }
 
-
     /**
-     * Convert a unix timestamp to a string timestamp stored in the database
-     * Respect the time zone of ILIAS
+     * Get the functions to handle ILIAS objects
      */
-    public function unixToDbTimestamp(?int $unix_timestamp): ?string {
-
-        if (empty($unix_timestamp)) {
-            return null;
-        }
-
-        try {
-            $datetime = new \ilDateTime($unix_timestamp, IL_CAL_UNIX);
-            return $datetime->get(IL_CAL_DATETIME);
-        }
-        catch (Throwable $throwable) {
-            return null;
-        }
-    }
-
-
-    /**
-     * Convert a string timestamp stored in the database to a unix timestamp
-     * Respect the time zone of ILIAS
-     */
-    public function dbTimestampToUnix(?string $db_timestamp): ?int
+    public function ilias() : Ilias
     {
-        if (empty($db_timestamp)) {
-            return null;
+        if(!isset($this->ilias)) {
+            $this->ilias = new Ilias($this->dic);
         }
-
-        try {
-            $datetime = new \ilDateTime($db_timestamp, IL_CAL_DATETIME);
-            return $datetime->get(IL_CAL_UNIX);
-        }
-        catch (Throwable $throwable) {
-            return null;
-        }
+        return $this->ilias;
     }
 
     /**
-     * Convert a unix timestamp to a string timestamp stored in the database
-     * Respect the time zone of ILIAS
+     * Get the functions to handle groupings of ilias courses or groups
      */
-    public function unixToDbDate(?int $unix_timestamp): ?string {
-
-        if (empty($unix_timestamp)) {
-            return null;
-        }
-
-        try {
-            $date = new \ilDate($unix_timestamp, IL_CAL_UNIX);
-            return $date->get(IL_CAL_DATE);
-        }
-        catch (Throwable $throwable) {
-            return null;
-        }
-    }
-
-
-    /**
-     * Convert a string timestamp stored in the database to a unix timestamp
-     * Respect the time zone of ILIAS
-     */
-    public function dbDateToUnix(?string $db_date): ?int
+    public function groupings() : Groupings
     {
-        if (empty($db_date)) {
-            return null;
+        if (!isset($this->groupings)) {
+            $this->groupings = new Groupings($this->dic);
         }
+        return $this->groupings;
+    }
 
-        try {
-            $date = new \ilDate($db_date, IL_CAL_DATE);
-            return $date->get(IL_CAL_UNIX);
+
+    /**
+     * Get the functions to convert data
+     */
+    public function convert() : Convert
+    {
+        if(!isset($this->convert)) {
+            $this->con = new Convert($this->dic);
         }
-        catch (Throwable $throwable) {
-            return null;
-        }
+        return $this->convert;
     }
 
 

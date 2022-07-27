@@ -160,67 +160,6 @@ class TreeMatching
         return $found;
     }
 
-    /**
-     * Get the reference to the ilias course or group for a course
-     */
-    public function getIliasRefIdForCourse(Course $course) : ?int
-    {
-        if (!empty($course->getIliasObjId())) {
-            foreach (ilObject::_getAllReferences($course->getIliasObjId()) as $ref_id) {
-                if (!ilObject::_isInTrash($ref_id)) {
-                    return $ref_id;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Find the parent course of a group
-     */
-    public function findParentIliasCourse(int $ref_id) : ?int
-    {
-        foreach ($this->dic->repositoryTree()->getPathId($ref_id) as $path_id) {
-            if (ilObject::_lookupType($path_id, true) == 'crs') {
-                return $path_id;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Find parallel groups that are enclosed in the course
-     */
-    public function findChildParallelGroups(int $ref_id) : array
-    {
-        $ref_ids = [];
-        /** @noinspection PhpParamsInspection */
-        foreach ($this->dic->repositoryTree()->getChildIds($ref_id) as $child_id) {
-            if (ilObject::_lookupType($child_id, true) == 'grp' && !ilObject::_isInTrash($child_id)) {
-                $obj_id = ilObject::_lookupObjId($child_id);
-                if ($this->dic->fau()->study()->isObjectForCampo($obj_id)) {
-                    $ref_ids[] = $child_id;
-                }
-            }
-        }
-        return $ref_ids;
-    }
-    
-
-    /**
-     * @param int $ref_id
-     * @return bool
-     */
-    public function hasUndeletedContents(int $ref_id) : bool
-    {
-        /** @noinspection PhpParamsInspection */
-        foreach ($this->dic->repositoryTree()->getChildIds($ref_id) as $child_id) {
-            if (!ilObject::_isInTrash($child_id)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Create the category hat should get new courses of a term

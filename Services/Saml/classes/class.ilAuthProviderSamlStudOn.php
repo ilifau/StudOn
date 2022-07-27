@@ -141,7 +141,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         if (ilCust::get('shib_create_limited')) {
             $userObj->setTimeLimitUnlimited(0);
             $userObj->setTimeLimitFrom(time() - 10);
-            $userObj->setTimeLimitUntil($DIC->fau()->tools()->dbDateToUnix(ilCust::get('shib_create_limited')));
+            $userObj->setTimeLimitUntil($DIC->fau()->tools()->convert()->dbDateToUnix(ilCust::get('shib_create_limited')));
         } else {
             $userObj->setTimeLimitUnlimited(1);
             $userObj->setTimeLimitFrom(time());

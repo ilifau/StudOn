@@ -154,7 +154,7 @@ class SyncWithIlias extends SyncBase
                 foreach ($this->study->repo()->getCoursesOfEventInTerm($event->getEventId(), $term, false) as $other) {
                     if ($other->getCourseId() != $course->getCourseId()
                         && !$other->isDeleted()
-                        && !empty($other_ref_id = $this->sync->trees()->getIliasRefIdForCourse($other))) {
+                        && !empty($other_ref_id = $this->tools->ilias()->getIliasRefIdForCourse($other))) {
                         $other_refs[] = $other_ref_id;
                         switch (ilObject::_lookupType($other_ref_id, true)) {
                             case 'crs':
@@ -214,12 +214,12 @@ class SyncWithIlias extends SyncBase
 
             // create or update the membership limitation
             if (!empty($other_refs)) {
-               if (!empty($grouping = $this->sync->groupings()->findCommonGrouping($other_refs))) {
-                  $this->sync->groupings()->addReferenceToGrouping($ref_id, $grouping);
+               if (!empty($grouping = $this->tools->groupings()->findCommonGrouping($other_refs))) {
+                  $this->tools->groupings()->addReferenceToGrouping($ref_id, $grouping);
                }
                else {
                    array_push($other_refs, $ref_id);
-                   $this->sync->groupings()->createCommonGrouping($other_refs, $event->getTitle());
+                   $this->tools->groupings()->createCommonGrouping($other_refs, $event->getTitle());
                }
             }
 
@@ -254,7 +254,7 @@ class SyncWithIlias extends SyncBase
             $event = $this->study->repo()->getEvent($course->getEventId());
 
             // get the reference to the ilias course or group
-            $ref_id = $this->sync->trees()->getIliasRefIdForCourse($course);
+            $ref_id = $this->tools->ilias()->getIliasRefIdForCourse($course);
             if (empty($ref_id)) {
                 if ($course->isDeleted()) {
                     $this->study->repo()->delete($course);
@@ -274,7 +274,7 @@ class SyncWithIlias extends SyncBase
 
                 case 'grp':
                     $action = 'update_group_in_course';
-                    if (empty($parent_ref = $this->sync->trees()->findParentIliasCourse($ref_id))) {
+                    if (empty($parent_ref = $this->tools->ilias()->findParentIliasCourse($ref_id))) {
                         $this->study->repo()->save($course->withIliasProblem("Parent ILIAS course of group not found!"));
                         continue 2;
                     }
@@ -397,8 +397,8 @@ class SyncWithIlias extends SyncBase
         $object->setImportId(null);
 
         if ($this->isObjectManuallyChanged($object)
-            || $this->dic->fau()->sync()->trees()->hasUndeletedContents($ref_id)
-            || $this->dic->fau()->sync()->roles()->hasLocalMemberChanges($ref_id)
+            || $this->tools->ilias()->hasUndeletedContents($ref_id)
+            || $this->sync->roles()->hasLocalMemberChanges($ref_id)
         )
         {
             // object is already touched by an admin => just save the info
@@ -415,11 +415,11 @@ class SyncWithIlias extends SyncBase
 
                 // delete the parent course of a group if it is empty and not yet touched
                 if ($object->getType() == 'grp'
-                    && !empty($parent_ref = $this->dic->fau()->sync()->trees()->findParentIliasCourse($ref_id))
+                    && !empty($parent_ref = $this->tools->ilias()->findParentIliasCourse($ref_id))
                 ) {
                     $parent = new ilObjCourse($parent_ref);
                     if (!$this->isObjectManuallyChanged($parent)
-                        && !$this->dic->fau()->sync()->trees()->hasUndeletedContents($parent_ref))
+                        && !$this->tools->ilias()->hasUndeletedContents($parent_ref))
                     {
                         ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($parent_ref), [$parent_ref]);
                     }
@@ -558,8 +558,8 @@ class SyncWithIlias extends SyncBase
      */
     protected function isObjectManuallyChanged(ilObject $object) : bool
     {
-        $created = (int) $this->tools->dbTimestampToUnix($object->getCreateDate());
-        $updated = (int) $this->tools->dbTimestampToUnix($object->getLastUpdateDate());
+        $created = (int) $this->tools->convert()->dbTimestampToUnix($object->getCreateDate());
+        $updated = (int) $this->tools->convert()->dbTimestampToUnix($object->getLastUpdateDate());
 
         // give 5 min tolerance
         return $updated > $created + 300;
