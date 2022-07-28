@@ -1,9 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace FAU\ILIAS;
+namespace FAU\Ilias;
 
 
 use FAU\SubService;
+use ilContainer;
+use ilParticipants;
+use ilWaitingList;
+use ilObjCourse;
+use ilObjGroup;
 
 /**
  * Tools needed for data processing
@@ -30,8 +35,8 @@ class Service extends SubService
      */
     public function objects() : Objects
     {
-        if(!isset($this->ilias)) {
-            $this->ilias = new Objects($this->dic);
+        if(!isset($this->objects)) {
+            $this->objects = new Objects($this->dic);
         }
         return $this->objects;
     }
@@ -47,5 +52,20 @@ class Service extends SubService
         return $this->groupings;
     }
 
+    /**
+     * Get the registration object
+     * (not cached because of dependencies)
+     * @return CourseRegistration|GroupRegistration|null
+     */
+    public function getRegistration(ilContainer $object, ilParticipants $participants = null, ilWaitingList $waitingList = null)
+    {
+        if ($object instanceof ilObjCourse) {
+            return new CourseRegistration($this->dic, $object, $participants, $waitingList);
+        }
+        elseif ($object instanceof ilObjGroup) {
+            return new GroupRegistration($this->dic, $object, $participants, $waitingList);
+        }
+        return null;
+    }
 
 }

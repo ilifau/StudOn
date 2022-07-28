@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\ILIAS;
+namespace FAU\Ilias;
 
 /**
  * Repository for accessing ilias data

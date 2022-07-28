@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\ILIAS\Data;
+namespace FAU\Ilias\Data;
 
 class ListProperty
 {

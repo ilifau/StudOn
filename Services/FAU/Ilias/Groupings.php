@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\ILIAS;
+namespace FAU\Ilias;
 
 use ILIAS\DI\Container;
 use ilObjCourseGrouping;

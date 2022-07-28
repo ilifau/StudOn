@@ -21,6 +21,10 @@
         +-----------------------------------------------------------------------------+
 */
 
+// fau: paraSub - import of registration class
+use FAU\Ilias\Registration;
+// fau.
+
 include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
 
 /**
@@ -64,6 +68,11 @@ abstract class ilRegistrationGUI
     protected $join_button_text = '';
     // fau.
 
+    // fau: paraSub - property for registration object
+    /** @var Registration */
+    protected $registration;
+    // fau.
+
     /**
      * Constructor
      *
@@ -94,10 +103,9 @@ abstract class ilRegistrationGUI
         $this->type = ilObject::_lookupType($this->obj_id);
 
         // fau: studyCond - define matches_studycond, describe_studycond
-        global $ilUser;
         $this->has_studycond = $DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->obj_id);
         if ($this->has_studycond) {
-            $this->matches_studycond = $DIC->fau()->cond()->soft()->check($this->obj_id, $ilUser->getId());
+            $this->matches_studycond = $DIC->fau()->cond()->soft()->check($this->obj_id, $DIC->user()->getId());
             $this->describe_studycond = $DIC->fau()->cond()->soft()->getConditionsAsText($this->obj_id);
         } else {
             $this->matches_studycond = true;
@@ -110,6 +118,11 @@ abstract class ilRegistrationGUI
         
         // Init waiting list
         $this->initWaitingList();
+
+        // fau: paraSub - init the registration object
+        $this->registration = $DIC->fau()->ilias()->getRegistration($this->container, $this->participants, $this->waiting_list);
+        // fau.
+
         
         $this->privacy = ilPrivacySettings::_getInstance();
     }

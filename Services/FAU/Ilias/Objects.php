@@ -6,8 +6,8 @@ use ILIAS\DI\Container;
 use ilObject;
 use FAU\Study\Data\Course;
 use ilObjGroupAccess;
-use FAU\ILIAS\Data\ContainerInfo;
-use FAU\ILIAS\Data\ListProperty;
+use FAU\Ilias\Data\ContainerInfo;
+use FAU\Ilias\Data\ListProperty;
 
 /**
  * Functions to handle with ILIAS objects

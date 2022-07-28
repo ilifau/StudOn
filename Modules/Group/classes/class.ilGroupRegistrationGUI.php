@@ -61,11 +61,11 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
         parent::__construct($a_container);
 
         // fau: studyCond - set the actual registration type according to the studydata condition
-        if ($this->matches_studycond
-        or $this->container->getRegistrationType() == GRP_REGISTRATION_DEACTIVATED) {
+        if ($this->matches_studycond || $this->container->getRegistrationType() == GRP_REGISTRATION_DEACTIVATED) {
             $this->registration_type = $this->container->getRegistrationType();
         } else {
             $this->registration_type = GRP_REGISTRATION_REQUEST;
+            $this->registration->setSubType(\FAU\Ilias\Registration::subConfirmation);
         }
         // fau.
     }
