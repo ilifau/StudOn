@@ -7,6 +7,9 @@ use ilCourseParticipants;
 use ilCourseWaitingList;
 use ILIAS\DI\Container;
 
+/**
+ * Extension of the registration with course specific functions
+ */
 class CourseRegistration extends Registration
 {
     /** @var ilObjCourse */
@@ -34,7 +37,7 @@ class CourseRegistration extends Registration
        }
     }
 
-    /*
+    /**
      * Init the subscription type from course constant
      */
     protected function initSubType() : void
