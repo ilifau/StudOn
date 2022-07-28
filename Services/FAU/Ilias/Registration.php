@@ -10,6 +10,7 @@ use ilObjGroup;
 use ilObjCourse;
 use ilGroupParticipants;
 use ilGroupWaitingList;
+use FAU\Ilias\Data\ContainerInfo;
 
 /**
  * Base class handling course or group registrations
@@ -28,6 +29,7 @@ abstract class Registration
     const showAlreadyOnWaitingList = 'showAlreadyOnWaitingList';
     const showGenericFailure = 'showGenericFailure';
 
+    // subscription types
     const subDeactivated = 'subDeactivated';
     const subDirect = 'subDirect';
     const subConfirmation = 'subConfirmation';
@@ -52,6 +54,12 @@ abstract class Registration
     protected int $addingLimit = 0;
 
     /**
+     * Info objects about contained parallel groups
+     * @var ContainerInfo[]
+     */
+    protected $groups = [];
+
+    /**
      * Constructor
      */
     public function __construct(Container $dic,  $object, $participants = null, $waitingList = null)
@@ -63,10 +71,16 @@ abstract class Registration
         $this->participants = $participants;
         $this->waitingList = $waitingList;
 
+        // read the info about the parallel groups
+        if ($this->object->hasParallelGroups()) {
+            $this->groups = $this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId());
+        }
+
         $this->initSubType();
         $this->initActionAndLimit();
     }
 
+    // Hiding of type (course/group) differences
     abstract protected function initSubType() : void;
     abstract public function isMembershipLimited() : bool;
     abstract public function getMaxMembers() : bool;
@@ -74,7 +88,7 @@ abstract class Registration
     abstract protected function getMemberRoleId(): int;
 
     /**
-     * Init the next action and the adding limit
+     * Init the subscription action to be performed and the limit for adding to the member role
      */
     protected function initActionAndLimit()
     {
@@ -117,20 +131,25 @@ abstract class Registration
     }
 
     /**
-     * Handle a subscription request
+     * Perform a registration request
+     * @see \ilCourseRegistrationGUI::add()
+     * @todo: handle module selection
      */
-    public function handleRequest(string $subject, array $group_ref_ids, int $module_id)
+    public function doRegistration(string $subject, array $group_ref_ids, int $module_id)
     {
+        // ensure proper types
+        $group_ref_ids = array_map('intval', $group_ref_ids);
+
         ///////
         // 1. Handle Parallel Group Selection (may override the next action)
         //////
-        $directGroups = [];
-        $waitingGroups = [];
-        $groups = $this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId());
-        if ($this->object->hasParallelGroups() && !empty($group_ref_ids)) {
+        $directGroups = [];     // selected groups that allow a direct join
+        $waitingGroups = [];    // selected groups that allow an adding to the waiting list (including direct groups)
+
+        if (!empty($group_ref_ids)) {
             foreach ($group_ref_ids as $ref_id) {
-                foreach ($groups as $group) {
-                    if ((int) $ref_id == $group->getRefId()) {
+                foreach ($this->groups as $group) {
+                    if ($ref_id == $group->getRefId()) {
                         if ($group->isSubscriptionPossible()) {
                             $waitingGroups[] = $group;
                         }
@@ -141,8 +160,8 @@ abstract class Registration
                 }
             }
         }
+        // force adding to the waiting list if no selected group can be directly joined
         if (!empty($waitingGroups) && empty($directGroups)) {
-            // force adding to the waiting list if no selected group can be directly joined
             $this->nextAction = self::addToWaitingList;
         }
 
@@ -218,24 +237,73 @@ abstract class Registration
                 foreach ($waitingGroups as $group) {
                     $groupParticipants = new ilGroupParticipants($group->getObjId());
                     $groupList = new ilGroupWaitingList($group->getObjId());
-                    $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER),
-                        $_POST['subject'], $to_confirm, $sub_time);
+                    if ($groupList->isOnList($this->user->getId())) {
+                        $groupList->updateSubject($this->user->getId(), $subject);
+                    }
+                    else {
+                        $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER),
+                            $subject, $to_confirm, $sub_time);
+                    }
                 }
-
-
-            } elseif ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $this->getMemberRoleId())) {
+            }
+            elseif ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $this->getMemberRoleId())) {
                 $this->nextAction = self::showAlreadyMember;
             }
-            elseif (ilWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
+            elseif ($this->waitingList->isOnList($this->user->getId())) {
                 // check the failure of adding to the waiting list
                 $this->nextAction = self::showAlreadyOnWaitingList;
-            } else {
+            }
+            else {
                 // show an unspecified error
                 $this->nextAction = self::showGenericFailure;
             }
         }
+    }
 
+    /**
+     * Update a registration request
+     * @todo: handle module selection
+     */
+    public function doUpdate(string $subject, array $group_ref_ids, int $module_id)
+    {
+        // ensure proper types
+        $group_ref_ids = array_map('intval', $group_ref_ids);
 
+        // update from main object
+        $this->waitingList->updateSubject($this->user->getId(), $subject);
+
+        // eventually update enclosed parallel groups
+        foreach ($this->groups as $group) {
+            $groupList = new ilGroupWaitingList($group->getObjId());
+
+            if (!$group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
+                $groupList->addToList($this->user->getId(), $subject, $this->waitingList->getStatus($this->user->getId()));
+            }
+            elseif ($group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
+                $groupList->updateSubject($this->user->getId(), $subject);
+            }
+            elseif ($group->isOnWaitingList() && !in_array($group->getRefId(), $group_ref_ids)) {
+                $groupList->removeFromList($this->user->getId());
+            }
+        }
+    }
+
+    /**
+     * Cancel a registration request
+     * @todo: handle module selection
+     */
+    public function removeUserSubscription(int $user_id)
+    {
+        // remove user from main object
+        $this->waitingList->removeFromList($user_id);
+
+        // remove user from parallel groups
+        foreach ($this->groups as $group) {
+            $groupList = new ilGroupWaitingList($group->getObjId());
+            if ($groupList->isOnList($user_id)) {
+                $groupList->removeFromList($user_id);
+            }
+        }
     }
 
     /**
@@ -245,7 +313,6 @@ abstract class Registration
     {
         return $this->nextAction == self::addAsMember;
     }
-
 
     /**
      * @see ilRegistrationGUI::isWaitingListActive()
@@ -282,6 +349,15 @@ abstract class Registration
     public function getParticipants() : ?ilParticipants
     {
         return $this->participants;
+    }
+
+    /**
+     * Get the info objects about the parallel groups
+     * @return ContainerInfo[]
+     */
+    public function getParallelGroupsInfos() : array
+    {
+        return $this->groups;
     }
 
     /**

@@ -515,8 +515,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     // fau: paraSub - fill form with the selection of parallel groups
     protected function fillGroupSelection()
     {
-        global $DIC;
-        if (empty($groups = $DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->ref_id))) {
+        if (empty($this->registration->getParallelGroupsInfos())) {
             return;
         }
 
@@ -527,7 +526,11 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 
         $cb = new ilCheckboxGroupInputGUI($this->lng->txt('fau_sub_select_groups'), 'group_ref_ids');
         $cb->setRequired(true);
-        foreach ($groups as $group) {
+        $selected = [];
+        foreach ($this->registration->getParallelGroupsInfos() as $group) {
+            if ($group->isOnWaitingList()) {
+                $selected[] = $group->getRefId();
+            }
             if ($this->registration->isDirectJoinPossible() && $group->isDirectJoinPossible()) {
                 $group = $group->withProperty(new \FAU\Ilias\Data\ListProperty(null, $this->lng->txt('fau_sub_direct_possible')));
             }
@@ -536,6 +539,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $option->setDisabled(!$group->isSubscriptionPossible());
             $cb->addOption($option);
         }
+        $cb->setValue($selected);
         $this->form->addItem($cb);
 
     }
@@ -666,7 +670,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $this->setAccepted(true);
 
         // perform the registration (result determines the next action)
-        $this->registration->handleRequest($_POST['subject'], $_POST['group_ref_ids'], 0);
+        $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) 0);
 
         // get the link to the upper container
         $ilCtrl->setParameterByClass(

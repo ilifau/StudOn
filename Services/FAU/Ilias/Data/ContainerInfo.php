@@ -2,6 +2,9 @@
 
 namespace FAU\Ilias\Data;
 
+use FAU\Ilias\Registration;
+use ilWaitingList;
+
 /**
  * Basic info for courses or groups
  * @todo: currently only for parallel groups in a course
@@ -21,8 +24,9 @@ class ContainerInfo
     private bool $waiting_list;
     private int $max_members;
     private int $members;
-    private int $free_places;
     private int $subscribers;
+    private int $waiting_status;
+
 
     /** @var ListProperty[] */
     private array $props = [];
@@ -37,7 +41,8 @@ class ContainerInfo
         bool $waiting_list,
         int $max_members,
         int $members,
-        int $subscribers
+        int $subscribers,
+        int $waiting_status
     ) {
         $this->title = $title;
         $this->description = $description;
@@ -49,10 +54,11 @@ class ContainerInfo
         $this->waiting_list = $waiting_list;
         $this->members = $members;
         $this->subscribers = $subscribers;
+        $this->waiting_status = $waiting_status;
     }
 
     /**
-     * @return string
+     * Get the object type ('crs' or 'grp')
      */
     public function getType() : string
     {
@@ -60,7 +66,7 @@ class ContainerInfo
     }
 
     /**
-     * @return int
+     * Get the reference id
      */
     public function getRefId() : int
     {
@@ -68,7 +74,7 @@ class ContainerInfo
     }
 
     /**
-     * @return int
+     * Get the object id
      */
     public function getObjId() : int
     {
@@ -76,7 +82,7 @@ class ContainerInfo
     }
 
     /**
-     * @return string
+     * Get the object title
      */
     public function getTitle() : string
     {
@@ -84,7 +90,7 @@ class ContainerInfo
     }
 
     /**
-     * @return string|null
+     * Get the object description
      */
     public function getDescription() : ?string
     {
@@ -92,7 +98,7 @@ class ContainerInfo
     }
 
     /**
-     * @return bool
+     * Get if the object has a membership limitation (max or min)
      */
     public function hasMemLimit() : bool
     {
@@ -100,7 +106,7 @@ class ContainerInfo
     }
 
     /**
-     * @return bool
+     * Get if the object has a waiting list enabled
      */
     public function hasWaitingList() : bool
     {
@@ -108,7 +114,8 @@ class ContainerInfo
     }
 
     /**
-     * @return int
+     * Get the configured maximum number of members
+     * 0 means no limit
      */
     public function getMaxMembers() : int
     {
@@ -116,7 +123,7 @@ class ContainerInfo
     }
 
     /**
-     * @return int
+     * Get the number of members
      */
     public function getMembers() : int
     {
@@ -125,7 +132,7 @@ class ContainerInfo
 
 
     /**
-     * @return int
+     * Get the number of subscribers on the waiting list
      */
     public function getSubscribers() : int
     {
@@ -133,7 +140,24 @@ class ContainerInfo
     }
 
     /**
-     * @return int
+     * Get the status of the current user on the waiting list
+     * @see \ilWaitingList::_getStatus()
+     */
+    public function getWaitingStatus() : int
+    {
+        return $this->waiting_status;
+    }
+
+    /**
+     * Get if the current user is on the waiting list
+     */
+    public function isOnWaitingList() : bool
+    {
+        return $this->waiting_status != ilWaitingList::REQUEST_NOT_ON_LIST;
+    }
+
+    /**
+     * Get the number of free places
      */
     public function getFreePlaces() : int
     {
@@ -142,7 +166,9 @@ class ContainerInfo
 
     /**
      * Get the limit of members that should not be exceeded at registration
-     * Zero means that there is no limit
+     * Used for ilParticipants::addLimited()
+     * 0 means that there is no limit
+     * @see Registration::doRegistration()
      */
     public function getRegistrationLimit() : int
     {

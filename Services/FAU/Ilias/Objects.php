@@ -99,7 +99,8 @@ class Objects
             (bool) $info['reg_info_waiting_list'],
             (int) $info['reg_info_max_members'],
             (int) $info['reg_info_members'],
-            (int) $info['reg_info_subscribers']
+            (int) $info['reg_info_subscribers'],
+            (int) $info['reg_info_waiting_status']
         );
 
 

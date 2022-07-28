@@ -418,7 +418,7 @@ abstract class ilWaitingList
         return $res->numRows() ? true : false;
     }
 
-    // fau: fairSub - new static function _getConfirmStatus()
+    // fau: fairSub - new static function _getStatus()
     /**
      * Get the status of a user
      * @return bool
@@ -580,9 +580,9 @@ abstract class ilWaitingList
     }
     // fau.
 
-    // fau: fairSub - new functions getSubject(), isToConfirm()
+    // fau: fairSub - new functions getSubject(), isToConfirm(), getStatus()
     /**
-     * get the message of the entry
+     * Get the message of the entry
      * @param int $a_usr_id
      * @return	string	subject
      */
@@ -593,7 +593,7 @@ abstract class ilWaitingList
 
 
     /**
-     * get info if user neeeds a confirmation
+     * Get if a user needs a confirmation
      * @param int $a_usr_id
      * @return	boolean
      */
@@ -601,7 +601,15 @@ abstract class ilWaitingList
     {
         return isset($this->users[$a_usr_id]) ? ($this->users[$a_usr_id]['to_confirm'] == self::REQUEST_TO_CONFIRM) : false;
     }
-    //fau.
+
+    /**
+     * Get the status of a user on the list
+     */
+    public function getStatus($a_usr_id)
+    {
+        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['to_confirm'] : self::REQUEST_NOT_ON_LIST;
+    }
+    // fau.
 
     /**
      * get all users on waiting list

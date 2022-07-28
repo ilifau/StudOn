@@ -418,7 +418,8 @@ class ilObjGroupAccess extends ilObjectAccess
         }
 
         // registration status
-        switch (ilGroupWaitingList::_getStatus($ilUser->getId(), $a_obj_id)) {
+        $info['reg_info_waiting_status'] = ilGroupWaitingList::_getStatus($ilUser->getId(), $a_obj_id);
+        switch ($info['reg_info_waiting_status'] ) {
             case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
                 $status = $lng->txt('on_waiting_list');
                 break;

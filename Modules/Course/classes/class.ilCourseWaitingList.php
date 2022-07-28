@@ -26,14 +26,13 @@ class ilCourseWaitingList extends ilWaitingList
      * @return bool
      */
     public function addToList($a_usr_id, $a_subject = '', $a_to_confirm = self::REQUEST_NOT_TO_CONFIRM, $a_sub_time = null)
-// fau.
     {
         global $DIC;
 
         $ilAppEventHandler = $DIC['ilAppEventHandler'];
         $ilLog = $DIC['ilLog'];
         
-        if (!parent::addToList($a_usr_id)) {
+        if (!parent::addToList($a_usr_id, $a_subject, $a_to_confirm, $a_sub_time)) {
             return false;
         }
         
@@ -48,7 +47,7 @@ class ilCourseWaitingList extends ilWaitingList
             );
         return true;
     }
-
+// fau.
 
     /**
      * Remove from waiting list and raise event

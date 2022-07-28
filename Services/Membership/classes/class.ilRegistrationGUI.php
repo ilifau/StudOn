@@ -211,8 +211,10 @@ abstract class ilRegistrationGUI
         $ilUser = $DIC['ilUser'];
         $tree = $DIC['tree'];
         $ilCtrl = $DIC['ilCtrl'];
-        
-        $this->getWaitingList()->removeFromList($ilUser->getId());
+
+        // fau: paraSub - call new function to remove a user from the waiting list
+        $this->registration->removeUserSubscription($DIC->user()->getId());
+        // fau.
         $parent = $tree->getParentId($this->container->getRefId());
         
         $message = sprintf(
@@ -770,6 +772,7 @@ abstract class ilRegistrationGUI
         global $ilUser, $tree, $ilCtrl;
 
         // fau: courseUdf - save the user defined values when waiting list is updated
+        // fau: paraSub - save group selections
         $this->initForm();
         if ($this->form->checkInput()) {
             include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
@@ -777,7 +780,8 @@ abstract class ilRegistrationGUI
 
             $this->participants->sendExternalNotifications($this->container, $ilUser, true);
 
-            $this->getWaitingList()->updateSubject($ilUser->getId(), ilUtil::stripSlashes($_POST['subject']));
+            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], 0);
+
             ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
             $ilCtrl->setParameterByClass(
                 "ilrepositorygui",
