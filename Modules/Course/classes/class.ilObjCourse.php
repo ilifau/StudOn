@@ -2440,6 +2440,12 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             return array();
         }
 
+        // fau: paraSub - don't fill courses with parallel groups yet
+        if ($this->hasParallelGroups()) {
+            return array();
+        }
+        // fau.
+
         // check the conditions for autofill
         if ($manual
             || $initial

@@ -2329,6 +2329,12 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             return array();
         }
 
+        // fau: paraSub - don't fill parallel groups yet
+        if ($this->isParallelGroup()) {
+            return array();
+        }
+        // fau.
+
         // check the conditions for autofill
         if ($manual
             || $initial
