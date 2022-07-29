@@ -363,7 +363,6 @@ class ilObjGroupAccess extends ilObjectAccess
                 $info['reg_info_list_prop']['property'] = $lng->txt('grp_list_reg_period');
                 $info['reg_info_list_prop']['value'] = $lng->txt('grp_list_reg_noreg');
             }
-
         } else {
             // added !$registration_possible, see bug 0010157
             if (!$registration_possible) {
@@ -374,34 +373,30 @@ class ilObjGroupAccess extends ilObjectAccess
         }
         // fau.
 
-        // fau: showMemLimit - get info about membership limitations and subscription status
         // fau: fairSub - always query for the free places - info is also used on subscription page
-        global $ilAccess;
-        include_once './Modules/Group/classes/class.ilGroupParticipant.php';
-        include_once './Modules/Group/classes/class.ilGroupWaitingList.php';
-
+        // fau: paraSub - add member status and number of members
+        // fau: showMemLimit - get info about membership limitations and subscription status
         $partObj = ilGroupParticipant::_getInstanceByObjId($a_obj_id, $ilUser->getId());
+
+        $max_members = $info['reg_info_max_members'];
+        $members = $partObj->getNumberOfMembers();
+        $waiting = ilGroupWaitingList::lookupListSize($a_obj_id);
+        $free_places = max($max_members - $members, 0);
+        $info['reg_info_members'] = $members;
+        $info['reg_info_sbscribers'] = $waiting;
+        $info['reg_info_free_places'] = $free_places;
+        $info['ref_info_is_assigned'] = $partObj->isAssigned();
 
         if ($info['reg_info_mem_limit'] && $registration_possible) {
             $show_mem_limit = true;
             $show_hidden_notice = false;
-        } elseif ($info['reg_info_mem_limit'] && $ilAccess->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id)) {
+        } elseif ($info['reg_info_mem_limit'] && $DIC->access()->checkAccess('write', '', $a_ref_id, 'crs', $a_obj_id)) {
             $show_mem_limit = true;
             $show_hidden_notice = true;
         } else {
             $show_mem_limit = false;
             $show_hidden_notice = false;
         }
-
-        $max_members = $info['reg_info_max_members'];
-        $members = $partObj->getNumberOfMembers();
-        // fau: paraSub - add members as info
-        $info['reg_info_members'] = $members;
-        // fau.
-        $free_places = max($max_members - $members, 0);
-        $info['reg_info_free_places'] = $free_places;
-        $waiting = ilGroupWaitingList::lookupListSize($a_obj_id);
-        $info['reg_info_sbscribers'] = $waiting;
 
         if ($show_mem_limit) {
             $limits = array();

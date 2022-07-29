@@ -26,7 +26,7 @@ abstract class Registration
     const showLimitReached = 'showLimitReached';
     const showAlreadyMember = 'showAlreadyMember';
     const showAddedToWaitingListFair = 'showAddedToWaitingListFair';
-    const showAlreadyOnWaitingList = 'showAlreadyOnWaitingList';
+    const showUpdatedWaitingList = 'showUpdatedWaitingList';
     const showGenericFailure = 'showGenericFailure';
 
     // subscription types
@@ -68,8 +68,8 @@ abstract class Registration
         $this->user = $dic->user();
 
         $this->object = $object;
-        $this->participants = $participants;
-        $this->waitingList = $waitingList;
+        $this->participants = $participants;    // must be initialized in child constructor if not set
+        $this->waitingList = $waitingList;      // must be initialized in child constructor if not set
 
         // read the info about the parallel groups
         if ($this->object->hasParallelGroups()) {
@@ -107,14 +107,14 @@ abstract class Registration
         elseif ($this->isMembershipLimited() && $this->getMaxMembers() > 0) {
 
             if ($this->isWaitingListActive()) {
-                if ($this->getWaitingList()->getCountUsers() >= $this->getFreePlaces()) {
+                if ($this->waitingList->getCountUsers() >= $this->getFreePlaces()) {
                     // add to waiting list if all free places have waiting candidates
                     $this->nextAction = self::addToWaitingList;
                 }
                 else {
                     // jump over the waiting candidates
                     $this->nextAction = self::addAsMember;
-                    $this->addingLimit = $this->getMaxMembers() - $this->getWaitingList()->getCountUsers();
+                    $this->addingLimit = $this->getMaxMembers() - $this->waitingList->getCountUsers();
                 }
             }
             else {
@@ -146,19 +146,19 @@ abstract class Registration
         $directGroups = [];     // selected groups that allow a direct join
         $waitingGroups = [];    // selected groups that allow an adding to the waiting list (including direct groups)
 
-        if (!empty($group_ref_ids)) {
-            foreach ($group_ref_ids as $ref_id) {
-                foreach ($this->groups as $group) {
-                    if ($ref_id == $group->getRefId()) {
-                        if ($group->isSubscriptionPossible()) {
-                            $waitingGroups[] = $group;
-                        }
-                        if ($group->isDirectJoinPossible() && $this->isDirectJoinPossible()) {
-                            $directGroups[] = $group;
-                        }
-                    }
+        foreach ($this->groups as $group) {
+            if (in_array($group->getRefId(), $group_ref_ids)) {
+                if ($group->isSubscriptionPossible()) {
+                    $waitingGroups[] = $group;
+                }
+                if ($this->isDirectJoinPossibleForGroup($group)) {
+                    $directGroups[] = $group;
                 }
             }
+        }
+        // force a direct join if possible for a group
+        if (!empty($directGroups)) {
+            $this->nextAction = self::addAsMember;
         }
         // force adding to the waiting list if no selected group can be directly joined
         if (!empty($waitingGroups) && empty($directGroups)) {
@@ -198,6 +198,10 @@ abstract class Registration
                 $groupParticipants = new ilGroupParticipants($group->getObjId());
                 if ($groupParticipants->addLimited($this->user->getId(), IL_GRP_MEMBER, $group->getRegistrationLimit())) {
                     $addedGroup = $group;
+                    // successfully added - remove from all waiting lists
+                    foreach ($waitingGroups as $group2) {
+                        ilWaitingList::deleteUserEntry($this->user->getId(), $group2->getObjId());
+                    }
                     break;
                 }
                 elseif ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER))) {
@@ -221,37 +225,37 @@ abstract class Registration
         // 4. perform the adding to the waiting list (this may set a new action)
         ////
         if ($this->nextAction == self::addToWaitingList) {
-            $to_confirm = ($this->subType == self::subConfirmation) ? ilWaitingList::REQUEST_TO_CONFIRM : ilWaitingList::REQUEST_NOT_TO_CONFIRM;
-            $sub_time = $this->object->inSubscriptionFairTime() ? $this->object->getSubscriptionFair() : time();
+            $to_confirm = $this->getNewToConfirm();
+            $sub_time = $this->getNewSubTime();
 
-            if ($this->getWaitingList()->addWithChecks($this->user->getId(), $this->getMemberRoleId(), $subject, $to_confirm, $sub_time)) {
-                if ($this->object->inSubscriptionFairTime($sub_time)) {
+            // add to waiting list and avoid race condition
+            $added = $this->waitingList->addWithChecks($this->user->getId(), $this->getMemberRoleId(), $subject, $to_confirm, $sub_time);
+
+            // may have been directly added as member in a parallel request
+            if ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $this->getMemberRoleId())) {
+                $this->nextAction = self::showAlreadyMember;
+            }
+            // may have been directly added to the waiting list in a parallel request
+            elseif (ilWaitingList::_isOnList($this->user->getId(), $this->object->getId())) {
+
+                // was already on list, so update the subject
+                if (!$added) {
+                    $this->waitingList->updateSubject($this->user->getId(), $subject);
+                }
+
+                // eventually update the waiting list of enclosed groups
+                $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $to_confirm, $sub_time);
+
+                if (!$added) {
+                    $this->nextAction = self::showUpdatedWaitingList;
+                }
+                elseif ($this->object->inSubscriptionFairTime($sub_time)) {
                     // show info about adding in fair time
                     $this->nextAction = self::showAddedToWaitingListFair;
                 } else {
                     // maximum members reached
                     $this->nextAction = self::notifyAddedToWaitingList;
                 }
-
-                //add to the waiting lists of the selected groups
-                foreach ($waitingGroups as $group) {
-                    $groupParticipants = new ilGroupParticipants($group->getObjId());
-                    $groupList = new ilGroupWaitingList($group->getObjId());
-                    if ($groupList->isOnList($this->user->getId())) {
-                        $groupList->updateSubject($this->user->getId(), $subject);
-                    }
-                    else {
-                        $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER),
-                            $subject, $to_confirm, $sub_time);
-                    }
-                }
-            }
-            elseif ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $this->getMemberRoleId())) {
-                $this->nextAction = self::showAlreadyMember;
-            }
-            elseif ($this->waitingList->isOnList($this->user->getId())) {
-                // check the failure of adding to the waiting list
-                $this->nextAction = self::showAlreadyOnWaitingList;
             }
             else {
                 // show an unspecified error
@@ -272,12 +276,22 @@ abstract class Registration
         // update from main object
         $this->waitingList->updateSubject($this->user->getId(), $subject);
 
-        // eventually update enclosed parallel groups
+        // eventually update the waiting lists of parallel groups
+        $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $this->getNewToConfirm(), $this->getNewSubTime());
+    }
+
+    /**
+     * Update the waiting list entries of parallel groups
+     * @todo: handle module selection
+     */
+    protected function updateGroupWaitingLists(string $subject, array $group_ref_ids, int $module_id, int $to_confirm, int $sub_time)
+    {
         foreach ($this->groups as $group) {
+            $groupParticipants = new ilGroupParticipants($group->getObjId());
             $groupList = new ilGroupWaitingList($group->getObjId());
 
             if (!$group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
-                $groupList->addToList($this->user->getId(), $subject, $this->waitingList->getStatus($this->user->getId()));
+                $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER), $subject, $to_confirm, $sub_time);
             }
             elseif ($group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
                 $groupList->updateSubject($this->user->getId(), $subject);
@@ -309,9 +323,18 @@ abstract class Registration
     /**
      * Is it possible to enter the course without waiting list
      */
-    public function isDirectJoinPossible()
+    public function isDirectJoinPossible() : bool
     {
         return $this->nextAction == self::addAsMember;
+    }
+
+    /**
+     * Is it possible to enter a parallel group without waiting list
+     */
+    public function isDirectJoinPossibleForGroup(ContainerInfo $group) : bool
+    {
+       return ($group->isDirectJoinPossible() && $this->isDirectJoinPossible()) ||
+           (!$group->hasMemLimit() && $this->subType != self::subConfirmation);
     }
 
     /**
@@ -331,25 +354,9 @@ abstract class Registration
             return false;
         }
 
-        return (!$this->getFreePlaces() || $this->getWaitingList()->getCountUsers());
+        return (!$this->getFreePlaces() || $this->waitingList->getCountUsers());
     }
 
-
-    /**
-     * Get the waiting list object
-     */
-    public function getWaitingList(): ?ilWaitingList
-    {
-        return $this->waitingList;
-    }
-
-    /**
-     * Get the participants object
-     */
-    public function getParticipants() : ?ilParticipants
-    {
-        return $this->participants;
-    }
 
     /**
      * Get the info objects about the parallel groups
@@ -391,5 +398,21 @@ abstract class Registration
     public function getFreePlaces() : int
     {
         return max(0, $this->getMaxMembers() - $this->participants->getCountMembers());
+    }
+
+    /**
+     * Get the confirmation status to be set for new waiting list entries
+     */
+    public function getNewToConfirm() : int
+    {
+        return ($this->subType == self::subConfirmation) ? ilWaitingList::REQUEST_TO_CONFIRM : ilWaitingList::REQUEST_NOT_TO_CONFIRM;
+    }
+
+    /**
+     * Get the subscription time for new waiting list entries
+     */
+    public function getNewSubTime() : int
+    {
+        return $this->object->inSubscriptionFairTime() ? $this->object->getSubscriptionFair() : time();
     }
 }

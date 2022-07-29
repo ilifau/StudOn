@@ -278,13 +278,12 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
             }
 
             $alert = '';
-            // fau: fairSub - add message and adjust label for fair subscription
+            // fau: fairSub - add message
             if ($this->container->getSubscriptionFair() < 0) {
                 ilUtil::sendInfo($this->lng->txt('sub_fair_inactive_message'));
             }
             if ($this->container->inSubscriptionFairTime()) {
                 ilUtil::sendInfo(sprintf($this->lng->txt('sub_fair_subscribe_message'), $this->container->getSubscriptionFairDisplay(true)));
-                $this->join_button_text = $this->lng->txt('sub_fair_subscribe_label');
             } elseif (
 // fau.
                 !$free and
@@ -315,7 +314,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
 
                 ilUtil::sendFailure($this->lng->txt('grp_warn_wl_set_on_waiting_list'));
                 #$alert = $this->lng->txt('grp_warn_wl_set_on_waiting_list');
-                $this->join_button_text = $this->lng->txt('mem_request_waiting');
             }
             // fau.
         }
@@ -417,9 +415,6 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 $txt->addSubItem($sub);
                 $this->form->addItem($txt);
 
-// fau: fairSub - set join_button_text
-                $this->join_button_text = $this->lng->txt('mem_request_joining');
-// fau.
                 break;
                 
             case GRP_REGISTRATION_DIRECT:

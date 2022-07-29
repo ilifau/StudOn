@@ -56,13 +56,6 @@ abstract class ilParticipant
 
     private $participants_status = array();
 
-
-    // fau: showMemLimit - cache variables for subscriber info
-    private $isSubscriber = null;
-    private $numSubscribers = null;
-    // fau.
-
-
     /**
      * @var ilRecommendedContentManager
      */
@@ -648,47 +641,4 @@ abstract class ilParticipant
                     
         return (int) $data['cnt'] > 0;
     }
-
-
-    
-    /**
-     * fau: showMemLimit - new function to check if user is subscriber (with caching)
-     * This is used for object listing
-     */
-    public function isSubscriber($a_usr_id)
-    {
-        if (!isset($this->isSubscriber)) {
-            global $ilDB;
-            $query = "SELECT COUNT(*) number FROM il_subscribers" .
-                " WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') .
-                " AND obj_id = " . $ilDB->quote($this->obj_id, 'integer');
-
-            $res = $ilDB->query($query);
-            $row = $res->fetchRow(DB_FETCHMODE_OBJECT);
-            $this->isSubscriber = $row->number > 0;
-        }
-
-        return $this->isSubscriber;
-    }
-    // fau.
-
-    /**
-     * fau: showMemLimit - new function to get the number of subscribers (with caching)
-     * This is used for object listing
-     */
-    public function getNumberOfSubscribers()
-    {
-        if (!isset($this->numSubscribers)) {
-            global $ilDB;
-            $query = "SELECT COUNT(*) number FROM il_subscribers" .
-                " WHERE obj_id = " . $ilDB->quote($this->obj_id, 'integer');
-
-            $res = $ilDB->query($query);
-            $row = $res->fetchRow(DB_FETCHMODE_OBJECT);
-            $this->numSubscribers = $row->number;
-        }
-
-        return $this->numSubscribers;
-    }
-    // fau.
 }

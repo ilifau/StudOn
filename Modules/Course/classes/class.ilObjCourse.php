@@ -468,9 +468,9 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $a_time = time();
         }
 
-        if (!$this->isSubscriptionMembershipLimited()) {
+        if (!$this->isSubscriptionMembershipLimited() && !$this->hasParallelGroups()) {
             return false;
-        } elseif (empty($this->getSubscriptionMaxMembers())) {
+        } elseif (empty($this->getSubscriptionMaxMembers()) && !$this->hasParallelGroups()) {
             return false;
         } elseif (!empty( $this->getSubscriptionStart()) && $a_time < (int) $this->getSubscriptionStart()) {
             return false;

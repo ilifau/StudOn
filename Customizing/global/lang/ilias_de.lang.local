@@ -225,6 +225,7 @@ common#:#login_required_for_object#:#Bitte melden Sie sich an.
 common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
 common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
+common#:#mem_register#:#Anmelden
 common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_external_notification_subject#:#Anmeldung von %s zu "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Anmeldung von %s zu "%s" geändert###fau: courseUdf
@@ -710,12 +711,12 @@ fau#:#study_data#:#Studiendaten
 fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
 fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.
 fau#:#fau_sub_select_groups#:#Gruppenauswahl
-fau#:#fau_sub_select_groups_direct#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
-fau#:#fau_sub_select_groups_wait#:#Bitte wählen Sie die für Sie möglichen Parallelgruppen dieser Lehrveranstaltung aus. Sie werden auf deren Wartelisten gesetzt.
+fau#:#fau_sub_select_groups_info#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
 fau#:#fau_sub_direct_possible#:#Direkte Aufnahme möglich
 fau#:#fau_sub_group_by_course_list_info#:#Über Kursbeitritt
 fau#:#fau_sub_group_by_course_group_settings#:#Der Beitritt zu dieser Parallelgruppe findet per Auswahl beim Kursbeitritt statt. Sie können für die Gruppe kein eigenes Beitrittsverfahren wählen, aber Sie können die Teilnehmerzahl begrenzen. Das wird bei der Kursanmeldung beachtet.
-fau#:#fau_sub_group_by_course_info#:#Dieser Kurs enthält Parallelgruppen einer Lehrveranstaltung. Sie werden auf der Anmeldeseite des Kurses zur Auswahl gestellt. Studierende können nur einer dieser Gruppen direkt beitreten, sich aber bei mehreren auf die Warteliste setzen lassen. Die maximale Teilnehmerzahl kann in jeder Gruppe separat eingestellt werden.
+fau#:#fau_sub_group_by_course_info#:#Dieser Kurs enthält Parallelgruppen einer Lehrveranstaltung. Sie werden auf der Anmeldeseite des Kurses zur Auswahl gestellt. Studierende können nur einer dieser Gruppen direkt beitreten, sich aber bei mehreren auf die Warteliste setzen lassen.
+fau#:#fau_sub_group_by_course_limit_info#:#Die maximale Teilnehmerzahl wird in jeder Parallelgruppe dieses Kurses separat eingestellt. Die Chancengleiche Phase und Wartelistenoptionen werden im Kurs eingestellt und benötigt, wenn Studierende Gruppen mit begrenzter Teilnehmrzahl auswählen. Für unbegrenzte Gruppen gilt sie nicht.
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

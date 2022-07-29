@@ -716,23 +716,23 @@ abstract class ilRegistrationGUI
         global $DIC;
 
         $ilUser = $DIC['ilUser'];
-        
-        if ($this->isRegistrationPossible() and $this->isWaitingListActive() and !$this->getWaitingList()->isOnList($ilUser->getId())) {
-            // fau: fairSub - use prepared join button text if existing
-            $this->form->addCommandButton('join', $this->join_button_text ? $this->join_button_text : $this->lng->txt('mem_add_to_wl'));
-            // fau.
-            $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
-        } elseif ($this->isRegistrationPossible() and !$this->getWaitingList()->isOnList($ilUser->getId())) {
-            // fau: fairSub - use prepared join button text if existing
-            $this->form->addCommandButton('join', $this->join_button_text ? $this->join_button_text : $this->lng->txt('join'));
-            // fau.
+
+        // fau: fairSub - use prepared join button text if existing
+        if ($this->isRegistrationPossible() && !$this->getWaitingList()->isOnList($ilUser->getId())) {
+            $this->form->addCommandButton('join', $this->lng->txt('mem_register'));
             $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
         }
+        // fau.
+
         if ($this->getWaitingList()->isOnList($ilUser->getId())) {
             // fau: fairSub - allow to update the subscription_request
             if ($this->getWaitingList()->isToConfirm($ilUser->getId())) {
                 ilUtil::sendQuestion($this->lng->txt('mem_user_already_subscribed'));
                 $this->form->addCommandButton('updateWaitingList', $this->lng->txt('crs_update_subscr_request'));
+            }
+            // fau: paraSub - allow to change the group selection
+            elseif ($this->container->hasParallelGroups()) {
+                $this->form->addCommandButton('updateWaitingList', $this->lng->txt('mem_edit_request'));
             }
             // fau.
             $this->form->addCommandButton('leaveWaitingList', $this->lng->txt('leave_waiting_list'));
@@ -778,9 +778,15 @@ abstract class ilRegistrationGUI
             include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
             ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
 
-            $this->participants->sendExternalNotifications($this->container, $ilUser, true);
+            // treat update like a join in courses with parallel groups
+            // this allows to directly join another group
+            if ($this->container->hasParallelGroups()) {
+                $this->add();
+                return;
+            }
 
             $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], 0);
+            $this->participants->sendExternalNotifications($this->container, $ilUser, true);
 
             ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
             $ilCtrl->setParameterByClass(

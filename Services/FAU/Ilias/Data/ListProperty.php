@@ -52,6 +52,18 @@ class ListProperty
     }
 
     /**
+     * Get the info as formatted HTML
+     */
+    public function getHtml() : string
+    {
+        $html = $this->getString();
+        if ($this->hasAlert()) {
+            $html = '<strong>' . $html . '</strong>';
+        }
+        return $html;
+    }
+
+    /**
      * Get an array as being used by the Object List GUIs
      */
     public function getArray() : array
@@ -97,5 +109,13 @@ class ListProperty
         $clone = clone $this;
         $clone->link = $link;
         return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasAlert() : bool
+    {
+        return $this->alert;
     }
 }

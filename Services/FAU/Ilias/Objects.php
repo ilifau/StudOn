@@ -100,19 +100,22 @@ class Objects
             (int) $info['reg_info_max_members'],
             (int) $info['reg_info_members'],
             (int) $info['reg_info_subscribers'],
-            (int) $info['reg_info_waiting_status']
+            (int) $info['reg_info_waiting_status'],
+            (bool) $info['ref_info_is_assigned']
         );
 
 
-        // add the registration info
+        // add the registration info fpr parallel groups
         // not added by ilObjGroupAccess::lookupRegistrationInfo because registration is disabled for parallel group
-        $limits = array();
-        $limits[] = $this->dic->language()->txt("mem_max_users") . $groupInfo->getMaxMembers();
-        $limits[] = $this->dic->language()->txt("mem_free_places") . ': ' . $groupInfo->getFreePlaces();
-        if ($groupInfo->getSubscribers() > 0) {
-            $limits[] = $this->dic->language()->txt("subscribers_or_waiting_list") . ': ' . (string) ($groupInfo->getSubscribers());
+        if ($groupInfo->hasMemLimit()) {
+            $limits = array();
+            $limits[] = $this->dic->language()->txt("mem_max_users") . $groupInfo->getMaxMembers();
+            $limits[] = $this->dic->language()->txt("mem_free_places") . ': ' . $groupInfo->getFreePlaces();
+            if ($groupInfo->getSubscribers() > 0) {
+                $limits[] = $this->dic->language()->txt("subscribers_or_waiting_list") . ': ' . (string) ($groupInfo->getSubscribers());
+            }
+            $groupInfo = $groupInfo->withProperty(new ListProperty(null, implode(' &nbsp; ', $limits)));
         }
-        $groupInfo = $groupInfo->withProperty(new ListProperty(null, implode(' &nbsp; ', $limits)));
 
         // add other properties
         foreach (['reg_info_list_prop_status'] as $key) {

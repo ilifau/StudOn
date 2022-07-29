@@ -395,8 +395,8 @@ abstract class ilWaitingList
     /**
      * Check if a user on the waiting list
      * @return bool
-     * @param object $a_usr_id
-     * @param object $a_obj_id
+     * @param int $a_usr_id
+     * @param int $a_obj_id
      * @access public
      * @static
      */

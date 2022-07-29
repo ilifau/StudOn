@@ -26,6 +26,7 @@ class ContainerInfo
     private int $members;
     private int $subscribers;
     private int $waiting_status;
+    private bool $assigned;
 
 
     /** @var ListProperty[] */
@@ -42,7 +43,8 @@ class ContainerInfo
         int $max_members,
         int $members,
         int $subscribers,
-        int $waiting_status
+        int $waiting_status,
+        bool $assigned
     ) {
         $this->title = $title;
         $this->description = $description;
@@ -55,6 +57,7 @@ class ContainerInfo
         $this->members = $members;
         $this->subscribers = $subscribers;
         $this->waiting_status = $waiting_status;
+        $this->assigned = $assigned;
     }
 
     /**
@@ -203,7 +206,7 @@ class ContainerInfo
         }
 
         foreach ($this->props as $prop) {
-            $strings[] = $prop->getString();
+            $strings[] = $prop->getHtml();
         }
         return implode('<br />', $strings);
     }
@@ -236,5 +239,13 @@ class ContainerInfo
         $clone = clone $this;
         $clone->props[] = $property;
         return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAssigned() : bool
+    {
+        return $this->assigned;
     }
 }
