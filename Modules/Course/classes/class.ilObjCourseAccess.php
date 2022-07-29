@@ -154,16 +154,16 @@ class ilObjCourseAccess extends ilObjectAccess implements ilConditionHandling
         switch ($a_permission) {
 
             // fau: preventCampoDelete - check if course can be deleted - moving (cut) should be allowed
-            case 'delete':
-                if ($a_cmd != 'cut'
-                    && !$DIC->fau()->user()->canDeleteObjectsForCourses((int) $a_user_id)
-                    && $DIC->fau()->study()->isObjectForCampo((int) $a_obj_id)
-                ) {
-                    $ilAccess->addInfoItem(IL_NO_OBJECT_ACCESS, $lng->txt("fau_delete_course_blocked"));
-                    //log_line("delete blocked for ref $a_ref_id with command $a_cmd");
-                    return false;
-                }
-                break;
+//            case 'delete':
+//                if ($a_cmd != 'cut'
+//                    && !$DIC->fau()->user()->canDeleteObjectsForCourses((int) $a_user_id)
+//                    && $DIC->fau()->study()->isObjectForCampo((int) $a_obj_id)
+//                ) {
+//                    $ilAccess->addInfoItem(IL_NO_OBJECT_ACCESS, $lng->txt("fau_delete_course_blocked"));
+//                    //log_line("delete blocked for ref $a_ref_id with command $a_cmd");
+//                    return false;
+//                }
+//                break;
             // fau.
             case 'visible':
                 $visible = null;

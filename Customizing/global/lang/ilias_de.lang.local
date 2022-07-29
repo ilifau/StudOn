@@ -614,6 +614,7 @@ fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
+fau#:#fau_delete_info_campo#:#Die Liste enthält einen oder mehrere Kurse für Lehrveranstaltungen aus Campo. Beim Löschen wird die Verbindung zu Campo aufgehoben. Falls eine Lehrveranstaltung im Semester dennoch angeboten wird, erzeugt StudOn bei der nächsten Synchronisation (in der Regel stündlich) wieder einen neuen Kurs. Sie könenn das verhindern, indem Sie die Parallelgruppen in Campo löschen oder ausfallen lassen. Warten Sie dann eine bis zwei Stunden. Danach können sie den StudOn-Kurs löschen, ohne dass er wieder angelegt wird.
 fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
