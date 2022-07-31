@@ -6,6 +6,8 @@ use ilObjGroup;
 use ilGroupParticipants;
 use ilGroupWaitingList;
 use ILIAS\DI\Container;
+use ilMailNotification;
+use ilGroupMembershipMailNotification;
 
 /**
  * Extension of the registration with group specific functions
@@ -21,20 +23,6 @@ class GroupRegistration extends Registration
     /** @var ilGroupWaitingList */
     protected  $waitingList;
 
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic, $object, $participants = null, $waitingList = null)
-    {
-       parent::__construct($dic, $object, $participants, $waitingList);
-
-       if (!isset($this->participants)) {
-           $this->participants = ilGroupParticipants::_getInstanceByObjId($this->object->getId());
-       }
-       if (!isset($this->waitingList)) {
-           $this->waitingList = new ilGroupWaitingList($this->object->getId());
-       }
-    }
 
     /**
      * Init the subscription type from the group constant
@@ -80,4 +68,25 @@ class GroupRegistration extends Registration
     {
         return (int) $this->participants->getRoleId(IL_GRP_MEMBER);
     }
+
+    protected function getAddedNotificationTypeAdmins() : int
+    {
+        return ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION;
+    }
+
+    protected function getAddedNotificationTypeMember() : int
+    {
+        return ilGroupMembershipMailNotification::TYPE_SUBSCRIBE_MEMBER;
+    }
+
+    protected function getMembershipMailNotification() : ilMailNotification
+    {
+        return new ilGroupMembershipMailNotification();
+    }
+
+    protected function checkLPStatusSync(int $user_id) : void
+    {
+        // nothing to do for groups
+    }
+
 }

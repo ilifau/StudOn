@@ -222,9 +222,6 @@ common#:#links_password_coded#:#Passwort-Code
 common#:#local_login_to_ilias#:#Bei StudOn lokal anmelden###fau: loginForm
 common#:#local_login_to_ilias_addition#:#Verwenden Sie die Lokale Anmeldung, wenn Sie von StudOn einen lokalen Account bekommen haben.###fau: loginForm
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
-common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
-common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
-common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
 common#:#mem_register#:#Anmelden
 common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_external_notification_subject#:#Anmeldung von %s zu "%s"###fau: courseUdf
@@ -619,6 +616,9 @@ fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
 fau#:#fau_import_id#:#Import-ID
+fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
+fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
+fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
 fau#:#fau_move_selected_courses#:#Ausgewählte Kurse verschieben
 fau#:#fau_parallel_groups#:#Parallelgruppen
 fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren

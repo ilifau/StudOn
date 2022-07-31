@@ -626,69 +626,19 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     protected function add()
     {
         global $DIC;
-        $ilUser = $DIC->user();
-        $tree = $DIC->repositoryTree();
-        $ilCtrl = $DIC->ctrl();
 
-        /////////////////////////////////////////////////////////////
-        // FAKES SIMULATING PARALLEL REQUESTS
-
-        // global $ilDB;
-
-        // ADD AS MEMBER
-        /*
-            global $ilDB;
-            $mem_rol_id = $this->participants->getRoleId(IL_CRS_MEMBER);
-            $query = "INSERT INTO rbac_ua (rol_id, usr_id) ".
-                "VALUES (".
-                $ilDB->quote($mem_rol_id ,'integer').", ".
-                $ilDB->quote($ilUser->getId() ,'integer').
-                ")";
-            $res = $ilDB->manipulate($query);
-        */
-
-        // ADD TO WAITING LIST
-        /*
-           global $ilDB;
-           $query = "INSERT INTO crs_waiting_list (obj_id, usr_id, sub_time, subject) ".
-                "VALUES (".
-                $ilDB->quote($this->container->getId() ,'integer').", ".
-                $ilDB->quote($ilUser->getId() ,'integer').", ".
-                $ilDB->quote(time() ,'integer').", ".
-                $ilDB->quote($_POST['subject'] ,'text')." ".
-                ")";
-            $res = $ilDB->manipulate($query);
-        */
-
-        ////////////////////////////////////////////////////////////////
-
-        // set agreement accepted
         $this->setAccepted(true);
 
         // perform the registration (result determines the next action)
         $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) 0);
 
         // get the link to the upper container
-        $ilCtrl->setParameterByClass(
-            "ilrepositorygui",
-            "ref_id",
-            $tree->getParentId($this->container->getRefId())
+        $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id",
+            $DIC->repositoryTree()->getParentId($this->container->getRefId())
         );
 
         switch ($this->registration->getNextAction()) {
             case Registration::notifyAdded:
-
-                $this->participants->sendNotification($this->participants->NOTIFY_ADMINS, $ilUser->getId());
-                $this->participants->sendNotification($this->participants->NOTIFY_REGISTERED, $ilUser->getId());
-                //fau: courseUdf - send external notifications
-                $this->participants->sendExternalNotifications($this->container, $ilUser);
-                // fau.
-                ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
-                                
-                if ($this->container->getType() == "crs") {
-                    $this->container->checkLPStatusSync($ilUser->getId());
-                }
-
                 if (!$_SESSION["pending_goto"]) {
                     ilUtil::sendSuccess($this->lng->txt("crs_subscription_successful"), true);
                     $this->ctrl->returnToParent($this);
@@ -700,47 +650,34 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
                 break;
 
             case Registration::notifyAddedToWaitingList:
-                $this->participants->sendAddedToWaitingList($ilUser->getId(), $this->getWaitingList());	// mail to user
-                if ($this->subscription_type == IL_CRS_SUBSCRIPTION_CONFIRMATION) {
-                    $this->participants->sendSubscriptionRequestToAdmins($ilUser->getId());				// mail to admins
-                }
-                // fau: courseUdf - send external notifications
-                $this->participants->sendExternalNotifications($this->container, $ilUser);
-                // fau.
-
-                $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($ilUser->getId()));
+                $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($DIC->user()->getId()));
                 ilUtil::sendSuccess($info, true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showAddedToWaitingListFair:
-                // no e-mail to subscriber needed because the place on the lst is not relevant
-                // fau: courseUdf - send external notifications
-                $this->participants->sendExternalNotifications($this->container, $ilUser);
-                // fau.
-
                 ilUtil::sendSuccess($this->lng->txt("sub_fair_added_to_waiting_list"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showUpdatedWaitingList:
                 ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showLimitReached:
                 ilUtil::sendSuccess($this->lng->txt("crs_reg_limit_reached"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showAlreadyMember:
                 ilUtil::sendInfo($this->lng->txt("crs_reg_user_already_assigned"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
             case Registration::showGenericFailure:
                 ilUtil::sendFailure($this->lng->txt("crs_reg_user_generic_failure"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
         }
     }

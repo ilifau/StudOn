@@ -21,6 +21,10 @@
         +-----------------------------------------------------------------------------+
 */
 
+// fau: paraSub - import of registration class
+use FAU\Ilias\Registration;
+// fau.
+
 include_once('./Services/Membership/classes/class.ilRegistrationGUI.php');
 include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
 
@@ -65,7 +69,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
             $this->registration_type = $this->container->getRegistrationType();
         } else {
             $this->registration_type = GRP_REGISTRATION_REQUEST;
-            $this->registration->setSubType(\FAU\Ilias\Registration::subConfirmation);
+            $this->registration->setSubType(Registration::subConfirmation);
         }
         // fau.
     }
@@ -523,156 +527,18 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
     {
         global $DIC;
 
-        $ilUser = $DIC['ilUser'];
-        $tree = $DIC['tree'];
-        $rbacreview = $DIC['rbacreview'];
-        $lng = $DIC['lng'];
-        $ilCtrl = $DIC['ilCtrl'];
-        
         // set agreement accepted
         $this->setAccepted(true);
 
-        // get the membership role id
-        $mem_rol_id = $this->participants->getRoleId(IL_GRP_MEMBER);
-
-        /////////////////////////////////////////////////////////////
-        // FAKES SIMULATING PARALLEL REQUESTS
-
-        // global $ilDB;
-
-        // ADD AS MEMBER
-        /*
-        $query = "INSERT INTO rbac_ua (rol_id, usr_id) ".
-            "VALUES (".
-            $ilDB->quote($mem_rol_id ,'integer').", ".
-            $ilDB->quote($ilUser->getId() ,'integer').
-            ")";
-        $res = $ilDB->manipulate($query);
-        */
-
-        // ADD TO WAITING LIST
-        /*
-          $query = "INSERT INTO crs_waiting_list (obj_id, usr_id, sub_time, subject) ".
-            "VALUES (".
-            $ilDB->quote($this->container->getId() ,'integer').", ".
-            $ilDB->quote($ilUser->getId() ,'integer').", ".
-            $ilDB->quote(time() ,'integer').", ".
-            $ilDB->quote($_POST['subject'] ,'text')." ".
-            ")";
-        $res = $ilDB->manipulate($query);
-        */
-
-        ////////////////////////////////////////////////////////////////
-
-
-        /////
-        // first decide what to do
-        // the sequence and nesting of checks is important!
-        /////
-        if ($this->participants->isAssigned($ilUser->getId())) {
-            // user is already a participant
-            $action = 'showAlreadyMember';
-        } elseif ($this->registration_type == GRP_REGISTRATION_REQUEST) {
-            // always add requests to be confirmed to the waiting list (to keep them in the order)
-            $action = 'addToWaitingList';
-        } elseif ($this->container->inSubscriptionFairTime()) {
-            // always add to the waiting list if in fair time
-            $action = 'addToWaitingList';
-        } elseif ($this->container->isMembershipLimited() && $this->container->getMaxMembers() > 0) {
-            $max = $this->container->getMaxMembers();
-            $free = max(0, $max - $this->participants->getCountMembers());
-
-            if ($this->isWaitingListActive()) {
-                $waiting = $this->getWaitingList()->getCountUsers();
-                if ($waiting >= $free) {
-                    // add to waiting list if all free places have waiting candidates
-                    $action = 'addToWaitingList';
-                } elseif ($this->participants->addLimited($ilUser->getId(), IL_GRP_MEMBER, $max - $waiting)) {
-                    // try to add the users
-                    // free places are those without waiting candidates
-
-                    // member could be added
-                    $action = 'notifyAdded';
-                } else {
-                    // maximum members reached
-                    $action = 'addToWaitingList';
-                }
-            } elseif ($this->participants->addLimited($ilUser->getId(), IL_GRP_MEMBER, $max)) {
-                // member could be added
-                $action = 'notifyAdded';
-            } elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
-                // may have been added by a parallel request
-                $action = 'showAlreadyMember';
-            } else {
-                // maximum members reached and no list active
-                $action = 'showLimitReached';
-            }
-        } elseif ($this->participants->addLimited($ilUser->getId(), IL_GRP_MEMBER, 0)) {
-            // member could be added
-            $action = 'notifyAdded';
-        } elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
-            // may have been added by a parallel request
-            $action = 'showAlreadyMember';
-        } else {
-            // show an unspecified error
-            $action = 'showGenericFailure';
-        }
-
-        /////
-        // second perform an adding to waiting list (this may set a new action)
-        ////
-        if ($action == 'addToWaitingList') {
-            $to_confirm = ($this->registration_type == GRP_REGISTRATION_REQUEST) ?
-                ilWaitingList::REQUEST_TO_CONFIRM : ilWaitingList::REQUEST_NOT_TO_CONFIRM;
-            $sub_time = $this->container->inSubscriptionFairTime() ? $this->container->getSubscriptionFair() : time();
-
-            if ($this->getWaitingList()->addWithChecks($ilUser->getId(), $mem_rol_id, $_POST['subject'], $to_confirm, $sub_time)) {
-                if ($this->container->inSubscriptionFairTime($sub_time)) {
-                    // show info about adding in fair time
-                    $action = 'showAddedToWaitingListFair';
-                } else {
-                    // maximum members reached
-                    $action = 'notifyAddedToWaitingList';
-                }
-            } elseif ($rbacreview->isAssigned($ilUser->getId(), $mem_rol_id)) {
-                $action = 'showAlreadyMember';
-            } elseif (ilWaitingList::_isOnList($ilUser->getId(), $this->container->getId())) {
-                // check the failure of adding to the waiting list
-                $action = 'showAlreadyOnWaitingList';
-            } else {
-                // show an unspecified error
-                $action = 'showGenericFailure';
-            }
-        }
-
-        /////
-        // third perform the other actions
-        ////
+        $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) 0);
 
         // get the link to the upper container
-        $ilCtrl->setParameterByClass(
-            "ilrepositorygui",
-            "ref_id",
-            $tree->getParentId($this->container->getRefId())
+        $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id",
+            $DIC->repositoryTree()->getParentId($this->container->getRefId())
         );
 
-        switch ($action) {
-            case 'notifyAdded':
-                $this->participants->sendNotification(
-                    ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION,
-                    $ilUser->getId()
-                );
-                $this->participants->sendNotification(
-                    ilGroupMembershipMailNotification::TYPE_SUBSCRIBE_MEMBER,
-                    $ilUser->getId()
-                );
-                // fau: courseUdf - send external notifications
-                $this->participants->sendExternalNotifications($this->container, $ilUser);
-                // fau.
-
-                include_once './Modules/Forum/classes/class.ilForumNotification.php';
-                ilForumNotification::checkForumsExistsInsert($this->container->getRefId(), $ilUser->getId());
-                    
+        switch ($this->registration->getNextAction()) {
+            case Registration::notifyAdded:
                 if (!$_SESSION["pending_goto"]) {
                     ilUtil::sendSuccess($this->lng->txt("grp_registration_completed"), true);
                     $this->ctrl->returnToParent($this);
@@ -683,49 +549,35 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
                 }
                 break;
 
-            case 'notifyAddedToWaitingList':
-                $this->participants->sendAddedToWaitingList($ilUser->getId(), $this->getWaitingList()); // mail to user
-                if ($this->registration_type == GRP_REGISTRATION_REQUEST) {
-                    $this->participants->sendSubscriptionRequestToAdmins($ilUser->getId());				// mail to admins
-                }
-                // fau: courseUdf - send external notifications
-                $this->participants->sendExternalNotifications($this->container, $ilUser);
-                // fau.
-
-                $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($ilUser->getId()));
+            case Registration::notifyAddedToWaitingList:
+                $info = sprintf($this->lng->txt('sub_added_to_waiting_list'), $this->getWaitingList()->getPositionInfo($DIC->user()->getId()));
                 ilUtil::sendSuccess($info, true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
-            case 'showLimitReached':
-                ilUtil::sendFailure($this->lng->txt("grp_reg_limit_reached"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
-                break;
-
-            case 'showAlreadyMember':
-                ilUtil::sendFailure($this->lng->txt("grp_reg_user_already_assigned"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
-                break;
-
-            case 'showAddedToWaitingListFair':
-                // fau: courseUdf - send external notifications
-                $this->participants->sendExternalNotifications($this->container, $ilUser);
-                // fau.
+            case Registration::showAddedToWaitingListFair:
                 ilUtil::sendSuccess($this->lng->txt("sub_fair_added_to_waiting_list"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
-            case 'showAlreadyOnWaitingList':
-                ilUtil::sendFailure($this->lng->txt("grp_reg_user_on_waiting_list"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
+            case Registration::showUpdatedWaitingList:
+                ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
 
-            case 'showGenericFailure':
+            case Registration::showLimitReached:
+                ilUtil::sendFailure($this->lng->txt("grp_reg_limit_reached"), true);
+                $this->ctrl->redirectByClass("ilrepositorygui");
+                break;
+
+            case Registration::showAlreadyMember:
+                ilUtil::sendFailure($this->lng->txt("grp_reg_user_already_assigned"), true);
+                $this->ctrl->redirectByClass("ilrepositorygui");
+                break;
+
+            case Registration::showGenericFailure:
                 ilUtil::sendFailure($this->lng->txt("grp_reg_user_generic_failure"), true);
-                $ilCtrl->redirectByClass("ilrepositorygui");
-                break;
-
-            default:
+                $this->ctrl->redirectByClass("ilrepositorygui");
                 break;
         }
     }
@@ -757,31 +609,8 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
      */
     protected function isWaitingListActive()
     {
-        global $DIC;
-
-        $ilUser = $DIC['ilUser'];
-        static $active = null;
-        
-        if ($active !== null) {
-            return $active;
-        }
-
-        // fau: fairSub - set waiting list to active if in fair time
-        if ($this->container->inSubscriptionFairTime()) {
-            return $active = true;
-        }
+        // fau: paraSub - use own function isWaitingListActive()
+        return $this->registration->isWaitingListActive();
         // fau.
-
-        if (!$this->container->getMaxMembers()) {
-            return $active = false;
-        }
-        if (
-                !$this->container->isWaitingListEnabled() or
-                !$this->container->isMembershipLimited()) {
-            return $active = false;
-        }
-
-        $free = max(0, $this->container->getMaxMembers() - $this->participants->getCountMembers());
-        return $active = (!$free or $this->getWaitingList()->getCountUsers());
     }
 }

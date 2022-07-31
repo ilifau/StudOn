@@ -6,6 +6,8 @@ use ilObjCourse;
 use ilCourseParticipants;
 use ilCourseWaitingList;
 use ILIAS\DI\Container;
+use ilMailNotification;
+use ilCourseMembershipMailNotification;
 
 /**
  * Extension of the registration with course specific functions
@@ -21,21 +23,6 @@ class CourseRegistration extends Registration
     /** @var ilCourseWaitingList */
     protected  $waitingList;
 
-    
-    /**
-     * Constructor
-     */
-    public function __construct(Container $dic, $object, $participants = null, $waitingList = null)
-    {
-       parent::__construct($dic, $object, $participants, $waitingList);
-
-       if (!isset($this->participants)) {
-           $this->participants = ilCourseParticipants::_getInstanceByObjId($this->object->getId());
-       }
-       if (!isset($this->waitingList)) {
-           $this->waitingList = new ilCourseWaitingList($this->object->getId());
-       }
-    }
 
     /**
      * Init the subscription type from course constant
@@ -81,4 +68,25 @@ class CourseRegistration extends Registration
     {
         return (int) $this->participants->getRoleId(IL_CRS_MEMBER);
     }
+
+    protected function getAddedNotificationTypeAdmins() : int
+    {
+        return $this->participants->NOTIFY_ADMINS;
+    }
+
+    protected function getAddedNotificationTypeMember() : int
+    {
+        return $this->participants->NOTIFY_REGISTERED;
+    }
+
+    protected function getMembershipMailNotification() : ilMailNotification
+    {
+        return new ilCourseMembershipMailNotification();
+    }
+
+    protected function checkLPStatusSync(int $user_id) : void
+    {
+        $this->object->checkLPStatusSync($user_id);
+    }
+
 }

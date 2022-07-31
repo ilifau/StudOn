@@ -1463,6 +1463,8 @@ class ilMembershipGUI
      */
     public function acceptOnList()
     {
+        global $DIC;
+
         if (!count($_POST['waiting'])) {
             ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
             $this->ctrl->redirect($this, 'participants');
@@ -1478,7 +1480,7 @@ class ilMembershipGUI
             $accepted[] = $user_id;
         }
 
-        // try to fill free places free places from the waiting list
+        // try to fill free places from the waiting list
         // call it with 'manual' mode to suppress the sending of admin notifications
         $added = array();
         if ($this instanceof ilCourseMembershipGUI) {
@@ -1486,7 +1488,8 @@ class ilMembershipGUI
             $course = $this->getParentObject();
             if ($course->isSubscriptionMembershipLimited() && $course->hasWaitingListAutoFill()
                 && (empty($course->getCancellationEnd()) || $course->getCancellationEnd() > time())) {
-                $added = $course->handleAutoFill(true);
+                $registration = $DIC->fau()->ilias()->getRegistration($course);
+                $added = $registration->handleAutoFill(true);
             }
             $mail = new ilCourseMembershipMailNotification();
             $mail->setType(ilCourseMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
@@ -1497,7 +1500,8 @@ class ilMembershipGUI
             $group = $this->getParentObject();
             if ($group->isMembershipLimited() && $group->hasWaitingListAutoFill()
                 && (empty($group->getCancellationEnd()) || $group->getCancellationEnd()->get(IL_CAL_UNIX) > time())) {
-                $added = $group->handleAutoFill(true);
+                $registration = $DIC->fau()->ilias()->getRegistration($group);
+                $added = $registration->handleAutoFill(true);
             }
             $mail = new ilGroupMembershipMailNotification();
             $mail->setType(ilGroupMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
@@ -1546,9 +1550,11 @@ class ilMembershipGUI
      */
     public function fillFreePlaces()
     {
+        global $DIC;
         /** @var ilObjCourse|ilObjGroup $object */
         $object = $this->getParentObject();
-        $added = $object->handleAutoFill(true);
+        $registration = $DIC->fau()->ilias()->getRegistration($object);
+        $added = $registration->handleAutoFill(true);
 
         if (count($added)) {
             ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
