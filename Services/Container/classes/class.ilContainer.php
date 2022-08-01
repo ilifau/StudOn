@@ -170,7 +170,7 @@ class ilContainer extends ilObject
     public function isParallelGroup()
     {
         if (!isset($this->is_parallel_group)) {
-            if (!$this->type = 'grp') {
+            if (!$this->type == 'grp') {
                 $this->is_parallel_group = false;
             }
             else {
@@ -188,7 +188,7 @@ class ilContainer extends ilObject
     public function hasParallelGroups()
     {
         if (!isset($this->has_parallel_groups)) {
-            if (!$this->type = 'crs') {
+            if (!$this->type == 'crs') {
                 $this->has_parallel_groups = false;
             }
             else {
