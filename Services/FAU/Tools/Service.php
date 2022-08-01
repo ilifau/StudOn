@@ -17,7 +17,7 @@ class Service extends SubService
     public function convert() : Convert
     {
         if(!isset($this->convert)) {
-            $this->con = new Convert($this->dic);
+            $this->convert = new Convert($this->dic);
         }
         return $this->convert;
     }
