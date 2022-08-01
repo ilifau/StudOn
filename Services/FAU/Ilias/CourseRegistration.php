@@ -64,9 +64,9 @@ class CourseRegistration extends Registration
         return (bool) $this->object->enabledWaitingList();
     }
 
-    protected function getMemberRoleId() : int
+    protected function getMemberRoleConstant() : int
     {
-        return (int) $this->participants->getRoleId(IL_CRS_MEMBER);
+        return IL_CRS_MEMBER;
     }
 
     protected function getAddedNotificationTypeAdmins() : int

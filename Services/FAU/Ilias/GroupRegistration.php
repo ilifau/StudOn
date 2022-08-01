@@ -64,6 +64,11 @@ class GroupRegistration extends Registration
         return (bool) $this->object->isWaitingListEnabled();
     }
 
+    protected function getMemberRoleConstant() : int
+    {
+        return IL_GRP_MEMBER;
+    }
+
     protected function getMemberRoleId() : int
     {
         return (int) $this->participants->getRoleId(IL_GRP_MEMBER);

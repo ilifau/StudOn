@@ -127,14 +127,18 @@ class Objects
     }
 
     /**
-     * Get the infos about the parallel groups in a course
+     * Get the infos about the parallel groups in a course or about all peer groups of a group
      * @return ContainerInfo[]
      */
-    public function getParallelGroupsInfos($course_ref_id) : array
+    public function getParallelGroupsInfos($ref_id) : array
     {
         $infos = [];
-        foreach ( $this->findChildParallelGroups($course_ref_id) as $ref_id) {
-            $group = $this->getParallelGroupInfo($ref_id);
+
+        if (ilObject::_lookupType($ref_id, true) == 'grp') {
+            $ref_id = (int) $this->findParentIliasCourse($ref_id);
+        }
+        foreach ( $this->findChildParallelGroups($ref_id) as $group_ref_id) {
+            $group = $this->getParallelGroupInfo($group_ref_id);
             $infos[$group->getTitle(). $group->getRefId()] = $group;
         }
         ksort($infos);

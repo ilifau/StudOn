@@ -72,5 +72,21 @@ class Repository extends RecordRepo
         return $this->getIntegerList($query, 'obj_id', false);
     }
 
+    /**
+     * Get the id of groups with a subscription by a user
+     * @param int   $user_id
+     * @param int[] $obj_ids
+     * @return int[]
+     */
+    public function getSubscribedObjectIds(int $user_id, array $obj_ids) : array
+    {
+        $query = "
+            SELECT obj_id
+            FROM crs_waiting_list
+            WHERE usr_id = " . $this->db->quote($user_id, 'integer') . "
+            AND " . $this->db->in('obj_id', $obj_ids, false, 'integer');
+
+        return $this->getIntegerList($query, 'obj_id', false);
+    }
 
 }

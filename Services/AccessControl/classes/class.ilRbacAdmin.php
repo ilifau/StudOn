@@ -258,11 +258,12 @@ class ilRbacAdmin
      * @param	integer		object_id of role
      * @param	integer		object_id of user
      * @param	integer		maximum members
+     * @param	integer[]   ids of roles whose count of union participants should be compared with the maximum members
      * @return	boolean     user assigned (true), not assigned (false)
      */
     public function assignUserLimitedCust($a_role_id, $a_usr_id, $a_limit = 0, $a_limited_roles = array())
     {
-        global $ilDB, $rbacreview;
+        global $DIC;
 
         if ($a_limit == 0) {
             // don't check maximum members
@@ -271,7 +272,7 @@ class ilRbacAdmin
                 . "SELECT %s usr_id, %s rol_id FROM DUAL "
                 . "WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s and rol_id = %s) ";
 
-            $res = $ilDB->manipulateF(
+            $res = $DIC->database()->manipulateF(
                 $query,
                 array(	'integer', 'integer',
                         'integer', 'integer'
@@ -287,9 +288,9 @@ class ilRbacAdmin
                 . "SELECT %s usr_id, %s rol_id FROM DUAL "
                 . "WHERE NOT EXISTS (SELECT 1 FROM rbac_ua WHERE usr_id = %s and rol_id = %s) "
                 . "AND %s > (SELECT COUNT(*) FROM rbac_ua WHERE "
-                . $ilDB->in('rol_id', (array) $a_limited_roles, false, 'integer') . ")";
+                . $DIC->database()->in('rol_id', (array) $a_limited_roles, false, 'integer') . ")";
 
-            $res = $ilDB->manipulateF(
+            $res = $DIC->database()->manipulateF(
                 $query,
                 array(	'integer', 'integer',
                         'integer', 'integer',
@@ -306,9 +307,8 @@ class ilRbacAdmin
             return false;
         }
 
-        $GLOBALS['DIC']['rbacreview']->setAssignedCacheEntry($a_role_id, $a_usr_id, true);
+        $DIC->rbac()->review()->setAssignedCacheEntry($a_role_id, $a_usr_id, true);
 
-        include_once('Services/LDAP/classes/class.ilLDAPRoleGroupMapping.php');
         $mapping = ilLDAPRoleGroupMapping::_getInstance();
         $mapping->assign($a_role_id, $a_usr_id);
         return true;

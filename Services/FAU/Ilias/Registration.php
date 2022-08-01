@@ -107,7 +107,7 @@ abstract class Registration
     abstract public function isWaitingListEnabled() : bool;
     abstract protected function initSubType() : void;
     abstract protected function checkLPStatusSync(int $user_id): void;
-    abstract protected function getMemberRoleId(): int;
+    abstract protected function getMemberRoleConstant(): int;
     abstract protected function getAddedNotificationTypeAdmins(): int;
     abstract protected function getAddedNotificationTypeMember(): int;
     abstract protected function getMembershipMailNotification(): ilMailNotification;
@@ -228,7 +228,7 @@ abstract class Registration
             // For test of race condition
             // $this->simulateParallelMembership();
 
-            if ($this->participants->addLimited($this->user->getId(), IL_CRS_MEMBER, $this->addingLimit)) {
+            if ($this->participants->addLimited($this->user->getId(), $this->getMemberRoleConstant(), $this->addingLimit)) {
                 // member could be added
                 $this->nextAction = self::notifyAdded;
                 $this->checkLPStatusSync($this->user->getId());
@@ -451,7 +451,7 @@ abstract class Registration
                         // user is already assigned to the course
                         || $this->participants->isAssigned($user_id) == true
                         // user is already assigned to a grouped course
-                        || ilObjCourseGrouping::_checkGroupingDependencies($this, $user_id) == false
+                        || ilObjCourseGrouping::_checkGroupingDependencies($this->object, $user_id) == false
                     ) {
                         // user can't be added - so remove from waiting lsit
                         $this->waitingList->removeFromList($user_id);
@@ -616,4 +616,10 @@ abstract class Registration
     {
         return $this->object->inSubscriptionFairTime() ? $this->object->getSubscriptionFair() : time();
     }
+
+    protected function getMemberRoleId() : int
+    {
+        return (int) $this->participants->getRoleId($this->getMemberRoleConstant());
+    }
+
 }
