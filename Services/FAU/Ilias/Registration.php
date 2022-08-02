@@ -103,14 +103,17 @@ abstract class Registration
 
     // Hiding of type (course/group) differences
     abstract public function isMembershipLimited() : bool;
-    abstract public function getMaxMembers() : bool;
+    abstract public function getMaxMembers() : int;
     abstract public function isWaitingListEnabled() : bool;
+    abstract public function getMembershipMailNotification(): ilMailNotification;
+    abstract public function getNotificationTypeAddedAdmins(): int;
+    abstract public function getNotificationTypeAddedMember(): int;
+    abstract public function getNotificationTypeRefusedMember(): int;
     abstract protected function initSubType() : void;
     abstract protected function checkLPStatusSync(int $user_id): void;
     abstract protected function getMemberRoleConstant(): int;
-    abstract protected function getAddedNotificationTypeAdmins(): int;
-    abstract protected function getAddedNotificationTypeMember(): int;
-    abstract protected function getMembershipMailNotification(): ilMailNotification;
+
+
 
     /**
      * Init the subscription action to be performed and the limit for adding to the member role
@@ -328,8 +331,8 @@ abstract class Registration
         // send external notifications for courseUdf
         switch ($this->getNextAction()) {
             case Registration::notifyAdded:
-                $this->participants->sendNotification($this->getAddedNotificationTypeAdmins(), $this->user->getId());
-                $this->participants->sendNotification($this->getAddedNotificationTypeMember(), $this->user->getId());
+                $this->participants->sendNotification($this->getNotificationTypeAddedAdmins(), $this->user->getId());
+                $this->participants->sendNotification($this->getNotificationTypeAddedMember(), $this->user->getId());
                 $this->participants->sendExternalNotifications($this->object, $this->user);
                 ilForumNotification::checkForumsExistsInsert($this->object->getRefId(), $this->user->getId());
                 break;
@@ -437,7 +440,7 @@ abstract class Registration
         ) {
 
             $max = (int) $this->getMaxMembers();
-            $now = ilGroupParticipants::lookupNumberOfMembers($this->object->getRefId());
+            $now = $this->getCountMembers();
 
             if ($max == 0 || $max > $now) {
                 // see assignFromWaitingListObject()
@@ -459,7 +462,7 @@ abstract class Registration
                     }
 
                     // avoid race condition
-                    if ($this->participants->addLimited($user_id, IL_GRP_MEMBER, $max)) {
+                    if ($this->participants->addLimited($user_id, $this->getMemberRoleConstant(), $max)) {
                         // user is now member
                         $added_users[] = $user_id;
                         $this->checkLPStatusSync($user_id);
@@ -558,6 +561,13 @@ abstract class Registration
         return (!$this->getFreePlaces() || $this->waitingList->getCountUsers());
     }
 
+    /**
+     * Get the assigned object
+     * @return ilObjCourse|ilObjGroup
+     */
+    public function getObject() {
+        return $this->object;
+    }
 
     /**
      * Get the info objects about the parallel groups
@@ -594,17 +604,25 @@ abstract class Registration
     }
 
     /**
+     * Get the number of members
+     */
+    public function getCountMembers() : int
+    {
+        return $this->participants->getCountMembers();
+    }
+
+    /**
      * Get the number of free places
      */
     public function getFreePlaces() : int
     {
-        return max(0, $this->getMaxMembers() - $this->participants->getCountMembers());
+        return max(0, $this->getMaxMembers() - $this->getCountMembers());
     }
 
     /**
      * Get the confirmation status to be set for new waiting list entries
      */
-    public function getNewToConfirm() : int
+    protected function getNewToConfirm() : int
     {
         return ($this->subType == self::subConfirmation) ? ilWaitingList::REQUEST_TO_CONFIRM : ilWaitingList::REQUEST_NOT_TO_CONFIRM;
     }
@@ -612,14 +630,25 @@ abstract class Registration
     /**
      * Get the subscription time for new waiting list entries
      */
-    public function getNewSubTime() : int
+    protected function getNewSubTime() : int
     {
         return $this->object->inSubscriptionFairTime() ? $this->object->getSubscriptionFair() : time();
     }
 
+    /**
+     * Get the actual role id for members
+     */
     protected function getMemberRoleId() : int
     {
         return (int) $this->participants->getRoleId($this->getMemberRoleConstant());
+    }
+
+    /**
+     * Get if free places can be filled
+     */
+    public function canBeFilled() : bool
+    {
+        return !$this->object->inSubscriptionFairTime() && (!$this->isMembershipLimited() || $this->getFreePlaces() > 0);
     }
 
 }

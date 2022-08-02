@@ -93,9 +93,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->addColumn($this->lng->txt('date'), 'sub_time', "15%");
         $this->addColumn($this->lng->txt('status'), 'to_confirm', '10%');
         $this->addColumn($this->lng->txt('message'), 'subject', '10%');
-        if ($this->rep_object instanceof ilObjCourse || $this->rep_object instanceof ilObjGroup) {
-            $this->showParallelGroups = ($this->rep_object->hasParallelGroups() || $this->rep_object->isParallelGroup());
-        }
+        $this->showParallelGroups = $DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getRepositoryObject());
         if ($this->showParallelGroups) {
             $this->addColumn($this->lng->txt('fau_parallel_groups'), 'groups', '10%');
         }
@@ -125,16 +123,15 @@ class ilWaitingListTableGUI extends ilTable2GUI
         self::$has_odf_definitions = ilCourseDefinedFieldDefinition::_hasFields($this->getRepositoryObject()->getId());
 
         // fau: fairSub - adjust waiting list commands
-        if ($this->getRepositoryObject()->getType() == 'sess') {
-            $this->addMultiCommand('confirmAssignFromWaitingList', $this->lng->txt('assign'));
-            $this->addMultiCommand('confirmRefuseFromList', $this->lng->txt('sub_remove_waiting'));
-            $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('crs_mem_send_mail'));
-        } else {
+        if ($DIC->fau()->ilias()->objects()->isRegistrationHandlerSupported($this->getRepositoryObject())) {
             $this->addMultiCommand('confirmAcceptOnList', $this->lng->txt('sub_confirm_requests'));
             $this->addMultiCommand('confirmAssignFromWaitingList', $this->lng->txt('sub_assign_waiting'));
-            $this->addMultiCommand('confirmRefuseFromList', $this->lng->txt('sub_remove_waiting'));
-            $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('crs_mem_send_mail'));
         }
+        else {
+            $this->addMultiCommand('confirmAssignFromWaitingList', $this->lng->txt('assign'));
+        }
+        $this->addMultiCommand('confirmRefuseFromList', $this->lng->txt('sub_remove_waiting'));
+        $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('crs_mem_send_mail'));
 
         $this->addToDos();
         // fau.
@@ -147,35 +144,20 @@ class ilWaitingListTableGUI extends ilTable2GUI
      */
     protected function addToDos()
     {
-        switch ($this->getRepositoryObject()->getType()) {
-            case "crs":
-                /** @var ilObjCourse $object */
-                $object = $this->getRepositoryObject();
-                $max = $object->getSubscriptionMaxMembers();
-                $members = ilCourseParticipants::lookupNumberOfMembers($object->getRefId());
-                $limited = $object->isSubscriptionMembershipLimited();
-                break;
+        global $DIC;
 
-            case 'grp':
-                /** @var ilObjGroup $object */
-                $object = $this->getRepositoryObject();
-                $max = $object->getMaxMembers();
-                $members = ilGroupParticipants::lookupNumberOfMembers($object->getRefId());
-                $limited = $object->isMembershipLimited();
-                break;
-
-            default:
-                return;
+        if (empty($registration = $DIC->fau()->ilias()->getRegistration($this->getRepositoryObject()))) {
+            return;
         }
+        $todo_messages = [];
 
-        $todo_messages = array();
+        // check if waiting registrations have to be confirmed
         if ($this->getWaitingList()->getCountToConfirm() > 0) {
             $todo_messages[] = $this->lng->txt('sub_to_confirm_message');
         }
 
         // check if places are free and can be filled (fair time is over)
-        if (!$object->inSubscriptionFairTime() &&
-            (!$limited || empty($max) || $max > $members)) {
+        if ($registration->canBeFilled()) {
             $todo_messages[] = $this->lng->txt('sub_to_fill_message');
             $this->addCommandButton('confirmFillFreePlaces', $this->lng->txt('sub_fill_free_places'));
         }

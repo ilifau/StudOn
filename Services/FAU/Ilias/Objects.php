@@ -8,6 +8,9 @@ use FAU\Study\Data\Course;
 use ilObjGroupAccess;
 use FAU\Ilias\Data\ContainerInfo;
 use FAU\Ilias\Data\ListProperty;
+use ilWaitingList;
+use ilCourseWaitingList;
+use ilGroupWaitingList;
 
 /**
  * Functions to handle with ILIAS objects
@@ -128,12 +131,12 @@ class Objects
 
     /**
      * Get the infos about the parallel groups in a course or about all peer groups of a group
+     * @param int $ref_id   ref_id of the course or of one parallel group
      * @return ContainerInfo[]
      */
     public function getParallelGroupsInfos($ref_id) : array
     {
         $infos = [];
-
         if (ilObject::_lookupType($ref_id, true) == 'grp') {
             $ref_id = (int) $this->findParentIliasCourse($ref_id);
         }
@@ -143,5 +146,59 @@ class Objects
         }
         ksort($infos);
         return array_values($infos);
+    }
+
+    /**
+     * Get the waiting lists of a course and its enclosed parallel groups
+     * @param int $ref_id ref_id of the course or of one parallel group
+     * @return ilWaitingList[]  the first element is the list of the course
+     */
+    public function getCourseAndParallelGroupsWaitingLists($ref_id) : array
+    {
+        $lists = [];
+
+        // add the list of the course
+        if (ilObject::_lookupType($ref_id, true) == 'grp') {
+            $ref_id = (int) $this->findParentIliasCourse($ref_id);
+        }
+        $lists[] = new ilCourseWaitingList(ilObject::_lookupObjId($ref_id));
+
+        // add the lists of the groups
+        foreach ( $this->findChildParallelGroups($ref_id) as $group_ref_id) {
+            $lists[] = new ilGroupWaitingList(ilObject::_lookupObjId($group_ref_id));
+        }
+        return $lists;
+    }
+
+    /**
+     * Check if an object is a parallel group
+     */
+    public function isParallelGroup(\ilObject $object) : bool
+    {
+        if ($this->isRegistrationHandlerSupported($object)) {
+            return $object->isParallelGroup();
+        }
+        return false;
+    }
+
+    /**
+     * Check if an object is a parallel group or parent course of a parallel group
+     */
+    public function isParallelGroupOrParentCourse(\ilObject $object) : bool
+    {
+        if ($this->isRegistrationHandlerSupported($object)) {
+            return $object->isParallelGroup() || $object->hasParallelGroups();
+        }
+        return false;
+    }
+
+    /**
+     * Check if the registration handler is supported for an object
+     * @param ilObject $object
+     * @return bool
+     */
+    public function isRegistrationHandlerSupported(\ilObject $object) : bool
+    {
+        return $object instanceof \ilObjCourse || $object instanceof \ilObjGroup;
     }
 }

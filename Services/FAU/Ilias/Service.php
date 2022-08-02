@@ -56,8 +56,9 @@ class Service extends SubService
      * Get the registration object
      * (not cached because of dependencies)
      * @return CourseRegistration|GroupRegistration|null
+     * @see Objects::isRegistrationHandlerSupported();
      */
-    public function getRegistration(ilContainer $object, ilParticipants $participants = null, ilWaitingList $waitingList = null)
+    public function getRegistration(\ilObject $object, ilParticipants $participants = null, ilWaitingList $waitingList = null)
     {
         if ($object instanceof ilObjCourse) {
             return new CourseRegistration($this->dic, $object, $participants, $waitingList);

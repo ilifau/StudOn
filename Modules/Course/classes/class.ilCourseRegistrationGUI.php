@@ -478,17 +478,19 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
 // fau.
             
                 $sub = new ilTextAreaInputGUI($this->lng->txt('crs_reg_subject'), 'subject');
-                $sub->setValue($_POST['subject']);
                 $sub->setInfo($this->lng->txt('crs_info_reg_confirmation'));
 // fau: fairSub - extend size of subject field
                 $sub->setRows(10);
 // fau.
 // fau: fairSub - treat existing subscription on waiting list
-                if ($this->getWaitingList()->isToConfirm($ilUser->getId())) {
+                if ($this->getWaitingList()->isOnList($ilUser->getId())) {
                     $sub->setValue($this->getWaitingList()->getSubject($ilUser->getId()));
-                    $sub->setInfo('');
-                    ilUtil::sendQuestion('mem_user_already_subscribed');
-                    //$this->enableRegistration(true);
+                    if ($this->getWaitingList()->isToConfirm($ilUser->getId())) {
+                        $sub->setInfo($this->lng->txt('crs_info_reg_confirmation'));
+                    }
+                    else {
+                        $sub->setInfo($this->lng->txt('sub_status_confirmed'));
+                    }
                 }
 // fau.
                 $txt->addSubItem($sub);

@@ -54,9 +54,9 @@ class GroupRegistration extends Registration
         return (bool) $this->object->isMembershipLimited();
     }
 
-    public function getMaxMembers() : bool
+    public function getMaxMembers() : int
     {
-        return (bool) $this->object->getMaxMembers();
+        return (int) $this->object->getMaxMembers();
     }
 
     public function isWaitingListEnabled() : bool
@@ -74,17 +74,22 @@ class GroupRegistration extends Registration
         return (int) $this->participants->getRoleId(IL_GRP_MEMBER);
     }
 
-    protected function getAddedNotificationTypeAdmins() : int
+    public function getNotificationTypeAddedAdmins() : int
     {
         return ilGroupMembershipMailNotification::TYPE_NOTIFICATION_REGISTRATION;
     }
 
-    protected function getAddedNotificationTypeMember() : int
+    public function getNotificationTypeAddedMember() : int
     {
         return ilGroupMembershipMailNotification::TYPE_SUBSCRIBE_MEMBER;
     }
 
-    protected function getMembershipMailNotification() : ilMailNotification
+    public function getNotificationTypeRefusedMember() : int
+    {
+        return ilGroupMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER;
+    }
+
+    public function getMembershipMailNotification() : ilMailNotification
     {
         return new ilGroupMembershipMailNotification();
     }

@@ -54,7 +54,7 @@ class CourseRegistration extends Registration
         return (bool) $this->object->isSubscriptionMembershipLimited();
     }
 
-    public function getMaxMembers() : bool
+    public function getMaxMembers() : int
     {
         return (int) $this->object->getSubscriptionMaxMembers();
     }
@@ -69,17 +69,22 @@ class CourseRegistration extends Registration
         return IL_CRS_MEMBER;
     }
 
-    protected function getAddedNotificationTypeAdmins() : int
+    public function getNotificationTypeAddedAdmins() : int
     {
         return $this->participants->NOTIFY_ADMINS;
     }
 
-    protected function getAddedNotificationTypeMember() : int
+    public function getNotificationTypeAddedMember() : int
     {
         return $this->participants->NOTIFY_REGISTERED;
     }
 
-    protected function getMembershipMailNotification() : ilMailNotification
+    public function getNotificationTypeRefusedMember() : int
+    {
+        return $this->participants->NOTIFY_DISMISS_SUBSCRIBER;
+    }
+
+    public function getMembershipMailNotification() : ilMailNotification
     {
         return new ilCourseMembershipMailNotification();
     }
