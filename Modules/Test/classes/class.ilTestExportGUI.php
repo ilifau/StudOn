@@ -35,7 +35,12 @@ class ilTestExportGUI extends ilExportGUI
             $this->addFormat('prf', $a_parent_gui->lng->txt('ass_create_export_mycampus'), $this, 'createTestResultsMyCampus');
         }
         // fau.
+        // fau: campoGrades - button to export test results for campo
 
+        if (ilCust::get('tst_export_campo')) {
+            $this->addFormat('prfcampo', $a_parent_gui->lng->txt('ass_create_export_campo'), $this, 'createTestResultsCampo');
+        }
+        // fau.
 
         $pl_names = $ilPluginAdmin->getActivePluginsForSlot(IL_COMP_MODULE, 'Test', 'texp');
         foreach ($pl_names as $pl) {
@@ -111,6 +116,13 @@ class ilTestExportGUI extends ilExportGUI
     {
         global $ilCtrl;
         $ilCtrl->redirectByClass("iltestmycampusgui");
+    }
+    // fau.
+    // fau: campoGrades - create test results for campo
+    public function createTestResultsCampo()
+    {
+        global $ilCtrl;
+        $ilCtrl->redirectByClass("iltestcampogui");
     }
     // fau.
 

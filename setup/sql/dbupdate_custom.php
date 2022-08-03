@@ -1564,3 +1564,17 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_99();
 ?>
+<#100>
+<?php
+    /**
+     * Create the table to store the test result export options for campo
+     */
+    if (!$ilDB->tableExists('tst_campo_options')) {
+        $ilDB->createTable('tst_campo_options', array(
+            'obj_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true),
+            'option_key' => array('type' => 'text', 'length' => 100, 'notnull' => false),
+            'option_value' => array('type' => 'text', 'length' => 2000, 'notnull' => false)
+        ));
+        $ilDB->addPrimaryKey("tst_campo_options", array('obj_id', 'option_key'));
+    }
+?>
