@@ -2299,7 +2299,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     {
         // fau: fairSub - use extended function for auto fill
         global $DIC;
-        $DIC->fau()->ilias()->getRegistration($this)->handleAutoFill();
+        $DIC->fau()->ilias()->getRegistration($this)->doAutoFill();
         // fau.
     }
 

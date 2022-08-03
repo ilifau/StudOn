@@ -5,7 +5,6 @@ namespace FAU\Ilias;
 use ilObjCourse;
 use ilCourseParticipants;
 use ilCourseWaitingList;
-use ILIAS\DI\Container;
 use ilMailNotification;
 use ilCourseMembershipMailNotification;
 
@@ -49,9 +48,9 @@ class CourseRegistration extends Registration
         }
     }
 
-    public function isMembershipLimited() : bool
+    public function hasMaxMembers() : bool
     {
-        return (bool) $this->object->isSubscriptionMembershipLimited();
+        return (bool) $this->object->isSubscriptionMembershipLimited() && !empty($this->object->getSubscriptionMaxMembers());
     }
 
     public function getMaxMembers() : int

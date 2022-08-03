@@ -5,7 +5,6 @@ namespace FAU\Ilias;
 use ilObjGroup;
 use ilGroupParticipants;
 use ilGroupWaitingList;
-use ILIAS\DI\Container;
 use ilMailNotification;
 use ilGroupMembershipMailNotification;
 
@@ -49,9 +48,9 @@ class GroupRegistration extends Registration
         }
     }
 
-    public function isMembershipLimited() : bool
+    public function hasMaxMembers() : bool
     {
-        return (bool) $this->object->isMembershipLimited();
+        return (bool) $this->object->isMembershipLimited() && !empty($this->object->getMaxMembers());
     }
 
     public function getMaxMembers() : int

@@ -530,6 +530,16 @@ abstract class ilWaitingList
 
 
     // fau: fairSub - new function getPositionUsers(), getEffectivePosition(), getPositionOthers()
+
+    /**
+     * Get all position numbers
+     */
+    public function getAllPositions()
+    {
+        return array_keys($this->position_ids);
+    }
+
+
     /**
      * get the count of users sharing a waiting list position
      * @param int $a_position	waiting list position
@@ -643,48 +653,6 @@ abstract class ilWaitingList
     {
         return $this->user_ids ? $this->user_ids : array();
     }
-
-    // fau: fairSub - get a list of assignable user ids
-    /**
-     * Get a list of user ids that can be assigned as members
-     * @param int|null 		$a_free 	free places or null for unlimited
-     * @return array					user ids
-     */
-    public function getAssignableUserIds($a_free = null)
-    {
-        $return_ids = array();
-
-        // get all users without needed confirmation if free places are unlimited
-        if (!isset($a_free)) {
-            return array_diff($this->user_ids, $this->to_confirm_ids);
-        }
-
-        // scan the list places and draw lots for equal
-        foreach ($this->position_ids as $position => $user_ids) {
-            // get users on the position without needed confirmation
-            $lot_ids = array_diff($user_ids, $this->to_confirm_ids);
-
-            // keep free places for users with needed confirmation
-            $a_free = $a_free - (count($user_ids) - count($lot_ids));
-
-            if ($a_free > 0) {
-                shuffle($lot_ids);
-                $to_draw = min($a_free, count($lot_ids));
-                $a_free = $a_free - $to_draw;
-
-                $drawn_ids = array_slice($lot_ids, 0, $to_draw);
-                $return_ids = array_merge($return_ids, $drawn_ids);
-            }
-
-            // no more places to fill
-            if ($a_free <= 0) {
-                break;
-            }
-        }
-
-        return $return_ids;
-    }
-    // fau.
 
     /**
      * Read waiting list

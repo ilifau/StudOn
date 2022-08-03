@@ -537,7 +537,7 @@ class ilGroupRegistrationGUI extends ilRegistrationGUI
             $DIC->repositoryTree()->getParentId($this->container->getRefId())
         );
 
-        switch ($this->registration->getNextAction()) {
+        switch ($this->registration->getRegistrationAction()) {
             case Registration::notifyAdded:
                 if (!$_SESSION["pending_goto"]) {
                     ilUtil::sendSuccess($this->lng->txt("grp_registration_completed"), true);

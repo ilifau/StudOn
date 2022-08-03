@@ -11,6 +11,7 @@ use FAU\Ilias\Data\ListProperty;
 use ilWaitingList;
 use ilCourseWaitingList;
 use ilGroupWaitingList;
+use ilGroupParticipants;
 
 /**
  * Functions to handle with ILIAS objects
@@ -87,7 +88,7 @@ class Objects
     /**
      * Get the basic info of a parallel group
      */
-    public function getParallelGroupInfo($ref_id) : ContainerInfo
+    public function getParallelGroupInfo(int $ref_id, bool $with_participants = false, bool $with_waiting_list = false) : ContainerInfo
     {
         $obj_id = ilObject::_lookupObjId($ref_id);
         $info = ilObjGroupAccess::lookupRegistrationInfo($obj_id, $ref_id);
@@ -110,7 +111,7 @@ class Objects
 
         // add the registration info fpr parallel groups
         // not added by ilObjGroupAccess::lookupRegistrationInfo because registration is disabled for parallel group
-        if ($groupInfo->hasMemLimit()) {
+        if ($groupInfo->hasMaxMembers()) {
             $limits = array();
             $limits[] = $this->dic->language()->txt("mem_max_users") . $groupInfo->getMaxMembers();
             $limits[] = $this->dic->language()->txt("mem_free_places") . ': ' . $groupInfo->getFreePlaces();
@@ -126,6 +127,15 @@ class Objects
                 $groupInfo = $groupInfo->withProperty(new ListProperty($info[$key]['property'], $info[$key]['value']));
             }
         }
+
+        // optionally add the participants and waiting list
+        if ($with_participants) {
+            $groupInfo = $groupInfo->withParticipants(ilGroupParticipants::getInstance($ref_id));
+        }
+        if ($with_waiting_list) {
+            $groupInfo = $groupInfo->withWaitingList(new ilGroupWaitingList($obj_id));
+        }
+
         return $groupInfo;
     }
 
@@ -134,14 +144,14 @@ class Objects
      * @param int $ref_id   ref_id of the course or of one parallel group
      * @return ContainerInfo[]
      */
-    public function getParallelGroupsInfos($ref_id) : array
+    public function getParallelGroupsInfos($ref_id, bool $with_participants = false, bool $with_waiting_list = false) : array
     {
         $infos = [];
         if (ilObject::_lookupType($ref_id, true) == 'grp') {
             $ref_id = (int) $this->findParentIliasCourse($ref_id);
         }
         foreach ( $this->findChildParallelGroups($ref_id) as $group_ref_id) {
-            $group = $this->getParallelGroupInfo($group_ref_id);
+            $group = $this->getParallelGroupInfo($group_ref_id, $with_participants, $with_waiting_list);
             $infos[$group->getTitle(). $group->getRefId()] = $group;
         }
         ksort($infos);

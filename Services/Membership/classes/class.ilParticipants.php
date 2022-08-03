@@ -1119,25 +1119,39 @@ abstract class ilParticipants
 
     /**
      * fau: heavySub - Add user to a role with limited members
+     * Note: check the result, then call addLimitedSuccess()
      *
      * @access public
-     * @param 	int 		user id
-     * @param 	int 		role IL_CRS_MEMBER | IL_GRP_MEMBER
-     * @param 	int 		maximum members (0 if no maximum defined)
-     * @return  boolean 	user added (true) or not (false) or already assigned (null)
+     * @param 	int $a_usr_id	user id
+     * @param 	int $a_role		role IL_CRS_MEMBER | IL_GRP_MEMBER
+     * @param 	?int $a_max		maximum members (null, if no maximum defined)
+     * @return  bool 	        user added (true) or not (false) or already assigned (null)
      */
-    public function addLimited($a_usr_id, $a_role, $a_max)
+    public function addLimited(int $a_usr_id, int $a_role, ?int $a_max = null) : ?bool
     {
         global $DIC;
 
-        $rbacadmin = $DIC->rbac()->admin();
-        $ilAppEventHandler = $DIC->event();
-
         if ($this->isAssigned($a_usr_id)) {
             return null;
-        } elseif (!$rbacadmin->assignUserLimitedCust($this->role_data[$a_role], $a_usr_id, $a_max, array($this->role_data[$a_role]))) {
+        } elseif (!$DIC->rbac()->admin()->assignUserLimitedCust((int) $this->role_data[$a_role], $a_usr_id, $a_max)) {
             return false;
         }
+        return true;
+    }
+    // fau.
+
+
+    /**
+     * fau: heavySub - Notify the success of adding a user to a role with limited members
+     *
+     * @access public
+     * @param 	int $a_usr_id	user id
+     * @param 	int $a_role		role IL_CRS_MEMBER | IL_GRP_MEMBER
+     */
+
+    public function addLimitedSuccess(int $a_usr_id, int $a_role)
+    {
+        global $DIC;
 
         switch ($a_role) {
             case IL_CRS_MEMBER:
@@ -1149,11 +1163,9 @@ abstract class ilParticipants
 
         // Delete subscription request
         $this->deleteSubscriber($a_usr_id);
-
-        include_once './Services/Membership/classes/class.ilWaitingList.php';
         ilWaitingList::deleteUserEntry($a_usr_id, $this->obj_id);
 
-        $ilAppEventHandler->raise(
+        $DIC->event()->raise(
             $this->getComponent(),
             "addParticipant",
             array(
@@ -1161,7 +1173,6 @@ abstract class ilParticipants
                 'usr_id' => $a_usr_id,
                 'role_id' => $a_role)
         );
-        return true;
     }
     // fau.
     

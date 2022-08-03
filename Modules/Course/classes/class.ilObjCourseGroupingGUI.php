@@ -109,7 +109,7 @@ class ilObjCourseGroupingGUI
     // fau: limitSub - new function addWaitingMembers()
     /**
      * Add waiting members to the grouped objects
-     * this calls their handleAutoFill function()
+     * this calls the doAutoFill function()
      */
     public function addWaitingMembers()
     {
@@ -124,7 +124,7 @@ class ilObjCourseGroupingGUI
                 $object = ilObjectFactory::getInstanceByRefId($condition['target_ref_id']);
                 if ($object instanceof ilObjCourse || $object instanceof ilObjGroup) {
                     // call manual auto fill
-                    $added = $DIC->fau()->ilias()->getRegistration($object)->handleAutoFill(true);
+                    $added = $DIC->fau()->ilias()->getRegistration($object)->doAutoFill(true);
                     if (!empty($added)) {
                         $list = "";
                         foreach ($added as $user_id) {

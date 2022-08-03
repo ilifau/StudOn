@@ -2,8 +2,8 @@
 
 namespace FAU\Ilias\Data;
 
-use FAU\Ilias\Registration;
 use ilWaitingList;
+use ilParticipants;
 
 /**
  * Basic info for courses or groups
@@ -20,8 +20,8 @@ class ContainerInfo
     private string $type;
     private int $ref_id;
     private int $obj_id;
-    private bool $mem_limit;
-    private bool $waiting_list;
+    private bool $has_mem_limit;
+    private bool $has_waiting_list;
     private int $max_members;
     private int $members;
     private int $subscribers;
@@ -32,14 +32,19 @@ class ContainerInfo
     /** @var ListProperty[] */
     private array $props = [];
 
+
+    private ?ilWaitingList $waitingList = null;
+    private ?ilParticipants $participants = null;
+
+
     public function __construct (
         string $title,
         ?string $description,
         string $type,
         int $ref_id,
         int $obj_id,
-        bool $mem_limit,
-        bool $waiting_list,
+        bool $has_mem_limit,
+        bool $has_waiting_list,
         int $max_members,
         int $members,
         int $subscribers,
@@ -51,9 +56,9 @@ class ContainerInfo
         $this->type = $type;
         $this->ref_id = $ref_id;
         $this->obj_id = $obj_id;
-        $this->mem_limit = $mem_limit;
+        $this->has_mem_limit = $has_mem_limit;
         $this->max_members = $max_members;
-        $this->waiting_list = $waiting_list;
+        $this->has_waiting_list = $has_waiting_list;
         $this->members = $members;
         $this->subscribers = $subscribers;
         $this->waiting_status = $waiting_status;
@@ -100,20 +105,13 @@ class ContainerInfo
         return $this->description;
     }
 
-    /**
-     * Get if the object has a membership limitation (max or min)
-     */
-    public function hasMemLimit() : bool
-    {
-        return $this->mem_limit;
-    }
 
     /**
-     * Get if the object has a waiting list enabled
+     * Get if the object has a maximum of members
      */
-    public function hasWaitingList() : bool
+    public function hasMaxMembers() : bool
     {
-        return $this->waiting_list;
+        return $this->has_mem_limit && !empty($this->max_members);
     }
 
     /**
@@ -126,10 +124,24 @@ class ContainerInfo
     }
 
     /**
+     * Get if the object has a waiting list enabled
+     */
+    public function hasWaitingList() : bool
+    {
+        return $this->has_waiting_list;
+    }
+
+    /**
      * Get the number of members
      */
     public function getMembers() : int
     {
+        // take current value from participants, if possible
+        if (isset($this->participants)) {
+            return $this->participants->getCountMembers();
+        }
+
+        // fallback: take initial value from constructor
         return $this->members;
     }
 
@@ -139,17 +151,31 @@ class ContainerInfo
      */
     public function getSubscribers() : int
     {
+        // take current value rom waiting list, if possible
+        if (isset($this->waitingList)) {
+            return $this->waitingList->getCountUsers();
+        }
+
+        // fallback: take initial value from constructor
         return $this->subscribers;
     }
 
     /**
-     * Get the status of the current user on the waiting list
-     * @see \ilWaitingList::_getStatus()
+     * Get the number of free places
      */
-    public function getWaitingStatus() : int
+    public function getFreePlaces() : int
     {
-        return $this->waiting_status;
+        return max(0, $this->getMaxMembers() - $this->getMembers());
     }
+
+    /**
+     * Get if the current user is a member
+     */
+    public function isAssigned() : bool
+    {
+        return $this->assigned;
+    }
+
 
     /**
      * Get if the current user is on the waiting list
@@ -159,40 +185,39 @@ class ContainerInfo
         return $this->waiting_status != ilWaitingList::REQUEST_NOT_ON_LIST;
     }
 
-    /**
-     * Get the number of free places
-     */
-    public function getFreePlaces() : int
-    {
-        return max(0, $this->max_members - $this->members);
-    }
 
     /**
      * Get the limit of members that should not be exceeded at registration
-     * Used for ilParticipants::addLimited()
-     * 0 means that there is no limit
-     * @see Registration::doRegistration()
+     * @return ?int     limit or null, if there is no limit
+     * @see ilParticipants::addLimited()
      */
-    public function getRegistrationLimit() : int
+    public function getRegistrationLimit() : ?int
     {
-        if (!$this->hasMemLimit()) {
-            return 0;
+        if (!$this->hasMaxMembers()) {
+            return null;
         }
         if ($this->hasWaitingList()) {
-            return max(0, $this->max_members - $this->subscribers);
+            return max(0, $this->getMaxMembers() - $this->getSubscribers());
         }
         else {
-            return $this->max_members;
+            return $this->getMaxMembers();
         }
     }
 
+    /**
+     * Get if a direct join to the object would be possible when the subscription type is direct
+     */
+    public function isDirectJoinPossible() : bool
+    {
+        return !$this->hasMaxMembers() || $this->getSubscribers() < $this->getFreePlaces();
+    }
 
     /**
-     * Get the properties
+     * Get if a subscription would be possible when the subscription is active
      */
-    public function getProperties() : array
+    public function isSubscriptionPossible() : bool
     {
-        return $this->props;
+        return $this->isDirectJoinPossible() || $this->hasWaitingList();
     }
 
     /**
@@ -211,25 +236,13 @@ class ContainerInfo
         return implode('<br />', $strings);
     }
 
-
     /**
-     * Get if a registration is possible
+     * Get the properties
      */
-    public function isDirectJoinPossible() : bool
+    public function getProperties() : array
     {
-        return !$this->hasMemLimit()
-            || $this->getSubscribers() < $this->getFreePlaces();
+        return $this->props;
     }
-
-
-    /**
-     * Get if a registration is possible
-     */
-    public function isSubscriptionPossible() : bool
-    {
-        return $this->isDirectJoinPossible() || $this->hasWaitingList();
-    }
-
 
     /**
      * Add a property
@@ -242,10 +255,41 @@ class ContainerInfo
     }
 
     /**
-     * @return bool
+     * @return ilWaitingList|null
      */
-    public function isAssigned() : bool
+    public function getWaitingList() : ?ilWaitingList
     {
-        return $this->assigned;
+        return $this->waitingList;
+    }
+
+
+    /**
+     * @param ilWaitingList|null $waitingList
+     * @return ContainerInfo
+     */
+    public function withWaitingList(?ilWaitingList $waitingList) : ContainerInfo
+    {
+        $clone = clone $this;
+        $clone->waitingList = $waitingList;
+        return $clone;
+    }
+
+    /**
+     * @return ilParticipants|null
+     */
+    public function getParticipants() : ?ilParticipants
+    {
+        return $this->participants;
+    }
+
+    /**
+     * @param ilParticipants|null $participants
+     * @return ContainerInfo
+     */
+    public function withParticipants(?ilParticipants $participants) : ContainerInfo
+    {
+        $clone = clone $this;
+        $clone->participants = $participants;
+        return $clone;
     }
 }

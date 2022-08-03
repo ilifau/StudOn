@@ -1503,7 +1503,7 @@ class ilMembershipGUI
 
         // try to fill free places
         // call it with 'manual' mode to suppress the sending of admin notifications
-        $added = $registration->handleAutoFill(true);
+        $added = $registration->doAutoFill(true);
 
         // notify all users that were accepted but kept on the waiting list
         $accepted_waiting = array_diff($accepted, $added);
@@ -1553,7 +1553,7 @@ class ilMembershipGUI
         global $DIC;
         /** @var ilObjCourse|ilObjGroup $object */
         $object = $this->getParentObject();
-        $added = $DIC->fau()->ilias()->getRegistration($object)->handleAutoFill(true);
+        $added = $DIC->fau()->ilias()->getRegistration($object)->doAutoFill(true);
 
         if (count($added)) {
             ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);

@@ -80,7 +80,7 @@ class ilFairAutofillCron extends ilCronJob
             foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                 if (!ilObject::_isInTrash($ref_id)) {
                     $course = new ilObjCourse($ref_id);
-                    $filled += count($DIC->fau()->ilias()->getRegistration($course)->handleAutoFill(false, true));
+                    $filled += count($DIC->fau()->ilias()->getRegistration($course)->doAutoFill(false, true));
                     unset($course);
                     break;
                 }
@@ -98,7 +98,7 @@ class ilFairAutofillCron extends ilCronJob
             foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
                 if (!ilObject::_isInTrash($ref_id)) {
                     $group = new ilObjGroup($ref_id);
-                    $filled += count($DIC->fau()->ilias()->getRegistration($group)->handleAutoFill(false, true));
+                    $filled += count($DIC->fau()->ilias()->getRegistration($group)->doAutoFill(false, true));
                     unset($group);
                     break;
                 }
