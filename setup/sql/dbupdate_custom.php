@@ -1564,3 +1564,10 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_99();
 ?>
+<#100>
+<?php
+/**
+ * fau: fauService: extend the primary key of the table event orgunits
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_100();
+?>

@@ -11,9 +11,9 @@ class EventOrgunit extends RecordData
     protected const keyTypes = [
         'event_id' => 'integer',
         'fauorg_nr' => 'text',
-        'relation_id' => 'integer'
     ];
     protected const otherTypes = [
+        'relation_id' => 'integer'
     ];
 
     protected int $event_id;
