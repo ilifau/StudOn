@@ -61,9 +61,7 @@ class Search
     public function getEventList() : array
     {
         $condition = $this->getCondition();
-
-        $cache = new \ilCache('Services/FAU', "Search", true);
-        $cache->setExpiresAfter($this->cache_seconds);
+        $cache = $this->getCache();
 
         // try to get the list from the cache
         $list = null;
@@ -137,6 +135,25 @@ class Search
         }
 
         return array_values($list);
+    }
+
+    /**
+     * Get the Search cache
+     * @return \ilCache
+     */
+    protected function getCache() :\ilCache
+    {
+        $cache = new \ilCache('Services/FAU', "Search", true);
+        $cache->setExpiresAfter($this->cache_seconds);
+        return $cache;
+    }
+
+
+    /**
+     * Clear the search cache for a condition
+     */
+    public function clearCacheForCondition() {
+        $this->getCache()->deleteEntry($this->getCondition()->getSignature());
     }
 
     /**
