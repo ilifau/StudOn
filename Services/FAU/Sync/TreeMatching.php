@@ -249,6 +249,7 @@ class TreeMatching
 
         // check the org units with references for inconsistent paths
         foreach ($unitsByRefId as $ref_id => $unit) {
+            echo $unit->getLongtext() . "\n";
 
             // check the basic requirement for a relation: non-deleted category
             if (!\ilObject::_exists($ref_id, true)) {
@@ -289,6 +290,10 @@ class TreeMatching
                     "FAU parents: \n    " . implode("\n    ", $this->getOrgPathLog($unit)). "\n"
                     . "ILIAS parents: \n    " . implode("\n    ", $this->getIliasPathLog($unit))
                 ));
+            }
+            else {
+                // all checks passed
+                $this->org->repo()->save($unit->withProblem(null));
             }
         }
     }
