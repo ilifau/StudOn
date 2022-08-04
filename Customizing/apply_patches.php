@@ -21,6 +21,10 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 
+// Create or Update Med Fak courses
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1122]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1949]);
+
 // Create or Update ILI courses
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);

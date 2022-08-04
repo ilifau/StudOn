@@ -47,6 +47,11 @@ class FAUStudySteps
         $this->addEventOrgunitRelationId();
     }
 
+    public function custom_step_100()
+    {
+        $this->changeEventOrgunitsPrimaryKey();
+    }
+
     protected function createCoursesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_courses', [
@@ -383,5 +388,10 @@ class FAUStudySteps
         }
     }
 
+    protected function changeEventOrgunitsPrimaryKey()
+    {
+        $this->db->dropPrimaryKey('fau_study_event_orgs');
+        $this->db->addPrimaryKey('fau_study_event_orgs', ['event_id', 'fauorg_nr']);
+    }
 
 }

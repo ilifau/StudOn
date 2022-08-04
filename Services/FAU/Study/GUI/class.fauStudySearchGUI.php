@@ -114,6 +114,7 @@ class fauStudySearchGUI extends BaseGUI
         $form->setValuesByPost();
         // this also resets the count of found records and the paging
         $this->search->setCondition($this->getSearchFormCondition($form));
+        $this->search->clearCacheForCondition();
         $this->ctrl->redirect($this, 'show');
     }
 

@@ -117,6 +117,9 @@ class SyncWithIlias extends SyncBase
         foreach ($this->study->repo()->getCoursesByTermToCreate($term, $course_ids) as $course) {
             $this->info('CREATE ' . $course->getTitle() . '...');
 
+            // clear old problem
+            $this->study->repo()->save($course->withIliasProblem(null));
+
             // order of checks is important!
             if (!empty($course->getIliasObjId())) {
                 $this->info('Already created.');
@@ -174,12 +177,12 @@ class SyncWithIlias extends SyncBase
             // get or create the place for a new course if no parent_ref is set above
             // don't create the object for this course if no parent_ref can be found
             if (empty($parent_ref = $parent_ref ?? $this->sync->trees()->findOrCreateCourseCategory($course, $term))) {
+                // problem is already saved in the function
                 $this->info('Failed: no suitable parent found.');
                 continue;
             }
 
             if ($test_run) {
-                $this->study->repo()->save($course->withIliasProblem(null));
                 continue;
             }
 
