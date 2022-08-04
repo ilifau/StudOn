@@ -56,8 +56,9 @@ $p->login();
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2020-10-24_bis_2021-01-01/online.log'));
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2021-01-01_bis_2021-02-15/online.log'));
 
-
 //$p->applyPatch('ilSpecificPatches.migratePorgNumbers');
+//$p->applyPatch('ilSpecificPatches.renameObjects');
+
 
 /***********
  * Cleanups
