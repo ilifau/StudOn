@@ -21,6 +21,13 @@ class FAUUserSteps
         $this->createMembersTable(false);
     }
 
+
+    public function custom_step_101()
+    {
+        $this->createUserOrgRolesTable(false);
+    }
+
+
     protected function createUserAchievementsTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_achievements', [
@@ -85,4 +92,18 @@ class FAUUserSteps
         $this->db->addIndex('fau_user_members', ['user_id'], 'i1');
     }
 
+    protected function createUserOrgRolesTable(bool $drop = false)
+    {
+        if ($drop || !$this->db->tableExists('fau_user_org_roles')) {
+
+            $this->db->createTable('fau_user_org_roles', [
+                'user_id' => ['type' => 'integer', 'length' => 4, 'notnull' => true],
+                'ref_id' => ['type' => 'integer', 'length' => 4, 'notnull' => true],
+                'type' => ['type' => 'text', 'length' => 50, 'notnull' => true],
+            ],
+                $drop
+            );
+            $this->db->addPrimaryKey('fau_user_org_roles', ['user_id', 'ref_id', 'type']);
+        }
+    }
 }

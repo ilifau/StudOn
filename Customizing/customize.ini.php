@@ -38,7 +38,9 @@ fau_default_owner_login = "root"        ;default login for the owner of auto-cre
 fau_course_dtpl_id = ""                 ;id of the didactic template for auto-generated courses
 fau_group_dtpl_id = ""                  ;id of the didactic template for auto-generated groups
 fau_fallback_parent_cat_id = ""         ;id of the fallback parent category for the creation categories of courses
-fau_exclude_create_org_ids = ""         ;ids of org units to be exluded from the creation of courses
+fau_exclude_create_org_ids = ""         ;ids of org units to be excluded from the creation of courses
+fau_author_role_template_id = ""        ;id of the author role template for categories
+fau_manager_role_template_id = ""       ;id of the manager role template for categories
 
 ilias_guest_role_id = "5"				;Role Id of Guests
 ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects

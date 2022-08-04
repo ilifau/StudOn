@@ -13,6 +13,9 @@ class Settings
     const COURSE_DTPL_ID = 'course_dtpl_id';
     const FALLBACK_PARENT_CAT_ID = 'fallback_parent_cat_id';
     const EXCLUDE_CREATE_ORG_IDS = 'exclude_create_org_ids';
+    const AUTHOR_ROLE_TEMPLATE_ID = 'author_role_template_id';
+    const MANAGER_ROLE_TEMPLATE_ID = 'manager_role_template_id';
+
 
     protected Container $dic;
 
@@ -43,6 +46,39 @@ class Settings
         }
 
         $this->cache[self::DEFAULT_OWNER_ID] = $value;
+        return $value;
+    }
+
+
+    /**
+     * Get the template id of the author role
+     * @return int
+     */
+    public function getAuthorRoleTemplateId() : int
+    {
+        if (isset($this->cache[self::AUTHOR_ROLE_TEMPLATE_ID])) {
+            return $this->cache[self::AUTHOR_ROLE_TEMPLATE_ID];
+        }
+
+        $value = (int) ilCust::get('fau_author_role_template_id');
+
+        $this->cache[self::AUTHOR_ROLE_TEMPLATE_ID] = $value;
+        return $value;
+    }
+
+    /**
+     * Get the template id of the manager role
+     * @return int
+     */
+    public function getManagerRoleTemplateId() : int
+    {
+        if (isset($this->cache[self::MANAGER_ROLE_TEMPLATE_ID])) {
+            return $this->cache[self::MANAGER_ROLE_TEMPLATE_ID];
+        }
+
+        $value = (int) ilCust::get('fau_manager_role_template_id');
+
+        $this->cache[self::MANAGER_ROLE_TEMPLATE_ID] = $value;
         return $value;
     }
 

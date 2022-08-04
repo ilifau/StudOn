@@ -9,6 +9,7 @@ use FAU\User\Data\Achievement;
 use FAU\User\Data\Person;
 use FAU\User\Data\Member;
 use FAU\Study\Data\Term;
+use FAU\User\Data\UserOrgRole;
 
 /**
  * Repository for accessing FAU user data
@@ -34,6 +35,16 @@ class Repository extends RecordRepo
     {
         $query = "SELECT * FROM fau_user_persons WHERE user_id =" . $this->db->quote($user_id, 'integer');
         return $this->getSingleRecord($query, Person::model());
+    }
+
+    /**
+     * Get the applied roles of an  ILIAS user
+     * @return UserOrgRole[]
+     */
+    public function getOrgRolesOfUser(int $user_id) : array
+    {
+        $query = "SELECT * FROM fau_user_org_roles WHERE user_id =" . $this->db->quote($user_id, 'integer');
+        return $this->queryRecords($query, UserOrgRole::model());
     }
 
 
@@ -149,7 +160,7 @@ class Repository extends RecordRepo
 
     /**
      * Delete record data of an allowed type
-     * @param Achievement|Education|Person $record
+     * @param Achievement|Education|Person|UserOrgRole $record
      */
     public function delete(RecordData $record)
     {

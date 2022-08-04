@@ -1571,3 +1571,10 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_100();
 ?>
+<#100>
+<?php
+/**
+ * fau: fauService: create the user org roles table
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_101();
+?>

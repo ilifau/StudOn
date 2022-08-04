@@ -123,7 +123,11 @@ class SyncWithIdm extends SyncBase
         $person = $this->getPersonUpdate($person, $identity);
         $this->user->repo()->save($person);
 
+        // always update the organisational roles of a person
+        $this->sync->roles()->updateUserOrgRoles($person);
+
         // set the responsible or instructor roles for a newly created account
+        // (update for existing users is done in the sync of courses)
         if ($new) {
             $this->sync->roles()->updateUserParticipation($userObj->getId());
         }

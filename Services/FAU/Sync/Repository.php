@@ -142,6 +142,18 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the ids of RBAC operations
+     * @param string[] $names
+     * @return int[]
+     */
+    public function getRbacOperationIds(array $names) : array
+    {
+        $query = "SELECT ops_id FROM rbac_operations WHERE " . $this->db->in('operation', $names, false, 'text');
+        return $this->getIntegerList($query, 'ops_id');
+    }
+
+
+        /**
      * Reset the last update date of an object to the create date
      */
     public function resetObjectLastUpdate(int $obj_id)
