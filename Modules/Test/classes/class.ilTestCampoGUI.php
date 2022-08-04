@@ -139,11 +139,12 @@ class ilTestCampoGUI extends ilTestServiceGUI
         $matr = new ilTextAreaInputGUI($lng->txt("ass_campo_matriculation_numbers"), 'matriculations');
         // $desc->setCols(70);
         // $desc->setRows(15);
+        $matr->setInfo($lng->txt('ass_campo_matriculation_numbers_info'));
         $form->addItem($matr);
 
         // other fields
         $group = new ilCheckboxGroupInputGUI($lng->txt('ass_campo_other_fields'), 'other_fields');
-        $group->setInfo($lng->txt('ass_campo_other_fields_info'));
+        //$group->setInfo($lng->txt('ass_campo_other_fields_info'));
         $option = new ilCheckboxOption($lng->txt('firstname'), 'firstname');
         $group->addOption($option);
         $option = new ilCheckboxOption($lng->txt('lastname'), 'lastname');

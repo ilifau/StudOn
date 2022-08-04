@@ -1021,3 +1021,11 @@ videoportal#:#vp_no_interface_active#:#Die StudOn-Schnittstelle zum Videoportal 
 videoportal#:#vp_no_reference_found#:#Es wurde keine Referenz auf den Clip oder Kurs gefunden.
 videoportal#:#vp_no_user_found#:#Zum IDM-Benutzer wurde kein entsprechender StudOn-Nutzer gefunden.
 content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal 
+assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo
+assessment#:#ass_campo_export#:#Ergebnisse für die Notenverbuchung in <i>campo</i> exportieren
+assessment#:#ass_campo_file_written#:#Die Ergebnisdatei für <i>mein campo</i> wurde geschrieben.
+assessment#:#ass_campo_other_fields#:#Weitere Felder.
+assessment#:#ass_campo_matriculation_numbers#:#Matrikelnummern
+assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum
+assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn
+assessment#:#ass_campo_matriculation_numbers_info#:#Kopieren Sie die Matrikelnummern aus der campo-Excel-Datei in dieses Feld, je iene pro Zeile

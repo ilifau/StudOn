@@ -302,7 +302,8 @@ class ilTestCampoTools
         $this->export_dir = $this->test_obj->getExportDirectory();
         
         // write the CVS file
-        $filename = 'prf_' . $this->getOption('exam_number') . '.csv';
+        //$filename = 'prf_' . $this->getOption('exam_number') . '.csv';
+        $filename = 'campo_export.csv';
 
         $file = fopen($this->export_dir . "/" . $filename, "w");
         fwrite($file, utf8_decode(implode(';', $a_header) . "\r\n"));
