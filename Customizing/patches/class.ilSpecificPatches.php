@@ -837,5 +837,40 @@ class ilSpecificPatches
             $this->db->manipulate($update);
         }
     }
+
+
+    public function renameObjects()
+    {
+        global $DIC;
+        $ilDB = $this->db;
+        $app_event = $DIC->event();
+
+        $lines = file(__DIR__ . '/rename.csv');
+        foreach ($lines as $line) {
+            list($ref_id, $title) = explode(';', $line);
+
+            $title = trim($title);
+            $obj_id = ilObject::_lookupObjId($ref_id);
+            $type = ilObject::_lookupType($obj_id);
+
+            $q = "UPDATE object_data SET title = " . $ilDB->quote($title, "text") .
+                " WHERE obj_id = " . $ilDB->quote($obj_id, "integer");
+            echo $q . "\n";
+
+            $ilDB->manipulate($q);
+
+            $app_event->raise(
+                'Services/Object',
+                'update',
+                array('obj_id' => $obj_id,
+                    'obj_type' => $type,
+                    'ref_id' => $ref_id)
+            );
+
+            $trans = ilObjectTranslation::getInstance($obj_id);
+            $trans->setDefaultTitle($title);
+            $trans->save();
+        }
+    }
 }
 
