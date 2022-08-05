@@ -14,6 +14,8 @@ use ilObjGroup;
 use ilUtil;
 use ilDidacticTemplateSetting;
 use ilRepUtil;
+use ilConditionHandler;
+use ilChangeEvent;
 
 /**
  * Synchronize the campo courses with the related ILIAS objects
@@ -99,6 +101,7 @@ class SyncWithIlias extends SyncBase
 
                 $this->increaseItemsAdded($this->createCourses($term, $course_ids));
                 $this->increaseItemsUpdated($this->updateCourses($term, $course_ids));
+                // $this->increaseItemsUpdated($this->moveLostCourses($term));
             }
         }
     }
@@ -325,6 +328,58 @@ class SyncWithIlias extends SyncBase
         return $updated;
     }
 
+    /**
+     * Move courses from fallback categories to their correct destination, if possible
+     * @return int number of moved courses
+     */
+    public function moveLostCourses(Term $term): int
+    {
+        $moved = 0;
+        $treeMatching = $this->dic->fau()->sync()->trees();
+        foreach ($this->settings->getMoveParentCatIds() as $parent_id) {
+            if (!empty($source_cat_id = (int) $treeMatching->findCourseCategoryForParent($parent_id, $term))) {
+                foreach ($treeMatching->findCoursesInCategory($source_cat_id) as $ref_id => $import_id) {
+                    if (!empty($event_id = ImportId::fromString($import_id)->getEventId())) {
+                        if (!empty($dest_cat_id = $treeMatching->findOrCreateCourseCategoryForEvent($event_id, $term))) {
+                            if ($dest_cat_id != $source_cat_id) {
+                                $this->info("MOVE $ref_id from $source_cat_id to $dest_cat_id");
+                                $this->moveObject($ref_id, $source_cat_id, $dest_cat_id);
+                                $moved++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $moved;
+    }
+
+    /**
+     * Move an object in the repository tree
+     */
+    protected function moveObject(int $ref_id, int $source_parent_ref_id, int $dest_parent_ref_id)
+    {
+        $tree = $this->dic->repositoryTree();
+        $obj_id = ilObject::_lookupObjId($ref_id);
+
+        $tree->moveTree($ref_id, $dest_parent_ref_id);
+        $this->dic->rbac()->admin()->adjustMovedObjectPermissions($ref_id, $source_parent_ref_id);
+        ilConditionHandler::_adjustMovedObjectConditions($ref_id);
+
+        ilChangeEvent::_recordWriteEvent(
+            $obj_id,
+            $this->dic->user()->getId(),
+            'remove',
+            ilObject::_lookupObjId($source_parent_ref_id)
+        );
+        ilChangeEvent::_recordWriteEvent(
+            $obj_id,
+            $this->dic->user()->getId(),
+            'add',
+            ilObject::_lookupObjId($dest_parent_ref_id)
+        );
+        ilChangeEvent::_catchupWriteEvents($obj_id, $this->dic->user()->getId());
+    }
 
     /**
      * Create an ILIAS course for a campo event and/or course (parallel group)

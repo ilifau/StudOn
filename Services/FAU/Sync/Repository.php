@@ -171,4 +171,12 @@ class Repository extends RecordRepo
                 ." AND obj_id = ". $this->db->quote($obj_id, 'integer');
         $this->db->manipulate($query);
     }
+
+    /**
+     * Get the courses that can be moved to a better location
+     */
+    public function getIlias(array $course_cat_ids)
+    {
+
+    }
 }

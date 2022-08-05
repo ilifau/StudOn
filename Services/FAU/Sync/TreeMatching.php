@@ -61,6 +61,47 @@ class TreeMatching
         return $paths;
     }
 
+    /**
+     * Find the parent ILIAS category where courses for an event can be created
+     * used to move ilias courses from fallback categories
+     */
+    public function findOrCreateCourseCategoryForEvent(int $event_id, Term $term): ?int
+    {
+        $creationUnit = null;
+
+        // search for an org unit that allows course creation and has an ilias category assigned
+        foreach ($this->study->repo()->getEventOrgunitsByEventId($event_id) as $unit) {
+            if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
+                continue; // next assigned unit
+            }
+            if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
+                continue; // next assigned unit
+            }
+            break;  // creationUnit found
+        }
+        if (empty($creationUnit)) {
+            return null;
+        }
+        // check if org unit is excluded from course creation
+        foreach ($this->getExcludeCreateOrgPaths() as $path) {
+            if (substr($creationUnit->getPath(), 0, strlen($path)) == $path) {
+                return null;
+            }
+        }
+        $parent_ref_id = $creationUnit->getIliasRefId();
+
+        // check if the assigned ilias reference is a category and not deleted
+        if (ilObject::_lookupType($parent_ref_id, true) != 'cat' || ilObject::_isInTrash($parent_ref_id)) {
+            return null;
+        }
+
+        // find the sub category for course creation in the term
+        if (!empty($course_cat_id = $this->findCourseCategoryForParent($parent_ref_id, $term))) {
+            return $course_cat_id;
+        }
+        return $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
+    }
+
 
     /**
      * Find or create the ILIAS category where the course for an event and term should be created
@@ -112,13 +153,38 @@ class TreeMatching
         }
 
         // find the sub category for course creation in the term
+        if (!empty($course_cat_id = $this->findCourseCategoryForParent($parent_ref_id, $term))) {
+            return $course_cat_id;
+        }
+        return $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
+    }
+
+    /**
+     * Find the course category for a term as child of a parent category
+     */
+    public function findCourseCategoryForParent(int $parent_ref_id, Term $term) : ?int
+    {
         foreach($this->dic->repositoryTree()->getChildsByType($parent_ref_id, 'cat') as $node) {
-            if (ImportId::fromString(ilObject::_lookupImportId($node['obj_id']))->getTermId() == $term->toString()) {
+            if (ImportId::fromString((string) $node['import_id'])->getTermId() == $term->toString()) {
                 return (int) $node['child'];
             }
         }
-        return  $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
+        return null;
     }
+
+    /**
+     * Find the course category for a term as child of a parent category
+     * @return string[]     ref_id => import_id
+     */
+    public function findCoursesInCategory(int $parent_ref_id) : array
+    {
+        $courses = [];
+        foreach($this->dic->repositoryTree()->getChildsByType($parent_ref_id, 'crs') as $node) {
+            $courses[$node['child']] = (string) $node['import_id'];
+        }
+        return $courses;
+    }
+
 
     /**
      * Find an org unit in the path of a unit that should be used for course creation

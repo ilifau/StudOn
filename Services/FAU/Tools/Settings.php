@@ -8,13 +8,14 @@ use ilObjUser;
 
 class Settings
 {
-    const DEFAULT_OWNER_ID = 'default_owner_id';
-    const GROUP_DTPL_ID = 'group_dtpl_id';
-    const COURSE_DTPL_ID = 'course_dtpl_id';
-    const FALLBACK_PARENT_CAT_ID = 'fallback_parent_cat_id';
-    const EXCLUDE_CREATE_ORG_IDS = 'exclude_create_org_ids';
-    const AUTHOR_ROLE_TEMPLATE_ID = 'author_role_template_id';
-    const MANAGER_ROLE_TEMPLATE_ID = 'manager_role_template_id';
+    const DEFAULT_OWNER_ID = 'fau_default_owner_login';
+    const GROUP_DTPL_ID = 'fau_group_dtpl_id';
+    const COURSE_DTPL_ID = 'fau_course_dtpl_id';
+    const FALLBACK_PARENT_CAT_ID = 'fau_fallback_parent_cat_id';
+    const MOVE_PARENT_CAT_IDS = 'fau_move_parent_cat_ids';
+    const EXCLUDE_CREATE_ORG_IDS = 'fau_exclude_create_org_ids';
+    const AUTHOR_ROLE_TEMPLATE_ID = 'fau_author_role_template_id';
+    const MANAGER_ROLE_TEMPLATE_ID = 'fau_manager_role_template_id';
 
 
     protected Container $dic;
@@ -31,107 +32,96 @@ class Settings
     }
 
     /**
-     * Get the default owner id for created objects
-     * @return int
+     * Get a cached value from a callable function
      */
-    public function getDefaultOwnerId() : int
+    protected function getCachedValue(string $key, callable $function)
     {
-        if (isset($this->cache[self::DEFAULT_OWNER_ID])) {
-            return $this->cache[self::DEFAULT_OWNER_ID];
+        if (isset($this->cache[$key])) {
+            return $this->cache[$key];
         }
-
-        $login = (string) ilCust::get('fau_default_owner_login');
-        if (empty($value = (int) ilObjUser::_lookupId($login))) {
-            $value = 6; // root user as default
-        }
-
-        $this->cache[self::DEFAULT_OWNER_ID] = $value;
+        $value = $function();
+        $this->cache[$key] = $value;
         return $value;
     }
 
+    /**
+     * Get the default owner id for created objects
+     */
+    public function getDefaultOwnerId() : int
+    {
+        return  $this->getCachedValue(self::DEFAULT_OWNER_ID, function() {
+            $login = (string) ilCust::get(self::DEFAULT_OWNER_ID);
+            if (empty($value = (int) ilObjUser::_lookupId($login))) {
+                $value = 6; // root user as default
+            }
+            return $value;
+        });
+    }
 
     /**
      * Get the template id of the author role
-     * @return int
      */
     public function getAuthorRoleTemplateId() : int
     {
-        if (isset($this->cache[self::AUTHOR_ROLE_TEMPLATE_ID])) {
-            return $this->cache[self::AUTHOR_ROLE_TEMPLATE_ID];
-        }
-
-        $value = (int) ilCust::get('fau_author_role_template_id');
-
-        $this->cache[self::AUTHOR_ROLE_TEMPLATE_ID] = $value;
-        return $value;
+        return $this->getCachedValue(self::AUTHOR_ROLE_TEMPLATE_ID, function() {
+            return (int) ilCust::get(self::AUTHOR_ROLE_TEMPLATE_ID);
+        });
     }
 
     /**
      * Get the template id of the manager role
-     * @return int
      */
     public function getManagerRoleTemplateId() : int
     {
-        if (isset($this->cache[self::MANAGER_ROLE_TEMPLATE_ID])) {
-            return $this->cache[self::MANAGER_ROLE_TEMPLATE_ID];
-        }
-
-        $value = (int) ilCust::get('fau_manager_role_template_id');
-
-        $this->cache[self::MANAGER_ROLE_TEMPLATE_ID] = $value;
-        return $value;
+        return $this->getCachedValue(self::MANAGER_ROLE_TEMPLATE_ID, function() {
+            return (int) ilCust::get(self::MANAGER_ROLE_TEMPLATE_ID);
+        });
     }
-
 
     /**
      * Get the default didactic template id for group creation
-     * @return int
      */
     public function getGroupDidacticTemplateId() : int
     {
-        if (isset($this->cache[self::GROUP_DTPL_ID])) {
-            return $this->cache[self::GROUP_DTPL_ID];
-        }
-
-        $value = (int) ilCust::get('fau_group_dtpl_id');
-
-        $this->cache[self::GROUP_DTPL_ID] = $value;
-        return $value;
+        return $this->getCachedValue(self::GROUP_DTPL_ID, function() {
+            return (int) ilCust::get(self::GROUP_DTPL_ID);
+        });
     }
-
 
     /**
      * Get the default didactic template id for course creation
-     * @return int
      */
     public function getCourseDidacticTemplateId() : int
     {
-        if (isset($this->cache[self::COURSE_DTPL_ID])) {
-            return $this->cache[self::COURSE_DTPL_ID];
-        }
-
-        $value = (int) ilCust::get('fau_course_dtpl_id');
-
-        $this->cache[self::COURSE_DTPL_ID] = $value;
-        return $value;
+        return $this->getCachedValue(self::COURSE_DTPL_ID, function() {
+            return (int) ilCust::get(self::COURSE_DTPL_ID);
+        });
     }
 
     /**
-     * Get the default didactic template id for course creation
-     * @return int
+     * Get the if of the fallback category for lost courses
      */
     public function getFallbackParentCatId() : int
     {
-        if (isset($this->cache[self::FALLBACK_PARENT_CAT_ID])) {
-            return $this->cache[self::FALLBACK_PARENT_CAT_ID];
-        }
-
-        $value = (int) ilCust::get('fau_fallback_parent_cat_id');
-
-        $this->cache[self::FALLBACK_PARENT_CAT_ID] = $value;
-        return $value;
+        return $this->getCachedValue(self::FALLBACK_PARENT_CAT_ID, function() {
+            return (int) ilCust::get(self::FALLBACK_PARENT_CAT_ID);
+        });
     }
 
+    /**
+     * Get the id of parent categories for the faculty
+     * @return int[]
+     */
+    public function getMoveParentCatIds() : array
+    {
+        return  $this->getCachedValue(self::MOVE_PARENT_CAT_IDS, function() {
+            $ids = [];
+            foreach (explode(',', (string) ilCust::get(self::MOVE_PARENT_CAT_IDS)) as $id) {
+                $ids[] = (int) trim($id);
+            }
+            return $ids;
+        });
+    }
 
     /**
      * Get the ids of org units for which the creation of courses shoud be exluded
@@ -140,18 +130,13 @@ class Settings
      */
     public function getExcludeCreateOrgIds() : array
     {
-        if (isset($this->cache[self::EXCLUDE_CREATE_ORG_IDS])) {
-            return $this->cache[self::EXCLUDE_CREATE_ORG_IDS];
-        }
-
-        $list = explode(',', (string) ilCust::get('fau_exclude_create_org_ids'));
-        $ids = [];
-        foreach ($list as $entry) {
-            $ids[] = (int) trim($entry);
-        }
-
-        $this->cache[self::EXCLUDE_CREATE_ORG_IDS] = $ids;
-        return $ids;
+        return $this->getCachedValue(self::EXCLUDE_CREATE_ORG_IDS, function() {
+            $ids = [];
+            foreach (explode(',', (string) ilCust::get(self::EXCLUDE_CREATE_ORG_IDS)) as $id) {
+                $ids[] = (int) trim($id);
+            }
+            return $ids;
+        });
     }
 
 }

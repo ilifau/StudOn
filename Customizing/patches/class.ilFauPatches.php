@@ -76,4 +76,12 @@ class ilFauPatches
         $service->updateCourses(Term::fromString($params['term']), $params['course_ids'], $params['test_run']);
     }
 
+    /**
+     * Move courses from the faculties ot the fallback category to their correct destination, if possible
+     */
+    public function moveLostCourses($params = ['term' => '20222'])
+    {
+        $service = $this->dic->fau()->sync()->ilias();
+        $service->moveLostCourses(Term::fromString($params['term']));
+    }
 }
