@@ -101,7 +101,7 @@ class SyncWithIlias extends SyncBase
 
                 $this->increaseItemsAdded($this->createCourses($term, $course_ids));
                 $this->increaseItemsUpdated($this->updateCourses($term, $course_ids));
-                // $this->increaseItemsUpdated($this->moveLostCourses($term));
+                $this->increaseItemsUpdated($this->moveLostCourses($term));
             }
         }
     }
