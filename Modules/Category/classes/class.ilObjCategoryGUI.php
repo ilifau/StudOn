@@ -655,7 +655,19 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $info->setBlockProperty("news", "public_notifications_option", true);
             }
         }
-        
+
+        // fau: campoInfo - show info on course info page
+        global $DIC;
+        if (!empty($units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId()))) {
+            $info->addSection($this->lng->txt('fau_relation'));
+            $list = [];
+            foreach ($units as $unit) {
+                $list[] = $unit->getLongtext() . ' (' . $unit->getFauorgNr() . ')';
+            }
+            $info->addProperty($this->lng->txt('fau_relation_orgunits'), implode('<br>', $list));
+        }
+        // fau.
+
         include_once('Services/AdvancedMetaData/classes/class.ilAdvancedMDRecordGUI.php');
         $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'cat', $this->object->getId());
         $record_gui->setInfoObject($info);
@@ -863,10 +875,57 @@ class ilObjCategoryGUI extends ilContainerGUI
                 )
         );
 
+
+
+        // fau: campoInfo - selection of orgunits
+//        if (ilCust::administrationIsVisible()) {
+//            global $DIC;
+//
+//            $header = new ilFormSectionHeaderGUI();
+//            $header->setTitle($this->lng->txt('fau_relation'));
+//            $form->addItem($header);
+//
+//            $units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId());
+//            $values = [];
+//            foreach ($units as $unit) {
+//                $values[] = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+//            }
+//
+//            $multi = new ilTextInputGUI($this->lng->txt('fau_relation_orgunits'), 'orgunits');
+//            $multi->setMulti(true);
+//            $multi->setDataSource($this->ctrl->getLinkTarget($this, 'getOrgunits', '',true));
+//            $multi->setDisableHtmlAutoComplete(true);
+//            $multi->setValue($values);
+//            $form->addItem($multi);
+//        }
+        // fau.
+
+
         $form->addCommandButton("update", $this->lng->txt("save"));
 
         return $form;
     }
+
+    // fau: campoInfo - get the list of orgunits for autocomplete
+    /**
+     * Get the list of orgunits for autocomplete
+     */
+    protected function getOrgunitsObject()
+    {
+        global $DIC;
+
+        $result = ['' => $this->lng->txt('please_select')];
+        foreach ($DIC->fau()->org()->repo()->getAssignableOrgunits() as $unit)
+        {
+            $entry = new stdClass();
+            $entry->value = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            $entry->label = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            $result[] = $entry;
+        }
+        echo ilJsonUtil::encode($result);
+        exit;
+    }
+    // fau;
 
     public function getEditFormValues()
     {

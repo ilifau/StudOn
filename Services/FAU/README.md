@@ -9,6 +9,7 @@
 - **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
 - **studySearch** Suchseite nach Lehrveranstaltungen
 - **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
+- **campoInfo** Anzeigen auf den Info-Seiten
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 

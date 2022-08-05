@@ -593,7 +593,29 @@ class ilObjCourseGUI extends ilContainerGUI
                 $info->addProperty($this->lng->txt('ps_crs_user_fields'), $fields);
             }
         }
-        
+
+        // fau: campoInfo - sshow info on course info page
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if (!empty($event_id = $importId->getEventId())) {
+            $info->addSection($this->lng->txt('fau_campo_event'));
+            $list = [];
+            foreach ($DIC->fau()->study()->repo()->getEventOrgunitsByEventId($event_id) as $eventOrgunit) {
+                $unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr());
+                if (!empty($unit)) {
+                    if (!empty($unit->getIliasRefId())) {
+                        $title = '<a href="' . ilLink::_getStaticLink($unit->getIliasRefId()) .'">'. $unit->getLongtext() . '</a>';
+                    }
+                    else {
+                        $title = $unit->getLongtext();
+                    }
+                    $list[] = $title . ' (' . $unit->getFauorgNr() . ')';
+                }
+            }
+            $info->addProperty($this->lng->txt('fau_campo_assigned_orgunits'), implode('<br>', $list));
+        }
+        // fau.
+
+
         $info->enableLearningProgress(true);
 
         // forward the command

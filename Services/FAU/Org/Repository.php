@@ -43,11 +43,31 @@ class Repository extends RecordRepo
     /**
      * @return Orgunit[]
      */
+    public function getAssignableOrgunits() : array
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE assignable = 1";
+        return $this->queryRecords($query, Orgunit::model(), false);
+    }
+
+
+    /**
+     * @return Orgunit[]
+     */
     public function getOrgunitsWithRefId() : array
     {
        $query = "SELECT * FROM fau_org_orgunits WHERE ilias_ref_id IS NOT NULL";
        return $this->queryRecords($query, Orgunit::model(), false);
     }
+
+    /**
+     * @return Orgunit[]
+     */
+    public function getOrgunitsByRefId(int $ref_id) : array
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE ilias_ref_id =" . $this->db->quote($ref_id, 'integer');
+        return $this->queryRecords($query, Orgunit::model(), false);
+    }
+
 
     /**
      * Get the ids of orgunits within a certain path
