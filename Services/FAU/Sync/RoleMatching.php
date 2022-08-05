@@ -458,13 +458,15 @@ class RoleMatching
                 case OrgRole::TYPE_AUTHOR:
                     $role_id = $this->findAuthorRole($ref_id);
                     if (empty($role_id)) {
-                        $this->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
+                        // takes too long - create the roles in a batch
+                        //$role_id = $this->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
                     }
                     break;
                 case OrgRole::TYPE_MANAGER:
                     $role_id = $this->findManagerRole($ref_id);
                     if (empty($role_id)) {
-                        $this->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
+                        // takes too long - create the roles in a batch
+                        // $role_id = $this->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
                     }
                     break;
 
