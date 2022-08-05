@@ -625,11 +625,17 @@ class SyncWithIlias extends SyncBase
 
     /**
      * Create the emissing manager and author roles in a category
+     * @param int[] list of excluded ref_ids
      */
-    public function createMissingOrgRoles()
+    public function createMissingOrgRoles(array $exclude = [])
     {
         $roles = $this->dic->fau()->sync()->roles();
         foreach ($this->sync->repo()->getAssignableCategories() as $orgunit => $ref_id) {
+            if (in_array($ref_id, $exclude)) {
+                $this->info("EXCLUDE $ref_id");
+                continue;
+            }
+
             if (empty($roles->findManagerRole($ref_id))) {
                 $this->info("CREATE Manager in $ref_id");
                 $roles->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);

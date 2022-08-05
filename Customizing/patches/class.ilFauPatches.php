@@ -88,9 +88,9 @@ class ilFauPatches
     /**
      * Create the emissing manager and author roles in a category
      */
-    public function createMissingOrgRoles()
+    public function createMissingOrgRoles($params = ['exclude' => []])
     {
         $service = $this->dic->fau()->sync()->ilias();
-        $service->createMissingOrgRoles();
+        $service->createMissingOrgRoles($params['exclude']);
     }
 }
