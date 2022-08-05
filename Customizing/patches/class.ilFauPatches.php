@@ -84,4 +84,13 @@ class ilFauPatches
         $service = $this->dic->fau()->sync()->ilias();
         $service->moveLostCourses(Term::fromString($params['term']));
     }
+
+    /**
+     * Create the emissing manager and author roles in a category
+     */
+    public function createMissingOrgRoles()
+    {
+        $service = $this->dic->fau()->sync()->ilias();
+        $service->createMissingOrgRoles();
+    }
 }

@@ -622,4 +622,22 @@ class SyncWithIlias extends SyncBase
         // give 5 min tolerance
         return $updated > $created + 300;
     }
+
+    /**
+     * Create the emissing manager and author roles in a category
+     */
+    public function createMissingOrgRoles()
+    {
+        $roles = $this->dic->fau()->sync()->roles();
+        foreach ($this->sync->repo()->getAssignableCategories() as $orgunit => $ref_id) {
+            if (empty($roles->findManagerRole($ref_id))) {
+                $this->info("CREATE Manager in $ref_id");
+                $roles->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
+            }
+            if (empty($roles->findAuthorRole($ref_id))) {
+                $this->info("CREATE Author in $ref_id");
+                $roles->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
+            }
+        }
+    }
 }

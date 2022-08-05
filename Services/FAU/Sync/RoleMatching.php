@@ -504,7 +504,7 @@ class RoleMatching
      * Find an author role
      * @return ?int $role_id
      */
-    protected function findAuthorRole(int $ref_id) : ?int
+    public function findAuthorRole(int $ref_id) : ?int
     {
        return $this->findRoleByPermissions($ref_id, ['create_cat', 'create_crs', 'create_grp'], ['delete']);
     }
@@ -513,7 +513,7 @@ class RoleMatching
      * Find a manager role
      * @return ?int $role_id
      */
-    protected function findManagerRole(int $ref_id) : ?int
+    public function findManagerRole(int $ref_id) : ?int
     {
         return $this->findRoleByPermissions($ref_id, ['create_cat', 'delete'], ['edit_permission']);
     }
@@ -556,7 +556,7 @@ class RoleMatching
      * Create a new role in a container and return their id
      * @see \ilPermissionGUI::addRole()
      */
-    protected function createOrgRole(string $orgunit, int $ref_id, int $template_id, bool $recommend) : ?int
+    public function createOrgRole(string $orgunit, int $ref_id, int $template_id, bool $recommend) : ?int
     {
         try {
             $template = new ilObjRoleTemplate($template_id);
