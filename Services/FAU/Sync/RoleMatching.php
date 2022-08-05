@@ -458,13 +458,13 @@ class RoleMatching
                 case OrgRole::TYPE_AUTHOR:
                     $role_id = $this->findAuthorRole($ref_id);
                     if (empty($role_id)) {
-                        $this->createRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
+                        $this->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
                     }
                     break;
                 case OrgRole::TYPE_MANAGER:
                     $role_id = $this->findManagerRole($ref_id);
                     if (empty($role_id)) {
-                        $this->createRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
+                        $this->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
                     }
                     break;
 
@@ -554,7 +554,7 @@ class RoleMatching
      * Create a new role in a container and return their id
      * @see \ilPermissionGUI::addRole()
      */
-    protected function createRole(string $orgunit, int $ref_id, int $template_id, bool $recommend) : ?int
+    protected function createOrgRole(string $orgunit, int $ref_id, int $template_id, bool $recommend) : ?int
     {
         try {
             $template = new ilObjRoleTemplate($template_id);
