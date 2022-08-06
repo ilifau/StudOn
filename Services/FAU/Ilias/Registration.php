@@ -403,6 +403,7 @@ abstract class Registration extends AbstractRegistration
                 $this->participants->add($user_id, $this->getMemberRoleConstant());
                 foreach ($this->getFillableGroups($user_id) as $group) {
                     $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
+                    break;
                 }
                 $added_users[] = $user_id;
                 $this->checkLPStatusSync($user_id);
@@ -678,7 +679,7 @@ abstract class Registration extends AbstractRegistration
      * Get the groups that a user on the waiting list can be assigned
      * @return ContainerInfo[]
      */
-    protected function getFillableGroups(int $user_id) : array
+    public function getFillableGroups(int $user_id) : array
     {
         $groups = [];
         foreach ($this->groups as $group) {

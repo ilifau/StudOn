@@ -1598,16 +1598,30 @@ class ilMembershipGUI
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 
+        // fau: paraSub - show info if no group can be assigned
+        global $DIC;
+        /** @var ilContainer $object */
+        $object = $this->getParentObject();
+        $registration = $DIC->fau()->ilias()->getRegistration($object);
+
         foreach ($_POST["waiting"] as $waiting) {
             $name = ilObjUser::_lookupName($waiting);
+
+            $possible = true;
+            $notice = "";
+            if ($object->hasParallelGroups() && empty($registration->getFillableGroups((int) $waiting))) {
+                $possible = false;
+                $notice = '<br><small>' . $this->lng->txt('fau_add_no_group_possible') . '</small>';
+            }
 
             $c_gui->addItem(
                 'waiting[]',
                 $name['user_id'],
-                $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']' . $notice,
+                $possible? ilUtil::getImagePath('icon_usr.svg') : ilUtil::getImagePath('outlined/icon_usr.svg')
             );
         }
+        // fau.
 
         $this->tpl->setContent($c_gui->getHTML());
         return true;
@@ -1634,6 +1648,18 @@ class ilMembershipGUI
         }
         // fau.
 
+        // fau: paraSub - init registration object and course participants
+        global $DIC;
+        /** @var ilContainer $object */
+        $object = $this->getParentObject();
+        $registration = $DIC->fau()->ilias()->getRegistration($object);
+        if ($object->isParallelGroup()) {
+            if (!empty($course_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($object->getRefId()))) {
+                $courseParticipants = ilCourseParticipants::getInstance($course_id);
+            }
+        }
+        // fau.
+
         $added_users = 0;
         foreach ($_POST["waiting"] as $user_id) {
             if (!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
@@ -1642,7 +1668,26 @@ class ilMembershipGUI
             if ($this->getMembersObject()->isAssigned($user_id)) {
                 continue;
             }
-            
+
+            // fau: paraSub - only add members if groups can be assigned - add to course of group
+            if ($object->hasParallelGroups()) {
+                if (empty($groups = $registration->getFillableGroups((int) $user_id))) {
+                    continue;
+                }
+                foreach ($groups as $group) {
+                    $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
+                    break;
+                }
+                // removes the user from the group lists
+                $registration->removeUserSubscription($user_id);
+            }
+
+            if (!empty($courseParticipants)) {
+                $courseParticipants->add($user_id, IL_CRS_MEMBER);
+            }
+            // fau.
+
+
             if ($this instanceof ilCourseMembershipGUI) {
                 $this->getMembersObject()->add($user_id, IL_CRS_MEMBER);
                 $this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_ACCEPT_USER, $user_id, true);
