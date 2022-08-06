@@ -619,6 +619,7 @@ fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen
+fau#:#fau_relation_unit_used#:#Die Einheit %s ist bereits mit der StudOn-Kategorie <a href="%s">%s</a> verbunden! Entfernen Sie erst diese Verbindung, bevor Sie die neue anlegen.
 fau#:#fau_import_id#:#Import-ID
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
