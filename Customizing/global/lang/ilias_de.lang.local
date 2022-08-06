@@ -725,6 +725,7 @@ fau#:#fau_sub_group_by_course_list_info#:#Über Kursbeitritt
 fau#:#fau_sub_group_by_course_group_settings#:#Der Beitritt zu dieser Parallelgruppe findet per Auswahl beim Kursbeitritt statt. Sie können für die Gruppe kein eigenes Beitrittsverfahren wählen, aber Sie können die Teilnehmerzahl begrenzen. Das wird bei der Kursanmeldung beachtet.
 fau#:#fau_sub_group_by_course_info#:#Dieser Kurs enthält Parallelgruppen einer Lehrveranstaltung. Sie werden auf der Anmeldeseite des Kurses zur Auswahl gestellt. Studierende können nur einer dieser Gruppen direkt beitreten, sich aber bei mehreren auf die Warteliste setzen lassen.
 fau#:#fau_sub_group_by_course_limit_info#:#Die maximale Teilnehmerzahl wird in jeder Parallelgruppe dieses Kurses separat eingestellt. Die Chancengleiche Phase und Wartelistenoptionen werden im Kurs eingestellt und benötigt, wenn Studierende Gruppen mit begrenzter Teilnehmrzahl auswählen. Für unbegrenzte Gruppen gilt sie nicht.
+fau#:#fau_add_no_group_possible#:#Aufnahme nicht möglich, da keine Gruppe zuteilbar!
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"
