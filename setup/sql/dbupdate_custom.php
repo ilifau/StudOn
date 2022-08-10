@@ -1578,7 +1578,7 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_101();
 ?>
-<#101>
+<#102>
 <?php
     /**
      * fau: campoGrades - Create the table to store the test result export options for campo
