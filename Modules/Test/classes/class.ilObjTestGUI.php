@@ -726,7 +726,16 @@ class ilObjTestGUI extends ilObjectGUI
                 $this->ctrl->forwardCommand($new_gui);
                 break;
             // fau.
-
+            // fau: campoGrades - handle commands for campo
+            case 'iltestcampogui':
+                global $ilTabs;
+                $this->prepareOutput();
+                $ilTabs->activateTab('export');
+                include_once './Modules/Test/classes/class.ilTestCampoGUI.php';
+                $new_gui = new ilTestCampoGUI($this->object);
+                $this->ctrl->forwardCommand($new_gui);
+                break;
+            // fau.
 
             case 'ilassspecfeedbackpagegui':
                 if ((!$ilAccess->checkAccess("read", "", $_GET["ref_id"]))) {

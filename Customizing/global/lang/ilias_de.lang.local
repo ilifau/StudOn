@@ -1040,3 +1040,11 @@ videoportal#:#vp_no_interface_active#:#Die StudOn-Schnittstelle zum Videoportal 
 videoportal#:#vp_no_reference_found#:#Es wurde keine Referenz auf den Clip oder Kurs gefunden.
 videoportal#:#vp_no_user_found#:#Zum IDM-Benutzer wurde kein entsprechender StudOn-Nutzer gefunden.
 content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal 
+assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo###fau: campoGrades
+assessment#:#ass_campo_export#:#Ergebnisse für die Notenverbuchung in <i>campo</i> exportieren###fau: campoGrades
+assessment#:#ass_campo_file_written#:#Die Ergebnisdatei für <i>mein campo</i> wurde geschrieben.###fau: campoGrades
+assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
+assessment#:#ass_campo_matriculation_numbers#:#Matrikelnummern###fau: campoGrades
+assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
+assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn###fau: campoGrades
+assessment#:#ass_campo_matriculation_numbers_info#:#Exportieren Sie die Liste der angemeldeten Prüfungsteilnehmer/innen als Excel-Datei aus Campo. Kopieren Sie die Matrikelnummern aus der Datei in dieses Feld. Jede Matrikelnummer muss in einer eigenen Zeile stehen. Erstellen die die Exportdatei und öffnen Sie die exportierte CSV-Datei in Excel. Für jede kopierte Matrikelnummer sollte eiene Zeile enthalten sein und eine Bewertung bei den Teilnehmer/innen dieses Tests enthalten. Kopieren Sie die Bewertungen in die Spalte "Leistung" der Datei aus Campo. Diese Datei können Sie dann zur Notenverbuchung wieder in Campo importieren.
