@@ -254,10 +254,6 @@ class fauStudySearchGUI extends BaseGUI
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
-                if (!empty($restrictions = $this->dic->fau()->cond()->hard()->getEventRestrictionsAsText($event->getEventId()))) {
-                    $description .= nl2br($restrictions);
-                }
-
                 if ($event->isNested()) {
                     $list = [];
                     foreach ($this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($event->getIliasRefId()) as $group) {
@@ -268,9 +264,13 @@ class fauStudySearchGUI extends BaseGUI
                         $list[] = '<li>' . $entry . '</li>';
                     }
                     if (!empty($list)) {
-                        $description .= '<ul>'. implode('', $list) . '</ul>';
+                        $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'. '<ul>'. implode('', $list) . '</ul>';
                     }
                 }
+                if (!empty($restrictions = $this->dic->fau()->cond()->hard()->getEventRestrictionsAsHtml($event->getEventId()))) {
+                    $description .= '<p>' . $this->lng->txt('fau_rest_hard_restrictions') . '</p>'. $restrictions;
+                }
+
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
                     ->withDescription($description)
                     ->withLeadIcon($icon_crs)

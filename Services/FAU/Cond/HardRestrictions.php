@@ -28,41 +28,54 @@ class HardRestrictions
         $this->repo = $dic->fau()->cond()->repo();
     }
 
+
+    /**
+     * Get the textual explanation of all restrictions if a module
+     */
     public function getEventRestrictionsAsText(int $event_id) : string
     {
         $texts = [];
         foreach ($this->getModulesWithRestrictionsOfEvent($event_id) as $module) {
             $resTexts = [];
-            if (!empty($restrictions = $module->getRestrictions())) {
-                foreach ($restrictions as $restriction) {
-                    $resTexts[] = $this->getRestrictionAsText($restriction);
-                }
-                $texts[] = $module->getModuleName() . ": \n"
+            foreach ($module->getRestrictions() as $restriction) {
+                $resTexts[] = $this->getRestrictionAsText($restriction);
+            }
+            if (!empty($resTexts)) {
+               $texts[] = $this->lng->txt('fau_module') . ' ' . $module->getModuleName() . ": \n"
                     . implode("; \n", $resTexts);
             }
-
         }
         return implode("\n\n", $texts);
     }
 
     /**
-     * Get the modules of an event with added restrictions
-     * @param int $event_id
-     * @return Module[]
+     * Get the HTML explanation of all restrictions if a module
      */
-    protected function getModulesWithRestrictionsOfEvent(int $event_id) : array
+    public function getEventRestrictionsAsHtml(int $event_id) : string
     {
-        $modules = [];
-        foreach ($this->dic->fau()->study()->repo()->getModulesOfEvent($event_id) as $module) {
-            foreach ($this->repo->getHardRestrictionsOfModule($module->getModuleId()) as $restriction) {
-                $module = $module->withRestriction($restriction);
+        $texts = [];
+        foreach ($this->getModulesWithRestrictionsOfEvent($event_id) as $module) {
+            $resTexts = [];
+            foreach ($module->getRestrictions() as $restriction) {
+                $resTexts[] = '<li>' . $this->getRestrictionAsText($restriction) . '</li>';
             }
-            $modules[$module->getModuleId()] = $module;
+            if (!empty($resTexts)) {
+                $texts[] = '<li>'
+                    . $this->lng->txt('fau_module') . ' ' . $module->getModuleName() . ': '
+                    . '<ul>' . implode("\n", $resTexts) .'</ul>'
+                    . '</li>';
+            }
         }
-        return $modules;
+        if (!empty($texts)) {
+            return '<ul>'. implode("\n", $texts) . '</ul>';
+        }
+        return '';
     }
 
 
+    /**
+     * Get the textual explanation of a restriction
+     */
     public function getRestrictionAsText(HardRestriction $restriction) : string
     {
         $expTexts = [];
@@ -119,4 +132,22 @@ class HardRestrictions
 
         return $sumText;
     }
+
+    /**
+     * Get the modules of an event with added restrictions
+     * @param int $event_id
+     * @return Module[]
+     */
+    protected function getModulesWithRestrictionsOfEvent(int $event_id) : array
+    {
+        $modules = [];
+        foreach ($this->dic->fau()->study()->repo()->getModulesOfEvent($event_id) as $module) {
+            foreach ($this->repo->getHardRestrictionsOfModule($module->getModuleId()) as $restriction) {
+                $module = $module->withRestriction($restriction);
+            }
+            $modules[$module->getModuleId()] = $module;
+        }
+        return $modules;
+    }
+
 }
