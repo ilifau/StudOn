@@ -9,6 +9,9 @@ use FAU\Cond\Data\Requirement;
 use FAU\Cond\Data\Restriction;
 use FAU\Cond\Data\CosCondition;
 use FAU\Cond\Data\DocCondition;
+use FAU\Cond\Data\HardRestriction;
+use FAU\Cond\Data\HardExpression;
+use FAU\Cond\Data\HardRequirement;
 
 /**
  * Repository for accessing condition data
@@ -85,5 +88,53 @@ class Repository extends RecordRepo
     public function delete(RecordData $record)
     {
         $this->deleteRecord($record);
+    }
+
+    /**
+     * @param int $module_id
+     * @return HardRestriction[] (indexed by restriction name, e.g. 'V01')
+     */
+    public function getHardRestrictionsOfModule(int $module_id) : array
+    {
+        $restrictions = [];
+
+        $query = "
+            SELECT mr.module_id, mr.compulsory AS requirement_compulsory,
+            rs.id expression_id,  rs.restriction, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
+            rq.requirement_id, rq.requirement_name
+            FROM fau_cond_mod_rests mr 
+            JOIN fau_cond_restrictions rs ON rs.restriction = mr.restriction
+            LEFT JOIN fau_cond_requirements rq ON rq.requirement_id = mr.requirement_id
+            WHERE mr.module_id =" . $this->db->quote($module_id, 'integer');
+
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            if (empty($restriction = $restrictions[$row['restriction']])) {
+                $restriction = new HardRestriction(
+                    (int) $row['module_id'],
+                    $row['restriction'],
+                    $row['type']
+                );
+            }
+
+            if (!$restriction->hasExpression((int) $row['expression_id'])) {
+                $restriction = $restriction->withExpression(new HardExpression(
+                    (int) $row['expression_id'],
+                    $row['compare'],
+                    (int) $row['number'],
+                    $row['compulsory']
+                ));
+            }
+
+            if (!$restriction->hasRequirement((int) $row['requirement_id'])) {
+                $restriction = $restriction->withRequirement(new HardRequirement(
+                    (int) $row['requirement_id'],
+                    $row['requirement_name'],
+                    $row['requirement_compulsory']
+                ));
+            }
+            $restrictions[$restriction->getRestriction()] = $restriction;
+        }
+        return $restrictions;
     }
 }

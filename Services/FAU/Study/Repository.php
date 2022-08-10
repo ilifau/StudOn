@@ -416,6 +416,18 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the modules of an event
+     * @param int $event_id  (get all if null, none if empty)
+     * @return Module[]
+     */
+    public function getModulesOfEvent(int $event_id) : array
+    {
+        $query = "SELECT m.* FROM fau_study_modules m JOIN fau_study_mod_events e ON m.module_id = e.module_id WHERE e.event_id="
+            . $this->db->quote($event_id, 'integer');
+        return $this->queryRecords($query, Module::model());
+    }
+
+    /**
      * Get Courses of Study
      * @param int[]|null $ids  (get all if null, none if empty)
      * @return CourseOfStudy[]
@@ -464,7 +476,7 @@ class Repository extends RecordRepo
         elseif (empty($event_ids)) {
             return [];
         }
-        $query = "SELECT * FROM fau_study_module_cos WHERE "
+        $query = "SELECT * FROM fau_study_mod_events WHERE "
             . $this->db->in('event_id', $event_ids, false, 'integer');
         return $this->queryRecords($query, ModuleEvent::model());
     }

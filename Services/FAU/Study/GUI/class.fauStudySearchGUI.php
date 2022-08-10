@@ -254,6 +254,10 @@ class fauStudySearchGUI extends BaseGUI
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
+                if (!empty($restrictions = $this->dic->fau()->cond()->hard()->getEventRestrictionsAsText($event->getEventId()))) {
+                    $description .= nl2br($restrictions);
+                }
+
                 if ($event->isNested()) {
                     $list = [];
                     foreach ($this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($event->getIliasRefId()) as $group) {
