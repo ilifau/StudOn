@@ -20,6 +20,12 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
+//$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
+//$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
+
+// Create or Update Med Fak courses
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1122]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1949]);
 
 // Create or Update ILI courses
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
@@ -52,8 +58,9 @@ $p->login();
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2020-10-24_bis_2021-01-01/online.log'));
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2021-01-01_bis_2021-02-15/online.log'));
 
-
 //$p->applyPatch('ilSpecificPatches.migratePorgNumbers');
+//$p->applyPatch('ilSpecificPatches.renameObjects');
+
 
 /***********
  * Cleanups

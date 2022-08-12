@@ -395,8 +395,8 @@ abstract class ilWaitingList
     /**
      * Check if a user on the waiting list
      * @return bool
-     * @param object $a_usr_id
-     * @param object $a_obj_id
+     * @param int $a_usr_id
+     * @param int $a_obj_id
      * @access public
      * @static
      */
@@ -418,7 +418,7 @@ abstract class ilWaitingList
         return $res->numRows() ? true : false;
     }
 
-    // fau: fairSub - new static function _getConfirmStatus()
+    // fau: fairSub - new static function _getStatus()
     /**
      * Get the status of a user
      * @return bool
@@ -530,6 +530,16 @@ abstract class ilWaitingList
 
 
     // fau: fairSub - new function getPositionUsers(), getEffectivePosition(), getPositionOthers()
+
+    /**
+     * Get all position numbers
+     */
+    public function getAllPositions()
+    {
+        return array_keys($this->position_ids);
+    }
+
+
     /**
      * get the count of users sharing a waiting list position
      * @param int $a_position	waiting list position
@@ -580,9 +590,9 @@ abstract class ilWaitingList
     }
     // fau.
 
-    // fau: fairSub - new functions getSubject(), isToConfirm()
+    // fau: fairSub - new functions getSubject(), isToConfirm(), getStatus()
     /**
-     * get the message of the entry
+     * Get the message of the entry
      * @param int $a_usr_id
      * @return	string	subject
      */
@@ -593,7 +603,7 @@ abstract class ilWaitingList
 
 
     /**
-     * get info if user neeeds a confirmation
+     * Get if a user needs a confirmation
      * @param int $a_usr_id
      * @return	boolean
      */
@@ -601,7 +611,15 @@ abstract class ilWaitingList
     {
         return isset($this->users[$a_usr_id]) ? ($this->users[$a_usr_id]['to_confirm'] == self::REQUEST_TO_CONFIRM) : false;
     }
-    //fau.
+
+    /**
+     * Get the status of a user on the list
+     */
+    public function getStatus($a_usr_id)
+    {
+        return isset($this->users[$a_usr_id]) ? $this->users[$a_usr_id]['to_confirm'] : self::REQUEST_NOT_ON_LIST;
+    }
+    // fau.
 
     /**
      * get all users on waiting list
@@ -635,48 +653,6 @@ abstract class ilWaitingList
     {
         return $this->user_ids ? $this->user_ids : array();
     }
-
-    // fau: fairSub - get a list of assignable user ids
-    /**
-     * Get a list of user ids that can be assigned as members
-     * @param int|null 		$a_free 	free places or null for unlimited
-     * @return array					user ids
-     */
-    public function getAssignableUserIds($a_free = null)
-    {
-        $return_ids = array();
-
-        // get all users without needed confirmation if free places are unlimited
-        if (!isset($a_free)) {
-            return array_diff($this->user_ids, $this->to_confirm_ids);
-        }
-
-        // scan the list places and draw lots for equal
-        foreach ($this->position_ids as $position => $user_ids) {
-            // get users on the position without needed confirmation
-            $lot_ids = array_diff($user_ids, $this->to_confirm_ids);
-
-            // keep free places for users with needed confirmation
-            $a_free = $a_free - (count($user_ids) - count($lot_ids));
-
-            if ($a_free > 0) {
-                shuffle($lot_ids);
-                $to_draw = min($a_free, count($lot_ids));
-                $a_free = $a_free - $to_draw;
-
-                $drawn_ids = array_slice($lot_ids, 0, $to_draw);
-                $return_ids = array_merge($return_ids, $drawn_ids);
-            }
-
-            // no more places to fill
-            if ($a_free <= 0) {
-                break;
-            }
-        }
-
-        return $return_ids;
-    }
-    // fau.
 
     /**
      * Read waiting list

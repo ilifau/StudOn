@@ -655,7 +655,19 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $info->setBlockProperty("news", "public_notifications_option", true);
             }
         }
-        
+
+        // fau: campoInfo - show info on course info page
+        global $DIC;
+        if (!empty($units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId()))) {
+            $info->addSection($this->lng->txt('fau_relation'));
+            $list = [];
+            foreach ($units as $unit) {
+                $list[] = $unit->getLongtext() . ' (' . $unit->getFauorgNr() . ')';
+            }
+            $info->addProperty($this->lng->txt('fau_relation_orgunits'), implode('<br>', $list));
+        }
+        // fau.
+
         include_once('Services/AdvancedMetaData/classes/class.ilAdvancedMDRecordGUI.php');
         $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'cat', $this->object->getId());
         $record_gui->setInfoObject($info);
@@ -863,10 +875,57 @@ class ilObjCategoryGUI extends ilContainerGUI
                 )
         );
 
+
+
+        // fau: campoInfo - selection of orgunits
+        if (ilCust::administrationIsVisible()) {
+            global $DIC;
+
+            $header = new ilFormSectionHeaderGUI();
+            $header->setTitle($this->lng->txt('fau_relation'));
+            $form->addItem($header);
+
+            $units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId());
+            $values = [];
+            foreach ($units as $unit) {
+                $values[] = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            }
+
+            $multi = new ilTextInputGUI($this->lng->txt('fau_relation_orgunits'), 'orgunits');
+            $multi->setMulti(true);
+            $multi->setDataSource($this->ctrl->getLinkTarget($this, 'getOrgunits', '',true));
+            $multi->setDisableHtmlAutoComplete(true);
+            $multi->setValue($values);
+            $form->addItem($multi);
+        }
+        // fau.
+
+
         $form->addCommandButton("update", $this->lng->txt("save"));
 
         return $form;
     }
+
+    // fau: campoInfo - get the list of orgunits for autocomplete
+    /**
+     * Get the list of orgunits for autocomplete
+     */
+    protected function getOrgunitsObject()
+    {
+        global $DIC;
+
+        $result = ['' => $this->lng->txt('please_select')];
+        foreach ($DIC->fau()->org()->repo()->getAssignableOrgunits() as $unit)
+        {
+            $entry = new stdClass();
+            $entry->value = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            $entry->label = $unit->getFauorgNr() . ' - ' . $unit->getLongtext();
+            $result[] = $entry;
+        }
+        echo ilJsonUtil::encode($result);
+        exit;
+    }
+    // fau;
 
     public function getEditFormValues()
     {
@@ -888,7 +947,46 @@ class ilObjCategoryGUI extends ilContainerGUI
             $ilErr->raiseError($this->lng->txt("msg_no_perm_write"), $ilErr->MESSAGE);
         } else {
             $form = $this->initEditForm();
-            if ($form->checkInput()) {
+
+            // fau: campoInfo - handle orgunit assignments
+            $success = $form->checkInput();
+            if ($success && ilCust::administrationIsVisible()) {
+                global $DIC;
+
+                $oldUnits = [];
+                foreach ($DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId()) as $unit) {
+                    $oldUnits[$unit->getId()] = $unit;
+                }
+                $newUnits = [];
+
+                foreach ((array) $form->getInput('orgunits') as $entry) {
+                    if (!empty($entry)) {
+                        list($orgnr, $orgname) = explode(' - ', $entry);
+                        if (!empty($unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($orgnr))) {
+                            if (!empty($unit->getIliasRefId() && $unit->getIliasRefId() != $this->object->getRefId())) {
+                                ilUtil::sendFailure(sprintf($this->lng->txt('fau_relation_unit_used'),
+                                    $unit->getLongtext(), ilLink::_getLink($unit->getIliasRefId()),
+                                ilObject::_lookupTitle(ilObject::_lookupObjId($unit->getIliasRefId()))), true);
+                                $success = false;
+                            }
+                            else {
+                                $newUnits[$unit->getId()] = $unit;
+                            }
+                        }
+                    }
+                }
+                /**
+                 * @var  \FAU\Org\Data\Orgunit $unit
+                 */
+                foreach (array_diff_key($oldUnits, $newUnits) as $id => $unit) {
+                    $DIC->fau()->org()->repo()->save($unit->withIliasRefId(null));
+                }
+                foreach (array_diff_key($newUnits, $oldUnits) as $id => $unit) {
+                    $DIC->fau()->org()->repo()->save($unit->withIliasRefId($this->object->getRefId()));
+                }
+            }
+            if ($success) {
+                // fau.
                 $title = $form->getInput("title");
                 $desc = $form->getInput("desc");
 

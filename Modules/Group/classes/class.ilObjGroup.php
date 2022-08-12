@@ -2180,7 +2180,23 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         }
         return $this->members_obj;
     }
-    
+
+    // fau: new functions initWaitingList(), getWaitingList
+    public function initWaitingList()
+    {
+        $this->waiting_list_obj = new ilGroupWaitingList($this->getId());
+    }
+
+    public function getWaitingList() : ilGroupWaitingList
+    {
+        if (!$this->waiting_list_obj instanceof ilGroupWaitingList) {
+            $this->initWaitingList();
+        }
+        return $this->waiting_list_obj;
+    }
+    // fau.
+
+
     /**
      * @see interface.ilMembershipRegistrationCodes
      * @return array obj ids
@@ -2278,154 +2294,14 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         return true;
     }
 
-    // fau: fairSub - new function findFairAutoFill
-    /**
-     * Find groups that can be auto filled after the fair subscription time
-     * @return int[]	object ids
-     */
-    public static function findFairAutoFill()
+
+    public function handleAutoFill()
     {
-        global $ilDB;
-
-        // find all groups with a finished fair period in the last month
-        // that are not filled or last filled before the fair period
-        $query = "
-			SELECT s.obj_id
-			FROM grp_settings s
-			INNER JOIN object_reference r ON r.obj_id = s.obj_id
-			WHERE r.deleted IS NULL
-			AND s.grp_type <> 1
-			AND registration_mem_limit > 0
-			AND registration_max_members > 0
-			AND s.sub_auto_fill > 0
-			AND s.sub_fair > (UNIX_TIMESTAMP() - 3600 * 24 * 30)
-			AND sub_fair < UNIX_TIMESTAMP()
-			AND (s.sub_last_fill IS NULL OR s.sub_last_fill < s.sub_fair)
-		";
-
-        $obj_ids = array();
-        $result = $ilDB->query($query);
-        while ($row = $ilDB->fetchAssoc($result)) {
-            $obj_ids[] = $row['obj_id'];
-        }
-        return $obj_ids;
+        // fau: fairSub - use extended function for auto fill
+        global $DIC;
+        $DIC->fau()->ilias()->getRegistration($this)->doAutoFill();
+        // fau.
     }
-    // fau.
-
-    // fau: fairSub - fill only assignable users, treat manual fill, return filled users
-    /**
-     * Auto fill free places in the course from the waiting list
-     * @param bool 		$manual		called manually by admin
-     * @param bool 		$initial	called initially by cron job after fair time
-     * @return int[]	added user ids
-     */
-    public function handleAutoFill($manual = false, $initial = false)
-    {
-        $added_users = array();
-        $last_fill = $this->getSubscriptionLastFill();
-
-        // never fill if subscriptions are still fairly collected, even if manual call (should not happen)
-        if ($this->inSubscriptionFairTime()) {
-            return array();
-        }
-
-        // check the conditions for autofill
-        if ($manual
-            || $initial
-            || ($this->isWaitingListEnabled() && $this->hasWaitingListAutoFill())
-        ) {
-            include_once('./Modules/Group/classes/class.ilGroupWaitingList.php');
-            include_once('./Modules/Group/classes/class.ilGroupParticipants.php');
-            include_once('./Modules/Course/classes/class.ilObjCourseGrouping.php');
-
-            $max = (int) $this->getMaxMembers();
-            $now = ilGroupParticipants::lookupNumberOfMembers($this->getRefId());
-
-            if ($max == 0 || $max > $now) {
-                // see assignFromWaitingListObject()
-                $waiting_list = new ilGroupWaitingList($this->getId());
-                $members_obj = ilGroupParticipants::_getInstanceByObjId($this->getId());
-                $grouping_ref_ids = (array) ilObjCourseGrouping::_getGroupingItems($this);
-
-                foreach ($waiting_list->getAssignableUserIds($max == 0 ? null :  $max - $now) as $user_id) {
-                    // check conditions for adding the member
-                    if (
-                        // user does not longer exist
-                        ilObjectFactory::getInstanceByObjId($user_id, false) == false
-                        // user is already assigned to the course
-                        || $members_obj->isAssigned($user_id) == true
-                        // user is already assigned to a grouped course
-                        || ilObjCourseGrouping::_checkGroupingDependencies($this, $user_id) == false
-                    ) {
-                        $waiting_list->removeFromList($user_id);
-                        continue;
-                    }
-
-                    // avoid race condition
-                    if ($members_obj->addLimited($user_id, IL_GRP_MEMBER, $max)) {
-                        // user is now member
-                        $added_users[] = $user_id;
-
-                        // delete user from this and grouped waiting lists
-                        $waiting_list->removeFromList($user_id);
-                        foreach ($grouping_ref_ids as $ref_id) {
-                            ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
-                        }
-                    } else {
-                        // last free places are taken by parallel requests, don't try further
-                        break;
-                    }
-
-                    $now++;
-                    if ($max > 0 && $now >= $max) {
-                        break;
-                    }
-                }
-
-                // get the user that remain on the waiting list
-                $waiting_users = $waiting_list->getUserIds();
-
-                // prepare notifications
-                // the waiting list object is injected to allow the inclusion of the waiting list position
-                include_once('./Modules/Group/classes/class.ilGroupMembershipMailNotification.php');
-                $mail = new ilGroupMembershipMailNotification();
-                $mail->setRefId($this->ref_id);
-                $mail->setWaitingList($waiting_list);
-
-                // send notifications to added users
-                if (!empty($added_users)) {
-                    $mail->setType(ilGroupMembershipMailNotification::TYPE_ADMISSION_MEMBER);
-                    $mail->setRecipients($added_users);
-                    $mail->send();
-                }
-
-                // send notifications to waiting users if waiting list is automatically filled for the first time
-                // the distinction between requests and subscriptions is done in the send() function
-                if (empty($last_fill) && !empty($waiting_users)) {
-                    $mail->setType(ilGroupMembershipMailNotification::TYPE_AUTOFILL_STILL_WAITING);
-                    $mail->setRecipients($waiting_users);
-                    $mail->send();
-                }
-
-                // send notification to course admins if waiting users have to be confirmed and places are free
-                // this should be done only once after the end of the fair time
-                if ($initial
-                    && $waiting_list->getCountToConfirm() > 0
-                    && ($max == 0 || $max > $now)) {
-                    $mail->setType(ilGroupMembershipMailNotification::TYPE_NOTIFICATION_AUTOFILL_TO_CONFIRM);
-                    $mail->setRecipients($members_obj->getNotificationRecipients());
-                    $mail->send();
-                }
-            }
-        }
-
-        // remember the fill date
-        // this prevents further calls from the cron job
-        $this->saveSubscriptionLastFill(time());
-
-        return $added_users;
-    }
-    // fau.
 
     public static function mayLeave($a_group_id, $a_user_id = null, &$a_date = null)
     {

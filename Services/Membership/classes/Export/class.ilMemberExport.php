@@ -591,7 +591,7 @@ class ilMemberExport
                         global $DIC;
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
                             $studydata = $DIC->fau()->user()->getStudiesAsText((int) $usr_id);
-                            $studydata = $DIC->fau()->tools()->quoteForExport($studydata);
+                            $studydata = $DIC->fau()->tools()->convert()->quoteForExport($studydata);
                             $this->addCol($studydata, $row, $col++);
                         } else {
                             $this->addCol('', $row, $col++);
@@ -602,7 +602,7 @@ class ilMemberExport
                         global $DIC;
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
                             $educations = $DIC->fau()->user()->getEducationsAsText((int) $usr_id);
-                            $educations = $DIC->fau()->tools()->quoteForExport($educations);
+                            $educations = $DIC->fau()->tools()->convert()->quoteForExport($educations);
                             $this->addCol($educations, $row, $col++);
                         } else {
                             $this->addCol('', $row, $col++);

@@ -21,6 +21,10 @@
         +-----------------------------------------------------------------------------+
 */
 
+// fau: paraSub - import of registration class
+use FAU\Ilias\Registration;
+// fau.
+
 include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
 
 /**
@@ -36,6 +40,11 @@ abstract class ilRegistrationGUI
 {
     protected $privacy = null;
 
+    /**
+     * fau: paraSub - type hint
+     * @var ilContainer $container
+     * fau.
+     */
     protected $container = null;
     protected $ref_id;
     protected $obj_id;
@@ -57,6 +66,11 @@ abstract class ilRegistrationGUI
 
     // fau: fairSub - class variable for join button text
     protected $join_button_text = '';
+    // fau.
+
+    // fau: paraSub - property for registration object
+    /** @var Registration */
+    protected $registration;
     // fau.
 
     /**
@@ -89,10 +103,9 @@ abstract class ilRegistrationGUI
         $this->type = ilObject::_lookupType($this->obj_id);
 
         // fau: studyCond - define matches_studycond, describe_studycond
-        global $ilUser;
         $this->has_studycond = $DIC->fau()->cond()->repo()->checkObjectHasSoftCondition($this->obj_id);
         if ($this->has_studycond) {
-            $this->matches_studycond = $DIC->fau()->cond()->soft()->check($this->obj_id, $ilUser->getId());
+            $this->matches_studycond = $DIC->fau()->cond()->soft()->check($this->obj_id, $DIC->user()->getId());
             $this->describe_studycond = $DIC->fau()->cond()->soft()->getConditionsAsText($this->obj_id);
         } else {
             $this->matches_studycond = true;
@@ -105,6 +118,11 @@ abstract class ilRegistrationGUI
         
         // Init waiting list
         $this->initWaitingList();
+
+        // fau: paraSub - init the registration object
+        $this->registration = $DIC->fau()->ilias()->getRegistration($this->container, $this->participants, $this->waiting_list);
+        // fau.
+
         
         $this->privacy = ilPrivacySettings::_getInstance();
     }
@@ -193,8 +211,10 @@ abstract class ilRegistrationGUI
         $ilUser = $DIC['ilUser'];
         $tree = $DIC['tree'];
         $ilCtrl = $DIC['ilCtrl'];
-        
-        $this->getWaitingList()->removeFromList($ilUser->getId());
+
+        // fau: paraSub - call new function to remove a user from the waiting list
+        $this->registration->removeUserSubscription($DIC->user()->getId());
+        // fau.
         $parent = $tree->getParentId($this->container->getRefId());
         
         $message = sprintf(
@@ -673,6 +693,13 @@ abstract class ilRegistrationGUI
         if ($this->isRegistrationPossible()) {
             $this->fillMaxMembers();
         }
+
+        // fau: paraSub - list the parallel groups for subscribing to the course
+        if ($this->isRegistrationPossible() && $this->container->hasParallelGroups()) {
+            $this->fillGroupSelection();
+        }
+        // fau.
+
         if ($this->isRegistrationPossible()) {
             $this->fillAgreement();
         }
@@ -689,23 +716,23 @@ abstract class ilRegistrationGUI
         global $DIC;
 
         $ilUser = $DIC['ilUser'];
-        
-        if ($this->isRegistrationPossible() and $this->isWaitingListActive() and !$this->getWaitingList()->isOnList($ilUser->getId())) {
-            // fau: fairSub - use prepared join button text if existing
-            $this->form->addCommandButton('join', $this->join_button_text ? $this->join_button_text : $this->lng->txt('mem_add_to_wl'));
-            // fau.
-            $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
-        } elseif ($this->isRegistrationPossible() and !$this->getWaitingList()->isOnList($ilUser->getId())) {
-            // fau: fairSub - use prepared join button text if existing
-            $this->form->addCommandButton('join', $this->join_button_text ? $this->join_button_text : $this->lng->txt('join'));
-            // fau.
+
+        // fau: fairSub - use prepared join button text if existing
+        if ($this->isRegistrationPossible() && !$this->getWaitingList()->isOnList($ilUser->getId())) {
+            $this->form->addCommandButton('join', $this->lng->txt('mem_register'));
             $this->form->addCommandButton('cancel', $this->lng->txt('cancel'));
         }
+        // fau.
+
         if ($this->getWaitingList()->isOnList($ilUser->getId())) {
             // fau: fairSub - allow to update the subscription_request
             if ($this->getWaitingList()->isToConfirm($ilUser->getId())) {
                 ilUtil::sendQuestion($this->lng->txt('mem_user_already_subscribed'));
                 $this->form->addCommandButton('updateWaitingList', $this->lng->txt('crs_update_subscr_request'));
+            }
+            // fau: paraSub - allow to change the group selection
+            elseif ($this->container->hasParallelGroups()) {
+                $this->form->addCommandButton('updateWaitingList', $this->lng->txt('mem_edit_request'));
             }
             // fau.
             $this->form->addCommandButton('leaveWaitingList', $this->lng->txt('leave_waiting_list'));
@@ -745,14 +772,22 @@ abstract class ilRegistrationGUI
         global $ilUser, $tree, $ilCtrl;
 
         // fau: courseUdf - save the user defined values when waiting list is updated
+        // fau: paraSub - save group selections
         $this->initForm();
         if ($this->form->checkInput()) {
             include_once './Services/Membership/classes/class.ilMemberAgreementGUI.php';
             ilMemberAgreementGUI::saveCourseDefinedFields($this->form, $this->obj_id);
 
+            // treat update like a join in courses with parallel groups
+            // this allows to directly join another group
+            if ($this->container->hasParallelGroups()) {
+                $this->add();
+                return;
+            }
+
+            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], 0);
             $this->participants->sendExternalNotifications($this->container, $ilUser, true);
 
-            $this->getWaitingList()->updateSubject($ilUser->getId(), ilUtil::stripSlashes($_POST['subject']));
             ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
             $ilCtrl->setParameterByClass(
                 "ilrepositorygui",
@@ -924,7 +959,7 @@ abstract class ilRegistrationGUI
 
         // send email to admins
         $mmail = new ilMimeMail();
-        $mmail->From(new ilMailMimeSenderUser($ilSetting, $ilUser));
+        $mmail->From(new ilMailMimeSenderUserById($ilSetting, $ilUser->getId()));
         $mmail->To($ilSetting->get('admin_email'));
         $mmail->Subject($subject);
         $mmail->Body($message);

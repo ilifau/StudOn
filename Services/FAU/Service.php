@@ -12,6 +12,7 @@ class Service
 {
     protected Container $dic;
     protected Cond\Service $condService;
+    protected Ilias\Service $iliasService;
     protected Org\Service $orgService;
     protected Staging\Service $stagingService;
     protected Study\Service $studyService;
@@ -33,6 +34,17 @@ class Service
             $this->condService = new Cond\Service($this->dic);
         }
         return $this->condService;
+    }
+
+    /**
+     * Get the service for handling ilias
+     */
+    public function ilias() : Ilias\Service
+    {
+        if (!isset($this->iliasService)) {
+            $this->iliasService = new Ilias\Service($this->dic);
+        }
+        return $this->iliasService;
     }
 
 

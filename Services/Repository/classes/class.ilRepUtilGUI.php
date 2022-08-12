@@ -248,6 +248,14 @@ class ilRepUtilGUI
         $deps = array();
         foreach ($a_ids as $ref_id) {
             $obj_id = ilObject::_lookupObjId($ref_id);
+
+            // fau: preventCampoDelete - show message
+            global $DIC;
+            if ($DIC->fau()->study()->isObjectForCampo($obj_id)) {
+                ilUtil::sendInfo($this->lng->txt('fau_delete_info_campo'));
+            }
+            // fau.
+
             $type = ilObject::_lookupType($obj_id);
             $title = call_user_func(array(ilObjectFactory::getClassByType($type),'_lookupTitle'), $obj_id);
             $alt = ($objDefinition->isPlugin($type))

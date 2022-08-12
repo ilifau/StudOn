@@ -593,7 +593,29 @@ class ilObjCourseGUI extends ilContainerGUI
                 $info->addProperty($this->lng->txt('ps_crs_user_fields'), $fields);
             }
         }
-        
+
+        // fau: campoInfo - sshow info on course info page
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if (!empty($event_id = $importId->getEventId())) {
+            $info->addSection($this->lng->txt('fau_campo_event'));
+            $list = [];
+            foreach ($DIC->fau()->study()->repo()->getEventOrgunitsByEventId($event_id) as $eventOrgunit) {
+                $unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr());
+                if (!empty($unit)) {
+                    if (!empty($unit->getIliasRefId())) {
+                        $title = '<a href="' . ilLink::_getStaticLink($unit->getIliasRefId()) .'">'. $unit->getLongtext() . '</a>';
+                    }
+                    else {
+                        $title = $unit->getLongtext();
+                    }
+                    $list[] = $title . ' (' . $unit->getFauorgNr() . ')';
+                }
+            }
+            $info->addProperty($this->lng->txt('fau_campo_assigned_orgunits'), implode('<br>', $list));
+        }
+        // fau.
+
+
         $info->enableLearningProgress(true);
 
         // forward the command
@@ -1166,9 +1188,12 @@ class ilObjCourseGUI extends ilContainerGUI
         // fau.
 
         // fau: fairSub - check and correct the fair time
-        if ($this->object->getSubscriptionFair() >= 0
-                && $this->object->isSubscriptionMembershipLimited()
-                && $this->object->getSubscriptionMaxMembers() > 0) {
+        // fau: paraSub - check also if the object has parallel groups
+        if ($this->object->getSubscriptionFair() >= 0 && (
+                $this->object->hasParallelGroups() ||
+                ($this->object->isSubscriptionMembershipLimited() && $this->object->getSubscriptionMaxMembers() > 0)
+            )
+        ) {
             $fair_message = '';
             if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_LIMITED) {
                 if ($this->object->getSubscriptionFair() < $this->object->getSubscriptionStart() + $this->object->getSubscriptionMinFairSeconds()) {
@@ -1387,11 +1412,16 @@ class ilObjCourseGUI extends ilContainerGUI
         
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('crs_reg'));
+        // fau: paraSub - add info about parallel group subscription
+        if ($this->object->hasParallelGroups()) {
+            $section->setInfo($this->lng->txt('fau_sub_group_by_course_info'));
+        }
+        // fau.
         $form->addItem($section);
         
         $reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'), 'subscription_type');
         // fau: campusSub - respect also the subscription limitation type for my campus
-        // this us used in studon versions up to 4.3
+        // this is used in studon versions up to 4.3
         if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
             $reg_proc->setValue(IL_CRS_SUBSCRIPTION_MYCAMPUS);
         } else {
@@ -1437,6 +1467,12 @@ class ilObjCourseGUI extends ilContainerGUI
             $rep_loc->setValue($locator->getHTML());
             $opt->addSubItem($rep_loc);
         }
+
+        // fau: paraSub disable combi subscription for courses with parallel groups
+        if ($this->object->hasParallelGroups()) {
+            $opt->setDisabled(true);
+            $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
+        }
         $reg_proc->addOption($opt);
         // fau.
 
@@ -1464,18 +1500,9 @@ class ilObjCourseGUI extends ilContainerGUI
         $opt->setInfo($this->lng->txt('crs_registration_deactivated'));
         $reg_proc->addOption($opt);
 
-        // fau: campoSub - currently prevent the subscription
-        global $DIC;
-        if ($DIC->fau()->study()->isObjectForCampo($this->object->getId())) {
-            $reg_proc->setDisabled(true);
-            $reg_proc->setAlert($this->lng->txt('fau_sub_after_date'));
-        }
-        // fau.
-
         $form->addItem($reg_proc);
 
         // fau: courseGroupRegCodes - customize use of registration codes
-
         if (ilCust::get('crs_enable_reg_codes')) {
             // Registration codes
             $reg_code = new ilCheckboxInputGUI($this->lng->txt('crs_reg_code'), 'reg_code_enabled');
@@ -1545,47 +1572,43 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addItem($studycond);
         // fau.
 
-        // Max members
-        $lim = new ilCheckboxInputGUI($this->lng->txt('crs_subscription_max_members_short'), 'subscription_membership_limitation');
-        $lim->setInfo($this->lng->txt('crs_subscription_max_members_short_info'));
-        $lim->setValue(1);
-        $lim->setChecked($this->object->isSubscriptionMembershipLimited());
-        
-        $min = new ilTextInputGUI('', 'subscription_min');
-        $min->setSubmitFormOnEnter(true);
-        $min->setSize(4);
-        $min->setMaxLength(4);
-        $min->setValue($this->object->getSubscriptionMinMembers() ? $this->object->getSubscriptionMinMembers() : '');
-        $min->setTitle($this->lng->txt('crs_subscription_min_members'));
-        $min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
-        $lim->addSubItem($min);
-        
-        $max = new ilTextInputGUI('', 'subscription_max');
-        $max->setSubmitFormOnEnter(true);
-        $max->setSize(4);
-        $max->setMaxLength(4);
-        $max->setValue($this->object->getSubscriptionMaxMembers() ? $this->object->getSubscriptionMaxMembers() : '');
-        $max->setTitle($this->lng->txt('crs_subscription_max_members'));
-        $max->setInfo($this->lng->txt('crs_reg_max_info'));
-        
-        $lim->addSubItem($max);
-        
-        /*
-        $wait = new ilCheckboxInputGUI($this->lng->txt('crs_waiting_list'),'waiting_list');
-        $wait->setChecked($this->object->enabledWaitingList());
-        $wait->setInfo($this->lng->txt('crs_wait_info'));
-        $lim->addSubItem($wait);
+        // fau: paraSub - optionally hide the setting of min/max members
+        if ($this->object->hasParallelGroups()) {
+            $lim = new ilNonEditableValueGUI($this->lng->txt('crs_subscription_max_members_short') , 'subscription_membership_limitation', true);
+            $lim->setValue('<small>' . $this->lng->txt('fau_sub_group_by_course_limit_info') . '</small>');
 
-        $wait = new ilCheckboxInputGUI($this->lng->txt('crs_waiting_list'),'waiting_list');
-        $wait->setChecked($this->object->enabledWaitingList());
-        $wait->setInfo($this->lng->txt('crs_wait_info'));
-        $lim->addSubItem($wait);
+            $min = new ilHiddenInputGUI('subscription_min');
+            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
 
-        $auto = new ilCheckboxInputGUI($this->lng->txt('crs_waiting_list_autofill'), 'auto_wait');
-        $auto->setChecked($this->object->hasWaitingListAutoFill());
-        $auto->setInfo($this->lng->txt('crs_waiting_list_autofill_info'));
-        $wait->addSubItem($auto);
-        */
+            $max = new ilHiddenInputGUI('subscription_min');
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+        }
+        else {
+            $lim = new ilCheckboxInputGUI($this->lng->txt('crs_subscription_max_members_short'), 'subscription_membership_limitation');
+            $lim->setInfo($this->lng->txt('crs_subscription_max_members_short_info'));
+            $lim->setValue(1);
+            $lim->setChecked($this->object->isSubscriptionMembershipLimited());
+
+            $min = new ilTextInputGUI('', 'subscription_min');
+            $min->setSubmitFormOnEnter(true);
+            $min->setSize(4);
+            $min->setMaxLength(4);
+            $min->setValue($this->object->getSubscriptionMinMembers() ?? '');
+            $min->setTitle($this->lng->txt('crs_subscription_min_members'));
+            $min->setInfo($this->lng->txt('crs_subscription_min_members_info'));
+            $lim->addSubItem($min);
+
+            $max = new ilTextInputGUI('', 'subscription_max');
+            $max->setSubmitFormOnEnter(true);
+            $max->setSize(4);
+            $max->setMaxLength(4);
+            $max->setValue($this->object->getSubscriptionMaxMembers() ?? '');
+            $max->setTitle($this->lng->txt('crs_subscription_max_members'));
+            $max->setInfo($this->lng->txt('crs_reg_max_info'));
+
+            $lim->addSubItem($max);
+        }
+        // fau.
 
         // fau: fairSub - add fair date and arrange and explain options for waiting list
         if ($this->object->getSubscriptionFair() < 0) {
@@ -2292,6 +2315,17 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->getMembersObject()->delete($this->ilias->account->getId());
         $this->object->getMembersObject()->sendUnsubscribeNotificationToAdmins($this->ilias->account->getId());
         $this->object->getMembersObject()->sendNotification($this->object->getMembersObject()->NOTIFY_UNSUBSCRIBE, $ilUser->getId());
+
+        // fau: paraSub - unsubscribe also from the groups
+        if ($this->object->hasParallelGroups()) {
+            foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId()) as $group) {
+                if ($group->isAssigned()) {
+                    $part = new ilGroupParticipant($group->getObjId(), $DIC->user()->getId());
+                    $part->delete($DIC->user()->getId());
+                }
+            }
+        }
+        // fau.
         
         ilUtil::sendSuccess($this->lng->txt('crs_unsubscribed_from_crs'), true);
 

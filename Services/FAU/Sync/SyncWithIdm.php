@@ -8,6 +8,7 @@ use ilObjUser;
 use ilCust;
 use ilShibbolethRoleAssignmentRules;
 use FAU\User\Data\Person;
+use ILIAS\DI\Exceptions\Exception;
 
 /**
  * Synchronisation of data coming from IDM
@@ -123,7 +124,16 @@ class SyncWithIdm extends SyncBase
         $person = $this->getPersonUpdate($person, $identity);
         $this->user->repo()->save($person);
 
+        // always update the organisational roles of a person
+        try {
+            $this->sync->roles()->updateUserOrgRoles($person);
+        }
+        catch (Exception $e) {
+            // ignore exception
+        }
+
         // set the responsible or instructor roles for a newly created account
+        // (update for existing users is done in the sync of courses)
         if ($new) {
             $this->sync->roles()->updateUserParticipation($userObj->getId());
         }

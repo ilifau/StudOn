@@ -1413,6 +1413,8 @@ class ilMembershipGUI
      */
     public function confirmAcceptOnList()
     {
+        global $DIC;
+
         if (!empty($_GET['member_id'])) {
             $_POST["waiting"] = array($_GET['member_id']);
         }
@@ -1436,7 +1438,10 @@ class ilMembershipGUI
 
         // set confirm/cancel commands
         $c_gui->setFormAction($this->ctrl->getFormAction($this, "acceptOnList"));
-        $c_gui->setHeaderText($this->lng->txt("sub_confirm_request_question"));
+        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
+            $add_to_question = '<br><small>' . $this->lng->txt('fau_sub_accept_all_groups') . '</small>';
+        }
+        $c_gui->setHeaderText($this->lng->txt("sub_confirm_request_question") . $add_to_question);
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "acceptOnList");
 
@@ -1463,51 +1468,50 @@ class ilMembershipGUI
      */
     public function acceptOnList()
     {
+        global $DIC;
+
         if (!count($_POST['waiting'])) {
             ilUtil::sendFailure($this->lng->txt("sub_select_one_request"), true);
             $this->ctrl->redirect($this, 'participants');
             return false;
         }
 
+        // get the affected waiting lists
+        // get the registration object for further processing
+        // for parallel groups get the registration of the parent course
+        // this will send a notification related to the course because the group is not yet accessible to the user
+        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
+            $waiting_lists = $DIC->fau()->ilias()->objects()->getCourseAndParallelGroupsWaitingLists($this->getParentObject()->getRefId());
+            $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
+            $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
+        }
+        else {
+            $waiting_lists = [$this->initWaitingList()];
+            $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
+        }
+
         // accept users, but keep them on the waiting list
-        /** @var ilWaitingList $waiting_list */
-        $waiting_list = $this->initWaitingList();
-        $accepted = array();
+        $accepted = [];
         foreach ($_POST["waiting"] as $user_id) {
-            $waiting_list->acceptOnList($user_id);
+            foreach ($waiting_lists as $list) {
+                if ($list->isOnList($user_id)) {
+                    $list->acceptOnList($user_id);
+                }
+            }
             $accepted[] = $user_id;
         }
 
-        // try to fill free places free places from the waiting list
+        // try to fill free places
         // call it with 'manual' mode to suppress the sending of admin notifications
-        $added = array();
-        if ($this instanceof ilCourseMembershipGUI) {
-            /** @var ilObjCourse $course */
-            $course = $this->getParentObject();
-            if ($course->isSubscriptionMembershipLimited() && $course->hasWaitingListAutoFill()
-                && (empty($course->getCancellationEnd()) || $course->getCancellationEnd() > time())) {
-                $added = $course->handleAutoFill(true);
-            }
-            $mail = new ilCourseMembershipMailNotification();
-            $mail->setType(ilCourseMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
-        }
-
-        if ($this instanceof ilGroupMembershipGUI) {
-            /** @var ilObjGroup $group */
-            $group = $this->getParentObject();
-            if ($group->isMembershipLimited() && $group->hasWaitingListAutoFill()
-                && (empty($group->getCancellationEnd()) || $group->getCancellationEnd()->get(IL_CAL_UNIX) > time())) {
-                $added = $group->handleAutoFill(true);
-            }
-            $mail = new ilGroupMembershipMailNotification();
-            $mail->setType(ilGroupMembershipMailNotification::TYPE_ACCEPTED_STILL_WAITING);
-        }
+        $added = $registration->doAutoFill(true);
 
         // notify all users that were accepted but kept on the waiting list
         $accepted_waiting = array_diff($accepted, $added);
-        if (!empty($accepted_waiting) && isset($mail)) {
-            $mail->setRefId($this->getParentObject()->getRefId());
-            $mail->setWaitingList($waiting_list);
+        if (!empty($accepted_waiting)) {
+            $mail = $registration->getMembershipMailNotification();
+            $mail->setType(\FAU\Ilias\Registration::notificationAcceptedStillWaiting);
+            $mail->setRefId($registration->getObject()->getRefId());
+            $mail->setWaitingList($registration->getObject()->getWaitingList());
             $mail->setRecipients($accepted_waiting);
             $mail->send();
         }
@@ -1546,9 +1550,10 @@ class ilMembershipGUI
      */
     public function fillFreePlaces()
     {
+        global $DIC;
         /** @var ilObjCourse|ilObjGroup $object */
         $object = $this->getParentObject();
-        $added = $object->handleAutoFill(true);
+        $added = $DIC->fau()->ilias()->getRegistration($object)->doAutoFill(true);
 
         if (count($added)) {
             ilUtil::sendSuccess(sprintf($this->lng->txt(count($added) == 1 ? 'sub_added_member' : 'sub_added_members'), count($added)), true);
@@ -1593,16 +1598,30 @@ class ilMembershipGUI
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "assignFromWaitingList");
 
+        // fau: paraSub - show info if no group can be assigned
+        global $DIC;
+        /** @var ilContainer $object */
+        $object = $this->getParentObject();
+        $registration = $DIC->fau()->ilias()->getRegistration($object);
+
         foreach ($_POST["waiting"] as $waiting) {
             $name = ilObjUser::_lookupName($waiting);
+
+            $possible = true;
+            $notice = "";
+            if ($object->hasParallelGroups() && empty($registration->getFillableGroups((int) $waiting))) {
+                $possible = false;
+                $notice = '<br><small>' . $this->lng->txt('fau_add_no_group_possible') . '</small>';
+            }
 
             $c_gui->addItem(
                 'waiting[]',
                 $name['user_id'],
-                $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']',
-                ilUtil::getImagePath('icon_usr.svg')
+                $name['lastname'] . ', ' . $name['firstname'] . ' [' . $name['login'] . ']' . $notice,
+                $possible? ilUtil::getImagePath('icon_usr.svg') : ilUtil::getImagePath('outlined/icon_usr.svg')
             );
         }
+        // fau.
 
         $this->tpl->setContent($c_gui->getHTML());
         return true;
@@ -1629,6 +1648,18 @@ class ilMembershipGUI
         }
         // fau.
 
+        // fau: paraSub - init registration object and course participants
+        global $DIC;
+        /** @var ilContainer $object */
+        $object = $this->getParentObject();
+        $registration = $DIC->fau()->ilias()->getRegistration($object);
+        if ($object->isParallelGroup()) {
+            if (!empty($course_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($object->getRefId()))) {
+                $courseParticipants = ilCourseParticipants::getInstance($course_id);
+            }
+        }
+        // fau.
+
         $added_users = 0;
         foreach ($_POST["waiting"] as $user_id) {
             if (!$tmp_obj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
@@ -1637,7 +1668,26 @@ class ilMembershipGUI
             if ($this->getMembersObject()->isAssigned($user_id)) {
                 continue;
             }
-            
+
+            // fau: paraSub - only add members if groups can be assigned - add to course of group
+            if ($object->hasParallelGroups()) {
+                if (empty($groups = $registration->getFillableGroups((int) $user_id))) {
+                    continue;
+                }
+                foreach ($groups as $group) {
+                    $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
+                    break;
+                }
+                // removes the user from the group lists
+                $registration->removeUserSubscription($user_id);
+            }
+
+            if (!empty($courseParticipants)) {
+                $courseParticipants->add($user_id, IL_CRS_MEMBER);
+            }
+            // fau.
+
+
             if ($this instanceof ilCourseMembershipGUI) {
                 $this->getMembersObject()->add($user_id, IL_CRS_MEMBER);
                 $this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_ACCEPT_USER, $user_id, true);
@@ -1706,7 +1756,13 @@ class ilMembershipGUI
 
         // set confirm/cancel commands
         $c_gui->setFormAction($this->ctrl->getFormAction($this, "refuseFromList"));
-        $c_gui->setHeaderText($this->lng->txt("info_refuse_sure"));
+        // fau: paraSub - extend confirmation header
+        global $DIC;
+        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
+            $add_to_question = '<br><small>' . $this->lng->txt('fau_sub_refuse_all_groups') . '</small>';
+        }
+        $c_gui->setHeaderText($this->lng->txt("info_refuse_sure") . $add_to_question);
+        // fau.
         $c_gui->setCancel($this->lng->txt("cancel"), "participants");
         $c_gui->setConfirm($this->lng->txt("confirm"), "refuseFromList");
 
@@ -1737,23 +1793,39 @@ class ilMembershipGUI
             ilUtil::sendFailure($this->lng->txt('no_checkbox'), true);
             $this->ctrl->redirect($this, 'participants');
         }
-        
-        $waiting_list = $this->initWaitingList();
+
+        // fau: paraSub - get affected waiting lists and registration object
+        // for parallel groups get the registration of the parent course
+        // this will send a notification related to the course because the group is not yet accessible to the user
+        global $DIC;
+        if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
+            $waiting_lists = $DIC->fau()->ilias()->objects()->getCourseAndParallelGroupsWaitingLists($this->getParentObject()->getRefId());
+            $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
+            $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
+        }
+        elseif ($DIC->fau()->ilias()->objects()->isRegistrationHandlerSupported($this->getParentObject())) {
+            $waiting_lists = [$this->initWaitingList()];
+            $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
+        }
+        else {
+            $waiting_lists = [$this->initWaitingList()];
+        }
+        // fau.
+
 
         foreach ($_POST["waiting"] as $user_id) {
-            $waiting_list->removeFromList($user_id);
-            
-            if ($this instanceof ilCourseMembershipGUI) {
-                $this->getMembersObject()->sendNotification($this->getMembersObject()->NOTIFY_DISMISS_SUBSCRIBER, $user_id, true);
+            // fau: paraSub - remove from all affected waiting lists and send notification for the parent object
+            foreach ($waiting_lists as $list) {
+                $list->removeFromList($user_id);
             }
-            if ($this instanceof ilGroupMembershipGUI) {
-                include_once './Modules/Group/classes/class.ilGroupMembershipMailNotification.php';
-                $this->getMembersObject()->sendNotification(
-                    ilGroupMembershipMailNotification::TYPE_REFUSED_SUBSCRIPTION_MEMBER,
+            if (isset($registration)) {
+                $registration->getObject()->getMembersObject()->sendNotification (
+                    $registration->getNotificationTypeRefusedMember(),
                     $user_id,
                     true
                 );
             }
+            // fau.
             if ($this instanceof ilSessionMembershipGUI) {
                 include_once './Modules/Session/classes/class.ilSessionMembershipMailNotification.php';
                 $noti = new ilSessionMembershipMailNotification();

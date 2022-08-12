@@ -1518,49 +1518,77 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
 <#93>
 <?php
 /**
- * fau: fauService: create the new condition tables
+ * fau: fauService - create the new condition tables
  */
 \FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_93();
 ?>
 <#94>
 <?php
 /**
- * fau: fauService: create the new orgunit table
+ * fau: fauService - create the new orgunit table
  */
 \FAU\Setup\Setup::instance($ilDB)->org()->custom_step_94();
 ?>
 <#95>
 <?php
 /**
- * fau: fauService: create the new study tables
+ * fau: fauService - create the new study tables
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_95();
 ?>
 <#96>
 <?php
 /**
- * fau: fauService: create the new user tables
+ * fau: fauService - create the new user tables
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_96();
 ?>
 <#97>
 <?php
 /**
- * fau: fauService: create the new members table
+ * fau: fauService - create the new members table
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_97();
 ?>
 <#98>
 <?php
 /**
- * fau: fauService: add the 'deleted' colum to the table of courses
+ * fau: fauService - add the 'deleted' colum to the table of courses
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_98();
 ?>
 <#99>
 <?php
 /**
- * fau: fauService: add the 'relation_id' colum to the table of event orgunits
+ * fau: fauService - add the 'relation_id' colum to the table of event orgunits
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_99();
+?>
+<#100>
+<?php
+/**
+ * fau: fauService - extend the primary key of the table event orgunits
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_100();
+?>
+<#101>
+<?php
+/**
+ * fau: fauService - create the user org roles table
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_101();
+?>
+<#102>
+<?php
+    /**
+     * fau: campoGrades - Create the table to store the test result export options for campo
+     */
+    if (!$ilDB->tableExists('tst_campo_options')) {
+        $ilDB->createTable('tst_campo_options', array(
+            'obj_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true),
+            'option_key' => array('type' => 'text', 'length' => 100, 'notnull' => false),
+            'option_value' => array('type' => 'text', 'length' => 2000, 'notnull' => false)
+        ));
+        $ilDB->addPrimaryKey("tst_campo_options", array('obj_id', 'option_key'));
+    }
 ?>

@@ -1,6 +1,6 @@
 <?php
 
-namespace FAU\Sync;
+namespace FAU\Ilias;
 
 use ILIAS\DI\Container;
 use ilObjCourseGrouping;

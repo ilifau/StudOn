@@ -4,32 +4,28 @@
 
 include_once "Services/Cron/classes/class.ilCronJob.php";
 
-// fau: fairSub - new class ilMembershipCronFairAutoFill.
 /**
- * Cron for auto-filling course/group after fair period
- *
- * @author Fred Neumann <fred.neumann@fau.de>
- * @ingroup ServicesMembership
+ * Cron job for auto-filling course/group after fair period
  */
-class ilMembershipCronFairAutoFill extends ilCronJob
+class ilFairAutofillCron extends ilCronJob
 {
     public function getId()
     {
-        return "mem_autofill_fair";
+        return "fau_fair_autofill";
     }
     
     public function getTitle()
     {
-        global $lng;
+        global $DIC;
         
-        return $lng->txt("mem_cron_autofill_fair");
+        return $DIC->language()->txt("fair_autofill_cron");
     }
     
     public function getDescription()
     {
-        global $lng;
+        global $DIC;
         
-        return $lng->txt("mem_cron_autofill_fair_info");
+        return $DIC->language()->txt("fair_autofill_cron_info");
     }
     
     public function getDefaultScheduleType()
@@ -65,7 +61,7 @@ class ilMembershipCronFairAutoFill extends ilCronJob
     
         if ($filled > 0) {
             $status = ilCronJobResult::STATUS_OK;
-            $message = sprintf($lng->txt('mem_cron_autofill_fair_result'), $filled) ;
+            $message = sprintf($lng->txt('fair_autofill_cron_result'), $filled) ;
         }
         
         $result = new ilCronJobResult();
@@ -77,28 +73,36 @@ class ilMembershipCronFairAutoFill extends ilCronJob
     
     protected function fillCourses()
     {
-        include_once "Modules/Course/classes/class.ilObjCourse.php";
+        global $DIC;
 
         $filled = 0;
-        foreach (ilObjCourse::findFairAutoFill() as $obj_id) {
-            $ref_id = array_pop(ilObject::_getAllReferences($obj_id));
-            $course = new ilObjCourse($ref_id);
-            $filled += count($course->handleAutoFill(false, true));
-            unset($course);
+        foreach ($DIC->fau()->ilias()->repo()->findFairAutoFillCourseIds() as $obj_id) {
+            foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
+                if (!ilObject::_isInTrash($ref_id)) {
+                    $course = new ilObjCourse($ref_id);
+                    $filled += count($DIC->fau()->ilias()->getRegistration($course)->doAutoFill(false, true));
+                    unset($course);
+                    break;
+                }
+            }
         }
         return $filled;
     }
     
     protected function fillGroups()
     {
-        include_once "Modules/Group/classes/class.ilObjGroup.php";
+        global $DIC;
 
         $filled = 0;
-        foreach (ilObjGroup::findFairAutoFill() as $obj_id) {
-            $ref_id = array_pop(ilObject::_getAllReferences($obj_id));
-            $group = new ilObjGroup($ref_id);
-            $filled += count($group->handleAutoFill(false, true));
-            unset($group);
+        foreach ($DIC->fau()->ilias()->repo()->findFairAutoFillGroupIds() as $obj_id) {
+            foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
+                if (!ilObject::_isInTrash($ref_id)) {
+                    $group = new ilObjGroup($ref_id);
+                    $filled += count($DIC->fau()->ilias()->getRegistration($group)->doAutoFill(false, true));
+                    unset($group);
+                    break;
+                }
+            }
         }
         return $filled;
     }

@@ -14,6 +14,8 @@ use ilObjGroup;
 use ilUtil;
 use ilDidacticTemplateSetting;
 use ilRepUtil;
+use ilConditionHandler;
+use ilChangeEvent;
 
 /**
  * Synchronize the campo courses with the related ILIAS objects
@@ -99,6 +101,7 @@ class SyncWithIlias extends SyncBase
 
                 $this->increaseItemsAdded($this->createCourses($term, $course_ids));
                 $this->increaseItemsUpdated($this->updateCourses($term, $course_ids));
+                $this->increaseItemsUpdated($this->moveLostCourses($term));
             }
         }
     }
@@ -116,6 +119,9 @@ class SyncWithIlias extends SyncBase
         $created = 0;
         foreach ($this->study->repo()->getCoursesByTermToCreate($term, $course_ids) as $course) {
             $this->info('CREATE ' . $course->getTitle() . '...');
+
+            // clear old problem
+            $this->study->repo()->save($course->withIliasProblem(null));
 
             // order of checks is important!
             if (!empty($course->getIliasObjId())) {
@@ -154,7 +160,7 @@ class SyncWithIlias extends SyncBase
                 foreach ($this->study->repo()->getCoursesOfEventInTerm($event->getEventId(), $term, false) as $other) {
                     if ($other->getCourseId() != $course->getCourseId()
                         && !$other->isDeleted()
-                        && !empty($other_ref_id = $this->sync->trees()->getIliasRefIdForCourse($other))) {
+                        && !empty($other_ref_id = $this->ilias->objects()->getIliasRefIdForCourse($other))) {
                         $other_refs[] = $other_ref_id;
                         switch (ilObject::_lookupType($other_ref_id, true)) {
                             case 'crs':
@@ -174,12 +180,12 @@ class SyncWithIlias extends SyncBase
             // get or create the place for a new course if no parent_ref is set above
             // don't create the object for this course if no parent_ref can be found
             if (empty($parent_ref = $parent_ref ?? $this->sync->trees()->findOrCreateCourseCategory($course, $term))) {
+                // problem is already saved in the function
                 $this->info('Failed: no suitable parent found.');
                 continue;
             }
 
             if ($test_run) {
-                $this->study->repo()->save($course->withIliasProblem(null));
                 continue;
             }
 
@@ -214,12 +220,12 @@ class SyncWithIlias extends SyncBase
 
             // create or update the membership limitation
             if (!empty($other_refs)) {
-               if (!empty($grouping = $this->sync->groupings()->findCommonGrouping($other_refs))) {
-                  $this->sync->groupings()->addReferenceToGrouping($ref_id, $grouping);
+               if (!empty($grouping = $this->ilias->groupings()->findCommonGrouping($other_refs))) {
+                  $this->ilias->groupings()->addReferenceToGrouping($ref_id, $grouping);
                }
                else {
                    array_push($other_refs, $ref_id);
-                   $this->sync->groupings()->createCommonGrouping($other_refs, $event->getTitle());
+                   $this->ilias->groupings()->createCommonGrouping($other_refs, $event->getTitle());
                }
             }
 
@@ -254,7 +260,7 @@ class SyncWithIlias extends SyncBase
             $event = $this->study->repo()->getEvent($course->getEventId());
 
             // get the reference to the ilias course or group
-            $ref_id = $this->sync->trees()->getIliasRefIdForCourse($course);
+            $ref_id = $this->ilias->objects()->getIliasRefIdForCourse($course);
             if (empty($ref_id)) {
                 if ($course->isDeleted()) {
                     $this->study->repo()->delete($course);
@@ -274,7 +280,7 @@ class SyncWithIlias extends SyncBase
 
                 case 'grp':
                     $action = 'update_group_in_course';
-                    if (empty($parent_ref = $this->sync->trees()->findParentIliasCourse($ref_id))) {
+                    if (empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id))) {
                         $this->study->repo()->save($course->withIliasProblem("Parent ILIAS course of group not found!"));
                         continue 2;
                     }
@@ -322,6 +328,58 @@ class SyncWithIlias extends SyncBase
         return $updated;
     }
 
+    /**
+     * Move courses from fallback categories to their correct destination, if possible
+     * @return int number of moved courses
+     */
+    public function moveLostCourses(Term $term): int
+    {
+        $moved = 0;
+        $treeMatching = $this->dic->fau()->sync()->trees();
+        foreach ($this->settings->getMoveParentCatIds() as $parent_id) {
+            if (!empty($source_cat_id = (int) $treeMatching->findCourseCategoryForParent($parent_id, $term))) {
+                foreach ($treeMatching->findCoursesInCategory($source_cat_id) as $ref_id => $import_id) {
+                    if (!empty($event_id = ImportId::fromString($import_id)->getEventId())) {
+                        if (!empty($dest_cat_id = $treeMatching->findOrCreateCourseCategoryForEvent($event_id, $term))) {
+                            if ($dest_cat_id != $source_cat_id) {
+                                $this->info("MOVE $ref_id from $source_cat_id to $dest_cat_id");
+                                $this->moveObject($ref_id, $source_cat_id, $dest_cat_id);
+                                $moved++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $moved;
+    }
+
+    /**
+     * Move an object in the repository tree
+     */
+    protected function moveObject(int $ref_id, int $source_parent_ref_id, int $dest_parent_ref_id)
+    {
+        $tree = $this->dic->repositoryTree();
+        $obj_id = ilObject::_lookupObjId($ref_id);
+
+        $tree->moveTree($ref_id, $dest_parent_ref_id);
+        $this->dic->rbac()->admin()->adjustMovedObjectPermissions($ref_id, $source_parent_ref_id);
+        ilConditionHandler::_adjustMovedObjectConditions($ref_id);
+
+        ilChangeEvent::_recordWriteEvent(
+            $obj_id,
+            $this->dic->user()->getId(),
+            'remove',
+            ilObject::_lookupObjId($source_parent_ref_id)
+        );
+        ilChangeEvent::_recordWriteEvent(
+            $obj_id,
+            $this->dic->user()->getId(),
+            'add',
+            ilObject::_lookupObjId($dest_parent_ref_id)
+        );
+        ilChangeEvent::_catchupWriteEvents($obj_id, $this->dic->user()->getId());
+    }
 
     /**
      * Create an ILIAS course for a campo event and/or course (parallel group)
@@ -397,8 +455,8 @@ class SyncWithIlias extends SyncBase
         $object->setImportId(null);
 
         if ($this->isObjectManuallyChanged($object)
-            || $this->dic->fau()->sync()->trees()->hasUndeletedContents($ref_id)
-            || $this->dic->fau()->sync()->roles()->hasLocalMemberChanges($ref_id)
+            || $this->ilias->objects()->hasUndeletedContents($ref_id)
+            || $this->sync->roles()->hasLocalMemberChanges($ref_id)
         )
         {
             // object is already touched by an admin => just save the info
@@ -415,11 +473,11 @@ class SyncWithIlias extends SyncBase
 
                 // delete the parent course of a group if it is empty and not yet touched
                 if ($object->getType() == 'grp'
-                    && !empty($parent_ref = $this->dic->fau()->sync()->trees()->findParentIliasCourse($ref_id))
+                    && !empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id))
                 ) {
                     $parent = new ilObjCourse($parent_ref);
                     if (!$this->isObjectManuallyChanged($parent)
-                        && !$this->dic->fau()->sync()->trees()->hasUndeletedContents($parent_ref))
+                        && !$this->ilias->objects()->hasUndeletedContents($parent_ref))
                     {
                         ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($parent_ref), [$parent_ref]);
                     }
@@ -558,10 +616,34 @@ class SyncWithIlias extends SyncBase
      */
     protected function isObjectManuallyChanged(ilObject $object) : bool
     {
-        $created = (int) $this->tools->dbTimestampToUnix($object->getCreateDate());
-        $updated = (int) $this->tools->dbTimestampToUnix($object->getLastUpdateDate());
+        $created = (int) $this->tools->convert()->dbTimestampToUnix($object->getCreateDate());
+        $updated = (int) $this->tools->convert()->dbTimestampToUnix($object->getLastUpdateDate());
 
         // give 5 min tolerance
         return $updated > $created + 300;
+    }
+
+    /**
+     * Create the emissing manager and author roles in a category
+     * @param int[] list of excluded ref_ids
+     */
+    public function createMissingOrgRoles(array $exclude = [])
+    {
+        $roles = $this->dic->fau()->sync()->roles();
+        foreach ($this->sync->repo()->getAssignableCategories() as $orgunit => $ref_id) {
+            if (in_array($ref_id, $exclude)) {
+                $this->info("EXCLUDE $ref_id");
+                continue;
+            }
+
+            if (empty($roles->findManagerRole($ref_id))) {
+                $this->info("CREATE Manager in $ref_id");
+                $roles->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
+            }
+            if (empty($roles->findAuthorRole($ref_id))) {
+                $this->info("CREATE Author in $ref_id");
+                $roles->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
+            }
+        }
     }
 }

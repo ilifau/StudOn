@@ -13,7 +13,6 @@ class Service extends SubService
     protected Repository $repository;
     protected TreeMatching $trees;
     protected RoleMatching $roles;
-    protected Groupings $groupings;
 
 
     // Synchronisation Workers
@@ -62,14 +61,6 @@ class Service extends SubService
             $this->trees = new TreeMatching($this->dic);
         }
         return $this->trees;
-    }
-
-    public function groupings() : Groupings
-    {
-        if (!isset($this->groupings)) {
-            $this->groupings = new Groupings($this->dic);
-        }
-        return $this->groupings;
     }
 
 

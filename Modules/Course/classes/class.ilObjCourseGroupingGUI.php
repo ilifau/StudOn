@@ -109,22 +109,22 @@ class ilObjCourseGroupingGUI
     // fau: limitSub - new function addWaitingMembers()
     /**
      * Add waiting members to the grouped objects
-     * this calls their handleAutoFill function()
+     * this calls the doAutoFill function()
      */
     public function addWaitingMembers()
     {
-        /** @var ilAccessHandler $ilAccess */
-        global $lng, $ilAccess;
+        global $DIC;
 
         $sum = 0;
         $message = "";
         $grouping = new ilObjCourseGrouping((int) $_GET['obj_id']);
 
         foreach ($grouping->getAssignedItems() as $condition) {
-            if ($ilAccess->checkAccess('write', '', $condition['target_ref_id'], $condition['target_type'])) {
-                if ($object = ilObjectFactory::getInstanceByRefId($condition['target_ref_id'])) {
+            if ($DIC->access()->checkAccess('write', '', $condition['target_ref_id'], $condition['target_type'])) {
+                $object = ilObjectFactory::getInstanceByRefId($condition['target_ref_id']);
+                if ($object instanceof ilObjCourse || $object instanceof ilObjGroup) {
                     // call manual auto fill
-                    $added = $object->handleAutoFill(true);
+                    $added = $DIC->fau()->ilias()->getRegistration($object)->doAutoFill(true);
                     if (!empty($added)) {
                         $list = "";
                         foreach ($added as $user_id) {
@@ -138,9 +138,9 @@ class ilObjCourseGroupingGUI
         }
 
         if ($sum == 0) {
-            ilUtil::sendFailure($this->lng->txt('sub_no_member_added'));
+            ilUtil::sendFailure($DIC->language()->txt('sub_no_member_added'));
         } else {
-            ilUtil::sendSuccess(sprintf($lng->txt($sum == 1 ? 'sub_added_member' : 'sub_added_members'), $sum) . $message);
+            ilUtil::sendSuccess(sprintf($DIC->language()->txt($sum == 1 ? 'sub_added_member' : 'sub_added_members'), $sum) . $message);
         }
 
         $this->listGroupings();

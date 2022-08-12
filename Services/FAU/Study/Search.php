@@ -61,9 +61,7 @@ class Search
     public function getEventList() : array
     {
         $condition = $this->getCondition();
-
-        $cache = new \ilCache('Services/FAU', "Search", true);
-        $cache->setExpiresAfter($this->cache_seconds);
+        $cache = $this->getCache();
 
         // try to get the list from the cache
         $list = null;
@@ -97,9 +95,9 @@ class Search
                         $list[$event->getSortKey()] = $event;
                     }
                     elseif ($type == 'grp') {
-                        $ref_id = $this->dic->fau()->sync()->trees()->findParentIliasCourse($object->getRefId());
+                        $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($object->getRefId());
                         $obj_id = ilObject::_lookupObjId($ref_id);
-                        $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
+                        $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id)->withNested(true);
                         $list[$event->getSortKey()] = $event;
                         break; // only add entry for the parent
                     }
@@ -137,6 +135,25 @@ class Search
         }
 
         return array_values($list);
+    }
+
+    /**
+     * Get the Search cache
+     * @return \ilCache
+     */
+    protected function getCache() :\ilCache
+    {
+        $cache = new \ilCache('Services/FAU', "Search", true);
+        $cache->setExpiresAfter($this->cache_seconds);
+        return $cache;
+    }
+
+
+    /**
+     * Clear the search cache for a condition
+     */
+    public function clearCacheForCondition() {
+        $this->getCache()->deleteEntry($this->getCondition()->getSignature());
     }
 
     /**

@@ -8,6 +8,8 @@
 - **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind. Administratoren könenn löschen (die Verbindung zu Campo wird dann aufgehoben). Kurse dürfen verschoben werden, Gruppen nicht.
 - **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
 - **studySearch** Suchseite nach Lehrveranstaltungen
+- **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
+- **campoInfo** Anzeigen auf den Info-Seiten
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 
@@ -22,6 +24,7 @@ Die Verzeichnisse des Service entsprechen seinen Teil-Services:
 
 - **Org** - Verwaltung der Organisationsstruktur: Org-Einheiten, Gebäude, Räume. Verknüpfung der Org-Einheiten mit Kategorien in StudOn.
 - **Study** - Verwaltung allgemeiner Daten: Studiengänge, Module, Lehrveranstaltungen, Voraussetzungen, Verantwortliche. Verknüpfung dieser Daten mit den Kursen und Gruppen in StudOn.
+- **Ilias** - Service zur Anpassung von ILIAS-Funktionen (kurse, Gruppen, Anmeldung)
 - **User** - Verwaltung nutzerbezogener Daten: Benutzergruppe, Rollen, Studienfächer, Leistungen, Qualifikationsstufen. Verknüpfung dieser Daten mit den StudOn-Benuteraccounts.
 - **Cond** - "Harte" Beschränkungen (von Campo) für die Belegung von Lehrveranstaltungen. "Weiche" Bedingungen (in StudOn definiert) für den direkten Beitritt zu Kursen oder Gruppen, die mit Aufnahmeantrag gelöst werden können.
 - **Staging** - Zugriff auf die Stanging-Datenbank 'IDM', über die Daten mit anderen Systemen synchronisiert werden.

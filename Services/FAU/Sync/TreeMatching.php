@@ -27,6 +27,7 @@ class TreeMatching
     protected \FAU\Study\Service $study;
     protected Settings $settings;
 
+    protected $exclude_create_org_paths = null;
 
     /**
      * Constructor
@@ -38,6 +39,67 @@ class TreeMatching
         $this->org = $dic->fau()->org();
         $this->study = $dic->fau()->study();
         $this->settings = $dic->fau()->tools()->settings();
+    }
+
+    /**
+     * Fetch the org unit paths that should be excluded from course creation
+     */
+    protected function getExcludeCreateOrgPaths() : array
+    {
+        if (isset($this->exclude_create_org_paths)) {
+            return $this->exclude_create_org_paths;
+        }
+
+        $paths = [];
+        foreach ($this->dic->fau()->tools()->settings()->getExcludeCreateOrgIds() as $id) {
+            if (!empty($unit = $this->dic->fau()->org()->repo()->getOrgunit($id))) {
+                $paths[] = $unit->getPath();
+            }
+        }
+
+        $this->exclude_create_org_paths = $paths;
+        return $paths;
+    }
+
+    /**
+     * Find the parent ILIAS category where courses for an event can be created
+     * used to move ilias courses from fallback categories
+     */
+    public function findOrCreateCourseCategoryForEvent(int $event_id, Term $term): ?int
+    {
+        $creationUnit = null;
+
+        // search for an org unit that allows course creation and has an ilias category assigned
+        foreach ($this->study->repo()->getEventOrgunitsByEventId($event_id) as $unit) {
+            if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
+                continue; // next assigned unit
+            }
+            if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
+                continue; // next assigned unit
+            }
+            break;  // creationUnit found
+        }
+        if (empty($creationUnit)) {
+            return null;
+        }
+        // check if org unit is excluded from course creation
+        foreach ($this->getExcludeCreateOrgPaths() as $path) {
+            if (substr($creationUnit->getPath(), 0, strlen($path)) == $path) {
+                return null;
+            }
+        }
+        $parent_ref_id = $creationUnit->getIliasRefId();
+
+        // check if the assigned ilias reference is a category and not deleted
+        if (ilObject::_lookupType($parent_ref_id, true) != 'cat' || ilObject::_isInTrash($parent_ref_id)) {
+            return null;
+        }
+
+        // find the sub category for course creation in the term
+        if (!empty($course_cat_id = $this->findCourseCategoryForParent($parent_ref_id, $term))) {
+            return $course_cat_id;
+        }
+        return $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
     }
 
 
@@ -81,17 +143,48 @@ class TreeMatching
             return null;
         }
         else {
+            // check if org unit is excluded from course creation
+            foreach ($this->getExcludeCreateOrgPaths() as $path) {
+                if (substr($creationUnit->getPath(), 0, strlen($path)) == $path) {
+                    return null;
+                }
+            }
             $parent_ref_id = $creationUnit->getIliasRefId();
         }
 
         // find the sub category for course creation in the term
+        if (!empty($course_cat_id = $this->findCourseCategoryForParent($parent_ref_id, $term))) {
+            return $course_cat_id;
+        }
+        return $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
+    }
+
+    /**
+     * Find the course category for a term as child of a parent category
+     */
+    public function findCourseCategoryForParent(int $parent_ref_id, Term $term) : ?int
+    {
         foreach($this->dic->repositoryTree()->getChildsByType($parent_ref_id, 'cat') as $node) {
-            if (ImportId::fromString(ilObject::_lookupImportId($node['obj_id']))->getTermId() == $term->toString()) {
+            if (ImportId::fromString((string) $node['import_id'])->getTermId() == $term->toString()) {
                 return (int) $node['child'];
             }
         }
-        return  $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
+        return null;
     }
+
+    /**
+     * Find the course category for a term as child of a parent category
+     * @return string[]     ref_id => import_id
+     */
+    public function findCoursesInCategory(int $parent_ref_id) : array
+    {
+        $courses = [];
+        foreach($this->dic->repositoryTree()->getChildsByType($parent_ref_id, 'crs') as $node) {
+            $courses[$node['child']] = (string) $node['import_id'];
+        }
+        return $courses;
+    }
+
 
     /**
      * Find an org unit in the path of a unit that should be used for course creation
@@ -133,48 +226,6 @@ class TreeMatching
         return $found;
     }
 
-    /**
-     * Get the reference to the ilias course or group for a course
-     */
-    public function getIliasRefIdForCourse(Course $course) : ?int
-    {
-        if (!empty($course->getIliasObjId())) {
-            foreach (ilObject::_getAllReferences($course->getIliasObjId()) as $ref_id) {
-                if (!ilObject::_isInTrash($ref_id)) {
-                    return $ref_id;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Find the parent course of a group
-     */
-    public function findParentIliasCourse(int $ref_id) : ?int
-    {
-        foreach ($this->dic->repositoryTree()->getPathId($ref_id) as $path_id) {
-            if (ilObject::_lookupType($path_id, true) == 'crs') {
-                return $path_id;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param int $ref_id
-     * @return bool
-     */
-    public function hasUndeletedContents(int $ref_id) : bool
-    {
-        /** @noinspection PhpParamsInspection */
-        foreach ($this->dic->repositoryTree()->getChildIds($ref_id) as $child_id) {
-            if (!ilObject::_isInTrash($child_id)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Create the category hat should get new courses of a term
@@ -264,6 +315,7 @@ class TreeMatching
 
         // check the org units with references for inconsistent paths
         foreach ($unitsByRefId as $ref_id => $unit) {
+            echo $unit->getLongtext() . "\n";
 
             // check the basic requirement for a relation: non-deleted category
             if (!\ilObject::_exists($ref_id, true)) {
@@ -304,6 +356,10 @@ class TreeMatching
                     "FAU parents: \n    " . implode("\n    ", $this->getOrgPathLog($unit)). "\n"
                     . "ILIAS parents: \n    " . implode("\n    ", $this->getIliasPathLog($unit))
                 ));
+            }
+            else {
+                // all checks passed
+                $this->org->repo()->save($unit->withProblem(null));
             }
         }
     }

@@ -764,7 +764,7 @@ abstract class ilParticipants
     
     /**
      * fau: heavySub - get the actual role id of a role type
-     * fau: fauService - role id
+     * fau: fauService - get role id for role matching in sync
      *
      * needed to check membership and count of members
      * to avoid overbooking by heavy traffic
@@ -1119,47 +1119,60 @@ abstract class ilParticipants
 
     /**
      * fau: heavySub - Add user to a role with limited members
+     * Note: check the result, then call addLimitedSuccess()
      *
      * @access public
-     * @param 	int 		user id
-     * @param 	int 		role IL_CRS_MEMBER | IL_GRP_MEMBER
-     * @param 	int 		maximum members (0 if no maximum defined)
-     * @return  boolean 	user added (true) or not (false) or already assigned (null)
+     * @param 	int $a_usr_id	user id
+     * @param 	int $a_role		role IL_CRS_MEMBER | IL_GRP_MEMBER
+     * @param 	?int $a_max		maximum members (null, if no maximum defined)
+     * @return  bool 	        user added (true) or not (false) or already assigned (null)
      */
-    public function addLimited($a_usr_id, $a_role, $a_max)
+    public function addLimited(int $a_usr_id, int $a_role, ?int $a_max = null) : ?bool
     {
-        global $rbacadmin,$ilLog,$ilAppEventHandler;
+        global $DIC;
 
         if ($this->isAssigned($a_usr_id)) {
             return null;
-        } elseif (!$rbacadmin->assignUserLimitedCust($this->role_data[$a_role], $a_usr_id, $a_max, array($this->role_data[$a_role]))) {
+        } elseif (!$DIC->rbac()->admin()->assignUserLimitedCust((int) $this->role_data[$a_role], $a_usr_id, $a_max)) {
             return false;
         }
+        return true;
+    }
+    // fau.
+
+
+    /**
+     * fau: heavySub - Notify the success of adding a user to a role with limited members
+     *
+     * @access public
+     * @param 	int $a_usr_id	user id
+     * @param 	int $a_role		role IL_CRS_MEMBER | IL_GRP_MEMBER
+     */
+
+    public function addLimitedSuccess(int $a_usr_id, int $a_role)
+    {
+        global $DIC;
 
         switch ($a_role) {
             case IL_CRS_MEMBER:
-                $this->members[] = $a_usr_id;
-                break;
-
             case IL_GRP_MEMBER:
                 $this->members[] = $a_usr_id;
                 break;
         }
         $this->participants[] = $a_usr_id;
-        $this->addRecommendation($a_usr_id);
 
         // Delete subscription request
         $this->deleteSubscriber($a_usr_id);
-
-        include_once './Services/Membership/classes/class.ilWaitingList.php';
         ilWaitingList::deleteUserEntry($a_usr_id, $this->obj_id);
 
-        if ($this->type == 'crs') {
-            // Add event: used for ecs accounts
-            $ilLog->write(__METHOD__ . ': Raise new event: Modules/Course addParticipant');
-            $ilAppEventHandler->raise("Modules/Course", "addParticipant", array('usr_id' => $a_usr_id,'role_id' => $a_role, 'obj_id' =>  $this->obj_id));
-        }
-        return true;
+        $DIC->event()->raise(
+            $this->getComponent(),
+            "addParticipant",
+            array(
+                'obj_id' => $this->obj_id,
+                'usr_id' => $a_usr_id,
+                'role_id' => $a_role)
+        );
     }
     // fau.
     

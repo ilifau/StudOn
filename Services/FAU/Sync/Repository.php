@@ -142,6 +142,18 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the ids of RBAC operations
+     * @param string[] $names
+     * @return int[]
+     */
+    public function getRbacOperationIds(array $names) : array
+    {
+        $query = "SELECT ops_id FROM rbac_operations WHERE " . $this->db->in('operation', $names, false, 'text');
+        return $this->getIntegerList($query, 'ops_id');
+    }
+
+
+    /**
      * Reset the last update date of an object to the create date
      */
     public function resetObjectLastUpdate(int $obj_id)
@@ -158,5 +170,20 @@ class Repository extends RecordRepo
         $query = "UPDATE object_data set import_id = NULL WHERE import_id LIKE 'FAU%'"
                 ." AND obj_id = ". $this->db->quote($obj_id, 'integer');
         $this->db->manipulate($query);
+    }
+
+    /**
+     * Get the ILIAS categories where roles can be assigned
+     * @return string[] ref_ids indexed by fauorg_nr
+     */
+    public function getAssignableCategories() : array
+    {
+        $query = "SELECT fauorg_nr, ilias_ref_id FROM fau_org_orgunits WHERE ilias_ref_id IS NOT NULL AND assignable = 1 AND no_manager = 0";
+        $result = $this->db->query($query);
+        $categories = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $categories[$row['fauorg_nr']] = $row['ilias_ref_id'];
+        }
+        return $categories;
     }
 }
