@@ -1782,6 +1782,7 @@ class ilSurveyEvaluationGUI
         // :TODO: fixing css dummy parameters
         $html = preg_replace("/\?dummy\=[0-9]+/", "", $html);
         $html = preg_replace("/\?vers\=[0-9A-Za-z\-]+/", "", $html);
+        $html = preg_replace("/\&version\=[0-9A-Za-z\-\._]+/", "", $html);
         $html = str_replace('.css$Id$', ".css", $html);
         $html = preg_replace("/src=\"\\.\\//ims", "src=\"" . ILIAS_HTTP_PATH . "/", $html);
         $html = preg_replace("/href=\"\\.\\//ims", "href=\"" . ILIAS_HTTP_PATH . "/", $html);
