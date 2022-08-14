@@ -610,6 +610,7 @@ fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
 fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+fau#:#fau_campo_link#:#» campo
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.

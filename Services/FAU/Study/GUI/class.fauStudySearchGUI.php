@@ -231,6 +231,7 @@ class fauStudySearchGUI extends BaseGUI
         $icon_crs = $this->factory->symbol()->icon()->standard('crs', $this->lng->txt('fau_search_ilias_course'), 'medium');
         $icon_missing = $this->factory->symbol()->icon()->standard('pecrs', $this->lng->txt('fau_search_ilias_course_not'), 'medium');
 
+        $term = $this->search->getCondition()->getTerm();
         $items = [];
         $this->allow_move = false;
         foreach ($this->search->getEventList() as $event) {
@@ -248,9 +249,13 @@ class fauStudySearchGUI extends BaseGUI
             else {
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
                 $title = $event->getIliasTitle();
-                $description = $event->getIliasDescription() . ' ' . $pathGUI->getPath(1, $event->getIliasRefId());
-                $props = [];
+                $description = $event->getIliasDescription();
+                $url = $this->dic->fau()->study()->getCampoUrl($event->getEventId(), $term);
+                $description .= ' &nbsp; <a target="_blank" href="' . $url . '">' . $this->lng->txt('fau_campo_link') . '</a>';
+                $description .= $pathGUI->getPath(1, $event->getIliasRefId());
+
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
+                $props = [];
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
