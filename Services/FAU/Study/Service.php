@@ -98,10 +98,8 @@ class Service extends SubService
     public function getModuleSelectOptions(?int $emptyId = null) : array
     {
         $options = [];
-        if (isset($emptyId)) {
-            $options[$emptyId] = $this->lng->txt("please_select");
-        }
 
+        // bundle all modules with the same name
         $list = [];
         foreach ($this->repo()->getModules() as $module) {
             $title = $module->getModuleName(); // . ' ('. $module->getModuleNr() . ')';
@@ -111,6 +109,10 @@ class Service extends SubService
             $options[implode(',', $module_ids)] = $title;
         }
         asort($options,  SORT_NATURAL);
+
+        if (isset($emptyId)) {
+            $options = array_merge([$emptyId => $this->lng->txt("please_select")], $options);
+        }
         return $options;
     }
 
