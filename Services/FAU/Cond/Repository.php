@@ -100,7 +100,7 @@ class Repository extends RecordRepo
 
         $query = "
             SELECT mr.module_id, mr.compulsory AS requirement_compulsory,
-            rs.id expression_id,  rs.restriction, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
+            rs.id expression_id, rs.restriction, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
             rq.requirement_id, rq.requirement_name
             FROM fau_cond_mod_rests mr 
             JOIN fau_cond_restrictions rs ON rs.restriction = mr.restriction

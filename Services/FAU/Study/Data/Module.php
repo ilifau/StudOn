@@ -83,6 +83,18 @@ class Module extends RecordData
     }
 
     /**
+     * Clear the restrictions for joining events of this module
+     * @return Module
+     */
+    public function withoutRestrictions() : self
+    {
+        $clone = clone $this;
+        $clone->restrictions = [];
+        return $clone;
+    }
+
+
+    /**
      * Check if a restriction with a certain name is added to the module
      */
     public function hasRestriction(string $name) : bool

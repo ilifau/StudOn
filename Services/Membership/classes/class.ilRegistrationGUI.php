@@ -235,19 +235,34 @@ abstract class ilRegistrationGUI
      */
     abstract protected function getFormTitle();
 
-    // fau: campoMock - new function fillCampo()
-    public function fillCampo() {
-
-        $item = new ilNonEditableValueGUI('Voraussetzungen', '');
-        $item->setValue('erfüllt');
-        $item->setInfo('Die formell notwendigen Voraussetzungen zur Teilnahme an der Lehrveranstaltungen sind gegeben. Die Teilnahme an diesem Kurs kann aber von der Lehrperson weiter eingeschränkt werden (siehe unten).');
+    // fau: campoCheck - new function fillCampo()
+    protected function fillCampo()
+    {
+        global $DIC;
+        $hardRestrictions = $DIC->fau()->cond()->hard();
+        $passed = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
+        $message = $hardRestrictions->getCheckResultMessage();
+        if (!$passed) {
+            $this->enableRegistration(false);
+        }
+        elseif ($this->has_studycond && !$this->matches_studycond) {
+            $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
+        }
+        $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
+        $item->setValue($message);
         $this->form->addItem($item);
 
-        $item = new ilSelectInputGUI('Modul / Leistung', 'selected_module');
-        $item->setRequired(true);
-        $item->setInfo('Wählen Sie das Modul oder die Teilleistung, für das/die dieser Kurs belegt werden soll. Diese Information ist notwendig und erscheint später auf Ihren Leistungsnachweisen.');
-        $item->setOptions([1 => 'Schlüsselqualifikation 1']);
-        $this->form->addItem($item);
+//        if (!empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
+//            $options = [];
+//            foreach ($modules as $module) {
+//                $options[$module->getModuleId()] = $module->getModuleName() . ' (' . $module->getModuleNr() . ')';
+//            }
+//            $item = new ilSelectInputGUI($this->lng->txt('fau_module'), 'selected_module');
+//            $item->setRequired(true);
+//            $item->setInfo($this->lng->txt('fau_sub_select_module_info'));
+//            $item->setOptions($options);
+//            $this->form->addItem($item);
+//        }
     }
     // fau.
 
@@ -674,8 +689,9 @@ abstract class ilRegistrationGUI
         $this->form->setFormAction($this->ctrl->getFormAction($this, 'join'));
         $this->form->setTitle($this->getFormTitle());
 
-        // fau: campoMock - add demo campo course registration fields to form
-        // $this->fillCampo();
+        // fau: campoCheck - add the campo registration check and module selection
+        // this may disable the registration
+        $this->fillCampo();
         // fau.
 
         $this->fillInformations();

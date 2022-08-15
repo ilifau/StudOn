@@ -37,20 +37,20 @@ class Matching
 
         $module_ids = [];
         foreach($this->repo->getModuleEvent([$event_id]) as $moduleEvent) {
-           $module_ids[$moduleEvent->getModuleId()] = true;
+           $module_ids[] = $moduleEvent->getModuleId();
         }
 
+        $matched_module_ids = [];
         $matched_cos_ids = [];
-        foreach($this->repo->getModuleCos($cos_ids) as $moduleCos) {
-            if (isset($module_ids[$moduleCos->getModuleId()])) {
-                $matched_cos_ids[$moduleCos->getCosId()]  = true;
-                $matching[] = $moduleCos;
-            }
+        foreach($this->repo->getModuleCos($module_ids, $cos_ids) as $moduleCos) {
+            $matched_module_ids[] = $moduleCos->getModuleId();
+            $matched_cos_ids[] = $moduleCos->getCosId();
+            $matching[] = $moduleCos;
         }
 
         return [
-            $this->repo->getModules(array_keys($module_ids)),
-            $this->repo->getCoursesOfStudy(array_keys($matched_cos_ids)),
+            $this->repo->getModules($matched_module_ids),
+            $this->repo->getCoursesOfStudy($matched_cos_ids),
             $matching
         ];
     }

@@ -447,19 +447,31 @@ class Repository extends RecordRepo
 
     /**
      * Get Module to Course of Study assignments
+     * @param int[]|null $module_ids   (get all if null, none if empty)
      * @param int[]|null $cos_ids   (get all if null, none if empty)
      * @return ModuleCos[]
      */
-    public function getModuleCos(?array $cos_ids = null) : array
+    public function getModuleCos(?array $module_ids = null, ?array $cos_ids = null) : array
     {
-        if ($cos_ids === null) {
+        $cond = [];
+        if (isset($module_ids)) {
+            if (empty($module_ids)) {
+                return [];
+            }
+            $cond[] = $this->db->in('module_id', $module_ids, false, 'integer');
+        }
+        if (isset($cos_ids)) {
+            if (empty($cos_ids)) {
+                return [];
+            }
+            $cond[] = $this->db->in('cos_id', $cos_ids, false, 'integer');
+        }
+
+        if (empty($cond)) {
             return $this->getAllRecords(ModuleCos::model());
         }
-        elseif (empty($cos_ids)) {
-            return [];
-        }
-        $query = "SELECT * FROM fau_study_module_cos WHERE "
-            . $this->db->in('cos_id', $cos_ids, false, 'integer');
+
+        $query = "SELECT * FROM fau_study_module_cos WHERE " . implode (' AND ', $cond);
         return $this->queryRecords($query, ModuleCos::model());
     }
 

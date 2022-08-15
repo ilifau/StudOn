@@ -328,38 +328,11 @@ class ilLuceneSearchGUI extends ilSearchBaseGUI
 
         $presentation->setPreviousNext($this->prev_link, $this->next_link);
 
-        // fau: campoMock - demo for search filter
-        $this->form = new ilPropertyFormGUI();
-
-        $item = new ilSelectInputGUI('Semester', '');
-        $item->setRequired(true);
-        $item->setOptions([1 => '2022/23 Wintersemester']);
-        $this->form->addItem($item);
-
-        $item = new ilSelectInputGUI('Studiengang', '');
-        $item->setRequired(true);
-        $item->setOptions([1 => 'Kunstgeschichte']);
-        $this->form->addItem($item);
-
-
-        $item = new ilSelectInputGUI('Modul / Leistung', '');
-        $item->setRequired(true);
-        $item->setOptions([1 => 'Schlüsselqualifikation I']);
-        $this->form->addItem($item);
-
-        $item = new ilCheckboxInputGUI('Geeignet');
-        $item->setInfo('Suche nur Lehrveranstaltungen, die für mein Studium und Fachsemester geeignet sind');
-        $this->form->addItem($item);
-
-        $html = '';
-//        $html = $this->form->getHTML();
-
         if ($presentation->render()) {
-            $this->tpl->setVariable('SEARCH_RESULTS', $html . $presentation->getHTML(true));
+            $this->tpl->setVariable('SEARCH_RESULTS', $presentation->getHTML(true));
         } else {
             ilUtil::sendInfo(sprintf($this->lng->txt('search_no_match_hint'), $this->search_cache->getQuery()));
         }
-        // fau.
     }
     
     /**
