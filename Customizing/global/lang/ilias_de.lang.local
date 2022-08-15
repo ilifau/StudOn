@@ -610,6 +610,12 @@ fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
 fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
+fau#:#fau_check_success_no_module#:#Diese Lehrveranstaltung ist keinem Modul/Konto zugeordnet. Es werden keine Voraussetzungen zur Belegung geprüft.
+fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
+fau#:#fau_check_failed_matching_modules#:#Sie können die Lehrveranstaltung nicht belegen, da sie mit Ihren Studiengangsdaten keine Module/Konten gemeinsam hat.
+fau#:#fau_check_success_with_modules#:#Sie können die Lehrveranstaltung belegen. Bitte wählen Sie das Modul/Konto aus, welchem Sie die Belegung zuordnen möchten. Diese Zuordnung erscheint auf Ihren Abschlussdokumenten.
+fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da für keines der folgenden Module/Konten alle Voraussetzungen erfüllt sind:
 fau#:#fau_module#:#Modul
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.

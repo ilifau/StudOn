@@ -209,6 +209,21 @@ class Person extends RecordData
     }
 
     /**
+     * Get the database ids of the courses of study in a given term
+     */
+    public function getCourseOfStudyDbIds(?Term $term) : array
+    {
+        $ids = [];
+        foreach ($this->getStudiesOfTerm($term) as $study) {
+            foreach ($study->getSubjects() as $subject) {
+                $ids[] = $subject->getCourseOfStudyDbId();
+            }
+        }
+        return array_unique($ids);
+    }
+
+
+    /**
      * Get the maximum term that has study data for this person
      * @return Term|null
      */

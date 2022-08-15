@@ -6,6 +6,7 @@ class Subject
 {
     protected ?int $subjectnumber;
     protected ?int $studySemester;
+    protected ?int $clinicalSemester;
 
     // integer database ids, corresponding to the his_ids in the value tables
     // these ids are not shown, but used for conditions
@@ -31,6 +32,7 @@ class Subject
     public function __construct (array $data) {
         $this->subjectnumber = isset($data['subjectnumber']) ? (int) $data['subjectnumber'] : null;
         $this->studySemester = isset($data['studySemester']) ? (int) $data['studySemester'] : null;
+        $this->clinicalSemester = isset($data['clinicalSemester']) ? (int) $data['clinicalSemester'] : null;
 
         $this->subjectDbId = isset($data['subjectDbId']) ? (int) $data['subjectDbId'] : null;
         $this->subjectIndicatorId = isset($data['subjectIndicatorId']) ? (string) $data['subjectIndicatorId'] : null;
@@ -63,6 +65,15 @@ class Subject
     public function getStudySemester() : ?int
     {
         return $this->studySemester;
+    }
+
+
+    /**
+     * @return int|null
+     */
+    public function getClinicalSemester() : ?int
+    {
+        return $this->clinicalSemester;
     }
 
     /**
