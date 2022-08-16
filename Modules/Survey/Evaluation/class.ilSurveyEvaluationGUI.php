@@ -1782,7 +1782,7 @@ class ilSurveyEvaluationGUI
         // :TODO: fixing css dummy parameters
         $html = preg_replace("/\?dummy\=[0-9]+/", "", $html);
         $html = preg_replace("/\?vers\=[0-9A-Za-z\-]+/", "", $html);
-        // fau: fixSurveyExport: mantis idea, cause pdf generator needs version number
+        // fau: fixSurveyPDFExport: pdf result export needs version-number
         $html = preg_replace("/\&version\=[0-9A-Za-z\-\._]+/", "", $html);
         // fau.
         $html = str_replace('.css$Id$', ".css", $html);
