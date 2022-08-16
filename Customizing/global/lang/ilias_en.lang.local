@@ -29,6 +29,14 @@ administration#:#adm_activate_db_benchmark_instant_desc#:#the queries will be sa
 administration#:#adm_db_bench_grouped_by_sql#:#Group by SQL###fau: extendBenchmark
 administration#:#language_scope_file#:#By File###fau: syncLangFile
 administration#:#language_scope_file_info#:#Exports all database entries to language variables specified in the uploaded file. This can be used to update a local language file to the current database state.###fau: syncLangFile
+assessment#:#ass_campo_export#:#Export results for import to <i>campo</i>###fau: campoGrades
+assessment#:#ass_campo_file_written#:#The export file for <i>campo</i> is written.###fau: campoGrades
+assessment#:#ass_campo_matriculation_numbers#:#Matriculation numbers###fau: campoGrades
+assessment#:#ass_campo_matriculation_numbers_info#:#Export the list of registered examinees as an Excel file from Campo. Copy the matriculation numbers from the file into this field. Each student number must be in a separate row. Create the export file and open the exported CSV file in Excel. For each copied matriculation number, there should be a row containing a score for the participants of this test. Copy the scores into the "Leistung" column of the file from Campo. You can then import this file back into Campo for grade posting.
+assessment#:#ass_campo_other_fields#:#Other fields###fau: campoGrades
+assessment#:#ass_campo_test_date#:#Individual Examination Date###fau: campoGrades
+assessment#:#ass_campo_test_starttime#:#Individual Examination Start###fau: campoGrades
+assessment#:#ass_create_export_campo#:#Create export file for campo###fau: campoGrades
 assessment#:#ass_create_export_mycampus#:#Create resultionfile for my campus
 assessment#:#ass_mycampus_exam_number#:#Exam Number
 assessment#:#ass_mycampus_exam_number_info#:#The exam number is needed for namign the export file. Please imprt the file in <i>mein campus</i> with the created name.<br />If the StudOn-Test is used for more exams, please choose the option "Registered Participants" to export a separate file for each exam.
@@ -41,11 +49,11 @@ assessment#:#ass_mycampus_export_registered_info#:#Exports only the participants
 assessment#:#ass_mycampus_export_scope#:#Participants Selection
 assessment#:#ass_mycampus_file_written#:#The results file for <i>my campus</i> was written.
 assessment#:#ass_mycampus_filter_export#:#Limit Export
-assessment#:#ass_mycampus_marked#:#marked
-assessment#:#ass_mycampus_marked_info#:#In marked exams a correct thirds grade has to be registered in <i>my campus </i> in one of the following formats: "1,3", "2.7" or "400".<br />Please declare which label shall be exported from the grade-schema. Their grade-steps have to be in the named format.
 assessment#:#ass_mycampus_mark_field#:#Exported Grade
 assessment#:#ass_mycampus_mark_field_official#:#Official Label
 assessment#:#ass_mycampus_mark_field_short#:#Short Label
+assessment#:#ass_mycampus_marked#:#marked
+assessment#:#ass_mycampus_marked_info#:#In marked exams a correct thirds grade has to be registered in <i>my campus </i> in one of the following formats: "1,3", "2.7" or "400".<br />Please declare which label shall be exported from the grade-schema. Their grade-steps have to be in the named format.
 assessment#:#ass_mycampus_matcol_not_found#:#The .csv file was not recognized as a list of registrations!<br />It must have the column titles in the first row.<br />One column must be named as <b>mtknr</b> and this column must have the matriculation numbers of the registered students.<br />The column delimiter must be <b>;</b>
 assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
 assessment#:#ass_mycampus_not_marked#:#not marked
@@ -95,17 +103,17 @@ assessment#:#tst_msg_rand_quest_set_pool_not_available#:#The selected qestion po
 assessment#:#tst_msg_rand_quest_set_sync_duration#:#The synchronization copies all questions matching the rules into the test. This may take several minutes for big pools.
 assessment#:#tst_password_enter_info#:#IMPORTANT: Do not change the password during a running exam! The participants have to enter it when they move to the next question. Previous autosaves fail!
 assessment#:#tst_question_browse_root_message#:#The questions are searched in the parent container of the test by default. You can change this with the filter settings.
-assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
 assessment#:#tst_recalculate_selected_solutions_confirm#:#Recalculate the solutions of the selected participants. Manual scorings will be kept.
 assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
 assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of all participants. Manual scorings will be kept. The calculation may took a long time!
+assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
 assessment#:#tst_require_authorship_statement#:#Declaration of own Work
 assessment#:#tst_require_authorship_statement_desc#:#A confirmation of the declaration of own work is required to submit the exercise.
 assessment#:#tst_tbl_col_pass_finished#:#Last Scored Accessf###fau: testParticipantsResultsTable
 assessment#:#tst_tbl_col_started_passes#:#Started Passes###fau: testParticipantsResultsTable
 assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
-assessment#:#tst_use_previous_answers_authorized#:#Copy the previous solutions to the new test pass. They are then already saved but can still be changed.###fau: adoptPreviousSolutions
 assessment#:#tst_use_previous_answer_imagemap#:#Please click on the image again to take the solution from the previous test run.
+assessment#:#tst_use_previous_answers_authorized#:#Copy the previous solutions to the new test pass. They are then already saved but can still be changed.###fau: adoptPreviousSolutions
 assessment#:#validate_submit_error#:#Your input is rejected!
 assessment#:#validate_submit_error_in_test_hint#:#You need to fix it to leave the question. Alteratively you can revert the edit.
 assessment#:#warning_delete_scored_pass#:#WARNING: This is the scored test pass! You should delete it only in case of an error.###deleteTestPass
@@ -222,15 +230,13 @@ common#:#links_password_coded#:#password-code
 common#:#local_login_to_ilias#:#Local Login to StudOn###fau: loginForm
 common#:#local_login_to_ilias_addition#:#Use this login if you got a local account from StudOn###fau.
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
-common#:#mem_cron_autofill_fair#:#Chancengleiche Anmeldungen vergeben
-common#:#mem_cron_autofill_fair_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
-common#:#mem_cron_autofill_fair_result#:#Vergebene Plätze: %s
 common#:#mem_edit_request#:#edit request
 common#:#mem_external_notification_subject#:#Registration of %s for "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Registration of %s for "%s" changed###fau: courseUdf
 common#:#mem_fill_free_places#:#fill free places
 common#:#mem_max_users#:#Maximum participants:
 common#:#mem_max_users_hidden#:#Info for admins:
+common#:#mem_register#:#Register
 common#:#mem_registration_access_time#:#Registration/First access
 common#:#mem_request_joining#:#Request joining
 common#:#mem_request_waiting#:#set on waiting list
@@ -282,35 +288,34 @@ common#:#shib_user_not_found#:#No useraccount has been found for your user ident
 common#:#start#:#Start
 common#:#studon_login_exportrequest#:#Please log in to make an export application!
 common#:#studon_ref_id#:#StudOn-ID
-common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
 common#:#sub_added_member#:#One new member was added.
 common#:#sub_added_members#:#%s new members were added.
 common#:#sub_added_to_waiting_list#:#You have been assigned to the waiting list. You are assigned to position %s on the waiting list.
 common#:#sub_assign_waiting#:#Add Directly
 common#:#sub_assign_waiting_fair_info#:#Adding members directly from the waiting list may not respect the equal chances or the order of subscriptions. Please use this in exceptional cases only!
 common#:#sub_assign_waiting_groupings_info#:#You configured a membership limitation. Added users will be removed from the waiting lists of related courses or groups.
+common#:#sub_confirm_request#:#Accespt Request
+common#:#sub_confirm_request_question#:#Do you want to accept the following membership requests? The accepted requests stay on the list until free places are filled.
+common#:#sub_confirm_requests#:#Accept Requests
 common#:#sub_confirmed_request#:#One membership request was accepted.
 common#:#sub_confirmed_requests#:#%s membership requests were accepted.
-common#:#sub_confirm_request#:#Accespt Request
-common#:#sub_confirm_requests#:#Accept Requests
-common#:#sub_confirm_request_question#:#Do you want to accept the following membership requests? The accepted requests stay on the list until free places are filled.
 common#:#sub_fair_activate#:#Activate equal chances
 common#:#sub_fair_activated#:#The period of equal chances is activated
 common#:#sub_fair_activation_min_minutes#:#The availability period must be longer than %s minutes!
 common#:#sub_fair_added_to_waiting_list#:#Your registrations is added to the waiting list. When the period of equal chances has ended, you will get an e-mail notification whether you are assigned or whether you stay on the waiting list.
-common#:#sub_fair_autofill#:#Automatic Fill and Move Up
-common#:#sub_fair_autofill_info#:#Free places will automatically be filled by lot after the end of equal chances. Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
 common#:#sub_fair_auto_manu#:#Automatic Fill and Manual Move Up
 common#:#sub_fair_auto_manu_info#:#Free places will automatically be filled by lot after the end of equal chances. Places getting free afterwards have to be manually filled in the membership administration.
+common#:#sub_fair_autofill#:#Automatic Fill and Move Up
+common#:#sub_fair_autofill_info#:#Free places will automatically be filled by lot after the end of equal chances. Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
 common#:#sub_fair_date#:#Equal Chances Until
 common#:#sub_fair_date_default#:#One Hour after Subscription Start (Standard)
 common#:#sub_fair_date_info#:#All registrations will be equally collected on the waiting list and the free places will be filled by lot afterwards. Later registrations will get higher waiting positions. A later filling from the waiting list will also respect the equal chances.
 common#:#sub_fair_date_invalid#:#The period of equal chances must be longer than one hour and must be finished with the end of the whole registration period!
 common#:#sub_fair_deactivate#:#Deactivate equal chances
-common#:#sub_fair_deactivated#:#The period of equal chances is deactivated.
 common#:#sub_fair_deactivate_explanation#:#IMPORTANT: Please deactivate the period of equal chances only if you don't expect a rush on the subscription. Normally students expect to have one hour time after subscription start without loosing chances. The "first come, first served" method undermines this solution, which was developed in close consultation with student representatives.
 common#:#sub_fair_deactivate_in_phase#:#You can't deactivate the period of equal chances because it is running.
 common#:#sub_fair_deactivate_question#:#Would you like to deactivate the period if equal chances?
+common#:#sub_fair_deactivated#:#The period of equal chances is deactivated.
 common#:#sub_fair_inactive_autofill#:#Automatic Move Up
 common#:#sub_fair_inactive_autofill_info#:#Waiting registrations will automatically move up on free places until the end of possible unsubscription. If free places are needed for waiting membership request, these will be kept free and the course administrators will get a notification.
 common#:#sub_fair_inactive_message#:#This registration has no period of equal chances. The order of subscriptions counts from the beginning!
@@ -319,10 +324,10 @@ common#:#sub_fair_inactive_no_list_info#:#Registrations will be rejected if no p
 common#:#sub_fair_inactive_short#:#First Come-First Served!
 common#:#sub_fair_inactive_waiting#:#Manual Move Up
 common#:#sub_fair_inactive_waiting_info#:#Free places have to be manually filled from waiting registrations in the member administration.
-common#:#sub_fair_not_changeable#:#The period of equal chances can't be shortened because existing registrations would be affected.
-common#:#sub_fair_not_on_list#:#Nit on the list
 common#:#sub_fair_no_list#:#Automatic Fill, Rejection Afterwards
 common#:#sub_fair_no_list_info#:#The waiting list will only be filled in the period of equal chances and free places will be automatically filled by lot afterwards. Later registrations will be rejected if no places are free.
+common#:#sub_fair_not_changeable#:#The period of equal chances can't be shortened because existing registrations would be affected.
+common#:#sub_fair_not_on_list#:#Nit on the list
 common#:#sub_fair_position_with_other#:#%s (with 1 other having equal chances)
 common#:#sub_fair_position_with_others#:#%s (with %s others having chances)
 common#:#sub_fair_subscribe_label#:#Register for Assignment
@@ -333,11 +338,11 @@ common#:#sub_fair_to_act_end#:#The period of equal chances was limited to the en
 common#:#sub_fair_to_act_start_min#:#The period of equal chances was set to minimum length after start of the availability period.
 common#:#sub_fair_to_sub_end#:#The period of equal chances was limited to the end of the registration period.
 common#:#sub_fair_to_sub_start_min#:#The period of equal chances was set to minimum length after start of the registration period.
+common#:#sub_fair_wait_pos_header#:#Pos.
 common#:#sub_fair_waiting#:#Manual Fill and Move Up
 common#:#sub_fair_waiting_info#:#Free places have to be manually filled in the member administration after the end of equal chances. Please use this setting only, if the membership has additional conditions.
 common#:#sub_fair_waiting_univis#:#Like in UnivIS
 common#:#sub_fair_waiting_univis_info#:#The waiting list setting is taken from UnivIS. A a waiting list is set there then 'Automatic Fill and Move Up' will be set, otherwise "Automatic Fill, Rejection Afterwards".
-common#:#sub_fair_wait_pos_header#:#Pos.
 common#:#sub_fill_free_places#:#Fill Free Places
 common#:#sub_fill_free_places_question#:#Would you like to fill the free places from the waiting list?
 common#:#sub_mail_autofill_requests_body#:#The free places were filled from the waiting list. But there are places kept free for membership requests on which you have to decide manually.
@@ -367,6 +372,7 @@ common#:#sub_subscription_object#:#Subscription Object
 common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
 common#:#sub_to_confirm_message#:#You have to decide on membership requests.
 common#:#sub_to_fill_message#:#You can fill free places from the waiting list.
+common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
 common#:#to_home#:#Home
 common#:#to_login#:#To the Login
 common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>###fau: regCodes
@@ -395,6 +401,7 @@ content#:#cont_layout_help#:#Help
 content#:#cont_layout_help_desc#:#Layout for the StudOn Help Modules
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout for 'Informations On StudOn'
+content#:#cont_link_info#:#Note: If you see one or more objects at the bottom, please select one of them. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal
 cron#:#cron_set_last_run#:#Set Last Run
 cron#:#cron_set_last_run_info#:#the next run start by the schedule based on the last run
 crs#:#crs_choose_one_event#:#Please choose a date!
@@ -414,11 +421,11 @@ crs#:#crs_reg_user_already_assigned#:#ou are already participant of this course.
 crs#:#crs_reg_user_generic_failure#:#You could not be accepted!
 crs#:#crs_reg_user_on_waiting_list#:#You are already on the waiting list of this course!
 crs#:#crs_subscribe_events_not_possible#:#A direct registration to sessions is only possible for joining directly or with course password.
-crs#:#crs_subscription_events_header#:#registration to dates
 crs#:#crs_subscription_event_free#:#free
 crs#:#crs_subscription_event_location#:#location:
 crs#:#crs_subscription_event_referee#:#advisor:
 crs#:#crs_subscription_event_registered#:#signed in
+crs#:#crs_subscription_events_header#:#registration to dates
 crs#:#crs_subscription_mycampus#:#Registration by <em>my campus</em>
 crs#:#crs_subscription_mycampus_info#:#The registration takes place by the system <em>my campus</em>. This requires an iport of the lecture data from UnivIS. This can be made by "Content / UnivIS Import".
 crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>The Joining to this course takes place by the system <em>my campus</em>. The following link leads to the front page of <em>my campus</em>. After the login you get automatically to the registrationsite of the course.</p><p><a target="_blank" href="%s"><strong>Joining by my campus</strong> (new window)</a></p>
@@ -451,12 +458,11 @@ exc#:#exc_ass_type_test_open_info#:#You submit this assignment by running a test
 exc#:#exc_ass_type_test_open_label#:#Abgabe
 exc#:#exc_ass_type_test_open_no_team#:#You must form a team or be added to a team in order to run the test of this assignment.
 exc#:#exc_ass_type_test_sync#:#Synchronize Test Results
-exc#:#exc_ass_type_test_synced#:#The test results are transmitted.
 exc#:#exc_ass_type_test_sync_info#:#The existing test results of all partipipants will be transmitted to the exercise. In teams the latest test result of all team members will be used.
 exc#:#exc_ass_type_test_sync_label#:#For Administrators
+exc#:#exc_ass_type_test_synced#:#The test results are transmitted.
 exc#:#exc_authorship_statement#:#Declaration of own Work
 exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
-exc#:#exc_calculate_overall_results#:#Calculate Overall Results
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
 exc#:#exc_calc_confirm_all#:#Calculate the overall result of all participants?
@@ -496,6 +502,7 @@ exc#:#exc_calc_status_compare_value#:#threshold
 exc#:#exc_calc_status_default#:#Default value
 exc#:#exc_calc_status_default_info#:#Is because of lack of single results the overall result empty, the status will get this value.
 exc#:#exc_calc_status_info#:#The passed status will be determined by the calculated grades/points.
+exc#:#exc_calculate_overall_results#:#Calculate Overall Results
 exc#:#exc_comment_for_learner_info_nosend#:#No Notification is sent. The Feedback will be shown in the units oberview after reaching the result availability.
 exc#:#exc_create_single_teams#:#Create Single Teams
 exc#:#exc_create_single_teams_confirmation#:#Would you like to form individual teams for the following users? This makes them rateable, but they are no longer available for others to form teams.
@@ -506,8 +513,8 @@ exc#:#exc_feedback_notification_info#:#Participants get an email notification wh
 exc#:#exc_file_suffixes#:#Allowed filename suffixes
 exc#:#exc_file_suffixes_case_checked#:#Upper/lowercase will be checked
 exc#:#exc_file_suffixes_case_ignored#:#Upper/lowercase will be ignored
-exc#:#exc_file_suffixes_info#:#Comma separated list of allowed filename suffixes for upload files, e.g. doc, docx
 exc#:#exc_file_suffixes_in_zip#:#Allowed filename in the archive: %s
+exc#:#exc_file_suffixes_info#:#Comma separated list of allowed filename suffixes for upload files, e.g. doc, docx
 exc#:#exc_global_feedback_file_date_never#:#Never###fau: exFeedbackNever
 exc#:#exc_grade_overview_legend_mandatory#:#Mandatory assignments are marked by an asteristk.
 exc#:#exc_grade_overview_legend_restime#:#Assignments before the publish date of their results are put in parentheses.
@@ -530,11 +537,11 @@ exc#:#exc_mem_delete_perm_failure#:#You need the permission to edit the exercise
 exc#:#exc_msg_authorship_statement_required#:#Please read and confirm the declaration of own work!
 exc#:#exc_multi_feedback_by_submissions_hint#:#You may use the Archive created with "Download All Submissions" if you insert your comments directly in the submitted files (e.h. PDFs).
 exc#:#exc_multi_feedback_by_submissions_warning#:#You probably uploaded the archive provided by "Download All Submissions". Did you enter your feedback directly in the submitted files? Then you can save them as feedback.
-exc#:#exc_notgraded#:#Not Graded
-exc#:#exc_notification#:#Notification###fau: exNotify
+exc#:#exc_no_assignments_for_grading#:#No assignments available for grading.
 exc#:#exc_not_attempted#:#Not Submitted
 exc#:#exc_not_available_for_grading#:#The selected assignment is not available for grading!
-exc#:#exc_no_assignments_for_grading#:#No assignments available for grading.
+exc#:#exc_notgraded#:#Not Graded
+exc#:#exc_notification#:#Notification###fau: exNotify
 exc#:#exc_pass_calc#:#Calculated
 exc#:#exc_pass_calc_info#:#The passing of the exercise and the overall mark/points are automatically calculated based on the partial points.
 exc#:#exc_pass_calc_info_tip#:#The settings for this are made after saving this option on the "Result Calculation" sub-tab.
@@ -543,7 +550,6 @@ exc#:#exc_pass_manual#:#Manual
 exc#:#exc_pass_manual_info#:#In the grade view an automatical calculation of the total result can be made based on the partial points.
 exc#:#exc_pass_manual_info_tip#:#In der Notenübersicht kann eine automatische Berechnung der Gesamtergebnisse auf Basis der Teilnpunkte erfolgen.
 exc#:#exc_pass_result_calculation#:#Result Calculation
-exc#:#exc_plagiarism#:#Plagiarism
 exc#:#exc_plag_comment#:#Plagiarism comment
 exc#:#exc_plag_detected#:#Detected
 exc#:#exc_plag_detected_info#:#Plagiarism detected
@@ -557,6 +563,7 @@ exc#:#exc_plag_state#:#Status
 exc#:#exc_plag_suspicion#:#Suspicion
 exc#:#exc_plag_suspicion_info#:#Plagiarism suspicion
 exc#:#exc_plag_visible_info#:#A suspected plagiarismn will be shown to the tutors only. A detected plagiarism will be shown to the learner. The effective status is then 'failed' with empty mark or 0 points.
+exc#:#exc_plagiarism#:#Plagiarism
 exc#:#exc_preliminary_info#:#Sie sehen hier eine vorläufige Bewertung aus den bereits bekannt gegebenen Übungseinheiten.
 exc#:#exc_preliminary_mark#:#Preliminary Grade/Points
 exc#:#exc_preliminary_status#:#Preliminary Status
@@ -574,14 +581,14 @@ exc#:#exc_settings_feedback_file_info#:#Tutors upload a file. The participant ca
 exc#:#exc_settings_feedback_text_info#:#Tutors type their evaluation in a text field. The participant can view the text is at the assignment overview.###fau: exNotify
 exc#:#exc_status_file_error#:#Reading the file %s produced the following error (the file will be ignored at saving): <p class="small">%s</p>
 exc#:#exc_status_file_no_updates#:#The file %s nas no matching users for an update.
-exc#:#exc_status_file_updated_teams#:#The status of the following teams was updated: <p class="small">%s</p>
-exc#:#exc_status_file_updated_teams_no_plag#:#The status of the following teams was updated (without plagiarism settings): <p class="small">%s</p>
-exc#:#exc_status_file_updated_users#:#The status of the following users was updated: <p class="small">%s</p>
-exc#:#exc_status_file_updated_users_no_plag#:#The status of the following users was updated (without plagiarism settings): <p class="small">%s</p>
 exc#:#exc_status_file_update_teams#:#Saving will process the file %s to update the status of the following teams: <p class="small">%s</p>
 exc#:#exc_status_file_update_teams_no_plag#:#Beim Speichern wird aus der Datei %s der Status der folgenden Teams aktualisiert (ohne Plagiatsinformationen): <p class="small">%s</p>
 exc#:#exc_status_file_update_users#:#Saving will process the file %s to update the status of the following users: <p class="small">%s</p>
 exc#:#exc_status_file_update_users_no_plag#:#Beim Speichern wird aus der Datei %s der Status der folgenden Benutzer aktualisiert (ohne Plagiatsinformationen): <p class="small">%s</p>
+exc#:#exc_status_file_updated_teams#:#The status of the following teams was updated: <p class="small">%s</p>
+exc#:#exc_status_file_updated_teams_no_plag#:#The status of the following teams was updated (without plagiarism settings): <p class="small">%s</p>
+exc#:#exc_status_file_updated_users#:#The status of the following users was updated: <p class="small">%s</p>
+exc#:#exc_status_file_updated_users_no_plag#:#The status of the following users was updated (without plagiarism settings): <p class="small">%s</p>
 exc#:#exc_status_file_wrong_mark#:#The value "%s" in "mark" is not numeric or exceeds the maximum points %s.
 exc#:#exc_status_file_wrong_plag_flag#:#The plagiarism flag '%s' ist not valid. It must be 'none', 'suspicion', 'detected' or empty.
 exc#:#exc_status_file_wrong_status#:#The status %s is not valid. It must be 'notgraded', 'passed' or 'failed'.
@@ -604,32 +611,80 @@ exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
 exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
+fau#:#fair_autofill_cron#:#Allocate Registrations with Equal Chances
+fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity registration, the free places in groups and courses are automatically allocated.
+fau#:#fair_autofill_cron_result#:#Allocated Places: %s
+fau#:#fau_add_no_group_possible#:#Admission not possible, as no group can be assigned!
+fau#:#fau_campo_assigned_orgunits#:#Assigned Institutiuons
+fau#:#fau_campo_course_is_cancelled#:#This event is cancelled!
+fau#:#fau_campo_course_is_deleted#:#This event is deleted!
 fau#:#fau_campo_courses#:#Campo Courses
 fau#:#fau_campo_courses_desc#:#These courses were created automatically. They can be moved to suitable places.
-fau#:#fau_campo_course_is_deleted#:#This event is deleted!
-fau#:#fau_campo_course_is_cancelled#:#This event is cancelled!
 fau#:#fau_campo_data_update#:#Update Campo Data
 fau#:#fau_campo_data_update_info#:#Updates the data for lectures from campo
+fau#:#fau_campo_event#:#Teaching Event
+fau#:#fau_campo_link#:#» campo
+fau#:#fau_campo_link_title#:#Teaching Event in campo
+fau#:#fau_check_failed_matching_modules#:#You cannot take the course because it has no modules in common with your program data.
+fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
+fau#:#fau_check_failed_restrictions#:#You cannot take this course because your degree does not qualify for any of the following modules/accounts for this course:
+fau#:#fau_check_failed_term_not_valid#:#No correct semester is given for this course, therefore no prerequisites can be checked. Please contact the person responsible for the course.
+fau#:#fau_check_success_but_soft_failed#:#However, it does not meet the additional program requirements defined in StudOn.
+fau#:#fau_check_success_no_module#:#This course is not assigned to a module in Campo. No prerequisites are checked for enrollment.
+fau#:#fau_check_success_with_modules#:#Your studies meet the requirements for the modules assigned in Campo.
 fau#:#fau_course#:#Parallel Group
 fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
 fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.
-fau#:#fau_sws#:#SWS
+fau#:#fau_delete_info_campo#:#The list contains one or more courses for courses from Campo. When deleting, the connection to Campo is cancelled. If a course is still offered in the semester, StudOn creates a new course again during the next synchronization (usually hourly). You can prevent this by deleting or dropping the parallel groups in Campo. Then wait one or two hours. After that you can delete the StudOn course without it being created again.
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
 fau#:#fau_import_id#:#Import-ID
+fau#:#fau_module#:#Module
 fau#:#fau_move_selected_courses#:#Move Selected Courses
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
+fau#:#fau_parallel_groups#:#Parallel groups
+fau#:#fau_relation#:#FAU Relation
+fau#:#fau_relation_orgunits#:#Assigned Units
+fau#:#fau_relation_unit_used#:#The unit %s is already connected with <a href="%s">%s</a>! Remove this connection before creating a new one.
+fau#:#fau_rest_0_requirement#:#no achievement yet
+fau#:#fau_rest_1_requirement#:#1 achievement
+fau#:#fau_rest_and#:#and
+fau#:#fau_rest_clinical_semester#:#Clinical Semester
+fau#:#fau_rest_from#:#from
+fau#:#fau_rest_hard_restrictions#:#Restrictions
+fau#:#fau_rest_max#:#max.
+fau#:#fau_rest_min#:#min.
+fau#:#fau_rest_module_in_cos#:#Modul in Course of Studies
+fau#:#fau_rest_n_requirements#:#%s achievements
+fau#:#fau_rest_or#:#oder
+fau#:#fau_rest_pf#:#as compulsory subject
+fau#:#fau_rest_pf_wp#:#as compulsory or compulsory elective subject
+fau#:#fau_rest_subject_semester#:#Subject Semester
 fau#:#fau_search#:#Search Events from Campo
 fau#:#fau_search_found_events#:#Found Events:
-fau#:#fau_search_no_events_found#:#No Events found.
 fau#:#fau_search_ilias_course#:#StudOn Course
 fau#:#fau_search_ilias_course_not#:#No StudOn Course
 fau#:#fau_search_ilias_course_not_found#:#This event does not have a StudOn course.
 fau#:#fau_search_ilias_course_not_visible#:#The StudOn course for this event is not visible to you.
+fau#:#fau_search_no_events_found#:#No Events found.
 fau#:#fau_search_numbers_of#:#%s to %s of %s
 fau#:#fau_search_title#:#Event Title
 fau#:#fau_search_title_info#:#Searching from the start of the title. Use * as placeholder.
+fau#:#fau_sub_accept_all_groups#:#Applications for admission are accepted in the course and in all included paralel groups.
+fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 25.
+fau#:#fau_sub_combi_disabled#:#A group selection must be made for this course. If you want to use a combined enrollment, create it outside the course and add all parallel groups of the course.
+fau#:#fau_sub_direct_possible#:#Direct Join Possible
+fau#:#fau_sub_group_by_course_group_settings#:#Joining this parallel group takes place by selection when joining the course. You cannot choose a separate joining procedure for the group, but you can limit the number of participants. This will be taken into account when registering for the course.
+fau#:#fau_sub_group_by_course_info#:#This course contains parallel groups of a course. They are made available for selection on the course registration page. Students can join only one of these groups directly, but can be placed on the waiting list for more than one.
+fau#:#fau_sub_group_by_course_limit_info#:#The maximum number of participants is set separately in each parallel group of this course. Equal opportunity phase and waiting list options are set in the course and required when students select groups with limited number of participants. It does not apply to unlimited groups.
+fau#:#fau_sub_group_by_course_list_info#:#Via course registration
+fau#:#fau_sub_refuse_all_groups#:#Requests for admission are rejected in the course and in all included paralel groups.
+fau#:#fau_sub_select_groups#:#Choice of Groups
+fau#:#fau_sub_select_groups_info#:#Please select one or more parallel groups of this course. If possible, you will be directly admitted to one of them, otherwise you will be put on the waiting list for all selected ones.
+fau#:#fau_sub_select_module_info#:#Select the module or account for which you wish to take this course. This information is required and will appear on your final documents later.
+fau#:#fau_sws#:#SWS
+fau#:#study_data#:#study data
 fau#:#studycond_add_condition#:#add condition
 fau#:#studycond_add_course_condition#:#Add Study Condition
 fau#:#studycond_add_doc_condition#:#Add Promotion Condition
@@ -649,6 +704,8 @@ fau#:#studycond_edit_conditions#:#Determine Condition
 fau#:#studycond_field_degree#:#Expected Graduation
 fau#:#studycond_field_degree_info#:#Choose a  graduation or let the choice open, if the expected graduation can be any.
 fau#:#studycond_field_doc_program#:#Stuctured Promotion Program
+fau#:#studycond_field_enrolment#:#Enrolment Type
+fau#:#studycond_field_enrolment_info#:#Choose an enrolment type or let the choice open, if the type can be any.
 fau#:#studycond_field_max_approval_date#:#Latest Approval Date
 fau#:#studycond_field_max_semester#:#Until Semester
 fau#:#studycond_field_max_semester_info#:#Please set the latest subjectsemester. 0 means any.
@@ -657,8 +714,6 @@ fau#:#studycond_field_min_semester#:#From Semester
 fau#:#studycond_field_min_semester_info#:#Please set the earliest subjectsemester. 0 means any.
 fau#:#studycond_field_ref_semester#:#Reference-Semester
 fau#:#studycond_field_ref_semester_info#:#Set here on which semester the subjectsemester-conditions refer to. If you let the choice open, the conditions refer to the moment of Joining.
-fau#:#studycond_field_enrolment#:#Enrolment Type
-fau#:#studycond_field_enrolment_info#:#Choose an enrolment type or let the choice open, if the type can be any.
 fau#:#studycond_field_subject#:#studysubject
 fau#:#studycond_field_subject_info#:#Choose a given studysubject or let the choice open, if the subject can be any.
 fau#:#studycond_max_approval_date#:#Approval until %s
@@ -668,15 +723,16 @@ fau#:#studycond_min_max_approval_date#:#Approval in Period %s
 fau#:#studycond_min_max_semester#:#%s. until %s. subjectsemester (%s)
 fau#:#studycond_min_semester#:#from %s. subjectsemester (%s)
 fau#:#studycond_no_condition_defined#:#No conditions determined.
-fau#:#studydata_no_or_former_semester#:#Until summer term 2022 / without term
 fau#:#studydata#:#Study data
 fau#:#studydata_cos#:#Course Of Study
 fau#:#studydata_degree#:#Expected Graduation
 fau#:#studydata_doc_prog_until#:#bis
 fau#:#studydata_edit#:#Edit study data
+fau#:#studydata_enrolment#:#Enrolment
 fau#:#studydata_long#:#Study Data (subject, semester, graduation, faculty)
 fau#:#studydata_module#:#Module
 fau#:#studydata_msg_incomplete#:#The study data are not complete! A study course must have a reference semester, a graduation, a faculty and a least one subject. A subject must be specified with a name and the semester number.
+fau#:#studydata_no_or_former_semester#:#Until summer term 2022 / without term
 fau#:#studydata_options_update#:#Update Study Data Options
 fau#:#studydata_options_update_info#:#Updates the lists for degrees, schools, subjects and structured promotion programs from the IDM database
 fau#:#studydata_promotion#:#Promotion
@@ -685,28 +741,25 @@ fau#:#studydata_promotion_approval_date#:#Approval Date
 fau#:#studydata_promotion_program#:#Stuctured Promotion Program
 fau#:#studydata_ref_semester#:#Reference Term
 fau#:#studydata_ref_semester_any#:#without term
+fau#:#studydata_ref_semester_invalid#:#invalid term
 fau#:#studydata_ref_semester_summer#:#in the summer term  %s
 fau#:#studydata_ref_semester_winter#:#in the winter term %s/%s
-fau#:#studydata_ref_semester_invalid#:#invalid term
 fau#:#studydata_school#:#Faculty
 fau#:#studydata_semester#:#Term
 fau#:#studydata_semester_summer#:#Summer Term %s
-fau#:#studydata_semester_winter#:#Winter Term %s/%s
 fau#:#studydata_semester_summer_short#:#Summer %s
-fau#:#studydata_semester_winter_short#:#Winter %s/%s
 fau#:#studydata_semester_text#:#%s. semester
+fau#:#studydata_semester_winter#:#Winter Term %s/%s
+fau#:#studydata_semester_winter_short#:#Winter %s/%s
 fau#:#studydata_study_no#:#Study course %s
 fau#:#studydata_subject#:#Subject
 fau#:#studydata_subject_no#:#Fach %s
-fau#:#studydata_enrolment#:#Enrolment
 fau#:#studydata_unknown_degree#:#Unknown Degree
 fau#:#studydata_unknown_doc_program#:#Unknown Promotion Program
-fau#:#studydata_unknown_school#:#Unknown Faculty
-fau#:#studydata_unknown_subject#:#Unknown Subject
 fau#:#studydata_unknown_enrolment#:#Unknown Enrolment
+fau#:#studydata_unknown_school#:#Unknown Faculty
 fau#:#studydata_unknown_semester#:#Unknown Term
-fau#:#study_data#:#study data
-fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 25.
+fau#:#studydata_unknown_subject#:#Unknown Subject
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"
@@ -761,10 +814,6 @@ ps#:#ps_type_checkbox#:#Checkbox
 ps#:#ps_type_email#:#E-mail Address###fau: courseUdf
 ps#:#ps_type_email_long#:#E-mail Addres###fau: courseUdf
 ps#:#ps_type_select_info#:#ATTENTION: The select positions have sub fields assigned. When you change the order of the fields, please update the assignments in the sub fields!
-registration#:#registration_codes_info#:#You can link the self registration this way:<br />{URL}studon_register (code will be queried)<br />{URL}studon_register_CODE (code is linked)
-registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.###fau: regCodes
-registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.###fau: regCodes
-registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
 registration#:#reg_choose_password#:#Please choose here an own password for your new account. It must have at leat 6 characters and at least one lowercase and uppercase character, one number and one special sign (_.+?#-*@!$%~/:;). Please remember this password!
 registration#:#reg_code_description_info#:#The description is shown below the page title.
 registration#:#reg_code_last_used#:#Last Used
@@ -774,12 +823,12 @@ registration#:#reg_code_use_limit#:#Usable
 registration#:#reg_code_use_limit_info#:#Number of possible code usages. 0 means unlimited.
 registration#:#reg_code_use_unlimited#:#unlimited
 registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to StudOn. You will receive a confirmation e-mail in the next minutes. Please look also in the spam folder of your post box. Confirm your registration by clicking the confirmation link in this mail.<br />After that you will receive a second e-mail with your account data. Please use the ‘Local Login’ on the StudOn start page to log in.###fau: regCodes
-registration#:#reg_login_generation_type#:#Login Generation
-registration#:#reg_login_generation_type_info#:#Definition of the login name for the new user account.
 registration#:#reg_login_gen_first_lastname#:#Automatic (firstname.lastname)
 registration#:#reg_login_gen_guest_listener#:#Automatic for Guest Listeners (ghs16frneuma)
 registration#:#reg_login_gen_guest_selfreg#:#Automatic for Self Registered Guests (gsr12345)### fau.
 registration#:#reg_login_gen_manual#:#Manual entry
+registration#:#reg_login_generation_type#:#Login Generation
+registration#:#reg_login_generation_type_info#:#Definition of the login name for the new user account.
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration.
 registration#:#reg_mail_body_confirmation#:#To confirm this registration you have to activate it. Click the link below or copy it to the address field of your browser (ensure that it has no line break):###fau: regCodes
 registration#:#reg_password_is_login#:#Your password is identical to the username.
@@ -787,6 +836,10 @@ registration#:#reg_pw_gen_auto#:#Automated generation and sending per e-nail
 registration#:#reg_pw_gen_info#:#Setting of the password for the new account.
 registration#:#reg_pw_gen_login#:#Use the login as password (without sending)
 registration#:#reg_pw_gen_manual#:#Manual entry in the registration form
+registration#:#registration_code_optional_info#:#If you received a registration code, please enter it here. This code determines your possibilities in StudOn. If you don't have a code, leave the field empty. Then click "Register" to start the registration.###fau: regCodes
+registration#:#registration_code_required_info#:#Please enter first the registration code that you received. then click "Register", to start the registration.###fau: regCodes
+registration#:#registration_code_update_header#:#Edit Code Settings###fau: regCodes - language vars
+registration#:#registration_codes_info#:#You can link the self registration this way:<br />{URL}studon_register (code will be queried)<br />{URL}studon_register_CODE (code is linked)
 search#:#search_for_matriculations#:#Search for Matriculation Numbers
 search#:#search_matriculations#:#Matriculation Numbers
 search#:#search_matriculations_info#:#Separate the numbers by comma, semi colons oder new lines. spaces are ignored.
@@ -797,9 +850,9 @@ style#:#sty_custom_css_description#:#Enter special styles here as CSS code. The 
 style#:#sty_custom_css_edit#:#Edit Special Styles
 style#:#sty_custom_css_image_info#:#Images are used with ! as prefix, e.g. background-image: url(!MeinHintergrund.png);
 style#:#sty_inherit#:#Set as Default###// fau: inheritContentStyle
+style#:#sty_inherit_info#:#This style is used for all sub objects that don't have an own style.###// fau: inheritContentStyle
 style#:#sty_inherited_from#:#Default set by###// fau: inheritContentStyle
 style#:#sty_inherited_from_info#:#The default style is set in the named parent object.###// fau: inheritContentStyle
-style#:#sty_inherit_info#:#This style is used for all sub objects that don't have an own style.###// fau: inheritContentStyle
 survey#:#anonymize_survey_description#:#The anonymisation deletes all personal data from the survey statistics.<ul><li>Public surveys with CAPTCHA require the recognition of a short picture text to prevent an automated fill-in.</li><li>Public surveys with access key require a short key to be entered.</li></ul>Registered StudOn users don't need a CAPTCHA or access key.
 survey#:#anonymize_with_captcha#:#Anonymous Survey with CAPTCHA
 survey#:#anonymize_with_captcha_info#:#The survey can be startet aber entering the text from an automatically generated image. This option can't be combined with access codes.
@@ -811,8 +864,8 @@ trac#:#trac_required_questions_percent#:#Share of correctly answered questions (
 univis#:#crs_availability_unvisible_info#:#Der Kurs ist set offline
 univis#:#crs_visibility#:#Visibility
 univis#:#crs_visibility_unvisible#:#Not visible
-univis#:#univis_additional_info#:#Additional informations
 univis#:#univis_add_title_short#:#add short title
+univis#:#univis_additional_info#:#Additional informations
 univis#:#univis_allfak#:#language course for listeners of all faculties
 univis#:#univis_allfak_short#:#AllFak
 univis#:#univis_bac#:#Bachelor
@@ -882,13 +935,6 @@ univis#:#univis_lafn#:#LAFN
 univis#:#univis_lafn_short#:#LAFN
 univis#:#univis_lafv#:#LAFV
 univis#:#univis_lafv_short#:#LAFV
-univis#:#univis_lecturer#:#lecturer
-univis#:#univis_lecturer_name#:#Name
-univis#:#univis_lectures_search_import_desc#:#Please insert a search criteria for the lecture, which you want to apply to StudOn.
-univis#:#univis_lectures_search_title#:#Search for lectures
-univis#:#univis_lectures_selection_import_desc#:#Please choose the lectures, which you want to import.
-univis#:#univis_lectures_selection_title#:#Choose lectures
-univis#:#univis_lectures_selection_update_desc#:#Please choose the lectures, which course data you want to update.
 univis#:#univis_lecture_conditions_desc#:#Please determine how the lecture data shall be taken over.
 univis#:#univis_lecture_conditions_title#:#Settings for Data-overtake
 univis#:#univis_lecture_message_course_blocked#:#This StudOn-course is not changeable for you. Owner: %s.
@@ -929,6 +975,13 @@ univis#:#univis_lecture_type_tut#:#Seminar conducted by a postgraduate
 univis#:#univis_lecture_type_ue#:#Exercise
 univis#:#univis_lecture_type_v-ue#:#lecture with exercise
 univis#:#univis_lecture_type_vorl#:#lecture
+univis#:#univis_lecturer#:#lecturer
+univis#:#univis_lecturer_name#:#Name
+univis#:#univis_lectures_search_import_desc#:#Please insert a search criteria for the lecture, which you want to apply to StudOn.
+univis#:#univis_lectures_search_title#:#Search for lectures
+univis#:#univis_lectures_selection_import_desc#:#Please choose the lectures, which you want to import.
+univis#:#univis_lectures_selection_title#:#Choose lectures
+univis#:#univis_lectures_selection_update_desc#:#Please choose the lectures, which course data you want to update.
 univis#:#univis_literature#:#recommended literature
 univis#:#univis_mag#:#Master's degree
 univis#:#univis_mag_short#:#MAG
@@ -939,12 +992,12 @@ univis#:#univis_medabschn1#:#1. Study stage
 univis#:#univis_medabschn1_short#:#1. stage
 univis#:#univis_medabschn2#:#2. Study stage
 univis#:#univis_medabschn2_short#:#2. stage
-univis#:#univis_message_courses_updated#:#%s StudOn-course has been updated.
 univis#:#univis_message_course_updated#:#1 StudOn-course has been updated.
-univis#:#univis_message_lectures_ignored#:#%s lecture has been ignored.
-univis#:#univis_message_lectures_imported#:#%s lecture has been added as StudOn-course.
+univis#:#univis_message_courses_updated#:#%s StudOn-course has been updated.
 univis#:#univis_message_lecture_ignored#:#1 lecture has been ignored.
 univis#:#univis_message_lecture_imported#:#1 lecture has been added as StudOn-course.
+univis#:#univis_message_lectures_ignored#:#%s lecture has been ignored.
+univis#:#univis_message_lectures_imported#:#%s lecture has been added as StudOn-course.
 univis#:#univis_message_this_course_updated#:#The course data has been updated.
 univis#:#univis_mycampus_registration#:#For the lecture a login is required. The login takes place per <a href="https://www.campus.uni-erlangen.de/qisserver/rds?univisid=%s" target="_blank"><em>my campus</em></a>.
 univis#:#univis_no_department_found#:#No matching facilities have been found. Please check your search input!
@@ -994,11 +1047,11 @@ univis#:#univis_ss#:#SS %s
 univis#:#univis_studies#:#subject of study / branch of study
 univis#:#univis_summary#:#Summary
 univis#:#univis_sws#:#SWS
-univis#:#univis_terms#:#Dates
 univis#:#univis_term_bd#:#block lecture
 univis#:#univis_term_d1#:#daily
 univis#:#univis_term_s1#:#single date at
 univis#:#univis_term_w2#:#every 2. week
+univis#:#univis_terms#:#Dates
 univis#:#univis_turnout#:#Expected number of participants:
 univis#:#univis_women#:#women research
 univis#:#univis_women_short#:#women
@@ -1020,4 +1073,3 @@ videoportal#:#vp_no_access_granted#:#No access is granted for the user.
 videoportal#:#vp_no_interface_active#:#The Interface of StudOn to the video portal is currently not active.
 videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
 videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM account.
-content#:#cont_link_info#:#Note: If you see one or more objects at the bottom, please select one of them. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal 

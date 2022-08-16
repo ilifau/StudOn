@@ -29,6 +29,14 @@ administration#:#adm_activate_db_benchmark_instant_desc#:#Die Datenbankabfragen 
 administration#:#adm_db_bench_grouped_by_sql#:#Nach SQL gruppieren###fau: extendBenchmark
 administration#:#language_scope_file#:#Per Datei###fau: syncLangFile
 administration#:#language_scope_file_info#:#Exportiert alle Datenbankeinträge zu Sprachvariablen, die in der hochgeladenen Datei angegeben sind. Das kann verwendet werden, um eine lokale Sprachdatei auf den aktuellen Datenbank-Stand zu bringen.###fau: syncLangFile
+assessment#:#ass_campo_export#:#Ergebnisse für die Notenverbuchung in <i>campo</i> exportieren###fau: campoGrades
+assessment#:#ass_campo_file_written#:#Die Ergebnisdatei für <i>mein campo</i> wurde geschrieben.###fau: campoGrades
+assessment#:#ass_campo_matriculation_numbers#:#Matrikelnummern###fau: campoGrades
+assessment#:#ass_campo_matriculation_numbers_info#:#Exportieren Sie die Liste der angemeldeten Prüfungsteilnehmer/innen als Excel-Datei aus Campo. Kopieren Sie die Matrikelnummern aus der Datei in dieses Feld. Jede Matrikelnummer muss in einer eigenen Zeile stehen. Erstellen die die Exportdatei und öffnen Sie die exportierte CSV-Datei in Excel. Für jede kopierte Matrikelnummer sollte eiene Zeile enthalten sein und eine Bewertung bei den Teilnehmer/innen dieses Tests enthalten. Kopieren Sie die Bewertungen in die Spalte "Leistung" der Datei aus Campo. Diese Datei können Sie dann zur Notenverbuchung wieder in Campo importieren.
+assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
+assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
+assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn###fau: campoGrades
+assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo###fau: campoGrades
 assessment#:#ass_create_export_mycampus#:#Erstelle Ergebnisdatei für mein campus
 assessment#:#ass_mycampus_exam_number#:#Prüfungsnummer
 assessment#:#ass_mycampus_exam_number_info#:#Die Prüfungsnummer wird zur korrekten Bennung der Export-Datei benötigt. Bitte importieren Sie die Datei in <i>mein campus</i> mit dem erzeugten Namen.<br />Wenn der StudOn-Test für mehrere Prüfungen verwendet wurde, verwenden Sie die Option "Angemeldete Teilnehmer" um für jede Prüfungs eine eigene Datei auszugeben.
@@ -222,13 +230,13 @@ common#:#links_password_coded#:#Passwort-Code
 common#:#local_login_to_ilias#:#Bei StudOn lokal anmelden###fau: loginForm
 common#:#local_login_to_ilias_addition#:#Verwenden Sie die Lokale Anmeldung, wenn Sie von StudOn einen lokalen Account bekommen haben.###fau: loginForm
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
-common#:#mem_register#:#Anmelden
 common#:#mem_edit_request#:#Anmeldung ändern
 common#:#mem_external_notification_subject#:#Anmeldung von %s zu "%s"###fau: courseUdf
 common#:#mem_external_notification_subject_changed#:#Anmeldung von %s zu "%s" geändert###fau: courseUdf
 common#:#mem_fill_free_places#:#Freie Plätze auffüllen
 common#:#mem_max_users#:#Maximale Teilnehmeranzahl:
 common#:#mem_max_users_hidden#:#Info für Admins:
+common#:#mem_register#:#Anmelden
 common#:#mem_registration_access_time#:#Anmeldung/Erstzugriff
 common#:#mem_request_joining#:#Aufnahme beantragen
 common#:#mem_request_waiting#:#Auf Warteliste setzen
@@ -393,6 +401,7 @@ content#:#cont_layout_help#:#Hilfe
 content#:#cont_layout_help_desc#:#Layout für die StudOn-Hilfemodule
 content#:#cont_layout_website#:#Website
 content#:#cont_layout_website_desc#:#Layout für "Informationen über StudOn"
+content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal
 cron#:#cron_set_last_run#:#Setze letzten Durchlauf
 cron#:#cron_set_last_run_info#:#Der nächste Start wird ausgehend vom letzten Durchlauf anhand des Zeitplans bestimmt
 crs#:#crs_choose_one_event#:#Bitte wählen Sie einen Termin aus!
@@ -602,52 +611,79 @@ exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
 exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
-fau#:#fau_campo_event#:#Lehrveranstaltung
+fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
+fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
+fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
+fau#:#fau_add_no_group_possible#:#Aufnahme nicht möglich, da keine Gruppe zuteilbar!
 fau#:#fau_campo_assigned_orgunits#:#Beteiligte Einrichtungen
 fau#:#fau_campo_courses#:#Campo-Kurse
 fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie können an geeignete Stellen verschoben werden.
-fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
 fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
+fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
-fau#:#fau_check_success_no_module#:#Diese Lehrveranstaltung ist in Campo keinem Modul/Konto zugeordnet. Es werden keine Voraussetzungen zur Belegung geprüft.
-fau#:#fau_check_success_with_modules#:#Ihr Studium erfüllt die Voraussetzungen für die in Campo zugeordneten Module/Konten.
-fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
-fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
-fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
-fau#:#fau_check_failed_matching_modules#:#Sie können die Lehrveranstaltung nicht belegen, da sie mit Ihren Studiengangsdaten keine Module/Konten gemeinsam hat.
-fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da Ihr Studium für keines der folgenden Module/Konten dieser Lehrveranstaltung geeignet ist:
-fau#:#fau_module#:#Modul/Konto
+fau#:#fau_campo_event#:#Lehrveranstaltung
 fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Veranstaltung in campo
+fau#:#fau_check_failed_matching_modules#:#Sie können die Lehrveranstaltung nicht belegen, da sie mit Ihren Studiengangsdaten keine Module/Konten gemeinsam hat.
+fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
+fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da Ihr Studium für keines der folgenden Module/Konten dieser Lehrveranstaltung geeignet ist:
+fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
+fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
+fau#:#fau_check_success_no_module#:#Diese Lehrveranstaltung ist in Campo keinem Modul/Konto zugeordnet. Es werden keine Voraussetzungen zur Belegung geprüft.
+fau#:#fau_check_success_with_modules#:#Ihr Studium erfüllt die Voraussetzungen für die in Campo zugeordneten Module/Konten.
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_info_campo#:#Die Liste enthält einen oder mehrere Kurse für Lehrveranstaltungen aus Campo. Beim Löschen wird die Verbindung zu Campo aufgehoben. Falls eine Lehrveranstaltung im Semester dennoch angeboten wird, erzeugt StudOn bei der nächsten Synchronisation (in der Regel stündlich) wieder einen neuen Kurs. Sie könenn das verhindern, indem Sie die Parallelgruppen in Campo löschen oder ausfallen lassen. Warten Sie dann eine bis zwei Stunden. Danach können sie den StudOn-Kurs löschen, ohne dass er wieder angelegt wird.
-fau#:#fau_sws#:#SWS
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
+fau#:#fau_import_id#:#Import-ID
+fau#:#fau_module#:#Modul/Konto
+fau#:#fau_move_selected_courses#:#Ausgewählte Kurse verschieben
+fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
+fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
+fau#:#fau_parallel_groups#:#Parallelgruppen
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen
 fau#:#fau_relation_unit_used#:#Die Einheit %s ist bereits mit der StudOn-Kategorie <a href="%s">%s</a> verbunden! Entfernen Sie erst diese Verbindung, bevor Sie die neue anlegen.
-fau#:#fau_import_id#:#Import-ID
-fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
-fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
-fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
-fau#:#fau_move_selected_courses#:#Ausgewählte Kurse verschieben
-fau#:#fau_parallel_groups#:#Parallelgruppen
-fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
-fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
+fau#:#fau_rest_0_requirement#:#noch keine Leistung
+fau#:#fau_rest_1_requirement#:#1 Leistung
+fau#:#fau_rest_and#:#und
+fau#:#fau_rest_clinical_semester#:#Klinisches Semester
+fau#:#fau_rest_from#:#aus
+fau#:#fau_rest_hard_restrictions#:#Voraussetzungen
+fau#:#fau_rest_max#:#max.
+fau#:#fau_rest_min#:#min.
+fau#:#fau_rest_module_in_cos#:#Modul im Studiengang
+fau#:#fau_rest_n_requirements#:#%s Leistungen
+fau#:#fau_rest_or#:#oder
+fau#:#fau_rest_pf#:#als Pflichtfach
+fau#:#fau_rest_pf_wp#:#als Pflichtfach oder Wahlpflicht
+fau#:#fau_rest_subject_semester#:#Fachsemester
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
 fau#:#fau_search_found_events#:#Gefundene Lehrveranstaltungen:
-fau#:#fau_search_no_events_found#:#Keine Lehrveranstaltungen gefunden.
 fau#:#fau_search_ilias_course#:#StudOn-Kurs
 fau#:#fau_search_ilias_course_not#:#Kein StudOn-Kurs
 fau#:#fau_search_ilias_course_not_found#:#Für diese Veranstaltung ist noch kein StudOn-Kurs erstellt.
 fau#:#fau_search_ilias_course_not_visible#:#Der StudOn-Kurs dieser Veranstaltung ist für Sie nicht sichtbar.
+fau#:#fau_search_no_events_found#:#Keine Lehrveranstaltungen gefunden.
 fau#:#fau_search_numbers_of#:#%s bis %s von %s
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird der Anfang des Titels. Verwenden Sie * als Platzhalter.
+fau#:#fau_sub_accept_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen angenommen.
+fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
+fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.
+fau#:#fau_sub_direct_possible#:#Direkte Aufnahme möglich
+fau#:#fau_sub_group_by_course_group_settings#:#Der Beitritt zu dieser Parallelgruppe findet per Auswahl beim Kursbeitritt statt. Sie können für die Gruppe kein eigenes Beitrittsverfahren wählen, aber Sie können die Teilnehmerzahl begrenzen. Das wird bei der Kursanmeldung beachtet.
+fau#:#fau_sub_group_by_course_info#:#Dieser Kurs enthält Parallelgruppen einer Lehrveranstaltung. Sie werden auf der Anmeldeseite des Kurses zur Auswahl gestellt. Studierende können nur einer dieser Gruppen direkt beitreten, sich aber bei mehreren auf die Warteliste setzen lassen.
+fau#:#fau_sub_group_by_course_limit_info#:#Die maximale Teilnehmerzahl wird in jeder Parallelgruppe dieses Kurses separat eingestellt. Die Chancengleiche Phase und Wartelistenoptionen werden im Kurs eingestellt und benötigt, wenn Studierende Gruppen mit begrenzter Teilnehmrzahl auswählen. Für unbegrenzte Gruppen gilt sie nicht.
+fau#:#fau_sub_group_by_course_list_info#:#Über Kursbeitritt
+fau#:#fau_sub_refuse_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen abgelehnt.
+fau#:#fau_sub_select_groups#:#Gruppenauswahl
+fau#:#fau_sub_select_groups_info#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
+fau#:#fau_sub_select_module_info#:#Wählen Sie das Modul oder Konto, für das Sie diese Lehrveranstaltung belegen möchten. Diese Information ist notwendig und erscheint später auf Ihren Abschlussdokumenten.
+fau#:#fau_sws#:#SWS
 fau#:#studycond_add_condition#:#Bedingung hinzufügen
 fau#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen
 fau#:#studycond_add_doc_condition#:#Promotions-Bedingung hinzufügen
@@ -667,6 +703,8 @@ fau#:#studycond_edit_conditions#:#Bedingungen festlegen
 fau#:#studycond_field_degree#:#Angehender Abschluß
 fau#:#studycond_field_degree_info#:#Wählen Sie einen Abschluss aus oder lassen Sie die Auswahl offen, wenn der angehende Abschluss beliebig sein kann.
 fau#:#studycond_field_doc_program#:#Strukturiertes Promotionsprogramm
+fau#:#studycond_field_enrolment#:#Typ des Studiums
+fau#:#studycond_field_enrolment_info#:#Wählen Sie einen Typ des Studiums oder lassen Sie die Auswahl offen, wenn der Typ beliebig sein kann.
 fau#:#studycond_field_max_approval_date#:#Spätestes Zulassungsdatum
 fau#:#studycond_field_max_semester#:#Bis Semester
 fau#:#studycond_field_max_semester_info#:#Geben Sie das späteste Fachsemester an. 0 bedeutet beliebig.
@@ -675,8 +713,6 @@ fau#:#studycond_field_min_semester#:#Von Semester
 fau#:#studycond_field_min_semester_info#:#Geben Sie das früheste Fachsemester an. 0 bedeutet beliebig.
 fau#:#studycond_field_ref_semester#:#Bezugs-Semester
 fau#:#studycond_field_ref_semester_info#:#Geben Sie hier an, auf welches Semester sich die Fachsemester-Bedingungen beziehen. Wenn Sie diese Auswahl offen lassen, beziehen sich die Bedingungen auf den Zeitpunkt des Beitritts.
-fau#:#studycond_field_enrolment#:#Typ des Studiums
-fau#:#studycond_field_enrolment_info#:#Wählen Sie einen Typ des Studiums oder lassen Sie die Auswahl offen, wenn der Typ beliebig sein kann.
 fau#:#studycond_field_subject#:#Studienfach
 fau#:#studycond_field_subject_info#:#Wählen Sie ein vorgegebenes Studienfach oder lassen Sie die Auswahl offen, wenn das Fach beliebig sein kann.
 fau#:#studycond_max_approval_date#:#Zulassung bis %s
@@ -686,15 +722,16 @@ fau#:#studycond_min_max_approval_date#:#Zulassung im Zeitraum %s
 fau#:#studycond_min_max_semester#:#%s. bis %s. Fachsemester (%s)
 fau#:#studycond_min_semester#:#ab %s. Fachsemester (%s)
 fau#:#studycond_no_condition_defined#:#Keine Bedingung festgelegt.
-fau#:#studydata_no_or_former_semester#:#Bis Sommersemester 2022 / ohne Semesterangabe
 fau#:#studydata#:#Studiengangsdaten
 fau#:#studydata_cos#:#Studiengang
 fau#:#studydata_degree#:#Angehender Abschluss
 fau#:#studydata_doc_prog_until#:#bis
 fau#:#studydata_edit#:#Studiengangsdaten bearbeiten
+fau#:#studydata_enrolment#:#Typ des Studiums
 fau#:#studydata_long#:#Studiengangsdaten (Fach, Semester, Abschluss, Fakultät)
 fau#:#studydata_module#:#Modul
 fau#:#studydata_msg_incomplete#:#Die Studiendaten sind nicht vollständig! Zu einem Studiengang müssen Bezugs-Semester, Abschluss, Fakultät und mindestens ein Fach angegeben sein. Zu einem Fach müssen der Name und das Semester angegeben sein.
+fau#:#studydata_no_or_former_semester#:#Bis Sommersemester 2022 / ohne Semesterangabe
 fau#:#studydata_options_update#:#Studiendaten-Auswahlen aktualisieren
 fau#:#studydata_options_update_info#:#Aktualisiert die Listen für Abschlüsse, Fakultäten, Fächer und strukturierte Promotionsprogramme aus der IDM-Datenbank
 fau#:#studydata_promotion#:#Promotion
@@ -703,54 +740,26 @@ fau#:#studydata_promotion_approval_date#:#Zulassungsdatum
 fau#:#studydata_promotion_program#:#Strukturiertes Promotionsprogramm
 fau#:#studydata_ref_semester#:#Bezugs-Semester
 fau#:#studydata_ref_semester_any#:#Ohne Semesterangabe
+fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_ref_semester_summer#:#Im Sommer %s
 fau#:#studydata_ref_semester_winter#:#Im Winter %s/%s
-fau#:#studydata_ref_semester_invalid#:#Ungültige Semesterangabe
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
-fau#:#studydata_semester_winter#:#Wintersemester %s/%s
 fau#:#studydata_semester_summer_short#:#SS %s
-fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_semester_text#:# %s. Semester
+fau#:#studydata_semester_winter#:#Wintersemester %s/%s
+fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_study_no#:#Studiengang %s
 fau#:#studydata_subject#:#Fach
 fau#:#studydata_subject_no#:#Fach %s
-fau#:#studydata_enrolment#:#Typ des Studiums
 fau#:#studydata_unknown_degree#:#Unbekannter Abschluss
 fau#:#studydata_unknown_doc_program#:#Unbekanntes Promotionsprogramm
-fau#:#studydata_unknown_school#:#Unbekannte Fakultät
-fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
+fau#:#studydata_unknown_school#:#Unbekannte Fakultät
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
+fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#study_data#:#Studiendaten
-fau#:#fau_rest_hard_restrictions#:#Voraussetzungen
-fau#:#fau_rest_module_in_cos#:#Modul im Studiengang
-fau#:#fau_rest_and#:#und
-fau#:#fau_rest_or#:#oder
-fau#:#fau_rest_min#:#min.
-fau#:#fau_rest_max#:#max.
-fau#:#fau_rest_0_requirement#:#noch keine Leistung
-fau#:#fau_rest_1_requirement#:#1 Leistung
-fau#:#fau_rest_n_requirements#:#%s Leistungen
-fau#:#fau_rest_from#:#aus
-fau#:#fau_rest_pf#:#als Pflichtfach
-fau#:#fau_rest_pf_wp#:#als Pflichtfach oder Wahlpflicht
-fau#:#fau_rest_subject_semester#:#Fachsemester
-fau#:#fau_rest_clinical_semester#:#Klinisches Semester
-fau#:#fau_sub_accept_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen angenommen.
-fau#:#fau_sub_refuse_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen abgelehnt.
-fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
-fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.
-fau#:#fau_sub_select_module_info#:#Wählen Sie das Modul oder Konto, für das Sie diese Lehrveranstaltung belegen möchten. Diese Information ist notwendig und erscheint später auf Ihren Abschlussdokumenten.
-fau#:#fau_sub_select_groups#:#Gruppenauswahl
-fau#:#fau_sub_select_groups_info#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
-fau#:#fau_sub_direct_possible#:#Direkte Aufnahme möglich
-fau#:#fau_sub_group_by_course_list_info#:#Über Kursbeitritt
-fau#:#fau_sub_group_by_course_group_settings#:#Der Beitritt zu dieser Parallelgruppe findet per Auswahl beim Kursbeitritt statt. Sie können für die Gruppe kein eigenes Beitrittsverfahren wählen, aber Sie können die Teilnehmerzahl begrenzen. Das wird bei der Kursanmeldung beachtet.
-fau#:#fau_sub_group_by_course_info#:#Dieser Kurs enthält Parallelgruppen einer Lehrveranstaltung. Sie werden auf der Anmeldeseite des Kurses zur Auswahl gestellt. Studierende können nur einer dieser Gruppen direkt beitreten, sich aber bei mehreren auf die Warteliste setzen lassen.
-fau#:#fau_sub_group_by_course_limit_info#:#Die maximale Teilnehmerzahl wird in jeder Parallelgruppe dieses Kurses separat eingestellt. Die Chancengleiche Phase und Wartelistenoptionen werden im Kurs eingestellt und benötigt, wenn Studierende Gruppen mit begrenzter Teilnehmrzahl auswählen. Für unbegrenzte Gruppen gilt sie nicht.
-fau#:#fau_add_no_group_possible#:#Aufnahme nicht möglich, da keine Gruppe zuteilbar!
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

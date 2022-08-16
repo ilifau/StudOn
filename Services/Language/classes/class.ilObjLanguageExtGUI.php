@@ -620,7 +620,14 @@ class ilObjLanguageExtGUI extends ilObjectGUI
 
             $file_obj = new ilLanguageFile($tempfile, $this->object->key, 'local');
             $file_obj->read();
-            $new_values = array_intersect_key($this->object->getAllValues(), $file_obj->getAllValues());
+            $new_values = array_merge(
+                // take common keys with existing values
+                array_intersect_key($this->object->getAllValues(), $file_obj->getAllValues()),
+                // take added keys with values from imported file
+                array_diff_key($file_obj->getAllValues(), $this->object->getAllValues())
+            );
+            ksort($new_values);
+
             $new_comments = array_merge($file_obj->getAllComments(), $this->object->getAllRemarks());
             $file_obj->setAllValues($new_values);
             $file_obj->setAllComments($new_comments);
