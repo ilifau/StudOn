@@ -80,4 +80,12 @@ class CourseOfStudy extends RecordData
     {
         return $this->version;
     }
+
+    /**
+     * Get a textual title
+     */
+    public function getTitle() : string
+    {
+        return $this->getSubject() . ', ' . $this->getDegree() . ', ' . $this->getSubjectIndicator() . ', ' . $this->getMajor();
+    }
 }

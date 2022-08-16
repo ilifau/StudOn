@@ -79,9 +79,7 @@ class Service extends SubService
 
         $list = [];
         foreach ($this->repo()->getCoursesOfStudy() as $cos) {
-            $title = $cos->getSubject() . ', ' . $cos->getDegree()
-                . ', ' . $cos->getSubjectIndicator() . ', ' . $cos->getMajor(); // . ' (' . $cos->getVersion() . ')';
-            $list[$title][] = $cos->getCosId();
+            $list[$cos->getTitle()][] = $cos->getCosId();
         }
         foreach ($list as $title => $cos_ids) {
             $options[implode(',', $cos_ids)] = $title;

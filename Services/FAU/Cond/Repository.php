@@ -122,7 +122,7 @@ class Repository extends RecordRepo
                     (int) $row['expression_id'],
                     $row['compare'],
                     (int) $row['number'],
-                    $row['compulsory']
+                    $row['expression_compulsory']
                 ));
             }
 

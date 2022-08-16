@@ -64,7 +64,7 @@ class HardRestrictions
     public function getEventRestrictionTexts(int $event_id, bool $html = true) : string
     {
         $modules = $this->getModulesOfEventWithLoadedRestrictions($event_id);
-        return $this->getModuleRestrictionTexts($modules, $html, false);
+        return $this->getModuleRestrictionTexts($modules, $html);
     }
 
 
@@ -81,13 +81,26 @@ class HardRestrictions
      *
      * @param Module[] $modules     Modules with restriction data
      * @param bool $html            Get formatted html instead of plain text
-     * @param bool $all_modules     Add also the names of modules without restrictions (for failed registration message)
      */
-    public function getModuleRestrictionTexts(array $modules, bool $html = true, bool $all_modules = false) : string
+    public function getModuleRestrictionTexts(array $modules, bool $html = true) : string
     {
         $texts = [];
         foreach ($modules as $module) {
             $resTexts = [];
+
+            // first show the courses of study as restrictions
+            foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudyForModule($module->getModuleId()) as $cos) {
+                if ($html) {
+                    $resTexts[] = '<li>' . $cos->getTitle() . '</li>';
+                }
+                else {
+                    $resTexts[] =  $cos->getTitle();
+                }
+            }
+            $resTexts = array_unique($resTexts);
+            sort($resTexts);
+
+            // show the defined restrictions
             foreach ($module->getRestrictions() as $restriction) {
                 if ($html) {
                     $resTexts[] = '<li>' . $this->getRestrictionAsText($restriction) . '</li>';
@@ -96,36 +109,37 @@ class HardRestrictions
                     $resTexts[] = $this->getRestrictionAsText($restriction);
                 }
             }
+
+            if ($html) {
+                $moduleTitle = $this->lng->txt('fau_module')
+                    . ' <strong>' . $module->getModuleName() . '</strong> ('. $module->getModuleNr() . ')' .': ';
+            }
+            else {
+                $moduleTitle = $this->lng->txt('fau_module')
+                    . ' ' . $module->getModuleName() . ' ('. $module->getModuleNr() . ')' .': ';
+            }
+
             if (!empty($resTexts)) {
                 if ($html) {
-                    $texts[] = '<li>'
-                        . $this->lng->txt('fau_module') . ' <strong>' . $module->getModuleName()
-                        . ' ('. $module->getModuleNr() . ')' .'</strong>: '
-                        . '<ul>' . implode("\n", $resTexts) .'</ul>'
-                        . '</li>';
+                    $texts[] = '<li>' . $moduleTitle . '<ul>' . implode("\n", $resTexts) . '</ul></li>';
                 }
                 else {
-                    $texts[] = $this->lng->txt('fau_module') . ' ' . $module->getModuleName() . ": \n"
-                        . implode("; \n", $resTexts);
+                    $texts[] = $moduleTitle . "\n" . implode("; \n", $resTexts);
                 }
             }
-            elseif ($all_modules) {
+            else {
                 if ($html) {
-                    $texts[] = '<li>'
-                        . $this->lng->txt('fau_module') . ' <strong>' . $module->getModuleName()
-                        . ' ('. $module->getModuleNr() . ')' . '</strong>: '
-                        . '<ul><li>'.  $this->lng->txt('fau_rest_module_in_cos') .'</li></ul>'
-                        . '</li>';
+                    $texts[] = '<li>' . $moduleTitle . '<ul><li>' .  $this->lng->txt('fau_rest_module_in_cos') .'</li></ul></li>';
                 }
                 else {
-                    $texts[] = $this->lng->txt('fau_module') . ' ' . $module->getModuleName() .  ": \n"
-                     . $this->lng->txt('fau_rest_module_in_cos');
+                    $texts[] = $moduleTitle .  "\n" . $this->lng->txt('fau_rest_module_in_cos');
                 }
             }
         }
         if (!empty($texts)) {
             // avoid doubling of the same module with same restrictions for different courses of study
             $texts = array_unique($texts);
+            sort($texts);
 
             if ($html) {
                 return '<ul>'. implode("\n", $texts) . '</ul>';
@@ -187,14 +201,14 @@ class HardRestrictions
             $expTexts[] = $text;
         }
 
-        $sumText = implode($this->lng->txt('fau_rest_or'), $expTexts);
+        $sumText = implode(' '. $this->lng->txt('fau_rest_or') . ' ', $expTexts);
 
         if (!empty($requirements = $restriction->getRequirements())) {
             $reqNames = [];
             foreach ($requirements as $requirement) {
                 $reqNames[] = $requirement->getName();
             }
-            $sumText .= ': ' . implode(', ', $reqNames);
+            $sumText .= ' ' . $this->lng->txt('fau_rest_from') . ': ' . implode(', ', $reqNames);
         }
 
         return $sumText;
@@ -298,7 +312,7 @@ class HardRestrictions
         }
         elseif (!empty($this->checkedForbiddenModules)) {
             $this->checkMessage = $this->lng->txt('fau_check_failed_restrictions')
-                . $this->getModuleRestrictionTexts($this->checkedForbiddenModules, true, true);
+                . $this->getModuleRestrictionTexts($this->checkedForbiddenModules, true);
         }
 
         return $this->checkMessage;

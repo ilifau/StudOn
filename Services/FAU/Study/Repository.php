@@ -446,6 +446,20 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get Courses of Study
+     * @return CourseOfStudy[]
+     */
+    public function getCoursesOfStudyForModule(int $module_id) : array
+    {
+
+        $query = "
+                SELECT DISTINCT c.* FROM fau_study_cos c 
+                JOIN fau_study_module_cos mc ON mc.cos_id = c.cos_id
+                WHERE mc.module_id =" . $this->db->quote($module_id, 'integer');
+        return $this->queryRecords($query, CourseOfStudy::model());
+    }
+
+    /**
      * Get Module to Course of Study assignments
      * @param int[]|null $module_ids   (get all if null, none if empty)
      * @param int[]|null $cos_ids   (get all if null, none if empty)
