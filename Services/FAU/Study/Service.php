@@ -68,6 +68,38 @@ class Service extends SubService
     }
 
     /**
+     * Get the url to an entry in campo
+     * @param int $event_id
+     * @param Term $term
+     * @return string
+     */
+    public function getCampoUrl(int $event_id, ?Term $term = null)
+    {
+        $link = 'https://www.campo.fau.de:443/qisserver/pages/startFlow.xhtml?_flowId=detailView-flow&unitId=' . $event_id;
+        if (isset($term) && $term->toString() == '20222') {
+            $link .= '&periodId=395';
+        }
+        return $link;
+    }
+
+
+    /**
+     * Get the link to campo for an ilias course
+     */
+    public function getCampoLinkForObject(int $obj_id) : string
+    {
+        $importId = $this->repo()->getImportId($obj_id);
+        If (!empty($event_id = $importId->getEventId())) {
+            $term = Term::fromString($importId->getTermId());
+            $url = $this->getCampoUrl($event_id, $term);
+            $title = $this->lng->txt('fau_campo_link') . ($term->isValid() ? ' (' . $this->dic->fau()->study()->getTermText($term, true) .')' : '');
+            return '<a target="_blank" href="' . $url . '">' . $title . '</a>';
+        }
+        return '';
+    }
+
+
+    /**
      * Get the select options for courses of study
      */
     public function getCourseOfStudySelectOptions(?int $emptyId = null) : array
@@ -96,10 +128,8 @@ class Service extends SubService
     public function getModuleSelectOptions(?int $emptyId = null) : array
     {
         $options = [];
-        if (isset($emptyId)) {
-            $options[$emptyId] = $this->lng->txt("please_select");
-        }
 
+        // bundle all modules with the same name
         $list = [];
         foreach ($this->repo()->getModules() as $module) {
             $title = $module->getModuleName(); // . ' ('. $module->getModuleNr() . ')';
@@ -109,6 +139,10 @@ class Service extends SubService
             $options[implode(',', $module_ids)] = $title;
         }
         asort($options,  SORT_NATURAL);
+
+        if (isset($emptyId)) {
+            $options = array_merge([$emptyId => $this->lng->txt("please_select")], $options);
+        }
         return $options;
     }
 
@@ -332,17 +366,17 @@ class Service extends SubService
     /**
      * Get the text for a term (current language)
      */
-    public function getTermText(?Term $term) : string
+    public function getTermText(?Term $term, bool $short = false) : string
     {
         if (!isset($term)) {
             return $this->lng->txt('studydata_unknown_semester');
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_SUMMER) {
-            return sprintf($this->lng->txt('studydata_semester_summer'), $term->getYear());
+            return sprintf($this->lng->txt($short ? 'studydata_semester_summer_short' : 'studydata_semester_summer'), $term->getYear());
         }
         elseif ($term->getTypeId() == Term::TYPE_ID_WINTER) {
             $next = substr((string) $term->getYear(), 2,2);
-            return sprintf($this->lng->txt('studydata_semester_winter'), $term->getYear(), $next + 1);
+            return sprintf($this->lng->txt($short ? 'studydata_semester_winter_short' : 'studydata_semester_winter'), $term->getYear(), $next + 1);
         }
         else {
             return $this->lng->txt('studydata_ref_semester_invalid');

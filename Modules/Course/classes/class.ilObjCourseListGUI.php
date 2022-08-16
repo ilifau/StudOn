@@ -51,6 +51,14 @@ class ilObjCourseListGUI extends ilObjectListGUI
         parent::initItem($a_ref_id, $a_obj_id, $type, $a_title, $a_description);
 
         $this->conditions_ok = ilConditionHandler::_checkAllConditionsOfTarget($a_ref_id, $this->obj_id);
+
+        // fau: campoInfo - show link to course in campo
+        // use custom property to hide the display in the result list of campo search
+        global $DIC;
+        if (!empty($link = $DIC->fau()->study()->getCampoLinkForObject($this->obj_id))) {
+            $this->addCustomProperty('', $link, false, true);
+        }
+        // fau.
     }
 
     /**

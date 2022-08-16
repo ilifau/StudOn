@@ -467,13 +467,15 @@ class SyncWithIlias extends SyncBase
             // save the changes, even if object will be moved to trash
             $object->update();
             try {
+                // get the reference of a parent course
+                $parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id);
+
                 // this checks delete permission on all objects
                 // so the cron job user needs the global admin role!
                 ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($ref_id), [$ref_id]);
 
                 // delete the parent course of a group if it is empty and not yet touched
-                if ($object->getType() == 'grp'
-                    && !empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id))
+                if ($object->getType() == 'grp' && !empty($parent_ref)
                 ) {
                     $parent = new ilObjCourse($parent_ref);
                     if (!$this->isObjectManuallyChanged($parent)
