@@ -723,10 +723,25 @@ fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#study_data#:#Studiendaten
+fau#:#fau_rest_hard_restrictions#:#Voraussetzungen
+fau#:#fau_rest_module_in_cos#:#Modul im Studiengang
+fau#:#fau_rest_and#:#und
+fau#:#fau_rest_or#:#oder
+fau#:#fau_rest_min#:#min.
+fau#:#fau_rest_max#:#max.
+fau#:#fau_rest_0_requirement#:#noch keine Leistung
+fau#:#fau_rest_1_requirement#:#1 Leistung
+fau#:#fau_rest_n_requirements#:#%s Leistungen
+fau#:#fau_rest_from#:#aus
+fau#:#fau_rest_pf#:#als Pflichtfach
+fau#:#fau_rest_pf_wp#:#als Pflichtfach oder Wahlpflicht
+fau#:#fau_rest_subject_semester#:#Fachsemester
+fau#:#fau_rest_clinical_semester#:#Klinisches Semester
 fau#:#fau_sub_accept_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen angenommen.
 fau#:#fau_sub_refuse_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen abgelehnt.
 fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
 fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.
+fau#:#fau_sub_select_module_info#:#Wählen Sie das Modul oder Konto, für das Sie diese Lehrveranstaltung belegen möchten. Diese Information ist notwendig und erscheint später auf Ihren Abschlussdokumenten.
 fau#:#fau_sub_select_groups#:#Gruppenauswahl
 fau#:#fau_sub_select_groups_info#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
 fau#:#fau_sub_direct_possible#:#Direkte Aufnahme möglich
