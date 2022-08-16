@@ -86,6 +86,6 @@ class CourseOfStudy extends RecordData
      */
     public function getTitle() : string
     {
-        return $this->getSubject() . ', ' . $this->getDegree() . ', ' . $this->getSubjectIndicator() . ', ' . $this->getMajor() . ', ' . $this->getCosId();
+        return $this->getSubject() . ', ' . $this->getDegree() . ', ' . $this->getSubjectIndicator() . ', ' . $this->getMajor(); // . ', ' . $this->getCosId();
     }
 }
