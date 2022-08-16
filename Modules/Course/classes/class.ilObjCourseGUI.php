@@ -596,8 +596,17 @@ class ilObjCourseGUI extends ilContainerGUI
 
         // fau: campoInfo - sshow info on course info page
         $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
-        if (!empty($event_id = $importId->getEventId())) {
+        if (!empty($event_id = $importId->getEventId())
+            && !empty($event = $DIC->fau()->study()->repo()->getEvent($event_id))
+        ) {
             $info->addSection($this->lng->txt('fau_campo_event'));
+
+            // show campo link
+            $url = $DIC->fau()->study()->getCampoUrl($event_id, \FAU\Study\Data\Term::fromString($importId->getTermId()));
+            $link = '<a target="_blank" href="' . $url . '">' . $event->getTitle() . '</a>';
+            $info->addProperty($this->lng->txt('fau_campo_link_title'), $link);
+
+            // show org units
             $list = [];
             foreach ($DIC->fau()->study()->repo()->getEventOrgunitsByEventId($event_id) as $eventOrgunit) {
                 $unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr());
@@ -612,6 +621,26 @@ class ilObjCourseGUI extends ilContainerGUI
                 }
             }
             $info->addProperty($this->lng->txt('fau_campo_assigned_orgunits'), implode('<br>', $list));
+
+            // show parallel groups
+            if ($this->object->hasParallelGroups()) {
+                $list = [];
+                foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->ref_id) as $group) {
+                    $entry = $group->getTitle();
+                    if (!empty($group->getInfoHtml())) {
+                        $entry .= '<br><small>' . $group->getInfoHtml() . '</small>';
+                    }
+                    $list[] = '<li>' . $entry . '</li>';
+                }
+                if (!empty($list)) {
+                   $info->addProperty($this->lng->txt('fau_parallel_groups'), '<ul>'. implode('', $list) . '</ul>');
+                }
+            }
+
+            // show restrictions
+            if (!empty($restrictions = $DIC->fau()->cond()->hard()->getEventRestrictionTexts($event->getEventId(), true))) {
+                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'), $restrictions);
+            }
         }
         // fau.
 

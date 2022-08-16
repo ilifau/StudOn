@@ -619,6 +619,7 @@ fau#:#fau_check_failed_matching_modules#:#Sie können die Lehrveranstaltung nich
 fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da Ihr Studium für keines der folgenden Module/Konten dieser Lehrveranstaltung geeignet ist:
 fau#:#fau_module#:#Modul/Konto
 fau#:#fau_campo_link#:#» campo
+fau#:#fau_campo_link_title#:#Veranstaltung in campo
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
