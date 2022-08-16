@@ -611,7 +611,7 @@ fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
 fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
 fau#:#fau_check_success_no_module#:#Diese Lehrveranstaltung ist in Campo keinem Modul/Konto zugeordnet. Es werden keine Voraussetzungen zur Belegung geprüft.
-fau#:#fau_check_success_with_modules#:#Ihr Studium erfüllt die Voraussetzungen für die in Campo zugeordnete Module/Konten.
+fau#:#fau_check_success_with_modules#:#Ihr Studium erfüllt die Voraussetzungen für die in Campo zugeordneten Module/Konten.
 fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
