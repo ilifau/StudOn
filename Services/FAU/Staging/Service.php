@@ -23,6 +23,10 @@ class Service extends SubService
         if(!isset($this->repository)) {
             $this->repository = new Repository($this->database(), $this->dic->logger()->fau());
         }
+        if (isset($this->repository)) {
+            $this->repository->enableDipQueryStatus($this->settings()->getDipQueryStatus());
+            $this->repository->enableDipSetProcessed($this->settings()->getDipSetProcessed());
+        }
         return $this->repository;
     }
 

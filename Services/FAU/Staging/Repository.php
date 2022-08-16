@@ -54,6 +54,22 @@ class Repository extends RecordRepo
     private bool $setProcessed = true;
 
     /**
+     * Enable that the campo synchronization should query for DIP records with a status flag
+     */
+    public function enableDipQueryStatus(bool $enabled = true)
+    {
+        $this->queryStatus = $enabled;
+    }
+
+    /**
+     * Enable that the campo synchronization should clear the DIP flag when a record is processed
+     */
+    public function enableDipSetProcessed(bool $enabled = true)
+    {
+        $this->setProcessed = $enabled;
+    }
+
+    /**
      * Get the identity of a user
      */
     public function getIdentity(string $uid) : ?Identity
