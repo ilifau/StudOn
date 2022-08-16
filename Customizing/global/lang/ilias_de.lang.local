@@ -723,13 +723,14 @@ fau#:#studydata_unknown_enrolment#:#Unbekannter Typ des Studiums
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#study_data#:#Studiendaten
 fau#:#fau_rest_hard_restrictions#:#Voraussetzungen
+fau#:#fau_rest_module_in_cos#:#Modul im Studiengang
 fau#:#fau_rest_and#:#und
 fau#:#fau_rest_or#:#oder
 fau#:#fau_rest_min#:#min.
 fau#:#fau_rest_max#:#max.
-fau#:#fau_rest_0_requirement#:#Nicht
-fau#:#fau_rest_1_requirement#:#1 Voraussetzung
-fau#:#fau_rest_n_requirements#:#%s Voraussetzungen
+fau#:#fau_rest_0_requirement#:#noch keine Leistung aus
+fau#:#fau_rest_1_requirement#:#1 Leistung aus
+fau#:#fau_rest_n_requirements#:#%s Leistungen aus
 fau#:#fau_rest_pf#:#als Pflichtfach
 fau#:#fau_rest_pf_wp#:#als Pflichtfach oder Wahlpflicht
 fau#:#fau_rest_subject_semester#:#Fachsemester

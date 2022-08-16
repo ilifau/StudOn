@@ -3,15 +3,15 @@
 namespace FAU\Cond;
 
 use ILIAS\DI\Container;
+use ilLanguage;
 use FAU\Study\Data\Module;
 use FAU\Cond\Data\HardRestriction;
-use ilLanguage;
 use FAU\Cond\Data\HardExpression;
+use FAU\Cond\Data\HardRequirement;
 use FAU\User\Data\Person;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\ModuleCos;
-use FAU\Cond\Data\Requirement;
-use FAU\Cond\Data\HardRequirement;
+
 
 /**
  * Handling hard restrictions for students' access to lecture events
@@ -64,15 +64,24 @@ class HardRestrictions
     public function getEventRestrictionTexts(int $event_id, bool $html = true) : string
     {
         $modules = $this->getModulesOfEventWithLoadedRestrictions($event_id);
-        return $this->getModuleRestrictionTexts($modules, $html);
+        return $this->getModuleRestrictionTexts($modules, $html, false);
     }
 
 
     /**
      * Get the restriction texts of modules
+     *
+     * - If used for the display of defined restrictions in lists and on the info page of a course,
+     *   then the modules should have loaded all available restrictions, but 'all_modules' should be false.
+     *   This will show only the modules with defined restrictions.
+     *
+     * - If used for the display of a message on a registration page, that registration is not allowed,
+     *   then only the modules should be included, that are not available in the user's courses of study or which have failed restrictions.
+     *   The modules should include only their failed restrictions and 'all_modules' should be true.
+     *
      * @param Module[] $modules     Modules with restriction data
      * @param bool $html            Get formatted html instead of plain text
-     * @param bool $all_modules     Add also the names of modules without restrictions
+     * @param bool $all_modules     Add also the names of modules without restrictions (for failed registration message)
      */
     public function getModuleRestrictionTexts(array $modules, bool $html = true, bool $all_modules = false) : string
     {
@@ -90,8 +99,8 @@ class HardRestrictions
             if (!empty($resTexts)) {
                 if ($html) {
                     $texts[] = '<li>'
-                        . $this->lng->txt('fau_module') . ' ' . $module->getModuleName()
-                        . ' ('. $module->getModuleNr() . ')' .': '
+                        . $this->lng->txt('fau_module') . ' <strong>' . $module->getModuleName()
+                        . ' ('. $module->getModuleNr() . ')' .'</strong>: '
                         . '<ul>' . implode("\n", $resTexts) .'</ul>'
                         . '</li>';
                 }
@@ -103,16 +112,21 @@ class HardRestrictions
             elseif ($all_modules) {
                 if ($html) {
                     $texts[] = '<li>'
-                        . $this->lng->txt('fau_module') . ' ' . $module->getModuleName()
-                        . ' ('. $module->getModuleNr() . ')'
+                        . $this->lng->txt('fau_module') . ' <strong>' . $module->getModuleName()
+                        . ' ('. $module->getModuleNr() . ')' . '</strong>: '
+                        . '<ul><li>'.  $this->lng->txt('fau_rest_module_in_cos') .'</li></ul>'
                         . '</li>';
                 }
                 else {
-                    $texts[] = $this->lng->txt('fau_module') . ' ' . $module->getModuleName();
+                    $texts[] = $this->lng->txt('fau_module') . ' ' . $module->getModuleName() .  ": \n"
+                     . $this->lng->txt('fau_rest_module_in_cos');
                 }
             }
         }
         if (!empty($texts)) {
+            // avoid doubling of the same module with same restrictions for different courses of study
+            $texts = array_unique($texts);
+
             if ($html) {
                 return '<ul>'. implode("\n", $texts) . '</ul>';
             }
@@ -126,6 +140,8 @@ class HardRestrictions
 
     /**
      * Get the textual explanation of a restriction
+     * This will be used both for HTML and text messages of module restrictions
+     * The returned string is a single line plain text
      */
     protected function getRestrictionAsText(HardRestriction $restriction) : string
     {
@@ -249,12 +265,18 @@ class HardRestrictions
             return false;
         }
 
-        // find the matching module to course of study relations
+        // find the matching relations of event modules to the users' courses of study
         $matching = $this->dic->fau()->study()->repo()->getModuleCos(array_keys($modules), $person->getCourseOfStudyDbIds($term));
         if (empty($matching)) {
-            $this->checkMessage = $this->lng->txt('fau_check_failed_matching_modules');
+            //$this->checkMessage = $this->lng->txt('fau_check_failed_matching_modules');
+            $this->checkedForbiddenModules = $modules;
             return false;
         }
+
+
+        // check all modules of the event
+        // - module must match the courses of study
+        // - all restrictions of hte module must be satisfied
 
         foreach ($modules as $module) {
             $this->checkModule($module, $person, $term, $matching);
@@ -307,13 +329,13 @@ class HardRestrictions
      */
     protected function checkModule(Module $module, Person $person, Term $term, array $matching) : bool
     {
-        // prepare the module with the check result
-        // only the failed restrictions should be added
+        // prepare a clone of the module that gets the check result
+        // only the failed restrictions will be added
         // this allows a display the actual failed restrictions
         $checkedModule = $module->withoutRestrictions();
 
         // get the relevant subjects of the student for the module
-        // if no subject matches, then the module should not be selectable
+        // if no subject matches, then the module should not be allowed
         $cos_ids = [];
         foreach ($matching as $moduleCos) {
             if ($moduleCos->getModuleId() == $module->getModuleId()) {
@@ -326,7 +348,7 @@ class HardRestrictions
             return false;
         }
 
-        // allow the module directly of no restrictions are defined
+        // allow the module directly if no restrictions are defined
         if (empty($module->getRestrictions())) {
             $this->checkedAllowedModules[] = $checkedModule;
             return true;

@@ -240,17 +240,20 @@ abstract class ilRegistrationGUI
     {
         global $DIC;
         $hardRestrictions = $DIC->fau()->cond()->hard();
-        $passed = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
-        $message = $hardRestrictions->getCheckResultMessage();
-        if (!$passed) {
+        if (!$hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId())) {
             $this->enableRegistration(false);
         }
-        elseif ($this->has_studycond && !$this->matches_studycond) {
-            $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
+
+        $message = $hardRestrictions->getCheckResultMessage();
+        if (!empty($message)) {
+            if ($this->has_studycond && !$this->matches_studycond) {
+                $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
+            }
+            $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
+            $item->setValue($message);
+            $this->form->addItem($item);
+
         }
-        $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
-        $item->setValue($message);
-        $this->form->addItem($item);
 
 //        if (!empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
 //            $options = [];

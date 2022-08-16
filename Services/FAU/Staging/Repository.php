@@ -39,6 +39,14 @@ use FAU\Staging\Data\Identity;
 class Repository extends RecordRepo
 {
     /**
+     * Query only records with a DIP status
+     * TRUE in production
+     * FALSE in development
+     */
+    private bool $queryStatus = true;
+
+
+    /**
      * Set the status of processed DIP records in the database
      * TRUE in production
      * FALSE in development
@@ -286,9 +294,12 @@ class Repository extends RecordRepo
      */
     private function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
     {
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName())
-            . " WHERE " . $this->getDipStatusCondition($dip_status)
-            . " ORDER BY dip_timestamp ASC ";
+        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
+        if ($this->queryStatus) {
+            $query .= " WHERE " . $this->getDipStatusCondition($dip_status);
+        }
+        $query .= " ORDER BY dip_timestamp ASC ";
+
         // DIP Records are read once - no caching needed
         return $this->queryRecords($query, $model, false);
     }
