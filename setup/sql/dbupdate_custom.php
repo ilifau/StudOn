@@ -1601,7 +1601,7 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
     $ilDB->addTableColumn(
         'crs_waiting_list',
         'module_id',
-        array('type' => 'int', 'notnull' => false, 'default' => null)
+        array('type' => 'integer', 'length' => 4, 'notnull' => false)
     );
 }
 ?>
