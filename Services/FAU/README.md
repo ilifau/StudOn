@@ -11,6 +11,7 @@
 - **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
 - **campoInfo** Anzeigen auf den Info-Seiten
 - **campoCheck** Voraussetzungsprüfung bei der Anmeldung
+- **modSelect** Modulauswahl bei der Kursanmendung
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 

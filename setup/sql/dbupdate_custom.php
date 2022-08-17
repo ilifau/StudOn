@@ -1592,3 +1592,16 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
         $ilDB->addPrimaryKey("tst_campo_options", array('obj_id', 'option_key'));
     }
 ?>
+<#103>
+<?php
+/**
+ * fau: modSelect - add the module_id to the waiting list
+ */
+if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
+    $ilDB->addTableColumn(
+        'crs_waiting_list',
+        'module_id',
+        array('type' => 'int', 'notnull' => false, 'default' => null)
+    );
+}
+?>
