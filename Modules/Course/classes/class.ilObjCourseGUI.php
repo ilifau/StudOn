@@ -2346,13 +2346,18 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->getMembersObject()->sendNotification($this->object->getMembersObject()->NOTIFY_UNSUBSCRIBE, $ilUser->getId());
 
         // fau: paraSub - unsubscribe also from the groups
+        // fau: campoSub - note the unsubscription
         if ($this->object->hasParallelGroups()) {
             foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->object->getRefId()) as $group) {
                 if ($group->isAssigned()) {
                     $part = new ilGroupParticipant($group->getObjId(), $DIC->user()->getId());
                     $part->delete($DIC->user()->getId());
+                    $DIC->fau()->user()->deleteMembership($group->getObjId(), $DIC->user()->getId());
                 }
             }
+        }
+        else {
+            $DIC->fau()->user()->deleteMembership($this->object->getId(), $DIC->user()->getId());
         }
         // fau.
         

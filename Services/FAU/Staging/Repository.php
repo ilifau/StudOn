@@ -31,6 +31,7 @@ use FAU\Staging\Data\StudyForm;
 use FAU\Staging\Data\StudySchool;
 use FAU\Staging\Data\StudySubject;
 use FAU\Staging\Data\Identity;
+use FAU\Staging\Data\StudonChange;
 
 /**
  * Repository for accessing the staging database
@@ -363,4 +364,14 @@ class Repository extends RecordRepo
                 return "dip_status IS NOT NULL";
         }
     }
+
+
+    /**
+     * Save a change record
+     */
+    public function saveChange(StudonChange $record)
+    {
+        $this->insertRecord($record);
+    }
+
 }

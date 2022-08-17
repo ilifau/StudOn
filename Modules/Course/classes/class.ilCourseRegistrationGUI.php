@@ -632,7 +632,7 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         $this->setAccepted(true);
 
         // perform the registration (result determines the next action)
-        $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) 0);
+        $this->registration->doRegistration(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
 
         // get the link to the upper container
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id",

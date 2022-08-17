@@ -1595,7 +1595,7 @@ if (!$ilDB->indexExistsByFields('ut_auth', ['username'])) {
 <#103>
 <?php
 /**
- * fau: modSelect - add the module_id to the waiting list
+ * fau: campoSub - add the module_id to the waiting list
  */
 if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
     $ilDB->addTableColumn(

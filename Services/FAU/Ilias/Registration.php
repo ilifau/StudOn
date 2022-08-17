@@ -46,10 +46,10 @@ abstract class Registration extends AbstractRegistration
     /** @var ilObjCourse|ilObjGroup */
     protected $object;
 
-    /** @var ilParticipants|null  */
+    /** @var ilParticipants  */
     protected $participants;
 
-    /** @var ilWaitingList|null  */
+    /** @var ilWaitingList  */
     protected $waitingList;
 
     /** @see getRegistrationAction() */
@@ -126,7 +126,6 @@ abstract class Registration extends AbstractRegistration
     /**
      * Perform a registration request
      * @see \ilCourseRegistrationGUI::add()
-     * @todo: handle module selection
      */
     public function doRegistration(string $subject, array $group_ref_ids, int $module_id)
     {
@@ -168,6 +167,10 @@ abstract class Registration extends AbstractRegistration
 
             if ($this->participants->addLimited($this->user->getId(), $this->getMemberRoleConstant(), $this->getRegistrationLimit())) {
                 // member could be added
+                if (!$this->object->hasParallelGroups()) {
+                    // ilias course is campo course, store module selection there
+                    $this->dic->fau()->user()->saveMembership($this->object->getId(), $this->user->getId(), $module_id);
+                }
                 $this->setRegistrationAction(self::notifyAdded);
             } elseif ($this->dic->rbac()->review()->isAssigned($this->user->getId(), $this->getMemberRoleId())) {
                 // may have been added by a parallel request
@@ -190,6 +193,8 @@ abstract class Registration extends AbstractRegistration
             foreach ($directGroups as $group) {
                 if ($group->getParticipants()->addLimited($this->user->getId(), IL_GRP_MEMBER, $group->getRegistrationLimit())) {
                     $addedGroup = $group;
+                    // ilias group is campo course, store the selection there
+                    $this->dic->fau()->user()->saveMembership($group->getObjId(), $this->user->getId(), $module_id);
                     $addedGroup->getParticipants()->addLimitedSuccess($this->user->getId(), IL_GRP_MEMBER);
                     break;
                 }
@@ -257,6 +262,9 @@ abstract class Registration extends AbstractRegistration
                     $this->waitingList->updateSubject($this->user->getId(), $subject);
                 }
 
+                // always store the module_id in the waiting list of the course
+                $this->waitingList->updateModuleId($this->user->getId(), $module_id);
+
                 // eventually update the waiting list of enclosed groups
                 $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $to_confirm, $sub_time);
 
@@ -307,7 +315,6 @@ abstract class Registration extends AbstractRegistration
 
     /**
      * Update a registration request
-     * @todo: handle module selection
      */
     public function doUpdate(string $subject, array $group_ref_ids, int $module_id)
     {
@@ -316,6 +323,7 @@ abstract class Registration extends AbstractRegistration
 
         // update from main object
         $this->waitingList->updateSubject($this->user->getId(), $subject);
+        $this->waitingList->updateModuleId($this->user->getId(), $module_id);
 
         // eventually update the waiting lists of parallel groups
         $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $this->getNewToConfirm(), $this->getNewSubTime());
@@ -323,7 +331,6 @@ abstract class Registration extends AbstractRegistration
 
     /**
      * Update the waiting list entries of parallel groups when a registration request is updated
-     * @todo: handle module selection
      */
     protected function updateGroupWaitingLists(string $subject, array $group_ref_ids, int $module_id, int $to_confirm, int $sub_time)
     {
@@ -333,9 +340,11 @@ abstract class Registration extends AbstractRegistration
 
             if (!$group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
                 $groupList->addWithChecks($this->user->getId(), $groupParticipants->getRoleId(IL_GRP_MEMBER), $subject, $to_confirm, $sub_time);
+                $groupList->updateModuleId($this->user->getId(), $module_id);
             }
             elseif ($group->isOnWaitingList() && in_array($group->getRefId(), $group_ref_ids)) {
                 $groupList->updateSubject($this->user->getId(), $subject);
+                $groupList->updateModuleId($this->user->getId(), $module_id);
             }
             elseif ($group->isOnWaitingList() && !in_array($group->getRefId(), $group_ref_ids)) {
                 $groupList->removeFromList($this->user->getId());
@@ -345,7 +354,6 @@ abstract class Registration extends AbstractRegistration
 
     /**
      * Cancel a registration request
-     * @todo: handle module selection
      */
     public function removeUserSubscription(int $user_id)
     {
@@ -400,10 +408,18 @@ abstract class Registration extends AbstractRegistration
                 }
 
                 // add the user as member
+                $module_id = $this->waitingList->getModuleId($user_id);
                 $this->participants->add($user_id, $this->getMemberRoleConstant());
-                foreach ($this->getFillableGroups($user_id) as $group) {
-                    $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
-                    break;
+                if (!$this->object->hasParallelGroups()) {
+                    $this->dic->fau()->user()->saveMembership($this->object->getId(), $user_id, (int) $module_id);
+                }
+                else {
+                    foreach ($this->getFillableGroups($user_id) as $group) {
+                        // first found group is taken
+                        $group->getParticipants()->add($user_id, IL_GRP_MEMBER);
+                        $this->dic->fau()->user()->saveMembership($group->getObjId(), $user_id, (int) $module_id);
+                        break;
+                    }
                 }
                 $added_users[] = $user_id;
                 $this->checkLPStatusSync($user_id);

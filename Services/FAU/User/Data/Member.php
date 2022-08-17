@@ -59,7 +59,7 @@ class Member extends RecordData
     public function __construct(
         int $obj_id,
         int $user_id,
-        ?int $module_id = null ,
+        ?int $module_id = null,
         bool $event_responsible = false,
         bool $course_responsible = false,
         bool $instructor = false,

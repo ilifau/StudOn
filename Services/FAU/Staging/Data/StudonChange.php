@@ -6,6 +6,13 @@ use FAU\RecordData;
 
 class StudonChange extends RecordData
 {
+    const TYPE_ATTENDEE_MAXIMUM_CHANGED = 'attendee_maximum_changed';
+    const TYPE_REGISTERED = 'registered';
+    const TYPE_NOT_REGISTERED = 'not_registered';
+    const TYPE_PASSED = 'passed';
+    const TYPE_FAILED = 'failed';
+
+
     protected const tableName = 'studon_changes';
     protected const hasSequence = false;
     protected const keyTypes = [
@@ -17,12 +24,12 @@ class StudonChange extends RecordData
         'module_id' => 'integer',
         'change_type' => 'text',
         'attendee_maximum' => 'integer',
-        'ts_change' => 'timestamp',
-        'ts_logged' => 'timestamp',
-        'ts_processed' => 'timestamp',
+        'ts_change' => 'text',
+        'ts_logged' => 'text',
+        'ts_processed' => 'text',
     ];
     
-    protected int $id;
+    protected ?int $id;
     protected ?int $person_id;
     protected int $course_id;
     protected ?int $module_id;
@@ -33,7 +40,7 @@ class StudonChange extends RecordData
     protected ?string $ts_processed;
 
     public function __construct(
-        int $id,
+        ?int $id,
         ?int $person_id,
         int $course_id,
         ?int $module_id,
@@ -57,13 +64,13 @@ class StudonChange extends RecordData
 
     public static function model(): self
     {
-        return new self(0,null,0,null,'',null,'','',null);
+        return new self(null,null,0,null,'',null,'','',null);
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId() : int
+    public function getId() : ?int
     {
         return $this->id;
     }

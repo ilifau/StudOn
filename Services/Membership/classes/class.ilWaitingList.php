@@ -311,11 +311,43 @@ abstract class ilWaitingList
         return true;
     }
 
+    // fau: campoSub - new functions getModuleId, updateModuleId
+    /**
+     * Get the module id
+     * @param int $a_usr_id
+     * @return	int
+     */
+    public function getModuleId($a_usr_id)
+    {
+        return $this->users[$a_usr_id]['module_id'] ?? 0;
+    }
+
+    /**
+     * Update the module id
+     * @param int $a_usr_id
+     * @param int $a_module_id
+     */
+    public function updateModuleId($a_usr_id, $a_module_id)
+    {
+        global $ilDB;
+
+        $query = "UPDATE crs_waiting_list " .
+            "SET module_id = " . $ilDB->quote((int) $a_module_id, 'integer') . " " .
+            "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . " " .
+            "AND obj_id = " . $ilDB->quote($this->getObjId(), 'integer') . " ";
+        $ilDB->manipulate($query);
+
+        $this->users[$a_usr_id]['module_id'] = $a_module_id;
+    }
+    // fau.
+
+
+
     // fau: fairSub - new function updateSubject(), acceptOnList()
     /**
      * update subject
      * @param int $a_usr_id
-     * @param int $a_subject
+     * @param string $a_subject
      * @return true
      */
     public function updateSubject($a_usr_id, $a_subject)
@@ -671,6 +703,7 @@ abstract class ilWaitingList
 
         // fau: fairSub - get subject and to_confirm
         // fau: fairSub - recalculate after reading, sorting is done there
+        // fau: campoSub - read the module id
 
         $query = "SELECT * FROM crs_waiting_list " .
             "WHERE obj_id = " . $ilDB->quote($this->getObjId(), 'integer');
@@ -682,8 +715,8 @@ abstract class ilWaitingList
             $this->users[$row->usr_id]['usr_id'] = $row->usr_id;
             $this->users[$row->usr_id]['subject'] = $row->subject;
             $this->users[$row->usr_id]['to_confirm'] = $row->to_confirm;
+            $this->users[$row->usr_id]['module_id'] = $row->module_id;
         }
-        // fau: fairSub - recalculate data when list is read
         $this->recalculate();
         // fau.
         return true;

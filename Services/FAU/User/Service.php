@@ -2,10 +2,11 @@
 
 namespace FAU\User;
 
-use ILIAS\DI\Container;
-use ilLanguage;
 use ilDatePresentation;
 use FAU\SubService;
+use FAU\User\Data\Member;
+use FAU\Staging\Data\StudonChange;
+use FAU\Study\Data\ImportId;
 
 /**
  * Service for FAU user related data
@@ -123,5 +124,74 @@ class Service extends SubService
     {
         // only system administrators
         return $this->dic->rbac()->system()->checkAccessOfUser($user_id, "visible", SYSTEM_FOLDER_ID);
+    }
+
+    /**
+     * Save the membership of a user
+     */
+    public function saveMembership(int $obj_id, int $user_id, int $module_id)
+    {
+        $member = $this->repo()->getMember($obj_id, $user_id, New Member($obj_id, $user_id));
+        $old_module_id = (int) $member->getModuleId();
+        $new_module_id = $module_id;
+
+        if ($module_id == 0) {
+            $module_id = null;
+        }
+        $this->repo()->save($member->withModuleId($module_id));
+
+        if ($old_module_id != $new_module_id) {
+            $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
+
+            if (!empty($course_id = $importId->getCourseId())
+                && !empty($repo = $this->dic->fau()->staging()->repo())
+                && !empty($person = $this->repo()->getPersonOfUser($user_id))
+            ) {
+                $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+
+                $repo->saveChange(new StudonChange(
+                    null,
+                    $person->getPersonId(),
+                    $course_id,
+                    $module_id,
+                    StudonChange::TYPE_REGISTERED,
+                    null,
+                    $time,
+                    $time,
+                    null
+                ));
+            }
+        }
+    }
+
+    /**
+     * Delete the membership of a user
+     */
+    public function deleteMembership(int $obj_id, int $user_id)
+    {
+        $member = $this->repo()->getMember($obj_id, $user_id, New Member($obj_id, $user_id));
+        $old_module_id = $member->getModuleId();
+        $this->repo()->delete($member);
+
+        $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
+
+        if (!empty($course_id = $importId->getCourseId())
+            && !empty($repo = $this->dic->fau()->staging()->repo())
+            && !empty($person = $this->repo()->getPersonOfUser($user_id))
+        ) {
+            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+
+            $repo->saveChange(new StudonChange(
+                null,
+                $person->getPersonId(),
+                $course_id,
+                $old_module_id,
+                StudonChange::TYPE_NOT_REGISTERED,
+                null,
+                $time,
+                $time,
+                null
+            ));
+        }
     }
 }

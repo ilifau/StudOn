@@ -188,7 +188,7 @@ abstract class RecordRepo
             $record = $record->withTableSequence((int) $this->db->nextId($record::tableName()));
         }
         $types = array_merge($record::tableKeyTypes(), $record::tableOtherTypes());
-        $fields = $this->getFieldsArray($record, $types);
+        $fields = $this->getFieldsArray($record, $types, false);
         $this->logAction('INSERT', $record);
         $this->db->insert($record::tableName(), $fields);
         return $record;
@@ -240,14 +240,15 @@ abstract class RecordRepo
      * Get the typed field values
      * @param RecordData $record
      * @param array $types  field name => type
-     * @return array    quoted field name => [type, value]
+     * @param bool $quoteNames
+     * @return array    (quoted) field name => [type, value]
      */
-    protected function getFieldsArray(RecordData $record, array $types) : array
+    protected function getFieldsArray(RecordData $record, array $types, bool $quoteNames = true) : array
     {
         $fields = [];
         foreach ($record->row() as $key => $value) {
             if (isset($types[$key])) {
-                $fields[$this->db->quoteIdentifier($key)] = [$types[$key], $value];
+                $fields[$quoteNames ? $this->db->quoteIdentifier($key) : $key] = [$types[$key], $value];
             }
         }
         return $fields;

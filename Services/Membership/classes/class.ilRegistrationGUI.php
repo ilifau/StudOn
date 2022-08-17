@@ -235,37 +235,46 @@ abstract class ilRegistrationGUI
      */
     abstract protected function getFormTitle();
 
-    // fau: campoCheck - new function fillCampo()
+    // fau: campoCheck - function to add campo properties to the registration form
+    // fau: campoSub - function to add campo properties to the registration form
     protected function fillCampo()
     {
         global $DIC;
         $hardRestrictions = $DIC->fau()->cond()->hard();
-        if (!$hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId())) {
+        $passed = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
+        if (!$passed) {
             $this->enableRegistration(false);
         }
 
         $message = $hardRestrictions->getCheckResultMessage();
         if (!empty($message)) {
-            if ($this->has_studycond && !$this->matches_studycond) {
+            if ($passed && $this->has_studycond && !$this->matches_studycond) {
                 $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
             }
             $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
             $item->setValue($message);
             $this->form->addItem($item);
-
         }
 
-//        if (!empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
-//            $options = [];
-//            foreach ($modules as $module) {
-//                $options[$module->getModuleId()] = $module->getModuleName() . ' (' . $module->getModuleNr() . ')';
-//            }
-//            $item = new ilSelectInputGUI($this->lng->txt('fau_module'), 'selected_module');
-//            $item->setRequired(true);
-//            $item->setInfo($this->lng->txt('fau_sub_select_module_info'));
-//            $item->setOptions($options);
-//            $this->form->addItem($item);
-//        }
+        if (!empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
+
+            /** @var ilWaitingList $list */
+            $list = $this->getWaitingList();
+            $value = $list->getModuleId($DIC->user()->getId());
+
+            $options = [];
+            foreach ($modules as $module) {
+                $options[$module->getModuleId()] = $module->getModuleName() . ' (' . $module->getModuleNr() . ')';
+            }
+            $item = new ilSelectInputGUI($this->lng->txt('fau_module'), 'selected_module');
+            $item->setRequired(true);
+            $item->setInfo($this->lng->txt('fau_sub_select_module_info'));
+            $item->setOptions($options);
+            if (!empty($value)) {
+                $item->setValue($value);
+            }
+            $this->form->addItem($item);
+        }
     }
     // fau.
 
@@ -804,7 +813,7 @@ abstract class ilRegistrationGUI
                 return;
             }
 
-            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], 0);
+            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], $_POST['selected_module']);
             $this->participants->sendExternalNotifications($this->container, $ilUser, true);
 
             ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);

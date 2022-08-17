@@ -88,6 +88,16 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Achievement::model());
     }
 
+    /**
+     * Get a member record
+     * @return Member
+     */
+    public function getMember(int $obj_id, int $user_id, ?Member $default = null) : RecordData
+    {
+        $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer')
+            . " AND user_id=" . $this->db->quote($user_id, 'integer');
+        return $this->getSingleRecord($query, Member::model(), $default, false);
+    }
 
     /**
      * Get the member records of an ilias object (course or group) which are assigned by campo
@@ -160,7 +170,7 @@ class Repository extends RecordRepo
 
     /**
      * Delete record data of an allowed type
-     * @param Achievement|Education|Person|UserOrgRole $record
+     * @param Achievement|Education|Person|UserOrgRole|Member $record
      */
     public function delete(RecordData $record)
     {
