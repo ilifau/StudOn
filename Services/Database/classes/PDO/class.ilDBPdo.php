@@ -633,7 +633,6 @@ abstract class ilDBPdo implements ilDBInterface, ilDBPdoInterface
 
         $query = $this->sanitizeMB4StringIfNotSupported($query);
 
-        log_line($query);
         return $this->pdo->exec($query);
     }
 
