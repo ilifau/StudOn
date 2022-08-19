@@ -254,6 +254,12 @@ abstract class ilRegistrationGUI
             $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
             $item->setValue($message);
             $this->form->addItem($item);
+
+            if (!empty($hardRestrictions->getCheckedUserCosTexts())) {
+                $item = new ilNonEditableValueGUI($this->lng->txt('fau_your_courses_of_study'), '', true);
+                $item->setValue($hardRestrictions->getCheckedTermTitle() . "\n" . $hardRestrictions->getCheckedUserCosTexts());
+                $this->form->addItem($item);
+            }
         }
 
         if (!empty($modules = $hardRestrictions->getCheckedAllowedModules())) {

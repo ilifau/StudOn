@@ -2,6 +2,7 @@
 
 namespace FAU\Cond;
 
+use FAU\Study\Data\CourseOfStudy;
 use ILIAS\DI\Container;
 use ilLanguage;
 use FAU\Study\Data\Module;
@@ -29,6 +30,17 @@ class HardRestrictions
      * Message from the last check
      */
     protected string $checkMessage = '';
+
+    /**
+     * Term for which the conditions were checked
+     */
+    protected ?Term $checkedTerm;
+
+    /**
+     * Courses of studies of the user for which the conditions were checked
+     * @var CourseOfStudy[]
+     */
+    protected array $checkedUserCos = [];
 
     /**
      * Modules that are allowed for a selection at registration
@@ -279,6 +291,10 @@ class HardRestrictions
             return false;
         }
 
+        // note for what the check was done
+        $this->checkedTerm = $term;
+        $this->checkedUserCos = $this->dic->fau()->study()->repo()->getCoursesOfStudy($person->getCourseOfStudyDbIds($term));
+
         // find the matching relations of event modules to the users' courses of study
         $matching = $this->dic->fau()->study()->repo()->getModuleCos(array_keys($modules), $person->getCourseOfStudyDbIds($term));
         if (empty($matching)) {
@@ -319,6 +335,41 @@ class HardRestrictions
     }
 
     /**
+     * Get the term for which the check was done
+     */
+    public function getCheckedTermTitle(): string
+    {
+        return $this->checkedTerm ? $this->dic->fau()->study()->getTermText($this->checkedTerm) : '';
+    }
+
+    /**
+     * @return CourseOfStudy
+     */
+    public function getCheckedUserCosTexts(bool $html = true) : string
+    {
+        if (empty($this->checkedUserCos)) {
+            return '';
+        }
+
+        $list = [];
+        foreach ($this->checkedUserCos as $cos)
+        {
+            if ($html) {
+              $list[] = '<li>' . $cos->getTitle() . '</li>';
+            }
+            else {
+              $list[] = $cos;
+            }
+        }
+        if ($html) {
+            return '<ul>' . implode("\n", $list) . '</ul>';
+        }
+        else {
+            return implode("\n", $list);
+        }
+    }
+
+    /**
      * Get the modules that are allowed for selection at registration
      * @return Module[]
      */
@@ -333,6 +384,8 @@ class HardRestrictions
     protected function clearCheckResult()
     {
       $this->checkMessage = '';
+      $this->checkedTerm = null;
+      $this->checkedUserCos = [];
       $this->checkedAllowedModules = [];
       $this->checkedForbiddenModules = [];
     }

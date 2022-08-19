@@ -1027,6 +1027,12 @@ class ilObjUserGUI extends ilObjectGUI
 
         $data["send_mail"] = ($this->object->prefs['send_info_mails'] == 'y');
 
+        // fau: userData - get raw studydata
+        $person =  $DIC->fau()->user()->repo()->getPersonOfUser($this->object->getId());
+        if (!empty($person)) {
+            $data['studydata_raw'] = json_encode(json_decode($person->getStudydata()), JSON_PRETTY_PRINT);
+        }
+        // fau.
 
         $this->form_gui->setValuesByArray($data);
     }
@@ -1379,7 +1385,10 @@ class ilObjUserGUI extends ilObjectGUI
         // fau: userData - add rows for studydata and educations
         $stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
         $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText($this->object->getId())));
+
         $this->form_gui->addItem($stu);
+        $stu2 = new ilTextAreaInputGUI('', "studydata_raw");
+        $this->form_gui->addItem($stu2);
 
         $edu = new ilNonEditableValueGUI($lng->txt('fau_educations'), 'educations', true);
         $edu->setValue(nl2br($DIC->fau()->user()->getEducationsAsText($this->object->getId())));

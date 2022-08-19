@@ -760,6 +760,7 @@ fau#:#studydata_unknown_enrolment#:#Unknown Enrolment
 fau#:#studydata_unknown_school#:#Unknown Faculty
 fau#:#studydata_unknown_semester#:#Unknown Term
 fau#:#studydata_unknown_subject#:#Unknown Subject
+fau#:#fau_your_courses_of_study#:#Your Courses Of Study
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"
