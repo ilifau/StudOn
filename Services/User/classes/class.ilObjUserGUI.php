@@ -1388,6 +1388,7 @@ class ilObjUserGUI extends ilObjectGUI
 
         $this->form_gui->addItem($stu);
         $stu2 = new ilTextAreaInputGUI('', "studydata_raw");
+        $stu2->setInfo($this->lng->txt('fau_read_only'));
         $this->form_gui->addItem($stu2);
 
         $edu = new ilNonEditableValueGUI($lng->txt('fau_educations'), 'educations', true);
