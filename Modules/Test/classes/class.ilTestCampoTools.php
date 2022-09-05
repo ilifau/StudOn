@@ -238,7 +238,9 @@ class ilTestCampoTools
               //          if ($this->getOption('mark_field') == 'short') {
               //              $row[] = $participant->getMark();
               //          } else {
-                            $row[] = $participant->getMarkOfficial();
+                            // Noten für campo sollen als Zahlen ausgegeben werden, also die Kurzbezeichnung
+                            //$row[] = $participant->getMarkOfficial();
+                            $row[] = $participant->getMark();
               //          }
               /*      } else {
                         if ($participant->getPassed()) {
