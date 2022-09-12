@@ -13,6 +13,7 @@ use FAU\Staging\Data\CourseResponsible;
 use FAU\Staging\Data\Event;
 use FAU\Staging\Data\EventOrgunit;
 use FAU\Staging\Data\EventResponsible;
+use FAU\Staging\Data\EventRestriction;
 use FAU\Staging\Data\IndividualDate;
 use FAU\Staging\Data\IndividualInstructor;
 use FAU\Staging\Data\Instructor;
@@ -193,6 +194,14 @@ class Repository extends RecordRepo
     public function getModuleRestrictionsToDo() : array
     {
         return $this->getDipRecords(ModuleRestriction::model());
+    }
+
+    /**
+     * @return EventRestriction[]
+     */
+    public function getEventRestrictionsToDo() : array
+    {
+        return $this->getDipRecords(EventRestriction::model());
     }
 
     /**

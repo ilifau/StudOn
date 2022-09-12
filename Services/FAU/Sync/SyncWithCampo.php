@@ -20,6 +20,7 @@ use FAU\Study\Data\IndividualInstructor;
 use FAU\Study\Data\Instructor;
 use FAU\Cond\Data\Requirement;
 use FAU\Cond\Data\ModuleRestriction;
+use FAU\Cond\Data\EventRestriction;
 use FAU\Study\Data\PlannedDate;
 use FAU\Cond\Data\Restriction;
 use FAU\Study\Data\DocProgramme;
@@ -46,35 +47,36 @@ class SyncWithCampo extends SyncBase
     public function synchronize() : void
     {
         // value sources
-        $this->syncDocProgrammes();
-        $this->syncStudyDegrees();
-        $this->syncStudyEnrolments();
-        $this->syncStudyFields();
-        $this->syncStudyForms();
-        $this->syncStudySchools();
-        $this->syncStudySubjects();
-
-        // study structure
-        // courses must be synced first, changes in other data may set the dirty status in the course data
-        $this->syncCourses();
-        $this->syncEvents();
-        $this->syncEventOrgunits();
-        $this->syncEventModules();
-        $this->syncModuleCos();
-        $this->syncPlannedDates();
-        $this->syncIndividualDates();
-
-        // conditions
-        $this->syncModuleRestrictions();
-        $this->syncRestrictions();
-
-        // person assignments
-        $this->syncEventResponsibles();
-        $this->syncCourseResponsibles();
-        $this->syncInstructors();
-        $this->syncIndividualInstructors();
-        $this->syncAchievements();
-        // $this->syncEducations();
+//        $this->syncDocProgrammes();
+//        $this->syncStudyDegrees();
+//        $this->syncStudyEnrolments();
+//        $this->syncStudyFields();
+//        $this->syncStudyForms();
+//        $this->syncStudySchools();
+//        $this->syncStudySubjects();
+//
+//        // study structure
+//        // courses must be synced first, changes in other data may set the dirty status in the course data
+//        $this->syncCourses();
+//        $this->syncEvents();
+//        $this->syncEventOrgunits();
+//        $this->syncEventModules();
+//        $this->syncModuleCos();
+//        $this->syncPlannedDates();
+//        $this->syncIndividualDates();
+//
+//        // conditions
+//        $this->syncModuleRestrictions();
+        $this->syncEventRestrictions();
+//        $this->syncRestrictions();
+//
+//        // person assignments
+//        $this->syncEventResponsibles();
+//        $this->syncCourseResponsibles();
+//        $this->syncInstructors();
+//        $this->syncIndividualInstructors();
+//        $this->syncAchievements();
+//        // $this->syncEducations();
     }
 
     /**
@@ -523,6 +525,46 @@ class SyncWithCampo extends SyncBase
                     break;
                 case DipData::DELETED:
                     $this->study->repo()->delete($moduleRes);
+                    break;
+            }
+            $this->staging->repo()->setDipProcessed($record);
+        }
+    }
+
+
+    /**
+     * Synchronize data found in the staging table campo_event_restrictions
+     * This table combines the event to requirement relationship with the requirements data
+     * The records to do are provided in time order of their marked changes
+     * Later changes will overwrite former changes
+     * Requirements don't have to be deleted
+     */
+    protected function syncEventRestrictions() : void
+    {
+        $this->info('syncEventRestrictions...');
+        foreach ($this->staging->repo()->getEventRestrictionsToDo() as $record) {
+            $requirement = new Requirement(
+                $record->getRequirementId(),
+                $record->getRequirementName()
+            );
+            $eventRes = new EventRestriction(
+                $record->getEventId(),
+                $record->getRestriction(),
+                $record->getRequirementId(),
+                $record->getCompulsory()
+            );
+            switch ($record->getDipStatus()) {
+                case DipData::INSERTED:
+                case DipData::CHANGED:
+                    // restrictions regarding the study semester may have no real requirement
+                    // in this case the requirement id is 0 and the requirement should not be saved
+                    if ($requirement->getRequirementId() !== 0) {
+                        $this->cond->repo()->save($requirement);
+                    }
+                    $this->cond->repo()->save($eventRes);
+                    break;
+                case DipData::DELETED:
+                    $this->study->repo()->delete($eventRes);
                     break;
             }
             $this->staging->repo()->setDipProcessed($record);
