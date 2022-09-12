@@ -47,36 +47,36 @@ class SyncWithCampo extends SyncBase
     public function synchronize() : void
     {
         // value sources
-//        $this->syncDocProgrammes();
-//        $this->syncStudyDegrees();
-//        $this->syncStudyEnrolments();
-//        $this->syncStudyFields();
-//        $this->syncStudyForms();
-//        $this->syncStudySchools();
-//        $this->syncStudySubjects();
-//
-//        // study structure
-//        // courses must be synced first, changes in other data may set the dirty status in the course data
-//        $this->syncCourses();
-//        $this->syncEvents();
-//        $this->syncEventOrgunits();
-//        $this->syncEventModules();
-//        $this->syncModuleCos();
-//        $this->syncPlannedDates();
-//        $this->syncIndividualDates();
-//
-//        // conditions
-//        $this->syncModuleRestrictions();
+        $this->syncDocProgrammes();
+        $this->syncStudyDegrees();
+        $this->syncStudyEnrolments();
+        $this->syncStudyFields();
+        $this->syncStudyForms();
+        $this->syncStudySchools();
+        $this->syncStudySubjects();
+
+        // study structure
+        // courses must be synced first, changes in other data may set the dirty status in the course data
+        $this->syncCourses();
+        $this->syncEvents();
+        $this->syncEventOrgunits();
+        $this->syncEventModules();
+        $this->syncModuleCos();
+        $this->syncPlannedDates();
+        $this->syncIndividualDates();
+
+        // conditions
+        $this->syncModuleRestrictions();
         $this->syncEventRestrictions();
-//        $this->syncRestrictions();
-//
-//        // person assignments
-//        $this->syncEventResponsibles();
-//        $this->syncCourseResponsibles();
-//        $this->syncInstructors();
-//        $this->syncIndividualInstructors();
-//        $this->syncAchievements();
-//        // $this->syncEducations();
+        $this->syncRestrictions();
+
+        // person assignments
+        $this->syncEventResponsibles();
+        $this->syncCourseResponsibles();
+        $this->syncInstructors();
+        $this->syncIndividualInstructors();
+        $this->syncAchievements();
+        // $this->syncEducations();
     }
 
     /**
