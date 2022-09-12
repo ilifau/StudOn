@@ -2,6 +2,7 @@
 
 namespace FAU\Study\Data;
 
+use FAU\Cond\Data\HardRestriction;
 use FAU\RecordData;
 
 /**
@@ -29,6 +30,12 @@ class Event extends RecordData
     protected ?string $shorttext;
     protected ?string $comment;
     protected ?int $guest;
+
+    /**
+     * Restrictions are not queried by default but later added
+     * @var HardRestriction
+     */
+    protected $restrictions = [];
 
     public function __construct(
         int $event_id,
@@ -98,5 +105,45 @@ class Event extends RecordData
     public function getGuest() : ?int
     {
         return $this->guest;
+    }
+
+    /**
+     * Get the restriction for joining events of this module
+     * @return HardRestriction[]
+     */
+    public function getRestrictions() : array
+    {
+        return $this->restrictions;
+    }
+
+    /**
+     * Add a restriction for joining events of this module
+     * @param HardRestriction $restriction
+     * @return Module
+     */
+    public function withRestriction(HardRestriction $restriction) : self
+    {
+        $clone = clone $this;
+        $clone->restrictions[$restriction->getRestriction()] = $restriction;
+        return $clone;
+    }
+
+    /**
+     * Clear the restrictions for joining events of this module
+     * @return Module
+     */
+    public function withoutRestrictions() : self
+    {
+        $clone = clone $this;
+        $clone->restrictions = [];
+        return $clone;
+    }
+
+    /**
+     * Check if a restriction with a certain name is added to the module
+     */
+    public function hasRestriction(string $name) : bool
+    {
+        return isset($this->restrictions[$name]);
     }
 }

@@ -222,6 +222,20 @@ class Person extends RecordData
         return array_unique($ids);
     }
 
+    /**
+     * Get all subjects of a person in a term
+     * @return Subject[]
+     */
+    public function getSubjects(?Term $term) : array
+    {
+        $subjects = [];
+        foreach ($this->getStudiesOfTerm($term) as $study) {
+            foreach ($study->getSubjects() as $subject) {
+                $subjects[] = $subject;
+            }
+        }
+        return $subjects;
+    }
 
     /**
      * Get the subjects of courses of study

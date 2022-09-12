@@ -18,6 +18,9 @@ use FAU\Cond\Data\HardRequirement;
  */
 class Repository extends RecordRepo
 {
+    const TARGET_MODULE = 'module';
+    const TARGET_EVENT = 'event';
+
     /**
      * Check if an ILIAs objects has a soft condition defined
      */
@@ -96,22 +99,52 @@ class Repository extends RecordRepo
      */
     public function getHardRestrictionsOfModule(int $module_id) : array
     {
-        $restrictions = [];
+        return $this->getHardRestrictionsOfTarget(self::TARGET_MODULE, $module_id);
+    }
+
+    /**
+     * @param int $event_id
+     * @return HardRestriction[] (indexed by restriction name, e.g. 'V01')
+     */
+    public function getHardRestrictionsOfEvent(int $event_id) : array
+    {
+        return $this->getHardRestrictionsOfTarget(self::TARGET_EVENT, $event_id);
+    }
+
+    /**
+     * @return HardRestriction[] (indexed by restriction name, e.g. 'V01')
+     */
+    protected function getHardRestrictionsOfTarget(string $target, int $id) : array
+    {
+        switch ($target) {
+            case self::TARGET_MODULE:
+                $tablename = 'fau_cond_mod_rests';
+                $keyname = 'module_id';
+                break;
+
+            case self::TARGET_EVENT:
+                $tablename = 'fau_cond_event_rests';
+                $keyname = 'event_id';
+                break;
+
+            default:
+                return [];
+        }
 
         $query = "
-            SELECT mr.module_id, mr.compulsory AS requirement_compulsory,
+            SELECT t.compulsory AS requirement_compulsory,
             rs.id expression_id, rs.restriction, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
             rq.requirement_id, rq.requirement_name
-            FROM fau_cond_mod_rests mr 
-            JOIN fau_cond_restrictions rs ON rs.restriction = mr.restriction
-            LEFT JOIN fau_cond_requirements rq ON rq.requirement_id = mr.requirement_id
-            WHERE mr.module_id =" . $this->db->quote($module_id, 'integer');
-
+            FROM $tablename t 
+            JOIN fau_cond_restrictions rs ON rs.restriction = t.restriction
+            LEFT JOIN fau_cond_requirements rq ON rq.requirement_id = t.requirement_id
+            WHERE t.$keyname = " . $this->db->quote($id, 'integer');
         $result = $this->db->query($query);
+
+        $restrictions = [];
         while ($row = $this->db->fetchAssoc($result)) {
             if (empty($restriction = $restrictions[$row['restriction']])) {
                 $restriction = new HardRestriction(
-                    (int) $row['module_id'],
                     $row['restriction'],
                     $row['type']
                 );

@@ -3,6 +3,9 @@
 namespace FAU\Cond;
 
 use FAU\Study\Data\CourseOfStudy;
+use FAU\Study\Data\Event;
+use FAU\User\Data\Achievement;
+use FAU\User\Data\Subject;
 use ILIAS\DI\Container;
 use ilLanguage;
 use FAU\Study\Data\Module;
@@ -60,6 +63,13 @@ class HardRestrictions
 
 
     /**
+     * Event with restrictions that are not satisfied
+     * @var ?Event
+     */
+    protected $checkedForbiddenEvent = null;
+
+
+    /**
      * Constructor
      */
     public function __construct (Container $dic)
@@ -75,92 +85,69 @@ class HardRestrictions
      */
     public function getEventRestrictionTexts(int $event_id, bool $html = true) : string
     {
+        $event = $this->getEventWithLoadedRestrictions($event_id);
         $modules = $this->getModulesOfEventWithLoadedRestrictions($event_id);
-        return $this->getModuleRestrictionTexts($modules, $html);
+        return $this->getRestrictionTexts($event, $modules, $html);
     }
 
 
     /**
-     * Get the restriction texts of modules
+     * Get the restriction texts of an event and its modules
      *
-     * - If used for the display of defined restrictions in lists and on the info page of a course,
-     *   then the modules should have loaded all available restrictions, but 'all_modules' should be false.
-     *   This will show only the modules with defined restrictions.
+     * - If used for the display of defined restrictions in lists and on the info page of a course
+     *   then the event and modules should have loaded all available restrictions.
      *
      * - If used for the display of a message on a registration page, that registration is not allowed,
-     *   then only the modules should be included, that are not available in the user's courses of study or which have failed restrictions.
-     *   The modules should include only their failed restrictions and 'all_modules' should be true.
+     *   then the event and modules should include only their failed restrictions.
      *
+     * @param ?Event $event         Event with restriction data
      * @param Module[] $modules     Modules with restriction data
      * @param bool $html            Get formatted html instead of plain text
      */
-    public function getModuleRestrictionTexts(array $modules, bool $html = true) : string
+    protected function getRestrictionTexts(?Event $event, array $modules, bool $html = true) : string
     {
         $texts = [];
         foreach ($modules as $module) {
             $resTexts = [];
 
-            // first show the courses of study as restrictions
+            // first show the module's courses of study as restrictions
             foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudyForModule($module->getModuleId()) as $cos) {
-                if ($html) {
-                    $resTexts[] = '<li>' . $cos->getTitle() . '</li>';
-                }
-                else {
-                    $resTexts[] =  $cos->getTitle();
-                }
+                $resTexts[] =  $cos->getTitle();
             }
             $resTexts = array_unique($resTexts);
             sort($resTexts);
 
-            // show the defined restrictions
+            // then show the module's restrictions
             foreach ($module->getRestrictions() as $restriction) {
-                if ($html) {
-                    $resTexts[] = '<li>' . $this->getRestrictionAsText($restriction) . '</li>';
-                }
-                else {
-                    $resTexts[] = $this->getRestrictionAsText($restriction);
-                }
+                $resTexts[] = $this->getRestrictionAsText($restriction);
             }
 
-            if ($html) {
-                $moduleTitle = $this->lng->txt('fau_module')
-                    . ' <strong>' . $module->getModuleName() . '</strong> ('. $module->getModuleNr() . ')' .': ';
-            }
-            else {
-                $moduleTitle = $this->lng->txt('fau_module')
-                    . ' ' . $module->getModuleName() . ' ('. $module->getModuleNr() . ')' .': ';
-            }
-
+            // put all module information together
+            $label = $this->formatLabel($this->lng->txt('fau_module'),  $module->getModuleName(), $module->getModuleNr(), $html);
             if (!empty($resTexts)) {
-                if ($html) {
-                    $texts[] = '<li>' . $moduleTitle . '<ul>' . implode("\n", $resTexts) . '</ul></li>';
-                }
-                else {
-                    $texts[] = $moduleTitle . "\n" . implode("; \n", $resTexts);
-                }
+                $texts[] = $label . $this->formatList($resTexts, $html);
             }
             else {
-                if ($html) {
-                    $texts[] = '<li>' . $moduleTitle . '<ul><li>' .  $this->lng->txt('fau_rest_module_in_cos') .'</li></ul></li>';
-                }
-                else {
-                    $texts[] = $moduleTitle .  "\n" . $this->lng->txt('fau_rest_module_in_cos');
-                }
+                $texts[] = $label . $this->formatList([$this->lng->txt('fau_rest_module_in_cos')], $html);
             }
         }
-        if (!empty($texts)) {
-            // avoid doubling of the same module with same restrictions for different courses of study
-            $texts = array_unique($texts);
-            sort($texts);
 
-            if ($html) {
-                return '<ul>'. implode("\n", $texts) . '</ul>';
+        // avoid a double showing of the same module with same restrictions for different courses of study
+        $texts = array_unique($texts);
+        sort($texts);
+
+        // add the restrictions of the event before the module restrictions
+        $resTexts = [];
+        if (!empty($event) && !empty($event->getRestrictions()))
+        {
+            foreach ($event->getRestrictions() as $restriction) {
+                $resTexts[] = $this->getRestrictionAsText($restriction);
             }
-            else {
-                return implode("\n\n", $texts);
-            }
+            $label = $this->formatLabel($this->lng->txt('fau_campo_event'), '', '', $html);
+            $texts = array_merge([$label . $this->formatList($resTexts, $html)], $texts);
         }
-        return '';
+
+        return $this->formatList($texts, $html, true);
     }
 
 
@@ -186,10 +173,10 @@ class HardRestrictions
             }
             switch ($restriction->getType()) {
                 case HardRestriction::TYPE_SUBJECT_SEMESTER:
-                    $text .= $expression->getNumber() . '.' . $this->lng->txt('fau_rest_subject_semester');
+                    $text .= $expression->getNumber() . '. ' . $this->lng->txt('fau_rest_subject_semester');
                     break;
                 case HardRestriction::TYPE_CLINICAL_SEMESTER:
-                    $text .= $expression->getNumber() . '.' . $this->lng->txt('fau_rest_clinical_semester');
+                    $text .= $expression->getNumber() . '. ' . $this->lng->txt('fau_rest_clinical_semester');
                     break;
                 case HardRestriction::TYPE_REQUIREMENT:
                     if ($expression->getNumber() == 0) {
@@ -215,15 +202,33 @@ class HardRestrictions
 
         $sumText = implode(' '. $this->lng->txt('fau_rest_or') . ' ', $expTexts);
 
-        if (!empty($requirements = $restriction->getRequirements())) {
-            $reqNames = [];
-            foreach ($requirements as $requirement) {
+        $reqNames = [];
+        foreach ($restriction->getRequirements() as $requirement) {
+            if ($requirement->getId() != 0) {
                 $reqNames[] = $requirement->getName();
             }
+        }
+        if (!empty($reqNames)) {
             $sumText .= ' ' . $this->lng->txt('fau_rest_from') . ': ' . implode(', ', $reqNames);
         }
 
         return $sumText;
+    }
+
+    /**
+     * Get the event object with added restrictions
+     * @param int $event_id
+     * @return ?Event
+     */
+    protected function getEventWithLoadedRestrictions(int $event_id) : ?Event
+    {
+        $event = $this->dic->fau()->study()->repo()->getEvent($event_id);
+        if (!empty($event)) {
+            foreach ($this->repo->getHardRestrictionsOfEvent($event->getEventId()) as $restriction) {
+                $event = $event->withRestriction($restriction);
+            }
+        }
+        return $event;
     }
 
     /**
@@ -259,19 +264,16 @@ class HardRestrictions
             $this->checkMessage = $this->lng->txt('fau_check_failed_term_not_valid');
             return false;
         }
-        return $this->checkEvent($event_id, $user_id, $term_id);
-    }
 
-    /**
-     * Check if a user can participate in an event
-     */
-    public function checkEvent(int $event_id, int $user_id, string $term_id) : bool
-    {
-        $this->clearCheckResult();
+        $event = $this->getEventWithLoadedRestrictions($event_id);
+        if (empty($event)) {
+            $this->checkMessage = $this->lng->txt('fau_check_success_no_event');
+            return true;
+        }
 
         $modules = $this->getModulesOfEventWithLoadedRestrictions($event_id);
-        if (empty($modules)) {
-            $this->checkMessage = $this->lng->txt('fau_check_success_no_module');
+        if (empty($modules) && empty($event->getRestrictions())) {
+            $this->checkMessage = $this->lng->txt('fau_check_success_no_restriction');
             return true;
         }
 
@@ -295,23 +297,18 @@ class HardRestrictions
         $this->checkedTerm = $term;
         $this->checkedUserCos = $this->dic->fau()->study()->repo()->getCoursesOfStudy($person->getCourseOfStudyDbIds($term));
 
-        // find the matching relations of event modules to the users' courses of study
-        $matching = $this->dic->fau()->study()->repo()->getModuleCos(array_keys($modules), $person->getCourseOfStudyDbIds($term));
-        if (empty($matching)) {
-            //$this->checkMessage = $this->lng->txt('fau_check_failed_matching_modules');
-            $this->checkedForbiddenModules = $modules;
-            return false;
-        }
-
+        // check the restrictions of hte event
+        // - all restrictions of the event must be satisfied
+        $this->checkEvent($event, $person, $term);
 
         // check all modules of the event
-        // - module must match the courses of study
-        // - all restrictions of hte module must be satisfied
-
+        // - at least one module must match the courses of study
+        // - all restrictions of that module must be satisfied
         foreach ($modules as $module) {
-            $this->checkModule($module, $person, $term, $matching);
+            $this->checkModule($module, $person, $term);
         }
-        return !empty($this->checkedAllowedModules);
+
+        return empty($this->checkedForbiddenEvent) && !empty($this->checkedAllowedModules);
     }
 
     /**
@@ -323,12 +320,12 @@ class HardRestrictions
             return $this->checkMessage;
         }
 
-        if (!empty($this->checkedAllowedModules)) {
-           $this->checkMessage = $this->lng->txt('fau_check_success_with_modules');
+        if (empty($this->checkedForbiddenEvent) && (empty($this->checkedForbiddenModules) || !empty($this->checkedAllowedModules))) {
+           $this->checkMessage = $this->lng->txt('fau_check_passed_restrictions');
         }
-        elseif (!empty($this->checkedForbiddenModules)) {
+        else {
             $this->checkMessage = $this->lng->txt('fau_check_failed_restrictions')
-                . $this->getModuleRestrictionTexts($this->checkedForbiddenModules, true);
+                . $this->getRestrictionTexts($this->checkedForbiddenEvent, $this->checkedForbiddenModules, true);
         }
 
         return $this->checkMessage;
@@ -347,26 +344,12 @@ class HardRestrictions
      */
     public function getCheckedUserCosTexts(bool $html = true) : string
     {
-        if (empty($this->checkedUserCos)) {
-            return '';
-        }
-
         $list = [];
-        foreach ($this->checkedUserCos as $cos)
-        {
-            if ($html) {
-              $list[] = '<li>' . $cos->getTitle() . '</li>';
-            }
-            else {
-              $list[] = $cos;
-            }
+        foreach ($this->checkedUserCos as $cos) {
+            $list[] = $cos->getTitle();
         }
-        if ($html) {
-            return '<ul>' . implode("\n", $list) . '</ul>';
-        }
-        else {
-            return implode("\n", $list);
-        }
+        return $this->formatList($list, $html);
+
     }
 
     /**
@@ -388,13 +371,50 @@ class HardRestrictions
       $this->checkedUserCos = [];
       $this->checkedAllowedModules = [];
       $this->checkedForbiddenModules = [];
+      $this->checkedForbiddenEvent = null;
     }
 
     /**
-     * Check if a module is allowed for a person in a term
-     * @param ModuleCos[] $matching   Matching between the modules of an event and the subjects of the student
+     * Check if the restrictions of an event are satisfied for a user
      */
-    protected function checkModule(Module $module, Person $person, Term $term, array $matching) : bool
+    protected function checkEvent(Event $event, Person $person, Term $term) : bool
+    {
+        // prepare a clone of the event that gets the check result
+        // only the failed restrictions will be added
+        // this allows a display the actual failed restrictions
+        $checkedEvent = $event->withoutRestrictions();
+
+        // get the subjects studied in the given term
+        $subjects = $person->getSubjects($term);
+
+        // load the achieved requirements of the person (cached)
+        $achievements = $this->dic->fau()->user()->repo()->getAchievementsOfPerson($person->getPersonId());
+
+        // check the hard restrictions defined for the module
+        // all restrictions must be passed, if one is failed then the module is forbidden
+        $oneRestrictionFailed = false;
+        foreach ($event->getRestrictions() as $restriction) {
+            if (!$this->checkRestriction($restriction, $subjects, $achievements)) {
+                $checkedEvent = $checkedEvent->withRestriction($restriction);
+                $oneRestrictionFailed = true;
+            }
+        }
+
+        if ($oneRestrictionFailed) {
+            $this->checkedForbiddenEvent = $checkedEvent;
+            return false;
+        }
+        else {
+            $this->checkedForbiddenEvent = null;
+            return true;
+        }
+    }
+
+
+    /**
+     * Check if a module is allowed for a person in a term
+     */
+    protected function checkModule(Module $module, Person $person, Term $term) : bool
     {
         // prepare a clone of the module that gets the check result
         // only the failed restrictions will be added
@@ -403,12 +423,7 @@ class HardRestrictions
 
         // get the relevant subjects of the student for the module
         // if no subject matches, then the module should not be allowed
-        $cos_ids = [];
-        foreach ($matching as $moduleCos) {
-            if ($moduleCos->getModuleId() == $module->getModuleId()) {
-                $cos_ids[] = $moduleCos->getCosId();
-            }
-        }
+        $cos_ids = $this->dic->fau()->study()->repo()->getCoursesOfStudyIdsForModule($module->getModuleId());
         $subjects = $person->getSubjectsWithCourseOfStudyDbIds($term, $cos_ids);
         if (empty($subjects)) {
             $this->checkedForbiddenModules[] = $checkedModule;
@@ -421,104 +436,18 @@ class HardRestrictions
             return true;
         }
 
-        // load the achieved requirements of the person
-        // the repo query is cached
-        $achievedIds = [];
-        foreach ($this->dic->fau()->user()->repo()->getAchievementsOfPerson($person->getPersonId()) as $achievement) {
-            $achievedIds[] = $achievement->getRequirementId();
-        }
+        // load the achieved requirements of the person (cached)
+        $achievements = $this->dic->fau()->user()->repo()->getAchievementsOfPerson($person->getPersonId());
 
         // check the hard restrictions defined for the module
         // all restrictions must be passed, if one is failed then the module is forbidden
         $oneRestrictionFailed = false;
         foreach ($module->getRestrictions() as $restriction) {
-
-            // check the expressions defined for the restrictions
-            // in case of semester related expressions, only one subject needs to fit
-            // a restriction may have more requirements related expressions,
-            // these are OR-combined, i.e. only one needs to be passed
-            $oneExpressionPassed = false;
-            foreach ($restriction->getExpressions() as $expression) {
-
-                switch ($restriction->getType()) {
-
-                    case HardRestriction::TYPE_SUBJECT_SEMESTER:
-                        $found = false;
-                        foreach ($subjects as $subject) {
-                            if ($expression->getCompare() == HardExpression::COMPARE_MIN
-                                && $subject->getStudySemester() >= $expression->getNumber()) {
-                                $found = true;
-                            }
-                            if ($expression->getCompare() == HardExpression::COMPARE_MAX
-                                && $subject->getStudySemester() <= $expression->getNumber()) {
-                                $found = true;
-                            }
-                        }
-                        if ($found) {
-                            $oneExpressionPassed = true;
-                        }
-                        break;
-
-                    case HardRestriction::TYPE_CLINICAL_SEMESTER:
-                        $found = false;
-                        foreach ($subjects as $subject) {
-                            if ($expression->getCompare() == HardExpression::COMPARE_MIN
-                                && $subject->getClinicalSemester() >= $expression->getNumber()) {
-                                $found = true;
-                            }
-                            if ($expression->getCompare() == HardExpression::COMPARE_MAX
-                                && $subject->getClinicalSemester() <= $expression->getNumber()) {
-                                $found = true;
-                            }
-                        }
-                        if ($found) {
-                            $oneExpressionPassed = true;
-                        }
-                        break;
-
-                    case HardRestriction::TYPE_REQUIREMENT:
-                        $found = 0;
-                        foreach ($restriction->getRequirements() as $requirement) {
-                            if (in_array($requirement->getId(), $achievedIds)) {
-
-                                switch ($expression->getCompulsory()) {
-                                    case HardExpression::COMPULSORY_PF:
-                                        if ($requirement->getCompulsory() == HardRequirement::COMPULSORY_PF) {
-                                            $found++;
-                                        }
-                                        break;
-
-                                    case HardExpression::COMPULSORY_WP:
-                                        if ($requirement->getCompulsory() == HardRequirement::COMPULSORY_PF
-                                            || $requirement->getCompulsory() == HardRequirement::COMPULSORY_WP) {
-                                            $found++;
-                                        }
-                                        break;
-
-                                    default:
-                                        $found++;
-                                }
-                            }
-
-                            if ($expression->getCompare() == HardExpression::COMPARE_MIN
-                                && $found >= $expression->getNumber()) {
-                                $oneExpressionPassed = true;
-                            }
-                            if ($expression->getCompare() == HardExpression::COMPARE_MAX
-                                && $found <= $expression->getNumber()) {
-                                $oneExpressionPassed = true;
-                            }
-                        }
-                        break;
-                } // end switch restriction type
-            } // end expressions loop
-
-            // no expression is passed => restriction is failed
-            if (!$oneExpressionPassed) {
+            if (!$this->checkRestriction($restriction, $subjects, $achievements)) {
                 $checkedModule = $checkedModule->withRestriction($restriction);
                 $oneRestrictionFailed = true;
             }
-        } // end restrictions loop
+        }
 
         if ($oneRestrictionFailed) {
             $this->checkedForbiddenModules[] = $checkedModule;
@@ -527,6 +456,154 @@ class HardRestrictions
         else {
             $this->checkedAllowedModules[] = $checkedModule;
             return true;
+        }
+    }
+
+    /**
+     * Check a restriction against the subjects and achievements of a user
+     * @param HardRestriction $restriction
+     * @param Subject[] $subjects
+     * @param Achievement[] $achievements
+     * @return bool restriction is satisfied
+     */
+    protected function checkRestriction(HardRestriction $restriction, array $subjects, array $achievements) : bool
+    {
+        $achievedIds = [];
+        foreach ($achievements as $achievement) {
+            $achievedIds[] = $achievement->getRequirementId();
+        }
+
+        // check the expressions defined for the restrictions
+        // in case of semester related expressions, only one subject needs to fit
+        // a restriction may have more requirements related expressions,
+        // these are OR-combined, i.e. only one needs to be passed
+        $oneExpressionPassed = false;
+        foreach ($restriction->getExpressions() as $expression) {
+
+            switch ($restriction->getType()) {
+
+                case HardRestriction::TYPE_SUBJECT_SEMESTER:
+                    $found = false;
+                    foreach ($subjects as $subject) {
+                        if ($expression->getCompare() == HardExpression::COMPARE_MIN
+                            && $subject->getStudySemester() >= $expression->getNumber()) {
+                            $found = true;
+                        }
+                        if ($expression->getCompare() == HardExpression::COMPARE_MAX
+                            && $subject->getStudySemester() <= $expression->getNumber()) {
+                            $found = true;
+                        }
+                    }
+                    if ($found) {
+                        $oneExpressionPassed = true;
+                    }
+                    break;
+
+                case HardRestriction::TYPE_CLINICAL_SEMESTER:
+                    $found = false;
+                    foreach ($subjects as $subject) {
+                        if ($expression->getCompare() == HardExpression::COMPARE_MIN
+                            && $subject->getClinicalSemester() >= $expression->getNumber()) {
+                            $found = true;
+                        }
+                        if ($expression->getCompare() == HardExpression::COMPARE_MAX
+                            && $subject->getClinicalSemester() <= $expression->getNumber()) {
+                            $found = true;
+                        }
+                    }
+                    if ($found) {
+                        $oneExpressionPassed = true;
+                    }
+                    break;
+
+                case HardRestriction::TYPE_REQUIREMENT:
+                    $found = 0;
+                    foreach ($restriction->getRequirements() as $requirement) {
+                        if (in_array($requirement->getId(), $achievedIds)) {
+
+                            switch ($expression->getCompulsory()) {
+                                case HardExpression::COMPULSORY_PF:
+                                    if ($requirement->getCompulsory() == HardRequirement::COMPULSORY_PF) {
+                                        $found++;
+                                    }
+                                    break;
+
+                                case HardExpression::COMPULSORY_WP:
+                                    if ($requirement->getCompulsory() == HardRequirement::COMPULSORY_PF
+                                        || $requirement->getCompulsory() == HardRequirement::COMPULSORY_WP) {
+                                        $found++;
+                                    }
+                                    break;
+
+                                default:
+                                    $found++;
+                            }
+                        }
+
+                        if ($expression->getCompare() == HardExpression::COMPARE_MIN
+                            && $found >= $expression->getNumber()) {
+                            $oneExpressionPassed = true;
+                        }
+                        if ($expression->getCompare() == HardExpression::COMPARE_MAX
+                            && $found <= $expression->getNumber()) {
+                            $oneExpressionPassed = true;
+                        }
+                    }
+                    break;
+            } // end switch restriction type
+        } // end expressions loop
+
+        return $oneExpressionPassed;
+    }
+
+
+    /**
+     * Format a text as a label for a following list
+     * @param string|null $prefix
+     * @param string|null $text
+     * @param string|null $addition
+     * @param bool $html
+     * @return string
+     */
+    protected function formatLabel(?string $prefix, ?string $text, ?string $addition, bool $html = true)
+    {
+        if (!empty($prefix) && !empty($text)) {
+            $prefix .= ' ';
+        }
+        if (!empty($addition)) {
+            $addition = ' (' . $addition . ')';
+        }
+
+        if ($html) {
+            return $prefix . "<strong>" . $text . "</strong>" . $addition . ": \n";
+        }
+        else {
+            return $prefix . $text . $addition . ": \n";
+        }
+    }
+
+    /**
+     * Format a list of texts for display
+     * @param string[] $texts
+     * @param bool $html    use HTML to format
+     * @param bool $wide    separate the elements with an additional newline if not formatted by html
+     */
+    protected function formatList(array $texts, bool $html = true, bool $wide = false)
+    {
+        if (empty($texts)) {
+            return '';
+        }
+        elseif ($html) {
+            foreach ($texts as $index => $element) {
+                $texts[$index] = '<li>' . $element . '</li>';
+            }
+            return '<ul>' . implode("\n", $texts) . '</ul>';
+        }
+        elseif ($wide) {
+            return implode("\n\n", $texts);
+        }
+        else {
+            return implode(";\n", $texts);
         }
     }
 }

@@ -627,11 +627,12 @@ fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Veranstaltung in campo
 fau#:#fau_check_failed_matching_modules#:#Sie können die Lehrveranstaltung nicht belegen, da sie mit Ihren Studiengangsdaten keine Module/Konten gemeinsam hat.
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
-fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da Ihr Studium für keines der folgenden Module/Konten dieser Lehrveranstaltung geeignet ist:
+fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da die folgenden Bedingungen nicht erfüllt sind:
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
+fau#:#fau_check_passed_restrictions#:#Ihr Studium erfüllt die in Campo angegebenen Voraussetzungen.
 fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
-fau#:#fau_check_success_no_module#:#Diese Lehrveranstaltung ist in Campo keinem Modul/Konto zugeordnet. Es werden keine Voraussetzungen zur Belegung geprüft.
-fau#:#fau_check_success_with_modules#:#Ihr Studium erfüllt die Voraussetzungen für die in Campo zugeordneten Module/Konten.
+fau#:#fau_check_success_no_event#:#Mit diesem Kurs ist keine Lehrveranstaltung verknüpft. Es werden keine Voraussetzungen zur Belegung geprüft.
+fau#:#fau_check_success_no_restriction#:#Für diese Lehrveranstaltung sind in Campo keine Voraussetzungen angegeben.
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.

@@ -627,11 +627,12 @@ fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Teaching Event in campo
 fau#:#fau_check_failed_matching_modules#:#You cannot take the course because it has no modules in common with your program data.
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
-fau#:#fau_check_failed_restrictions#:#You cannot take this course because your degree does not qualify for any of the following modules/accounts for this course:
+fau#:#fau_check_failed_restrictions#:#You cannot take this course because the following restrictions are not met:
 fau#:#fau_check_failed_term_not_valid#:#No correct semester is given for this course, therefore no prerequisites can be checked. Please contact the person responsible for the course.
+fau#:#fau_check_passed_restrictions#:#Your studies meet the requirements defined in campo.
 fau#:#fau_check_success_but_soft_failed#:#However, it does not meet the additional program requirements defined in StudOn.
-fau#:#fau_check_success_no_module#:#This course is not assigned to a module in Campo. No prerequisites are checked for enrollment.
-fau#:#fau_check_success_with_modules#:#Your studies meet the requirements for the modules assigned in Campo.
+fau#:#fau_check_success_no_event#:#This course is not connected to an event in campo. There are no restrictions tested.
+fau#:#fau_check_success_no_restriction#:#This course has no restrictions defined in campo.
 fau#:#fau_course#:#Parallel Group
 fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
 fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.

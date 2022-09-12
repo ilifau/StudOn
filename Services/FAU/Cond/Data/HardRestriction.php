@@ -8,7 +8,6 @@ class HardRestriction
     const TYPE_SUBJECT_SEMESTER = 'Fachsemester';
     const TYPE_CLINICAL_SEMESTER = 'KlinischesSemester';
 
-    private int $module_id;
     private string $restriction;
     private string $type;
 
@@ -20,22 +19,11 @@ class HardRestriction
 
 
     public function __construct(
-        int $module_id,
         string $restriction,
         string $type
     ) {
-
-        $this->module_id = $module_id;
         $this->restriction = $restriction;
         $this->type = $type;
-    }
-
-    /**
-     * @return int
-     */
-    public function getModuleId() : int
-    {
-        return $this->module_id;
     }
 
     /**
