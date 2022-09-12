@@ -1605,3 +1605,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
     );
 }
 ?>
+<#104>
+<?php
+/**
+ * fau: fauService - create the event restrictions table
+ */
+\FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_104();
+?>

@@ -31,6 +31,26 @@ class FAUCondSteps
         $this->createDocConditionsTable(false);
     }
 
+    /**
+     * Create the table for event restrictions
+     */
+    public function custom_step_104()
+    {
+        $this->createEventRestrictionsTable(false);
+    }
+
+    protected function createEventRestrictionsTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_cond_event_rests', [
+            'event_id'         => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'restriction'       => ['type' => 'text',       'length' => 250,    'notnull' => true],
+            'requirement_id'    => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'compulsory'        => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_cond_event_rests', ['event_id', 'restriction', 'requirement_id']);
+    }
 
     protected function createModuleRestrictionsTable(bool $drop = false)
     {
