@@ -64,13 +64,18 @@ abstract class ilRegistrationGUI
     protected $lng;
     protected $ctrl;
 
-    // fau: fairSub - class variable for join button text
-    protected $join_button_text = '';
-    // fau.
-
     // fau: paraSub - property for registration object
     /** @var Registration */
     protected $registration;
+    // fau.
+
+    // fau: studyCond - class variables
+    protected $matches_studycond = true;
+    protected $describe_studycond = "";
+    // fau.
+
+    // fau: campoCheck - class vatiable
+    protected $matches_restrictions = true;
     // fau.
 
     /**
@@ -126,6 +131,14 @@ abstract class ilRegistrationGUI
         
         $this->privacy = ilPrivacySettings::_getInstance();
     }
+
+    // fau: studyCond - adjust the subscription type based on soft conditions
+    // fau: campoCheck - adjust the subscription type based on soft conditions
+    protected function adjustSubType()
+    {
+        // implement in child classes
+    }
+    // fau.
     
     /**
      * Parent object
@@ -241,14 +254,15 @@ abstract class ilRegistrationGUI
     {
         global $DIC;
         $hardRestrictions = $DIC->fau()->cond()->hard();
-        $passed = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
-        if (!$passed) {
-            $this->enableRegistration(false);
-        }
+        $this->matches_restrictions = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
+        $this->adjustSubType();
 
         $message = $hardRestrictions->getCheckResultMessage();
         if (!empty($message)) {
-            if ($passed && $this->has_studycond && !$this->matches_studycond) {
+            if (!$this->matches_restrictions) {
+                $message .= ' <strong>' . $this->lng->txt('fau_check_failed_but_request') . '</strong>';
+            }
+            elseif ($this->has_studycond && !$this->matches_studycond) {
                 $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
             }
             $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
@@ -262,7 +276,7 @@ abstract class ilRegistrationGUI
             }
         }
 
-        if (!empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
+        if ($this->matches_restrictions && !empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
 
             /** @var ilWaitingList $list */
             $list = $this->getWaitingList();

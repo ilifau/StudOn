@@ -629,6 +629,7 @@ fau#:#fau_check_failed_matching_modules#:#Sie können die Lehrveranstaltung nich
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da die folgenden Bedingungen nicht erfüllt sind:
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
+fau#:#fau_check_failed_but_request#:#Wenn Sie auf Antrag aufgenommen werden, erscheint diese Veranstaltung nicht in Ihren Abschlussdokumenten!
 fau#:#fau_check_passed_restrictions#:#Ihr Studium erfüllt die in Campo angegebenen Voraussetzungen.
 fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
 fau#:#fau_check_success_no_event#:#Mit diesem Kurs ist keine Lehrveranstaltung verknüpft. Es werden keine Voraussetzungen zur Belegung geprüft.

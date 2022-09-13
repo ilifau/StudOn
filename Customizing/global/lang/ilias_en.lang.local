@@ -629,6 +629,7 @@ fau#:#fau_check_failed_matching_modules#:#You cannot take the course because it 
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
 fau#:#fau_check_failed_restrictions#:#You cannot take this course because the following restrictions are not met:
 fau#:#fau_check_failed_term_not_valid#:#No correct semester is given for this course, therefore no prerequisites can be checked. Please contact the person responsible for the course.
+fau#:#fau_check_failed_but_request#:#If you are accepted by request, this event will not appear on your final documents!
 fau#:#fau_check_passed_restrictions#:#Your studies meet the requirements defined in campo.
 fau#:#fau_check_success_but_soft_failed#:#However, it does not meet the additional program requirements defined in StudOn.
 fau#:#fau_check_success_no_event#:#This course is not connected to an event in campo. There are no restrictions tested.

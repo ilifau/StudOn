@@ -45,16 +45,26 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         
         $this->parent_gui = $a_parent_gui;
 
-        // fau: studyCond - set the actual subscription type according to the studydata condition
-        if ($this->matches_studycond || $this->container->getActivationUnlimitedStatus() == IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        // fau: studyCond - call adjustSubType
+        $this->adjustSubType();
+        // fau.
+    }
+
+    // fau: studyCond - adjust the subscription type based on soft conditions
+    // fau: campoCheck - adjust the subscription type based on soft conditions
+    protected function adjustSubType()
+    {
+        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getActivationUnlimitedStatus() == IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             $this->subscription_type = $this->container->getSubscriptionType();
         } else {
             $this->subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
             $this->registration->setSubType(Registration::subConfirmation);
         }
-        // fau.
+
     }
-    
+    // fau.
+
+
     /**
      * Execute command
      *
