@@ -131,19 +131,26 @@ class Repository extends RecordRepo
                 return [];
         }
 
+        // requirements can be defined on different levels in campo
+        // requirements on the level of a module have the original restriction name, e.g. 'V01'
+        // requirements on a higher level have a suffix at the restriction name, indication the steps up, e.g. 'V01-1', 'V01-2', ...
+        // requirements on the same level are are combine according to the restriction settings (min, max)
+        // requirements on different levels are treated as separate restrictions
+
         $query = "
-            SELECT t.compulsory AS requirement_compulsory,
-            rs.id expression_id, rs.restriction, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
+            SELECT t.compulsory AS requirement_compulsory, t.restriction,
+            rs.id expression_id, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
             rq.requirement_id, rq.requirement_name
-            FROM $tablename t 
-            JOIN fau_cond_restrictions rs ON rs.restriction = t.restriction
+            FROM $tablename t
+            JOIN fau_cond_restrictions rs ON t.restriction = rs.restriction OR t.restriction LIKE CONCAT(rs.restriction, '-%')
             LEFT JOIN fau_cond_requirements rq ON rq.requirement_id = t.requirement_id
             WHERE t.$keyname = " . $this->db->quote($id, 'integer');
-        $result = $this->db->query($query);
+
+       $result = $this->db->query($query);
 
         $restrictions = [];
         while ($row = $this->db->fetchAssoc($result)) {
-            if (empty($restriction = $restrictions[$row['restriction']])) {
+            if (empty($restriction = $restrictions[$row['restriction']] ?? null)) {
                 $restriction = new HardRestriction(
                     $row['restriction'],
                     $row['type']
