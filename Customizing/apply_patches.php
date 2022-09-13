@@ -19,6 +19,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncPersonData');
 
 //$p->applyPatch('ilFauPatches.syncCampoData');
+//$p->applyPatch('ilFauPatches.syncRestrictions');
+
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
 //$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);

@@ -24,6 +24,14 @@ class ilFauPatches
         $service = $this->dic->fau()->sync()->campo();
         $service->synchronize();
     }
+
+    public function syncRestrictions()
+    {
+        $service = $this->dic->fau()->sync()->campo();
+        $service->syncModuleRestrictions();
+        $service->syncEventRestrictions();
+    }
+
     /**
      * todo: move to cron job if performance is ok
      */

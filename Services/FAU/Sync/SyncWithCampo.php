@@ -83,7 +83,7 @@ class SyncWithCampo extends SyncBase
      * Synchronize the data found in the staging table campo_achievements
      * No change marks by DIP are available => all data has to be compared
      */
-    protected function syncAchievements() : void
+    public function syncAchievements() : void
     {
         $this->info('syncAchievements...');
 
@@ -122,7 +122,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_course
      */
-    protected function syncCourses() : void
+    public function syncCourses() : void
     {
         $this->info('syncCourses...');
         foreach ($this->staging->repo()->getCoursesToDo() as $record) {
@@ -159,7 +159,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_course_responsible
      */
-    protected function syncCourseResponsibles() : void
+    public function syncCourseResponsibles() : void
     {
         $this->info('syncCourseResponsibles...');
         foreach ($this->staging->repo()->getCourseResponsiblesToDo() as $record) {
@@ -187,7 +187,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table doc_programmes
      */
-    protected function syncDocProgrammes() : void
+    public function syncDocProgrammes() : void
     {
         $this->info('syncDocProgrammes...');
 
@@ -213,7 +213,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_event
      */
-    protected function syncEvents() : void
+    public function syncEvents() : void
     {
         $this->info('syncEvents...');
         foreach ($this->staging->repo()->getEventsToDo() as $record) {
@@ -245,7 +245,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_event_orgunit
      */
-    protected function syncEventOrgunits() : void
+    public function syncEventOrgunits() : void
     {
         $this->info('syncEventOrgunits...');
         foreach ($this->staging->repo()->getEventOrgunitsToDo() as $record) {
@@ -270,7 +270,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_event_responsible
      */
-    protected function syncEventResponsibles() : void
+    public function syncEventResponsibles() : void
     {
         $this->info('syncEventResponsibles...');
         foreach ($this->staging->repo()->getEventResponsiblesToDo() as $record) {
@@ -304,7 +304,7 @@ class SyncWithCampo extends SyncBase
      * Later changes will overwrite former changes
      * Modules don't have to be deleted
      */
-    protected function syncEventModules() : void
+    public function syncEventModules() : void
     {
         $this->info('syncEventModules...');
         foreach ($this->staging->repo()->getEventModulesToDo() as $record) {
@@ -335,7 +335,7 @@ class SyncWithCampo extends SyncBase
      * Synchronize data found in the staging table campo_specific_educations
      * @todo: a new data scheme will be provided
      */
-    protected function syncEducations() : void
+    public function syncEducations() : void
     {
         $this->info('syncEducations...');
         foreach ($this->staging->repo()->getEducationsToDo() as $record) {
@@ -365,7 +365,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_individual_dates
      */
-    protected function syncIndividualDates() : void
+    public function syncIndividualDates() : void
     {
         $this->info('syncIndividualDates...');
         foreach ($this->staging->repo()->getIndividualDatesToDo() as $record) {
@@ -399,7 +399,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_individual_instructor
      */
-    protected function syncIndividualInstructors() : void
+    public function syncIndividualInstructors() : void
     {
         $this->info('syncIndividualInstructors...');
         foreach ($this->staging->repo()->getIndividualInstructorsToDo() as $record) {
@@ -428,7 +428,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_instructor
      */
-    protected function syncInstructors() : void
+    public function syncInstructors() : void
     {
         $this->info('syncInstructors...');
         foreach ($this->staging->repo()->getInstructorsToDo() as $record) {
@@ -461,7 +461,7 @@ class SyncWithCampo extends SyncBase
      * Later changes will overwrite former changes
      * Courses of study don't have to be deleted
      */
-    protected function syncModuleCos() : void
+    public function syncModuleCos() : void
     {
         $this->info('syncModuleCos...');
         foreach ($this->staging->repo()->getModuleCosToDo() as $record) {
@@ -495,14 +495,18 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_module_restrictions
      * This table combines the module to requirement relationship with the requirements data
-     * The records to do are provided in time order of their marked changes
-     * Later changes will overwrite former changes
+     *
+     * This is a FULL SYNC since the "deleted" DIP status seems not to be set appropriately
      * Requirements don't have to be deleted
      */
-    protected function syncModuleRestrictions() : void
+    public function syncModuleRestrictions() : void
     {
+        // get the existing restrictions for a later delete
+        $oldRestrictions = $this->cond->repo()->getIndexedModuleRestrictions();
+
         $this->info('syncModuleRestrictions...');
-        foreach ($this->staging->repo()->getModuleRestrictionsToDo() as $record) {
+        // query for all staging data
+        foreach ($this->staging->repo()->getModuleRestrictions() as $record) {
             $requirement = new Requirement(
                 $record->getRequirementId(),
                 $record->getRequirementName()
@@ -514,8 +518,15 @@ class SyncWithCampo extends SyncBase
                 $record->getCompulsory()
             );
             switch ($record->getDipStatus()) {
+                case DipData::DELETED:
+                    $this->study->repo()->delete($moduleRes);
+                    break;
+
                 case DipData::INSERTED:
                 case DipData::CHANGED:
+                default:
+                    // treat records without status by default
+
                     // restrictions regarding the study semester may have no real requirement
                     // in this case the requirement id is 0 and the requirement should not be saved
                     if ($requirement->getRequirementId() !== 0) {
@@ -523,11 +534,15 @@ class SyncWithCampo extends SyncBase
                     }
                     $this->cond->repo()->save($moduleRes);
                     break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($moduleRes);
-                    break;
             }
             $this->staging->repo()->setDipProcessed($record);
+            // restriction is treated, so remove from the delete list
+            unset($oldRestrictions[$moduleRes->key()]);
+        }
+
+        // delete all remaining old restrictions
+        foreach ($oldRestrictions as $restriction) {
+            $this->cond->repo()->delete($restriction);
         }
     }
 
@@ -535,14 +550,18 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_event_restrictions
      * This table combines the event to requirement relationship with the requirements data
-     * The records to do are provided in time order of their marked changes
-     * Later changes will overwrite former changes
+     *
+     * This is a FULL SYNC since the "deleted" DIP status seems not to be set appropriately
      * Requirements don't have to be deleted
      */
-    protected function syncEventRestrictions() : void
+    public function syncEventRestrictions() : void
     {
+        // get the existing restrictions for a later delete
+        $oldRestrictions = $this->cond->repo()->getIndexedEventRestrictions();
+
         $this->info('syncEventRestrictions...');
-        foreach ($this->staging->repo()->getEventRestrictionsToDo() as $record) {
+        // query for all staging data
+        foreach ($this->staging->repo()->getEventRestrictions() as $record) {
             $requirement = new Requirement(
                 $record->getRequirementId(),
                 $record->getRequirementName()
@@ -554,8 +573,13 @@ class SyncWithCampo extends SyncBase
                 $record->getCompulsory()
             );
             switch ($record->getDipStatus()) {
+                case DipData::DELETED:
+                    $this->study->repo()->delete($eventRes);
+                    break;
+
                 case DipData::INSERTED:
                 case DipData::CHANGED:
+                default:
                     // restrictions regarding the study semester may have no real requirement
                     // in this case the requirement id is 0 and the requirement should not be saved
                     if ($requirement->getRequirementId() !== 0) {
@@ -563,11 +587,15 @@ class SyncWithCampo extends SyncBase
                     }
                     $this->cond->repo()->save($eventRes);
                     break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($eventRes);
-                    break;
             }
             $this->staging->repo()->setDipProcessed($record);
+            // restriction is treated, so remove from the delete list
+            unset($oldRestrictions[$eventRes->key()]);
+
+            // delete all remaining old restrictions
+            foreach ($oldRestrictions as $restriction) {
+                $this->cond->repo()->delete($restriction);
+            }
         }
     }
 
@@ -575,7 +603,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_planned_dates
      */
-    protected function syncPlannedDates() : void
+    public function syncPlannedDates() : void
     {
         $this->info('syncPlannedDates...');
         foreach ($this->staging->repo()->getPlannedDatesToDo() as $record) {
@@ -610,7 +638,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_restrictions
      */
-    protected function syncRestrictions() : void
+    public function syncRestrictions() : void
     {
         $this->info('syncRestrictions...');
         foreach ($this->staging->repo()->getRestrictionsToDo() as $record) {
@@ -638,7 +666,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table study_degrees
      */
-    protected function syncStudyDegrees() : void
+    public function syncStudyDegrees() : void
     {
         $this->info('syncStudyDegrees...');
 
@@ -665,7 +693,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table study_enrolments
      */
-    protected function syncStudyEnrolments() : void
+    public function syncStudyEnrolments() : void
     {
         $this->info('syncStudyEnrolments...');
 
@@ -692,7 +720,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table study_fields
      */
-    protected function syncStudyFields() : void
+    public function syncStudyFields() : void
     {
         $this->info('syncStudyFields...');
 
@@ -719,7 +747,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table study_forms
      */
-    protected function syncStudyForms() : void
+    public function syncStudyForms() : void
     {
         $this->info('syncStudyFields...');
 
@@ -746,7 +774,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table study_schools
      */
-    protected function syncStudySchools() : void
+    public function syncStudySchools() : void
     {
         $this->info('syncStudySchools...');
 
@@ -774,7 +802,7 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize the data found in the staging table study_subjects
      */
-    protected function syncStudySubjects() : void
+    public function syncStudySubjects() : void
     {
         $this->info('syncStudySubjects...');
 

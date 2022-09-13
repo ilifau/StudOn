@@ -2,6 +2,7 @@
 
 namespace FAU\Cond;
 
+use FAU\Cond\Data\EventRestriction;
 use FAU\RecordRepo;
 use FAU\RecordData;
 use FAU\Cond\Data\ModuleRestriction;
@@ -76,7 +77,7 @@ class Repository extends RecordRepo
 
     /**
      * Save record data of an allowed type
-     * @param CosCondition|DocCondition|ModuleRestriction|Requirement|Restriction $record
+     * @param CosCondition|DocCondition|EventRestriction|ModuleRestriction|Requirement|Restriction $record
      */
     public function save(RecordData $record)
     {
@@ -86,12 +87,41 @@ class Repository extends RecordRepo
 
     /**
      * Delete record data of an allowed type
-     * @param CosCondition|DocCondition|ModuleRestriction|Requirement|Restriction $record
+     * @param CosCondition|DocCondition|EventRestriction|ModuleRestriction|Requirement|Restriction $record
      */
     public function delete(RecordData $record)
     {
         $this->deleteRecord($record);
     }
+
+    /**
+     * Get all event restrictions, indexed by their compound key
+     * @return EventRestriction[]
+     */
+    public function getIndexedEventRestrictions() : array
+    {
+        $restrictions = [];
+        foreach ($this->getAllRecords(EventRestriction::model()) as $restriction) {
+            $restrictions[$restriction->key()] = $restriction;
+        }
+        return $restrictions;
+    }
+
+
+    /**
+     * Get all module restrictions, indexed by their compound key
+     * @return ModuleRestriction[]
+     */
+    public function getIndexedModuleRestrictions() : array
+    {
+        $restrictions = [];
+        foreach ($this->getAllRecords(ModuleRestriction::model()) as $restriction) {
+            $restrictions[$restriction->key()] = $restriction;
+        }
+        return $restrictions;
+    }
+
+
 
     /**
      * @param int $module_id

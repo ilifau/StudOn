@@ -191,6 +191,22 @@ class Repository extends RecordRepo
     /**
      * @return ModuleRestriction[]
      */
+    public function getModuleRestrictions() : array
+    {
+        return $this->getAllRecords(ModuleRestriction::model());
+    }
+
+    /**
+     * @return EventRestriction[]
+     */
+    public function getEventRestrictions() : array
+    {
+        return $this->getAllRecords(EventRestriction::model());
+    }
+
+    /**
+     * @return ModuleRestriction[]
+     */
     public function getModuleRestrictionsToDo() : array
     {
         return $this->getDipRecords(ModuleRestriction::model());
