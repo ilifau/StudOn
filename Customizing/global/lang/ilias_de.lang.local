@@ -649,8 +649,8 @@ fau#:#fau_parallel_groups#:#Parallelgruppen
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen
 fau#:#fau_relation_unit_used#:#Die Einheit %s ist bereits mit der StudOn-Kategorie <a href="%s">%s</a> verbunden! Entfernen Sie erst diese Verbindung, bevor Sie die neue anlegen.
-fau#:#fau_rest_0_requirement#:#noch keine Leistung
-fau#:#fau_rest_1_requirement#:#1 Leistung
+fau#:#fau_rest_0_requirement#:#noch keine Vorleistung
+fau#:#fau_rest_1_requirement#:#1 Vorleistung
 fau#:#fau_rest_and#:#und
 fau#:#fau_rest_clinical_semester#:#Klinisches Semester
 fau#:#fau_rest_from#:#aus
@@ -658,10 +658,13 @@ fau#:#fau_rest_hard_restrictions#:#Voraussetzungen
 fau#:#fau_rest_max#:#max.
 fau#:#fau_rest_min#:#min.
 fau#:#fau_rest_module_in_cos#:#Modul im Studiengang
-fau#:#fau_rest_n_requirements#:#%s Leistungen
+fau#:#fau_rest_n_requirements#:#%s Vorleistungen
+fau#:#fau_rest_one_of_studies#:#Einer der folgenden Studiengänge
 fau#:#fau_rest_or#:#oder
 fau#:#fau_rest_pf#:#als Pflichtfach
 fau#:#fau_rest_pf_wp#:#als Pflichtfach oder Wahlpflicht
+fau#:#fau_rest_requirement#:#Vorleistung
+fau#:#fau_rest_requirements#:#Vorleistungen
 fau#:#fau_rest_subject_semester#:#Fachsemester
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
 fau#:#fau_search_found_events#:#Gefundene Lehrveranstaltungen:

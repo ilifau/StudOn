@@ -659,9 +659,12 @@ fau#:#fau_rest_max#:#max.
 fau#:#fau_rest_min#:#min.
 fau#:#fau_rest_module_in_cos#:#Modul in Course of Studies
 fau#:#fau_rest_n_requirements#:#%s achievements
+fau#:#fau_rest_one_of_studies#:#One of the following Courses of Study
 fau#:#fau_rest_or#:#oder
 fau#:#fau_rest_pf#:#as compulsory subject
 fau#:#fau_rest_pf_wp#:#as compulsory or compulsory elective subject
+fau#:#fau_rest_requirement#:#Requirement
+fau#:#fau_rest_requirements#:#Requirements
 fau#:#fau_rest_subject_semester#:#Subject Semester
 fau#:#fau_search#:#Search Events from Campo
 fau#:#fau_search_found_events#:#Found Events:

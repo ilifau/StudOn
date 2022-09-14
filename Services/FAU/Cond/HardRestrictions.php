@@ -111,11 +111,18 @@ class HardRestrictions
             $resTexts = [];
 
             // first show the module's courses of study as restrictions
+            $studyTexts = [];
             foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudyForModule($module->getModuleId()) as $cos) {
-                $resTexts[] =  $cos->getTitle();
+                $studyTexts[] =  $cos->getTitle();
             }
-            $resTexts = array_unique($resTexts);
-            sort($resTexts);
+            if (!empty($studyTexts)){
+                $studyTexts = array_unique($studyTexts);
+                sort($studyTexts);
+                $label = $this->formatLabel( $this->lng->txt(
+                    count($studyTexts) == 1 ? 'studydata_cos' : 'fau_rest_one_of_studies'), '', '', $html);
+                $resTexts[] = $label . $this->formatList($studyTexts, $html);
+            }
+
 
             // then show the module's restrictions
             foreach ($module->getRestrictions() as $restriction) {
@@ -158,6 +165,13 @@ class HardRestrictions
      */
     protected function getRestrictionAsText(HardRestriction $restriction) : string
     {
+        $reqNames = [];
+        foreach ($restriction->getRequirements() as $requirement) {
+            if ($requirement->getId() != 0) {
+                $reqNames[] = $requirement->getName();
+            }
+        }
+
         $expTexts = [];
         foreach ($restriction->getExpressions() as $expression) {
             $text = '';
@@ -179,21 +193,32 @@ class HardRestrictions
                     $text .= $expression->getNumber() . '. ' . $this->lng->txt('fau_rest_clinical_semester');
                     break;
                 case HardRestriction::TYPE_REQUIREMENT:
-                    if ($expression->getNumber() == 0) {
+
+                    if ($expression->getNumber() == count($reqNames) && $expression->getCompare() == HardExpression::COMPARE_MIN) {
+                        // better formulate "min" condition, if all are needed
+                        if ($expression->getNumber() == 1) {
+                            $text = $this->lng->txt('fau_rest_requirement');
+                        }
+                        else {
+                            $text = sprintf($this->lng->txt('fau_rest_n_requirements'), $expression->getNumber());
+                        }
+                    }
+                    else if ($expression->getNumber() == 0) {
                         $text .= $this->lng->txt('fau_rest_0_requirement');
                     }
                     elseif ($expression->getNumber() == 1) {
                         $text .= $this->lng->txt('fau_rest_1_requirement');
                     }
                     else {
-                        $text .= sprintf($this->lng->txt('fau_rest_n_requirements'), $expression->getNumber());
+                            $text .= sprintf($this->lng->txt('fau_rest_n_requirements'), $expression->getNumber());
                     }
+
                     switch ($expression->getCompulsory()) {
                         case HardExpression::COMPULSORY_PF:
                             $text .= ' '. $this->lng->txt('fau_rest_pf');
                             break;
                         case HardExpression::COMPULSORY_WP:
-                            $text .= ' '. $this->lng->txt('fau_rest_wp');
+                            $text .= ' '. $this->lng->txt('fau_rest_pf_wp');
                             break;
                     }
             }
@@ -202,14 +227,8 @@ class HardRestrictions
 
         $sumText = implode(' '. $this->lng->txt('fau_rest_or') . ' ', $expTexts);
 
-        $reqNames = [];
-        foreach ($restriction->getRequirements() as $requirement) {
-            if ($requirement->getId() != 0) {
-                $reqNames[] = $requirement->getName();
-            }
-        }
         if (!empty($reqNames)) {
-            $sumText .= ' ' . $this->lng->txt('fau_rest_from') . ': ' . implode(', ', $reqNames);
+            $sumText .= ': ' . implode(', ', $reqNames);
         }
 
         return $sumText;
