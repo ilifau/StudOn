@@ -52,6 +52,11 @@ class FAUStudySteps
         $this->changeEventOrgunitsPrimaryKey();
     }
 
+    public function custom_step_105()
+    {
+        $this->extendEventsTextColumns();
+    }
+
     protected function createCoursesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_courses', [
@@ -392,6 +397,16 @@ class FAUStudySteps
     {
         $this->db->dropPrimaryKey('fau_study_event_orgs');
         $this->db->addPrimaryKey('fau_study_event_orgs', ['event_id', 'fauorg_nr']);
+    }
+
+
+    protected function extendEventsTextColumns()
+    {
+        $this->db->modifyTableColumn('fau_study_events', 'title',
+            ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
+
+        $this->db->modifyTableColumn('fau_study_events', 'shorttext',
+            ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
     }
 
 }

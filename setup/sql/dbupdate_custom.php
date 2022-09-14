@@ -1612,3 +1612,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_104();
 ?>
+<#105>
+<?php
+/**
+ * fau: fauService - extend the text columns in the events table
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_105();
+?>
