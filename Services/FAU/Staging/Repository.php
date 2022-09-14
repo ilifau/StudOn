@@ -396,7 +396,8 @@ class Repository extends RecordRepo
      */
     public function saveChange(StudonChange $record)
     {
-        $this->insertRecord($record);
+        // todo: temporarily deactivated
+        // $this->insertRecord($record);
     }
 
 }
