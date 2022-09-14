@@ -255,12 +255,13 @@ class SyncWithCampo extends SyncBase
                 $record ->getRelationId()
             );
             switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($eventUnit);
-                    break;
                 case DipData::DELETED:
                     $this->study->repo()->delete($eventUnit);
+                    break;
+                case DipData::INSERTED:
+                case DipData::CHANGED:
+                default:
+                    $this->study->repo()->save($eventUnit);
                     break;
             }
             $this->staging->repo()->setDipProcessed($record);
