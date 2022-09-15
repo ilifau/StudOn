@@ -128,39 +128,60 @@ class Service extends SubService
 
     /**
      * Save the membership of a user
+     * - omit the module id, if en existiong should not be changed
+     * - use 0 for the module if it should be deleted
      */
-    public function saveMembership(int $obj_id, int $user_id, int $module_id)
+    public function saveMembership(int $obj_id, int $user_id, ?int $module_id = null)
     {
-        $member = $this->repo()->getMember($obj_id, $user_id, New Member($obj_id, $user_id));
-        $old_module_id = (int) $member->getModuleId();
-        $new_module_id = $module_id;
+        $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
+        $course_id = $importId->getCourseId();
+        $person = $this->repo()->getPersonOfUser($user_id);
+        $stagingRepo = $this->dic->fau()->staging()->repo();
 
-        if ($module_id == 0) {
-            $module_id = null;
+        if (empty($course_id) || empty($person || empty($stagingRepo))
+        ) {
+            // not a relevant course or user or not connected
+            return;
         }
-        $this->repo()->save($member->withModuleId($module_id));
 
-        if ($old_module_id != $new_module_id) {
-            $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
+        // get an existing member record
+        $member = $this->repo()->getMember($obj_id, $user_id);
 
-            if (!empty($course_id = $importId->getCourseId())
-                && !empty($repo = $this->dic->fau()->staging()->repo())
-                && !empty($person = $this->repo()->getPersonOfUser($user_id))
-            ) {
-                $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+        $change = false;
+        if (!isset($member)) {
+            // new membership
+            $change = true;
+            $member = new Member($obj_id, $user_id);
+        }
+        elseif (isset($module_id) && $module_id != (int) $member->getModuleId()) {
+            // module id should be changed or reset
+            $change = true;
+            $member = $member->withModuleId($module_id == 0 ? null : $module_id);
+        }
 
-                $repo->saveChange(new StudonChange(
-                    null,
-                    $person->getPersonId(),
-                    $course_id,
-                    $module_id,
-                    StudonChange::TYPE_REGISTERED,
-                    null,
-                    $time,
-                    $time,
-                    null
-                ));
+        // changes should be saved
+        if ($change) {
+            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+
+            // ensure that a change from registration page with module_id
+            // is later than the change from the event handler without module_id
+            if (isset($module_id)) {
+                $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time() + 1);
             }
+
+            $stagingRepo->saveChange(new StudonChange(
+                null,
+                $person->getPersonId(),
+                $course_id,
+                $member->getModuleId(),
+                StudonChange::TYPE_REGISTERED,
+                null,
+                $time,
+                $time,
+                null
+            ));
+
+            $this->repo()->save($member);
         }
     }
 
@@ -169,29 +190,36 @@ class Service extends SubService
      */
     public function deleteMembership(int $obj_id, int $user_id)
     {
-        $member = $this->repo()->getMember($obj_id, $user_id, New Member($obj_id, $user_id));
-        $old_module_id = $member->getModuleId();
-        $this->repo()->delete($member);
-
         $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
+        $course_id = $importId->getCourseId();
+        $person = $this->repo()->getPersonOfUser($user_id);
+        $stagingRepo = $this->dic->fau()->staging()->repo();
 
-        if (!empty($course_id = $importId->getCourseId())
-            && !empty($repo = $this->dic->fau()->staging()->repo())
-            && !empty($person = $this->repo()->getPersonOfUser($user_id))
+        if (empty($course_id) || empty($person || empty($stagingRepo))
         ) {
-            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+            // not a relevant course or user or not connected
+            return;
+        }
 
-            $repo->saveChange(new StudonChange(
+        $member = $this->repo()->getMember($obj_id, $user_id);
+
+        // simple membership has been transmitted => delete
+        if (isset($member) && !$member->hasAnyRole()) {
+
+            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+            $stagingRepo->saveChange(new StudonChange(
                 null,
                 $person->getPersonId(),
                 $course_id,
-                $old_module_id,
+                $member->getModuleId(),
                 StudonChange::TYPE_NOT_REGISTERED,
                 null,
                 $time,
                 $time,
                 null
             ));
+
+            $this->repo()->delete($member);
         }
     }
 }

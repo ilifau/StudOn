@@ -192,19 +192,21 @@ class Member extends RecordData
         return $clone;
     }
 
+
     /**
-     * Check if the member has either a specific role or a selected module
+     * Check if the user has any role as resposible or instructor
+     * i.e. is no simple member
      */
-    public function hasData() : bool
+    public function hasAnyRole()
     {
         return (
-            isset($this->module_id)
-            || $this->event_responsible
+            $this->event_responsible
             || $this->course_responsible
             || $this->instructor
             || $this->individual_instructor
         );
     }
+
 
     /**
      * Check if a certain role is set

@@ -2,6 +2,8 @@
 
 namespace FAU\Ilias;
 
+use FAU\Staging\Data\StudonChange;
+use FAU\Study\Data\ImportId;
 use ILIAS\DI\Container;
 use ilObject;
 use FAU\Study\Data\Course;
@@ -210,5 +212,66 @@ class Objects
     public function isRegistrationHandlerSupported(\ilObject $object) : bool
     {
         return $object instanceof \ilObjCourse || $object instanceof \ilObjGroup;
+    }
+
+
+    /**
+     * Handle the update of an ILIAS object
+     * eventually transmit a change of the maximum members
+     * @param int $obj_id
+     */
+    public function handleUpdate(int $obj_id)
+    {
+        $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
+        $course_id = $importId->getCourseId();
+        $stagingRepo = $this->dic->fau()->staging()->repo();
+
+        if (empty($course_id) || empty($stagingRepo)) {
+            // not a relevant course not connected
+            return;
+        }
+
+        // get the related campo course
+        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($obj_id) as $campoCourse) {
+            break;
+        }
+        if (!isset($campoCourse)) {
+            return;
+        }
+
+        // check if the maximum of members is changed
+        $maximum = null;
+        switch (ilObject::_lookupType($obj_id)) {
+
+            case 'grp':
+                $group = new \ilObjGroup($obj_id, false);
+                if ($group->isMembershipLimited()) {
+                    $maximum = $group->getMaxMembers();
+                }
+                break;
+
+            case 'crs':
+                $course = new \ilObjCourse($obj_id, false);
+                if ($course->isSubscriptionMembershipLimited()) {
+                    $maximum = $course->getSubscriptionMaxMembers();
+                }
+                break;
+        }
+
+        // transmit the change of maximum members to campo, if needed
+        if ($maximum !== $campoCourse->getAttendeeMaximum()) {
+            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
+            $stagingRepo->saveChange(new StudonChange(
+                null,
+                null,
+                $course_id,
+                null,
+                StudonChange::TYPE_ATTENDEE_MAXIMUM_CHANGED,
+                $maximum,
+                $time,
+                $time,
+                null
+            ));
+        }
     }
 }

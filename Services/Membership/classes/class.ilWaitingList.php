@@ -319,13 +319,13 @@ abstract class ilWaitingList
      */
     public function getModuleId($a_usr_id)
     {
-        return $this->users[$a_usr_id]['module_id'] ?? 0;
+        return $this->users[$a_usr_id]['module_id'] ?? null;
     }
 
     /**
      * Update the module id
      * @param int $a_usr_id
-     * @param int $a_module_id
+     * @param int|null $a_module_id
      */
     public function updateModuleId($a_usr_id, $a_module_id)
     {

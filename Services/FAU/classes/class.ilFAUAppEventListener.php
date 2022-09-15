@@ -30,11 +30,29 @@ class ilFAUAppEventListener implements ilAppEventListener
     {
         global $DIC;
         switch ($a_component) {
-            case 'Services/Object':
+
             case 'Modules/Group':
             case 'Modules/Course':
                 switch ($a_event) {
+                    case 'update':
+                        (new self($DIC))->handleObjectUpdate((int) $a_parameter['obj_id']);
+
                     case 'delete':
+                        (new self($DIC))->handleObjectDelete((int) $a_parameter['obj_id']);
+                        break;
+
+                    case 'addParticipant':
+                        (new self($DIC))->handleAddParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        break;
+
+                    case 'deleteParticipant':
+                        (new self($DIC))->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        break;
+                }
+                break;
+
+            case 'Services/Object':
+                switch ($a_event) {
                     case 'toTrash':
                         (new self($DIC))->handleObjectDelete((int) $a_parameter['obj_id']);
                         break;
@@ -49,6 +67,14 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
         }
+    }
+
+    /**
+     * Handle the update of object settings
+     */
+    public function handleObjectUpdate(int $obj_id)
+    {
+        $this->dic->fau()->ilias()->objects()->handleUpdate($obj_id);
     }
 
     /**
@@ -94,4 +120,25 @@ class ilFAUAppEventListener implements ilAppEventListener
             $this->dic->fau()->user()->repo()->delete($person);
         }
     }
+
+    /**
+     * Handle the adding of a participant to a course or group
+     */
+    public function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
+    {
+        if (!$role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
+            $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
+        }
+    }
+
+    /**
+     * Handle the deletion of a participant to a course or group
+     */
+    public function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
+    {
+        if (!$role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
+            $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
+        }
+    }
+
 }

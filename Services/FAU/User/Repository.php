@@ -90,9 +90,9 @@ class Repository extends RecordRepo
 
     /**
      * Get a member record
-     * @return Member
+     * @return Member|null
      */
-    public function getMember(int $obj_id, int $user_id, ?Member $default = null) : RecordData
+    public function getMember(int $obj_id, int $user_id, ?Member $default = null) : ?RecordData
     {
         $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer')
             . " AND user_id=" . $this->db->quote($user_id, 'integer');
