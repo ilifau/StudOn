@@ -355,6 +355,7 @@ class SyncWithCampo extends SyncBase
                     break;
                 case DipData::INSERTED:
                 case DipData::CHANGED:
+                default:
                     $this->user->repo()->save($education);
                     break;
             }

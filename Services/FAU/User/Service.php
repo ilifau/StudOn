@@ -38,7 +38,7 @@ class Service extends SubService
         if (!empty($person = $this->dic->fau()->user()->repo()->getPersonOfUser($user_id))) {
             foreach ($this->repo()->getEducationsOfPerson($person->getPersonId()) as $education) {
                 $texts[] = $education->getOrgunit() . ': ' . $education->getExamname() . ' (' . $education->getDateOfWork()  . ')'
-                    . empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText();
+                    . (empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText());
             }
         }
         return implode("\n", $texts);
