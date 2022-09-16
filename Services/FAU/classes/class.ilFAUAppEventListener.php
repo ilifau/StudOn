@@ -52,6 +52,18 @@ class ilFAUAppEventListener implements ilAppEventListener
                 }
                 break;
 
+            case 'Services/AccessControl':
+                switch ($a_event) {
+                    case 'assignUser':
+                        (new self($DIC))->handleAddToRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
+                        break;
+
+                    case 'deaassignUser':
+                        (new self($DIC))->handleRemoveFromRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
+                        break;
+                }
+                break;
+
             case 'Services/Object':
                 switch ($a_event) {
                     case 'toTrash':
@@ -73,7 +85,7 @@ class ilFAUAppEventListener implements ilAppEventListener
     /**
      * Handle the update of object settings
      */
-    public function handleObjectUpdate(int $obj_id)
+    protected function handleObjectUpdate(int $obj_id)
     {
         $this->dic->fau()->ilias()->objects()->handleUpdate($obj_id);
     }
@@ -82,7 +94,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      * Handle the deletion of a course or a group
      * (trash or final delete)
      */
-    public function handleObjectDelete(int $obj_id)
+    protected function handleObjectDelete(int $obj_id)
     {
         // delete the reference in a campo course
         // new object will be created in the next sync
@@ -109,7 +121,7 @@ class ilFAUAppEventListener implements ilAppEventListener
     /**
      * Handle the deletion of a user account
      */
-    public function handleUserDelete(int $user_id)
+    protected function handleUserDelete(int $user_id)
     {
         // delete the membership status
         foreach ($this->dic->fau()->user()->repo()->getMembersOfUser($user_id , false) as $member) {
@@ -125,7 +137,7 @@ class ilFAUAppEventListener implements ilAppEventListener
     /**
      * Handle the adding of a participant to a course or group
      */
-    public function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
+    protected function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
     {
         if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
             $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
@@ -135,11 +147,36 @@ class ilFAUAppEventListener implements ilAppEventListener
     /**
      * Handle the deletion of a participant to a course or group
      */
-    public function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
+    protected function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
     {
         if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
             $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
         }
     }
 
+    /**
+     * Handle the adding of a user to a role
+     */
+    protected function handleAddToRole(int $obj_id, int $user_id, int $role_id, string $type)
+    {
+        if ($type == 'crs' || $type == 'grp') {
+            $title = ilObject::_lookupTitle($role_id);
+            if (in_array(substr($title, 0, 14), ['il_crs_member_', 'il_grp_member_'])) {
+                $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
+            }
+        }
+    }
+
+    /**
+     * Handle the removing of a user to a role
+     */
+    protected function handleRemoveFromRole(int $obj_id, int $user_id, int $role_id, string $type)
+    {
+        if ($type == 'crs' || $type == 'grp') {
+            $title = ilObject::_lookupTitle($role_id);
+            if (in_array(substr($title, 0, 14), ['il_crs_member_', 'il_grp_member_'])) {
+                $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
+            }
+        }
+    }
 }

@@ -13,6 +13,7 @@
 	<events>
 		<event type="listen" id="Modules/Group" />
 		<event type="listen" id="Modules/Course" />
+		<event type="listen" id="Services/AccessControl" />
 		<event type="listen" id="Services/Object" />
 		<event type="listen" id="Services/User" />
 	</events>
