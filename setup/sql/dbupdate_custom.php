@@ -1619,3 +1619,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_105();
 ?>
+<#106>
+<?php
+/**
+ * fau: fauService - recreate the exucations table
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_106();
+?>

@@ -27,6 +27,12 @@ class FAUUserSteps
         $this->createUserOrgRolesTable(false);
     }
 
+    public function custom_step_106()
+    {
+        // drop the old version
+        $this->createUserEducationsTable(true);
+    }
+
 
     protected function createUserAchievementsTable(bool $drop = false)
     {
@@ -42,17 +48,23 @@ class FAUUserSteps
     protected function createUserEducationsTable(bool $drop = false)
     {
         $this->db->createTable('fau_user_educations', [
-            'user_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true],
-            'type'          => ['type' => 'text',       'length' => 250,    'notnull' => true],
-            'key'           => ['type' => 'text',       'length' => 250,    'notnull' => true],
-            'value'         => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
-            'key_title'     => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
-            'value_text'    => ['type' => 'text',       'length' => 250,    'notnull' => false, 'default' => null],
+            'id'            => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'semester'      => ['type' => 'text',       'length' => 250,    'notnull' => false],
+            'person_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => false],
+            'examnr'        => ['type' => 'text',       'length' => 250,    'notnull' => false],
+            'date_of_work'  => ['type' => 'date',                           'notnull' => false],
+            'examname'      => ['type' => 'text',       'length' => 250,    'notnull' => false],
+            'orgunit'       => ['type' => 'text',       'length' => 250,    'notnull' => false],
+            'additional_text' => ['type' => 'text',       'length' => 4000,    'notnull' => false],
             ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_user_educations', ['user_id', 'type', 'key']);
+        $this->db->addPrimaryKey('fau_user_educations', ['id']);
+        $this->db->addIndex('fau_user_educations', ['semester'], 'i1');
+        $this->db->addIndex('fau_user_educations', ['person_id'], 'i2');
+        $this->db->addIndex('fau_user_educations', ['orgunit'], 'i3');
     }
+
 
     public function createUserPersonsTable(bool $drop = false)
     {

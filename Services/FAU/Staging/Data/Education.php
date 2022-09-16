@@ -10,90 +10,113 @@ class Education extends DipData
     protected const tableName = 'campo_specific_educations';
     protected const hasSequence = false;
     protected const keyTypes = [
-        'idm_uid' => 'text',
-        'type' => 'text',
-        'key' => 'text'
+        'id' => 'integer',
     ];
     protected const otherTypes = [
-        'value' => 'text',
-        'key_title' => 'text',
-        'value_text' => 'text',
+        'semester' => 'text',
+        'person_id' => 'integer',
+        'examnr' => 'text',
+        'date_of_work' => 'text',
+        'examname' => 'text',
+        'orgunit' => 'text',
+        'additional_text' => 'text',
     ];
-
-    protected string $idm_uid = '';
-    protected string $type = '';
-    protected string $key = '';
-    protected string $value = '';
-    protected ?string $key_title;
-    protected ?string $value_text;
+    protected int $id;
+    protected ?string $semester;
+    protected ?int $person_id;
+    protected ?string $examnr;
+    protected ?string $date_of_work;
+    protected ?string $examname;
+    protected ?string $orgunit;
+    protected ?string $additional_text;
 
     public function __construct(
-        string $idm_uid,
-        string $type,
-        string $key,
-        string $value,
-        ?string $key_title,
-        ?string $value_text
+        int $id,
+        ?string $semester,
+        ?int $person_id,
+        ?string $examnr,
+        ?string $date_of_work,
+        ?string $examname,
+        ?string $orgunit,
+        ?string $additional_text
     )
     {
-        $this->idm_uid = $idm_uid;
-        $this->type = $type;
-        $this->key = $key;
-        $this->value = $value;
-        $this->key_title = $key_title;
-        $this->value_text = $value_text;
+        $this->id = $id;
+        $this->semester = $semester;
+        $this->person_id = $person_id;
+        $this->examnr = $examnr;
+        $this->date_of_work = $date_of_work;
+        $this->examname = $examname;
+        $this->orgunit = $orgunit;
+        $this->additional_text = $additional_text;
     }
 
     public static function model(): self
     {
-        return new self('', '', '', '', null, null);
+        return new self(0,null,null,null,null,null,null,null);
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getIdmUid() : string
+    public function getId(): int
     {
-        return $this->idm_uid;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType() : string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getKey() : string
-    {
-        return $this->key;
-    }
-
-    /**
-     * @return string
-     */
-    public function getValue() : string
-    {
-        return $this->value;
+        return $this->id;
     }
 
     /**
      * @return string|null
      */
-    public function getKeyTitle() : ?string
+    public function getSemester(): ?string
     {
-        return $this->key_title;
+        return $this->semester;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getPersonId(): ?int
+    {
+        return $this->person_id;
     }
 
     /**
      * @return string|null
      */
-    public function getValueText() : ?string
+    public function getExamnr(): ?string
     {
-        return $this->value_text;
+        return $this->examnr;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDateOfWork(): ?string
+    {
+        return $this->date_of_work;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getExamname(): ?string
+    {
+        return $this->examname;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOrgunit(): ?string
+    {
+        return $this->orgunit;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAdditionalText(): ?string
+    {
+        return $this->additional_text;
     }
 }
