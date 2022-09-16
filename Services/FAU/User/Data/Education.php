@@ -3,115 +3,121 @@
 namespace FAU\User\Data;
 
 use FAU\RecordData;
+use FAU\Staging\Data\DipData;
 
 class Education extends RecordData
 {
     protected const tableName = 'fau_user_educations';
     protected const hasSequence = false;
     protected const keyTypes = [
-        'user_id' => 'integer',
-        'type' => 'text',
-        'key' => 'text'
+        'id' => 'integer',
     ];
     protected const otherTypes = [
-        'value' => 'text',
-        'key_title' => 'text',
-        'value_text' => 'text'
+        'semester' => 'text',
+        'person_id' => 'integer',
+        'examnr' => 'text',
+        'date_of_work' => 'text',
+        'examname' => 'text',
+        'orgunit' => 'text',
+        'additional_text' => 'text',
     ];
-
-    protected int $user_id;
-    protected string $type;
-    protected string $key;
-    protected string $value;
-    protected ?string $key_title;
-    protected ?string $value_text;
+    protected int $id;
+    protected ?string $semester;
+    protected ?int $person_id;
+    protected ?string $examnr;
+    protected ?string $date_of_work;
+    protected ?string $examname;
+    protected ?string $orgunit;
+    protected ?string $additional_text;
 
     public function __construct(
-        int $user_id,
-        string $type,
-        string $key,
-        string $value,
-        ?string $key_title,
-        ?string $value_text
+        int $id,
+        ?string $semester,
+        ?int $person_id,
+        ?string $examnr,
+        ?string $date_of_work,
+        ?string $examname,
+        ?string $orgunit,
+        ?string $additional_text
     )
     {
-        $this->user_id = $user_id;
-        $this->type = $type;
-        $this->key = $key;
-        $this->value = $value;
-        $this->key_title = $key_title;
-        $this->value_text = $value_text;
+        $this->id = $id;
+        $this->semester = $semester;
+        $this->person_id = $person_id;
+        $this->examnr = $examnr;
+        $this->date_of_work = $date_of_work;
+        $this->examname = $examname;
+        $this->orgunit = $orgunit;
+        $this->additional_text = $additional_text;
     }
 
     public static function model(): self
     {
-        return new self(0,'','','', null, null);
+        return new self(0,null,null,null,null,null,null,null);
     }
 
     /**
-     * User id to which this education is assigned
+     * @return int
      */
-    public function getUserId() : int
+    public function getId(): int
     {
-        return $this->user_id;
+        return $this->id;
     }
 
     /**
-     * Type of the education, e.g. 'language'
-     * This is used to filter the educations shown in courses of specific organizations
+     * @return string|null
      */
-    public function getType() : string
+    public function getSemester(): ?string
     {
-        return $this->type;
+        return $this->semester;
     }
 
     /**
-     * Key of the education, e.g. 'Spanish'
+     * @return int|null
      */
-    public function getKey() : string
+    public function getPersonId(): ?int
     {
-        return $this->key;
+        return $this->person_id;
     }
 
     /**
-     * Value of the edication, e.g. "E2"
+     * @return string|null
      */
-    public function getValue() : string
+    public function getExamnr(): ?string
     {
-        return $this->value;
+        return $this->examnr;
     }
 
     /**
-     * Optional title of the key for better understanding
+     * @return string|null
      */
-    public function getKeyTitle() : ?string
+    public function getDateOfWork(): ?string
     {
-        return $this->key_title;
+        return $this->date_of_work;
     }
 
     /**
-     * Optional key of the value for better undestanding
+     * @return string|null
      */
-    public function getValueText() : ?string
+    public function getExamname(): ?string
     {
-        return $this->value_text;
+        return $this->examname;
     }
 
     /**
-     * Get the title (label) of the property
-     * Either the key title (if given) or the key
+     * @return string|null
      */
-    public function getTitle() : string
+    public function getOrgunit(): ?string
     {
-        return $this->key_title ?? $this->key;
+        return $this->orgunit;
     }
 
     /**
-     * Get the textual value
-     * Either the value text (if given) or the value
+     * @return string|null
      */
-    public function getText() : string
+    public function getAdditionalText(): ?string
     {
-        return $this->value_text ?? $this->value;
+        return $this->additional_text;
     }
+
 }

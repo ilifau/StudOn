@@ -47,24 +47,15 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, UserOrgRole::model());
     }
 
-
     /**
-     * Delete the educations of a user account (e.g. if user is deleted)
-     */
-    public function deleteEducationsOfUser(int $user_id) : void
-    {
-        $this->db->manipulateF("DELETE FROM fau_user_educations WHERE user_id = %s", ['int'], [$user_id]);
-    }
-
-    /**
-     * Get the educations assigned to a user
+     * Get the educations assigned to a person
      * @return Education[]
      */
-    public function getEducationsOfUser(int $user_id, ?string $type = null) : array
+    public function getEducationsOfPerson(int $person_id, ?string $orgunit = null) : array
     {
-        $query = "SELECT * FROM fau_user_educations WHERE user_id = " . $this->db->quote($user_id, 'integer');
-        if (isset($type))  {
-            $query .= " AND " . $this->db->quoteIdentifier('type') . ' = ' . $this->db->quote($type, 'text');
+        $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote($person_id, 'integer');
+        if (isset($orgunit))  {
+            $query .= " AND " . $this->db->quoteIdentifier('orgunit') . ' = ' . $this->db->quote($orgunit, 'text');
         }
         return $this->queryRecords($query, Education::model());
     }

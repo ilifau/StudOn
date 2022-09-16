@@ -35,8 +35,11 @@ class Service extends SubService
     public function getEducationsAsText(int $user_id) : string
     {
         $texts = [];
-        foreach ($this->repo()->getEducationsOfUser($user_id) as $education) {
-            $texts[] = $education->getTitle() . ': ' . $education->getText();
+        if (!empty($person = $this->dic->fau()->user()->repo()->getPersonOfUser($user_id))) {
+            foreach ($this->repo()->getEducationsOfPerson($person->getPersonId()) as $education) {
+                $texts[] = $education->getOrgunit() . ': ' . $education->getExamname() . ' (' . $education->getDateOfWork()  . ')'
+                    . empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText();
+            }
         }
         return implode("\n", $texts);
     }

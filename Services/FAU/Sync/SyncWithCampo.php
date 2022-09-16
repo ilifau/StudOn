@@ -76,7 +76,7 @@ class SyncWithCampo extends SyncBase
         $this->syncInstructors();
         $this->syncIndividualInstructors();
         $this->syncAchievements();
-        // $this->syncEducations();
+        $this->syncEducations();
     }
 
     /**
@@ -333,33 +333,32 @@ class SyncWithCampo extends SyncBase
     }
 
     /**
-     * Synchronize data found in the staging table campo_specific_educations
-     * @todo: a new data scheme will be provided
+     * Synchronize data found in the staging table campo_specific_educationsd
      */
     public function syncEducations() : void
     {
         $this->info('syncEducations...');
         foreach ($this->staging->repo()->getEducationsToDo() as $record) {
-            if (!empty($user_id = $this->user->findUserIdByIdmUid($record->getIdmUid()))) {
-                $education = new Education(
-                    $user_id,
-                    $record->getType(),
-                    $record->getKey(),
-                    $record->getValue(),
-                    $record->getKeyTitle(),
-                    $record->getValueText()
-                );
-                switch ($record->getDipStatus()) {
-                    case DipData::INSERTED:
-                    case DipData::CHANGED:
-                        $this->user->repo()->save($education);
-                        break;
-                    case DipData::DELETED:
-                        $this->user->repo()->delete($education);
-                        break;
-                }
-                $this->staging->repo()->setDipProcessed($record);
+            $education = new Education(
+                $record->getId(),
+                $record->getSemester(),
+                $record->getPersonId(),
+                $record->getExamnr(),
+                $record->getDateOfWork(),
+                $record->getExamname(),
+                $record->getOrgunit(),
+                $record->getAdditionalText()
+            );
+            switch ($record->getDipStatus()) {
+                case DipData::DELETED:
+                    $this->user->repo()->delete($education);
+                    break;
+                case DipData::INSERTED:
+                case DipData::CHANGED:
+                    $this->user->repo()->save($education);
+                    break;
             }
+            $this->staging->repo()->setDipProcessed($record);
         }
     }
 
