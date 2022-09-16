@@ -192,6 +192,15 @@ class Member extends RecordData
         return $clone;
     }
 
+    /**
+     * Check if the member has either a specific role or a selected module
+     */
+    public function hasData() : bool
+    {
+        return (
+            isset($this->module_id) || $this->hasAnyRole()
+        );
+    }
 
     /**
      * Check if the user has any role as resposible or instructor

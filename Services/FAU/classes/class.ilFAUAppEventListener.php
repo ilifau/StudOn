@@ -36,6 +36,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                 switch ($a_event) {
                     case 'update':
                         (new self($DIC))->handleObjectUpdate((int) $a_parameter['obj_id']);
+                        break;
 
                     case 'delete':
                         (new self($DIC))->handleObjectDelete((int) $a_parameter['obj_id']);

@@ -269,6 +269,17 @@ class Course extends RecordData
         return $clone;
     }
 
+    /**
+     * @param int|null $attendee_maximum
+     * @return $this
+     */
+    public function withAttendeeMaximum(?int $attendee_maximum) : self
+    {
+        $clone = clone $this;
+        $clone->attendee_maximum = $attendee_maximum;
+        return $clone;
+    }
+
 
     /**
      * Note that course data has changed

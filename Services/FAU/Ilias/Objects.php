@@ -272,6 +272,10 @@ class Objects
                 $time,
                 null
             ));
+
+
+            // prevent multiple change entries for further updates
+            $this->dic->fau()->study()->repo()->save($campoCourse->withAttendeeMaximum($maximum));
         }
     }
 }
