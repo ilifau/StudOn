@@ -257,6 +257,9 @@ class Objects
                 }
                 break;
         }
+        if($maximum !== null) {
+            $maximum = (int) $maximum;
+        }
 
         // transmit the change of maximum members to campo, if needed
         if ($maximum !== $campoCourse->getAttendeeMaximum()) {

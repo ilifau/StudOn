@@ -127,7 +127,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      */
     public function handleAddParticipant(int $obj_id, int $user_id, int $role_id)
     {
-        if (!$role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
+        if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
             $this->dic->fau()->user()->saveMembership($obj_id, $user_id);
         }
     }
@@ -137,7 +137,7 @@ class ilFAUAppEventListener implements ilAppEventListener
      */
     public function handleDeleteParticipant(int $obj_id, int $user_id, int $role_id)
     {
-        if (!$role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
+        if ($role_id == IL_CRS_MEMBER || $role_id == IL_GRP_MEMBER) {
             $this->dic->fau()->user()->deleteMembership($obj_id, $user_id);
         }
     }

@@ -141,8 +141,7 @@ class Service extends SubService
         $person = $this->repo()->getPersonOfUser($user_id);
         $stagingRepo = $this->dic->fau()->staging()->repo();
 
-        if (empty($course_id) || empty($person || empty($stagingRepo))
-        ) {
+        if (empty($course_id) || empty($person) || empty($stagingRepo)) {
             // not a relevant course or user or not connected
             return;
         }
@@ -159,8 +158,9 @@ class Service extends SubService
         elseif (isset($module_id) && $module_id != (int) $member->getModuleId()) {
             // module id should be changed or reset
             $change = true;
-            $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
+        $member = $member->withModuleId($module_id == 0 ? null : $module_id);
+
 
         // changes should be saved
         if ($change) {
@@ -198,8 +198,7 @@ class Service extends SubService
         $person = $this->repo()->getPersonOfUser($user_id);
         $stagingRepo = $this->dic->fau()->staging()->repo();
 
-        if (empty($course_id) || empty($person || empty($stagingRepo))
-        ) {
+        if (empty($course_id) || empty($person) || empty($stagingRepo)) {
             // not a relevant course or user or not connected
             return;
         }
