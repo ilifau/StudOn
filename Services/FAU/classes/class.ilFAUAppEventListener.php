@@ -58,7 +58,7 @@ class ilFAUAppEventListener implements ilAppEventListener
                         (new self($DIC))->handleAddToRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
                         break;
 
-                    case 'deaassignUser':
+                    case 'deassignUser':
                         (new self($DIC))->handleRemoveFromRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
                         break;
                 }
