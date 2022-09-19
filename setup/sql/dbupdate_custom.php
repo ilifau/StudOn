@@ -1626,3 +1626,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_106();
 ?>
+<#107>
+<?php
+/**
+ * fau: fauService - create the table for cos relation of event restrictions
+ */
+\FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_107();
+?>
