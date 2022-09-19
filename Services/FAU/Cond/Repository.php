@@ -2,6 +2,7 @@
 
 namespace FAU\Cond;
 
+use FAU\Cond\Data\EventRestCos;
 use FAU\Cond\Data\EventRestriction;
 use FAU\RecordRepo;
 use FAU\RecordData;
@@ -138,7 +139,19 @@ class Repository extends RecordRepo
      */
     public function getHardRestrictionsOfEvent(int $event_id) : array
     {
-        return $this->getHardRestrictionsOfTarget(self::TARGET_EVENT, $event_id);
+        $restrictions = [];
+        foreach($this->getHardRestrictionsOfTarget(self::TARGET_EVENT, $event_id) as $restriction) {
+            foreach ($this->getEventRestCos($event_id, $restriction->getRestriction()) as $restCos) {
+                if ($restCos->isException()) {
+                    $restriction = $restriction->withExceptionCosId($restCos->getCosId());
+                }
+                else {
+                    $restriction = $restriction->withRegardingCosId($restCos->getCosId());
+                }
+            }
+            $restrictions[] = $restriction;
+        }
+        return $restrictions;
     }
 
     /**
@@ -206,5 +219,21 @@ class Repository extends RecordRepo
             $restrictions[$restriction->getRestriction()] = $restriction;
         }
         return $restrictions;
+    }
+
+
+    /**
+     * Get the couse of study relations ffor an event and restrictions
+     * @param int $event_id
+     * @param string $restriction
+     * @return EventRestCos[]
+     */
+    public function getEventRestCos(int $event_id, string $restriction) : array
+    {
+        $query = "SELECT * from fau_cond_evt_rest_cos"
+            . " WHERE event_id = " . $this->db->quote($event_id, 'integer')
+            . " AND restriction = " . $this->db->quote($restriction, 'text');
+
+        return $this->queryRecords($query, EventRestCos::model());
     }
 }

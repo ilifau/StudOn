@@ -2,6 +2,7 @@
 
 namespace FAU\Cond;
 
+use FAU\Cond\Data\Restriction;
 use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\Event;
 use FAU\User\Data\Achievement;
@@ -148,7 +149,26 @@ class HardRestrictions
         if (!empty($event) && !empty($event->getRestrictions()))
         {
             foreach ($event->getRestrictions() as $restriction) {
-                $resTexts[] = $this->getRestrictionAsText($restriction);
+                $resText = $this->getRestrictionAsText($restriction);
+                if (!empty($restriction->getRegardingCosIds())) {
+                    $cosTexts = [];
+                    foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudy($restriction->getRegardingCosIds()) as $cos) {
+                        $cosTexts[] = $cos->getTitle();
+                    }
+                    $resTexts[] = $this->getRestrictionAsText($restriction) . ' - ' . $this->lng->txt('fau_rest_regarding_cos')
+                        . $this->formatList(array_unique($cosTexts), $html);
+                }
+                elseif (!empty($restriction->getExceptionCosIds())) {
+                    $cosTexts = [];
+                    foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudy($restriction->getExceptionCosIds()) as $cos) {
+                        $cosTexts[] = $cos->getTitle();
+                    }
+                    $resTexts[] = $this->getRestrictionAsText($restriction) . ' - ' . $this->lng->txt('fau_rest_exception_cos')
+                        . $this->formatList(array_unique($cosTexts), $html);
+                }
+                else {
+                    $resTexts[] = $this->getRestrictionAsText($restriction);
+                }
             }
             $label = $this->formatLabel($this->lng->txt('fau_campo_event'), '', '', $html);
             $texts = array_merge([$label . $this->formatList($resTexts, $html)], $texts);
@@ -487,6 +507,30 @@ class HardRestrictions
      */
     protected function checkRestriction(HardRestriction $restriction, array $subjects, array $achievements) : bool
     {
+        // event based restriction is not relevant for certain courses of study
+        if (!empty($restriction->getExceptionCosIds())) {
+            foreach ($subjects as $subject) {
+                if (in_array($subject->getCourseOfStudyDbId(), $restriction->getExceptionCosIds())) {
+                    // course of study is an exception for the restriction
+                    return true;
+                }
+            }
+        }
+
+        // event based restriction is only relevant for certain courses of study
+        if (!empty($restriction->getRegardingCosIds())) {
+            $found = false;
+            foreach ($subjects as $subject) {
+                if (in_array($subject->getCourseOfStudyDbId(), $restriction->getRegardingCosIds())) {
+                    $found = true;
+                }
+            }
+            if (!$found) {
+                // no course of study is relevant for this restriction
+                return true;
+            }
+        }
+
         $achievedIds = [];
         foreach ($achievements as $achievement) {
             $achievedIds[] = $achievement->getRequirementId();

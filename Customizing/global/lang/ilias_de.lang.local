@@ -666,6 +666,8 @@ fau#:#fau_rest_pf_wp#:#als Pflichtfach oder Wahlpflicht
 fau#:#fau_rest_requirement#:#Vorleistung
 fau#:#fau_rest_requirements#:#Vorleistungen
 fau#:#fau_rest_subject_semester#:#Fachsemester
+fau#:#fau_rest_regarding_cos#:#nur bei Studiengang:
+fau#:#fau_rest_exception_cos#:#ausgenommen bei Studiengang:
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
 fau#:#fau_search_found_events#:#Gefundene Lehrveranstaltungen:
 fau#:#fau_search_ilias_course#:#StudOn-Kurs

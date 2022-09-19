@@ -666,6 +666,8 @@ fau#:#fau_rest_pf_wp#:#as compulsory or compulsory elective subject
 fau#:#fau_rest_requirement#:#Requirement
 fau#:#fau_rest_requirements#:#Requirements
 fau#:#fau_rest_subject_semester#:#Subject Semester
+fau#:#fau_rest_regarding_cos#:#only for course of study:
+fau#:#fau_rest_exception_cos#:#except for course of study:
 fau#:#fau_search#:#Search Events from Campo
 fau#:#fau_search_found_events#:#Found Events:
 fau#:#fau_search_ilias_course#:#StudOn Course

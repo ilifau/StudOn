@@ -17,6 +17,18 @@ class HardRestriction
     /** @var HardRequirement[] */
     private array $requirements = [];
 
+    /**
+     * Course of study ids for which this restriction is valid
+     * @var int[]
+     */
+    protected array $regarding_cos_ids = [];
+
+    /**
+     * Course of study ids for which this restriction is not valid
+     * @var int[]
+     */
+    protected array $exception_cos_ids = [];
+
 
     public function __construct(
         string $restriction,
@@ -98,4 +110,50 @@ class HardRestriction
     {
         return isset($this->requirements[$id]);
     }
+
+
+    /**
+     * Get the course of study ids for which this restriction should be tested
+     * If the list is empty then the restriction is valid for all
+     * @return int[]
+     */
+    public function getRegardingCosIds(): array
+    {
+        return $this->regarding_cos_ids;
+    }
+
+    /**
+     * Get the course of study ids for which this restriction should not be tested
+     * If the list is empty then the restriction is valid for all
+     * @return int[]
+     */
+    public function getExceptionCosIds(): array
+    {
+        return $this->exception_cos_ids;
+    }
+
+    /**
+     * Add a course of study id for which this restriction should be tested
+     * @param int $regarding_cos_id
+     * @return EventRestriction
+     */
+    public function withRegardingCosId(int $id): HardRestriction
+    {
+        $clone = clone $this;
+        $clone->regarding_cos_ids[] = $id;
+        return $clone;
+    }
+
+    /**
+     * Add a course of study id for which this restriction should not be tested
+     * @param int[] $exception_cos_ids
+     * @return EventRestriction
+     */
+    public function withExceptionCosId(int $id): HardRestriction
+    {
+        $clone = clone $this;
+        $clone->exception_cos_ids[] = $id;
+        return $clone;
+    }
+
 }

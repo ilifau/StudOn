@@ -9,6 +9,7 @@ use FAU\RecordData;
  * Validity of an event restriction for certain courses of study
  * These records are hand-written and not yet synced from campo
  * The relation stores the cos_ids for a combination of event_id and restriction
+ *
  * If records exist with isException() == false
  *      then the restriction is only valid for these courses of study
  * If records exist with isException() == true
@@ -26,11 +27,10 @@ class EventRestCos extends RecordData
     protected const otherTypes = [
         'exception' => 'integer',
     ];
-    private int $event_id;
-    private string $restriction;
-    private int $cos_id;
-    private bool $exception;
-
+    protected int $event_id;
+    protected string $restriction;
+    protected int $cos_id;
+    protected int $exception;
 
     public function __construct(
         int    $event_id,
@@ -42,7 +42,7 @@ class EventRestCos extends RecordData
         $this->event_id = $event_id;
         $this->restriction = $restriction;
         $this->cos_id = $cos_id;
-        $this->exception = $exception;
+        $this->exception = (int) $exception;
     }
 
     public static function model() : self
@@ -79,6 +79,6 @@ class EventRestCos extends RecordData
      */
     public function isException(): bool
     {
-        return $this->exception;
+        return (bool) $this->exception;
     }
 }
