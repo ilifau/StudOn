@@ -51,9 +51,9 @@ class Repository extends RecordRepo
      * Get the educations assigned to a person
      * @return Education[]
      */
-    public function getEducationsOfPerson(int $person_id, ?string $orgunit = null) : array
+    public function getEducationsOfPerson(?int $person_id, ?string $orgunit = null) : array
     {
-        $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote($person_id, 'integer');
+        $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
         if (isset($orgunit))  {
             $query .= " AND " . $this->db->quoteIdentifier('orgunit') . ' = ' . $this->db->quote($orgunit, 'text');
         }
@@ -73,9 +73,9 @@ class Repository extends RecordRepo
      * Get the achievements of a person
      * @return Achievement[]
      */
-    public function getAchievementsOfPerson(int $person_id) : array
+    public function getAchievementsOfPerson(?int $person_id) : array
     {
-        $query = "SELECT * FROM fau_user_achievements WHERE person_id = " . $this->db->quote($person_id, 'integer');
+        $query = "SELECT * FROM fau_user_achievements WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
         return $this->queryRecords($query, Achievement::model());
     }
 
