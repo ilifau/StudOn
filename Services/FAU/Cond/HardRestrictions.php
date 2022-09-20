@@ -47,6 +47,13 @@ class HardRestrictions
     protected array $checkedUserCos = [];
 
     /**
+     * Modules that fit the user's courses of study
+     * These may have satisfied or unsatisfied restrictions
+     * @var Module[]
+     */
+    protected $checkedFittingModules = [];
+
+    /**
      * Modules that are allowed for a selection at registration
      * The restrictions are cleared in these modules
      * @var Module[]
@@ -393,11 +400,25 @@ class HardRestrictions
 
     /**
      * Get the modules that are allowed for selection at registration
+     * If restrictions are fulfilled, then only these modules should be selectable for direct registration
      * @return Module[]
      */
     public function getCheckedAllowedModules(): array
     {
         return $this->checkedAllowedModules;
+    }
+
+    /**
+     * Get the modules that are fitting the user's courses of study
+     * These may have satisfied restrictions or not
+     * If restrictions are not fulfilled, then these modules should be selectable for the registration by request
+     * The course responsible may overrule the restrictions by accepting the request,
+     * but the module selection should only be possible for modules fitting to the courses of study
+     * @return Module[]
+     */
+    public function getCheckedFittingModules(): array
+    {
+        return $this->checkedFittingModules;
     }
 
     /**
@@ -464,15 +485,10 @@ class HardRestrictions
         // if no subject matches, then the module should not be allowed
         $cos_ids = $this->dic->fau()->study()->repo()->getCoursesOfStudyIdsForModule($module->getModuleId());
         $subjects = $person->getSubjectsWithCourseOfStudyDbIds($term, $cos_ids);
-        if (empty($subjects)) {
-            $this->checkedForbiddenModules[] = $checkedModule;
-            return false;
-        }
-
-        // allow the module directly if no restrictions are defined
-        if (empty($module->getRestrictions())) {
-            $this->checkedAllowedModules[] = $checkedModule;
-            return true;
+        if (!empty($subjects)) {
+            // module fits for the users study and may be selectable for a registration request
+            // but further restrictions have to be checked
+            $this->checkedFittingModules[] = $checkedModule;
         }
 
         // load the achieved requirements of the person (cached)
@@ -488,7 +504,7 @@ class HardRestrictions
             }
         }
 
-        if ($oneRestrictionFailed) {
+        if (empty($subjects) || $oneRestrictionFailed) {
             $this->checkedForbiddenModules[] = $checkedModule;
             return false;
         }

@@ -257,10 +257,21 @@ abstract class ilRegistrationGUI
         $this->matches_restrictions = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
         $this->adjustSubType();
 
+        // by default use only the allowed modules
+        $modules = $hardRestrictions->getCheckedAllowedModules();
+        if (empty($modules) && !$this->matches_restrictions) {
+            // if acceptance is needed, use all modules fitting for the study, even if their restrictions failed
+            // acceptance into the course will be acceptance of the selected module
+            $modules = $hardRestrictions->getCheckedFittingModules();
+        }
+
         $message = $hardRestrictions->getCheckResultMessage();
         if (!empty($message)) {
             if (!$this->matches_restrictions) {
-                $message .= ' <strong>' . $this->lng->txt('fau_check_failed_but_request') . '</strong>';
+                $message .= '<br><strong>' . $this->lng->txt(empty($modules) ?
+                        'fau_check_failed_but_request_without_modules' :
+                        'fau_check_failed_but_request_with_modules'
+                    ) . '</strong>';
             }
             elseif ($this->has_studycond && !$this->matches_studycond) {
                 $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
@@ -276,7 +287,7 @@ abstract class ilRegistrationGUI
             }
         }
 
-        if ($this->matches_restrictions && !empty($modules = $hardRestrictions->getCheckedAllowedModules())) {
+        if (!empty($modules)) {
 
             /** @var ilWaitingList $list */
             $list = $this->getWaitingList();
