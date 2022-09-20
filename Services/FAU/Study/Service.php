@@ -364,6 +364,30 @@ class Service extends SubService
 
 
     /**
+     * Get the term for the next semester
+     * @return Term
+     */
+    public function getNextTerm() : Term
+    {
+        $year = (int) date('Y');
+        $month = (int) date('m');
+
+        if ($month < 4) {
+            // summer semester of current year
+            return new Term($year, 1);
+        }
+        elseif ($month < 10) {
+            // winter semester of current
+            return new Term($year, 2);
+        }
+        else {
+            // summer semester of next year
+            return new Term($year + 1, 1);
+        }
+    }
+
+
+    /**
      * Get the text for a term (current language)
      */
     public function getTermText(?Term $term, bool $short = false) : string

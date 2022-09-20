@@ -89,7 +89,7 @@ class Person extends RecordData
             foreach ((array) json_decode($this->studydata, true) as $period => $studies) {
                 foreach ((array) $studies as $index => $data) {
                     $study = new Study($data);
-                    $this->studies[$period][sprintf('%02d.%02d', (int) $study->getStudynumber(), $index)] = $study;
+                    $this->studies[$period][$period. '.' . sprintf('%02d.%02d', (int) $study->getStudynumber(), $index)] = $study;
                 }
             }
         }

@@ -59,7 +59,12 @@ class Service extends SubService
         $texts = [];
 
         // Study data
-        if (empty($studies = $person->getStudiesOfTerm($this->dic->fau()->study()->getCurrentTerm()))) {
+        $studies = array_merge(
+            $person->getStudiesOfTerm($this->dic->fau()->study()->getCurrentTerm()),
+            $person->getStudiesOfTerm($this->dic->fau()->study()->getNextTerm())
+        );
+
+        if (empty($studies)) {
             $studies = $person->getStudiesOfTerm($person->getMaxTerm());
         }
 
