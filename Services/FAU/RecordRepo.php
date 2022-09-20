@@ -120,12 +120,15 @@ abstract class RecordRepo
     /**
      * Get the record objects for standard tables
      * The tables should be short enough to get all records
+     * @param RecordData $model model of the data objects that should get the query results
+     * @param bool $useCache cache the resulting records of exactly this query
+     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
      * @return RecordData[]
      */
-    protected function getAllRecords(RecordData $model, $useCache = true) : array
+    protected function getAllRecords(RecordData $model, $useCache = true, $forceIndex = false) : array
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
-        return $this->queryRecords($query, $model, $useCache);
+        return $this->queryRecords($query, $model, $useCache, $forceIndex);
     }
 
     /**
@@ -144,10 +147,14 @@ abstract class RecordRepo
     /**
      * Query for records
      * If the model has a single key field then this field value is used as the array index
-     *
+     * @param string $query  SQL query
+     * @param RecordData $model model of the data objects that should get the query results
+     * @param bool $useCache cache the resulting records of exactly this query
+     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
+     * @param ?string $indexKey use a specific row field as array index (useful if all records for a part of the key are queried)
      * @return RecordData[]     key value => RecordData
      */
-    protected function queryRecords(string $query, RecordData $model, bool $useCache = true, ?string $indexKey = null) : array
+    protected function queryRecords(string $query, RecordData $model, bool $useCache = true, bool $forceIndex = false, ?string $indexKey = null) : array
     {
         $hash = md5($query);
         if ($useCache && isset($this->recordCache[$hash])) {
@@ -164,7 +171,7 @@ abstract class RecordRepo
             if (isset($indexKey)) {
                 $records[$row[$indexKey]] = $record;
             }
-            if ($hasSingleKey) {
+            elseif ($hasSingleKey || $forceIndex) {
                 $records[$record->key()] = $record;
             }
             else {

@@ -30,7 +30,6 @@ use FAU\Study\Data\Term;
 use FAU\Study\Data\ImportId;
 use FAU\Study\Data\SearchCondition;
 use FAU\Study\Data\SearchResultEvent;
-use FAU\Study\Data\SearchResultCourse;
 use FAU\Study\Data\SearchResultObject;
 
 /**
@@ -506,19 +505,21 @@ class Repository extends RecordRepo
     /**
      * Get Module to Event assignments
      * @param int[]|null $event_ids   (get all if null, none if empty)
+     * @param bool $useCache cache the resulting records of exactly this query
+     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
      * @return ModuleEvent[]
      */
-    public function getModuleEvent(?array $event_ids = null) : array
+    public function getModuleEvent(?array $event_ids = null, $useCache = true, bool $forceIndex = false) : array
     {
         if ($event_ids === null) {
-            return $this->getAllRecords(ModuleEvent::model());
+            return $this->getAllRecords(ModuleEvent::model(), $useCache, $forceIndex);
         }
         elseif (empty($event_ids)) {
             return [];
         }
         $query = "SELECT * FROM fau_study_mod_events WHERE "
             . $this->db->in('event_id', $event_ids, false, 'integer');
-        return $this->queryRecords($query, ModuleEvent::model());
+        return $this->queryRecords($query, ModuleEvent::model(), $useCache, $forceIndex);
     }
 
     /**

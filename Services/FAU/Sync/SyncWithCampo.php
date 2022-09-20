@@ -301,12 +301,15 @@ class SyncWithCampo extends SyncBase
      * Synchronize data found in the staging table campo_module
      * This table combines the event to module relationship with the module data
      * The data is saved to different tables for the relationship and the module data
-     * The records to do are provided in time order of their marked changes
-     * Later changes will overwrite former changes
+     *
+     * This is a FULL SYNC since the "deleted" DIP status seems not to be set appropriately
      * Modules don't have to be deleted
      */
     public function syncEventModules() : void
     {
+        // get the existing module event relations for a later delete
+        $oldModuleEvents = $this->study->repo()->getModuleEvent(null,false, true);
+
         $this->info('syncEventModules...');
         foreach ($this->staging->repo()->getEventModulesToDo() as $record) {
             $module = new Module(
@@ -319,16 +322,25 @@ class SyncWithCampo extends SyncBase
                 $record->getEventId(),
             );
             switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($module);
-                    $this->study->repo()->save($moduleEvent);
-                    break;
                 case DipData::DELETED:
                     $this->study->repo()->delete($moduleEvent);
                     break;
+                case DipData::INSERTED:
+                case DipData::CHANGED:
+                default:
+                    $this->study->repo()->save($module);
+                    $this->study->repo()->save($moduleEvent);
+                    break;
             }
             $this->staging->repo()->setDipProcessed($record);
+
+            // module event relation is treated, so remove from the list
+            unset($oldModuleEvents[$moduleEvent->key()]);
+        }
+
+        // delete all remaining old module event relations
+        foreach ($oldModuleEvents as $moduleEvent) {
+            $this->study->repo()->delete($moduleEvent);
         }
     }
 
@@ -503,7 +515,7 @@ class SyncWithCampo extends SyncBase
     public function syncModuleRestrictions() : void
     {
         // get the existing restrictions for a later delete
-        $oldRestrictions = $this->cond->repo()->getIndexedModuleRestrictions();
+        $oldRestrictions = $this->cond->repo()->getModuleRestrictions(false, true);
 
         $this->info('syncModuleRestrictions...');
         // query for all staging data
@@ -558,7 +570,7 @@ class SyncWithCampo extends SyncBase
     public function syncEventRestrictions() : void
     {
         // get the existing restrictions for a later delete
-        $oldRestrictions = $this->cond->repo()->getIndexedEventRestrictions();
+        $oldRestrictions = $this->cond->repo()->getEventRestrictions(false, true);
 
         $this->info('syncEventRestrictions...');
         // query for all staging data
@@ -592,11 +604,11 @@ class SyncWithCampo extends SyncBase
             $this->staging->repo()->setDipProcessed($record);
             // restriction is treated, so remove from the delete list
             unset($oldRestrictions[$eventRes->key()]);
+        }
 
-            // delete all remaining old restrictions
-            foreach ($oldRestrictions as $restriction) {
-                $this->cond->repo()->delete($restriction);
-            }
+        // delete all remaining old restrictions
+        foreach ($oldRestrictions as $restriction) {
+            $this->cond->repo()->delete($restriction);
         }
     }
 

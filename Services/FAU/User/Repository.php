@@ -97,7 +97,7 @@ class Repository extends RecordRepo
     public function getMembersOfObject(int $obj_id, bool $useCache = true) : array
     {
         $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
-        return $this->queryRecords($query, Member::model(), $useCache, 'user_id');
+        return $this->queryRecords($query, Member::model(), $useCache, true, 'user_id');
     }
 
     /**
@@ -145,7 +145,7 @@ class Repository extends RecordRepo
     public function getMembersOfUser(int $user_id, bool $useCache = true) : array
     {
         $query = "SELECT * FROM fau_user_members WHERE user_id = " . $this->db->quote($user_id, 'integer');
-        return $this->queryRecords($query, Member::model(), $useCache, 'obj_id');
+        return $this->queryRecords($query, Member::model(), $useCache, true, 'obj_id');
     }
 
 
