@@ -610,7 +610,7 @@ exc#:#label_scored_pass#:#Bewerteter Durchlauf: ###fau: exAssTest
 exc#:#label_started_pass#:#Letzter gestarteter Durchlauf: ###fau: exAssTest
 exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
-fau#:#educations#:#Bildungen
+fau#:#fau_educations#:#Bildungen
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
