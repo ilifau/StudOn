@@ -18,7 +18,6 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.syncCampoData');
-//$p->applyPatch('ilFauPatches.syncRestrictions');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 
 //$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
@@ -29,8 +28,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1949]);
 
 // Create or Update ILI courses
-$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
-$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 
 /*****************

@@ -311,7 +311,7 @@ class SyncWithCampo extends SyncBase
         $oldModuleEvents = $this->study->repo()->getModuleEvent(null,false, true);
 
         $this->info('syncEventModules...');
-        foreach ($this->staging->repo()->getEventModulesToDo() as $record) {
+        foreach ($this->staging->repo()->getEventModules() as $record) {
             $module = new Module(
                 $record->getModuleId(),
                 $record->getModuleNr(),

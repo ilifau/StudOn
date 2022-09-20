@@ -135,9 +135,9 @@ class Repository extends RecordRepo
     /**
      * @return EventModule[]
      */
-    public function getEventModulesToDo() : array
+    public function getEventModules() : array
     {
-        return $this->getDipRecords(EventModule::model());
+        return $this->getAllRecords(EventModule::model());
     }
 
     /**
@@ -202,22 +202,6 @@ class Repository extends RecordRepo
     public function getEventRestrictions() : array
     {
         return $this->getAllRecords(EventRestriction::model());
-    }
-
-    /**
-     * @return ModuleRestriction[]
-     */
-    public function getModuleRestrictionsToDo() : array
-    {
-        return $this->getDipRecords(ModuleRestriction::model());
-    }
-
-    /**
-     * @return EventRestriction[]
-     */
-    public function getEventRestrictionsToDo() : array
-    {
-        return $this->getDipRecords(EventRestriction::model());
     }
 
     /**

@@ -5,7 +5,7 @@ use FAU\Setup\Setup;
 use FAU\Study\Data\Term;
 
 /**
- * fau: fauService - patch to create the tables
+ * fau: fauService - patches to handle fau data
  */
 class ilFauPatches
 {
