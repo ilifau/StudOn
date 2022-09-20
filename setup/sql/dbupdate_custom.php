@@ -1633,3 +1633,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->cond()->custom_step_107();
 ?>
+<#108>
+<?php
+/**
+ * fau: fauService - extend the text columns in the courses table
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_108();
+?>

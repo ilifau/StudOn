@@ -57,6 +57,12 @@ class FAUStudySteps
         $this->extendEventsTextColumns();
     }
 
+    public function custom_step_108()
+    {
+        $this->extendCoursesTextColumns();
+    }
+
+
     protected function createCoursesTable(bool $drop = false)
     {
         $this->db->createTable('fau_study_courses', [
@@ -409,4 +415,12 @@ class FAUStudySteps
             ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
     }
 
+    protected function extendCoursesTextColumns()
+    {
+        $this->db->modifyTableColumn('fau_study_courses', 'title',
+            ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
+
+        $this->db->modifyTableColumn('fau_study_courses', 'shorttext',
+            ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
+    }
 }
