@@ -610,6 +610,7 @@ exc#:#label_scored_pass#:#Scored Pass: ###fau: exAssTest
 exc#:#label_started_pass#:#Last Started Pass: ###fau: exAssTest
 exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
+fau#:#educations#:#Educations
 fau#:#fau_educations#:#Educations
 fau#:#fair_autofill_cron#:#Allocate Registrations with Equal Chances
 fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity registration, the free places in groups and courses are automatically allocated.
