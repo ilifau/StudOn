@@ -68,7 +68,9 @@ class LtiViewLayoutProvider extends AbstractModificationProvider implements Modi
                     return $page->withNoFooter();
                 }
             )
-            ->withHighPriority();
+            // fau: fixLsoInLti - reduce priority to avoid conflict with lso
+            ->withPriority(63);
+            // fau.
     }
 
     /**
@@ -93,7 +95,9 @@ class LtiViewLayoutProvider extends AbstractModificationProvider implements Modi
                     return $mainbar;
                 }
             )
-            ->withHighPriority();
+            // fau: fixLsoInLti - reduce priority to avoid conflict with lso
+            ->withPriority(63);
+        // fau.
     }
 
     /**
@@ -118,7 +122,9 @@ class LtiViewLayoutProvider extends AbstractModificationProvider implements Modi
                     return $metabar;
                 }
             )
-            ->withHighPriority();
+            // fau: fixLsoInLti - reduce priority to avoid conflict with lso
+            ->withPriority(63);
+        // fau.
     }
 
     /**
@@ -137,6 +143,8 @@ class LtiViewLayoutProvider extends AbstractModificationProvider implements Modi
                     return $this->dic["lti"]->getTitle();
                 }
             )
-            ->withHighPriority();
+            // fau: fixLsoInLti - reduce priority to avoid conflict with lso
+            ->withPriority(63);
+        // fau.
     }
 }

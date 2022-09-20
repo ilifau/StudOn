@@ -1,4 +1,8 @@
 <?php
+
+// fau: fixLsoInLti - use class for title modification
+use ILIAS\GlobalScreen\Scope\Layout\Factory\TitleModification;
+// fau.
 use ILIAS\GlobalScreen\Scope\Layout\Provider\AbstractModificationProvider;
 use ILIAS\GlobalScreen\Scope\Layout\Provider\ModificationProvider;
 use ILIAS\GlobalScreen\ScreenContext\Stack\ContextCollection;
@@ -121,4 +125,18 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
             )
             ->withHighPriority();
     }
+
+    // fau: fixLsoInLti - add title modification for lso to overwrite the LTI title
+    public function getTitleModification(CalledContexts $screen_context_stack) : ?TitleModification
+    {
+        if (!$this->isKioskModeEnabled($screen_context_stack)) {
+            return null;
+        }
+        return $this->globalScreen()->layout()->factory()->title()->withModification(
+            function (string $content) : string {
+                return $this->dic->language()->txt('obj_lso');
+            }
+        )->withHighPriority();
+    }
+    // fau.
 }
