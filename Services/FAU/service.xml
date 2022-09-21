@@ -4,7 +4,7 @@
 		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" path="Services/FAU/classes/" />
 		<cron id="fau_sync_with_org" class="ilSyncWithOrgCron" path="Services/FAU/classes/" />
 		<cron id="fau_sync_with_idm" class="ilSyncWithIdmCron" path="Services/FAU/classes/" />
-		<cron id="fau_fair_autofill" class="ilFairAutofillCron" path="Services/FAU/classes/" />
+		<cron id="fau_fair_autofill" class="ilFairAutoFillCron" path="Services/FAU/classes/" />
 
 	</crons>
 	<baseclasses>
