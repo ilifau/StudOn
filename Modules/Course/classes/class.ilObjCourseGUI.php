@@ -1361,6 +1361,16 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->setSubTabs('properties');
         $this->tabs_gui->setSubTabActive('crs_settings');
 
+        // fau: campoTransfer - add button in toolbar
+        $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if ($import_id->isForCampo()) {
+            $button = ilLinkButton::getInstance();
+            $button->setCaption($this->lng->txt('fau_transfer_course');
+            $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI'));
+            $this->toolbar->addButtonInstance($button);
+        }
+        // fau.
+
         if ($form instanceof ilPropertyFormGUI) {
             $GLOBALS['DIC']['tpl']->setContent($form->getHTML());
             return true;
@@ -2721,6 +2731,20 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($form);
                 break;
 // fau.
+
+// fau: campoTransfer - forward command
+            case "faucoursetransfergui":
+                $this->checkPermission("write");
+                $this->setSubTabs('properties');
+                $this->tabs_gui->setTabActive('settings');
+                $this->ctrl->setReturn($this, "settings");
+                $transfer_gui = new fauCourseTransferGUI();
+                /** @var ilObjCourse $course */
+                $course = $this->object;
+                $transfer_gui->init($course);
+                $this->ctrl->forwardCommand($transfer_gui);
+// fau.
+
             case "ilinfoscreengui":
                 $this->infoScreen();	// forwards command
                 break;

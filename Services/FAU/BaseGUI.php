@@ -11,16 +11,18 @@ use ilTabsGUI;
 use ilGlobalTemplateInterface;
 use ilLanguage;
 use ilToolbarGUI;
-use ilTemplate;
+use ilErrorHandling;
+use ilAccessHandler;
 
 abstract class BaseGUI
 {
     protected Container $dic;
+    protected ilAccessHandler $access;
     protected ilCtrl $ctrl;
     protected ilTabsGUI $tabs;
+    protected ilLanguage $lng;
     /** @var ilGlobalTemplateInterface $tpl  */
     protected $tpl;
-    protected ilLanguage $lng;
     protected ilToolbarGUI $toolbar;
     protected Factory $factory;
     protected Renderer $renderer;
@@ -33,6 +35,7 @@ abstract class BaseGUI
         global $DIC;
 
         $this->dic = $DIC;
+        $this->access = $DIC->access();
         $this->ctrl = $this->dic->ctrl();
         $this->tabs = $this->dic->tabs();
         $this->toolbar = $this->dic->toolbar();
@@ -42,6 +45,16 @@ abstract class BaseGUI
         $this->renderer = $this->dic->ui()->renderer();
         $this->request = $this->dic->http()->request();
         $this->refinery = $this->dic->refinery();
+    }
+
+    /**
+     * Raise an error that should be shown to the user
+     */
+    protected function raiseError($message)
+    {
+        /** @var ilErrorHandling $ilErr */
+        $ilErr = $this->dic['ilErr'];
+        $ilErr->raiseError($message, $ilErr->MESSAGE);
     }
 
 }

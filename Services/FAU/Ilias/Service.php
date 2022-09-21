@@ -18,6 +18,7 @@ class Service extends SubService
     protected Repository $repository;
     protected Objects $objects;
     protected Groupings $groupings;
+    protected Transfer  $transfer;
 
     /**
      * Get the tools repository
@@ -50,6 +51,17 @@ class Service extends SubService
             $this->groupings = new Groupings($this->dic);
         }
         return $this->groupings;
+    }
+
+    /**
+     * Get the functions to handle transfer of campo connections
+     */
+    public function transfer() : Transfer
+    {
+        if(!isset($this->transfer)) {
+            $this->transfer = new Transfer($this->dic);
+        }
+        return $this->transfer;
     }
 
     /**
