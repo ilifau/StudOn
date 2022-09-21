@@ -2743,6 +2743,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $course = $this->object;
                 $transfer_gui->init($course);
                 $this->ctrl->forwardCommand($transfer_gui);
+                break;
 // fau.
 
             case "ilinfoscreengui":

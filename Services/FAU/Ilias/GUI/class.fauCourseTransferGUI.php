@@ -5,7 +5,7 @@ use FAU\Ilias\Transfer;
 
 /**
  * GUI for transferring a campo connection to another course
- * @ilCtrl_IsCalledBy: fauCourseTransferGUI: ilObjCourseGUI
+ * @ilCtrl_IsCalledBy fauCourseTransferGUI: ilObjCourseGUI
  */
 class fauCourseTransferGUI extends BaseGUI
 {
