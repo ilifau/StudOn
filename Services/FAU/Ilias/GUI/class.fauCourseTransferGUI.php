@@ -5,7 +5,7 @@ use FAU\Ilias\Transfer;
 
 /**
  * GUI for transferring a campo connection to another course
- * @ilCtrl_IsCalledBy fauCourseTransferGUI: ilObjCourseGUI
+ * @ilCtrl_IsCalledBy: fauCourseTransferGUI: ilObjCourseGUI
  */
 class fauCourseTransferGUI extends BaseGUI
 {
@@ -30,7 +30,7 @@ class fauCourseTransferGUI extends BaseGUI
      */
     public function executeCommand()
     {
-        if (!isset($this->courseObj)) {
+        if (!isset($this->object)) {
             throw new ilCtrlException('called fauCourseTransferGUI:executeCommand() without init()');
         }
 

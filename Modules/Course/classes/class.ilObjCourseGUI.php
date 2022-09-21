@@ -1365,7 +1365,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
         if ($import_id->isForCampo()) {
             $button = ilLinkButton::getInstance();
-            $button->setCaption($this->lng->txt('fau_transfer_course');
+            $button->setCaption($this->lng->txt('fau_transfer_course'));
             $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI'));
             $this->toolbar->addButtonInstance($button);
         }
