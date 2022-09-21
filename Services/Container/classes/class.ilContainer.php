@@ -163,7 +163,7 @@ class ilContainer extends ilObject
         $this->recommended_content_manager = new ilRecommendedContentManager();
     }
 
-    // fau: paraSub - functions for checking paralell group relationships
+    // fau: paraSub - functions for checking parallel group relationships
     /**
      * Check if the object is a parallel group
      */

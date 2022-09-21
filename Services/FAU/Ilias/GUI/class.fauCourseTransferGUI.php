@@ -2,6 +2,7 @@
 
 use FAU\BaseGUI;
 use FAU\Ilias\Transfer;
+use FAU\Study\Data\ImportId;
 
 /**
  * GUI for transferring a campo connection to another course
@@ -36,11 +37,22 @@ class fauCourseTransferGUI extends BaseGUI
 
         $cmd = $this->ctrl->getCmd("selectTargetCourse");
         switch ($cmd) {
-            case "selectTarget":
+            case "returnToParent":
+            case "selectTargetCourse":
+            case "handleTargetCourseSelected":
                 $this->$cmd();
+                break;
             default:
                 $this->tpl->setContent('unknown command: ' . $cmd);
         }
+    }
+
+    /**
+     * Return to the parent GUI
+     */
+    public function returnToParent()
+    {
+        $this->ctrl->returnToParent($this);
     }
 
     /**
@@ -48,6 +60,66 @@ class fauCourseTransferGUI extends BaseGUI
      */
     public function selectTargetCourse()
     {
-        $this->tpl->setContent('select target course: ');
+        ilUtil::sendInfo($this->lng->txt('fau_transfer_course_message'));
+
+        $form_gui = new ilFormGUI();
+        $form_gui->setFormAction($this->ctrl->getFormAction($this));
+        $form_gui->setKeepOpen(true);
+        $html = $form_gui->getHTML();
+
+        $explorer_gui = new fauRepositorySelectionExplorerGUI($this, 'selectTargetCourse');
+        $explorer_gui->setSelectMode('target_ref_id', false);
+        $explorer_gui->setTypeWhiteList(['root', 'cat']);
+        $explorer_gui->setSelectableTypes(['crs']);
+        if ($explorer_gui->handleCommand()) {
+            return;
+        }
+        $html .= $explorer_gui->getHTML();
+
+        $toolbar_gui = new ilToolbarGUI();
+        $toolbar_gui->addFormButton($this->lng->txt('select'),'handleTargetCourseSelected');
+        $toolbar_gui->addFormButton($this->lng->txt('cancel'),'returnToParent');
+        $toolbar_gui->setOpenFormTag(false);
+        $toolbar_gui->setCloseFormTag(true);
+        $html .= $toolbar_gui->getHTML();
+
+        $this->tpl->setContent($html);
+    }
+
+    /**
+     * Handle the target course selection
+     */
+    public function handleTargetCourseSelected()
+    {
+        $post = $this->request->getParsedBody();
+        $ref_id = (int) $post['target_ref_id'] ?? 0;
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $import_id = ImportId::fromString(ilObject::_lookupImportId($obj_id));
+
+        if ($ref_id == $this->object->getRefId()) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_same_object'), true);
+            $this->returnToParent();
+        }
+        if (!ilObject::_lookupType($ref_id, true) != 'crs') {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
+            $this->returnToParent();
+        }
+        if (!$this->access->checkAccess('write','', $ref_id, 'crs')) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_write'), true);
+            $this->returnToParent();
+        }
+        if ($import_id->isForCampo()) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_already_connected'), true);
+            $this->returnToParent();
+        }
+
+        $target = new ilObjCourse($ref_id, true);
+
+        $this->transfer->moveCampoConnection($this->object, $target);
+
+        ilUtil::sendSuccess($this->lng->txt('fau_transfer_success'));
+
+        print_r($this->request->getAttributes());
+        $this->tpl->setContent(print_r($this->request->getParsedBody(), true));
     }
 }

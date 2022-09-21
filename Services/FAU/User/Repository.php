@@ -101,6 +101,17 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Move the stored memberships from one object to another
+     */
+    public function moveMembers(int $from_obj_id, int $to_obj_id)
+    {
+        $query = "UPDATE fau_user_members SET obj_id = " . $this->db->quote($from_obj_id, 'integer')
+            . " WHERE obj_id = " .  $this->db->quote($to_obj_id, 'integer');
+        $this->db->manipulate($query);
+    }
+
+
+    /**
      * Get the user ids of the members of an ilias object (course or group) which are assigned by campo
      * The additional conditions can be 1 or 0, null will be ignored
      * Conditions wil be combined with OR
