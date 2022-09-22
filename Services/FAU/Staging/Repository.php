@@ -343,8 +343,7 @@ class Repository extends RecordRepo
             case DipData::INSERTED:
             case DipData::CHANGED:
                 $dip_fields = [
-                    'dip_status' => ['text', null],
-                    'dip_timestamp' => ['text', null]
+                    'dip_status' => ['text', null]
                 ];
                 $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
                 $this->db->update($record::tableName(), $dip_fields, $key_fields);
