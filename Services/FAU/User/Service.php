@@ -177,17 +177,19 @@ class Service extends SubService
                 $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time() + 1);
             }
 
-            $stagingRepo->saveChange(new StudonChange(
-                null,
-                $person->getPersonId(),
-                $course_id,
-                $member->getModuleId(),
-                StudonChange::TYPE_REGISTERED,
-                null,
-                $time,
-                $time,
-                null
-            ));
+            if (!empty($person->getPersonId())) {
+                $stagingRepo->saveChange(new StudonChange(
+                    null,
+                    $person->getPersonId(),
+                    $course_id,
+                    $member->getModuleId(),
+                    StudonChange::TYPE_REGISTERED,
+                    null,
+                    $time,
+                    $time,
+                    null
+                ));
+            }
 
             $this->repo()->save($member);
         }
@@ -214,17 +216,20 @@ class Service extends SubService
         if (isset($member) && !$member->hasAnyRole()) {
 
             $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
-            $stagingRepo->saveChange(new StudonChange(
-                null,
-                $person->getPersonId(),
-                $course_id,
-                $member->getModuleId(),
-                StudonChange::TYPE_NOT_REGISTERED,
-                null,
-                $time,
-                $time,
-                null
-            ));
+
+            if (!empty($person->getPersonId())) {
+                $stagingRepo->saveChange(new StudonChange(
+                    null,
+                    $person->getPersonId(),
+                    $course_id,
+                    $member->getModuleId(),
+                    StudonChange::TYPE_NOT_REGISTERED,
+                    null,
+                    $time,
+                    $time,
+                    null
+                ));
+            }
 
             $this->repo()->delete($member);
         }
