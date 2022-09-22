@@ -778,6 +778,7 @@ fau#:#fau_transfer_failed_no_write#:#You have no write permission on the selecte
 fau#:#fau_transfer_failed_already_connected#:#The selected course is already connected to a different campo event!
 fau#:#fau_transfer_success#:#The campo connection is transferred.
 fau#:#fau_transfer_source_desc#:#The campo connection of this course has been moved to another course.
+fau#:#fau_transfer#:#Transfer
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

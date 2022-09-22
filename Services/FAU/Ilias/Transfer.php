@@ -34,6 +34,7 @@ class Transfer
                 $this->dic->fau()->study()->repo()->save($course);
             }
         }
+        $this->moveCourseParticipants($source, $target);
 
         $importId = ImportId::fromString($source->getImportId());
         $target->setImportId($importId->toString());

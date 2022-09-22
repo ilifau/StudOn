@@ -62,10 +62,12 @@ class fauCourseTransferGUI extends BaseGUI
     {
         ilUtil::sendInfo($this->lng->txt('fau_transfer_course_message'));
 
-        $form_gui = new ilFormGUI();
-        $form_gui->setFormAction($this->ctrl->getFormAction($this));
-        $form_gui->setKeepOpen(true);
-        $html = $form_gui->getHTML();
+        $toolbar_gui = new ilToolbarGUI();
+        $toolbar_gui->addFormButton($this->lng->txt('fau_transfer'),'handleTargetCourseSelected');
+        $toolbar_gui->addFormButton($this->lng->txt('cancel'),'returnToParent');
+        $toolbar_gui->setFormAction($this->ctrl->getFormAction($this));
+        $toolbar_gui->setCloseFormTag(false);
+        $html = $toolbar_gui->getHTML();
 
         $explorer_gui = new fauRepositorySelectionExplorerGUI($this, 'selectTargetCourse');
         $explorer_gui->setSelectMode('target_ref_id', false);
@@ -77,10 +79,9 @@ class fauCourseTransferGUI extends BaseGUI
         $html .= $explorer_gui->getHTML();
 
         $toolbar_gui = new ilToolbarGUI();
-        $toolbar_gui->addFormButton($this->lng->txt('select'),'handleTargetCourseSelected');
+        $toolbar_gui->addFormButton($this->lng->txt('fau_transfer'),'handleTargetCourseSelected');
         $toolbar_gui->addFormButton($this->lng->txt('cancel'),'returnToParent');
         $toolbar_gui->setOpenFormTag(false);
-        $toolbar_gui->setCloseFormTag(true);
         $html .= $toolbar_gui->getHTML();
 
         $this->tpl->setContent($html);
@@ -92,7 +93,7 @@ class fauCourseTransferGUI extends BaseGUI
     public function handleTargetCourseSelected()
     {
         $post = $this->request->getParsedBody();
-        $ref_id = (int) $post['target_ref_id'] ?? 0;
+        $ref_id = (int) $post['target_ref_id'];
         $obj_id = ilObject::_lookupObjId($ref_id);
         $import_id = ImportId::fromString(ilObject::_lookupImportId($obj_id));
 
@@ -100,7 +101,7 @@ class fauCourseTransferGUI extends BaseGUI
             ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_same_object'), true);
             $this->returnToParent();
         }
-        if (!ilObject::_lookupType($ref_id, true) != 'crs') {
+        if (ilObject::_lookupType($ref_id, true) != 'crs') {
             ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
             $this->returnToParent();
         }
@@ -114,12 +115,9 @@ class fauCourseTransferGUI extends BaseGUI
         }
 
         $target = new ilObjCourse($ref_id, true);
-
         $this->transfer->moveCampoConnection($this->object, $target);
 
-        ilUtil::sendSuccess($this->lng->txt('fau_transfer_success'));
-
-        print_r($this->request->getAttributes());
-        $this->tpl->setContent(print_r($this->request->getParsedBody(), true));
+        ilUtil::sendSuccess($this->lng->txt('fau_transfer_success'), true);
+        $this->returnToParent();
     }
 }

@@ -23,13 +23,9 @@ $p->login();
 //$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
 //$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
 
-// Create or Update Med Fak courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1122]);
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 1949]);
-
 // Create or Update ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 
 /*****************

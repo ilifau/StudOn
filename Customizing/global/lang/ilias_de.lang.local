@@ -778,6 +778,7 @@ fau#:#fau_transfer_failed_no_write#:#Sie haben kein Schreibrecht auf dem gewähl
 fau#:#fau_transfer_failed_already_connected#:#Der gewählte Kurs ist bereits mit einer anderen Veranstaltung verbunden!
 fau#:#fau_transfer_success#:#Die Campo-Verbindung wurde übertragen.
 fau#:#fau_transfer_source_desc#:#Die Campo-Verbindung dieses Kurses wurde auf einen anderen Kurs übertragen.
+fau#:#fau_transfer#:#Übertragen
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"
