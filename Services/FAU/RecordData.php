@@ -119,6 +119,22 @@ abstract class RecordData
     }
 
     /**
+     * Get a hash of the whole record data
+     * This can be used to compare two records
+     */
+    public function hash() : string
+    {
+        $values = [];
+        foreach (static::tableKeyTypes() as $key => $type) {
+            $values[] = $this->$key;
+        }
+        foreach (static::tableOtherTypes() as $key => $type) {
+            $values[] = $this->$key;
+        }
+        return md5(serialize($values));
+    }
+
+    /**
      * Get the sequence value (if a sequence exists)
      * Assume that a record with sequence has only one integer key
      */

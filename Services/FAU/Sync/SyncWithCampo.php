@@ -470,14 +470,23 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_module_cos
      * This table combines the module to course of study relationship with the course of study data
-     * The records to do are provided in time order of their marked changes
-     * Later changes will overwrite former changes
+     *
+     * This is a FULL SYNC
+     * Module to Course of Study relations are deleted if they no longer exist
      * Courses of study don't have to be deleted
      */
     public function syncModuleCos() : void
     {
+        $existingCos = $this->study->repo()->getCoursesOfStudy(null, false, true);
+        $existingModCos = $this->study->repo()->getModuleCos(null,null, false, true);
+
         $this->info('syncModuleCos...');
-        foreach ($this->staging->repo()->getModuleCosToDo() as $record) {
+        foreach ($this->staging->repo()->getModuleCos() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
             $cos = new CourseOfStudy(
                 $record->getCosId(),
                 $record->getDegree(),
@@ -486,21 +495,28 @@ class SyncWithCampo extends SyncBase
                 $record->getSubjectIndicator(),
                 $record->getVersion()
             );
+            // save only if changed, it may be repeated in staging loop
+            if (!isset($existingCos[$cos->key()]) || $existingCos[$cos->key()]->hash() != $cos->hash()) {
+                $this->study->repo()->save($cos);
+                $existingCos[$cos->key()] = $cos;
+            }
+
             $moduleCos = new ModuleCos(
                 $record->getModuleId(),
                 $record->getCosId()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($cos);
-                    $this->study->repo()->save($moduleCos);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($moduleCos);
-                    break;
+            if (!isset($existingModCos[$moduleCos->key()])) {
+                $this->study->repo()->save($moduleCos);
             }
-            $this->staging->repo()->setDipProcessed($record);
+            else {
+                // existing record is still needed, this occurs only once in staging loop
+                unset($existingModCos[$moduleCos->key()]);
+            }
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existingModCos as $moduleCos) {
+            $this->study->repo()->delete($moduleCos);
         }
     }
 

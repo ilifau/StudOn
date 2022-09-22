@@ -89,7 +89,7 @@ class Repository extends RecordRepo
      */
     public function getIdentities() : array
     {
-        return $this->getAllRecords(Identity::model());
+        return $this->getAllRecords(Identity::model(), false);
     }
     
     /**
@@ -137,7 +137,7 @@ class Repository extends RecordRepo
      */
     public function getEventModules() : array
     {
-        return $this->getAllRecords(EventModule::model());
+        return $this->getAllRecords(EventModule::model(), false);
     }
 
     /**
@@ -183,9 +183,9 @@ class Repository extends RecordRepo
     /**
      * @return ModuleCos[]
      */
-    public function getModuleCosToDo() : array
+    public function getModuleCos() : array
     {
-        return $this->getDipRecords(ModuleCos::model());
+        return $this->getAllRecords(ModuleCos::model(), false);
     }
 
     /**
@@ -193,7 +193,7 @@ class Repository extends RecordRepo
      */
     public function getModuleRestrictions() : array
     {
-        return $this->getAllRecords(ModuleRestriction::model());
+        return $this->getAllRecords(ModuleRestriction::model(), false);
     }
 
     /**
@@ -201,7 +201,7 @@ class Repository extends RecordRepo
      */
     public function getEventRestrictions() : array
     {
-        return $this->getAllRecords(EventRestriction::model());
+        return $this->getAllRecords(EventRestriction::model(), false);
     }
 
     /**

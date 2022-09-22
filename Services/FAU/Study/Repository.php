@@ -429,19 +429,21 @@ class Repository extends RecordRepo
     /**
      * Get Courses of Study
      * @param int[]|null $ids  (get all if null, none if empty)
+     * @param bool $useCache cache the resulting records of exactly this query
+     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
      * @return CourseOfStudy[]
      */
-    public function getCoursesOfStudy(?array $ids = null) : array
+    public function getCoursesOfStudy(?array $ids = null, $useCache = true, bool $forceIndex = false) : array
     {
         if ($ids === null) {
-            return $this->getAllRecords(CourseOfStudy::model());
+            return $this->getAllRecords(CourseOfStudy::model(), $useCache, $forceIndex);
         }
         elseif (empty($ids)) {
             return [];
         }
         $query = "SELECT * FROM fau_study_cos WHERE "
             . $this->db->in('cos_id', $ids, false, 'integer');
-        return $this->queryRecords($query, CourseOfStudy::model());
+        return $this->queryRecords($query, CourseOfStudy::model(), $useCache, $forceIndex);
     }
 
     /**
@@ -476,9 +478,11 @@ class Repository extends RecordRepo
      * Get Module to Course of Study assignments
      * @param int[]|null $module_ids   (get all if null, none if empty)
      * @param int[]|null $cos_ids   (get all if null, none if empty)
+     * @param bool $useCache cache the resulting records of exactly this query
+     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
      * @return ModuleCos[]
      */
-    public function getModuleCos(?array $module_ids = null, ?array $cos_ids = null) : array
+    public function getModuleCos(?array $module_ids = null, ?array $cos_ids = null, $useCache = true, bool $forceIndex = false) : array
     {
         $cond = [];
         if (isset($module_ids)) {
@@ -495,11 +499,11 @@ class Repository extends RecordRepo
         }
 
         if (empty($cond)) {
-            return $this->getAllRecords(ModuleCos::model());
+            return $this->getAllRecords(ModuleCos::model(), $useCache, $forceIndex);
         }
 
         $query = "SELECT * FROM fau_study_module_cos WHERE " . implode (' AND ', $cond);
-        return $this->queryRecords($query, ModuleCos::model());
+        return $this->queryRecords($query, ModuleCos::model(), $useCache, $forceIndex);
     }
 
     /**
