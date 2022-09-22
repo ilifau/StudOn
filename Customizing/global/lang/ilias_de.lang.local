@@ -771,12 +771,12 @@ fau#:#study_data#:#Studiendaten
 fau#:#fau_read_only#:#Schreibgeschützt
 fau#:#fau_your_courses_of_study#:#Ihre Studiengänge
 fau#:#fau_transfer_course#:#Campo-Verbindung übertragen
-fau#:#fau_transfer_course_message#:#Wählen Sie einen Kurs aus, auf den die Verbindung zur Lehrveranstaltung in Campo übertragen werden soll. Sie müssen Schreibrecht auf dem Kurs haben und er darf nicht bereits mit einer anderen Lehrveranstaltung verbunden sein. Mit der Übertragung wird er zum Ziel der Verlinkung aus Campo. Die Modulzuordnung, Voraussetzungen und Termine gelten dann für den gewählten Kurs und neue Mitgliedschaften dort werden nach Campo übertragen. Kursadministratoren, Tutoren und Mitglieder und eventuell vorhandene Parallelgruppen des aktuellen Kurses werden in den Zielkurs verschoben. Nach dem Übertrag wird der aktuelle Kurs offline geschalten und kann gelöscht werden.
+fau#:#fau_transfer_course_message#:#Wählen Sie einen Kurs aus, auf den die Verbindung zur Lehrveranstaltung in Campo übertragen werden soll. <p class="small">Sie müssen Schreibrecht auf dem Kurs haben und er darf nicht bereits mit einer anderen Lehrveranstaltung verbunden sein. Mit der Übertragung wird er zum Ziel der Verlinkung aus Campo. Die Modulzuordnung, Voraussetzungen und Termine gelten dann für den gewählten Kurs und neue Mitgliedschaften in diesem Kurs werden nach Campo übertragen. Kursadministratoren, Tutoren und Mitglieder und eventuell vorhandene Parallelgruppen des aktuellen Kurses werden in den Zielkurs verschoben. Nach dem Übertrag wird der aktuelle Kurs offline geschalten und kann gelöscht werden.</p>
 fau#:#fau_transfer_failed_same_object#:#Sie müssen einen anderen Kurs auswählen!
 fau#:#fau_transfer_failed_no_course#:#Das gewählte Objekt ist kein Kurs!
 fau#:#fau_transfer_failed_no_write#:#Sie haben kein Schreibrecht auf dem gewählten Kurs!
 fau#:#fau_transfer_failed_already_connected#:#Der gewählte Kurs ist bereits mit einer anderen Veranstaltung verbunden!
-fau#:#fau_transfer_success#:#Die Campo-Verbindung wurde übertragen.
+fau#:#fau_transfer_success#:#Die Campo-Verbindung wurde übertragen. Sie sind nun im gewählten Kurs.<p class="small">Passen Sie eventuell den Titel des Kurses an, stellen Sie das Anmeldeverfahren ein und schalten Sie ihn online. Den bisherigen Campo-Kurs erreichen Sie über "Zuletzt besucht". Er het keine Verbindung zu Campo mehr. Sie können ihn löschen, wenn er keine Inhalte mehr enthält, Sie noch benötigen.</p>
 fau#:#fau_transfer_source_desc#:#Die Campo-Verbindung dieses Kurses wurde auf einen anderen Kurs übertragen.
 fau#:#fau_transfer#:#Übertragen
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:

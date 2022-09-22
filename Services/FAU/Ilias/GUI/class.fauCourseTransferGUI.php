@@ -118,6 +118,6 @@ class fauCourseTransferGUI extends BaseGUI
         $this->transfer->moveCampoConnection($this->object, $target);
 
         ilUtil::sendSuccess($this->lng->txt('fau_transfer_success'), true);
-        $this->returnToParent();
+        $this->ctrl->redirectToURL(ilLink::_getLink($ref_id));
     }
 }

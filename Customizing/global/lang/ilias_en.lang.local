@@ -771,12 +771,12 @@ fau#:#studydata_unknown_subject#:#Unknown Subject
 fau#:#fau_your_courses_of_study#:#Your Courses Of Study
 fau#:#fau_read_only#:#Write Protected
 fau#:#fau_transfer_course#:#Transfer Campo Connection
-fau#:#fau_transfer_course_message#:#Select a course to which you want to transfer the connection to the event in campo. You must have write permission on the course and it must not already be linked to another event. With the transfer, it becomes the target of the link from campo. Module assignments, restrictions, and dates will then apply to the selected course and new memberships there will be transferred to campo. Course administrators, tutors, and members of the current course and any parallel groups contained will be moved there. After the transfer, the current course is switched offline and can be deleted.
+fau#:#fau_transfer_course_message#:#Select a course to which you want to transfer the connection to the event in campo. <p class="small">You must have write permission on the course and it must not already be linked to another event. With the transfer, it becomes the target of the link from campo. Module assignments, restrictions, and dates will then apply to the selected course and new memberships there will be transferred to campo. Course administrators, tutors, and members of the current course and any parallel groups contained will be moved there. After the transfer, the current course is switched offline and can be deleted.</p>
 fau#:#fau_transfer_failed_same_object#:#Please select a different course!
 fau#:#fau_transfer_failed_no_course#:#The selected object is not a course!
 fau#:#fau_transfer_failed_no_write#:#You have no write permission on the selected course!
 fau#:#fau_transfer_failed_already_connected#:#The selected course is already connected to a different campo event!
-fau#:#fau_transfer_success#:#The campo connection is transferred.
+fau#:#fau_transfer_success#:#The campo connection is transferred. You are now in the selected course<p class="small">If necessary, adjust the title of the course, set the registration procedure and put it online. You can access the previous campo course via "Last visited". It is no longer connected to campo. You can delete it if it no longer contains content you still need.</p>
 fau#:#fau_transfer_source_desc#:#The campo connection of this course has been moved to another course.
 fau#:#fau_transfer#:#Transfer
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:

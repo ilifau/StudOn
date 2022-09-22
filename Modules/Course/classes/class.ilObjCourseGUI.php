@@ -187,6 +187,18 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getViewMode() == ilContainer::VIEW_OBJECTIVE
             ) {
             $ret = parent::renderObject();
+
+            // fau: campoTransfer - add button in toolbar
+            $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+            if ($import_id->isForCampo() && $this->checkPermissionBool('write')) {
+                $button = ilLinkButton::getInstance();
+                $button->setCaption('fau_transfer_course');
+                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI'));
+                $this->toolbar->addSeparator();
+                $this->toolbar->addButtonInstance($button);
+            }
+            // fau.
+
             return $ret;
         } else {
             include_once './Modules/Course/classes/class.ilCourseContentGUI.php';
@@ -1360,16 +1372,6 @@ class ilObjCourseGUI extends ilContainerGUI
     {
         $this->setSubTabs('properties');
         $this->tabs_gui->setSubTabActive('crs_settings');
-
-        // fau: campoTransfer - add button in toolbar
-        $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
-        if ($import_id->isForCampo()) {
-            $button = ilLinkButton::getInstance();
-            $button->setCaption('fau_transfer_course');
-            $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI'));
-            $this->toolbar->addButtonInstance($button);
-        }
-        // fau.
 
         if ($form instanceof ilPropertyFormGUI) {
             $GLOBALS['DIC']['tpl']->setContent($form->getHTML());
@@ -2735,9 +2737,8 @@ class ilObjCourseGUI extends ilContainerGUI
 // fau: campoTransfer - forward command
             case "faucoursetransfergui":
                 $this->checkPermission("write");
-                $this->setSubTabs('properties');
-                $this->tabs_gui->setTabActive('settings');
-                $this->ctrl->setReturn($this, "edit");
+                $this->tabs_gui->setTabActive('view_content');
+                $this->ctrl->setReturn($this, "view");
                 $transfer_gui = new fauCourseTransferGUI();
                 /** @var ilObjCourse $course */
                 $course = $this->object;
