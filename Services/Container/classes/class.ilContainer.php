@@ -735,7 +735,11 @@ class ilContainer extends ilObject
             ilLoggerFactory::getLogger('obj')->info('Copy content only...');
             ilLoggerFactory::getLogger('obj')->debug('Added mapping, source ID: ' . $clone_source . ', target ID: ' . $ref_id);
             $wizard_options->read();
-            $wizard_options->dropFirstNode();
+            // fau: adoptFull - handle saving of content nodes only
+            $wizard_options->saveContentOnlyNodes([$clone_source]);
+            // smeyer: 11.06.17 don't drop node
+            //$wizard_options->dropFirstNode();
+            // fau.
             $wizard_options->appendMapping($clone_source, $ref_id);
         }
         

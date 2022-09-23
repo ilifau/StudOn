@@ -47,6 +47,10 @@ class ilCopyWizardOptions
     const SEND_MAIL = -7;
     // fau.
 
+    // fau: adoptFull - constant to copy only contents
+    const CONTENT_ONLY = -8;
+    // fau.
+
     private $db;
     
     private $copy_id;
@@ -195,7 +199,35 @@ class ilCopyWizardOptions
 
         return true;
     }
+
+    // fau: adoptFull - new functions saveContentOnlyNodes, shouldCopyContentOnly
+    /**
+     * Save content only id(s)
+     * @param int[] $a_source_id
+     * @return boolean
+     */
+    public function saveContentOnlyNodes($a_source_ids)
+    {
+        $GLOBALS['DIC']->database()->insert("copy_wizard_options", array(
+            "copy_id"   => array("integer", $this->getCopyId()),
+            "source_id" => array("integer", self::CONTENT_ONLY),
+            "options"   => array('clob',serialize($a_source_ids))
+            ));
+
+        return true;
+    }
     
+    /**
+     * Check if only content should be copied.
+     * @param bool
+     * @return bool
+     */
+    public function shouldCopyContentOnly($a_content_only_node)
+    {
+        return in_array($a_content_only_node, $this->getOptions(self::CONTENT_ONLY));
+    }
+    // fau.
+
     /**
      * Is root node
      *
