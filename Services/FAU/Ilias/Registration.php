@@ -265,6 +265,9 @@ abstract class Registration extends AbstractRegistration
                 // always store the module_id in the waiting list of the course
                 $this->waitingList->updateModuleId($this->user->getId(), $module_id);
 
+                // can be to confirm, not to confirm or already confirmed
+                $to_confirm = $this->waitingList->getStatus($this->user->getId());
+
                 // eventually update the waiting list of enclosed groups
                 $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $to_confirm, $sub_time);
 
@@ -325,8 +328,11 @@ abstract class Registration extends AbstractRegistration
         $this->waitingList->updateSubject($this->user->getId(), $subject);
         $this->waitingList->updateModuleId($this->user->getId(), $module_id);
 
+        // can be to confirm, not to confirm or already confirmed
+        $to_confirm = $this->waitingList->getStatus($this->user->getId());
+
         // eventually update the waiting lists of parallel groups
-        $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $this->getNewToConfirm(), $this->getNewSubTime());
+        $this->updateGroupWaitingLists($subject, $group_ref_ids, $module_id, $to_confirm, $this->getNewSubTime());
     }
 
     /**
