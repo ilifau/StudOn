@@ -638,7 +638,7 @@ class ilAttendanceList
                 if (!$user_data) {
                     continue;
                 }
-                
+
                 $tpl->setCurrentBlock("row_preset");
                 foreach ($this->presets as $id => $item) {
                     if ($item[1]) {
@@ -646,6 +646,18 @@ class ilAttendanceList
                             case 'org_units':
                                 $value = (string) ilOrgUnitPathStorage::getTextRepresentationOfUsersOrgUnits($user_id);
                                 break;
+
+                            // fau: userData - add educations and studydata to the attendance list
+                            case "studydata":
+                                global $DIC;
+                                $value = $DIC->fau()->user()->getStudiesAsText($user_id);
+                                break;
+
+                            case "educations":
+                                global $DIC;
+                                $value = $DIC->fau()->user()->getEducationsAsText($user_id);
+                                break;
+                            // fau.
 
                             case "name":
                                 if (!$user_data[$id]) {
