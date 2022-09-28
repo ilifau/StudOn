@@ -427,9 +427,12 @@ abstract class ilParticipants
                 case 'il_grp_a':
                     break;
 
-                default:
+                // fau: limitMemberRoles - don't count others roles as members
+                case 'il_crs_m':
+                case 'il_grp_m':
                     $memberRoles[] = $role_id;
                     break;
+                // fau.
             }
         }
         return $rbacreview->getNumberOfAssignedUsers($memberRoles);
@@ -1345,7 +1348,9 @@ abstract class ilParticipants
                 default:
                     $additional_roles[$role_id] = $title;
                     $this->participants = array_unique(array_merge($assigned = $rbacreview->assignedUsers($role_id), $this->participants));
-                    $this->members = array_unique(array_merge($assigned, $this->members));
+                    // fau: limitMemberRoles - don't count others roles as members
+                    //$this->members = array_unique(array_merge($assigned, $this->members));
+                    // fau.
                     $this->role_assignments[$role_id] = $assigned;
                     break;
             }

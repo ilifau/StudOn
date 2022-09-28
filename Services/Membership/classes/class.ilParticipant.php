@@ -365,11 +365,13 @@ abstract class ilParticipant
 
                 default:
 
-                    $this->member_roles[] = $role_id;
+                    // fau: limitMemberRoles - don't count others roles as members
+                    // $this->member_roles[] = $role_id;
                     if ($rbacreview->isAssigned($this->getUserId(), $role_id)) {
                         $this->participants = true;
-                        $this->members = true;
+                        // $this->members = true;
                     }
+                    // fau.
                     break;
             }
         }
