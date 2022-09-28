@@ -776,9 +776,25 @@ fau#:#fau_transfer_failed_same_object#:#Please select a different course!
 fau#:#fau_transfer_failed_no_course#:#The selected object is not a course!
 fau#:#fau_transfer_failed_no_write#:#You have no write permission on the selected course!
 fau#:#fau_transfer_failed_already_connected#:#The selected course is already connected to a different campo event!
-fau#:#fau_transfer_success#:#The campo connection is transferred. You are now in the selected course<p class="small">If necessary, adjust the title of the course, set the registration procedure and put it online. You can access the previous campo course via "Last visited". It is no longer connected to campo. You can delete it if it no longer contains content you still need.</p>
+fau#:#fau_transfer_success#:#The campo connection is transferred. You are now in the selected course<p class="small">If necessary, adjust the title of the course, set the registration procedure and put it online. If You didn't delete the previous campo yourse, You can access it via "Last visited". It is no longer connected to campo. You can delete it if it no longer contains content you still need.</p>
 fau#:#fau_transfer_source_desc#:#The campo connection of this course has been moved to another course.
 fau#:#fau_transfer#:#Transfer
+fau#:#fau_transfer_selected_course#:#Selected Course
+fau#:#fau_transfer_assign_groups#:#Assign Parallel Groups
+fau#:#fau_transfer_assign_groups_info#:#Assign a group from the selected course to each parallel group of the event, which should receive the Campo connection. If the selected course does not contain enough groups, select "move" to move the parallel group there.
+fau#:#fau_transfer_update_title#:#Update Title and Description
+fau#:#fau_transfer_update_title_info#:#The selected course will receive the title and description of the current Campo course
+fau#:#fau_transfer_update_group_titles#:#Titel und Beschreibungen anpassen
+fau#:#fau_transfer_update_group_titles_info#:#The selected groups are given the title and description of the parallel groups
+fau#:#fau_transfer_delete_source#:#Delete Current Course
+fau#:#fau_transfer_delete_source_info#:#The current Campo course should be deleted automatically after transferring its Campo connection. Use this option only if it does not already have members or content!
+fau#:#fau_transfer_move_members#:#Rewrite old Members
+fau#:#fau_transfer_move_members_info#:#The members of the selected course and its groups are reclassified as previous members. Thus, they keep access (e.g. for exam preparation), but their places become free for new members. You can later remove the previous members without a resignation message to campo.
+fau#:#fau_transfer_next#:#Next
+fau#:#fau_transfer_failed_no_write#:#You do not have the right to manage members in the selected course!
+fau#:#fau_transfer_source_group_desc#:#The Campo connection of this group was transferred to another group.
+fau#:#fau_transfer_group_multiple_selected#:#This group is selected several times!
+fau#:#fau_transfer_groups_multiple_selected#:#The group assignment is not unique. Each group of the selected course may only be used once!
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

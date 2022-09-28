@@ -776,9 +776,25 @@ fau#:#fau_transfer_failed_same_object#:#Sie müssen einen anderen Kurs auswähle
 fau#:#fau_transfer_failed_no_course#:#Das gewählte Objekt ist kein Kurs!
 fau#:#fau_transfer_failed_no_write#:#Sie haben kein Schreibrecht auf dem gewählten Kurs!
 fau#:#fau_transfer_failed_already_connected#:#Der gewählte Kurs ist bereits mit einer anderen Veranstaltung verbunden!
-fau#:#fau_transfer_success#:#Die Campo-Verbindung wurde übertragen. Sie sind nun im gewählten Kurs.<p class="small">Passen Sie eventuell den Titel des Kurses an, stellen Sie das Anmeldeverfahren ein und schalten Sie ihn online. Den bisherigen Campo-Kurs erreichen Sie über "Zuletzt besucht". Er het keine Verbindung zu Campo mehr. Sie können ihn löschen, wenn er keine Inhalte mehr enthält, Sie noch benötigen.</p>
+fau#:#fau_transfer_success#:#Die Campo-Verbindung wurde übertragen. Sie sind nun im gewählten Kurs.<p class="small">Passen Sie eventuell den Titel des Kurses an, stellen Sie das Anmeldeverfahren ein und schalten Sie ihn online. Falls Sie den bisherigen Campo-Kurs nicht gelöscht haben, erreichen Sie ihn über "Zuletzt besucht". Er het keine Verbindung zu Campo mehr. Sie können ihn löschen, wenn er keine Inhalte mehr enthält, Sie noch benötigen.</p>
 fau#:#fau_transfer_source_desc#:#Die Campo-Verbindung dieses Kurses wurde auf einen anderen Kurs übertragen.
 fau#:#fau_transfer#:#Übertragen
+fau#:#fau_transfer_selected_course#:#Gewählter Kurs
+fau#:#fau_transfer_assign_groups#:#Parallelgruppen zuweisen
+fau#:#fau_transfer_assign_groups_info#:#Ordnen Sie jeder Parallelgruppe der Veranstaltung eine Gruppe aus dem gewählten Kurs zu, welche die Campo-Verbindung erhalten soll. Falls der gewählte Kurs nicht genügend Gruppen enthält, wählen Sie "verschieben", um die Parallelgruppe selbst dorthin zu verschieben.
+fau#:#fau_transfer_update_title#:#Titel und Beschreibung anpassen
+fau#:#fau_transfer_update_title_info#:#Der gewählte Kurs erhält den Titel und die Beschreibung des aktuellen Campo-Kurses
+fau#:#fau_transfer_update_group_titles#:#Titel und Beschreibungen anpassen
+fau#:#fau_transfer_update_group_titles_info#:#Die gewählten Gruppen erhalten Titel und Beschreibung der Parallelgruppen
+fau#:#fau_transfer_delete_source#:#Aktuellen Kurs löschen
+fau#:#fau_transfer_delete_source_info#:#Der aktuelle Campo-Kurs soll nach der Übertragung seiner Campo-Verbindung automatisch gelöscht werden. Verwenden Sie diese Option nur, wenn er nicht bereits Mitglieder oder Inhalte hat!
+fau#:#fau_transfer_move_members#:#Alte Mitglieder umschreiben
+fau#:#fau_transfer_move_members_info#:#Die Mitglieder des gewählten Kurses und seiner Gruppen werden als vorherige Mitglieder umgeschrieben. Damit behalten sie weiterhin Zugriff (z.B. zur Prüfungsvorbereitung), aber ihre Plätze werden frei für neue Mitglieder. Sie können später die vorherigen Mitglieder entfernen, ohne dass eine Austritts-Meldung an campo erfolgt.
+fau#:#fau_transfer_next#:#Weiter
+fau#:#fau_transfer_failed_no_write#:#Sie haben in dem gewählten Kurs nicht das Recht, Mitglieder zu verwalten!
+fau#:#fau_transfer_source_group_desc#:#Die Campo-Verbindung dieser Gruppe wurde auf ein andere Gruppe übertragen.
+fau#:#fau_transfer_group_multiple_selected#:#Diese Gruppe wurde mehrfach ausgewählt!
+fau#:#fau_transfer_groups_multiple_selected#:#Die Gruppenzuordnung ist nicht eindeutig. Jede Gruppe des gewählten Kurses darf nur einmal verwendet werden!
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

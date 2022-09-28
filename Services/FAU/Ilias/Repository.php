@@ -89,4 +89,13 @@ class Repository extends RecordRepo
         return $this->getIntegerList($query, 'obj_id', false);
     }
 
+    /**
+     * Change the role assignments from one role to another
+     */
+    public function changeRoleAssignments(int $from_role_id, int $to_role_id)
+    {
+        $query = "UPDATE rbac_ua SET rol_id=" . $this->db->quote($to_role_id, 'integer')
+            . " WHERE rol_id=" . $this->db->quote($from_role_id, 'integer');
+        $this->db->manipulate($query);
+    }
 }

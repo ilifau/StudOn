@@ -70,6 +70,26 @@ class Objects
     }
 
     /**
+     * Get a list if child groups
+     * @param int $ref_id
+     * @return string[] group titles indexed by their ref_id
+     */
+    public function getChildGroupsList(int $ref_id) : array
+    {
+        $list = [];
+        /** @noinspection PhpParamsInspection */
+        foreach ($this->dic->repositoryTree()->getChildIds($ref_id) as $child_id) {
+            if (ilObject::_lookupType($child_id, true) == 'grp' && !ilObject::_isInTrash($child_id)) {
+                $obj_id = ilObject::_lookupObjId($child_id);
+                $list[$child_id] = ilObject::_lookupTitle($obj_id);
+            }
+        }
+        asort($list);
+        return $list;
+
+    }
+
+    /**
      * Find parallel groups that are enclosed in the course
      */
     public function findChildParallelGroups(int $ref_id) : array
