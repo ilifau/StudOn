@@ -39,7 +39,7 @@ class Service extends SubService
             foreach ($this->repo()->getEducationsOfPerson($person->getPersonId()) as $education) {
                 $texts[] = $education->getOrgunit() . ': ' . $education->getExamname() . ' ('
                     . $education->getDateOfWork()
-                    . (empty(($education->getGrade()) ? '' : ' ' . $this->lng->txt('fau_grade') . ' '. $education->getGrade()))
+                    . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
                     . ')'
                     . (empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText());
             }
