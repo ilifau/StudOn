@@ -539,48 +539,45 @@ class SyncWithCampo extends SyncBase
      */
     public function syncModuleRestrictions() : void
     {
-        // get the existing restrictions for a later delete
-        $oldRestrictions = $this->cond->repo()->getModuleRestrictions(false, true);
-
         $this->info('syncModuleRestrictions...');
-        // query for all staging data
+
+        $existingReq = $this->cond->repo()->getRequirements(false, true);
+        $existingRest = $this->cond->repo()->getModuleRestrictions(false, true);
+
         foreach ($this->staging->repo()->getModuleRestrictions() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
             $requirement = new Requirement(
                 $record->getRequirementId(),
                 $record->getRequirementName()
             );
-            $moduleRes = new ModuleRestriction(
+            // save only if changed, it may be repeated in staging loop
+            if (!isset($existingReq[$requirement->key()]) || $existingReq[$requirement->key()]->hash() != $requirement->hash()) {
+                $this->study->repo()->save($requirement);
+                $existingReq[$requirement->key()] = $requirement;
+            }
+
+            $moduleRest = new ModuleRestriction(
                 $record->getModuleId(),
                 $record->getRestriction(),
                 $record->getRequirementId(),
                 $record->getCompulsory()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::DELETED:
-                    $this->study->repo()->delete($moduleRes);
-                    break;
-
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                default:
-                    // treat records without status by default
-
-                    // restrictions regarding the study semester may have no real requirement
-                    // in this case the requirement id is 0 and the requirement should not be saved
-                    if ($requirement->getRequirementId() !== 0) {
-                        $this->cond->repo()->save($requirement);
-                    }
-                    $this->cond->repo()->save($moduleRes);
-                    break;
+            if (!isset($existingRest[$moduleRest->key()])) {
+                $this->study->repo()->save($moduleRest);
             }
-            $this->staging->repo()->setDipProcessed($record);
-            // restriction is treated, so remove from the delete list
-            unset($oldRestrictions[$moduleRes->key()]);
+            else {
+                // existing record is still needed, this occurs only once in staging loop
+                unset($existingRest[$moduleRest->key()]);
+            }
         }
 
-        // delete all remaining old restrictions
-        foreach ($oldRestrictions as $restriction) {
-            $this->cond->repo()->delete($restriction);
+        // delete all remaining old module restrictions
+        foreach ($existingRest as $moduleRest) {
+            $this->cond->repo()->delete($moduleRest);
         }
     }
 
