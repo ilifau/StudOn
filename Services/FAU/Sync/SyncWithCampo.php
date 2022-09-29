@@ -81,7 +81,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table campo_achievements
-     * No change marks by DIP are available => all data has to be compared
+     * this is a FULL SYNC
      */
     public function syncAchievements() : void
     {
@@ -302,7 +302,7 @@ class SyncWithCampo extends SyncBase
      * This table combines the event to module relationship with the module data
      * The data is saved to different tables for the relationship and the module data
      *
-     * This is a FULL SYNC since the "deleted" DIP status seems not to be set appropriately
+     * This is a FULL SYNC
      * Modules don't have to be deleted
      */
     public function syncEventModules() : void
@@ -345,12 +345,20 @@ class SyncWithCampo extends SyncBase
     }
 
     /**
-     * Synchronize data found in the staging table campo_specific_educationsd
+     * Synchronize data of the staging table campo_specific_educations
+     * FULL SYNC
      */
     public function syncEducations() : void
     {
         $this->info('syncEducations...');
+        $existing = $this->user->repo()->getAllEducations();
+
         foreach ($this->staging->repo()->getEducationsToDo() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
             $education = new Education(
                 $record->getId(),
                 $record->getSemester(),
@@ -358,20 +366,20 @@ class SyncWithCampo extends SyncBase
                 $record->getExamnr(),
                 $record->getDateOfWork(),
                 $record->getExamname(),
+                $record->getGrade(),
                 $record->getOrgunit(),
                 $record->getAdditionalText()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::DELETED:
-                    $this->user->repo()->delete($education);
-                    break;
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                default:
-                    $this->user->repo()->save($education);
-                    break;
+            if (!isset($existing[$education->key()]) || $existing[$education->key()]->hash() != $education->hash()) {
+                $this->study->repo()->save($education);
             }
-            $this->staging->repo()->setDipProcessed($record);
+            // record is still needed
+            unset($existing[$education->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $education) {
+            $this->study->repo()->delete($education);
         }
     }
 

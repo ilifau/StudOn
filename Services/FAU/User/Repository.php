@@ -61,6 +61,16 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get all educations
+     * @return Education[]
+     */
+    public function getAllEducations() : array
+    {
+        return $this->getAllRecords(Education::model(), false, true);
+    }
+
+
+    /**
      * Get all achievements
      * @return Achievement[]
      */
