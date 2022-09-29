@@ -473,7 +473,11 @@ class Service extends SubService
                 $course_id = (int) $parts[2];
 
                 if (!empty($course = $this->repo()->getCourse($course_id))) {
-                    if (!empty($ref_id = $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course))) {
+                    $ref_id = (int) $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course);
+                    if (ilObject::_lookupType($ref_id, true) == 'grp') {
+                        $ref_id = (int) $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
+                    }
+                    if (!empty($ref_id)) {
                         $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                     }
                 }
