@@ -550,14 +550,16 @@ class SyncWithCampo extends SyncBase
                 continue;
             }
 
-            $requirement = new Requirement(
-                $record->getRequirementId(),
-                $record->getRequirementName()
-            );
-            // save only if changed, it may be repeated in staging loop
-            if (!isset($existingReq[$requirement->key()]) || $existingReq[$requirement->key()]->hash() != $requirement->hash()) {
-                $this->study->repo()->save($requirement);
-                $existingReq[$requirement->key()] = $requirement;
+            if ($record->getRequirementId() != 0) {
+                $requirement = new Requirement(
+                    $record->getRequirementId(),
+                    $record->getRequirementName()
+                );
+                // save only if changed, it may be repeated in staging loop
+                if (!isset($existingReq[$requirement->key()]) || $existingReq[$requirement->key()]->hash() != $requirement->hash()) {
+                    $this->study->repo()->save($requirement);
+                    $existingReq[$requirement->key()] = $requirement;
+                }
             }
 
             $moduleRest = new ModuleRestriction(
