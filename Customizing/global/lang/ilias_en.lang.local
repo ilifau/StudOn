@@ -639,6 +639,7 @@ fau#:#fau_course#:#Parallel Group
 fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
 fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.
 fau#:#fau_delete_info_campo#:#The list contains one or more courses for courses from Campo. When deleting, the connection to Campo is cancelled. If a course is still offered in the semester, StudOn creates a new course again during the next synchronization (usually hourly). You can prevent this by deleting or dropping the parallel groups in Campo. Then wait one or two hours. After that you can delete the StudOn course without it being created again.
+fau#:#fau_grade#:#Grade
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
 fau#:#fau_import_id#:#Import-ID

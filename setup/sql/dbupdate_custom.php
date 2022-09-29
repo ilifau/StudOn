@@ -1640,3 +1640,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_108();
 ?>
+<#109>
+<?php
+/**
+ * fau: fauService - add 'grade' column in educations table
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_109();
+?>

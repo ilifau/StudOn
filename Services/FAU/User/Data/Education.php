@@ -18,6 +18,7 @@ class Education extends RecordData
         'examnr' => 'text',
         'date_of_work' => 'text',
         'examname' => 'text',
+        'grade' => 'float',
         'orgunit' => 'text',
         'additional_text' => 'text',
     ];
@@ -27,6 +28,7 @@ class Education extends RecordData
     protected ?string $examnr;
     protected ?string $date_of_work;
     protected ?string $examname;
+    protected ?float $grade;
     protected ?string $orgunit;
     protected ?string $additional_text;
 
@@ -37,6 +39,7 @@ class Education extends RecordData
         ?string $examnr,
         ?string $date_of_work,
         ?string $examname,
+        ?float $grade,
         ?string $orgunit,
         ?string $additional_text
     )
@@ -47,13 +50,14 @@ class Education extends RecordData
         $this->examnr = $examnr;
         $this->date_of_work = $date_of_work;
         $this->examname = $examname;
+        $this->grade = $grade;
         $this->orgunit = $orgunit;
         $this->additional_text = $additional_text;
     }
 
     public static function model(): self
     {
-        return new self(0,null,null,null,null,null,null,null);
+        return new self(0,null,null,null,null,null, null,null,null);
     }
 
     /**
@@ -102,6 +106,14 @@ class Education extends RecordData
     public function getExamname(): ?string
     {
         return $this->examname;
+    }
+
+    /**
+     * @return float|null
+     */
+    public function getGrade() : ?float
+    {
+        return $this->grade;
     }
 
     /**

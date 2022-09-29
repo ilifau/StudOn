@@ -33,6 +33,11 @@ class FAUUserSteps
         $this->createUserEducationsTable(true);
     }
 
+    public function custom_step_109()
+    {
+        $this->addEducationsGrade();
+    }
+
 
     protected function createUserAchievementsTable(bool $drop = false)
     {
@@ -116,6 +121,14 @@ class FAUUserSteps
                 $drop
             );
             $this->db->addPrimaryKey('fau_user_org_roles', ['user_id', 'ref_id', 'type']);
+        }
+    }
+
+    public function addEducationsGrade()
+    {
+        if (!$this->db->tableColumnExists('fau_user_educations', 'grade')) {
+            $this->db->addTableColumn('fau_user_educations', 'grade',
+                ['type' => 'float',  'notnull' => false]);
         }
     }
 }
