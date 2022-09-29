@@ -3,7 +3,6 @@
 namespace FAU\User\Data;
 
 use FAU\RecordData;
-use FAU\Staging\Data\DipData;
 
 class Education extends RecordData
 {

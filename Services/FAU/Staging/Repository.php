@@ -119,9 +119,9 @@ class Repository extends RecordRepo
     /**
      * @return Education[]
      */
-    public function getEducationsToDo() : array
+    public function getEducations() : array
     {
-        return $this->getDipRecords(Education::model());
+        return $this->getAllRecords(Education::model(), false);
     }
 
     /**

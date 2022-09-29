@@ -81,7 +81,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table campo_achievements
-     * this is a FULL SYNC
+     * FULL SYNC
      */
     public function syncAchievements() : void
     {
@@ -186,6 +186,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table doc_programmes
+     * FULL SYNC
      */
     public function syncDocProgrammes() : void
     {
@@ -302,7 +303,7 @@ class SyncWithCampo extends SyncBase
      * This table combines the event to module relationship with the module data
      * The data is saved to different tables for the relationship and the module data
      *
-     * This is a FULL SYNC
+     * FULL SYNC
      * Modules don't have to be deleted
      */
     public function syncEventModules() : void
@@ -353,7 +354,7 @@ class SyncWithCampo extends SyncBase
         $this->info('syncEducations...');
         $existing = $this->user->repo()->getAllEducations();
 
-        foreach ($this->staging->repo()->getEducationsToDo() as $record) {
+        foreach ($this->staging->repo()->getEducations() as $record) {
             if ($record->getDipStatus() == DipData::DELETED) {
                 $this->staging->repo()->setDipProcessed($record);
                 continue;
@@ -479,7 +480,7 @@ class SyncWithCampo extends SyncBase
      * Synchronize data found in the staging table campo_module_cos
      * This table combines the module to course of study relationship with the course of study data
      *
-     * This is a FULL SYNC
+     * FULL SYNC
      * Module to Course of Study relations are deleted if they no longer exist
      * Courses of study don't have to be deleted
      */
@@ -533,7 +534,7 @@ class SyncWithCampo extends SyncBase
      * Synchronize data found in the staging table campo_module_restrictions
      * This table combines the module to requirement relationship with the requirements data
      *
-     * This is a FULL SYNC since the "deleted" DIP status seems not to be set appropriately
+     * FULL SYNC
      * Requirements don't have to be deleted
      */
     public function syncModuleRestrictions() : void
