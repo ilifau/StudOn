@@ -60,7 +60,6 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             $this->subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
             $this->registration->setSubType(Registration::subConfirmation);
         }
-
     }
     // fau.
 

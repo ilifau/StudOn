@@ -635,6 +635,11 @@ fau#:#fau_check_passed_restrictions#:#Your studies meet the requirements defined
 fau#:#fau_check_success_but_soft_failed#:#However, it does not meet the additional program requirements defined in StudOn.
 fau#:#fau_check_success_no_event#:#This course is not connected to an event in campo. There are no restrictions tested.
 fau#:#fau_check_success_no_restriction#:#This course has no restrictions defined in campo.
+fau#:#fau_check_info_failed_no_studydata#:#No study data available for the term
+fau#:#fau_check_info_failed_term_not_valid#:#No term specified
+fau#:#fau_check_info_failed_restrictions#:#Not satisfied
+fau#:#fau_check_info_passed_restrictions#:#Satisfied
+fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s, %s
 fau#:#fau_course#:#Parallel Group
 fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
 fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.

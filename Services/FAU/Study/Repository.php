@@ -391,9 +391,10 @@ class Repository extends RecordRepo
     public function getImportId(int $obj_id) : ImportId
     {
         $query = "SELECT import_id FROM object_data WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
-        $result = $this->db->query($query);
-        $row = $this->db->fetchAssoc($result);
-        return ImportId::fromString($row['import_id'] ?? '');
+        foreach ($this->getStringList($query, 'import_id') as $import_id) {
+            return ImportId::fromString($import_id);
+        }
+        return ImportId::fromString('');
     }
 
     /**

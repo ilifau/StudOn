@@ -635,6 +635,11 @@ fau#:#fau_check_passed_restrictions#:#Ihr Studium erfüllt die in Campo angegebe
 fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
 fau#:#fau_check_success_no_event#:#Mit diesem Kurs ist keine Lehrveranstaltung verknüpft. Es werden keine Voraussetzungen zur Belegung geprüft.
 fau#:#fau_check_success_no_restriction#:#Für diese Lehrveranstaltung sind in Campo keine Voraussetzungen angegeben.
+fau#:#fau_check_info_failed_no_studydata#:#Keine Studiengangsdaten für das Semester verfügbar
+fau#:#fau_check_info_failed_term_not_valid#:#Kein Semester angegeben
+fau#:#fau_check_info_failed_restrictions#:#Nicht erfüllt
+fau#:#fau_check_info_passed_restrictions#:#Erfüllt
+fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s, %s
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
