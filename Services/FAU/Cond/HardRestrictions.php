@@ -316,9 +316,7 @@ class HardRestrictions
         }
 
        foreach ($this->getModulesOfEventWithLoadedRestrictions($event_id) as $module) {
-           if (!empty($module->getRestrictions())) {
-               return true;
-           }
+           return true;
        }
 
        return false;
