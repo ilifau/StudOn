@@ -844,7 +844,7 @@ abstract class ilRegistrationGUI
                 return;
             }
 
-            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], $_POST['selected_module']);
+            $this->registration->doUpdate(ilUtil::stripSlashes($_POST['subject']), (array) $_POST['group_ref_ids'], (int) $_POST['selected_module']);
             $this->participants->sendExternalNotifications($this->container, $ilUser, true);
 
             ilUtil::sendSuccess($this->lng->txt('sub_request_saved'), true);
