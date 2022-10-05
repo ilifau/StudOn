@@ -238,9 +238,9 @@ class Person extends RecordData
     }
 
     /**
-     * Get the subjects of courses of study
+     * Get the subjects fitting to certain of courses of study
      * @param int[] $cos_ids
-     * @return Subject[]
+     * @return Subject[] (indexed by cos_ids)
      */
     public function getSubjectsWithCourseOfStudyDbIds(?Term $term, array $cos_ids) : array
     {
@@ -248,7 +248,7 @@ class Person extends RecordData
         foreach ($this->getStudiesOfTerm($term) as $study) {
             foreach ($study->getSubjects() as $subject) {
                 if (in_array($subject->getCourseOfStudyDbId(), $cos_ids)) {
-                    $subjects[] = $subject;
+                    $subjects[$subject->getCourseOfStudyDbId()] = $subject;
                 }
             }
         }

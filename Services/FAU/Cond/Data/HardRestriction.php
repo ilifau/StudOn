@@ -30,6 +30,19 @@ class HardRestriction
     protected array $exception_cos_ids = [];
 
 
+    /**
+     * Course of study ids that fit a user's study (later added in the check)
+     * @var int[]
+     */
+    protected array $fitting_cos_ids = [];
+
+    /**
+     * Restriction is satisfied by a user (later added in the check)
+     * @var bool
+     */
+    protected bool $satisfied = false;
+
+
     public function __construct(
         string $restriction,
         string $type
@@ -85,6 +98,17 @@ class HardRestriction
     }
 
     /**
+     * Clear the expressions in the restriction
+     * @return HardRestriction
+     */
+    public function withoutExpressions() : HardRestriction
+    {
+        $clone = clone $this;
+        $clone->expressions = [];
+        return $clone;
+    }
+
+    /**
      * @return HardRequirement[]
      */
     public function getRequirements() : array
@@ -102,6 +126,19 @@ class HardRestriction
         $clone->requirements[$requirement->getId()] = $requirement;
         return $clone;
     }
+
+
+    /**
+     * Clear the requirements in the restriction
+     * @return HardRestriction
+     */
+    public function withoutRequirements() : HardRestriction
+    {
+        $clone = clone $this;
+        $clone->requirements = [];
+        return $clone;
+    }
+
 
     /**
      * Check if the restriction as a requirement added with an id
@@ -133,9 +170,24 @@ class HardRestriction
     }
 
     /**
+     * Get the course of study ids for this restriction that fit the user's study
+     * @return int[]
+     */
+    public function getFittingCosIds() : array
+    {
+        return $this->fitting_cos_ids;
+    }
+
+    /**
+     * Restriction is satisfied by a user (later added in the check)
+     */
+    public function isSatisfied() : bool
+    {
+        return $this->satisfied;
+    }
+
+    /**
      * Add a course of study id for which this restriction should be tested
-     * @param int $regarding_cos_id
-     * @return EventRestriction
      */
     public function withRegardingCosId(int $id): HardRestriction
     {
@@ -146,13 +198,34 @@ class HardRestriction
 
     /**
      * Add a course of study id for which this restriction should not be tested
-     * @param int[] $exception_cos_ids
-     * @return EventRestriction
      */
     public function withExceptionCosId(int $id): HardRestriction
     {
         $clone = clone $this;
         $clone->exception_cos_ids[] = $id;
+        return $clone;
+    }
+
+    /**
+     * Add a course of study ids for this restriction that fit the user's study
+     */
+    public function withFittingCosId(int $id) : HardRestriction
+    {
+        $clone = clone $this;
+        $clone->fitting_cos_ids[] = $id;
+        return $clone;
+    }
+
+
+    /**
+     * Apply the satisfaction of this restriction by a user
+     * @param bool $satisfied
+     * @return HardRestriction
+     */
+    public function withSatisfied(bool $satisfied) : HardRestriction
+    {
+        $clone = clone $this;
+        $clone->satisfied = $satisfied;
         return $clone;
     }
 

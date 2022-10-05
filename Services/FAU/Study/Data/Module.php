@@ -29,6 +29,12 @@ class Module extends RecordData
      */
     protected $restrictions = [];
 
+    /**
+     * Ids of the module's courses of study that fit to a user
+     * These are not queried by default but later added by a check
+     * @var int[]
+     */
+    protected $fitting_cos_ids = [];
 
 
     public function __construct(
@@ -101,4 +107,25 @@ class Module extends RecordData
     {
         return isset($this->restrictions[$name]);
     }
+
+    /**
+     * @return int[]
+     */
+    public function getFittingCosIds() : array
+    {
+        return $this->fitting_cos_ids;
+    }
+
+    /**
+     * Add ids of courses of study that fit
+     * @param int[] $cos_ids
+     */
+    public function withFittingCosIds(array $cos_ids): self
+    {
+        $clone = clone $this;
+        $clone->fitting_cos_ids = $cos_ids;
+        return $clone;
+    }
+
+
 }
