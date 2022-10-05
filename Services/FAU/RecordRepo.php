@@ -44,6 +44,14 @@ abstract class RecordRepo
      */
     private $integerListCache = [];
 
+
+    /**
+     * Cache of string lists as query results
+     * @var string[][]   query hash => string[]
+     */
+    private $stringListCache = [];
+
+
     /**
      * Constructor
      */
@@ -101,7 +109,7 @@ abstract class RecordRepo
      */
     protected function getIntegerList(string $query, string $key, $useCache = true) : array
     {
-        $hash = md5($query);
+        $hash = md5(serialize([$query, $key]));
         if ($useCache && isset($this->integerListCache[$hash])) {
             return $this->integerListCache[$hash];
         }
@@ -112,6 +120,28 @@ abstract class RecordRepo
         }
         if ($useCache) {
             $this->integerListCache[$hash] = $list;
+        }
+        return $list;
+    }
+
+
+    /**
+     * Get a list of string from a query
+     * @return string[]
+     */
+    protected function getStringList(string $query, string $key, $useCache = true) : array
+    {
+        $hash = md5(serialize([$query, $key]));
+        if ($useCache && isset($this->stringListCache[$hash])) {
+            return $this->stringListCache[$hash];
+        }
+        $result = $this->db->query($query);
+        $list = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $list[] = (string) $row[$key];
+        }
+        if ($useCache) {
+            $this->stringListCache[$hash] = $list;
         }
         return $list;
     }
@@ -156,7 +186,7 @@ abstract class RecordRepo
      */
     protected function queryRecords(string $query, RecordData $model, bool $useCache = true, bool $forceIndex = false, ?string $indexKey = null) : array
     {
-        $hash = md5($query);
+        $hash = md5(serialize([$query, $forceIndex, $indexKey]));
         if ($useCache && isset($this->recordCache[$hash])) {
             return $this->recordCache[$hash];
         }

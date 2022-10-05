@@ -54,13 +54,12 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     // fau: campoCheck - adjust the subscription type based on soft conditions
     protected function adjustSubType()
     {
-        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getActivationUnlimitedStatus() == IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        if (($this->matches_studycond && $this->matches_restrictions) || $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             $this->subscription_type = $this->container->getSubscriptionType();
         } else {
             $this->subscription_type = IL_CRS_SUBSCRIPTION_CONFIRMATION;
             $this->registration->setSubType(Registration::subConfirmation);
         }
-
     }
     // fau.
 
