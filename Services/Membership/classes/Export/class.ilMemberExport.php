@@ -190,16 +190,12 @@ class ilMemberExport
     {
         $this->fetchUsers();
 
-        // fau: memberExport - fetch events, groups and exercises
+        // fau: memberExport - fetch events, groups and learning progress
         if ($this->settings->enabled('events')) {
             $this->fetchEvents();
         }
         if ($this->settings->enabled('groups')) {
             $this->fetchGroups();
-        }
-        if ($this->settings->enabled('exercises_marks')
-        or $this->settings->enabled('exercises_status')) {
-            $this->fetchExercises();
         }
 
         $this->fetchLPData();
@@ -418,6 +414,17 @@ class ilMemberExport
             }
         }
 
+        // fau: campoCheck - add restrictions column
+        if ($this->settings->enabled('restrictions')) {
+            global $DIC;
+            $object = ilObjectFactory::getInstanceByRefId($this->getRefId());
+            $restriction_obj_ids = $DIC->fau()->ilias()->objects()->getParallelObjectIds($object);
+            $restriction_module_ids = $DIC->fau()->user()->repo()->getSelectedModuleIdsOfMembers($restriction_obj_ids);
+            $hardRestrictions = $DIC->fau()->cond()->hard();
+            $this->addCol($this->lng->txt('fau_rest_hard_restrictions'), $row, $col++);
+        }
+        // fau.
+
         // fau: memberExport - add events in header row
         ilDatePresentation::setUseRelativeDates(false);
         foreach ($this->events as $event_obj) {
@@ -626,6 +633,24 @@ class ilMemberExport
                 }
             }
 
+            // fau: campoCheck - add restrictions data
+            if ($this->settings->enabled('restrictions')) {
+                if ($this->members->isMember($usr_id) || $this->user_course_data[$usr_id]['role'] == 'waiting_list') {
+                    $hardRestrictions->checkObject($this->getObjId(), $usr_id);
+                    if ($this->members->isMember($usr_id)) {
+                        $module_id = $restriction_module_ids[$usr_id] ?? null;
+                    }
+                    else {
+                        $module_id = $this->user_course_data[$usr_id]['module_id'] ?? null;
+                    }
+                    $this->addCol($hardRestrictions->getCheckResultInfo(false, $module_id), $row, $col++);
+                }
+                else {
+                    $this->addCol('', $row, $col++);
+                }
+            }
+            // fau.
+
             // fau: memberExport - add user participation for events
             foreach ($this->events as $event_obj) {
                 $event_part = new ilEventParticipants((int) $event_obj->getId());
@@ -742,6 +767,9 @@ class ilMemberExport
                 // fau: memberExport - get subscription message
                 $this->user_course_data[$tmp_id]['submessage'] = $waiting_list->getSubject($tmp_id);
                 // fau.
+                // fau: campoCheck - get the module id
+                $this->user_course_data[$tmp_id]['module_id'] = $waiting_list->getModuleId($tmp_id);
+                // fau.
             }
             // fau.
         }
@@ -753,7 +781,7 @@ class ilMemberExport
         // Finally read user profile data
         $this->user_profile_data = ilObjUser::_readUsersProfileData($this->user_ids);
     }
-    
+
 
     // fau: memberExport - new function fetchEvents
     private function fetchEvents()
@@ -804,7 +832,7 @@ class ilMemberExport
     // fau.
 
 
-    // fau: memberExport - new function fetchExercises
+    // fau: memberExport - new function fetchLPData()
     private function fetchLPData()
     {
         global $ilAccess, $tree;

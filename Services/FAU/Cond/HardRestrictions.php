@@ -335,11 +335,11 @@ class HardRestrictions
             return true;
         }
 
-       foreach ($this->getModulesOfEventWithLoadedRestrictions($event_id) as $module) {
-           return true;
-       }
+        if (!empty($this->getModulesOfEventWithLoadedRestrictions($event_id))) {
+            return true;
+        }
 
-       return false;
+        return false;
     }
 
     /**

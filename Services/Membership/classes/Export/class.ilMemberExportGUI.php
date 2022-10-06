@@ -246,16 +246,21 @@ class ilMemberExportGUI
         }
 
         // fau: memberExport - add further options for member export
+        // fau: campoCheck - add restrictions as option to member export
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->lng->txt('further_informations'));
         $form->addItem($header);
 
 
         $members = new ilCheckboxGroupInputGUI($this->lng->txt('members'), 'export_members');
+        global $DIC;
+        if ($DIC->fau()->cond()->hard()->hasRestrictions($this->obj_id)) {
+            $members->addOption(new ilCheckboxOption($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions'));
+        }
         $members->addOption(new ilCheckboxOption($this->lng->txt('events'), 'events'));
         $members->addOption(new ilCheckboxOption($this->lng->txt('groups'), 'groups'));
         $values = array();
-        foreach (array('events', 'groups') as $type) {
+        foreach (array('events', 'groups', 'restrictions') as $type) {
             if ($this->exportSettings->enabled($type)) {
                 $values[] = $type;
             }
