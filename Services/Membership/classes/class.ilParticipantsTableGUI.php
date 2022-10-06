@@ -23,7 +23,11 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
      */
     protected $rep_object;
 
-    
+    // fau: campoCheck- class variable for showing restrictions
+    protected bool $show_restrictions = false;
+    // fau.
+
+
     /**
      * Init table filter
      */
@@ -118,10 +122,78 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
             ),
             self::$all_columns
         );
+
+        // fau: campoCheck - adjust selectable columns
+        $this->addRestrictionsColumn();
+        // fau.
+
         self::$all_columns = array_merge($login, self::$all_columns);
         return self::$all_columns;
     }
-    
+
+    // fau: campoCheck - new functions to add restrictions as selectable column
+
+    /**
+     * Add the selectable column for restrictions
+     */
+    protected function addRestrictionsColumn() {
+        global $DIC;
+
+        $this->show_restrictions = $DIC->fau()->cond()->hard()->hasRestrictions($this->getRepositoryObject()->getId());
+        if ($this->show_restrictions) {
+            self::$all_columns = array_merge(
+                self::$all_columns,
+                array(
+                    'restrictions_passed' =>
+                        array(
+                            'txt' => $this->lng->txt('fau_rest_hard_restrictions'),
+                            'default' => false
+                        )
+                ),
+            );
+        }
+    }
+
+    /**
+     * Add the restrictions to the queried used data
+     */
+    protected function addRestrictionsData(array &$a_user_data)
+    {
+        global $DIC;
+        if ($this->show_restrictions && $this->isColumnSelected('restrictions_passed')) {
+            $obj_ids = $DIC->fau()->ilias()->objects()->getParallelObjectIds($this->getRepositoryObject());
+            $module_ids = $DIC->fau()->user()->repo()->getSelectedModuleIdsOfMembers($obj_ids);
+            $hardRestrictions = $DIC->fau()->cond()->hard();
+            foreach ($a_user_data as $user_id => $data) {
+                $data['restrictions_passed'] = $hardRestrictions->checkObject($this->getRepositoryObject()->getId(), $user_id);
+                $data['restrictions_info'] = $hardRestrictions->getCheckResultInfo(true, $module_ids[$user_id] ?? null);
+                $data['module_id'] = $module_ids[$user_id] ?? null;
+                $a_user_data[$user_id] = $data;
+            }
+        }
+    }
+
+    /**
+     * Add a cell in the table row if the restrictions' column is selected
+     */
+    protected function addRestrictionsCell(array $a_set)
+    {
+        $this->tpl->setCurrentBlock('custom_fields');
+        if ($this->participants->isMember($a_set['usr_id'])) {
+            $this->tpl->setVariable('VAL_CUST', fauHardRestrictionsGUI::getInstance()->getResultWithModalHtml(
+                (bool) $a_set['restrictions_passed'],
+                (string) $a_set['restrictions_info'],
+                $a_set['firstname'] . ' ' . $a_set['lastname'],
+                $a_set['module_id']
+            ));
+        }
+        else {
+            $this->tpl->setVariable('VAL_CUST', '');
+        }
+        $this->tpl->parseCurrentBlock();
+    }
+    // fau.
+
     /**
      * @return \ilObject
      */

@@ -169,6 +169,25 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Member::model(), $useCache, true, 'obj_id');
     }
 
+    /**
+     * Get the module ids selected by participants
+     * @param int[] $obj_ids
+     * @return int[] selected module_ids (indexed by the user ids)
+     */
+    public function getSelectedModuleIdsOfMembers(array $obj_ids) : array
+    {
+        if (empty($obj_ids)) {
+            return [];
+        }
+        $module_ids = [];
+        $query = "SELECT user_id, module_id FROM fau_user_members WHERE module_id IS NOT NULL
+            AND " . $this->db->in('obj_id', $obj_ids, false, 'integer');
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $module_ids[$row['user_id']] = $row['module_id'];
+        }
+        return $module_ids;
+    }
 
     /**
      * Save record data of an allowed type

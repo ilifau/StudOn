@@ -635,11 +635,11 @@ fau#:#fau_check_passed_restrictions#:#Ihr Studium erfüllt die in Campo angegebe
 fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
 fau#:#fau_check_success_no_event#:#Mit diesem Kurs ist keine Lehrveranstaltung verknüpft. Es werden keine Voraussetzungen zur Belegung geprüft.
 fau#:#fau_check_success_no_restriction#:#Für diese Lehrveranstaltung sind in Campo keine Voraussetzungen angegeben.
-fau#:#fau_check_info_failed_no_studydata#:#Keine Studiengangsdaten für das Semester verfügbar
-fau#:#fau_check_info_failed_term_not_valid#:#Kein Semester angegeben
+fau#:#fau_check_info_failed_no_studydata#:#Nicht erfüllt: Keine Studiengangsdaten für das Semester verfügbar
+fau#:#fau_check_info_failed_term_not_valid#:#Nicht erfüllt: Kein Semester angegeben
 fau#:#fau_check_info_failed_restrictions#:#Nicht erfüllt
 fau#:#fau_check_info_passed_restrictions#:#Erfüllt
-fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s, %s
+fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
@@ -685,6 +685,7 @@ fau#:#fau_search_no_events_found#:#Keine Lehrveranstaltungen gefunden.
 fau#:#fau_search_numbers_of#:#%s bis %s von %s
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird der Anfang des Titels. Verwenden Sie * als Platzhalter.
+fau#:#fau_selected_module#:#Gewähltes Modul
 fau#:#fau_sub_accept_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen angenommen.
 fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
 fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.

@@ -635,11 +635,11 @@ fau#:#fau_check_passed_restrictions#:#Your studies meet the requirements defined
 fau#:#fau_check_success_but_soft_failed#:#However, it does not meet the additional program requirements defined in StudOn.
 fau#:#fau_check_success_no_event#:#This course is not connected to an event in campo. There are no restrictions tested.
 fau#:#fau_check_success_no_restriction#:#This course has no restrictions defined in campo.
-fau#:#fau_check_info_failed_no_studydata#:#No study data available for the term
-fau#:#fau_check_info_failed_term_not_valid#:#No term specified
+fau#:#fau_check_info_failed_no_studydata#:#Not satisfied: No study data available for the term
+fau#:#fau_check_info_failed_term_not_valid#:#Not satisfied: No term specified
 fau#:#fau_check_info_failed_restrictions#:#Not satisfied
 fau#:#fau_check_info_passed_restrictions#:#Satisfied
-fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s, %s
+fau#:#fau_check_info_restrictions_for#:#Restrictions for %s
 fau#:#fau_course#:#Parallel Group
 fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be deleted.
 fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.
@@ -685,6 +685,7 @@ fau#:#fau_search_no_events_found#:#No Events found.
 fau#:#fau_search_numbers_of#:#%s to %s of %s
 fau#:#fau_search_title#:#Event Title
 fau#:#fau_search_title_info#:#Searching from the start of the title. Use * as placeholder.
+fau#:#fau_selected_module#:#Selected Module
 fau#:#fau_sub_accept_all_groups#:#Applications for admission are accepted in the course and in all included paralel groups.
 fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 25.
 fau#:#fau_sub_combi_disabled#:#A group selection must be made for this course. If you want to use a combined enrollment, create it outside the course and add all parallel groups of the course.

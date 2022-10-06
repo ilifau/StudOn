@@ -14,6 +14,8 @@ use ilWaitingList;
 use ilCourseWaitingList;
 use ilGroupWaitingList;
 use ilGroupParticipants;
+use ilObjCourse;
+use ilObjGroup;
 
 /**
  * Functions to handle with ILIAS objects
@@ -91,6 +93,7 @@ class Objects
 
     /**
      * Find parallel groups that are enclosed in the course
+     * @return int[]
      */
     public function findChildParallelGroups(int $ref_id) : array
     {
@@ -202,8 +205,36 @@ class Objects
         return $lists;
     }
 
+
+    /**
+     * Get the object ids of all parallel groups of an ilias course (self or enclosed groups)
+     * (Needed to query for the selected module ids of participants)
+     * @param ilObjCourse|ilObjGroup $object
+     * @return int[]
+     */
+    public function getParallelObjectIds(\ilObject $object) : array
+    {
+        if (!$this->isRegistrationHandlerSupported($object)) {
+            return [];
+        }
+        elseif (empty(ImportId::fromString($object->getImportId())->getEventId())) {
+            return [];
+        }
+        elseif ($object->isParallelGroup() || !$object->hasParallelGroups()) {
+            return [$object->getId()];
+        }
+
+        $obj_ids = [];
+        foreach ($this->findChildParallelGroups($object->getRefId()) as $ref_id) {
+            $obj_ids[] = ilObject::_lookupObjId($ref_id);
+        }
+        return $obj_ids;
+    }
+
+
     /**
      * Check if an object is a parallel group
+     * @param ilObjCourse|ilObjGroup $object
      */
     public function isParallelGroup(\ilObject $object) : bool
     {
@@ -215,6 +246,7 @@ class Objects
 
     /**
      * Check if an object is a parallel group or parent course of a parallel group
+     * @param ilObjCourse|ilObjGroup $object
      */
     public function isParallelGroupOrParentCourse(\ilObject $object) : bool
     {
@@ -231,7 +263,7 @@ class Objects
      */
     public function isRegistrationHandlerSupported(\ilObject $object) : bool
     {
-        return $object instanceof \ilObjCourse || $object instanceof \ilObjGroup;
+        return $object instanceof ilObjCourse || $object instanceof ilObjGroup;
     }
 
 
@@ -264,14 +296,14 @@ class Objects
         switch (ilObject::_lookupType($obj_id)) {
 
             case 'grp':
-                $group = new \ilObjGroup($obj_id, false);
+                $group = new ilObjGroup($obj_id, false);
                 if ($group->isMembershipLimited()) {
                     $maximum = $group->getMaxMembers();
                 }
                 break;
 
             case 'crs':
-                $course = new \ilObjCourse($obj_id, false);
+                $course = new ilObjCourse($obj_id, false);
                 if ($course->isSubscriptionMembershipLimited()) {
                     $maximum = $course->getSubscriptionMaxMembers();
                 }

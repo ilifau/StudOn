@@ -101,7 +101,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
         $this->showRestrictions = $DIC->fau()->cond()->hard()->hasRestrictions($this->getRepositoryObject()->getId());
         if ($this->showRestrictions) {
-            $this->addColumn($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions', '10%');
+            $this->addColumn($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions_passed', '10%');
         }
 
         $this->showParallelGroups = $DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getRepositoryObject());
@@ -371,27 +371,12 @@ class ilWaitingListTableGUI extends ilTable2GUI
         // fau.
         // fau: campoCheck - add restrictions info to waiting list
         if ($this->showRestrictions) {
-
-            if ($a_set['restrictions_passed']) {
-                $this->tpl->setVariable('VAL_RESTRICTIONS', $a_set['restrictions']);
-            }
-            else {
-                $modal_id = "waiting_user_" . $a_set['usr_id'];
-                $modal = ilModalGUI::getInstance();
-                $modal->setId($modal_id);
-                $modal->setType(ilModalGUI::TYPE_LARGE);
-                $modal->setBody($a_set['restrictions']);
-                $modal->setHeading(sprintf($this->lng->txt('fau_check_info_restrictions_for'), $a_set['lastname'], $a_set['firstname']));
-
-                $button = ilJsLinkButton::getInstance();
-                $button->setCaption($this->lng->txt('fau_check_info_failed_restrictions'), false);
-                $button->setOnClick("$('#$modal_id').modal('show')");
-
-                $onclick = "$('#$modal_id').modal('show')";
-                $link = '<a onclick="' . $onclick . '">' . $this->lng->txt('fau_check_info_failed_restrictions') . '</a>';
-
-                $this->tpl->setVariable('VAL_RESTRICTIONS', $modal->getHTML() . $link);
-            }
+            $this->tpl->setVariable('VAL_RESTRICTIONS', fauHardRestrictionsGUI::getInstance()->getResultWithModalHtml(
+                (bool) $a_set['restrictions_passed'],
+                (string) $a_set['restrictions_info'],
+                $a_set['firstname'] . ' ' . $a_set['lastname'],
+                $a_set['module_id']
+            ));
         }
         // fau.
         // fau: paraSub - add parallel group info to waiting list
@@ -425,7 +410,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
         unset($additional_fields['org_units']);
 
         // fau: campoCheck - don't query for restrictions by default
-        unset($additional_fields["restrictions"]);
+        unset($additional_fields["restrictions_passed"]);
         // fau.
 
         $udf_ids = $usr_data_fields = $odf_ids = array();
@@ -598,8 +583,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
                 if (isset($hardRestrictions)) {
                     $a_user_data[$usr_id]['restrictions_passed'] = $hardRestrictions->checkObject($this->getRepositoryObject()->getId(), $usr_id);
-                    $a_user_data[$usr_id]['restrictions'] = $hardRestrictions->getCheckResultInfo(true, $wait_usr_data['module_id']);
-
+                    $a_user_data[$usr_id]['restrictions_info'] = $hardRestrictions->getCheckResultInfo(true, $wait_usr_data['module_id']);
                 }
             }
         }

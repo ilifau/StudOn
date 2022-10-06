@@ -254,6 +254,12 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
+                // fau: campoCheck: show restrictions column
+                case 'restrictions_passed':
+                    $this->addRestrictionsCell($a_set);
+                    break;
+                // fau.
+
                 // fau: userData - format table output of studydata and educations
                 case 'studydata':
                 case 'educations':
@@ -390,7 +396,11 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
         unset($additional_fields['prtf']);
         unset($additional_fields['roles']);
         unset($additional_fields['org_units']);
-        
+
+        // fau: campoCheck - don't query for restrictions by default
+        unset($additional_fields["restrictions_passed"]);
+        // fau.
+
         $part = $this->participants->getParticipants();
         
         $part = $GLOBALS['DIC']->access()->filterUserIdsByRbacOrPositionOfCurrentUser(
@@ -579,7 +589,11 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
                 }
             }
         }
-        
+
+        // fau: campoCheck - add the data for the restrictions column
+        $this->addRestrictionsData($a_user_data);
+        // fau.
+
         // always sort by name first
         $a_user_data = ilUtil::sortArray(
             $a_user_data,
