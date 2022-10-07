@@ -635,7 +635,8 @@ class ilMemberExport
 
             // fau: campoCheck - add restrictions data
             if ($this->settings->enabled('restrictions')) {
-                if ($this->members->isMember($usr_id) || $this->user_course_data[$usr_id]['role'] == 'waiting_list') {
+                if ($this->members->isMember($usr_id) || in_array($this->user_course_data[$usr_id]['role'], ['waiting_list','subscriber'])
+                ) {
                     $hardRestrictions->checkObject($this->getObjId(), $usr_id);
                     if ($this->members->isMember($usr_id)) {
                         $module_id = $restriction_module_ids[$usr_id] ?? null;

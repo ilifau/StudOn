@@ -251,8 +251,16 @@ class ilMemberExportGUI
         $header->setTitle($this->lng->txt('further_informations'));
         $form->addItem($header);
 
-
-        $members = new ilCheckboxGroupInputGUI($this->lng->txt('members'), 'export_members');
+        if ($this->type == 'crs') {
+            $members_title = $this->lng->txt('course');
+        }
+        elseif ($this->type = 'grp') {
+            $members_title = $this->lng->txt('group');
+        }
+        else {
+            $members_title = $this->lng->txt('members');
+        }
+        $members = new ilCheckboxGroupInputGUI($members_title, 'export_members');
         global $DIC;
         if ($DIC->fau()->cond()->hard()->hasRestrictions($this->obj_id)) {
             $members->addOption(new ilCheckboxOption($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions'));
