@@ -1508,10 +1508,8 @@ class ilObjCourseGUI extends ilContainerGUI
             $rep_loc->setValue($locator->getHTML());
             $opt->addSubItem($rep_loc);
         }
-
-        // fau: paraSub disable combi subscription for courses with parallel groups
+        // fau: paraSub - add info for courses with parallel groups
         if ($this->object->hasParallelGroups()) {
-            $opt->setDisabled(true);
             $opt->setInfo($this->lng->txt('fau_sub_combi_disabled'));
         }
         $reg_proc->addOption($opt);
