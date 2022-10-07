@@ -764,6 +764,7 @@ fau#:#studydata_semester#:#Term
 fau#:#studydata_semester_summer#:#Summer Term %s
 fau#:#studydata_semester_summer_short#:#Summer %s
 fau#:#studydata_semester_text#:#%s. semester
+fau#:#studydata_clinical_semester_text#:# %s. clinical semester
 fau#:#studydata_semester_winter#:#Winter Term %s/%s
 fau#:#studydata_semester_winter_short#:#Winter %s/%s
 fau#:#studydata_study_no#:#Study course %s

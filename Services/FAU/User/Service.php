@@ -89,7 +89,8 @@ class Service extends SubService
             $faculty_texts = [];
             foreach ($study->getSubjects() as $subject) {
                 $subject_texts[] = $subject->getSubjectName() . ' [' . $subject->getSubjectId() .'] '
-                .sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester());
+                .sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester())
+                . (empty($subject->getClinicalSemester()) ? '' : ', ' . sprintf($this->lng->txt('studydata_clinical_semester_text'), $subject->getClinicalSemester()));
                 $faculty_texts[] = $subject->getFacultyName() . ' [' . $subject->getCalculatedSchoolId() . ']';
             }
             $text .= empty($subject_texts) ? '' : (" \n" . implode(', ', $subject_texts));

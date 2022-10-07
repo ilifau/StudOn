@@ -763,6 +763,7 @@ fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
 fau#:#studydata_semester_summer_short#:#SS %s
 fau#:#studydata_semester_text#:# %s. Semester
+fau#:#studydata_clinical_semester_text#:# %s. klinisches Semester
 fau#:#studydata_semester_winter#:#Wintersemester %s/%s
 fau#:#studydata_semester_winter_short#:#WS %s/%s
 fau#:#studydata_study_no#:#Studiengang %s
