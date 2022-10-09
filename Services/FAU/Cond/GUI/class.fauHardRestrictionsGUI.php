@@ -22,18 +22,23 @@ class fauHardRestrictionsGUI extends BaseGUI
 
     /**
      * Get a result string that is linked with a modal to show details
-     *
-     * @param bool     $passed          Restrictions are passed (will determine the text that is directly shown)
-     * @param string   $info            The detailed info if restrictions are failed (linked in the modal)
-     * @param string   $username        Full name of the user (will be shown in the modal title)
-     * @param int|null $module_id       ID of the selected modal by the user
+     * @param bool        $passed    Restrictions are passed (will determine the text that is directly shown)
+     * @param string      $info      The detailed info if restrictions are failed (linked in the modal)
+     * @param string      $username  Full name of the user (will be shown in the modal title)
+     * @param int|null    $module_id ID of the selected modal by the user
+     * @param string|null $passed_label    label to be used for passed restrictions
+     * @param string|null $failed_label    label to be used for failed restrictions
      * @return string
      */
-    public function getResultWithModalHtml(bool $passed, string $info, string $username, ?int $module_id) : string
+    public function getResultWithModalHtml(bool $passed, string $info, string $username, ?int $module_id,
+        ?string $passed_label = null, ?string $failed_label = null) : string
     {
+        $passed_label = $passed_label ?? $this->lng->txt('fau_check_info_passed_restrictions');
+        $failed_label = $failed_label ??  $this->lng->txt('fau_check_info_failed_restrictions');
+
         // no detailed info if restrictions are passed
         if ($passed) {
-            return $this->lng->txt('fau_check_info_passed_restrictions');
+            return $passed_label;
         }
 
         $module_info = '';
@@ -52,7 +57,7 @@ class fauHardRestrictionsGUI extends BaseGUI
         $modal->setHeading(sprintf($this->lng->txt('fau_check_info_restrictions_for'), $username));
 
         $onclick = "$('#$modal_id').modal('show')";
-        $link = '<a onclick="' . $onclick . '">' . $this->lng->txt('fau_check_info_failed_restrictions') . '</a>';
+        $link = '<a onclick="' . $onclick . '">' . $failed_label . '</a>';
         return $modal->getHTML() . $link;
     }
 }

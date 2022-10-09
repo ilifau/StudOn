@@ -266,6 +266,18 @@ class Objects
         return $object instanceof ilObjCourse || $object instanceof ilObjGroup;
     }
 
+    /**
+     * @param int $ref_id
+     * @return bool
+     */
+    public function refHasParallelGroups(int $ref_id) : bool
+    {
+        $type = ilObject::_lookupType($ref_id, true);
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $import_id = $this->dic->fau()->study()->repo()->getImportId($obj_id);
+        return ($type == 'crs' && !empty($import_id->getEventId()) && empty($import_id->getCourseId()));
+    }
+
 
     /**
      * Handle the update of an ILIAS object

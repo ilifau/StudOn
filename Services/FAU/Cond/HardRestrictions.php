@@ -16,7 +16,7 @@ use FAU\Cond\Data\HardRequirement;
 use FAU\User\Data\Person;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\ModuleCos;
-
+use FAU\Study\Data\ImportId;
 
 /**
  * Handling hard restrictions for students' access to lecture events
@@ -347,10 +347,18 @@ class HardRestrictions
      */
     public function checkObject(int $obj_id, int $user_id) : bool
     {
+        $import_id = $this->dic->fau()->study()->repo()->getImportId($obj_id);
+        return $this->checkByImportId($import_id, $user_id);
+    }
+
+    /**
+     * Check if a user can join an ILIAS object
+     */
+    public function checkByImportId(ImportId $import_id, int $user_id) : bool
+    {
         $this->clearCheckResult();
 
-        $importId = $this->dic->fau()->study()->repo()->getImportId($obj_id);
-        if (empty($event_id = $importId->getEventId())) {
+        if (empty($event_id = $import_id->getEventId())) {
             // manual created course / group => no check message
             return $this->checkPassed = true;
         }
@@ -369,7 +377,7 @@ class HardRestrictions
             return $this->checkPassed = true;
         }
 
-        $term = Term::fromString($importId->getTermId());
+        $term = Term::fromString($import_id->getTermId());
         if (!$term->isValid()) {
             $this->checkMessage = $this->lng->txt('fau_check_failed_term_not_valid');
             $this->checkInfo = $this->lng->txt('fau_check_info_failed_term_not_valid');
@@ -490,6 +498,15 @@ class HardRestrictions
     public function getCheckedAllowedModules(): array
     {
         return $this->checkedAllowedModules;
+    }
+
+    /**
+     * Get the modules that are forbidden for selection at registration
+     * @return Module[]
+     */
+    public function getCheckedForbiddenModules(): array
+    {
+        return $this->checkedForbiddenModules;
     }
 
     /**
