@@ -649,6 +649,7 @@ fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
 fau#:#fau_import_id#:#Import-ID
 fau#:#fau_module#:#Module
+fau#:#fau_module_select#:#Register the event for a module:
 fau#:#fau_move_selected_courses#:#Move Selected Courses
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
