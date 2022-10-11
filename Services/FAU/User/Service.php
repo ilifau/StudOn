@@ -140,7 +140,7 @@ class Service extends SubService
 
     /**
      * Save the membership of a user
-     * - omit the module id, if en existiong should not be changed
+     * - omit the module id, if an existing should not be changed
      * - use 0 for the module if it should be deleted
      */
     public function saveMembership(int $obj_id, int $user_id, ?int $module_id = null)
