@@ -267,6 +267,7 @@ class Objects
     }
 
     /**
+     * Check if referenced object is a course with enclosed parallel groups
      * @param int $ref_id
      * @return bool
      */
@@ -277,6 +278,20 @@ class Objects
         $import_id = $this->dic->fau()->study()->repo()->getImportId($obj_id);
         return ($type == 'crs' && !empty($import_id->getEventId()) && empty($import_id->getCourseId()));
     }
+
+    /**
+     * Check if referenced object is a group for a parallel group
+     * @param int $ref_id
+     * @return bool
+     */
+    public function refIsParallelGroup(int $ref_id) : bool
+    {
+        $type = ilObject::_lookupType($ref_id, true);
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $import_id = $this->dic->fau()->study()->repo()->getImportId($obj_id);
+        return ($type == 'grp' && !empty($import_id->getCourseId()));
+    }
+
 
 
     /**
