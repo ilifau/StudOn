@@ -115,9 +115,14 @@ class Repository extends RecordRepo
      */
     public function moveMembers(int $from_obj_id, int $to_obj_id)
     {
-        $query = "UPDATE fau_user_members SET obj_id = " . $this->db->quote($from_obj_id, 'integer')
-            . " WHERE obj_id = " .  $this->db->quote($to_obj_id, 'integer');
-        $this->db->manipulate($query);
+        $query = "REPLACE INTO fau_user_members(obj_id, user_id, module_id, course_responsible, instructor, individual_instructor)
+        SELECT %s, user_id, module_id, course_responsible, instructor, individual_instructor
+        FROM fau_user_members
+        WHERE obj_id = %s";
+        $this->db->manipulateF($query, ['integer', 'integer'], [$to_obj_id, $from_obj_id]);
+
+        $query = "DELETE FROM fau_user_members WHERE obj_id = %s";
+        $this->db->manipulateF($query, ['integer'], [$from_obj_id]);
     }
 
 
