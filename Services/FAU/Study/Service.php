@@ -474,7 +474,8 @@ class Service extends SubService
 
                 if (!empty($course = $this->repo()->getCourse($course_id))) {
                     $ref_id = (int) $this->dic->fau()->ilias()->objects()->getIliasRefIdForCourse($course);
-                    if (ilObject::_lookupType($ref_id, true) == 'grp') {
+                    if (ilObject::_lookupType($ref_id, true) == 'grp'
+                        && !$this->dic->access()->checkAccess('read', '', $ref_id,'grp')) {
                         $ref_id = (int) $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id);
                     }
                     if (!empty($ref_id)) {
