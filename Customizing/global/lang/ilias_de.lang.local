@@ -204,12 +204,11 @@ common#:#groupings_assigned_obj_not_writable_grp#:#Sie müssen bei allen zugeord
 common#:#groupings_of#:#Gruppierung von
 common#:#icon_alert_s.gif#:#Warnung
 common#:#ilias_remote_soap_login_failed#:#Es konnte keine Verbindung zur StudOn-Plattform aufgebaut werden!
-common#:#info_section_cat_roles_create_crs#:#Bereichs-Dozenten (können Inhalte anlegen)
-common#:#info_section_cat_roles_delete#:#Bereichs-Manager (können Inhalte verwalten)
-common#:#info_section_cat_roles_edit_permission#:#Bereichs-Administratoren (können Inhalte verwalten und Rechte setzen)
-common#:#info_section_cat_roles_write#:#Bereichs-Manager (können bearbeiten)
+common#:#info_section_cat_roles_create_crs#:#StudOn-Autor/innen (können Inhalte anlegen)
+common#:#info_section_cat_roles_delete#:#StudOn-Manager/innen (können Inhalte verwalten)
+common#:#info_section_cat_roles_edit_permission#:#Bereichs-Administrator/innen (können Inhalte verwalten und Rechte setzen)
 common#:#info_section_crs_parent_roles_read#:#Nutzer mit Zugriff ohne Beitritt
-common#:#info_section_studon_admins#:#StudOn-Administratoren (können Inhalte verwalten und Rechte setzen)
+common#:#info_section_studon_admins#:#StudOn-Administrator/innen (können Inhalte verwalten und Rechte setzen)
 common#:#info_section_studon_admins_details#:#Benutzer: siehe <a href="http://www.studon.fau.de/contact">Kontakt-Seite</a> von StudOn.
 common#:#join_as_guest#:#Anmeldung als Gast
 common#:#join_as_guest_mail_message#:#Antrag auf Gasthörer-Zugriff\n\nBenuztername: {LOGIN}\nVorname: {FIRSTNAME}\nNachname: {LASTNAME}\nE-Mail: {EMAIL}\n\nPfad: {PATH}\nKurs/Gruppe: {OBJECT}\nLink: {LINK}\n\n{LABEL_REG_TYPE}: {REG_TYPE}{MAX_MEMBERS}\n\n

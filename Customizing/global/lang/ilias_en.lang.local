@@ -204,10 +204,9 @@ common#:#groupings_assigned_obj_not_writable_grp#:#You must have write access on
 common#:#groupings_of#:#Grouping of
 common#:#icon_alert_s.gif#:#Warning
 common#:#ilias_remote_soap_login_failed#:#No link could have been established to the StudOn-platform!
-common#:#info_section_cat_roles_create_crs#:#Section-Lecturers (can create contents)
-common#:#info_section_cat_roles_delete#:#Section Manager (can manage contents)
+common#:#info_section_cat_roles_create_crs#:#StudOn Authors (can create contents)
+common#:#info_section_cat_roles_delete#:#StudOn Managers (can manage contents)
 common#:#info_section_cat_roles_edit_permission#:#Section Administrators (can manage contents and define permissions)
-common#:#info_section_cat_roles_write#:#Section Manager (can edit)
 common#:#info_section_crs_parent_roles_read#:#User with access without joining
 common#:#info_section_studon_admins#:#StudOn Administrators (can manage contents and define permissions)
 common#:#info_section_studon_admins_details#:#Users: see the <a href="http://www.studon.fau.de/studon">contact page</a> of StudOn.
