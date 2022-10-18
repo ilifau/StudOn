@@ -62,6 +62,11 @@ class FAUStudySteps
         $this->extendCoursesTextColumns();
     }
 
+    public function custom_step_110()
+    {
+        $this->changeCosMajorToMulti();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -422,5 +427,23 @@ class FAUStudySteps
 
         $this->db->modifyTableColumn('fau_study_courses', 'shorttext',
             ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
+    }
+
+    protected function changeCosMajorToMulti()
+    {
+        $this->db->modifyTableColumn('fau_study_cos', 'major',
+            ['type' => 'text', 'length' => 4000,   'notnull' => false, 'default' => null]);
+
+        $query = "SELECT cos_id, major FROM fau_study_cos";
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $cos_id = $row['cos_id'];
+            $major = isset($row['major']) ? serialize([(string) $row['major']]) : serialize([]);
+
+            $update = "UPDATE fau_study_cos SET major= %s WHERE cos_id = %s";
+            $this->db->manipulateF($update, ['text', 'integer'], [$major, $cos_id]);
+        }
+
+        $this->db->renameTableColumn('fau_study_cos', 'major', 'majors');
     }
 }

@@ -495,17 +495,27 @@ class SyncWithCampo extends SyncBase
                 $this->staging->repo()->setDipProcessed($record);
                 continue;
             }
-
-            $cos = new CourseOfStudy(
+            $cos = (new CourseOfStudy(
                 $record->getCosId(),
                 $record->getDegree(),
                 $record->getSubject(),
-                $record->getMajor(),
+                null,
                 $record->getSubjectIndicator(),
                 $record->getVersion()
-            );
+            ))->withAddedMajor($record->getMajor());        // add staging major, others will be removed later
+
             // save only if changed, it may be repeated in staging loop
-            if (!isset($existingCos[$cos->key()]) || $existingCos[$cos->key()]->hash() != $cos->hash()) {
+            if (!isset($existingCos[$cos->key()])) {
+                $this->study->repo()->save($cos);
+                $existingCos[$cos->key()] = $cos;
+            }
+            elseif ($existingCos[$cos->key()]->hash() != $cos->hash()) {
+                $cos = $existingCos[$cos->key()]
+                    ->withDegree($record->getDegree())
+                    ->withSubject($record->getSubject())
+                    ->withAddedMajor($record->getMajor())   // add staging major, others will be removed later
+                    ->withSubjectIndicator($record->getSubjectIndicator())
+                    ->withVersion($record->getVersion());
                 $this->study->repo()->save($cos);
                 $existingCos[$cos->key()] = $cos;
             }
@@ -526,6 +536,14 @@ class SyncWithCampo extends SyncBase
         // delete existing records that are no longer needed
         foreach ($existingModCos as $moduleCos) {
             $this->study->repo()->delete($moduleCos);
+        }
+
+        // keep existing courses of study but remove their old majors
+        foreach ($existingCos as $cos) {
+            if (count(array_diff($cos->getMajors(), $cos->getAddedMajors()))) {
+                $cos = $cos->withMajors($cos->getAddedMajors());
+                $this->study->repo()->save($cos);
+            }
         }
     }
 

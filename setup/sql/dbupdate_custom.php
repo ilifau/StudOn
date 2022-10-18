@@ -1647,3 +1647,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_109();
 ?>
+<#110>
+<?php
+/**
+ * fau: fauService - change the 'major' field in courses of study to serialized multiple values
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_110();
+?>
