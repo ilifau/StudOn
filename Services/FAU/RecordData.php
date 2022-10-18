@@ -119,7 +119,7 @@ abstract class RecordData
     }
 
     /**
-     * Get a hash of the whole record data
+     * Get a hash of the whole record data which is stored in the database
      * This can be used to compare two records
      */
     public function hash() : string

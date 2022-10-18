@@ -504,20 +504,26 @@ class SyncWithCampo extends SyncBase
                 $record->getVersion()
             ))->withAddedMajor($record->getMajor());        // add staging major, others will be removed later
 
-            // save only if changed, it may be repeated in staging loop
+            // save only if changed or added, it may be repeated in staging loop
             if (!isset($existingCos[$cos->key()])) {
+                //echo "\nINSERT " . $cos->getTitle();
                 $this->study->repo()->save($cos);
                 $existingCos[$cos->key()] = $cos;
             }
-            elseif ($existingCos[$cos->key()]->hash() != $cos->hash()) {
-                $cos = $existingCos[$cos->key()]
+            else {
+                $cos2 = $existingCos[$cos->key()]
                     ->withDegree($record->getDegree())
                     ->withSubject($record->getSubject())
                     ->withAddedMajor($record->getMajor())   // add staging major, others will be removed later
                     ->withSubjectIndicator($record->getSubjectIndicator())
                     ->withVersion($record->getVersion());
-                $this->study->repo()->save($cos);
-                $existingCos[$cos->key()] = $cos;
+
+                if ($cos2->hash() != $cos->hash()) {
+                    //echo "\nUPDATE " . $cos2->getTitle();
+                    $this->study->repo()->save($cos2);
+                }
+                // update with found major in existing list
+                $existingCos[$cos->key()] = $cos2;
             }
 
             $moduleCos = new ModuleCos(
@@ -542,6 +548,7 @@ class SyncWithCampo extends SyncBase
         foreach ($existingCos as $cos) {
             if (count(array_diff($cos->getMajors(), $cos->getAddedMajors()))) {
                 $cos = $cos->withMajors($cos->getAddedMajors());
+                //echo "\nCLEANUP " . $cos->getTitle();
                 $this->study->repo()->save($cos);
             }
         }
