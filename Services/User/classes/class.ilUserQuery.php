@@ -37,6 +37,10 @@ class ilUserQuery
     private $has_access = false;
     private $authentication_method = '';
 
+    // fau: userData - class variable for ref_id to filter educations
+    private $educations_ref_id = null;
+    // fau.
+
     /**
      * @var array
      */
@@ -65,6 +69,24 @@ class ilUserQuery
 
         $this->logger = $DIC->logger()->usr();
     }
+
+    // fau: getter and setter for ref_id to filter educations
+    /**
+     * Set the ref_id to filter the list of educations
+     */
+    public function setEducationsRefId(?int $ref_id)
+    {
+        $this->educations_ref_id = $ref_id;
+    }
+
+    /**
+     * Get the ref_id to filter the list of educations
+     */
+    public function getEducationsRefId() : ?int
+    {
+        return $this->educations_ref_id;
+    }
+    // fau.
 
     /**
      * Set udf filter
@@ -590,7 +612,7 @@ class ilUserQuery
                 $rec['studydata'] = $DIC->fau()->user()->getStudiesAsText((int) $rec['usr_id']);
             }
             if ($add_educations) {
-                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id']);
+                $rec['educations'] = $DIC->fau()->user()->getEducationsAsText((int) $rec['usr_id'], $this->getEducationsRefId());
             }
             // fau.
             $result[] = $rec;
@@ -617,7 +639,7 @@ class ilUserQuery
         return array("cnt" => $cnt, "set" => $result);
     }
     
-    
+    // fau: userData add ref id to filter the display of educations as parameter
     /**
      * Get data for user administration list.
      * @deprecated
@@ -638,7 +660,8 @@ class ilUserQuery
         $a_additional_fields = '',
         $a_user_filter = null,
         $a_first_letter = "",
-        $a_authentication_filter = null
+        $a_authentication_filter = null,
+        $a_educations_ref_id = null
     ) {
         $query = new ilUserQuery();
         $query->setOrderField($a_order_field);
@@ -657,6 +680,8 @@ class ilUserQuery
         $query->setUserFilter($a_user_filter);
         $query->setFirstLetterLastname($a_first_letter);
         $query->setAuthenticationFilter($a_authentication_filter);
+        $query->setEducationsRefId($a_educations_ref_id);
         return $query->query();
     }
+    // fau.
 }

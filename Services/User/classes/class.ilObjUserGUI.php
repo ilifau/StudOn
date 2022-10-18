@@ -1382,7 +1382,7 @@ class ilObjUserGUI extends ilObjectGUI
             $this->form_gui->addItem($mr);
         }
 
-        // fau: userData - add rows for studydata and educations
+        // fau: userData - add fields for studydata and educations
         $stu = new ilCustomInputGUI($lng->txt("studydata"), "studydata");
         $stu->setHTML(nl2br($DIC->fau()->user()->getStudiesAsText($this->object->getId())));
 

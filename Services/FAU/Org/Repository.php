@@ -68,6 +68,17 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Orgunit::model(), false);
     }
 
+    /**
+     * @param int[] $ref_ids
+     * @return Orgunit[]
+     */
+    public function getOrgunitsByRefIds(array $ref_ids) : array
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE " . $this->db->in('ilias_ref_id', $ref_ids, false,'integer');
+        return $this->queryRecords($query, Orgunit::model(), false);
+    }
+
+
 
     /**
      * Get the ids of orgunits within a certain path

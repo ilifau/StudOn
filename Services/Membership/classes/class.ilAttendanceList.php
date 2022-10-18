@@ -655,7 +655,7 @@ class ilAttendanceList
 
                             case "educations":
                                 global $DIC;
-                                $value = $DIC->fau()->user()->getEducationsAsText($user_id);
+                                $value = $DIC->fau()->user()->getEducationsAsText((int) $user_id, $this->parent_obj->getRefId());
                                 break;
                             // fau.
 

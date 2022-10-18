@@ -58,4 +58,22 @@ class Service extends SubService
         }
         return $list;
     }
+
+    /**
+     * Get the shorttexts of the org units that are found on the path of an ilias reference
+     * @param int|null $ref_id
+     * @return string[]
+     */
+    public function getShorttextsOnIliasPath(?int $ref_id) : array
+    {
+        if (empty($ref_id)) {
+            return [];
+        }
+        $texts = [];
+        $path_ids = $this->dic->repositoryTree()->getPathId($ref_id);
+        foreach ($this->repo()->getOrgunitsByRefIds($path_ids) as $unit) {
+            $texts[] = $unit->getShorttext();
+        }
+        return $texts;
+    }
 }

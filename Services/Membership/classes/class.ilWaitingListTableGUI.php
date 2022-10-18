@@ -428,6 +428,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
         }
 
         $l = $this->getLimit();
+
+        // fau: userData - add ref_if to filter the list of educations as parameter
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -442,8 +444,13 @@ class ilWaitingListTableGUI extends ilTable2GUI
             0,
             null,
             $usr_data_fields,
-            $this->wait_user_ids
+            $this->wait_user_ids,
+            '',
+            null,
+            $this->getRepositoryObject()->getRefId()
         );
+        // fau.
+
         if (0 === count($usr_data['set']) && $this->getOffset() > 0 && $this->getExternalSegmentation()) {
             $this->resetOffset();
 

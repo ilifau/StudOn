@@ -31,20 +31,32 @@ class Service extends SubService
      * Get the educations of a user as text
      * An education is given as Title: Text
      * Educations are separated by newlines
+     * @param int $user_id
+     * @param int|null $ref_id  filter educations from orgunits along the ilias path to the ref_id
+     * @return string
      */
-    public function getEducationsAsText(int $user_id) : string
+    public function getEducationsAsText(int $user_id, ?int $ref_id = null) : string
     {
-        $texts = [];
+        $alltexts = [];
         if (!empty($person = $this->dic->fau()->user()->repo()->getPersonOfUser($user_id))) {
-            foreach ($this->repo()->getEducationsOfPerson($person->getPersonId()) as $education) {
-                $texts[] = $education->getOrgunit() . ': ' . $education->getExamname() . ' ('
-                    . $education->getDateOfWork()
+            $orgunits = null;
+            if (!empty($ref_id)) {
+                $orgunits = $this->dic->fau()->org()->getShorttextsOnIliasPath($ref_id);
+            }
+            $texts = [];
+            foreach ($this->repo()->getEducationsOfPerson($person->getPersonId(), $orgunits) as $education) {
+                $texts[$education->getOrgunit()][] = $education->getExamname()
+                    . ' (' . $education->getDateOfWork()
                     . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
                     . ')'
                     . (empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText());
             }
+            foreach ($texts as $orgunit => $unittexts) {
+                sort($unittexts);
+                $alltexts[] = $orgunit . ": \n" . implode("\n", $unittexts);
+            }
         }
-        return implode("\n", $texts);
+        return implode("\n", $alltexts);
     }
 
     /**

@@ -345,6 +345,7 @@ class ilSubscriberTableGUI extends ilTable2GUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id as argument to  filter the display of educations
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -359,9 +360,13 @@ class ilSubscriberTableGUI extends ilTable2GUI
             0,
             null,
             $usr_data_fields,
-            $sub_ids
+            $sub_ids,
+            '',
+            null,
+            $this->getRepositoryObject()->getRefId()
         );
-        
+        // fau.
+
         foreach ((array) $usr_data['set'] as $user) {
             $usr_ids[] = $user['usr_id'];
         }

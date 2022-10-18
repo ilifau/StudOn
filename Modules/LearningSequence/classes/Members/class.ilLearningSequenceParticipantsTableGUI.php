@@ -293,6 +293,7 @@ class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id as argument to filter the list of educations
         $usr_data = ilUserQuery::getUserListData(
             $this->getOrderField(),
             $this->getOrderDirection(),
@@ -307,8 +308,12 @@ class ilLearningSequenceParticipantsTableGUI extends ilParticipantTableGUI
             0,
             null,
             $usr_data_fields,
-            $ls_participants
+            $ls_participants,
+            '',
+            null,
+            $this->getRepositoryObject()->getRefId()
         );
+        // fau.
 
         $user_data = array();
         $filtered_user_ids = array();

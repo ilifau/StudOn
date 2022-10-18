@@ -430,6 +430,7 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
             $usr_data_fields[] = $field;
         }
 
+        // fau: userData - add ref_id as argument to filter the list of educations
         $usr_data = ilUserQuery::getUserListData(
             '',
             '',
@@ -444,8 +445,13 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
             0,
             null,
             $usr_data_fields,
-            $part
+            $part,
+            '',
+            null,
+            $this->getRepositoryObject()->getRefId()
         );
+        // fau.
+
         // filter by array
         $usr_ids = array();
         $local_roles = $this->getParentObject()->getLocalRoles();

@@ -49,13 +49,15 @@ class Repository extends RecordRepo
 
     /**
      * Get the educations assigned to a person
+     * @param int|null $person_id
+     * @param string[]|null $orgunits    show educations of these orgunits (shorttexts)
      * @return Education[]
      */
-    public function getEducationsOfPerson(?int $person_id, ?string $orgunit = null) : array
+    public function getEducationsOfPerson(?int $person_id, ?array $orgunits = null) : array
     {
         $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
-        if (isset($orgunit))  {
-            $query .= " AND " . $this->db->quoteIdentifier('orgunit') . ' = ' . $this->db->quote($orgunit, 'text');
+        if (!empty($orgunits))  {
+            $query .= " AND " . $this->db->in('orgunit', $orgunits, false,'text');
         }
         return $this->queryRecords($query, Education::model());
     }

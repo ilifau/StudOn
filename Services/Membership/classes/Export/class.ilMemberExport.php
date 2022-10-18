@@ -608,7 +608,7 @@ class ilMemberExport
                     case 'educations':
                         global $DIC;
                         if (!$this->agreement_needed or $this->agreement[$usr_id]['accepted']) {
-                            $educations = $DIC->fau()->user()->getEducationsAsText((int) $usr_id);
+                            $educations = $DIC->fau()->user()->getEducationsAsText((int) $usr_id, (int) $this->getRefId());
                             $educations = $DIC->fau()->tools()->convert()->quoteForExport($educations);
                             $this->addCol($educations, $row, $col++);
                         } else {
