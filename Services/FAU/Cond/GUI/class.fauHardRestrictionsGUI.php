@@ -57,7 +57,7 @@ class fauHardRestrictionsGUI extends BaseGUI
         $modal->setHeading(sprintf($this->lng->txt('fau_check_info_restrictions_for'), $username));
 
         $onclick = "$('#$modal_id').modal('show')";
-        $link = '<a onclick="' . $onclick . '">' . $failed_label . '</a>';
+        $link = '<a onclick="' . $onclick . '">» ' . $failed_label . '</a>';
         return $modal->getHTML() . $link;
     }
 }
