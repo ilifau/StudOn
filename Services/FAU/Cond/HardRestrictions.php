@@ -484,7 +484,7 @@ class HardRestrictions
     {
         $list = [];
         foreach ($this->checkedUserCos as $cos) {
-            $list[] = $cos->getTitle();
+            $list[] = $cos->getTitle(false);
         }
         return $this->formatList($list, $html);
 

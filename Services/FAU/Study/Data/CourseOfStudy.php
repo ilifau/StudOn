@@ -111,9 +111,14 @@ class CourseOfStudy extends RecordData
     /**
      * Get a textual title
      */
-    public function getTitle() : string
+    public function getTitle($show_multiple_majors = false) : string
     {
-        return $this->getSubject() . ', ' . $this->getDegree() . ', ' . $this->getSubjectIndicator() . ', ' . implode('|', $this->getMajors()) . ', ' . $this->getVersion();
+        if (count($this->getMajors()) < 2 || $show_multiple_majors) {
+            return $this->getSubject() . ', ' . $this->getDegree() . ', ' . $this->getSubjectIndicator() . ', ' . implode('|', $this->getMajors()) . ', ' . $this->getVersion();
+        }
+        else {
+            return $this->getSubject() . ', ' . $this->getDegree() . ', ' . $this->getSubjectIndicator() .  ', ' . $this->getVersion();
+        }
     }
 
 
