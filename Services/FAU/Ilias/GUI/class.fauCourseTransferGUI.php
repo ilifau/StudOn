@@ -43,6 +43,8 @@ class fauCourseTransferGUI extends BaseGUI
             case "doTransfer":
             case "showSplitOptions":
             case "doSplit":
+            case "showSolveOptions":
+            case "doSolve":
                 $this->$cmd();
                 break;
             default:
@@ -312,4 +314,89 @@ class fauCourseTransferGUI extends BaseGUI
         $this->ctrl->redirectToURL(ilLink::_getLink($cat_ref_id));
     }
 
+    /**
+     * Show the options to solve a campo conflict
+     */
+    protected function showSolveOptions()
+    {
+        ilUtil::sendInfo($this->lng->txt('fau_solve_conflict_message'));
+        $form = $this->initSolveForm();
+        $this->tpl->setContent($form->getHTML());
+    }
+
+    protected function initSolveForm() : ilPropertyFormGUI
+    {
+        $form = new ilPropertyFormGUI();
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setTitle($this->lng->txt('fau_solve_conflict'));
+
+        $pathGUI = new ilPathGUI();
+        $pathGUI->enableTextOnly(false);
+        $pathGUI->enableHideLeaf(false);
+
+        $radio = new ilRadioGroupInputGUI($this->lng->txt('fau_solve_select_course'), 'target_ref_id');
+        $radio->setRequired(true);
+        $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        foreach ($this->dic->fau()->study()->repo()->getObjectIdsWithImportId($import_id) as $obj_id)
+        {
+            if (ilObject::_lookupType($obj_id) == 'crs') {
+                foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
+                    if (!ilObject::_isInTrash($ref_id)) {
+                        $course = new ilObjCourse($ref_id);
+                        $members = $course->getMembersObject()->getCountMembers();
+                        $waiting = $course->getWaitingList()->getCountUsers();
+                        $info = [];
+                        $info[] = $course->getOfflineStatus() ? $this->lng->txt('offline') : $this->lng->txt('online');
+                        $info[] = sprintf($this->lng->txt('fau_solve_members_waiting'), $members, $waiting);
+                        $info[] = $pathGUI->getPath(1, $ref_id);
+
+                        $option = new ilRadioOption($course->getTitle()
+                            . ($obj_id == $this->object->getId() ? ' <b>('. $this->lng->txt('fau_solve_this_course') . ')</b>' : ''),
+                            $ref_id,
+                            implode("<br>", $info)
+                        );
+                        $radio->addOption($option);
+                    }
+                }
+            }
+            else {
+                $option = new ilRadioOption(ilObject::_lookupTitle($obj_id));
+                $option->setDisabled(true);
+                $radio->addOption($option);
+            }
+        }
+        $form->addItem($radio);
+
+        $form->addCommandButton('doSolve', $this->lng->txt('fau_solve_select_course'));
+        $form->addCommandButton('returnToParent', $this->lng->txt('cancel'));
+        return $form;
+
+    }
+
+    protected function doSolve()
+    {
+        $post = $this->request->getParsedBody();
+        $ref_id = (int) $post['target_ref_id'];
+
+
+        if (ilObject::_lookupType($ref_id, true) != 'crs') {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_course'), true);
+            $this->returnToParent();
+        }
+        if (!$this->access->checkAccess('write','', $ref_id, 'crs')) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_write'), true);
+            $this->returnToParent();
+        }
+        if (!$this->access->checkAccess('manage_members','', $ref_id, 'crs')) {
+            ilUtil::sendFailure($this->lng->txt('fau_transfer_failed_no_manage_members'), true);
+            $this->returnToParent();
+        }
+
+        $target = new ilObjCourse($ref_id);
+        $import_id = ImportId::fromString($target->getImportId());
+
+        $this->dic->fau()->ilias()->transfer()->solveCourseConflicts($import_id, $target);
+        ilUtil::sendSuccess($this->lng->txt('fau_solve_success'), true);
+        $this->ctrl->returnToParent($this);
+    }
 }

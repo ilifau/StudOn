@@ -142,6 +142,38 @@ class Transfer
     }
 
     /**
+     * Solve conflicts with multipe campo connections (import ids)
+     */
+    public function solveCourseConflicts(ImportId $import_id, ilObjCourse $target)
+    {
+        // set the correct object id in the campo course
+        $course = $this->dic->fau()->study()->repo()->getCourse($import_id->getCourseId());
+        $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->getId()));
+
+        foreach ($this->dic->fau()->study()->repo()->getObjectIdsWithImportId($import_id) as $obj_id) {
+            if ($obj_id == $target->getId()) {
+                continue;
+            }
+
+            if (ilObject::_lookupType($obj_id) == 'crs') {
+                foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
+                    if (!ilObject::_isInTrash($ref_id)) {
+                        $source = new ilObjCourse($ref_id);
+                        $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), IL_CRS_MEMBER, IL_CRS_MEMBER);
+                        $this->dic->fau()->ilias()->repo()->moveWaitingList($source->getId(), $target->getId());
+                        $source->setImportId(null);
+                        $source->setOfflineStatus(true);
+                        $source->update();
+                    }
+                }
+            }
+
+            // other object types (should not happen)
+            $this->dic->fau()->sync()->repo()->removeObjectFauImportId($obj_id);
+        }
+    }
+
+    /**
      * Change a parallel group to a course
      */
     protected function changeParallelGroupToCourse(ilObjCourse $parent, ilObjGroup $source, ilObjCourse $target)
@@ -247,14 +279,15 @@ class Transfer
      */
     protected function moveCourseParticipants(ilObjCourse $source, ilObjCourse $target)
     {
+        // do first to keep the module selection
+        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
+
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
         $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_TUTOR, IL_CRS_TUTOR);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_MEMBER, IL_CRS_MEMBER);
-
-        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
     }
 
     /**
@@ -262,15 +295,15 @@ class Transfer
      */
     protected function moveGroupParticipants(ilObjGroup $source, ilObjGroup $target)
     {
+        // do first to keep the module selection
+        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
+
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
         $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_GRP_ADMIN);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_GRP_MEMBER);
-
-        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
     }
-
 
 
     /**
@@ -278,6 +311,9 @@ class Transfer
      */
     protected function moveGroupToCourseParticipants(ilObjCourse $parent, ilObjGroup $source, ilObjCourse $target)
     {
+        // do first to keep the module selection
+        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
+
         $parentMembers = $parent->getMembersObject();
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
@@ -285,8 +321,6 @@ class Transfer
         $this->moveParticipants($parentMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_CRS_ADMIN);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_CRS_MEMBER);
-
-        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
     }
 
 
