@@ -787,7 +787,10 @@ class ilAccountRegistrationGUI
                 break;
 
             case ilRegistrationSettings::LOGIN_GEN_GUEST_SELFREG:
-                $base_login = 'gsr' . rand(10000, 99999);
+                $prefix = ilCust::get("regbycode_prefix");
+                if($prefix == '')
+                    $prefix = "gsr";
+                $base_login = $prefix . rand(10000, 99999);
                 break;
         }
 
