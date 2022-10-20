@@ -398,6 +398,17 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the IDs of objects that have a certain import id
+     * @param ImportId $import_id
+     * @return int[]
+     */
+    public function getObjectIdsWithImportId(ImportId $import_id) : array
+    {
+        $query = "SELECT obj_id FROM object_data WHERE import_id = " . $this->db->quote($import_id->toString(), 'text');
+        return $this->getIntegerList($query, 'obj_id');
+    }
+
+    /**
      * Get Modules
      * @param int[]|null $ids  (get all if null, none if empty)
      * @return Module[]
