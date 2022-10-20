@@ -193,9 +193,16 @@ class ilObjCourseGUI extends ilContainerGUI
             if ($import_id->isForCampo() && $this->checkPermissionBool('write')) {
                 $button = ilLinkButton::getInstance();
                 $button->setCaption('fau_transfer_course');
-                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI'));
+                $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'selectTargetCourse'));
                 $this->toolbar->addSeparator();
                 $this->toolbar->addButtonInstance($button);
+
+                if ($this->object->hasParallelGroups()) {
+                    $button = ilLinkButton::getInstance();
+                    $button->setCaption('fau_split_course');
+                    $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSplitOptions'));
+                    $this->toolbar->addButtonInstance($button);
+                }
             }
             // fau.
 

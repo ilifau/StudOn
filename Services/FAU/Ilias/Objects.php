@@ -16,6 +16,9 @@ use ilGroupWaitingList;
 use ilGroupParticipants;
 use ilObjCourse;
 use ilObjGroup;
+use FAU\Study\Data\Term;
+use FAU\Study\Data\Event;
+use FAU\Tools\Settings;
 
 /**
  * Functions to handle with ILIAS objects
@@ -23,10 +26,12 @@ use ilObjGroup;
 class Objects
 {
     protected Container $dic;
+    protected Settings $settings;
 
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+        $this->settings = $dic->fau()->tools()->settings();
     }
 
     /**
@@ -359,5 +364,45 @@ class Objects
             // prevent multiple change entries for further updates
             $this->dic->fau()->study()->repo()->save($campoCourse->withAttendeeMaximum($maximum));
         }
+    }
+
+    /**
+     * Create an ILIAS course for a campo event and/or course (parallel group)
+     * The ilias course will always work as a container for the event
+     * If a campo course is given then the ilias course should work as container for that parallel group
+     */
+    public function createIliasCourse(int $parent_ref_id, Term $term, Event $event, ?Course $course): ilObjCourse
+    {
+        $object = new ilObjCourse();
+        $object->setTitle($event->getTitle()); // will be changed updateIliasCourse
+        $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
+        $object->setOwner($this->settings->getDefaultOwnerId());
+        $object->create();
+        $object->createReference();
+        $object->putInTree($parent_ref_id);
+        $object->setPermissions($parent_ref_id);
+        if ($this->dic->fau()->study()->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
+            $object->applyDidacticTemplate($this->settings->getCourseDidacticTemplateId());
+        }
+        $object->setOfflineStatus(false);
+        $object->update();
+        return $object;
+    }
+
+    /**
+     * Create an ILIAS group for a campo course (parallel group)
+     */
+    public function createIliasGroup(int $parent_ref_id, Term $term, Event $event, Course $course): ilObjGroup
+    {
+        $object = new ilObjGroup();
+        $object->setTitle($course->getTitle()); // will be changed updateIliasGroup
+        $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
+        $object->setOwner($this->settings->getDefaultOwnerId());
+        $object->create();
+        $object->createReference();
+        $object->putInTree($parent_ref_id);
+        $object->setPermissions($parent_ref_id);
+        $object->applyDidacticTemplate($this->settings->getGroupDidacticTemplateId());
+        return $object;
     }
 }

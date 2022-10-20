@@ -803,6 +803,12 @@ fau#:#fau_transfer_failed_no_write#:#Sie haben in dem gewählten Kurs nicht das 
 fau#:#fau_transfer_source_group_desc#:#Die Campo-Verbindung dieser Gruppe wurde auf ein andere Gruppe übertragen.
 fau#:#fau_transfer_group_multiple_selected#:#Diese Gruppe wurde mehrfach ausgewählt!
 fau#:#fau_transfer_groups_multiple_selected#:#Die Gruppenzuordnung ist nicht eindeutig. Jede Gruppe des gewählten Kurses darf nur einmal verwendet werden!
+fau#:#fau_split_course#:#Campo-Kurs aufteilen
+fau#:#fau_split_course_message#:#Die Parallelgruppen des Kurses werden in separate Kurse umgewandelt. Ihre Mitglieder und Inhalte werden übertragen. Falls der Kurs außerhalb der Parallelgruppen keine Inhalte hat, kann er gelöscht werden.
+fau#:#fau_split_delete_source#:#Aktuellen Kurs löschen
+fau#:#fau_split_delete_source_info#:#Der aktuelle Campo-Kurs soll nach Aufspaltung automatisch gelöscht werden. Verwenden Sie diese Option nur, wenn er keine Inhalte außerhalb der Parallelgruppen hat!
+fau#:#fau_split#:#Aufteilen
+fau#:#fau_split_success#:#Der Kurs wurde aufgeteilt.
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

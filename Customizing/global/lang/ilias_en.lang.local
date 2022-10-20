@@ -803,6 +803,12 @@ fau#:#fau_transfer_failed_no_write#:#You do not have the right to manage members
 fau#:#fau_transfer_source_group_desc#:#The Campo connection of this group was transferred to another group.
 fau#:#fau_transfer_group_multiple_selected#:#This group is selected several times!
 fau#:#fau_transfer_groups_multiple_selected#:#The group assignment is not unique. Each group of the selected course may only be used once!
+fau#:#fau_split_course#:#Split Campo Course
+fau#:#fau_split_course_message#:#The parallel groups of this course are changed to separate courses. Their members and content will be transferred. This coursecan be deleted if it has no contents outside the parallel groups.
+fau#:#fau_split_delete_source#:#Delete current course
+fau#:#fau_split_delete_source_info#:#The current course should be deleted after the splitting. Use this option only it it has no content outside the groups.
+fau#:#fau_split#:#Spit
+fau#:#fau_split_success#:#The course is splitted.
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

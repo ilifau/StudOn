@@ -24,8 +24,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
 
 // Create or Update ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
+$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 
 /*****************

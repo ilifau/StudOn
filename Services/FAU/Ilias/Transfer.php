@@ -10,6 +10,10 @@ use ilChangeEvent;
 use ilObjGroup;
 use ilObject;
 use ilObjRole;
+use ilFAUAppEventListener;
+use ilParticipants;
+use FAU\Study\Data\Term;
+use ilWaitingList;
 
 class Transfer
 {
@@ -36,6 +40,10 @@ class Transfer
         bool $update_group_titles
     )
     {
+        // deactivate event listener to avoid messages to campo
+        $listener_active = ilFAUAppEventListener::getInstance()->isActive();
+        ilFAUAppEventListener::getInstance()->setActive(false);
+
         $importId = ImportId::fromString($source->getImportId());
         $target->setImportId($importId->toString());
         if ($update_title) {
@@ -58,7 +66,7 @@ class Transfer
                     $this->reassignParallelGroup($ref_id, $assign_groups[$ref_id], $update_group_titles, $move_old_members);
                 }
                 else {
-                    $this->moveParallelGroup($ref_id, $target->getRefId());
+                    $this->moveObject($ref_id, $target->getRefId());
                 }
             }
         }
@@ -81,6 +89,86 @@ class Transfer
         if ($delete_source) {
             $source->delete();
         }
+
+
+        ilFAUAppEventListener::getInstance()->setActive($listener_active);
+    }
+
+    /**
+     * Split a course with parallel groups to separate courses
+     */
+    public function splitCampoCourse(ilObjCourse $parent, bool $delete_parent) : bool
+    {
+        if (!$parent->hasParallelGroups()) {
+            return false;
+        }
+
+        // deactivate event listener to avoid messages to campo
+        $listener_active = ilFAUAppEventListener::getInstance()->isActive();
+        ilFAUAppEventListener::getInstance()->setActive(false);
+
+        $cat_ref_id = $this->dic->repositoryTree()->getParentId($parent->getRefId());
+
+        foreach ($this->dic->fau()->ilias()->objects()->findChildParallelGroups($parent->getRefId()) as $ref_id) {
+            $source = new ilObjGroup($ref_id);
+
+            $import_id = ImportId::fromString($source->getImportId());
+            $term = Term::fromString($import_id->getTermId());
+            $event = $this->dic->fau()->study()->repo()->getEvent($import_id->getEventId());
+            $course = $this->dic->fau()->study()->repo()->getCourse($import_id->getCourseId());
+
+            $target = $this->dic->fau()->ilias()->objects()->createIliasCourse($cat_ref_id, $term, $event, $course);
+            $this->changeParallelGroupToCourse($parent, $source, $target);
+
+            $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->getId()));
+            $source->setImportId(null);
+            $parent->setDescription($this->dic->language()->txt('fau_transfer_source_desc'));
+            $source->update();
+        }
+
+        $parent->setImportId(null);
+        $parent->setOfflineStatus(true);
+        $parent->setDescription($this->dic->language()->txt('fau_transfer_source_desc'));
+        $parent->setSubscriptionType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
+        $parent->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
+        $parent->update();
+
+        if ($delete_parent) {
+            $parent->delete();
+        }
+
+        ilFAUAppEventListener::getInstance()->setActive($listener_active);
+        return true;
+    }
+
+    /**
+     * Change a parallel group to a course
+     */
+    protected function changeParallelGroupToCourse(ilObjCourse $parent, ilObjGroup $source, ilObjCourse $target)
+    {
+        // take most settings from the parent course
+        $target->cloneSettings($parent);
+
+        // take specific settings from the group
+        $target->setTitle($source->getTitle());
+        $target->setDescription($source->getDescription());
+        $target->setImportId($source->getImportId());
+        $target->setOwner($source->getOwner());
+        $target->setImportantInformation($source->getInformation());
+        $target->enableSubscriptionMembershipLimitation($source->isMembershipLimited());
+        $target->setSubscriptionMaxMembers($source->getMaxMembers());
+        $target->setSubscriptionMinMembers($source->getMinMembers());
+        $target->update();
+
+        /** @noinspection PhpParamsInspection */
+        foreach ($this->dic->repositoryTree()->getChildIds($source->getRefId()) as $child_id) {
+            if (!ilObject::_isInTrash($child_id)) {
+                $this->moveObject($child_id, $target->getRefId());
+            }
+        }
+
+        $this->moveGroupToCourseParticipants($parent, $source, $target);
+        $this->dic->fau()->ilias()->repo()->moveWaitingList($source->getId(), $target->getId());
     }
 
 
@@ -126,7 +214,7 @@ class Transfer
      * Move the parallel groups from one course to another
      * @see ilContainerGUI::pasteObject() - CUT
      */
-    protected function moveParallelGroup(int $ref_id, int $target_ref_id)
+    protected function moveObject(int $ref_id, int $target_ref_id)
     {
         $tree = $this->dic->repositoryTree();
 
@@ -162,24 +250,9 @@ class Transfer
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
-        foreach ($sourceMembers->getAdmins() as $id) {
-            $targetMembers->add($id, IL_CRS_ADMIN);
-            if ($id != $this->dic->user()->getId()) {
-                $sourceMembers->delete($id);
-            }
-        }
-        foreach ($sourceMembers->getTutors() as $id) {
-            $targetMembers->add($id, IL_CRS_TUTOR);
-            if ($id != $this->dic->user()->getId()) {
-                $sourceMembers->delete($id);
-            }
-        }
-        foreach ($sourceMembers->getMembers() as $id) {
-            $targetMembers->add($id, IL_CRS_MEMBER);
-            if ($id != $this->dic->user()->getId()) {
-                $sourceMembers->delete($id);
-            }
-        }
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_TUTOR, IL_CRS_TUTOR);
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_CRS_MEMBER, IL_CRS_MEMBER);
 
         $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
     }
@@ -192,20 +265,59 @@ class Transfer
         $sourceMembers = $source->getMembersObject();
         $targetMembers = $target->getMembersObject();
 
-        foreach ($sourceMembers->getAdmins() as $id) {
-            $targetMembers->add($id, IL_GRP_ADMIN);
-            if ($id != $this->dic->user()->getId()) {
-                $sourceMembers->delete($id);
-            }
-        }
-        foreach ($sourceMembers->getMembers() as $id) {
-            $targetMembers->add($id, IL_GRP_MEMBER);
-            if ($id != $this->dic->user()->getId()) {
-                $sourceMembers->delete($id);
-            }
-        }
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_GRP_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_GRP_MEMBER);
+
         $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
     }
+
+
+
+    /**
+     * Move the group participants from group to a course
+     */
+    protected function moveGroupToCourseParticipants(ilObjCourse $parent, ilObjGroup $source, ilObjCourse $target)
+    {
+        $parentMembers = $parent->getMembersObject();
+        $sourceMembers = $source->getMembersObject();
+        $targetMembers = $target->getMembersObject();
+
+        $this->moveParticipants($parentMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_CRS_ADMIN);
+        $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_CRS_MEMBER);
+
+        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
+    }
+
+
+    /**
+     * Move Participants from one object to another
+     */
+    protected function moveParticipants(ilParticipants $source, ilParticipants $target, int $source_role, int $target_role)
+    {
+        $ids = [];
+        switch ($source_role) {
+            case IL_CRS_ADMIN:
+            case IL_GRP_ADMIN:
+                $ids = $source->getAdmins();
+                break;
+            case IL_CRS_MEMBER:
+            case IL_GRP_MEMBER:
+                $ids = $source->getMembers();
+                break;
+            case IL_CRS_TUTOR:
+                $ids = $source->getTutors();
+                break;
+        }
+        foreach ($ids as $id) {
+            if ($id != $this->dic->user()->getId()) {
+                $source->delete($id);
+            }
+            $target->add($id, $target_role);
+        }
+    }
+
+
 
     /**
      * Move the members of a course to a "old member" role

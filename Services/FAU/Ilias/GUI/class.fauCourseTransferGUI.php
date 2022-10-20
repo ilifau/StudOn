@@ -41,6 +41,8 @@ class fauCourseTransferGUI extends BaseGUI
             case "selectTargetCourse":
             case "showTransferOptions":
             case "doTransfer":
+            case "showSplitOptions":
+            case "doSplit":
                 $this->$cmd();
                 break;
             default:
@@ -252,4 +254,62 @@ class fauCourseTransferGUI extends BaseGUI
             $this->returnToParent();
         }
     }
+
+
+    /**
+     * Show the options to split a course
+     */
+    protected function showSplitOptions()
+    {
+        ilUtil::sendInfo($this->lng->txt('fau_split_course_message'));
+        $form = $this->initSplitOptionsForm();
+        $this->tpl->setContent($form->getHTML());
+    }
+
+    /**
+     * Init the form for the split options
+     */
+    protected function initSplitOptionsForm()
+    {
+        $form = new ilPropertyFormGUI();
+        $form->setFormAction($this->ctrl->getFormAction($this));
+        $form->setTitle($this->lng->txt('fau_split_course'));
+
+        if ($this->access->checkAccess('delete','', $this->object->getRefId(), 'crs')) {
+            $delete = new ilCheckboxInputGUI($this->lng->txt('fau_split_delete_source'), 'delete_source');
+            $delete->setInfo($this->lng->txt('fau_split_delete_source_info'));
+            $form->addItem($delete);
+        }
+
+        $form->addCommandButton('doSplit', $this->lng->txt('fau_split'));
+        $form->addCommandButton('returnToParent', $this->lng->txt('cancel'));
+        return $form;
+    }
+
+    /**
+     * Do the splitting of a course
+     */
+    protected function doSplit()
+    {
+        $form = $this->initSplitOptionsForm();
+        if (!$form->checkInput()) {
+            $form->setValuesByPost();
+            $this->tpl->setContent($form->getHTML());
+            return;
+        }
+
+        $cat_ref_id = $this->dic->repositoryTree()->getParentId($this->object->getRefId());
+        if ($this->access->checkAccess('delete','', $this->object->getRefId(), 'crs')) {
+            $delete_source = (bool) $form->getInput('delete_source');
+        }
+        else {
+            $delete_source = false;
+        }
+
+        $this->transfer->splitCampoCourse($this->object, $delete_source);
+
+        ilUtil::sendSuccess($this->lng->txt('fau_split_success'), true);
+        $this->ctrl->redirectToURL(ilLink::_getLink($cat_ref_id));
+    }
+
 }

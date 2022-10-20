@@ -192,14 +192,14 @@ class SyncWithIlias extends SyncBase
             // create the object(s)
             switch ($action) {
                 case 'create_single_course':
-                    $ref_id = $this->createIliasCourse($parent_ref, $term, $event, $course);
+                    $ref_id = $this->dic->fau()->ilias()->objects()->createIliasCourse($parent_ref, $term, $event, $course)->getRefId();
                     $this->updateIliasCourse($ref_id, $term, $event, $course);
                     $this->sync->roles()->updateParticipants($course->getCourseId(), $ref_id, $ref_id);
                     break;
 
                 case 'create_course_and_group':
-                    $parent_ref = $this->createIliasCourse($parent_ref, $term, $event, null);
-                    $ref_id = $this->createIliasGroup($parent_ref,  $term, $event, $course);
+                    $parent_ref = $this->dic->fau()->ilias()->objects()->createIliasCourse($parent_ref, $term, $event, null)->getRefId();
+                    $ref_id = $this->dic->fau()->ilias()->objects()->createIliasGroup($parent_ref,  $term, $event, $course)->getRefId();
                     // don't use course data for the event - courses are the groups inside
                     $this->updateIliasCourse($parent_ref, $term, $event, null) ;
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
@@ -208,7 +208,7 @@ class SyncWithIlias extends SyncBase
 
                 case 'create_group_in_course':
                     // course for the event already exists
-                    $ref_id = $this->createIliasGroup($parent_ref, $term, $event, $course);
+                    $ref_id = $this->dic->fau()->ilias()->objects()->createIliasGroup($parent_ref, $term, $event, $course)->getRefId();
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
                     $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
                     break;
@@ -379,48 +379,6 @@ class SyncWithIlias extends SyncBase
             ilObject::_lookupObjId($dest_parent_ref_id)
         );
         ilChangeEvent::_catchupWriteEvents($obj_id, $this->dic->user()->getId());
-    }
-
-    /**
-     * Create an ILIAS course for a campo event and/or course (parallel group)
-     * The ilias course will always work as a container for the event
-     * If a campo course is given then the ilias course should work as container for that parallel group
-     * @return int  ref_id of the course
-     */
-    protected function createIliasCourse(int $parent_ref_id, Term $term, Event $event, ?Course $course): int
-    {
-        $object = new ilObjCourse();
-        $object->setTitle($event->getTitle()); // will be changed updateIliasCourse
-        $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
-        $object->setOwner($this->owner_id);
-        $object->create();
-        $object->createReference();
-        $object->putInTree($parent_ref_id);
-        $object->setPermissions($parent_ref_id);
-        if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
-            $object->applyDidacticTemplate($this->course_didactic_template_id);
-        }
-        $object->setOfflineStatus(false);
-        $object->update();
-        return $object->getRefId();
-    }
-
-    /**
-     * Create an ILIAS group for a campo course (parallel group)
-     * @return int  ref_id of the course
-     */
-    protected function createIliasGroup(int $parent_ref_id, Term $term, Event $event, Course $course): int
-    {
-        $object = new ilObjGroup();
-        $object->setTitle($course->getTitle()); // will be changed updateIliasGroup
-        $object->setImportId(ImportId::fromObjects($term, $event, $course)->toString());
-        $object->setOwner($this->owner_id);
-        $object->create();
-        $object->createReference();
-        $object->putInTree($parent_ref_id);
-        $object->setPermissions($parent_ref_id);
-        $object->applyDidacticTemplate($this->group_didactic_template_id);
-        return $object->getRefId();
     }
 
 

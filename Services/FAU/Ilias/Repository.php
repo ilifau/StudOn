@@ -98,4 +98,19 @@ class Repository extends RecordRepo
             . " WHERE rol_id=" . $this->db->quote($from_role_id, 'integer');
         $this->db->manipulate($query);
     }
+
+    /**
+     * Move the waiting list from one object to another
+     */
+    public function moveWaitingList(int $from_obj_id, int $to_obj_id)
+    {
+        $query = "
+            REPLACE INTO crs_waiting_list(obj_id, usr_id, sub_time, subject, to_confirm, module_id)
+            SELECT %s, usr_id, sub_time, subject, to_confirm, module_id FROM crs_waiting_list
+            WHERE obj_id = %s";
+        $this->db->manipulateF($query, ['integer', 'integer'], [$to_obj_id, $from_obj_id]);
+
+        $query = "DELETE FROM crs_waiting_list WHERE obj_id = %s";
+        $this->db->manipulateF($query, ['integer'], [$from_obj_id]);
+    }
 }

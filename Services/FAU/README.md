@@ -12,6 +12,7 @@
 - **campoInfo** Anzeigen auf den Info-Seiten
 - **campoCheck** Voraussetzungsprüfung bei der Anmeldung
 - **campoSub** Modulauswahl bei der Kursanmeldung und Übertragen von Kursanmeldungen nach campo
+- **campoTransfer** Übertrag von Campo-Verbindungen, Aufspalten von Kursen
 
 Nach und nach werden alte Anpassungen, die verstreut liegende Klassen nutzen, auf Nutung dieses Service umgeschrieben.
 

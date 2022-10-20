@@ -5,17 +5,49 @@ use ILIAS\DI\Container;
 
 class ilFAUAppEventListener implements ilAppEventListener
 {
+    static self $instance;
+
     protected Container $dic;
     protected \ilLogger $log;
+
+    protected bool $active = true;
+
 
     /**
      * Constructor
      */
-    public function __construct(Container $dic)
+    protected function __construct(Container $dic)
     {
         $this->dic = $dic;
     }
 
+    /**
+     * Singleton
+     */
+    public static function getInstance() : self
+    {
+        global $DIC;
+        if (!isset(self::$instance)) {
+            self::$instance = new self($DIC);
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Set the active status of the singleton instance
+     */
+    public function setActive(bool $active)
+    {
+        $this->active = $active;
+    }
+
+    /**
+     * Get the active status of the singleton instance
+     */
+    public function isActive() : bool
+    {
+        return $this->active;
+    }
 
     /**
      * Handle events like create, update, delete
@@ -28,26 +60,29 @@ class ilFAUAppEventListener implements ilAppEventListener
      */
     public static function handleEvent($a_component, $a_event, $a_parameter)
     {
-        global $DIC;
+        if (!self::getInstance()->isActive()) {
+            return;
+        }
+
         switch ($a_component) {
 
             case 'Modules/Group':
             case 'Modules/Course':
                 switch ($a_event) {
                     case 'update':
-                        (new self($DIC))->handleObjectUpdate((int) $a_parameter['obj_id']);
+                        self::getInstance()->handleObjectUpdate((int) $a_parameter['obj_id']);
                         break;
 
                     case 'delete':
-                        (new self($DIC))->handleObjectDelete((int) $a_parameter['obj_id']);
+                        self::getInstance()->handleObjectDelete((int) $a_parameter['obj_id']);
                         break;
 
                     case 'addParticipant':
-                        (new self($DIC))->handleAddParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        self::getInstance()->handleAddParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
                         break;
 
                     case 'deleteParticipant':
-                        (new self($DIC))->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
+                        self::getInstance()->handleDeleteParticipant((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id']);
                         break;
                 }
                 break;
@@ -55,11 +90,11 @@ class ilFAUAppEventListener implements ilAppEventListener
             case 'Services/AccessControl':
                 switch ($a_event) {
                     case 'assignUser':
-                        (new self($DIC))->handleAddToRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
+                        self::getInstance()->handleAddToRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
                         break;
 
                     case 'deassignUser':
-                        (new self($DIC))->handleRemoveFromRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
+                        self::getInstance()->handleRemoveFromRole((int) $a_parameter['obj_id'], (int) $a_parameter['usr_id'], (int) $a_parameter['role_id'], (string) $a_parameter['type']);
                         break;
                 }
                 break;
@@ -67,7 +102,7 @@ class ilFAUAppEventListener implements ilAppEventListener
             case 'Services/Object':
                 switch ($a_event) {
                     case 'toTrash':
-                        (new self($DIC))->handleObjectDelete((int) $a_parameter['obj_id']);
+                        self::getInstance()->handleObjectDelete((int) $a_parameter['obj_id']);
                         break;
                 }
                 break;
@@ -75,7 +110,7 @@ class ilFAUAppEventListener implements ilAppEventListener
             case 'Services/User':
                 switch ($a_event) {
                     case 'deleteUser':
-                        (new self($DIC))->handleUserDelete((int) $a_parameter['usr_id']);
+                        self::getInstance()->handleUserDelete((int) $a_parameter['usr_id']);
                         break;
                 }
                 break;
