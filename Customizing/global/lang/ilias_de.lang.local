@@ -811,10 +811,11 @@ fau#:#fau_split#:#Aufteilen
 fau#:#fau_split_success#:#Der Kurs wurde aufgeteilt.
 fau#:#fau_solve_campo_conflict#:#Campo-Konflikt lösen
 fau#:#fau_solve_conflict_message#:#<p><b>Mit dieser campo-Parallelgruppe sind mehrere StudOn-Kurse verbunden, es darf aber nur einer sein.</b></p> <p class="small">Bitte wählen Sie, welcher Kurs mit campo verbunden werden soll. Dieser Kurs wird dann aus campo verlinkt und seine Mitgliedschaften nach campo übertragen. Die übrigen Kurse werden offline gesetzt und ihre Mitglieder und Wartelisten in den gewählten Kurs verschoben. Damit finden die Studierenden anschließend den richtigen Kurs.</p>
+fau#:#fau_solve_connect_course#:#Kurs mit Campo verbinden
 fau#:#fau_solve_select_course#:#Kurs auswählen
 fau#:#fau_solve_this_course#:#Dieser Kurs
 fau#:#fau_solve_members_waiting#:#Mitglieder: %s, Warteliste: %s
-fau#:#fau_solve_success#:#Der Konflikt wurde gelöst.
+fau#:#fau_solve_success#:#Der Konflikt wurde gelöst. Sie sind nun im verbundenen Kurs. Bitte überprüfen sie die Mitglieder- und Wateliste.
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

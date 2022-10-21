@@ -809,6 +809,13 @@ fau#:#fau_split_delete_source#:#Delete current course
 fau#:#fau_split_delete_source_info#:#The current course should be deleted after the splitting. Use this option only it it has no content outside the groups.
 fau#:#fau_split#:#Spit
 fau#:#fau_split_success#:#The course is splitted.
+fau#:#fau_solve_campo_conflict#:#Solve Campo Conflict
+fau#:#fau_solve_conflict_message#:#<p><b>This parallel group from campo is connected with multiple StudOn courses, but there should be only one.</b></p> <p class="small">Please select the course that should be connected with campo. This course will be linked from campo and its members will be transmitted to campo. The other courses will be set offline and their members and subscribers will be moved to the selected course. Then the students will find the correct course.</p>
+fau#:#fau_solve_connect_course#:#Connect with Campo
+fau#:#fau_solve_select_course#:#Select Course
+fau#:#fau_solve_this_course#:#This Course
+fau#:#fau_solve_members_waiting#:#Members: %s, Waiting: %s
+fau#:#fau_solve_success#:#The conflict is solved. You are now in the selected course. Please check the members and and the waiting list.
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"

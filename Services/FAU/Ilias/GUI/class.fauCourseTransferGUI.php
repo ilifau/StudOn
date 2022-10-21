@@ -328,13 +328,13 @@ class fauCourseTransferGUI extends BaseGUI
     {
         $form = new ilPropertyFormGUI();
         $form->setFormAction($this->ctrl->getFormAction($this));
-        $form->setTitle($this->lng->txt('fau_solve_conflict'));
+        $form->setTitle($this->lng->txt('fau_solve_campo_conflict'));
 
         $pathGUI = new ilPathGUI();
         $pathGUI->enableTextOnly(false);
         $pathGUI->enableHideLeaf(false);
 
-        $radio = new ilRadioGroupInputGUI($this->lng->txt('fau_solve_select_course'), 'target_ref_id');
+        $radio = new ilRadioGroupInputGUI($this->lng->txt('fau_solve_connect_course'), 'target_ref_id');
         $radio->setRequired(true);
         $import_id = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
         foreach ($this->dic->fau()->study()->repo()->getObjectIdsWithImportId($import_id) as $obj_id)
@@ -397,6 +397,6 @@ class fauCourseTransferGUI extends BaseGUI
 
         $this->dic->fau()->ilias()->transfer()->solveCourseConflicts($import_id, $target);
         ilUtil::sendSuccess($this->lng->txt('fau_solve_success'), true);
-        $this->ctrl->returnToParent($this);
+        $this->ctrl->redirectToURL(ilLink::_getLink($ref_id));
     }
 }
