@@ -15,6 +15,7 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.migrateConditions');
 //$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
+//$p->applyPatch('ilFauPatches.sendMailsToSolveConflicts');
 
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.syncCampoData');
@@ -24,8 +25,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
 
 // Create or Update ILI courses
-$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
-$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 
 /*****************
