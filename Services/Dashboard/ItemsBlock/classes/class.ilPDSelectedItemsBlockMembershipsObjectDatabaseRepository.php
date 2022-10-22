@@ -78,7 +78,7 @@ final class ilPDSelectedItemsBlockMembershipsObjectDatabaseRepository implements
         if (!empty($this->filterTermId)) {
             if ($this->filterTermId == 'none') {
                 // former or no term
-                $termFilter = ' AND od.import_id NOT LIKE ' . $this->db->quote('FAU/Term%%', 'text');
+                $termFilter = ' AND (od.import_id IS NULL OR od.import_id NOT LIKE ' . $this->db->quote('FAU/Term%%', 'text') . ')';
             }
             else {
                 // with term
