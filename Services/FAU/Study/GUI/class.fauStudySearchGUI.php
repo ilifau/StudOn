@@ -272,8 +272,9 @@ class fauStudySearchGUI extends BaseGUI
                         $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'. '<ul>'. implode('', $list) . '</ul>';
                     }
                 }
-                if (!empty($restrictions = $this->dic->fau()->cond()->hard()->getEventRestrictionTexts($event->getEventId(), true))) {
-                    $description .= '<p>' . $this->lng->txt('fau_rest_hard_restrictions') . '</p>'. $restrictions;
+                if ($this->dic->fau()->cond()->hard()->hasEventRestrictionsOrModules($event->getEventId())) {
+                    fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString());
+                    $description .= '<p>' . fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString()) . '</p>';
                 }
 
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')

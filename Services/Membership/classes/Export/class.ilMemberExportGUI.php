@@ -262,7 +262,7 @@ class ilMemberExportGUI
         }
         $members = new ilCheckboxGroupInputGUI($members_title, 'export_members');
         global $DIC;
-        if ($DIC->fau()->cond()->hard()->hasRestrictions($this->obj_id)) {
+        if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->obj_id)) {
             $members->addOption(new ilCheckboxOption($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions'));
         }
         $members->addOption(new ilCheckboxOption($this->lng->txt('events'), 'events'));

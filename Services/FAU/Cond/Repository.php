@@ -242,4 +242,20 @@ class Repository extends RecordRepo
 
         return $this->queryRecords($query, EventRestCos::model());
     }
+
+
+    /**
+     * Check if an event has restrictions
+     * @param int $event_id
+     * @return bool
+     */
+    public function hasEventRestrictions(int $event_id) : bool
+    {
+        $query = "SELECT event_id FROM fau_cond_event_rests WHERE event_id = %s LIMIT 1";
+        $result = $this->db->queryf($query, ['integer'], [$event_id]);
+        if (!empty($this->db->fetchAssoc($result))) {
+            return true;
+        }
+        return false;
+    }
 }

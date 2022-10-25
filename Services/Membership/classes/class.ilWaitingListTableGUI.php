@@ -99,7 +99,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->addColumn($this->lng->txt('status'), 'to_confirm', '10%');
         $this->addColumn($this->lng->txt('message'), 'subject', '10%');
 
-        $this->showRestrictions = $DIC->fau()->cond()->hard()->hasRestrictions($this->getRepositoryObject()->getId());
+        $this->showRestrictions = $DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId());
         if ($this->showRestrictions) {
             $this->addColumn($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions_passed', '10%');
         }

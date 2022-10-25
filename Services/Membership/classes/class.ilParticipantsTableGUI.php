@@ -139,7 +139,7 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
     protected function addRestrictionsColumn() {
         global $DIC;
 
-        $this->show_restrictions = $DIC->fau()->cond()->hard()->hasRestrictions($this->getRepositoryObject()->getId());
+        $this->show_restrictions = $DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId());
         if ($this->show_restrictions) {
             self::$all_columns = array_merge(
                 self::$all_columns,

@@ -102,6 +102,8 @@ class HardRestrictions
         $this->repo = $dic->fau()->cond()->repo();
     }
 
+
+
     /**
      * Get all restriction texts of an event
      */
@@ -321,21 +323,36 @@ class HardRestrictions
     }
 
     /**
-     * Check if restrictions are fefined for an object
+     * Check if restrictions are defined for an object
      */
-    public function hasRestrictions($obj_id) : bool
+    public function hasObjectRestrictions($obj_id) : bool
     {
         $importId = $this->dic->fau()->study()->repo()->getImportId($obj_id);
         if (empty($event_id = $importId->getEventId())) {
             return false;
         }
 
-        $event = $this->getEventWithLoadedRestrictions($event_id);
-        if (!empty($event) && !empty($event->getRestrictions())) {
+        if ($this->dic->fau()->cond()->repo()->hasEventRestrictions((int) $event_id)) {
             return true;
         }
 
-        if (!empty($this->getModulesOfEventWithLoadedRestrictions($event_id))) {
+        if ($this->dic->fau()->study()->repo()->hasEventModules((int) $event_id)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an event has restrictions or modules assigned
+     */
+    public function hasEventRestrictionsOrModules(int $event_id) : bool
+    {
+        if ($this->dic->fau()->cond()->repo()->hasEventRestrictions($event_id)) {
+            return true;
+        }
+
+        if ($this->dic->fau()->study()->repo()->hasEventModules($event_id)) {
             return true;
         }
 

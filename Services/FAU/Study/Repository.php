@@ -439,6 +439,22 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Check if an event has modules
+     * @param int $event_id
+     * @return bool
+     */
+    public function hasEventModules(int $event_id) : bool
+    {
+        $query = "SELECT module_id FROM fau_study_mod_events WHERE event_id = %s LIMIT 1";
+        $result = $this->db->queryf($query, ['integer'], [$event_id]);
+        if (!empty($this->db->fetchAssoc($result))) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Get Courses of Study
      * @param int[]|null $ids  (get all if null, none if empty)
      * @param bool $useCache cache the resulting records of exactly this query

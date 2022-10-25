@@ -9,6 +9,7 @@
 	</crons>
 	<baseclasses>
 		<baseclass name="fauStudySearchGUI" dir="Study/GUI" />
+		<baseclass name="fauHardRestrictionsGUI" dir="Cond/GUI" />
 	</baseclasses>
 	<events>
 		<event type="listen" id="Modules/Group" />
