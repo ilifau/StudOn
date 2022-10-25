@@ -323,6 +323,19 @@ class HardRestrictions
     }
 
     /**
+     * Get the link to show restrictions of an object
+     */
+    public function getRestrictionsLinkForObject(int $obj_id) : string
+    {
+        if ($this->hasObjectRestrictions($obj_id)) {
+            $importId = $this->dic->fau()->study()->repo()->getImportId($obj_id);
+            return \fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink((int) $importId->getEventId(), (string) $importId->getTermId());
+        }
+        return '';
+    }
+
+
+    /**
      * Check if restrictions are defined for an object
      */
     public function hasObjectRestrictions($obj_id) : bool
@@ -331,16 +344,7 @@ class HardRestrictions
         if (empty($event_id = $importId->getEventId())) {
             return false;
         }
-
-        if ($this->dic->fau()->cond()->repo()->hasEventRestrictions((int) $event_id)) {
-            return true;
-        }
-
-        if ($this->dic->fau()->study()->repo()->hasEventModules((int) $event_id)) {
-            return true;
-        }
-
-        return false;
+        return $this->hasEventRestrictionsOrModules((int) $event_id);
     }
 
     /**
@@ -351,11 +355,9 @@ class HardRestrictions
         if ($this->dic->fau()->cond()->repo()->hasEventRestrictions($event_id)) {
             return true;
         }
-
         if ($this->dic->fau()->study()->repo()->hasEventModules($event_id)) {
             return true;
         }
-
         return false;
     }
 

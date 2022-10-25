@@ -47,7 +47,7 @@ class fauHardRestrictionsGUI extends BaseGUI
             default:
                 switch ($cmd)
                 {
-                    case 'getRestrictionsModalContent':
+                    case 'showRestrictionsModal':
                         $this->$cmd();
                         break;
 
@@ -106,27 +106,27 @@ class fauHardRestrictionsGUI extends BaseGUI
      * @param int    $event_id
      * @param string $term_id       e.g. '20222'
      * @param bool    $with_check    true, if restrictions should be checked for the current user
+     * @return string   html code of the link
      */
-    public function getRestrictionsModalLink(int $event_id, string $term_id, bool $with_check = false)
+    public function getRestrictionsModalLink(int $event_id, string $term_id, bool $with_check = false) : string
     {
         $this->ctrl->setParameter($this, 'event_id', $event_id);
         $this->ctrl->setParameter($this, 'term_id', $term_id);
         $this->ctrl->setParameter($this, 'with_check', $with_check);
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
-                         ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this));
+                         ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
 
         $button = $this->factory->button()->shy('» ' . $this->lng->txt('fau_rest_hard_restrictions'), '#')
                           ->withOnClick($modal->getShowSignal());
 
-        echo $this->renderer->render([$modal, $button]);
-        exit;
+        return $this->renderer->render([$modal, $button]);
     }
 
     /**
      * Get an async modal with content to show restrictions
      */
-    protected function getRestrictionsModalContent()
+    protected function showRestrictionsModal()
     {
         $params = $this->request->getQueryParams();
         $event_id = isset($params['event_id']) ? (int) $params['event_id'] : null;
@@ -148,7 +148,8 @@ class fauHardRestrictionsGUI extends BaseGUI
             $content = $this->factory->legacy($this->service->hard()->getEventRestrictionTexts($event_id));
         }
 
-        $modal = $this->factory->modal()->roundtrip($title, $content);
+        $modal = $this->factory->modal()->roundtrip($title, $content)
+            ->withCancelButtonLabel('close');
         echo $this->renderer->render($modal);
         exit;
     }

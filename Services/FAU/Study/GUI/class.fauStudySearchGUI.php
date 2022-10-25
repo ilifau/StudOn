@@ -252,6 +252,10 @@ class fauStudySearchGUI extends BaseGUI
                 $description = $event->getIliasDescription();
                 $url = $this->dic->fau()->study()->getCampoUrl($event->getEventId(), $term);
                 $description .= ' &nbsp; <a target="_blank" href="' . $url . '">' . $this->lng->txt('fau_campo_link') . '</a>';
+                if ($this->dic->fau()->cond()->hard()->hasEventRestrictionsOrModules($event->getEventId())) {
+                    $description .= ' &nbsp; ' . fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString());
+                }
+
                 $description .= $pathGUI->getPath(1, $event->getIliasRefId());
 
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
@@ -271,10 +275,6 @@ class fauStudySearchGUI extends BaseGUI
                     if (!empty($list)) {
                         $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'. '<ul>'. implode('', $list) . '</ul>';
                     }
-                }
-                if ($this->dic->fau()->cond()->hard()->hasEventRestrictionsOrModules($event->getEventId())) {
-                    fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString());
-                    $description .= '<p>' . fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString()) . '</p>';
                 }
 
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
