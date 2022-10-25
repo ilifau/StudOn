@@ -23,6 +23,8 @@ require_once './Modules/Test/classes/inc.AssessmentConstants.php';
  */
 class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdjustable, ilGuiAnswerScoringAdjustable
 {
+    private $answers_from_post;
+
     /**
      * assTextSubsetGUI constructor
      *
@@ -45,6 +47,11 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
      */
     protected function writePostData($always = false)
     {
+        /*
+         * sk 26.09.22: This is horrific but I don't see a better way right now,
+         * without needing to check most questions for side-effects.
+         */
+        $this->answers_from_post = $_POST['answers']['answer'];
         $hasErrors = (!$always) ? $this->editQuestion(true) : false;
         if (!$hasErrors) {
             require_once 'Services/Form/classes/class.ilPropertyFormGUI.php';
@@ -294,7 +301,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             $template->setCurrentBlock("textsubset_row");
             foreach ($solutions as $idx => $solution_value) {
                 if ($idx == $i) {
-                    $template->setVariable("TEXTFIELD_VALUE", " value=\"" . ilUtil::prepareFormOutput($solution_value["value1"]) . "\"");
+                    $template->setVariable("TEXTFIELD_VALUE", " value=\"" . ilUtil::prepareFormOutput(html_entity_decode($solution_value["value1"])) . "\"");
                 }
             }
             $template->setVariable("COUNTER", $i + 1);
@@ -307,87 +314,6 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
         $questionoutput = $template->get();
         $pageoutput = $this->outQuestionPage("", $is_postponed, $active_id, $questionoutput);
         return $pageoutput;
-    }
-
-    /**
-     * Sets the ILIAS tabs for this question type
-     *
-     * @access public
-     *
-     * @todo:	MOVE THIS STEPS TO COMMON QUESTION CLASS assQuestionGUI
-     */
-    public function setQuestionTabs()
-    {
-        global $DIC;
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilTabs = $DIC['ilTabs'];
-
-        $ilTabs->clearTargets();
-        
-        $this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
-        include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-        $q_type = $this->object->getQuestionType();
-
-        if (strlen($q_type)) {
-            $classname = $q_type . "GUI";
-            $this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
-            $this->ctrl->setParameterByClass(strtolower($classname), "q_id", $_GET["q_id"]);
-        }
-
-        if ($_GET["q_id"]) {
-            if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
-                // edit page
-                $ilTabs->addTarget(
-                    "edit_page",
-                    $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"),
-                    array("edit", "insert", "exec_pg"),
-                    "",
-                    "",
-                    $force_active
-                );
-            }
-
-            $this->addTab_QuestionPreview($ilTabs);
-        }
-
-        $force_active = false;
-        if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
-            $url = "";
-            if ($classname) {
-                $url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
-            }
-            // edit question properties
-            $ilTabs->addTarget(
-                "edit_question",
-                $url,
-                array("editQuestion", "save", "saveEdit", "addanswers", "removeanswers", "originalSyncForm"),
-                $classname,
-                "",
-                $force_active
-            );
-        }
-
-        // add tab for question feedback within common class assQuestionGUI
-        $this->addTab_QuestionFeedback($ilTabs);
-
-        // add tab for question hint within common class assQuestionGUI
-        $this->addTab_QuestionHints($ilTabs);
-
-        // add tab for question's suggested solution within common class assQuestionGUI
-        $this->addTab_SuggestedSolution($ilTabs, $classname);
-
-        // Assessment of questions sub menu entry
-        if ($_GET["q_id"]) {
-            $ilTabs->addTarget(
-                "statistics",
-                $this->ctrl->getLinkTargetByClass($classname, "assessment"),
-                array("assessment"),
-                $classname,
-                ""
-            );
-        }
-
-        $this->addBackTab($ilTabs);
     }
     
     public function getSpecificFeedbackOutput($userSolution)
@@ -406,9 +332,8 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
     {
         // Delete all existing answers and create new answers from the form data
         $this->object->flushAnswers();
-        foreach ($_POST['answers']['answer'] as $index => $answer) {
-            $answertext = $answer;
-            $this->object->addAnswer($answertext, $_POST['answers']['points'][$index], $index);
+        foreach ($this->answers_from_post as $index => $answertext) {
+            $this->object->addAnswer(ilUtil::secureString(htmlentities(trim($answertext))), $_POST['answers']['points'][$index], $index);
         }
     }
 
@@ -466,7 +391,13 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
         if ($this->object->getAnswerCount() == 0) {
             $this->object->addAnswer("", 0, 0);
         }
-        $choices->setValues($this->object->getAnswers());
+        $choices->setValues(array_map(
+            function (ASS_AnswerBinaryStateImage $value) {
+                $value->setAnswerText(html_entity_decode($value->getAnswerText()));
+                return $value;
+            },
+            $this->object->getAnswers()
+        ));
         $form->addItem($choices);
         return $form;
     }
@@ -560,10 +491,32 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             
             $answers[$ans['value1']]['frequency']++;
         }
-        
+        $answers = $this->completeAddAnswerAction($answers, $questionIndex);
         return $answers;
     }
-    
+
+    protected function completeAddAnswerAction($answers, $questionIndex)
+    {
+        foreach ($answers as $key => $ans) {
+            $found = false;
+
+            foreach ($this->object->getAnswers() as $item) {
+                if ($ans['answer'] !== $item->getAnswerText()) {
+                    continue;
+                }
+
+                $found = true;
+                break;
+            }
+
+            if (!$found) {
+                $answers[$key]['addable'] = true;
+            }
+        }
+
+        return $answers;
+    }
+
     public function populateCorrectionsFormProperties(ilPropertyFormGUI $form)
     {
         // Choices

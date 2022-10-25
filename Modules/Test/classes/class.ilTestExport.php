@@ -386,6 +386,8 @@ abstract class ilTestExport
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_stat_result_rank_median'));
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_stat_result_total_participants'));
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_stat_result_median'));
+        $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_tbl_col_started_passes'));
+        $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('tst_tbl_col_finished_passes'));
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('scored_pass'));
         $worksheet->setFormattedExcelTitle($worksheet->getColumnCoord($col++) . $row, $this->lng->txt('pass'));
 
@@ -403,7 +405,7 @@ abstract class ilTestExport
             $col = 0;
             
             // each participant gets an own row for question column headers
-            if ($this->test_obj->isRandomTest()) {
+            if ($this->test_obj->isRandomTest() && $firstwritten) {
                 $row++;
             }
 
@@ -418,7 +420,7 @@ abstract class ilTestExport
                 $userfields = ilObjUser::_lookupFields($userdata->getUserId());
                 foreach ($additionalFields as $fieldname) {
                     if (strcmp($fieldname, 'gender') == 0) {
-                        $worksheet->setCell($row, $col++, $this->lng->txt('gender_' . $userfields[$fieldname]));
+                        $worksheet->setCell($row, $col++, strlen($userfields[$fieldname]) ? $this->lng->txt('gender_' . $userfields[$fieldname]) : '');
                     } elseif (strcmp($fieldname, "exam_id") == 0) {
                         $worksheet->setCell($row, $col++, $userdata->getExamIdFromScoredPass());
                     } else {
@@ -477,7 +479,8 @@ abstract class ilTestExport
             $worksheet->setCell($row, $col++, $data->getStatistics()->getStatistics()->rank_median());
             $worksheet->setCell($row, $col++, $data->getStatistics()->getStatistics()->count());
             $worksheet->setCell($row, $col++, $median);
-
+            $worksheet->setCell($row, $col++, $data->getParticipant($active_id)->getPassCount());
+            $worksheet->setCell($row, $col++, $data->getParticipant($active_id)->getFinishedPasses());
             if ($this->test_obj->getPassScoring() == SCORE_BEST_PASS) {
                 $worksheet->setCell($row, $col++, $data->getParticipant($active_id)->getBestPass() + 1);
             } else {
@@ -498,25 +501,9 @@ abstract class ilTestExport
                     }
                     $worksheet->setCell($row, $col++, $pass + 1);
                     if (is_object($data->getParticipant($active_id)) && is_array($data->getParticipant($active_id)->getQuestions($pass))) {
-                        $evaluatedQuestions = $data->getParticipant($active_id)->getQuestions($pass);
-                        
-                        if ($this->test_obj->getShuffleQuestions()) {
-                            // reorder questions according to general fixed sequence,
-                            // so participant rows can share single questions header
-                            $questions = array();
-                            foreach ($this->test_obj->getQuestions() as $qId) {
-                                foreach ($evaluatedQuestions as $evaledQst) {
-                                    if ($evaledQst['id'] != $qId) {
-                                        continue;
-                                    }
-                                    
-                                    $questions[] = $evaledQst;
-                                }
-                            }
-                        } else {
-                            $questions = $evaluatedQuestions;
-                        }
-                        
+                        $evaluated_questions = $data->getParticipant($active_id)->getQuestions($pass);
+                        $questions = $this->orderQuestions($evaluated_questions);
+
                         foreach ($questions as $question) {
                             $question_data = $data->getParticipant($active_id)->getPass($pass)->getAnsweredQuestionByQuestionId($question["id"]);
                             $worksheet->setCell($row, $col, $question_data["reached"]);
@@ -853,6 +840,11 @@ abstract class ilTestExport
         $col++;
         array_push($datarow, $this->lng->txt("tst_stat_result_median"));
         $col++;
+        array_push($datarow, $this->lng->txt("tst_tbl_col_started_passes"));
+        $col++;
+        array_push($datarow, $this->lng->txt("tst_tbl_col_finished_passes"));
+        $col++;
+
         array_push($datarow, $this->lng->txt("scored_pass"));
         $col++;
 
@@ -882,7 +874,7 @@ abstract class ilTestExport
                     $userfields = ilObjUser::_lookupFields($userdata->getUserID());
                     foreach ($additionalFields as $fieldname) {
                         if (strcmp($fieldname, "gender") == 0) {
-                            array_push($datarow2, $this->lng->txt("gender_" . $userfields[$fieldname]));
+                            array_push($datarow2, strlen($userfields[$fieldname]) ? $this->lng->txt('gender_' . $userfields[$fieldname]) : '');
                         } elseif (strcmp($fieldname, "exam_id") == 0) {
                             array_push($datarow2, $userdata->getExamIdFromScoredPass());
                         } else {
@@ -945,6 +937,9 @@ abstract class ilTestExport
                 array_push($datarow2, $data->getStatistics()->getStatistics()->rank_median());
                 array_push($datarow2, $data->getStatistics()->getStatistics()->count());
                 array_push($datarow2, $median);
+
+                array_push($datarow2, $data->getParticipant($active_id)->getPassCount());
+                array_push($datarow2, $data->getParticipant($active_id)->getFinishedPasses());
                 if ($this->test_obj->getPassScoring() == SCORE_BEST_PASS) {
                     array_push($datarow2, $data->getParticipant($active_id)->getBestPass() + 1);
                 } else {
@@ -961,14 +956,16 @@ abstract class ilTestExport
                             array_push($datarow, "");
                         }
                         array_push($datarow2, $pass + 1);
-                        if (is_object($data->getParticipant($active_id)) && is_array($data->getParticipant($active_id)->getQuestions($pass))) {
-                            foreach ($data->getParticipant($active_id)->getQuestions($pass) as $question) {
+                        if (is_object($data->getParticipant($active_id)) && is_array($evaluated_questions = $data->getParticipant($active_id)->getQuestions($pass))) {
+                            $questions = $this->orderQuestions($evaluated_questions);
+                            foreach ($questions as $question) {
                                 $question_data = $data->getParticipant($active_id)->getPass($pass)->getAnsweredQuestionByQuestionId($question["id"]);
                                 array_push($datarow2, $question_data["reached"]);
                                 array_push($datarow, preg_replace("/<.*?>/", "", $data->getQuestionTitle($question["id"])));
                             }
                         }
-                        if ($this->test_obj->isRandomTest() || $this->test_obj->getShuffleQuestions() || ($counter == 1 && $pass == 0)) {
+                        if ($this->test_obj->isRandomTest() ||
+                            $counter == 1 && $pass == 0) {
                             array_push($rows, $datarow);
                         }
                         $datarow = array();
@@ -991,6 +988,22 @@ abstract class ilTestExport
         } else {
             return $csv;
         }
+    }
+
+
+    protected function orderQuestions(array $questions) : array
+    {
+        $key = $this->test_obj->isRandomTest() ? 'qid' : 'sequence';
+        usort(
+            $questions,
+            function ($a, $b) use ($key) {
+                if ($a[$key] > $b[$key]) {
+                    return 1;
+                }
+                return -1;
+            }
+        );
+        return $questions;
     }
 
     abstract protected function initXmlExport();

@@ -22,6 +22,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     use ilObjFileUsages;
     use ilObjFilePreviewHandler;
     use ilObjFileNews;
+    use ilObjFileSecureString;
 
     public const MODE_FILELIST = "filelist";
     public const MODE_OBJECT = "object";
@@ -44,7 +45,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
      */
     protected $log;
 
-// ABSTRACT
+    // ABSTRACT
     /**
      * @var string
      */
@@ -69,7 +70,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
      * @var string
      */
     protected $action;
-// ABSTRACT
+    // ABSTRACT
 
     /**
      * @var string|null
@@ -118,7 +119,10 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     {
         if ($this->resource_id && ($id = $this->manager->find($this->resource_id)) !== null) {
             $resource = $this->manager->getResource($id);
-            $this->implementation = new ilObjFileImplementationStorage($resource);
+            $this->implementation = new ilObjFileImplementationStorage(
+                $resource,
+                (int) $this->getId()
+            );
             $this->setMaxVersion($resource->getMaxRevision());
             $this->setVersion($resource->getMaxRevision());
         } else {
@@ -148,11 +152,14 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
 
     private function appendSuffixToTitle(string $title, string $filename) : string
     {
-        // bugfix mantis 0026160 && 0030391
-        $uploaded_suffix = pathinfo($filename, PATHINFO_EXTENSION);
-        $input_title = pathinfo($title, PATHINFO_FILENAME) . '.' . $uploaded_suffix;
-
-        return $input_title;
+        // bugfix mantis 0026160 && 0030391 and 0032340
+        $title_info = new SplFileInfo($title);
+        $filename_info = new SplFileInfo($filename);
+    
+        $filename = str_replace('.' . $title_info->getExtension(), '', $title_info->getFilename());
+        $extension = $filename_info->getExtension();
+    
+        return $filename . '.' . $extension;
     }
 
     /**
@@ -160,7 +167,6 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
      */
     public function appendStream(FileStream $stream, string $title) : int
     {
-        // $title = $this->appendSuffixToTitle($title, $stream->getMetadata(['uri']));
         if ($this->getResourceId() && $i = $this->manager->find($this->getResourceId())) {
             $revision = $this->manager->appendNewRevisionFromStream($i, $stream, $this->stakeholder, $title);
         } else {
@@ -396,6 +402,12 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $this->action = $a_action;
     }
 
+    public function handleChangedObjectTitle(string $new_title)
+    {
+        $this->setTitle($new_title);
+        $this->implementation->handleChangedObjectTitle($new_title);
+    }
+
 
     // CRUD
 
@@ -418,8 +430,8 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         $q = "SELECT * FROM file_data WHERE file_id = %s";
         $r = $DIC->database()->queryF($q, ['integer'], [$this->getId()]);
         $row = $r->fetchObject();
-
-        $this->setFileName($row->file_name);
+    
+        $this->setFileName($this->secure($row->file_name ?? ''));
         $this->setFileType($row->file_type);
         $this->setFileSize($row->file_size);
         $this->setVersion($row->version ? $row->version : 1);
@@ -511,7 +523,7 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
         // update metadata with the current file version
         $meta_version_column = ['meta_version' => ['integer', (int) $this->getVersion()]];
         $DIC->database()->update('il_meta_lifecycle', $meta_version_column, [
-            'obj_id' => [
+            'rbac_id' => [
                 'integer',
                 $this->getId(),
             ],
@@ -685,12 +697,12 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     }
 
     /**
-     * @param $a_target_dir
+     * @param string $target_dir
      * @deprecated
      */
-    public function export($a_target_dir)
+    public function export(string $target_dir) : void
     {
-        $this->implementation->export($a_target_dir);
+        $this->implementation->export($target_dir);
     }
 
     /**
@@ -776,5 +788,4 @@ class ilObjFile extends ilObject2 implements ilObjFileImplementationInterface
     {
         return $this->implementation->getFileExtension();
     }
-
 }

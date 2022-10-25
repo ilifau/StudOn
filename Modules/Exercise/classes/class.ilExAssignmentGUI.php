@@ -190,30 +190,13 @@ class ilExAssignmentGUI
         // fau.
 
         // status icon
-        // fau: exResTime - don't show the result status before the result time is reached
-        // fau: exPlag - use effective status and icon
-        // fau: exAssTest - check a status that is set without submission
-        if ((int) $a_ass->getResultTime() <= time()) {
-            // after result time: show real status
-            $stat = $a_ass->getMemberStatus()->getEffectiveStatus();
-            $pic = $a_ass->getMemberStatus()->getStatusIcon();
-        }
-        else {
-            // before result time: show real status
-            $submission = new ilExSubmission($a_ass, $this->user->getId());
-            if ($submission->hasSubmitted()
-                || $a_ass->getMemberStatus()->getEffectiveStatus() != "notgraded") {
-                $stat = "notgraded";
-                $pic = "scorm/running.svg";
-            }
-            else {
-                $stat = "not_attempted";
-                $pic = "scorm/not_attempted.svg";
-            }
-        }
-        // fau.
-        $tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
-        $tpl->setVariable("ALT_STATUS", $lng->txt("exc_" . $stat));
+        $tpl->setVariable(
+            "ICON_STATUS",
+            $this->getIconForStatus(
+                $a_ass->getMemberStatus()->getStatus(),
+                ilLPStatusIcons::ICON_VARIANT_SHORT
+            )
+        );
 
         return $tpl->get();
     }
@@ -595,13 +578,8 @@ class ilExAssignmentGUI
             }
             // fau.
 
-            if ($status == "") {
-                //				  $a_info->addProperty($lng->txt("status"),
-//						$lng->txt("message_no_delivered_files"));
-            } elseif ($status != "notgraded") {
-                $img = '<img src="' . ilUtil::getImagePath("scorm/" . $status . ".svg") . '" ' .
-                    ' alt="' . $lng->txt("exc_" . $status) . '" title="' . $lng->txt("exc_" . $status) .
-                    '" />';
+            if ($status != "" && $status != "notgraded") {
+                $img = $this->getIconForStatus($status);
                 $a_info->addProperty(
                     $lng->txt("status"),
                     $img . " " . $lng->txt("exc_" . $status)
@@ -729,5 +707,34 @@ class ilExAssignmentGUI
         }
         
         return $url;
+    }
+
+    /**
+     * Get the rendered icon for a status (failed, passed or not graded).
+     */
+    protected function getIconForStatus(string $status, int $variant = ilLPStatusIcons::ICON_VARIANT_LONG) : string
+    {
+        $icons = ilLPStatusIcons::getInstance($variant);
+        $lng = $this->lng;
+
+        switch ($status) {
+            case "passed":
+                return $icons->renderIcon(
+                    $icons->getImagePathCompleted(),
+                    $lng->txt("exc_" . $status)
+                );
+
+            case "failed":
+                return $icons->renderIcon(
+                    $icons->getImagePathFailed(),
+                    $lng->txt("exc_" . $status)
+                );
+
+            default:
+                return $icons->renderIcon(
+                    $icons->getImagePathNotAttempted(),
+                    $lng->txt("exc_" . $status)
+                );
+        }
     }
 }

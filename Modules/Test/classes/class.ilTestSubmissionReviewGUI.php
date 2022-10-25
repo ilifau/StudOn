@@ -198,7 +198,8 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
         }
         
         $this->tpl->setVariable(
-            $this->getContentBlockName(), $html
+            $this->getContentBlockName(),
+            $html
         );
     }
     
@@ -208,6 +209,7 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
 
         $reviewOutput = $this->buildUserReviewOutput();
 
+<<<<<<< HEAD
         // fau: fixExamSubmissionReviewPdfName - generate a filename for the test review
         global $ilSetting;
         $inst_id = (int) $ilSetting->get('inst_id', null);
@@ -220,6 +222,14 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
          ilTestPDFGenerator::generatePDF($reviewOutput, ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $filename, PDF_USER_RESULT);
         // fau.
         
+=======
+        $filename = $this->testOutputGUI->object->getRefId();
+        $filename .= '-' . $this->testSession->getActiveId() . '-';
+        $filename .= $this->testSession->getPass() . '.pdf';
+
+        ilTestPDFGenerator::generatePDF($reviewOutput, ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $filename, PDF_USER_RESULT);
+
+>>>>>>> release_7
         exit;
     }
     

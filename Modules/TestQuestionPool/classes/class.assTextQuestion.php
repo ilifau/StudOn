@@ -440,9 +440,12 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
     */
     public function isKeywordMatching($answertext, $a_keyword)
     {
+        global $DIC;
+        $refinery = $DIC->refinery();
         $result = false;
         $textrating = $this->getTextRating();
         include_once "./Services/Utilities/classes/class.ilStr.php";
+
         switch ($textrating) {
             case TEXTGAP_RATING_CASEINSENSITIVE:
                 if (ilStr::strPos(ilStr::strToLower($answertext), ilStr::strToLower($a_keyword)) !== false) {
@@ -458,40 +461,36 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
         
         // "<p>red</p>" would not match "red" even with distance of 5
         $answertext = strip_tags($answertext);
-        
         $answerwords = array();
         if (preg_match_all("/([^\s.]+)/", $answertext, $matches)) {
             foreach ($matches[1] as $answerword) {
                 array_push($answerwords, trim($answerword));
             }
         }
+
+        // create correct transformation
+        switch ($textrating) {
+            case TEXTGAP_RATING_LEVENSHTEIN1:
+                $transformation = $refinery->string()->levenshtein()->standard($a_keyword, 1);
+                break;
+            case TEXTGAP_RATING_LEVENSHTEIN2:
+                $transformation = $refinery->string()->levenshtein()->standard($a_keyword, 2);
+                break;
+            case TEXTGAP_RATING_LEVENSHTEIN3:
+                $transformation = $refinery->string()->levenshtein()->standard($a_keyword, 3);
+                break;
+            case TEXTGAP_RATING_LEVENSHTEIN4:
+                $transformation = $refinery->string()->levenshtein()->standard($a_keyword, 4);
+                break;
+            case TEXTGAP_RATING_LEVENSHTEIN5:
+                $transformation = $refinery->string()->levenshtein()->standard($a_keyword, 5);
+                break;
+        }
+
+        // run answers against Levenshtein2 methods
         foreach ($answerwords as $a_original) {
-            switch ($textrating) {
-                case TEXTGAP_RATING_LEVENSHTEIN1:
-                    if (levenshtein($a_original, $a_keyword) <= 1) {
-                        return true;
-                    }
-                    break;
-                case TEXTGAP_RATING_LEVENSHTEIN2:
-                    if (levenshtein($a_original, $a_keyword) <= 2) {
-                        return true;
-                    }
-                    break;
-                case TEXTGAP_RATING_LEVENSHTEIN3:
-                    if (levenshtein($a_original, $a_keyword) <= 3) {
-                        return true;
-                    }
-                    break;
-                case TEXTGAP_RATING_LEVENSHTEIN4:
-                    if (levenshtein($a_original, $a_keyword) <= 4) {
-                        return true;
-                    }
-                    break;
-                case TEXTGAP_RATING_LEVENSHTEIN5:
-                    if (levenshtein($a_original, $a_keyword) <= 5) {
-                        return true;
-                    }
-                    break;
+            if (isset($transformation) && $transformation->transform($a_original) >= 0) {
+                return true;
             }
         }
         return $result;
@@ -499,6 +498,7 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
     
     protected function calculateReachedPointsForSolution($solution)
     {
+        $solution = html_entity_decode($solution);
         // Return min points when keyword relation is NON KEYWORDS
         if ($this->getKeywordRelation() == 'non') {
             return $this->getMinimumPoints();
@@ -513,50 +513,38 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
         
         switch ($this->getKeywordRelation()) {
             case 'any':
-
                 $points = 0;
-
                 foreach ($answers as $answer) {
                     $qst_answer = $answer->getAnswertext();
                     $user_answer = '  ' . $solution;
-
                     if ($this->isKeywordMatching($user_answer, $qst_answer)) {
                         $points += $answer->getPoints();
                     }
                 }
-
                 break;
 
             case 'all':
-
                 $points = $this->getMaximumPoints();
-
                 foreach ($answers as $answer) {
                     $qst_answer = $answer->getAnswertext();
                     $user_answer = '  ' . $solution;
-
                     if (!$this->isKeywordMatching($user_answer, $qst_answer)) {
                         $points = 0;
                         break;
                     }
                 }
-
                 break;
 
             case 'one':
-
                 $points = 0;
-
                 foreach ($answers as $answer) {
                     $qst_answer = $answer->getAnswertext();
                     $user_answer = '  ' . $solution;
-
                     if ($this->isKeywordMatching($user_answer, $qst_answer)) {
                         $points = $this->getMaximumPoints();
                         break;
                     }
                 }
-
                 break;
         }
 
@@ -655,12 +643,16 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
      */
     public function getSolutionSubmit()
     {
-        $text = ilUtil::stripSlashes($_POST["TEXT"], false);
-        
+        if (ilObjAdvancedEditing::_getRichTextEditor() === 'tinymce') {
+            $text = ilUtil::stripSlashes($_POST["TEXT"], false);
+        } else {
+            $text = htmlentities($_POST["TEXT"]);
+        }
+
         if (ilUtil::isHTML($text)) {
             $text = $this->getHtmlUserSolutionPurifier()->purify($text);
         }
-        
+
         return $text;
     }
 
@@ -715,10 +707,6 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
                                 )
             );
         }
-    }
-
-    public function createRandomSolution($test_id, $user_id)
-    {
     }
 
     /**
@@ -811,7 +799,7 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
         }
 
         if (strlen($solutions[0]["value1"])) {
-            $worksheet->setCell($startrow + $i, 1, $solutions[0]["value1"]);
+            $worksheet->setCell($startrow + $i, 1, html_entity_decode($solutions[0]["value1"]));
         }
         $i++;
 
@@ -1084,7 +1072,8 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
         $question_fi = $this->getId();
 
         // Do we have an unauthorized result?
-        $cntresult = $this->db->query('
+        $cntresult = $this->db->query(
+            '
             SELECT count(solution_id) cnt
             FROM tst_solutions 
             WHERE active_fi = ' . $this->db->quote($active_id, 'int') . '
@@ -1092,8 +1081,9 @@ class assTextQuestion extends assQuestion implements ilObjQuestionScoringAdjusta
             AND authorized = ' . $this->db->quote(0, 'int')
         );
         $row = $this->db->fetchAssoc($cntresult);
-        if($row['cnt'] > 0 ) {
-            $tresult = $this->db->query('
+        if ($row['cnt'] > 0) {
+            $tresult = $this->db->query(
+                '
             SELECT value1
             FROM tst_solutions 
             WHERE active_fi = ' . $this->db->quote($active_id, 'int') . '

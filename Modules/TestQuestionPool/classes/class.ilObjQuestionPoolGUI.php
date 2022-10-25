@@ -38,7 +38,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
      * @var ilObjQuestionPool
      */
     public $object;
-    
+
+    /** @var ilErrorHandling */
+    private $error;
+
     /**
     * Constructor
     * @access public
@@ -51,6 +54,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         $rbacsystem = $DIC['rbacsystem'];
         $lng->loadLanguageModule("assessment");
         $this->type = "qpl";
+        $this->error = $DIC['ilErr'];
         $this->ctrl = &$ilCtrl;
         
         $this->ctrl->saveParameter($this, array(
@@ -157,7 +161,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 break;
             
             case 'ilassquestionpreviewgui':
-
+                if (!$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+                    $this->redirectAfterMissingWrite();
+                }
+                
                 $this->ctrl->saveParameter($this, "q_id");
 
                 require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionPreviewGUI.php';
@@ -177,6 +184,14 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 break;
                 
             case "ilassquestionpagegui":
+                if ($cmd == 'finishEditing') {
+                    $this->ctrl->redirectByClass('ilassquestionpreviewgui', 'show');
+                    break;
+                }
+                if ($cmd === 'edit' && !$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+                    $this->redirectAfterMissingWrite();
+                }
+                
                 include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
                 $this->tpl->setCurrentBlock("ContentStyle");
 // fau: inheritContentStyle - get the effective content style by ref_id
@@ -213,6 +228,12 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 }
                 
                 $question = $q_gui->object;
+                
+                if ($question->isInActiveTest()) {
+                    ilUtil::sendFailure($this->lng->txt("question_is_part_of_running_test"), true);
+                    $this->ctrl->redirectByClass('ilAssQuestionPreviewGUI', ilAssQuestionPreviewGUI::CMD_SHOW);
+                }
+                
                 $this->ctrl->saveParameter($this, "q_id");
                 include_once("./Modules/TestQuestionPool/classes/class.ilAssQuestionPageGUI.php");
                 $this->lng->loadLanguageModule("content");
@@ -275,7 +296,9 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 break;
             
             case 'ilassquestionhintsgui':
-    
+                if (!$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+                    $this->redirectAfterMissingWrite();
+                }
                 // set return target
                 $this->ctrl->setReturn($this, "questions");
 
@@ -284,7 +307,12 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 $questionGUI = assQuestionGUI::_getQuestionGUI($q_type, $this->fetchAuthoringQuestionIdParamater());
                 $questionGUI->object->setObjId($this->object->getId());
                 $questionGUI->setQuestionTabs();
-                global $DIC;
+                
+                if ($questionGUI->object->isInActiveTest()) {
+                    ilUtil::sendFailure($this->lng->txt("question_is_part_of_running_test"), true);
+                    $this->ctrl->redirectByClass('ilAssQuestionPreviewGUI', ilAssQuestionPreviewGUI::CMD_SHOW);
+                }
+                
                 $ilHelp = $DIC['ilHelp'];
                 $ilHelp->setScreenIdComponent("qpl");
                 
@@ -325,7 +353,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 break;
             
             case 'ilassquestionfeedbackeditinggui':
-    
+                if (!$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+                    $this->redirectAfterMissingWrite();
+                }
+                
                 // set return target
                 $this->ctrl->setReturn($this, "questions");
 
@@ -334,7 +365,12 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 $questionGUI = assQuestionGUI::_getQuestionGUI($q_type, $this->fetchAuthoringQuestionIdParamater());
                 $questionGUI->object->setObjId($this->object->getId());
                 $questionGUI->setQuestionTabs();
-                global $DIC;
+                
+                if ($questionGUI->object->isInActiveTest()) {
+                    ilUtil::sendFailure($this->lng->txt("question_is_part_of_running_test"), true);
+                    $this->ctrl->redirectByClass('ilAssQuestionPreviewGUI', ilAssQuestionPreviewGUI::CMD_SHOW);
+                }
+                
                 $ilHelp = $DIC['ilHelp'];
                 $ilHelp->setScreenIdComponent("qpl");
                 
@@ -407,23 +443,39 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
                 break;
                 
             default:
+                if (in_array($cmd, ['editQuestion', 'save', 'suggestedsolution']) && !$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+                    $this->redirectAfterMissingWrite();
+                }
+                
+                if ($cmd === 'assessment' &&
+                    $this->object->getType() === 'tst' &&
+                    !$ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+                    $this->redirectAfterMissingWrite();
+                }
+                
                 $this->ctrl->setReturn($this, "questions");
                 include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
-                $q_gui = assQuestionGUI::_getQuestionGUI($q_type, $this->fetchAuthoringQuestionIdParamater());
-                $q_gui->setEditContext(assQuestionGUI::EDIT_CONTEXT_AUTHORING);
-                $q_gui->object->setObjId($this->object->getId());
+                $questionGUI = assQuestionGUI::_getQuestionGUI($q_type, $this->fetchAuthoringQuestionIdParamater());
+                $questionGUI->setEditContext(assQuestionGUI::EDIT_CONTEXT_AUTHORING);
+                $questionGUI->object->setObjId($this->object->getId());
+                
+                if (in_array($cmd, ['editQuestion', 'save', 'suggestedsolution']) && $questionGUI->object->isInActiveTest()) {
+                    ilUtil::sendFailure($this->lng->txt("question_is_part_of_running_test"), true);
+                    $this->ctrl->redirectByClass('ilAssQuestionPreviewGUI', ilAssQuestionPreviewGUI::CMD_SHOW);
+                }
+                
                 if ($this->object->getType() == 'qpl') {
-                    $q_gui->setTaxonomyIds($this->object->getTaxonomyIds());
-                    $this->object->addQuestionChangeListeners($q_gui->object);
+                    $questionGUI->setTaxonomyIds($this->object->getTaxonomyIds());
+                    $this->object->addQuestionChangeListeners($questionGUI->object);
                     if ($writeAccess) {
-                        $q_gui->addHeaderAction();
+                        $questionGUI->addHeaderAction();
                     }
                 }
-                $q_gui->setQuestionTabs();
-                global $DIC;
+                $questionGUI->setQuestionTabs();
+                
                 $ilHelp = $DIC['ilHelp'];
                 $ilHelp->setScreenIdComponent("qpl");
-                $ret = $this->ctrl->forwardCommand($q_gui);
+                $ret = $this->ctrl->forwardCommand($questionGUI);
                 break;
         }
 
@@ -432,6 +484,15 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             && $this->getCreationMode() != true) {
             $this->tpl->printToStdout();
         }
+    }
+    
+    
+    protected function redirectAfterMissingWrite()
+    {
+        ilUtil::sendFailure($this->lng->txt("no_permission"), true);
+        $target_class = get_class($this->object) . "GUI";
+        $this->ctrl->setParameterByClass($target_class, 'ref_id', $this->ref_id);
+        $this->ctrl->redirectByClass($target_class);
     }
     
     /**
@@ -732,14 +793,12 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             include_once "./Services/QTI/classes/class.ilQTIParser.php";
             $qtiParser = new ilQTIParser($_SESSION["qpl_import_qti_file"], IL_MO_PARSE_QTI, $newObj->getId(), $_POST["ident"]);
             $result = $qtiParser->startParsing();
-
             // import page data
             if (strlen($_SESSION["qpl_import_xml_file"])) {
                 include_once("./Modules/LearningModule/classes/class.ilContObjParser.php");
                 $contParser = new ilContObjParser($newObj, $_SESSION["qpl_import_xml_file"], $_SESSION["qpl_import_subdir"]);
                 $contParser->setQuestionMapping($qtiParser->getImportMapping());
                 $contParser->startParsing();
-
                 // #20494
                 $newObj->fromXML($_SESSION["qpl_import_xml_file"]);
             }
@@ -840,7 +899,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         if (ilObjAssessmentFolder::isAdditionalQuestionContentEditingModePageObjectEnabled()) {
             $addContEditMode = $_POST['add_quest_cont_edit_mode'];
         } else {
-            $addContEditMode = assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_DEFAULT;
+            $addContEditMode = assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE;
         }
 
         include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
@@ -864,7 +923,7 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             if (ilObjAssessmentFolder::isAdditionalQuestionContentEditingModePageObjectEnabled()) {
                 $addContEditMode = $_REQUEST['add_quest_cont_edit_mode'];
             } else {
-                $addContEditMode = assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_DEFAULT;
+                $addContEditMode = assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE;
             }
             
             include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
@@ -1014,8 +1073,14 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         $taxIds = ilObjTaxonomy::getUsageOfObject($this->object->getId());
 
         include_once "./Modules/TestQuestionPool/classes/tables/class.ilQuestionBrowserTableGUI.php";
-        $table_gui = new ilQuestionBrowserTableGUI($this, 'questions', false, false,
-            $taxIds, $this->isCommentingEnabled());
+        $table_gui = new ilQuestionBrowserTableGUI(
+            $this,
+            'questions',
+            false,
+            false,
+            $taxIds,
+            $this->isCommentingEnabled()
+        );
         $table_gui->resetOffset();
         $table_gui->resetFilter();
         $this->questionsObject();
@@ -1215,22 +1280,26 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
         if (ilObjAssessmentFolder::isAdditionalQuestionContentEditingModePageObjectEnabled()) {
             $ri = new ilRadioGroupInputGUI($this->lng->txt("tst_add_quest_cont_edit_mode"), "add_quest_cont_edit_mode");
 
-            $ri->addOption(new ilRadioOption(
-                $this->lng->txt('tst_add_quest_cont_edit_mode_page_object'),
-                assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_PAGE_OBJECT
-            ));
+            $option_ipe = new ilRadioOption(
+                $this->lng->txt('tst_add_quest_cont_edit_mode_IPE'),
+                assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_IPE
+            );
+            $option_ipe->setInfo($this->lng->txt('tst_add_quest_cont_edit_mode_IPE_info'));
+            $ri->addOption($option_ipe);
 
-            $ri->addOption(new ilRadioOption(
-                $this->lng->txt('tst_add_quest_cont_edit_mode_default'),
-                assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_DEFAULT
-            ));
+            $option_rte = new ilRadioOption(
+                $this->lng->txt('tst_add_quest_cont_edit_mode_RTE'),
+                assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE
+            );
+            $option_rte->setInfo($this->lng->txt('tst_add_quest_cont_edit_mode_RTE_info'));
+            $ri->addOption($option_rte);
 
-            $ri->setValue(assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_PAGE_OBJECT);
+            $ri->setValue(assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_IPE);
 
             $form->addItem($ri, true);
         } else {
             $hi = new ilHiddenInputGUI("question_content_editing_type");
-            $hi->setValue(assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_DEFAULT);
+            $hi->setValue(assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_RTE);
             $form->addItem($hi, true);
         }
         
@@ -1371,9 +1440,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
     */
     public function &editQuestionForTestObject()
     {
+        global $DIC;
         include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
-        $q_gui = &assQuestionGUI::_getQuestionGUI("", $_GET["q_id"]);
-        $this->ctrl->redirectByClass(get_class($q_gui), "editQuestion");
+        $p_gui = new ilAssQuestionPreviewGUI($this->ctrl, $this->tabs_gui, $this->tpl, $this->lng, $DIC->database(), $DIC->user());
+        $this->ctrl->redirectByClass(get_class($p_gui), "show");
     }
 
     protected function initImportForm($a_new_type)
@@ -1401,6 +1471,10 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
     */
     protected function importFileObject($parent_id = null, $a_catch_errors = true)
     {
+        if (!$this->checkPermissionBool("create", "", $_REQUEST["new_type"])) {
+            $this->error->raiseError($this->lng->txt("no_create_permission"));
+        }
+
         $form = $this->initImportForm($_REQUEST["new_type"]);
         if ($form->checkInput()) {
             $this->uploadQplObject();
@@ -1750,8 +1824,14 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 
         $writeAccess = $this->checkWriteAccess();
         include_once "./Modules/TestQuestionPool/classes/tables/class.ilQuestionBrowserTableGUI.php";
-        $table_gui = new ilQuestionBrowserTableGUI($this, 'questions', $writeAccess,
-            false, $taxIds, $this->isCommentingEnabled());
+        $table_gui = new ilQuestionBrowserTableGUI(
+            $this,
+            'questions',
+            $writeAccess,
+            false,
+            $taxIds,
+            $this->isCommentingEnabled()
+        );
         $table_gui->setEditable($writeAccess);
 
         require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionList.php';

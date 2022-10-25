@@ -134,12 +134,6 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
     
     protected function handlePageCall($a_cmd)
     {
-        $this->tabs_gui->clearTargets();
-        $this->tabs_gui->setBackTarget(
-            $this->lng->txt("back"),
-            $this->ctrl->getLinkTarget($this, "view")
-        );
-        
         if (!$this->page_id) {
             $this->ctrl->redirect($this, "view");
         }
@@ -149,7 +143,7 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
         $this->tabs_gui->clearTargets();
         $this->tabs_gui->setBackTarget(
             $this->lng->txt("back"),
-            $this->ctrl->getLinkTarget($page_gui, "edit")
+            $this->ctrl->getLinkTarget($this, "view")
         );
 
         // needed for editor
@@ -573,6 +567,7 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
             $cgui->setConfirm($this->lng->txt("delete"), "deletePortfolioPages");
 
             foreach ($prtf_pages as $id) {
+                $id = (int) $id;
                 $page = $this->getPageInstance((int) $id);
                 if ($page->getPortfolioId() != $this->object->getId()) {
                     continue;
@@ -600,6 +595,7 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
 
         if (is_array($_POST["prtf_pages"])) {
             foreach ($_POST["prtf_pages"] as $id) {
+                $id = (int) $id;
                 $page = $this->getPageInstance($id);
                 $page->delete();
             }
@@ -804,27 +800,44 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
             ? "ilPortfolioTemplatePageGUI"
             : "ilportfoliopagegui";
         $button = null;
+        if ($this->checkPermissionBool("write") &&
+            ilPortfolioPage::lookupType($page_id) == ilPortfolioPage::TYPE_PAGE) {
+            if ($this->getType() === "prtt") {
+                $button = $this->ui->factory()->button()->standard(
+                    $this->lng->txt("prtt_edit"),
+                    $this->ctrl->getLinkTargetByClass(["ilobjportfoliotemplategui"], "view")
+                );
+            } else {
+                $button = $this->ui->factory()->button()->standard(
+                    $this->lng->txt("prtf_edit_portfolio"),
+                    $this->ctrl->getLinkTargetByClass(["ilobjportfoliogui"], "view")
+                );
+            }
+            $this->toolbar->addComponent($button);
+            $button = null;
+        }
         if (ilPortfolioPage::lookupType($page_id) == ilPortfolioPage::TYPE_PAGE) {
             $this->ctrl->setParameterByClass($page_class, "ppage", $page_id);
             $button = $this->ui->factory()->button()->standard(
-                $this->lng->txt("edit"),
+                $this->lng->txt("edit_page"),
                 $this->ctrl->getLinkTargetByClass($page_class, "edit")
             );
+            if ($this->checkPermissionBool("write")) {
+                $this->toolbar->addComponent($button);
+            }
+            $button = null;
         } else {
             if ($this->getType() != "prtt") {
                 if ($page_id > 0) {
+                    /*
                     $this->ctrl->setParameterByClass("ilobjbloggui", "ppage", $page_id);
                     $this->ctrl->setParameterByClass("ilobjbloggui", "prt_id", (int) $_GET["prt_id"]);
                     $button = $this->ui->factory()->button()->standard(
                         $this->lng->txt("edit"),
                         $this->ctrl->getLinkTargetByClass([$page_class, "ilobjbloggui"], "render")
-                    );
+                    );*/
                 }
             } else {    // portfolio template, blog page cannot be edited -> link to overview
-                $button = $this->ui->factory()->button()->standard(
-                    $this->lng->txt("edit"),
-                    $this->ctrl->getLinkTargetByClass(["ilobjportfoliotemplategui"], "view")
-                );
             }
         }
         if ($button && $this->checkPermissionBool("write")) {
@@ -955,6 +968,7 @@ abstract class ilObjPortfolioBaseGUI extends ilObject2GUI
             
             // copy page(s)
             foreach ($_POST["prtf_pages"] as $page_id) {
+                $page_id = (int) $page_id;
                 $source = $this->getPageInstance($page_id);
                 $target = $this->getPageInstance(null, $portfolio_id);
                 $target->setXMLContent($source->copyXmlContent(true)); // copy mobs

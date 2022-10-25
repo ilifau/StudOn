@@ -222,6 +222,7 @@ class ilUtil
         if (strlen($filename) == 0 || !file_exists($filename)) {
             $filename = "./" . $a_css_location . "templates/default/" . $stylesheet_name;
         }
+<<<<<<< HEAD
         $vers = "";
         if ($mode != "filesystem") {
             // fau: versionSuffix - use the version number with own suffix
@@ -233,6 +234,9 @@ class ilUtil
             $vers .= ($skin->getVersion() != '' ? str_replace(".", "-", '-' . $skin->getVersion()) : '');
         }
         return $filename . $vers;
+=======
+        return $filename;
+>>>>>>> release_7
     }
 
     /**
@@ -780,7 +784,6 @@ class ilUtil
     {
         // New code, uses MediaWiki Sanitizer
         $ret = $a_text;
-
         // www-URL ohne ://-Angabe
         $ret = preg_replace(
             "/(^|[\s]+)(www\.)([A-Za-z0-9#&=?.\/\-]+)/i",
@@ -807,6 +810,8 @@ class ilUtil
         // fau.
 
         include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
+        $global_wgContLang = $GLOBALS["wgContLang"];
+        $GLOBALS["wgContLang"] = new ilMWFakery();
         $parser = new ilMWParserAdapter();
         $ret = $parser->replaceFreeExternalLinks($ret);
 
@@ -838,7 +843,7 @@ class ilUtil
                 $ret
             );
         }
-
+        $GLOBALS["wgContLang"] = $global_wgContLang;
         return($ret);
     }
 

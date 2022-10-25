@@ -1,5 +1,20 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 include_once './Services/Membership/classes/class.ilParticipantsTableGUI.php';
 include_once './Services/Tracking/classes/class.ilLPStatus.php';
@@ -80,7 +95,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         $this->addColumn($this->lng->txt('grp_mem_contacts'), 'contact');
         $this->addColumn($this->lng->txt('grp_notification'), 'notification');
 
-        $this->addColumn($this->lng->txt(''), 'optional');
+        $this->addColumn($this->lng->txt('actions'), 'optional', '', false, 'ilMembershipRowActionsHeader');
         $this->setDefaultOrderField('roles');
 
         $this->setRowTemplate("tpl.show_participants_row.html", "Modules/Group");
@@ -226,28 +241,12 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         
         if ($this->show_learning_progress) {
             $this->tpl->setCurrentBlock('lp');
-            switch ($a_set['progress']) {
-                case ilLPStatus::LP_STATUS_COMPLETED:
-                    $this->tpl->setVariable('LP_STATUS_ALT', $this->lng->txt($a_set['progress']));
-                    $this->tpl->setVariable('LP_STATUS_PATH', ilUtil::getImagePath('scorm/complete.svg'));
-                    break;
-                    
-                case ilLPStatus::LP_STATUS_IN_PROGRESS:
-                    $this->tpl->setVariable('LP_STATUS_ALT', $this->lng->txt($a_set['progress']));
-                    $this->tpl->setVariable('LP_STATUS_PATH', ilUtil::getImagePath('scorm/incomplete.svg'));
-                    break;
+            $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_LONG);
+            $icon_rendered = $icons->renderIconForStatus($icons->lookupNumStatus($a_set['progress']));
 
-                case ilLPStatus::LP_STATUS_NOT_ATTEMPTED:
-                    $this->tpl->setVariable('LP_STATUS_ALT', $this->lng->txt($a_set['progress']));
-                    $this->tpl->setVariable('LP_STATUS_PATH', ilUtil::getImagePath('scorm/not_attempted.svg'));
-                    break;
+            $this->tpl->setVariable('LP_STATUS_ALT', $this->lng->txt($a_set['progress']));
+            $this->tpl->setVariable('LP_STATUS_ICON', $icon_rendered);
 
-                case ilLPStatus::LP_STATUS_FAILED:
-                    $this->tpl->setVariable('LP_STATUS_ALT', $this->lng->txt($a_set['progress']));
-                    $this->tpl->setVariable('LP_STATUS_PATH', ilUtil::getImagePath('scorm/failed.svg'));
-                    break;
-                                
-            }
             $this->tpl->parseCurrentBlock();
         }
         

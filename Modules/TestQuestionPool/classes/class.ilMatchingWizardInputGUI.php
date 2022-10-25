@@ -40,6 +40,7 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
         parent::__construct($a_title, $a_postvar);
         $this->setSuffixes(array("jpg", "jpeg", "png", "gif"));
         $this->setSize('40');
+        $this->setMaxLength(800);
         $this->text_name = $lng->txt('answer_text');
         $this->image_name = $lng->txt('answer_image');
     }
@@ -368,5 +369,15 @@ class ilMatchingWizardInputGUI extends ilTextInputGUI
         $a_tpl->setCurrentBlock("prop_generic");
         $a_tpl->setVariable("PROP_GENERIC", $tpl->get());
         $a_tpl->parseCurrentBlock();
+    }
+
+    public function setPending(string $a_val): void
+    {
+        $this->pending = $a_val;
+    }
+
+    public function getPending(): string
+    {
+        return $this->pending;
     }
 }

@@ -183,12 +183,16 @@ class ilObjectDataCache
             $a_lang = $ilUser->getLanguage();
         }
 
-        $query = "SELECT * FROM object_data WHERE obj_id = " .
-            $ilDB->quote($a_obj_id, 'integer');
+        $query = "SELECT object_data.*, object_description.description as long_description " .
+            "FROM object_data LEFT JOIN object_description ON object_data.obj_id = object_description.obj_id " .
+            "WHERE object_data.obj_id = " . $ilDB->quote($a_obj_id, 'integer');
         $res = $this->db->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $this->object_data_cache[$a_obj_id]['title'] = $row->title;
             $this->object_data_cache[$a_obj_id]['description'] = $row->description;
+            if ($row->long_description !== null) {
+                $this->object_data_cache[$a_obj_id]['description'] = $row->long_description;
+            }
             $this->object_data_cache[$a_obj_id]['type'] = $row->type;
             $this->object_data_cache[$a_obj_id]['owner'] = $row->owner;
             $this->object_data_cache[$a_obj_id]['last_update'] = $row->last_update;
@@ -202,8 +206,7 @@ class ilObjectDataCache
                 if (!$this->trans_loaded[$a_obj_id]) {
                     $q = "SELECT title,description FROM object_translation " .
                          "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') . " " .
-                         "AND lang_code = " . $ilDB->quote($a_lang, 'text') . " " .
-                         "AND NOT lang_default = 1";
+                         "AND lang_code = " . $ilDB->quote($a_lang, 'text');
                     $r = $ilDB->query($q);
 
                     $row = $r->fetchRow(ilDBConstants::FETCHMODE_OBJECT);
@@ -250,10 +253,10 @@ class ilObjectDataCache
         if (count($a_obj_ids) == 0) {
             return;
         }
-        
-        
-        $query = "SELECT * FROM object_data " .
-            "WHERE " . $ilDB->in('obj_id', $a_obj_ids, false, 'integer');
+
+        $query = "SELECT object_data.*, object_description.description as long_description " .
+            "FROM object_data LEFT JOIN object_description ON object_data.obj_id = object_description.obj_id " .
+            "WHERE " . $ilDB->in('object_data.obj_id', $a_obj_ids, false, 'integer');
         $res = $ilDB->query($query);
         $db_trans = array();
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
@@ -262,6 +265,9 @@ class ilObjectDataCache
             if (!$this->trans_loaded[$row->obj_id]) {
                 $this->object_data_cache[$row->obj_id]['title'] = $row->title;
                 $this->object_data_cache[$row->obj_id]['description'] = $row->description;
+                if ($row->long_description !== null) {
+                    $this->object_data_cache[$row->obj_id]['description'] = $row->long_description;
+                }
             }
             $this->object_data_cache[$row->obj_id]['type'] = $row->type;
             $this->object_data_cache[$row->obj_id]['owner'] = $row->owner;
@@ -301,8 +307,7 @@ class ilObjectDataCache
         if (count($obj_ids) > 0) {
             $q = "SELECT obj_id, title, description FROM object_translation " .
                  "WHERE " . $ilDB->in('obj_id', $obj_ids, false, 'integer') . " " .
-                 "AND lang_code = " . $ilDB->quote($a_lang, 'text') . " " .
-                 "AND NOT lang_default = 1";
+                 "AND lang_code = " . $ilDB->quote($a_lang, 'text');
             $r = $ilDB->query($q);
             while ($row2 = $r->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
                 $this->object_data_cache[$row2->obj_id]['title'] = $row2->title;

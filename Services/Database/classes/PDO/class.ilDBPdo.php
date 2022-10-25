@@ -814,6 +814,9 @@ abstract class ilDBPdo implements ilDBInterface, ilDBPdoInterface
                 if ($value === '') {
                     return 'NULL';
                 }
+                if ($value === $this->now()) {
+                    return $value;
+                }
                 break;
             case ilDBConstants::T_INTEGER:
                 $value = (int) $value;

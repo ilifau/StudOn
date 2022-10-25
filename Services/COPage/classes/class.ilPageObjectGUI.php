@@ -20,6 +20,7 @@ class ilPageObjectGUI
     const PREVIEW = "preview";
     const OFFLINE = "offline";
     const PRINTING = "print";
+    protected $profile_back_url = "";
 
     protected $enabled_href = true;
 
@@ -149,7 +150,8 @@ class ilPageObjectGUI
         $a_id,
         $a_old_nr = 0,
         $a_prevent_get_id = false,
-        $a_lang = ""
+        $a_lang = "",
+        $concrete_lang = ""
     ) {
         global $DIC;
 
@@ -164,6 +166,7 @@ class ilPageObjectGUI
         $this->help = $DIC["ilHelp"];
         $this->ui = $DIC->ui();
         $this->toolbar = $DIC->toolbar();
+        $this->concrete_lang = $concrete_lang;
 
         $this->setParentType($a_parent_type);
         $this->setId($a_id);
@@ -228,6 +231,7 @@ class ilPageObjectGUI
             $this->getOldNr(),
             $this->getLanguage()
         );
+        $page->setConcreteLang($this->concrete_lang);
         $this->setPageObject($page);
     }
     
@@ -740,7 +744,7 @@ class ilPageObjectGUI
      * Set open placeholder
      * @param string $a_val open placeholder pc id
      */
-    function setOpenPlaceHolder($a_val)
+    public function setOpenPlaceHolder($a_val)
     {
         $this->open_place_holder = $a_val;
     }
@@ -749,7 +753,7 @@ class ilPageObjectGUI
      * Get open placeholder
      * @return string open placeholder pc id
      */
-    function getOpenPlaceHolder()
+    public function getOpenPlaceHolder()
     {
         return $this->open_place_holder;
     }
@@ -1680,7 +1684,7 @@ class ilPageObjectGUI
                 $par = $this->obj->getParagraphForPCID($this->abstract_pcid);
                 $content = "<dummy><PageObject><PageContent><Paragraph Characteristic='" . $par->getCharacteristic() . "'>" .
                     $par->getText() . $link_xml .
-                    "</Paragraph></PageContent></PageObject></dummy>";
+                    "</Paragraph></PageContent></PageObject>".$this->obj->getMultimediaXML()."</dummy>";
             }
         } else {
             $content = $this->obj->getXMLFromDom(
@@ -1705,7 +1709,7 @@ class ilPageObjectGUI
         if ($this->getOutputMode() == "edit") {
             $col_path = ilUtil::getImagePath("col.svg");
             $row_path = ilUtil::getImagePath("row.svg");
-            $item_path = ilUtil::getImagePath("item.svg");
+            $item_path = ilUtil::getImagePath("icon_peadl.svg");
             $cell_path = ilUtil::getImagePath("cell.svg");
         }
 
@@ -1940,7 +1944,7 @@ class ilPageObjectGUI
             //echo htmlentities($output);
             if ($this->getOutputMode() == "edit" &&
                 !$this->getPageObject()->getActive($this->getPageConfig()->getEnableScheduledActivation())) {
-                $output = '<div class="il_editarea_disabled"><div class="ilCopgDisabledText">' . $this->getDisabledText() . '</div>' . $output . '</div>';
+                $output = '<div class="copg-disabled-page"><div class="ilCopgDisabledText">' . $this->getDisabledText() . '</div>' . $output . '</div>';
             }
 
             // for all page components...
@@ -1953,6 +1957,7 @@ class ilPageObjectGUI
                 $pc_obj->setSourcecodeDownloadScript($this->determineSourcecodeDownloadScript());
                 $pc_obj->setFileDownloadLink($this->determineFileDownloadLink());
                 $pc_obj->setFullscreenLink($this->determineFullscreenLink());
+                $pc_obj->setProfileBackUrl($this->getProfileBackUrl());
 
                 // post xsl page content modification by pc elements
                 $output = $pc_obj->modifyPageContentPostXsl($output, $this->getOutputMode(), $this->getAbstractOnly());
@@ -2295,7 +2300,9 @@ class ilPageObjectGUI
         );
 
         $btpl->setVariable("TXT_SAVING", $lng->txt("cont_saving"));
-        
+
+        $btpl->setVariable("SRC_LOADER", \ilUtil::getImagePath("loader.svg"));
+
         include_once("./Services/COPage/classes/class.ilPCParagraphGUI.php");
 
         $btpl->setVariable("CHAR_STYLE_SELECTOR", ilPCParagraphGUI::getCharStyleSelector($a_par_type, true, $a_style_id));
@@ -2313,6 +2320,7 @@ class ilPageObjectGUI
      */
     public function setDefaultLinkXml()
     {
+        $this->page_linker->setProfileBackUrl($this->getProfileBackUrl());
         $this->page_linker->setOffline($this->getOutputMode() == self::OFFLINE);
         $this->setLinkXML($this->page_linker->getLinkXml($this->getPageObject()->getInternalLinks()));
     }
@@ -2334,10 +2342,24 @@ class ilPageObjectGUI
      */
     public function getProfileBackUrl()
     {
+        if ($this->profile_back_url != "") {
+            return $this->profile_back_url;
+        }
+        if ($this->getOutputMode() === self::OFFLINE) {
+            return "";
+        }
         return $this->ctrl->getLinkTargetByClass(strtolower(get_class($this)), "preview");
     }
 
-    
+    /**
+     * Get profile back url
+     */
+    public function setProfileBackUrl($url)
+    {
+        $this->profile_back_url = $url;
+    }
+
+
     /**
      * Download file of file lists
      */
@@ -2762,10 +2784,16 @@ class ilPageObjectGUI
         $this->lng->toJS("cont_no_block");
         $this->lng->toJS("copg_error");
         $this->lng->toJS("cont_ed_click_to_add_pg");
+        $this->lng->toJS("cont_ed_new_item_after");
+        $this->lng->toJS("cont_ed_new_item_before");
+        $this->lng->toJS("cont_ed_item_up");
+        $this->lng->toJS("cont_ed_item_down");
+        $this->lng->toJS("cont_ed_delete_item");
         // workaroun: we need this js for the new editor version, e.g. for new section form to work
         // @todo: solve this in a smarter way
         $this->tpl->addJavascript("./Services/UIComponent/AdvancedSelectionList/js/AdvancedSelectionList.js");
         \ilCalendarUtil::initDateTimePicker();
+        ilModalGUI::initJS();
     }
 
     protected function showEditLockInfo()
@@ -3217,6 +3245,8 @@ class ilPageObjectGUI
     */
     public function editActivation()
     {
+        $this->setBackToEditTabs();
+
         $atpl = new ilTemplate("tpl.page_activation.php", true, true, "Services/COPage");
         $this->initActivationForm();
         $this->getActivationFormValues();
@@ -3606,5 +3636,4 @@ class ilPageObjectGUI
     {
         return [];
     }
-
 }

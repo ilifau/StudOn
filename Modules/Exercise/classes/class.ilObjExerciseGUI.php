@@ -914,8 +914,35 @@ class ilObjExerciseGUI extends ilObjectGUI
                 //		$this->lng->txt("message_no_delivered_files"));
                 //}
                 //else
+                // fau.
+                if ($status != "notgraded") {
+                    $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_LONG);
+
+                    switch ($status) {
+                        case "passed":
+                            $path = $icons->getImagePathCompleted();
+                            break;
+                        case "failed":
+                            $path = $icons->getImagePathFailed();
+                            break;
+                        default:
+                            $path = ilUtil::getImagePath("scorm/" . $status . ".svg");
+                    }
+
+                    $img = $icons->renderIcon($path, $lng->txt("exc_" . $status));
+
+                    $add = "";
+                    if ($st["failed_a_mandatory"]) {
+                        $add = " (" . $lng->txt("exc_msg_failed_mandatory") . ")";
+                    } elseif ($status == "failed") {
+                        $add = " (" . $lng->txt("exc_msg_missed_minimum_number") . ")";
+                    }
+                    $info->addProperty(
+                        $this->lng->txt("status"),
+                        $img . " " . $this->lng->txt("exc_" . $status) . $add
+                    );
+                }
             }
-            // fau.
         }
         
         // forward the command

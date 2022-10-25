@@ -673,7 +673,8 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
             ) {
                 if ($ilSetting->get("enable_cat_page_edit")) {
                     if (!$this->isActiveAdministrationPanel() &&
-                        !$this->isActiveOrdering()) {
+                        !$this->isActiveOrdering() &&
+                        $this->supportsPageEditor()) {
                         $toolbar->addButton($lng->txt("cntr_text_media_editor"),
                             $ilCtrl->getLinkTarget($this, "editPageFrame")
                         );
@@ -696,6 +697,11 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         if ((int) $_GET["ref_id"] > 1 && $ilSetting->get("rep_tree_synchronize")) {
             $ilCtrl->setParameter($this, "active_node", (int) $_GET["ref_id"]);
         }
+    }
+
+    protected function supportsPageEditor() : bool
+    {
+        return true;
     }
 
     /**
@@ -2541,12 +2547,6 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
     {
         $ilAccess = $this->access;
         parent::setColumnSettings($column_gui);
-
-        if ($ilAccess->checkAccess("write", "", $this->object->getRefId()) &&
-            $this->isActiveAdministrationPanel() &&
-            $this->allowBlocksMoving()) {
-            $column_gui->setEnableMovement(true);
-        }
         
         $column_gui->setRepositoryItems(
             $this->object->getSubItems($this->isActiveAdministrationPanel(), true)

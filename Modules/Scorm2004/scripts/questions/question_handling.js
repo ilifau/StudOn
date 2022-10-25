@@ -648,9 +648,7 @@ ilias.questions.initClozeTest = function(a_id) {
 
 ilias.questions.initLongMenu = function(a_id) {
 
-//fau: fixLongMenuGapsLm - allow more than 9 gaps in learning module
 	var text = $('#' + a_id).html().split(/\[Longmenu \d+\]/);
-// fau.
 	var replaced_text = '';
 	for(var key in text){
 		replaced_text += text[key];
