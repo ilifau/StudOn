@@ -139,7 +139,7 @@ class Service extends SubService
      * - omit the module id, if en existiong should not be changed
      * - use 0 for the module if it should be deleted
      */
-    public function saveMembership(int $obj_id, int $user_id, ?int $module_id = null)
+    public function saveMembership(int $obj_id, int $user_id, ?int $module_id = null, bool $force = false)
     {
         $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
         $course_id = $importId->getCourseId();
@@ -168,7 +168,7 @@ class Service extends SubService
 
 
         // changes should be saved
-        if ($change) {
+        if ($change || $force) {
             $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
 
             // ensure that a change from registration page with module_id
@@ -193,6 +193,16 @@ class Service extends SubService
 
             $this->repo()->save($member);
         }
+    }
+
+    /**
+     * Save memberships of users
+     */
+    public function saveMemberships(int $obj_id, array $user_ids, ?int $module_id = null, bool $force = false) {
+        foreach($user_ids as $user_id) {
+            $this->saveMembership($obj_id, (int) $user_id, $module_id, $force);
+        }
+        exit();
     }
 
     /**

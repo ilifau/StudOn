@@ -931,6 +931,25 @@ class ilMembershipGUI
 
             // separator
             $ilToolbar->addSeparator();
+
+            // fau:
+            // forceMemberSaveToCampo
+            include_once './Services/Membership/classes/class.ilParticipants.php';
+            $parent_object = $this->getParentObject();
+            $members = ilParticipants::getInstanceByObjId($parent_object->getId())->getParticipants();
+            if(count($members) > 0) {
+                $ilToolbar->addButton(
+                    $this->lng->txt($this->getParentObject()->getType() . "_force_member_save_to_campo"),
+                    $DIC->fau()->user()->saveMemberships(
+                        $parent_object->getId(),
+                        $members,
+                        $parent_object->getWaitingList()->getModuleId((int)$members[0]),
+                        true
+                    )
+                );
+            }
+            // .fau
+            $ilToolbar->addSeparator();
         }
             
         // print button
