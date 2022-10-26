@@ -89,16 +89,15 @@ class fauHardRestrictionsGUI extends BaseGUI
             }
         }
 
-        $modal_id = rand(1000000,9999999);
-        $modal = ilModalGUI::getInstance();
-        $modal->setId($modal_id);
-        $modal->setType(ilModalGUI::TYPE_LARGE);
-        $modal->setBody($module_info . $info);
-        $modal->setHeading(sprintf($this->lng->txt('fau_check_info_restrictions_for'), $username));
+        $modal = $this->factory->modal()->roundtrip(
+            sprintf($this->lng->txt('fau_check_info_restrictions_for'), $username),
+            $this->factory->legacy($module_info . $info)
+        );
 
-        $onclick = "$('#$modal_id').modal('show')";
-        $link = '<a onclick="' . $onclick . '">» ' . $failed_label . '</a>';
-        return $modal->getHTML() . $link;
+        $button = $this->factory->button()->shy('» ' . $failed_label, '#')
+            ->withOnClick($modal->getShowSignal());
+
+        return $this->renderer->render([$modal, $button]);
     }
 
     /**
@@ -131,7 +130,7 @@ class fauHardRestrictionsGUI extends BaseGUI
         $params = $this->request->getQueryParams();
         $event_id = isset($params['event_id']) ? (int) $params['event_id'] : null;
         $term_id = isset($params['term_id']) ? (string) $params['term_id'] : null;
-        $with_check = isset($params['with_check']) && (bool) $params['with_check'];
+        $with_check = isset($params['with_check']) && $params['with_check'];
 
         $import_id = new ImportId($term_id, $event_id);
         $hardRestrictions = $this->service->hard();
