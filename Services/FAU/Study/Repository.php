@@ -445,12 +445,11 @@ class Repository extends RecordRepo
      */
     public function hasEventModules(int $event_id) : bool
     {
-        $query = "SELECT module_id FROM fau_study_mod_events WHERE event_id = %s LIMIT 1";
-        $result = $this->db->queryf($query, ['integer'], [$event_id]);
-        if (!empty($this->db->fetchAssoc($result))) {
-            return true;
-        }
-        return false;
+        $query = "SELECT module_id FROM fau_study_mod_events WHERE event_id = "
+            . $this->db->quote($event_id, 'integer')
+            . " LIMIT 1";
+
+        return !empty($this->getIntegerList($query, 'module_id'));
     }
 
 

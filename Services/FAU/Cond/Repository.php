@@ -251,11 +251,10 @@ class Repository extends RecordRepo
      */
     public function hasEventRestrictions(int $event_id) : bool
     {
-        $query = "SELECT event_id FROM fau_cond_event_rests WHERE event_id = %s LIMIT 1";
-        $result = $this->db->queryf($query, ['integer'], [$event_id]);
-        if (!empty($this->db->fetchAssoc($result))) {
-            return true;
-        }
-        return false;
+        $query = "SELECT event_id FROM fau_cond_event_rests WHERE event_id = "
+            . $this->db->quote($event_id, 'integer')
+            . " LIMIT 1";
+
+        return !empty($this->getIntegerList($query, 'event_id'));
     }
 }
