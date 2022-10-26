@@ -948,6 +948,7 @@ class ilMembershipGUI
                     )
                 );
             }
+            // missing: success-message (info about how many users)? can only admins see the button? tests?
             // .fau
             $ilToolbar->addSeparator();
         }

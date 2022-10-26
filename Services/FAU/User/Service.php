@@ -202,7 +202,6 @@ class Service extends SubService
         foreach($user_ids as $user_id) {
             $this->saveMembership($obj_id, (int) $user_id, $module_id, $force);
         }
-        exit();
     }
 
     /**
