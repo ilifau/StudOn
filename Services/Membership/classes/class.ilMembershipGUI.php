@@ -378,7 +378,7 @@ class ilMembershipGUI
                 $cdf_gui = new ilObjectCustomUserFieldsGUI($this->getParentGUI()->object->getId());
                 $this->ctrl->forwardCommand($cdf_gui);
                 break;
-                
+
             default:
 
                 $this->setSubTabs($GLOBALS['DIC']['ilTabs']);
@@ -934,21 +934,11 @@ class ilMembershipGUI
 
             // fau:
             // forceMemberSaveToCampo
-            include_once './Services/Membership/classes/class.ilParticipants.php';
-            $parent_object = $this->getParentObject();
-            $members = ilParticipants::getInstanceByObjId($parent_object->getId())->getParticipants();
-            if(count($members) > 0) {
-                $ilToolbar->addButton(
-                    $this->lng->txt($this->getParentObject()->getType() . "_force_member_save_to_campo"),
-                    $DIC->fau()->user()->saveMemberships(
-                        $parent_object->getId(),
-                        $members,
-                        $parent_object->getWaitingList()->getModuleId((int)$members[0]),
-                        true
-                    )
-                );
-            }
-            // missing: success-message (info about how many users)? can only admins see the button? tests?
+            $ilToolbar->addButton(
+                $this->lng->txt($this->getParentObject()->getType() . "_force_campo_reg_save"),
+                $this->ctrl->getLinkTarget($this, 'updateCampoRegistrations')
+            );
+            // missing: can only admins see the button? tests?
             // .fau
             $ilToolbar->addSeparator();
         }
@@ -2017,6 +2007,23 @@ class ilMembershipGUI
         $list->getNonMemberUserData($this->member_data);
         
         $list->getFullscreenHTML();
+    }
+
+    /**
+     * updateCampoRegistrations
+     */
+    protected function updateCampoRegistrations() {
+        global $DIC;
+        $user_ids = $this->getMembersObject()->getMembers();
+        foreach($user_ids as $user_id) {
+            $DIC->fau()->user()->saveMembership(
+                  $this->getParentObject()->getId(),
+                  (int) $user_id,
+                  NULL, //where to find module_id for user? member data where?
+                  true);
+        }
+        ilUtil::sendSuccess($this->getParentObject()->getType() . "_force_campo_reg_save_success", true);
+        $this->ctrl->redirect($this);
     }
 
     /**

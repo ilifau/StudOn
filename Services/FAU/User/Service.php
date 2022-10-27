@@ -196,15 +196,6 @@ class Service extends SubService
     }
 
     /**
-     * Save memberships of users
-     */
-    public function saveMemberships(int $obj_id, array $user_ids, ?int $module_id = null, bool $force = false) {
-        foreach($user_ids as $user_id) {
-            $this->saveMembership($obj_id, (int) $user_id, $module_id, $force);
-        }
-    }
-
-    /**
      * Delete the membership of a user
      */
     public function deleteMembership(int $obj_id, int $user_id)
