@@ -1930,8 +1930,8 @@ class ilObject
             {
                 ilLoggerFactory::getLogger('obj')->error('Cannot create instance of target object for copy content only.');
             }
-            include_once('./Services/AdvancedMetaData/classes/class.ilAdvancedMDValues.php');
-            ilAdvancedMDValues::_cloneValues($this->getId(),$new_obj->getId());
+            //include_once('./Services/AdvancedMetaData/classes/class.ilAdvancedMDValues.php');
+            //ilAdvancedMDValues::_cloneValues($this->getId(),$new_obj->getId());
  
             /** @var \ilObjectCustomIconFactory  $customIconFactory */
             $customIconFactory = $DIC['object.customicons.factory'];
