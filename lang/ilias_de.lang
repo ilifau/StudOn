@@ -5869,6 +5869,8 @@ crs#:#crs_warn_wl_set_on_waiting_list#:#Es sind bereits Teilnehmer auf der Warte
 crs#:#crs_wiz_back#:#Zurück
 crs#:#crs_wiz_next#:#Speichern
 crs#:#crs_xml#:#XML
+crs#:#crs_force_campo_reg_save#:#Mitglieder in Campo speichern
+crs#:#crs_force_campo_reg_save_success#:#Mitglieder in Campo speichern erfolgreich
 crs#:#edit_timings_list#:#Lernplanung bearbeiten
 crs#:#event#:#Sitzung
 crs#:#event_add_new_event#:#Eine neue Sitzung wurde angelegt.

@@ -5104,6 +5104,8 @@ crs#:#crs_warn_wl_set_on_waiting_list#:#Some users are already assigned to the w
 crs#:#crs_wiz_back#:#Back
 crs#:#crs_wiz_next#:#Save
 crs#:#crs_xml#:#XML
+crs#:#crs_force_campo_reg_save#:#Save Members in Campo
+crs#:#crs_force_campo_reg_save_success#:#Saving members to Campo was successful
 crs#:#edit_timings_list#:#Edit Timings
 crs#:#event_add_new_event#:#Added new session
 crs#:#event_assign_materials_info#:#Assigned materials will be displayed directly below the session.

@@ -934,13 +934,18 @@ class ilMembershipGUI
 
             // fau:
             // forceMemberSaveToCampo
-            $ilToolbar->addButton(
-                $this->lng->txt($this->getParentObject()->getType() . "_force_campo_reg_save"),
-                $this->ctrl->getLinkTarget($this, 'updateCampoRegistrations')
-            );
-            // missing: can only admins see the button? tests?
+            $ilAccess = $DIC['ilAccess'];
+            if($ilAccess->checkAccess('manage_members', "", $this->getParentObject()->getRefId())
+               && substr( $this->getParentObject()->getImportId(), 0, 9 ) === "FAU/Term=") {
+                $ilToolbar->addButton(
+                    $this->lng->txt($this->getParentObject()->getType() . "_force_campo_reg_save"),
+                    $this->ctrl->getLinkTarget($this, 'forceMemberSaveToCampo')
+                );
+                $ilToolbar->addSeparator();
+            }
+            // missing: tests?
             // .fau
-            $ilToolbar->addSeparator();
+
         }
             
         // print button
@@ -2009,10 +2014,12 @@ class ilMembershipGUI
         $list->getFullscreenHTML();
     }
 
+    // fau:
+    // forceMemberSaveToCampo
     /**
-     * updateCampoRegistrations
+     * force members to be saved to studon_change table
      */
-    protected function updateCampoRegistrations() {
+    protected function forceMemberSaveToCampo() {
         global $DIC;
         $user_ids = $this->getMembersObject()->getMembers();
         foreach($user_ids as $user_id) {
@@ -2025,6 +2032,7 @@ class ilMembershipGUI
         ilUtil::sendSuccess($this->getParentObject()->getType() . "_force_campo_reg_save_success", true);
         $this->ctrl->redirect($this);
     }
+    // .fau
 
     /**
      *
