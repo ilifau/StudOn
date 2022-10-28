@@ -940,6 +940,21 @@ class ilMembershipGUI
         );
         
         $this->showMailToMemberToolbarButton($ilToolbar, 'participants', false);
+
+
+        // fau: campoSub - add button in membership toolbar
+        $import_id = \FAU\Study\Data\ImportId::fromString($this->getParentObject()->getImportId());
+        if ($import_id->isForCampo()) {
+            $ilToolbar->addSeparator();
+            $ilToolbar->addButton(
+                $this->lng->txt('fau_send_members'),
+                $this->ctrl->getLinkTarget($this, 'forceMemberSaveToCampo')
+            );
+            $ilToolbar->addSeparator();
+        }
+        // fau.
+
+
     }
     
     /**
@@ -1998,6 +2013,36 @@ class ilMembershipGUI
         
         $list->getFullscreenHTML();
     }
+
+    // fau: campoSub - new function in membership gui to resend the menberships to campo
+    /**
+     * force members to be saved for campo
+     */
+    protected function forceMemberSaveToCampo() {
+        global $DIC;
+
+        $object_ids = $DIC->fau()->ilias()->objects()->getParallelObjectIds($this->getParentObject());
+        list($saved, $ignored) = $DIC->fau()->user()->saveMembershipsForced($object_ids);
+
+        $addition = '';
+        if (!empty($ignored)) {
+            $names = [];
+            foreach ($ignored as $user_id) {
+                $names[] = ilObjUser::_lookupFullname($user_id);
+            }
+            sort($names);
+            $addition = '<p class="small">'. $this->lng->txt('fau_send_members_exceptions') . ' ' . implode(', ', $names) . '</p>';
+        }
+
+        if (empty($saved)) {
+            ilUtil::sendFailure($this->lng->txt('fau_send_members_failed') . $addition, true);
+        }
+        else {
+            ilUtil::sendSuccess($this->lng->txt('fau_send_members_success') . $addition, true);
+        }
+        $this->ctrl->redirect($this);
+    }
+    // fau.
 
     /**
      *

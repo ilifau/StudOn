@@ -816,6 +816,10 @@ fau#:#fau_solve_select_course#:#Kurs auswählen
 fau#:#fau_solve_this_course#:#Dieser Kurs
 fau#:#fau_solve_members_waiting#:#Mitglieder: %s, Warteliste: %s
 fau#:#fau_solve_success#:#Der Konflikt wurde gelöst. Sie sind nun im verbundenen Kurs. Bitte überprüfen sie die Mitglieder- und Wateliste.
+fau#:#fau_send_members#:#Nach campo übertragen
+fau#:#fau_send_members_failed#:#Es gibt keine Mitglieder, die an campo übertragen werden können.
+fau#:#fau_send_members_success#:#Die Mitglieder wurden für campo bereitgstellt. Es kann bis zu einer Stunde dauern, bis sie in die Teilnehmerliste von campo aufgenommen werden.
+fau#:#fau_send_members_exceptions#:#Die folgenden Mitglieder können nicht in campo eingetragen werden, da sie dort nicht als Personen bekannt sind:
 grp#:#crs_grp_info_reg#:#Sie können nur Mitglied in einem der folgenden Kurse werden:
 grp#:#group_req_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 grp#:#grp_added_member#:#Aufnahme in Gruppe "%s"

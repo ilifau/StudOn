@@ -212,8 +212,12 @@ class Objects
 
 
     /**
-     * Get the object ids of all parallel groups of an ilias course (self or enclosed groups)
-     * (Needed to query for the selected module ids of participants)
+     * Get the object ids of an ILIAS course or group or of its nested parallel groups
+     * - An ilias course with nested parallel groups will return the ids of its parallel groups
+     * - An ilias course or group directly connected with a campo course will return its own id
+     * Used to query for the selected modules of participants
+     * Used to force a sending of members to campo
+     *
      * @param ilObjCourse|ilObjGroup $object
      * @return int[]
      */

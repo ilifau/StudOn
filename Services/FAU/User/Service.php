@@ -6,7 +6,6 @@ use ilDatePresentation;
 use FAU\SubService;
 use FAU\User\Data\Member;
 use FAU\Staging\Data\StudonChange;
-use FAU\Study\Data\ImportId;
 
 /**
  * Service for FAU user related data
@@ -155,10 +154,10 @@ class Service extends SubService
      * - omit the module id, if an existing should not be changed
      * - use 0 for the module if it should be deleted
      */
-    public function saveMembership(int $obj_id, int $user_id, ?int $module_id = null)
+    public function saveMembership(int $obj_id, int $user_id, ?int $module_id = null, bool $force = false)
     {
-        $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
-        $course_id = $importId->getCourseId();
+        // these queries are cached
+        $course_id = $this->dic->fau()->study()->repo()->getImportId($obj_id)->getCourseId();
         $person = $this->repo()->getPersonOfUser($user_id);
         $stagingRepo = $this->dic->fau()->staging()->repo();
 
@@ -170,21 +169,23 @@ class Service extends SubService
         // get an existing member record
         $member = $this->repo()->getMember($obj_id, $user_id);
 
-        $change = false;
         if (!isset($member)) {
             // new membership
             $change = true;
             $member = new Member($obj_id, $user_id);
+            $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
         elseif (isset($module_id) && $module_id != (int) $member->getModuleId()) {
             // module id should be changed or reset
             $change = true;
+            $member = $member->withModuleId($module_id == 0 ? null : $module_id);
         }
-        $member = $member->withModuleId($module_id == 0 ? null : $module_id);
-
+        else {
+            $change= false;
+        }
 
         // changes should be saved
-        if ($change) {
+        if ($change || $force) {
             $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
 
             // ensure that a change from registration page with module_id
@@ -216,8 +217,8 @@ class Service extends SubService
      */
     public function deleteMembership(int $obj_id, int $user_id)
     {
-        $importId = ImportId::fromString(\ilObject::_lookupImportId($obj_id));
-        $course_id = $importId->getCourseId();
+        // these queries are cached
+        $course_id = $this->dic->fau()->study()->repo()->getImportId($obj_id)->getCourseId();
         $person = $this->repo()->getPersonOfUser($user_id);
         $stagingRepo = $this->dic->fau()->staging()->repo();
 
@@ -249,5 +250,42 @@ class Service extends SubService
 
             $this->repo()->delete($member);
         }
+    }
+
+    /**
+     * Force a saving of course or group members for campo
+     * Only members that have a person id from campo will be saved
+     * @param int[] $obj_ids  course or group ids for which the members should be saved
+     * @return array [ int[], int[] ]   saved and ignored user_ids
+     */
+    public function saveMembershipsForced(array $obj_ids) : array
+    {
+        $saved = [];
+        $ignored = [];
+
+        foreach ($obj_ids as $obj_id) {
+            switch (\ilObject::_lookupType($obj_id)) {
+                case 'crs':
+                    $participants = new \ilCourseParticipants($obj_id);
+                    break;
+                case 'grp':
+                    $participants = new \ilGroupParticipants($obj_id);
+                    break;
+                default:
+                    continue 2;
+            }
+
+            foreach ($participants->getMembers() as $user_id) {
+                $person = $this->repo()->getPersonOfUser((int) $user_id);
+                if (empty($person) || empty($person->getPersonId())) {
+                    $ignored[] = $user_id;
+                }
+                else {
+                    $this->saveMembership($obj_id, (int) $user_id, null, true);
+                    $saved[] = $user_id;
+                }
+            }
+        }
+        return [array_unique($saved), array_unique($ignored)];
     }
 }

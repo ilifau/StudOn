@@ -816,6 +816,10 @@ fau#:#fau_solve_select_course#:#Select Course
 fau#:#fau_solve_this_course#:#This Course
 fau#:#fau_solve_members_waiting#:#Members: %s, Waiting: %s
 fau#:#fau_solve_success#:#The conflict is solved. You are now in the selected course. Please check the members and and the waiting list.
+fau#:#fau_send_members#:#Send to Campo
+fau#:#fau_send_members_failed#:#There are no members that can beprovided campo.
+fau#:#fau_send_members_success#:#The members are provided for campo. It may take up to one hour until they appear on the participants list in campo.
+fau#:#fau_send_members_exceptions#:#The following users can't be listed in campo, because they are not known as persons there:
 grp#:#crs_grp_info_reg#:#You can only become a member of the following courses:
 grp#:#group_req_direct_studycond#:#Direct Joining (otherwise application for admission) for following students:<p class="small">%s</p>
 grp#:#grp_added_member#:#Admission to group "%s"
