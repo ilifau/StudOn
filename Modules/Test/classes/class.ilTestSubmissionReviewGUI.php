@@ -209,27 +209,12 @@ class ilTestSubmissionReviewGUI extends ilTestServiceGUI
 
         $reviewOutput = $this->buildUserReviewOutput();
 
-<<<<<<< HEAD
-        // fau: fixExamSubmissionReviewPdfName - generate a filename for the test review
-        global $ilSetting;
-        $inst_id = (int) $ilSetting->get('inst_id', null);
-        $obj_id = $this->testOutputGUI->object->getId();
-        $active_id = $this->testSession->getActiveId();
-        $pass = $this->testSession->getPass();
-        $time = time();
-        $filename = 'review-' . $inst_id . '-' . $obj_id . '-' . $active_id . '-' . $pass . '-' . $time . '.pdf';
-
-         ilTestPDFGenerator::generatePDF($reviewOutput, ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $filename, PDF_USER_RESULT);
-        // fau.
-        
-=======
         $filename = $this->testOutputGUI->object->getRefId();
         $filename .= '-' . $this->testSession->getActiveId() . '-';
         $filename .= $this->testSession->getPass() . '.pdf';
 
         ilTestPDFGenerator::generatePDF($reviewOutput, ilTestPDFGenerator::PDF_OUTPUT_DOWNLOAD, $filename, PDF_USER_RESULT);
 
->>>>>>> release_7
         exit;
     }
     

@@ -222,21 +222,7 @@ class ilUtil
         if (strlen($filename) == 0 || !file_exists($filename)) {
             $filename = "./" . $a_css_location . "templates/default/" . $stylesheet_name;
         }
-<<<<<<< HEAD
-        $vers = "";
-        if ($mode != "filesystem") {
-            // fau: versionSuffix - use the version number with own suffix
-            $vers = str_replace(" ", "-", $ilSetting->get("ilias_version_suffix"));
-            // fau.
-            $vers = "?vers=" . str_replace(".", "-", $vers);
-            // use version from template xml to force reload on changes
-            $skin = ilStyleDefinition::getSkins()[ilStyleDefinition::getCurrentSkin()];
-            $vers .= ($skin->getVersion() != '' ? str_replace(".", "-", '-' . $skin->getVersion()) : '');
-        }
-        return $filename . $vers;
-=======
         return $filename;
->>>>>>> release_7
     }
 
     /**
