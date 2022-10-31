@@ -190,13 +190,30 @@ class ilExAssignmentGUI
         // fau.
 
         // status icon
-        $tpl->setVariable(
-            "ICON_STATUS",
-            $this->getIconForStatus(
-                $a_ass->getMemberStatus()->getStatus(),
-                ilLPStatusIcons::ICON_VARIANT_SHORT
-            )
-        );
+        // fau: exResTime - don't show the result status before the result time is reached
+        // fau: exPlag - use effective status and icon
+        // fau: exAssTest - check a status that is set without submission
+        if ((int) $a_ass->getResultTime() <= time()) {
+            // after result time: show real status
+            $stat = $a_ass->getMemberStatus()->getEffectiveStatus();
+            $pic = $a_ass->getMemberStatus()->getStatusIcon();
+        }
+        else {
+            // before result time: show real status
+            $submission = new ilExSubmission($a_ass, $this->user->getId());
+            if ($submission->hasSubmitted()
+                || $a_ass->getMemberStatus()->getEffectiveStatus() != "notgraded") {
+                $stat = "notgraded";
+                $pic = "scorm/running.svg";
+            }
+            else {
+                $stat = "not_attempted";
+                $pic = "scorm/not_attempted.svg";
+            }
+        }
+        // fau.
+        $tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
+        $tpl->setVariable("ALT_STATUS", $lng->txt("exc_" . $stat));
 
         return $tpl->get();
     }
