@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!-- Generator: Adobe Illustrator 17.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
-<style type="text/css">
-	.st0{clip-path:url(#SVGID_1_);fill:#161616;}
-	.st1{fill:none;}
-	.st2{fill:#FFFFFF;}
-</style>
+	 width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
 <g>
-	<g>
-		<g>
-			<defs>
-				<circle id="SVGID_701_" cx="16" cy="16" r="14"/>
-			</defs>
-			<use xlink:href="#SVGID_701_"  style="overflow:visible;fill:#161616;"/>
-			<clipPath id="SVGID_1_">
-				<use xlink:href="#SVGID_701_"  style="overflow:visible;"/>
-			</clipPath>
-			<rect x="2" y="2" class="st0" width="28" height="28"/>
-		</g>
-	</g>
-	<rect id="SVGID_700_" x="2" y="2" class="st1" width="28" height="28"/>
-	<g>
-		<path class="st2" d="M10.4,12.1c0-0.7,0.2-1.4,0.7-2.2c0.5-0.7,1.1-1.3,2-1.8C14,7.7,15,7.5,16.2,7.5c1.1,0,2,0.2,2.9,0.6
-			S20.5,9,21,9.7c0.5,0.7,0.7,1.4,0.7,2.2c0,0.6-0.1,1.2-0.4,1.7s-0.6,0.9-0.9,1.2c-0.4,0.3-1,0.9-1.9,1.8c-0.3,0.2-0.5,0.4-0.6,0.6
-			c-0.2,0.2-0.3,0.3-0.3,0.5c-0.1,0.1-0.1,0.3-0.2,0.4c0,0.1-0.1,0.4-0.2,0.8C17,19.7,16.5,20,15.8,20c-0.4,0-0.7-0.1-1-0.4
-			s-0.4-0.6-0.4-1.1c0-0.6,0.1-1.2,0.3-1.6c0.2-0.5,0.5-0.9,0.8-1.2s0.8-0.8,1.3-1.2c0.5-0.4,0.8-0.7,1-0.9s0.4-0.5,0.5-0.7
-			c0.1-0.3,0.2-0.5,0.2-0.9c0-0.6-0.2-1.1-0.7-1.5s-1-0.6-1.7-0.6c-0.8,0-1.4,0.2-1.8,0.6c-0.4,0.4-0.7,1-1,1.8
-			c-0.3,0.8-0.7,1.3-1.4,1.3c-0.4,0-0.8-0.1-1.1-0.4C10.6,12.8,10.4,12.5,10.4,12.1z M15.9,24.4c-0.5,0-0.9-0.1-1.2-0.4
-			c-0.3-0.3-0.5-0.7-0.5-1.2c0-0.5,0.2-0.9,0.5-1.2c0.3-0.3,0.7-0.5,1.2-0.5c0.5,0,0.9,0.2,1.2,0.5c0.3,0.3,0.5,0.7,0.5,1.2
-			c0,0.5-0.2,0.9-0.5,1.2C16.7,24.3,16.3,24.4,15.9,24.4z"/>
-	</g>
+	<defs>
+		<circle id="SVGID_1_" cx="16" cy="16" r="14"/>
+	</defs>
+	<clipPath id="SVGID_2_">
+		<use xlink:href="#SVGID_1_"  overflow="visible"/>
+	</clipPath>
+	
+		<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="-129.5357" y1="163.0714" x2="-128.5357" y2="163.0714" gradientTransform="matrix(-28 0 0 -28 -3597 4582)">
+		<stop  offset="0" style="stop-color:#FF8F1E"/>
+		<stop  offset="0.01" style="stop-color:#FF8F1E"/>
+		<stop  offset="1" style="stop-color:#E6700F"/>
+	</linearGradient>
+	<rect x="2" y="2" clip-path="url(#SVGID_2_)" fill="url(#SVGID_3_)" width="28" height="28"/>
+</g>
+<g>
+	<defs>
+		<rect id="SVGID_4_" x="2" y="2" width="28" height="28"/>
+	</defs>
+	<clipPath id="SVGID_5_">
+		<use xlink:href="#SVGID_4_"  overflow="visible"/>
+	</clipPath>
+	<path clip-path="url(#SVGID_5_)" fill="#FFFFFF" d="M16.803,21.948H13.44v3.011h3.363V21.948z M20.896,12.125
+		c0-2.987-2.861-4.166-5.499-4.166c-1.631,0-2.886,0.301-4.293,0.727l0.151,2.61c1.08-0.402,2.26-0.703,3.414-0.703
+		c1.28,0,2.639,0.577,2.639,2.009c0,2.839-3.667,2.839-3.667,7.21v0.327h2.96v-0.377C16.601,16.245,20.896,15.893,20.896,12.125"/>
 </g>
 </svg>
