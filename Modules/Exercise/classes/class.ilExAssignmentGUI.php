@@ -219,7 +219,7 @@ class ilExAssignmentGUI
         //$tpl->setVariable("IMG_STATUS", ilUtil::getImagePath($pic));
         //$tpl->setVariable("ALT_STATUS", $lng->txt("exc_" . $stat));
         $tpl->setVariable(
-            "ICON_STAUTS",
+            "ICON_STATUS",
             $pic
         );
         // fau.
