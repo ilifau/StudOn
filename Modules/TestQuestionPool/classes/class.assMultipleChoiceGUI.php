@@ -720,7 +720,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         if ($this->object->isSingleline) {
             foreach ($_POST['choice']['answer'] as $index => $answertext) {
                 $answertext = preg_replace('/<span class="latex">(.*)<\/span>/', '[tex]$1[/tex]', $answertext);
-                $answertext = ilUtil::secureString(htmlentities($answertext));
+                $answertext = ilUtil::secureString($answertext);
 
                 $picturefile = $_POST['choice']['imagename'][$index];
                 $file_org_name = $_FILES['choice']['name']['image'][$index];
@@ -837,13 +837,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
         if ($this->object->getAnswerCount() == 0) {
             $this->object->addAnswer("", 0, 0, 0);
         }
-        $choices->setValues(array_map(
-            function (ASS_AnswerMultipleResponseImage $value) {
-                $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                return $value;
-            },
-            $this->object->getAnswers()
-        ));
+        $choices->setValues($this->object->getAnswers());
         $form->addItem($choices);
     }
 
