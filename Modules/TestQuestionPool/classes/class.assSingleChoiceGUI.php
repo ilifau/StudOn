@@ -644,7 +644,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
         if ($this->object->isSingleline) {
             foreach ($_POST['choice']['answer'] as $index => $answertext) {
                 $answertext = preg_replace('/<span class="latex">(.*)<\/span>/', '[tex]$1[/tex]', $answertext);
-                $answertext = ilUtil::secureString(htmlentities($answertext, true, '<span>'));
+                $answertext = ilUtil::secureString(htmlentities($answertext), true, '<span>');
 
                 $picturefile = $_POST['choice']['imagename'][$index];
                 $file_org_name = $_FILES['choice']['name']['image'][$index];
