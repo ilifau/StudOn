@@ -28,6 +28,9 @@ class Repository extends RecordRepo
     {
         // find all course ids with a finished fair period in the last month
         // that are not filled or last filled before the fair period
+        //
+        // paraSub: don't restrict to courses with max members because max members may be defined in the parallel groups
+        // Details are checked in \FAU\Ilias\Registration::doAutoFill()
         $query = "
 			SELECT s.obj_id
 			FROM crs_settings s
@@ -36,8 +39,6 @@ class Repository extends RecordRepo
 			AND s.activation_type > 0
 			AND (s.activation_start IS NULL OR s.activation_start <= UNIX_TIMESTAMP())
 			AND (s.activation_end IS NULL OR s.activation_end >= UNIX_TIMESTAMP())
-			AND s.sub_mem_limit > 0
-			AND s.sub_max_members > 0
 			AND s.sub_auto_fill > 0
 			AND s.sub_fair > (UNIX_TIMESTAMP() - 3600 * 24 * 30)
 			AND s.sub_fair < UNIX_TIMESTAMP()
@@ -55,6 +56,8 @@ class Repository extends RecordRepo
     {
         // find all groups with a finished fair period in the last month
         // that are not filled or last filled before the fair period
+        // paraSub: parallel groups inside campo courses are ignored here because they don't have an autofill setting
+        // Details are checked in \FAU\Ilias\Registration::doAutoFill()
         $query = "
 			SELECT s.obj_id
 			FROM grp_settings s
