@@ -667,25 +667,23 @@ class ilObjCourseGUI extends ilContainerGUI
 
             // show restrictions
             if ($DIC->fau()->cond()->hard()->hasEventRestrictionsOrModules($event->getEventId())) {
-                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'),
-                    fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $importId->getTermId(), true));
+
+                $restrictions_html = '';
+                $restrictions_html = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $importId->getTermId());
+
+                $hardRestrictions = $DIC->fau()->cond()->hard();
+                $hardRestrictionsGUI = fauHardRestrictionsGUI::getInstance();
+                $matches_restrictions = $hardRestrictions->checkObject($this->object->getId(), $DIC->user()->getId());
+                $matches_message = $hardRestrictions->getCheckResultMessage();
+                $matches_html = $hardRestrictionsGUI->getResultWithModalHtml(
+                    $matches_restrictions,
+                    $matches_message,
+                    $DIC->user()->getFullname(),
+                    null
+                );
+
+                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'), $restrictions_html . $matches_html);
             }
-
-
-
-//            if (!empty($restrictions = $DIC->fau()->cond()->hard()->getEventRestrictionTexts($event->getEventId(), true))) {
-//                $hardRestrictions = $DIC->fau()->cond()->hard();
-//                $hardRestrictionsGUI = fauHardRestrictionsGUI::getInstance();
-//                $matches_restrictions = $hardRestrictions->checkObject($this->object->getId(), $DIC->user()->getId());
-//                $matches_message = $hardRestrictions->getCheckResultMessage();
-//                $matches_html = $hardRestrictionsGUI->getResultWithModalHtml(
-//                    $matches_restrictions,
-//                    $matches_message,
-//                    $DIC->user()->getFullname(),
-//                    null
-//                );
-//                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'), $restrictions . $matches_html);
-//            }
         }
         // fau.
 
