@@ -298,8 +298,10 @@ class HardRestrictions
     {
         $event = $this->dic->fau()->study()->repo()->getEvent($event_id);
         if (!empty($event)) {
-            foreach ($this->repo->getHardRestrictionsOfEvent($event->getEventId()) as $restriction) {
-                $event = $event->withRestriction($restriction);
+            foreach ($this->repo->getHardRestrictionsOfEvents([$event->getEventId()]) as $event_id => $restrictions) {
+                foreach ($restrictions as $restriction) {
+                    $event = $event->withRestriction($restriction);
+                }
             }
         }
         return $event;
@@ -312,9 +314,10 @@ class HardRestrictions
      */
     protected function getModulesOfEventWithLoadedRestrictions(int $event_id) : array
     {
-        $modules = [];
-        foreach ($this->dic->fau()->study()->repo()->getModulesOfEvent($event_id) as $module) {
-            foreach ($this->repo->getHardRestrictionsOfModule($module->getModuleId()) as $restriction) {
+        $modules = $this->dic->fau()->study()->repo()->getModulesOfEvent($event_id);
+        foreach ($this->repo->getHardRestrictionsOfModules(array_keys($modules)) as $module_id => $restrictions) {
+            $module = $modules[$module_id];
+            foreach ($restrictions as $restriction) {
                 $module = $module->withRestriction($restriction);
             }
             $modules[$module->getModuleId()] = $module;

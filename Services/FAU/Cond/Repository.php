@@ -131,39 +131,46 @@ class Repository extends RecordRepo
 
 
     /**
-     * @param int $module_id
-     * @return HardRestriction[] (indexed by restriction name, e.g. 'V01')
+     * Get the restrictions assigned to modules
+     * @param int[] $module_id
+     * @return HardRestriction[][] (indexed by module_id and restriction name, e.g. 'V01')
      */
-    public function getHardRestrictionsOfModule(int $module_id) : array
+    public function getHardRestrictionsOfModules(array $module_ids) : array
     {
-        return $this->getHardRestrictionsOfTarget(self::TARGET_MODULE, $module_id);
+        return $this->getHardRestrictionsOfTargets(self::TARGET_MODULE, $module_ids);
     }
 
     /**
-     * @param int $event_id
-     * @return HardRestriction[] (indexed by restriction name, e.g. 'V01')
+     * Get the restrictions assigned to events
+     * @param int[] $event_ids
+     * @return HardRestriction[][] (indexed by event_id and restriction name, e.g. 'V01')
      */
-    public function getHardRestrictionsOfEvent(int $event_id) : array
+    public function getHardRestrictionsOfEvents(array $event_ids) : array
     {
         $restrictions = [];
-        foreach($this->getHardRestrictionsOfTarget(self::TARGET_EVENT, $event_id) as $restriction) {
-            foreach ($this->getEventRestCos($event_id, $restriction->getRestriction()) as $restCos) {
-                if ($restCos->isException()) {
-                    $restriction = $restriction->withExceptionCosId($restCos->getCosId());
+        foreach($this->getHardRestrictionsOfTargets(self::TARGET_EVENT, $event_ids) as $event_id => $event_restriction) {
+            foreach($event_restriction as $restriction) {
+                foreach ($this->getEventRestCos($event_id, $restriction->getRestriction()) as $restCos) {
+                    if ($restCos->isException()) {
+                        $restriction = $restriction->withExceptionCosId($restCos->getCosId());
+                    }
+                    else {
+                        $restriction = $restriction->withRegardingCosId($restCos->getCosId());
+                    }
                 }
-                else {
-                    $restriction = $restriction->withRegardingCosId($restCos->getCosId());
-                }
+                $restrictions[$event_id][$restriction->getRestriction()] = $restriction;
             }
-            $restrictions[] = $restriction;
         }
         return $restrictions;
     }
 
     /**
-     * @return HardRestriction[] (indexed by restriction name, e.g. 'V01')
+     * Get the hard restrictions assigned to specific targets
+     * @param string  $target (TARGET_MODULE|TARGET_EVENT)
+     * @param int[] $ids
+     * @return HardRestriction[][] (indexed by target id and restriction name, e.g. 'V01')
      */
-    protected function getHardRestrictionsOfTarget(string $target, int $id) : array
+    protected function getHardRestrictionsOfTargets(string $target, array $ids) : array
     {
         switch ($target) {
             case self::TARGET_MODULE:
@@ -187,13 +194,13 @@ class Repository extends RecordRepo
         // requirements on different levels are treated as separate restrictions
 
         $query = "
-            SELECT t.compulsory AS requirement_compulsory, t.restriction,
+            SELECT t.$keyname AS id, t.compulsory AS requirement_compulsory, t.restriction,
             rs.id expression_id, rs.`type`, rs.compare, rs.`number`, rs.compulsory AS expression_compulsory,
             rq.requirement_id, rq.requirement_name
             FROM $tablename t
             JOIN fau_cond_restrictions rs ON t.restriction = rs.restriction OR t.restriction LIKE CONCAT(rs.restriction, '-%')
             LEFT JOIN fau_cond_requirements rq ON rq.requirement_id = t.requirement_id
-            WHERE t.$keyname = " . $this->db->quote($id, 'integer');
+            WHERE " . $this->db->in($keyname, $ids, false, 'integer');
 
        $result = $this->db->query($query);
 
@@ -222,7 +229,7 @@ class Repository extends RecordRepo
                     $row['requirement_compulsory']
                 ));
             }
-            $restrictions[$restriction->getRestriction()] = $restriction;
+            $restrictions[$row['id']][$restriction->getRestriction()] = $restriction;
         }
         return $restrictions;
     }
