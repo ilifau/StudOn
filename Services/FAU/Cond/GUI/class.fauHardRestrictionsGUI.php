@@ -76,11 +76,6 @@ class fauHardRestrictionsGUI extends BaseGUI
         $passed_label = $passed_label ?? $this->lng->txt('fau_check_info_passed_restrictions');
         $failed_label = $failed_label ??  $this->lng->txt('fau_check_info_failed_restrictions');
 
-        // no detailed info if restrictions are passed
-        if ($passed) {
-            return $passed_label;
-        }
-
         $module_info = '';
         if (!empty($module_id)) {
             foreach ($this->dic->fau()->study()->repo()->getModules([$module_id]) as $module) {
@@ -94,7 +89,7 @@ class fauHardRestrictionsGUI extends BaseGUI
             $this->factory->legacy($module_info . $info)
         );
 
-        $button = $this->factory->button()->shy('» ' . $failed_label, '#')
+        $button = $this->factory->button()->shy('» ' . ($passed ? $passed_label : $failed_label), '#')
             ->withOnClick($modal->getShowSignal());
 
         return $this->renderer->render([$modal, $button]);
@@ -139,7 +134,7 @@ class fauHardRestrictionsGUI extends BaseGUI
             $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
 
             $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $this->dic->user()->getFullname());
-            $content = $this->factory->legacy($hardRestrictions->getCheckResultInfo());
+            $content = $this->factory->legacy($hardRestrictions->getCheckResultInfo(true));
         }
         else {
             $event = $this->dic->fau()->study()->repo()->getEvent($event_id, Event::model());
