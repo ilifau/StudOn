@@ -199,6 +199,12 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
+                // fau: campoSub: show module column
+                case 'module':
+                    $this->addModuleCell($a_set);
+                    break;
+                // fau.
+
                 // fau: campoCheck: show restrictions column
                 case 'restrictions_passed':
                     $this->addRestrictionsCell($a_set);
@@ -207,11 +213,24 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 
                 // fau: userData - format table output of studydata and educations
                 case 'studydata':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+
                 case 'educations':
-                    $a_set['studydata'] = nl2br($a_set['studydata']);
-                    $a_set['educations'] = nl2br($a_set['educations']);
+                    //ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    //$this->tpl->setVariable('ID_CUST', $cell_id);
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['educations']),
+                        $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
                 // fau.
-                // no break
+
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
@@ -318,7 +337,9 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         unset($additional_fields['roles']);
         unset($additional_fields['org_units']);
 
+        // fau: campoSub - don't query for module by default
         // fau: campoCheck - don't query for restrictions by default
+        unset($additional_fields["module"]);
         unset($additional_fields["restrictions_passed"]);
         // fau.
 
@@ -459,8 +480,9 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
             }
         }
 
+        // fau: campoSub - add the data for the module column
         // fau: campoCheck - add the data for the restrictions column
-        $this->addRestrictionsData($a_user_data);
+        $this->addCampoData($a_user_data);
         // fau.
 
         // always sort by name first

@@ -375,7 +375,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
                         nl2br($a_set['subject']),
                         $this->lng->txt('fau_sub_message_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
-                        40
+                        50
                     ));
                     $this->tpl->parseCurrentBlock();
                     break;
@@ -395,7 +395,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
                         nl2br($a_set['educations']),
                         $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
-                        40
+                        50
                     ));
                     $this->tpl->parseCurrentBlock();
                     break;
