@@ -682,7 +682,7 @@ class ilObjCourseGUI extends ilContainerGUI
                     null
                 );
 
-                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'), $restrictions_html . $matches_html);
+                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'), $restrictions_html . ' | ' . $matches_html);
             }
         }
         // fau.
