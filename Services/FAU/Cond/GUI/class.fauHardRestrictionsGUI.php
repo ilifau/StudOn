@@ -96,17 +96,15 @@ class fauHardRestrictionsGUI extends BaseGUI
     }
 
     /**
-     * Get the link for a modal to show restrictions of an event
+     * Get the link for a modal to show all restrictions of an event (without check)
      * @param int    $event_id
      * @param string $term_id       e.g. '20222'
-     * @param bool    $with_check    true, if restrictions should be checked for the current user
      * @return string   html code of the link
      */
-    public function getRestrictionsModalLink(int $event_id, string $term_id, bool $with_check = false) : string
+    public function getRestrictionsModalLink(int $event_id, string $term_id) : string
     {
         $this->ctrl->setParameter($this, 'event_id', $event_id);
         $this->ctrl->setParameter($this, 'term_id', $term_id);
-        $this->ctrl->setParameter($this, 'with_check', $with_check);
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
                          ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
@@ -125,22 +123,11 @@ class fauHardRestrictionsGUI extends BaseGUI
         $params = $this->request->getQueryParams();
         $event_id = isset($params['event_id']) ? (int) $params['event_id'] : null;
         $term_id = isset($params['term_id']) ? (string) $params['term_id'] : null;
-        $with_check = isset($params['with_check']) && $params['with_check'];
 
         $import_id = new ImportId($term_id, $event_id);
-        $hardRestrictions = $this->service->hard();
-
-        if ($with_check) {
-            $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
-
-            $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $this->dic->user()->getFullname());
-            $content = $this->factory->legacy($hardRestrictions->getCheckResultInfo(true));
-        }
-        else {
-            $event = $this->dic->fau()->study()->repo()->getEvent($event_id, Event::model());
-            $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $event->getTitle());
-            $content = $this->factory->legacy($this->service->hard()->getEventRestrictionTexts($event_id));
-        }
+        $event = $this->dic->fau()->study()->repo()->getEvent($event_id, Event::model());
+        $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $event->getTitle());
+        $content = $this->factory->legacy($this->service->hard()->getEventRestrictionTexts($event_id));
 
         $modal = $this->factory->modal()->roundtrip($title, $content)
             ->withCancelButtonLabel('close');
