@@ -246,6 +246,7 @@ class ilMemberExportGUI
         }
 
         // fau: memberExport - add further options for member export
+        // fau: campoSub - add module as option to member export
         // fau: campoCheck - add restrictions as option to member export
         $header = new ilFormSectionHeaderGUI();
         $header->setTitle($this->lng->txt('further_informations'));
@@ -262,6 +263,9 @@ class ilMemberExportGUI
         }
         $members = new ilCheckboxGroupInputGUI($members_title, 'export_members');
         global $DIC;
+        if ($DIC->fau()->study()->isObjectForCampo($this->obj_id)) {
+            $members->addOption(new ilCheckboxOption($this->lng->txt('fau_selected_module'), 'module'));
+        }
         if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->obj_id)) {
             $members->addOption(new ilCheckboxOption($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions'));
         }
