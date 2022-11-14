@@ -67,6 +67,11 @@ class Module extends RecordData
         return $this->module_name;
     }
 
+    public function getLabel() : string
+    {
+        return $this->module_name . ' (' . $this->module_nr . ')';
+    }
+
     /**
      * Get the restriction for joining events of this module
      * @return HardRestriction[]

@@ -80,7 +80,7 @@ class fauHardRestrictionsGUI extends BaseGUI
         if (!empty($module_id)) {
             foreach ($this->dic->fau()->study()->repo()->getModules([$module_id]) as $module) {
                 $module_info = '<p>' . $this->lng->txt('fau_selected_module') . ': '
-                    . $module->getModuleName() . ' (' . $module->getModuleNr() . ')</p>';
+                    . $module->getLabel() . '</p>';
             }
         }
 

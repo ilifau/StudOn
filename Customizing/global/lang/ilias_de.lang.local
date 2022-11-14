@@ -611,6 +611,7 @@ exc#:#label_time_transfer#:#Ergebnisübertrag: ###fau: exAssTest
 exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
 fau#:#fau_educations#:#Bildungen
+fau#:#fau_educations_of#:#Bildungen von
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
@@ -698,6 +699,7 @@ fau#:#fau_sub_refuse_all_groups#:#Die Aufnahmeanträge werden im Kurs und in all
 fau#:#fau_sub_select_groups#:#Gruppenauswahl
 fau#:#fau_sub_select_groups_info#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
 fau#:#fau_sub_select_module_info#:#Wählen Sie das Modul oder Konto, für das Sie diese Lehrveranstaltung belegen möchten. Diese Information ist notwendig und erscheint später auf Ihren Abschlussdokumenten.
+fau#:#fau_sub_message_of#:#Antragstext von
 fau#:#fau_sws#:#SWS
 fau#:#studycond_add_condition#:#Bedingung hinzufügen
 fau#:#studycond_add_course_condition#:#Studiums-Bedingung hinzufügen

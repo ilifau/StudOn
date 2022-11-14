@@ -611,6 +611,7 @@ exc#:#label_time_transfer#:#Result Transfer: ###fau: exAssTest
 exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
 fau#:#fau_educations#:#Educations
+fau#:#fau_educations_of#:#Educations of
 fau#:#fair_autofill_cron#:#Allocate Registrations with Equal Chances
 fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity registration, the free places in groups and courses are automatically allocated.
 fau#:#fair_autofill_cron_result#:#Allocated Places: %s
@@ -698,6 +699,7 @@ fau#:#fau_sub_refuse_all_groups#:#Requests for admission are rejected in the cou
 fau#:#fau_sub_select_groups#:#Choice of Groups
 fau#:#fau_sub_select_groups_info#:#Please select one or more parallel groups of this course. If possible, you will be directly admitted to one of them, otherwise you will be put on the waiting list for all selected ones.
 fau#:#fau_sub_select_module_info#:#Select the module or account for which you wish to take this course. This information is required and will appear on your final documents later.
+fau#:#fau_sub_message_of#:#Submission Mesaage of
 fau#:#fau_sws#:#SWS
 fau#:#study_data#:#study data
 fau#:#studycond_add_condition#:#add condition

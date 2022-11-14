@@ -295,7 +295,7 @@ abstract class ilRegistrationGUI
 
             $options = [];
             foreach ($modules as $module) {
-                $options[$module->getModuleId()] = $module->getModuleName() . ' (' . $module->getModuleNr() . ')';
+                $options[$module->getModuleId()] = $module->getLabel();
             }
             $item = new ilSelectInputGUI($this->lng->txt('fau_module'), 'selected_module');
             $item->setRequired(true);

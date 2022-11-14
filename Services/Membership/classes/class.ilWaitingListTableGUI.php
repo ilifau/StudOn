@@ -46,14 +46,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
     protected static $all_columns = null;
     protected static $has_odf_definitions = false;
 
-    // fau: campoCheck- class variable for showing restrictions
-    protected $showRestrictions = false;
-    // fau.
-
-    // fau: paraSub - class variable for showing subscriptions to parallel groups
-    protected $showParallelGroups = false;
-    // fau.
-
     /**
      * ilWaitingListTableGUI constructor.
      * @param $a_parent_obj
@@ -87,8 +79,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
         $this->setFormAction($this->ctrl->getFormAction($a_parent_obj, 'participants'));
 
         // fau: fairSub - adjust waiting list columns
-        // fau: paraSub - adjust waiting list columns
-        // fau: campoCheck - adjust waiting list columns
         $this->addColumn('', 'f', "1", true);
         $this->addColumn($this->lng->txt('name'), 'lastname', '10%');
         $all_cols = $this->getSelectableColumns();
@@ -97,17 +87,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
         }
         $this->addColumn($this->lng->txt('date'), 'sub_time', "15%");
         $this->addColumn($this->lng->txt('status'), 'to_confirm', '10%');
-        $this->addColumn($this->lng->txt('message'), 'subject', '10%');
 
-        $this->showRestrictions = $DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId());
-        if ($this->showRestrictions) {
-            $this->addColumn($this->lng->txt('fau_rest_hard_restrictions'), 'restrictions_passed', '10%');
-        }
-
-        $this->showParallelGroups = $DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getRepositoryObject());
-        if ($this->showParallelGroups) {
-            $this->addColumn($this->lng->txt('fau_parallel_groups'), 'groups', '10%');
-        }
         $this->addColumn('', '', '10%');
         $this->setDefaultOrderField('sub_time');
         // fau.
@@ -252,6 +232,44 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 'txt' => $this->lng->txt('login')
             ];
         }
+
+        // fau: campoSub - add module as column
+        global $DIC;
+        if ($DIC->fau()->study()->isObjectForCampo($this->getRepositoryObject()->getId())) {
+            self::$all_columns['module'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_selected_module')
+            ];
+        }
+        // fau.
+
+        // fau: campoCheck - add restrictions column
+        global $DIC;
+        if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId())) {
+            self::$all_columns['restrictions_passed'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_rest_hard_restrictions')
+            ];
+        }
+        // fau.
+
+        // fau: paraSub - add groups column
+        global $DIC;
+        if ( $DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getRepositoryObject())) {
+            self::$all_columns['groups'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_parallel_groups')
+            ];
+        }
+        // fau.
+
+        // fau: fairSub - add subject column
+        self::$all_columns['subject'] = [
+            'default' => 1,
+            'txt' => $this->lng->txt('message')
+        ];
+        // fau.
+
         return self::$all_columns;
     }
     
@@ -322,21 +340,69 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     $this->tpl->parseCurrentBlock();
                     break;
 
+                // fau: paraSub - fill module column
+                case 'module':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) $a_set['module']);
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: campoCheck - fill restrictions column
+                case 'restrictions_passed':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultWithModalHtml(
+                        (bool) $a_set['restrictions_passed'],
+                        (string) $a_set['restrictions_info'],
+                        $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        $a_set['module_id']
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                    // fau.
+
+                // fau: paraSub - fill parallel groups column
+                case 'groups':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', (string) $a_set['groups']);
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
+
+                // fau: paraSub - fill submission message
+                case 'subject':
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['subject']),
+                        $this->lng->txt('fau_sub_message_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        40
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
+                // fau.
 
                 // fau: userData - format table output of studydata and educations
                 case 'studydata':
-                    $a_set['studydata'] = nl2br($a_set['studydata']);
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    $this->tpl->setVariable('VAL_CUST', nl2br($a_set['studydata']));
+                    $this->tpl->parseCurrentBlock();
+                    break;
 
                 case 'educations':
-                    ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
-                    $a_set['educations'] = str_replace("\n", ', ', ilUtil::shortenText($a_set['educations'], 20, true));
+                    //ilTooltipGUI::addTooltip($cell_id, nl2br($a_set['educations']),'','bottom center','top center',false);
+                    $this->tpl->setCurrentBlock('custom_fields');
+                    //$this->tpl->setVariable('ID_CUST', $cell_id);
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['educations']),
+                        $this->lng->txt('fau_educations_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        40
+                    ));
+                    $this->tpl->parseCurrentBlock();
+                    break;
                 // fau.
-                // no break
+
                 default:
                     $this->tpl->setCurrentBlock('custom_fields');
-                    // fau: userData - set cell id for tooltip
-                    $this->tpl->setVariable('ID_CUST', $cell_id);
-                    // fau.
                     $this->tpl->setVariable('VAL_CUST', isset($a_set[$field]) ? (string) $a_set[$field] : '');
                     $this->tpl->parseCurrentBlock();
                     break;
@@ -354,9 +420,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
         #$this->tpl->setVariable('VAL_LOGIN',$a_set['login']);
         
         $this->showActionLinks($a_set);
-        // fau: fairSub - add subject and info about needed confirmation to waiting list
-        $this->tpl->setVariable('VAL_SUBJECT', $a_set['subject'] ? '"' . $a_set['subject'] . '"' : '');
-
+        // fau: fairSub - add sinfo about needed confirmation to waiting list
         switch ($a_set['to_confirm']) {
             case ilWaitingList::REQUEST_TO_CONFIRM:
                 $this->tpl->setVariable('VAL_STATUS', '<b>' . $this->lng->txt('sub_status_request') . '</b>');
@@ -367,21 +431,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
             case ilWaitingList::REQUEST_NOT_TO_CONFIRM:
             default:
                 $this->tpl->setVariable('VAL_STATUS', $this->lng->txt('sub_status_normal'));
-        }
-        // fau.
-        // fau: campoCheck - add restrictions info to waiting list
-        if ($this->showRestrictions) {
-            $this->tpl->setVariable('VAL_RESTRICTIONS', fauHardRestrictionsGUI::getInstance()->getResultWithModalHtml(
-                (bool) $a_set['restrictions_passed'],
-                (string) $a_set['restrictions_info'],
-                $a_set['firstname'] . ' ' . $a_set['lastname'],
-                $a_set['module_id']
-            ));
-        }
-        // fau.
-        // fau: paraSub - add parallel group info to waiting list
-        if ($this->showParallelGroups) {
-            $this->tpl->setVariable('VAL_GROUPS', $a_set['groups']);
         }
         // fau.
     }
@@ -409,8 +458,14 @@ class ilWaitingListTableGUI extends ilTable2GUI
         unset($additional_fields["access_until"]);
         unset($additional_fields['org_units']);
 
+        // fau: campoSub - don't query for module by default
         // fau: campoCheck - don't query for restrictions by default
+        // fau: paraSub - don't query for restrictions by default
+        // fau: fairSub - don't query for subject by default
+        unset($additional_fields["module"]);
         unset($additional_fields["restrictions_passed"]);
+        unset($additional_fields["groups"]);
+        unset($additional_fields["subject"]);
         // fau.
 
         $udf_ids = $usr_data_fields = $odf_ids = array();
@@ -554,17 +609,15 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
         // fau: fairSub - add further data to waiting list table
         // fau: paraSub - add selection of parallel groups to waiting list table
+        // fau: campoSub - add selected module towaiting list table
         // fau: campoCheck - add restriction info to waiting list table
         global $DIC;
         $group_ids = [];
-        if ($this->showParallelGroups) {
+        if ($this->isColumnSelected('groups')) {
             $groups = $DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->getRepositoryObject()->getRefId());
             foreach ($groups as $group) {
                 $group_ids[] = $group->getObjId();
             }
-        }
-        if ($this->showRestrictions) {
-            $hardRestrictions = $DIC->fau()->cond()->hard();
         }
 
         // Waiting list subscription
@@ -573,7 +626,14 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 $a_user_data[$usr_id]['sub_time'] = $wait_usr_data['time'];
                 $a_user_data[$usr_id]['subject'] = $wait_usr_data['subject'];
                 $a_user_data[$usr_id]['to_confirm'] = $wait_usr_data['to_confirm'];
-                $a_user_data[$usr_id]['module_id'] =  $wait_usr_data['module_id'];
+                $a_user_data[$usr_id]['module'] = '';
+                if (!empty($wait_usr_data['module_id'])) {
+                    $a_user_data[$usr_id]['module_id'] = (int) $wait_usr_data['module_id'];
+                    foreach($DIC->fau()->study()->repo()->getModules([(int) $wait_usr_data['module_id']]) as $module) {
+                        $a_user_data[$usr_id]['module'] =  $module->getLabel();
+                    }
+                }
+
                 if (!empty($group_ids)) {
                     $titles = [];
                     $subscribed = $DIC->fau()->ilias()->repo()->getSubscribedObjectIds($usr_id, $group_ids);
@@ -588,9 +648,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
                     $a_user_data[$usr_id]['groups'] = '';
                 }
 
-                if (isset($hardRestrictions)) {
-                    $a_user_data[$usr_id]['restrictions_passed'] = $hardRestrictions->checkObject($this->getRepositoryObject()->getId(), $usr_id);
-                    $a_user_data[$usr_id]['restrictions_info'] = $hardRestrictions->getCheckResultInfo(true, $wait_usr_data['module_id']);
+                if ($this->isColumnSelected('restrictions_passed')) {
+                    $a_user_data[$usr_id]['restrictions_passed'] = $DIC->fau()->cond()->hard()->checkObject($this->getRepositoryObject()->getId(), $usr_id);
+                    $a_user_data[$usr_id]['restrictions_info'] = $DIC->fau()->cond()->hard()->getCheckResultInfo(true, $wait_usr_data['module_id']);
                 }
             }
         }
