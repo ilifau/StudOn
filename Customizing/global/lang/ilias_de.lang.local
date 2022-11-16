@@ -687,6 +687,10 @@ fau#:#fau_search_numbers_of#:#%s bis %s von %s
 fau#:#fau_search_title#:#Titel der Lehrveranstaltung
 fau#:#fau_search_title_info#:#Gesucht wird der Anfang des Titels. Verwenden Sie * als Platzhalter.
 fau#:#fau_selected_module#:#Gewähltes Modul
+fau#:#fau_selected_groups#:#Gewählte Gruppen
+fau#:#fau_selected_groups_of#:#Gewählte Gruppen von
+fau#:#fau_selected_groups_1#:#1 Gruppe
+fau#:#fau_selected_groups_x#:#%s Gruppen
 fau#:#fau_sub_accept_all_groups#:#Die Aufnahmeanträge werden im Kurs und in allen enthaltenen Paralelgruppen angenommen.
 fau#:#fau_sub_after_date#:#Das Beitrittsverfahren für Kurse des Wintersemesters 2022/23 kann ab dem 26. Juli eingestellt werden.
 fau#:#fau_sub_combi_disabled#:#Für diesen Kurs muss eine Gruppenauswahl getroffen werden. Wenn Sie eine kombiniete Anmeldung nutzen möchten, legen sie sie außerhalb des Kurses an und fügen Sie alle Parallelgruppen des Kurses hinzu.

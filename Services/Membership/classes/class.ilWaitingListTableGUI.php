@@ -233,16 +233,6 @@ class ilWaitingListTableGUI extends ilTable2GUI
             ];
         }
 
-        // fau: campoSub - add module as column
-        global $DIC;
-        if ($DIC->fau()->study()->isObjectForCampo($this->getRepositoryObject()->getId())) {
-            self::$all_columns['module'] = [
-                'default' => 1,
-                'txt' => $this->lng->txt('fau_selected_module')
-            ];
-        }
-        // fau.
-
         // fau: campoCheck - add restrictions column
         global $DIC;
         if ($DIC->fau()->cond()->hard()->hasObjectRestrictions($this->getRepositoryObject()->getId())) {
@@ -253,12 +243,23 @@ class ilWaitingListTableGUI extends ilTable2GUI
         }
         // fau.
 
+
+        // fau: campoSub - add module as column
+        global $DIC;
+        if ($DIC->fau()->study()->isObjectForCampo($this->getRepositoryObject()->getId())) {
+            self::$all_columns['module'] = [
+                'default' => 1,
+                'txt' => $this->lng->txt('fau_selected_module')
+            ];
+        }
+        // fau.
+
         // fau: paraSub - add groups column
         global $DIC;
         if ( $DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getRepositoryObject())) {
             self::$all_columns['groups'] = [
                 'default' => 1,
-                'txt' => $this->lng->txt('fau_parallel_groups')
+                'txt' => $this->lng->txt('fau_selected_groups')
             ];
         }
         // fau.
@@ -364,7 +365,11 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 // fau: paraSub - fill parallel groups column
                 case 'groups':
                     $this->tpl->setCurrentBlock('custom_fields');
-                    $this->tpl->setVariable('VAL_CUST', (string) $a_set['groups']);
+                    $this->tpl->setVariable('VAL_CUST', fauTextViewGUI::getInstance()->showWithModal(
+                        nl2br($a_set['groups']),
+                        $this->lng->txt('fau_selected_groups_of') . ' ' . $a_set['firstname'] . ' ' . $a_set['lastname'],
+                        50
+                    ));
                     $this->tpl->parseCurrentBlock();
                     break;
                 // fau.
@@ -642,7 +647,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
                             $titles[] = $group->getTitle();
                         }
                     }
-                    $a_user_data[$usr_id]['groups'] = implode(', ', $titles);
+                    $a_user_data[$usr_id]['groups'] =
+                        sprintf($this->lng->txt(count($titles) == 1 ? 'fau_selected_groups_1' : 'fau_selected_groups_x'), count($titles)) . ": \n" .
+                        implode(", \n", $titles);
                 }
                 else {
                     $a_user_data[$usr_id]['groups'] = '';

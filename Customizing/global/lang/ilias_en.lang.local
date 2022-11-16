@@ -687,6 +687,10 @@ fau#:#fau_search_numbers_of#:#%s to %s of %s
 fau#:#fau_search_title#:#Event Title
 fau#:#fau_search_title_info#:#Searching from the start of the title. Use * as placeholder.
 fau#:#fau_selected_module#:#Selected Module
+fau#:#fau_selected_groups#:#Selected Groups
+fau#:#fau_selected_groups_of#:#Selected Groups of
+fau#:#fau_selected_groups_one#:#1 Group
+fau#:#fau_selected_groups_x#:#%s Groups
 fau#:#fau_sub_accept_all_groups#:#Applications for admission are accepted in the course and in all included paralel groups.
 fau#:#fau_sub_after_date#:#The registration procedure for courses of the winter semester 2022/23 can be set as of July 25.
 fau#:#fau_sub_combi_disabled#:#A group selection must be made for this course. If you want to use a combined enrollment, create it outside the course and add all parallel groups of the course.
