@@ -635,6 +635,10 @@ class ilObjGroupGUI extends ilContainerGUI
             }
 
             $old_autofill = $this->object->hasWaitingListAutoFill();
+            // fau: fairSub - remember old settings
+            $old_max_members = $this->object->getMaxMembers();
+            $old_subscription_fair = $this->object->getSubscriptionFair();
+            // fau.
 
             $this->object->setTitle(ilUtil::stripSlashes($form->getInput('title')));
             $this->object->setDescription(ilUtil::stripSlashes($form->getInput('desc')));
@@ -691,7 +695,6 @@ class ilObjGroupGUI extends ilContainerGUI
 
 
             // fau: fairSub - save the fair period and waiting list options
-            $old_subscription_fair = $this->object->getSubscriptionFair();
             // fau: paraSub - don't set waiting list options in parallel groups
             if (!$this->object->isParallelGroup()) {
                 // check a deactivation of the fair period done in db
@@ -814,11 +817,23 @@ class ilObjGroupGUI extends ilContainerGUI
             // Save sorting
             $this->saveSortingSettings($form);
             // if autofill has been activated trigger process
+            // fau: fairSub - trigger autofill if max members are increased
             if (
-                !$old_autofill &&
+                (!$old_autofill || $old_max_members < (int) $this->object->getMaxMembers()) &&
                 $this->object->hasWaitingListAutoFill()) {
                 $this->object->handleAutoFill();
             }
+            // fau.
+
+            // fau: fairSub - trigger autofill of parent course if max members are increased in a parallel group
+            if ($this->object->isParallelGroup() && $old_max_members < (int) $this->object->getMaxMembers()) {
+                global $DIC;
+                $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->object->getRefId());
+                $course = new ilObjCourse((int) $course_ref_id);
+                $DIC->fau()->ilias()->getRegistration($course)->doAutoFill();
+            }
+            // fau.
+
 
             // BEGIN ChangeEvents: Record update Object.
             require_once('Services/Tracking/classes/class.ilChangeEvent.php');

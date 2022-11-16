@@ -1151,12 +1151,16 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->object->setCancellationEnd($form->getItemByPostVar("cancel_end")->getDate());
         
         // waiting list
+        // fau: fairSub - remember old settings
+        $old_max_members = $this->object->getSubscriptionMaxMembers();
+        $old_subscription_fair = $this->object->getSubscriptionFair();
+        // fau.
         $this->object->enableSubscriptionMembershipLimitation((int) $form->getInput('subscription_membership_limitation'));
         $this->object->setSubscriptionMaxMembers((int) $form->getInput('subscription_max'));
         $this->object->setSubscriptionMinMembers((int) $form->getInput('subscription_min'));
         $old_autofill = $this->object->hasWaitingListAutoFill();
+
         // fau: fairSub - save the fair period and waiting list options
-        $old_subscription_fair = $this->object->getSubscriptionFair();
         // check a deactivation of the fair period done in db
         if ($old_subscription_fair >= 0) {
             /** @var ilDateTime $sub_fair */
@@ -1304,9 +1308,13 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         // fau.
 
-        if (!$old_autofill && $this->object->hasWaitingListAutoFill()) {
+        // fau: fairSub - trigger autofill if max members are increased
+        if ((!$old_autofill || $old_max_members < (int) $this->object->getSubscriptionMaxMembers()) &&
+            $this->object->hasWaitingListAutoFill()) {
             $this->object->handleAutoFill();
         }
+        // fau.
+
         $this->object->update();
         
 
