@@ -74,7 +74,7 @@ class Repository extends RecordRepo
     /**
      * Get the identity of a user
      */
-    public function getIdentity(string $uid) : ?Identity
+    public function getIdentity(?string $uid) : ?Identity
     {
         $query = "SELECT * from identities WHERE pk_persistent_id = " . $this->db->quote($uid, 'text');
         /** @var Identity $identity */
