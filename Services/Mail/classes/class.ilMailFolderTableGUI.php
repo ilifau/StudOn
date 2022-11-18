@@ -626,6 +626,7 @@ class ilMailFolderTableGUI extends ilTable2GUI
         $titleTemplate->setVariable('TXT_MAIL_S', $this->lng->txt('mail_s'));
         $titleTemplate->setVariable('MAIL_COUNT_UNREAD', $unreadCount);
         $titleTemplate->setVariable('TXT_UNREAD', $this->lng->txt('unread'));
+        $titleTemplate->setVariable('TOOLBOX_INFO', $this->lng->txt('mail_folder_tools'));
 
         parent::setTitle($titleTemplate->get(), $imgFolder);
 
