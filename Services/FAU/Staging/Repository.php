@@ -321,7 +321,7 @@ class Repository extends RecordRepo
     public function getStudOnMembers(Term $term) : array
     {
         $query = "SELECT * FROM studon_members WHERE term_year=" . $this->db->quote($term->getYear(), 'integer')
-            . "AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
+            . " AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, StudOnMember::model(), false, true);
     }
 
@@ -331,7 +331,7 @@ class Repository extends RecordRepo
     public function getStudOnCourses(Term $term) : array
     {
         $query = "SELECT * FROM studon_courses WHERE term_year=" . $this->db->quote($term->getYear(), 'integer')
-            . "AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
+            . " AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, StudOnCourse::model(), false, true);
     }
 
