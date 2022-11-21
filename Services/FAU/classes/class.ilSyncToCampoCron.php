@@ -4,7 +4,7 @@
 /**
  * new class for campo data update cron job.
  */
-class ilSyncWithCampoCron extends ilCronJob
+class ilSyncToCampoCron extends ilCronJob
 {
     public function getId()
     {
