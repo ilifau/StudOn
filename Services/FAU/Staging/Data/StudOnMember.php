@@ -26,7 +26,7 @@ class StudOnMember extends RecordData
 
     protected int $course_id;
     protected int $person_id;
-    protected int $module_id;
+    protected ?int $module_id;
     protected string $status;
     protected int $term_year;
     protected int $term_type_id;
@@ -35,7 +35,7 @@ class StudOnMember extends RecordData
     public function __construct(
         int $course_id,
         int $person_id,
-        int $module_id,
+        ?int $module_id,
         string $status,
         int $term_year,
         int $term_type_id
@@ -71,9 +71,9 @@ class StudOnMember extends RecordData
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getModuleId() : int
+    public function getModuleId() : ?int
     {
         return $this->module_id;
     }

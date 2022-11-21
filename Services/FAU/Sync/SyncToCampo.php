@@ -35,11 +35,11 @@ class SyncToCampo extends SyncBase
 
         foreach ($this->sync->repo()->getMembersOfCourses($term) as $member) {
             if (!isset($existing[$member->key()])) {
-                $this->study->repo()->save($member);
+                $this->staging->repo()->save($member);
                 $this->increaseItemsAdded();
             }
             elseif ($existing[$member->key()]->hash() != $member->hash()) {
-                $this->study->repo()->save($member);
+                $this->staging->repo()->save($member);
                 $this->increaseItemsUpdated();
             }
             // record is still needed
@@ -48,7 +48,7 @@ class SyncToCampo extends SyncBase
 
         // delete existing records that are no longer needed
         foreach ($existing as $member) {
-            $this->study->repo()->delete($member);
+            $this->staging->repo()->delete($member);
             $this->increaseItemsDeleted();
         }
     }

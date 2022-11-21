@@ -36,6 +36,7 @@ use FAU\Staging\Data\StudonChange;
 use FAU\Staging\Data\StudOnMember;
 use FAU\Staging\Data\StudOnCourse;
 use FAU\Study\Data\Term;
+use FAU\RecordData;
 
 /**
  * Repository for accessing the staging database
@@ -334,6 +335,27 @@ class Repository extends RecordRepo
             . " AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
         return $this->queryRecords($query, StudOnCourse::model(), false, true);
     }
+
+
+    /**
+     * Save record data of an allowed type
+     * @param StudOnMember|StudOnCourse $record
+     */
+    public function save(RecordData $record)
+    {
+        $this->replaceRecord($record);
+    }
+
+    /**
+     * Delete record data of an allowed type
+     * @param StudOnMember|StudOnCourse $record
+     */
+    public function delete(RecordData $record)
+    {
+        $this->deleteRecord($record);
+    }
+
+
 
     /**
      * Get the record objects for DIP table rows with a certain status

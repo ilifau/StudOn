@@ -18,13 +18,13 @@ class StudOnCourse extends RecordData
     ];
 
     protected int $course_id;
-    protected int $attendee_maximum;
+    protected ?int $attendee_maximum;
     protected int $term_year;
     protected int $term_type_id;
 
     public function __construct(
         int $course_id,
-        int $attendee_maximum,
+        ?int $attendee_maximum,
         int $term_year,
         int $term_type_id
     )
@@ -50,9 +50,9 @@ class StudOnCourse extends RecordData
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getAttendeeMaximum() : int
+    public function getAttendeeMaximum() : ?int
     {
         return $this->attendee_maximum;
     }
