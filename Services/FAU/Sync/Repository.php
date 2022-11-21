@@ -4,6 +4,7 @@ namespace FAU\Sync;
 
 use FAU\RecordRepo;
 use FAU\Study\Data\Term;
+use FAU\Staging\Data\StudOnMember;
 
 /**
  * Repository for database access across the sub services used in the synchronisation
@@ -185,5 +186,27 @@ class Repository extends RecordRepo
             $categories[$row['fauorg_nr']] = $row['ilias_ref_id'];
         }
         return $categories;
+    }
+
+    /**
+     * Get the members of all courses in a term
+     * @param Term $term
+     * @return StudOnMember[]
+     */
+    public function getMembersOfCourses(Term $term) : array
+    {
+        $query = "
+            SELECT c.course_id, p.person_id, m.module_id, 'registered' status, c.term_year, c.term_type_id
+            FROM fau_study_courses c
+            JOIN object_reference r ON r.obj_id = c.ilias_obj_id
+            JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
+            JOIN object_data o ON o.obj_id = fa.rol_id AND (o.title LIKE 'il_crs_member%' OR o.title LIKE 'il_grp_member%')
+            JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
+            JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
+            LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = p.user_id
+            WHERE c.term_year = " . $this->db->quote($term->getYear(), 'integer') . "
+            AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer');
+
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
     }
 }

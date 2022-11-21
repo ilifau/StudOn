@@ -622,7 +622,9 @@ fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie kön
 fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
 fau#:#fau_campo_course_is_deleted#:#Diese Veranstaltung wurde gelöscht!
 fau#:#fau_campo_data_update#:#Campo-Daten aktualisieren
-fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu Lehrveranstaltungen aus dem Campo-System
+fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu den Lehrveranstaltungen aus Campo für StudOn
+fau#:#fau_campo_members_update#:#Campo-Mitgliedschaften aktualisieren
+fau#:#fau_campo_members_update_info#:#Aktualisiert die maximalen Teilnehmerzahlen und Kursmitgliedschaften aus StudOn für Campo
 fau#:#fau_campo_event#:#Lehrveranstaltung
 fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Veranstaltung in campo

@@ -37,6 +37,11 @@ class Service extends SubService
         return new SyncWithIlias($this->dic);
     }
 
+    public function toCampo() : SyncToCampo
+    {
+        return new SyncToCampo($this->dic);
+    }
+
     // Service and helper classes
 
     public function repo() : Repository

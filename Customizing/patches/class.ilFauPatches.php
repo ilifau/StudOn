@@ -25,6 +25,13 @@ class ilFauPatches
         $service->synchronize();
     }
 
+    public function syncToCampo()
+    {
+        $service = $this->dic->fau()->sync()->toCampo();
+        $service->synchronize();
+    }
+
+
     public function syncRestrictions()
     {
         $service = $this->dic->fau()->sync()->campo();

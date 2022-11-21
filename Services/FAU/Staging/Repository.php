@@ -33,6 +33,9 @@ use FAU\Staging\Data\StudySchool;
 use FAU\Staging\Data\StudySubject;
 use FAU\Staging\Data\Identity;
 use FAU\Staging\Data\StudonChange;
+use FAU\Staging\Data\StudOnMember;
+use FAU\Staging\Data\StudOnCourse;
+use FAU\Study\Data\Term;
 
 /**
  * Repository for accessing the staging database
@@ -312,6 +315,25 @@ class Repository extends RecordRepo
         return $this->getAllRecords(StudySubject::model());
     }
 
+    /**
+     * @return StudOnMember[]
+     */
+    public function getStudOnMembers(Term $term) : array
+    {
+        $query = "SELECT * FROM studon_members WHERE term_year=" . $this->db->quote($term->getYear(), 'integer')
+            . "AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
+    }
+
+    /**
+     * @return StudOnCourse[]
+     */
+    public function getStudOnCourses(Term $term) : array
+    {
+        $query = "SELECT * FROM studon_courses WHERE term_year=" . $this->db->quote($term->getYear(), 'integer')
+            . "AND term_type_id=" . $this->db->quote($term->getTypeId(), 'integer');
+        return $this->queryRecords($query, StudOnCourse::model(), false, true);
+    }
 
     /**
      * Get the record objects for DIP table rows with a certain status

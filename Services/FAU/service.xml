@@ -2,6 +2,7 @@
 <service xmlns="http://www.w3.org" version="$Id$" id="fau">
 	<crons>
 		<cron id="fau_sync_with_campo" class="ilSyncWithCampoCron" path="Services/FAU/classes/" />
+		<cron id="fau_sync_to_campo" class="ilSyncToCampoCron" path="Services/FAU/classes/" />
 		<cron id="fau_sync_with_org" class="ilSyncWithOrgCron" path="Services/FAU/classes/" />
 		<cron id="fau_sync_with_idm" class="ilSyncWithIdmCron" path="Services/FAU/classes/" />
 		<cron id="fau_fair_autofill" class="ilFairAutoFillCron" path="Services/FAU/classes/" />
