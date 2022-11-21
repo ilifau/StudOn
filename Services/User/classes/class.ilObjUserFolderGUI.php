@@ -1686,7 +1686,6 @@ class ilObjUserFolderGUI extends ilObjectGUI
             $this->lng->txt("file_info")
         );
 
-        // fau: fixUserImportRoles - see https://github.com/ILIAS-eLearning/ILIAS/pull/3541
         $form_action = $DIC->ctrl()->getFormActionByClass('ilObjUserFolderGui', 'importUsers');
 
         $form_elements = [
@@ -1717,7 +1716,6 @@ class ilObjUserFolderGUI extends ilObjectGUI
         }
 
         $form_elements["conflict_action"] = $ui->input()->field()->section([$conflict_action_select], "");
-        // fau.
 
         if (!empty($mail_section)) {
             $form_elements["send_mail"] = $mail_section;
