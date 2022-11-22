@@ -71,7 +71,7 @@ class ilSyncWithCampoCron extends ilCronJob
         } else {
             $result->setStatus(\ilCronJobResult::STATUS_OK);
             $result->setMessage('Added Courses: ' . $service->getItemsAdded() . ', '
-                . 'Updated Courses: ' . $service->getItemsUpdated() . ', '
+                . 'Updated Courses: ' . $service->getItemsUpdated()
             );
         }
         return $result;
