@@ -848,57 +848,13 @@ class ilObjExerciseGUI extends ilObjectGUI
 
         // feedback from tutor
         if ($this->checkPermissionBool("read")) {
-            // fau: exCalc - determine status of user before mark is looked up
-            // fau: exResTime - show info about open result time and preliminary result
-            // fau: exResTime - show mark and status even if not graded
-            // fau: exResTime - tweak labels, add info only for corresponding pass modes
-            $st = $this->object->determinStatusOfUser($ilUser->getId());
-
             $lpcomment = ilLPMarks::_lookupComment($ilUser->getId(), $this->object->getId());
             $mark = ilLPMarks::_lookupMark($ilUser->getId(), $this->object->getId());
-
-            if ($st['result_time_open']) {
-                $status = "incomplete";
-            }
-            else {
-                $status = $st["overall_status"];
-            }
-
-            if ($lpcomment != "" || $mark != "" || $status != "") {
-
+            //$status = ilExerciseMembers::_lookupStatus($this->object->getId(), $ilUser->getId());
+            $st = $this->object->determinStatusOfUser($ilUser->getId());
+            $status = $st["overall_status"];
+            if ($lpcomment != "" || $mark != "" || $status != "notgraded") {
                 $info->addSection($this->lng->txt("exc_feedback_from_tutor"));
-
-                if ($st['result_time_open']) {
-                    $info->addProperty(
-                        '',
-                        '<div class="alert alert-info">' . $this->lng->txt('exc_result_time_open_info') . ' ' . $this->lng->txt('exc_preliminary_info') . '</div>'
-                    );
-                }
-
-                if ($status != "") {
-                    $img = '<img src="' . ilUtil::getImagePath("scorm/" . ($status == 'notgraded' ? "running" : $status) . ".svg") . '" ' .
-                        ' alt="' . $lng->txt("exc_" . $status) . '" title="' . $lng->txt("exc_" . $status) .
-                        '" />';
-
-                    $add = "";
-                    if ($st["failed_a_mandatory"] && $this->object->getPassMode() == ilObjExercise::PASS_MODE_ALL) {
-                        $add = " (" . $lng->txt("exc_msg_failed_mandatory") . ")";
-                    } elseif ($status == "failed" && $this->object->getPassMode() == ilObjExercise::PASS_MODE_NR) {
-                        $add = " (" . $lng->txt("exc_msg_missed_minimum_number") . ")";
-                    }
-                    $info->addProperty(
-                        $this->lng->txt("status"),
-                        $img . " " . $this->lng->txt("exc_" . $status) . $add
-                    );
-                }
-
-                if ($st['result_time_open'] && $st["preliminary_status"]) {
-                    $info->addProperty(
-                        $this->lng->txt('exc_preliminary_status'),
-                        $this->lng->txt("exc_" . $st["preliminary_status"])
-                    );
-                }
-
                 if ($lpcomment != "") {
                     $info->addProperty(
                         $this->lng->txt("exc_comment"),
@@ -907,7 +863,7 @@ class ilObjExerciseGUI extends ilObjectGUI
                 }
                 if ($mark != "") {
                     $info->addProperty(
-                        $this->lng->txt($st['result_time_open'] ? "exc_preliminary_mark" : "exc_mark"),
+                        $this->lng->txt("exc_mark"),
                         $mark
                     );
                 }
@@ -918,7 +874,6 @@ class ilObjExerciseGUI extends ilObjectGUI
                 //		$this->lng->txt("message_no_delivered_files"));
                 //}
                 //else
-                // fau.
                 if ($status != "notgraded") {
                     $icons = ilLPStatusIcons::getInstance(ilLPStatusIcons::ICON_VARIANT_LONG);
 
