@@ -105,7 +105,7 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
                 }
             }
             $this->object->addTerm(
-                new assAnswerMatchingTerm($answer, $filename, $_POST['terms']['identifier'][$index])
+                new assAnswerMatchingTerm(htmlentities($answer), $filename, $_POST['terms']['identifier'][$index])
             );
         }
         // add definitions
@@ -126,7 +126,7 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
                 }
             }
             $this->object->addDefinition(
-                new assAnswerMatchingDefinition($answer, $filename, $_POST['definitions']['identifier'][$index])
+                new assAnswerMatchingDefinition(htmlentities($answer), $filename, $_POST['definitions']['identifier'][$index])
             );
         }
 
@@ -320,7 +320,12 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         if ($this->object->getSelfAssessmentEditingMode()) {
             $definitions->setHideImages(true);
         }
-        
+
+        $stripHtmlEntitesFromValues = function (assAnswerMatchingTerm $value) {
+            $value->__set('text', html_entity_decode($value->__get('text')));
+            return $value;
+        };
+
         $definitions->setRequired(true);
         $definitions->setQuestionObject($this->object);
         $definitions->setTextName($this->lng->txt('definition_text'));
@@ -329,7 +334,7 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         if (!count($this->object->getDefinitions())) {
             $this->object->addDefinition(new assAnswerMatchingDefinition());
         }
-        $definitionvalues = $this->object->getDefinitions();
+        $definitionvalues = array_map($stripHtmlEntitesFromValues, $this->object->getDefinitions());
         $definitions->setValues($definitionvalues);
         if ($this->isDefImgUploadCommand()) {
             $definitions->checkInput();
@@ -350,7 +355,7 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
         if (!count($this->object->getTerms())) {
             $this->object->addTerm(new assAnswerMatchingTerm());
         }
-        $termvalues = $this->object->getTerms();
+        $termvalues = array_map($stripHtmlEntitesFromValues, $this->object->getTerms());
         $terms->setValues($termvalues);
         if ($this->isTermImgUploadCommand()) {
             $terms->checkInput();
@@ -965,88 +970,6 @@ class assMatchingQuestionGUI extends assQuestionGUI implements ilGuiQuestionScor
             return false;
         }
         return true;
-    }
-
-    /**
-     * Sets the ILIAS tabs for this question type
-     *
-     * @access public
-     *
-     * @todo:	MOVE THIS STEPS TO COMMON QUESTION CLASS assQuestionGUI
-     */
-    public function setQuestionTabs()
-    {
-        global $DIC;
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilTabs = $DIC['ilTabs'];
-
-        $ilTabs->clearTargets();
-        
-        $this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
-        include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-        $q_type = $this->object->getQuestionType();
-
-        if (strlen($q_type)) {
-            $classname = $q_type . "GUI";
-            $this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
-            $this->ctrl->setParameterByClass(strtolower($classname), "q_id", $_GET["q_id"]);
-        }
-
-        if ($_GET["q_id"]) {
-            if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
-                // edit page
-                $ilTabs->addTarget(
-                    "edit_page",
-                    $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"),
-                    array("edit", "insert", "exec_pg"),
-                    "",
-                    "",
-                    $force_active
-                );
-            }
-
-            $this->addTab_QuestionPreview($ilTabs);
-        }
-
-        $force_active = false;
-        if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
-            $url = "";
-            if ($classname) {
-                $url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
-            }
-            // edit question properties
-            $ilTabs->addTarget(
-                "edit_question",
-                $url,
-                array("editQuestion", "save", "saveEdit", "removeimageterms", "uploadterms", "removeimagedefinitions", "uploaddefinitions",
-                    "addpairs", "removepairs", "addterms", "removeterms", "adddefinitions", "removedefinitions", "originalSyncForm"),
-                $classname,
-                "",
-                $force_active
-            );
-        }
-
-        // add tab for question feedback within common class assQuestionGUI
-        $this->addTab_QuestionFeedback($ilTabs);
-
-        // add tab for question hint within common class assQuestionGUI
-        $this->addTab_QuestionHints($ilTabs);
-
-        // add tab for question's suggested solution within common class assQuestionGUI
-        $this->addTab_SuggestedSolution($ilTabs, $classname);
-
-        // Assessment of questions sub menu entry
-        if ($_GET["q_id"]) {
-            $ilTabs->addTarget(
-                "statistics",
-                $this->ctrl->getLinkTargetByClass($classname, "assessment"),
-                array("assessment"),
-                $classname,
-                ""
-            );
-        }
-
-        $this->addBackTab($ilTabs);
     }
 
     public function getSpecificFeedbackOutput($userSolution)

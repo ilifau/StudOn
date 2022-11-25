@@ -104,7 +104,9 @@ class ilMMTopItemFormGUI
             // ICON
             $icon = $f()->field()->file(new ilMMUploadHandlerGUI(), $txt('topitem_icon'))
                         ->withByline($txt('topitem_icon_byline'))
-                        ->withAcceptedMimeTypes([ilMimeTypeUtil::IMAGE__SVG_XML]);
+                        ->withAcceptedMimeTypes([ilMimeTypeUtil::IMAGE__SVG_XML])
+                        ->withMaxFileSize(ilMMUploadHandlerGUI::MAX_FILE_SIZE);
+            
             if ($this->item_facade->getIconID() !== null) {
                 $icon = $icon->withValue([$this->item_facade->getIconID()]);
             }
@@ -136,7 +138,11 @@ class ilMMTopItemFormGUI
             $access = new ilObjMainMenuAccess();
             $value_role_based_visibility = null;
             if ($this->item_facade->hasRoleBasedVisibility() && $this->item_facade->getGlobalRoleIDs()) {
-                $value_role_based_visibility[0] = $this->item_facade->getGlobalRoleIDs();
+                // remove deleted roles, see https://mantis.ilias.de/view.php?id=34936
+                $value_role_based_visibility[0] = array_intersect(
+                    $this->item_facade->getGlobalRoleIDs(),
+                    $access->getGlobalRoles()
+                );
             }
             $role_based_visibility = $f()->field()->optionalGroup(
                 [

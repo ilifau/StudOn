@@ -1,50 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
-<style type="text/css">
-	.st0{clip-path:url(#SVGID_1_);fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-miterlimit:10;}
-	.st1{clip-path:url(#SVGID_2_);fill:#DFDCF2;stroke:#161616;stroke-width:0.75;stroke-miterlimit:10;}
-	.st2{fill:#161616;}
-	.st3{fill:#FFB3BA;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
-</style>
-<g id="Ebene_2_1_">
-</g>
+<!-- Generator: Adobe Illustrator 25.2.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+<rect fill="none" width="32" height="32"/>
 <g>
+	<path fill="none" d="M23,20H9c-0.6,0-1,0.4-1,1v3c0,0.6,0.4,1,1,1h14c0.6,0,1-0.4,1-1v-3C24,20.4,23.6,20,23,20z M18.8,23.5
+		c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1c0.6,0,1,0.4,1,1C19.8,23.1,19.4,23.5,18.8,23.5z M21.7,23.5c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1
+		c0.6,0,1,0.4,1,1C22.7,23.1,22.2,23.5,21.7,23.5z"/>
+	<polygon fill="none" points="14.7,16 17.3,16 17.3,12.5 19.9,12.5 16,9 12.1,12.5 14.7,12.5 	"/>
 	<g>
+		<polygon fill="none" points="14.7,16 17.3,16 17.3,12.5 19.9,12.5 16,9 12.1,12.5 14.7,12.5 		"/>
+		<path fill="none" d="M23,20H9c-0.6,0-1,0.4-1,1v3c0,0.6,0.4,1,1,1h14c0.6,0,1-0.4,1-1v-3C24,20.4,23.6,20,23,20z M18.8,23.5
+			c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1c0.6,0,1,0.4,1,1C19.8,23.1,19.4,23.5,18.8,23.5z M21.7,23.5c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1
+			c0.6,0,1,0.4,1,1C22.7,23.1,22.2,23.5,21.7,23.5z"/>
 		<g>
-			<g>
-				<defs>
-					<path id="SVGID_804_" d="M25,3.5c0,0,0-1.2-0.5-1.2h-17c0,0-0.5,0-0.5,1.2L4,19.5c0,0,0,1.2,0.5,1.2h23c0,0,0.5,0,0.5-1.2
-						L25,3.5z"/>
-				</defs>
-				<use xlink:href="#SVGID_804_"  style="overflow:visible;fill:#BAE1FF;"/>
-				<clipPath id="SVGID_1_">
-					<use xlink:href="#SVGID_804_"  style="overflow:visible;"/>
-				</clipPath>
-				<polygon class="st0" points="25,2.4 28,20.6 4,20.6 7,2.4 				"/>
-				<use xlink:href="#SVGID_804_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-miterlimit:10;"/>
-			</g>
+			<polygon fill="none" points="14.7,16 17.3,16 17.3,12.5 19.9,12.5 16,9 12.1,12.5 14.7,12.5 			"/>
+			<path fill="none" d="M23,20H9c-0.6,0-1,0.4-1,1v3c0,0.6,0.4,1,1,1h14c0.6,0,1-0.4,1-1v-3C24,20.4,23.6,20,23,20z M18.8,23.5
+				c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1c0.6,0,1,0.4,1,1C19.8,23.1,19.4,23.5,18.8,23.5z M21.7,23.5c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1
+				c0.6,0,1,0.4,1,1C22.7,23.1,22.2,23.5,21.7,23.5z"/>
+			<circle fill="#52658B" cx="18.8" cy="22.5" r="1"/>
+			<circle fill="#52658B" cx="21.7" cy="22.5" r="1"/>
+			<path fill="#52658B" d="M25.9,18L24.1,6c-0.1-0.5-0.6-1-1.1-1H9C8.4,5,7.9,5.4,7.9,6L6,19c0,0,0,0.4,0,1v6c0,0.6,0.4,1,1,1h18
+				c0.6,0,1-0.4,1-1v-7C26,19,25.9,18.6,25.9,18z M16,9l3.9,3.5h-2.6V16h-2.6v-3.5h-2.6L16,9z M24,24c0,0.6-0.4,1-1,1H9
+				c-0.6,0-1-0.4-1-1v-3c0-0.6,0.4-1,1-1h14c0.6,0,1,0.4,1,1V24z"/>
 		</g>
 	</g>
-	<g>
-		<g>
-			<g>
-				<defs>
-					<path id="SVGID_803_" d="M28,21.1c0,0,0-0.5-0.5-0.5h-23c0,0-0.5,0-0.5,0.5v8c0,0,0,0.5,0.5,0.5h23c0,0,0.5,0,0.5-0.5V21.1z"/>
-				</defs>
-				<use xlink:href="#SVGID_803_"  style="overflow:visible;fill:#DFDCF2;"/>
-				<clipPath id="SVGID_2_">
-					<use xlink:href="#SVGID_803_"  style="overflow:visible;"/>
-				</clipPath>
-				<rect x="4" y="20.6" class="st1" width="24" height="9"/>
-				<use xlink:href="#SVGID_803_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-miterlimit:10;"/>
-			</g>
-		</g>
-	</g>
-	<circle class="st2" cx="24.7" cy="25.1" r="1.3"/>
-	<circle class="st2" cx="20.7" cy="25.1" r="1.3"/>
-	<path class="st3" d="M11.8,10.9l2.8,0v5.8c0,0.2,0.1,0.3,0.3,0.3H18c0.2,0,0.3-0.1,0.3-0.3v-5.8l2.8,0c0.3,0,0.5-0.4,0.2-0.7
-		l-4.6-3.9c-0.1-0.1-0.3-0.1-0.5,0l-4.6,4C11.3,10.5,11.5,10.9,11.8,10.9z"/>
 </g>
 </svg>

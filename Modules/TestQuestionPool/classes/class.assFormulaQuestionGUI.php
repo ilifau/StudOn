@@ -1,26 +1,24 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-include_once "./Modules/TestQuestionPool/classes/class.assQuestionGUI.php";
-include_once "./Modules/TestQuestionPool/classes/class.assFormulaQuestion.php";
-include_once "./Modules/TestQuestionPool/classes/class.assFormulaQuestionResult.php";
-include_once "./Modules/TestQuestionPool/classes/class.assFormulaQuestionVariable.php";
-include_once "./Modules/TestQuestionPool/classes/class.assFormulaQuestionUnit.php";
-include_once "./Modules/TestQuestionPool/classes/class.assFormulaQuestionUnitCategory.php";
-include_once "./Modules/Test/classes/inc.AssessmentConstants.php";
-require_once './Modules/TestQuestionPool/interfaces/interface.ilGuiAnswerScoringAdjustable.php';
-
 /**
- * Single choice question GUI representation
- * The assFormulaQuestionGUI class encapsulates the GUI representation
- * for single choice questions.
- * @author            Helmut Schottmüller <helmut.schottmueller@mac.com>
- * @version           $Id: class.assFormulaQuestionGUI.php 1235 2010-02-15 15:21:18Z hschottm $
- * @ingroup           ModulesTestQuestionPool
- * @ilCtrl_Calls assFormulaQuestionGUI: ilFormPropertyDispatchGUI
- */
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 class assFormulaQuestionGUI extends assQuestionGUI
 {
+    protected const HAS_SPECIAL_QUESTION_COMMANDS = true;
+    
     /**
      * assFormulaQuestionGUI constructor
      * The constructor takes possible arguments an creates an instance of the assFormulaQuestionGUI object.
@@ -37,123 +35,23 @@ class assFormulaQuestionGUI extends assQuestionGUI
         }
     }
 
-    /**
-     * Sets the ILIAS tabs for this question type
-     * Sets the ILIAS tabs for this question type
-     * @access public
-     */
-    public function setQuestionTabs()
+    protected function callSpecialQuestionCommands(string $cmd) : void
     {
-        global $DIC;
-        $rbacsystem = $DIC['rbacsystem'];
-        $ilTabs = $DIC['ilTabs'];
-
-        $ilTabs->clearTargets();
-
-        $this->ctrl->setParameterByClass("ilAssQuestionPageGUI", "q_id", $_GET["q_id"]);
-        include_once "./Modules/TestQuestionPool/classes/class.assQuestion.php";
-        $q_type = $this->object->getQuestionType();
-
-        if (strlen($q_type)) {
-            $classname = $q_type . "GUI";
-            $this->ctrl->setParameterByClass(strtolower($classname), "sel_question_types", $q_type);
-            $this->ctrl->setParameterByClass(strtolower($classname), "q_id", $_GET["q_id"]);
+        if (preg_match('/suggestrange_(\$r\d+)/', $cmd, $matches)) {
+            $this->suggestRange($matches[1]);
         }
-
-        if ($_GET["q_id"]) {
-            if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
-                // edit page
-                $ilTabs->addTarget(
-                    "edit_page",
-                    $this->ctrl->getLinkTargetByClass("ilAssQuestionPageGUI", "edit"),
-                    array("edit", "insert", "exec_pg"),
-                    "",
-                    "",
-                    $force_active
-                );
-            }
-
-            $this->addTab_QuestionPreview($ilTabs);
-        }
-
-        $force_active = false;
-        if ($rbacsystem->checkAccess('write', $_GET["ref_id"])) {
-            $url = "";
-
-            if ($classname) {
-                $url = $this->ctrl->getLinkTargetByClass($classname, "editQuestion");
-            }
-            $commands = $_POST["cmd"];
-            if (is_array($commands)) {
-                foreach ($commands as $key => $value) {
-                    if (preg_match("/^suggestrange_.*/", $key, $matches)) {
-                        $force_active = true;
-                    }
-                }
-            }
-            // edit question properties
-            $ilTabs->addTarget(
-                "edit_question",
-                $url,
-                array(
-                    "editQuestion", "save", "cancel", "addSuggestedSolution",
-                    "cancelExplorer", "linkChilds", "removeSuggestedSolution",
-                    "parseQuestion", "saveEdit", "suggestRange"
-                ),
-                $classname,
-                "",
-                $force_active
-            );
-        }
-
-        if ($_GET["q_id"]) {
-            // add tab for question feedback within common class assQuestionGUI
-            $this->addTab_QuestionFeedback($ilTabs);
-        }
-
-        if ($_GET["q_id"]) {
-            // add tab for question hint within common class assQuestionGUI
-            $this->addTab_QuestionHints($ilTabs);
-        }
-
-        // Unit editor
-        if ($_GET['q_id']) {
-            // add tab for question hint within common class assQuestionGUI
-            $this->addTab_Units($ilTabs);
-        }
-
-        // Assessment of questions sub menu entry
-        if ($_GET["q_id"]) {
-            $ilTabs->addTarget(
-                "statistics",
-                $this->ctrl->getLinkTargetByClass($classname, "assessment"),
-                array("assessment"),
-                $classname,
-                ""
-            );
-        }
-
-        $this->addBackTab($ilTabs);
-    }
-
-    public function getCommand($cmd)
-    {
-        if (preg_match("/suggestrange_(.*?)/", $cmd, $matches)) {
-            $cmd = "suggestRange";
-        }
-        return $cmd;
     }
 
     /**
      * Suggest a range for a result
      * @access public
      */
-    public function suggestRange()
+    public function suggestRange(string $suggest_range_for_result)
     {
         if ($this->writePostData()) {
             ilUtil::sendInfo($this->getErrorMessage());
         }
-        $this->editQuestion();
+        $this->editQuestion(false, $suggest_range_for_result);
     }
 
     /**
@@ -303,7 +201,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
      * @param bool $checkonly
      * @return bool
      */
-    public function editQuestion($checkonly = false)
+    public function editQuestion($checkonly = false, string $suggest_range_for_result = '')
     {
         $save = $this->isSaveCommand();
         
@@ -329,7 +227,7 @@ class assFormulaQuestionGUI extends assQuestionGUI
         $variables = $this->object->getVariables();
         $categorized_units = $this->object->getUnitrepository()->getCategorizedUnits();
         $result_units = $this->object->__get('resultunits');
-        
+
         $unit_options = array();
         $category_name = '';
         $new_category = false;
@@ -441,13 +339,11 @@ class assFormulaQuestionGUI extends assQuestionGUI
                 $formula->setSuffix(' = ' . $result->getResult());
 
                 if (
-                    preg_match("/suggestrange_(.*)/", $this->ctrl->getCmd(), $matches) &&
-                    strcmp($matches[1], $result->getResult()) == 0
+                    $suggest_range_for_result !== '' &&
+                    strcmp($suggest_range_for_result, $result->getResult()) == 0 &&
+                    strlen($result->substituteFormula($variables, $results))
                 ) {
-                    // suggest a range for the result
-                    if (strlen($result->substituteFormula($variables, $results))) {
-                        $result->suggestRange($variables, $results);
-                    }
+                    $result->suggestRange($variables, $results);
                 }
 
                 $range_min = new ilNumberInputGUI($this->lng->txt('range_min'), 'range_min_' . $result->getResult());
@@ -674,7 +570,21 @@ class assFormulaQuestionGUI extends assQuestionGUI
                     array_push($found_results, $matches[1]);
                 }
             }
-            
+
+            $check = array_merge($found_vars, $found_results);
+            foreach ((array) $form->getItems() as $item) {
+                $postvar = $item->getPostVar();
+                if (preg_match("/_\\\$[r|v]\d+/", $postvar, $matches)) {
+                    $k = substr(array_shift($matches), 1);
+                    if(!in_array($k, $check)) {
+                        $form->removeItemByPostVar($postvar);
+                    }
+                }
+            }
+            $f = function($k,$v) use ($check) {return in_array($k, $check);};
+            $variables = array_filter($variables, $f, ARRAY_FILTER_USE_BOTH);
+            $results = array_filter($results, $f, ARRAY_FILTER_USE_BOTH);
+
             $form->setValuesByPost();
             $errors = !$form->checkInput();
 
@@ -692,9 +602,16 @@ class assFormulaQuestionGUI extends assQuestionGUI
                         $custom_errors = true;
                     }
                     $intPrecision = $form->getItemByPostVar('intprecision_' . $variable->getVariable());
-                    if ($intPrecision->getValue() > $max_range->getValue()) {
-                        $intPrecision->setAlert($this->lng->txt('err_division'));
-                        $custom_errors = true;
+                    $decimal_spots = $form->getItemByPostVar('precision_' . $variable->getVariable());
+                    if ($decimal_spots->getValue() == 0) {
+                        if (!$variable->isIntPrecisionValid(
+                            $intPrecision->getValue(),
+                            $min_range->getValue(),
+                            $max_range->getValue()
+                        )) {
+                            $intPrecision->setAlert($this->lng->txt('err_division'));
+                            $custom_errors = true;
+                        }
                     }
                 }
             }
@@ -802,6 +719,19 @@ class assFormulaQuestionGUI extends assQuestionGUI
     {
         $this->writePostData();
         $this->editQuestion();
+    }
+    
+    protected function setQuestionSpecificTabs(ilTabsGUI $ilTabs)
+    {
+        // Unit editor
+        if ($_GET['q_id']) {
+            $ilTabs->addTarget(
+                'units',
+                $this->ctrl->getLinkTargetByClass('ilLocalUnitConfigurationGUI', ''),
+                '',
+                'illocalunitconfigurationgui'
+            );
+        }
     }
     
     public function saveReturnFQ()

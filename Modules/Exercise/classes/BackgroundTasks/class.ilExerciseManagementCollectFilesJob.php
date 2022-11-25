@@ -144,7 +144,7 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
         $dir = $this->target_directory . "/" . $a_directory;
 
         if (!is_dir($dir)) {
-            ilUtil::createDirectory($dir);
+            ilUtil::makeDirParents($dir);
         }
 
         $counter = 0;
@@ -394,6 +394,17 @@ class ilExerciseManagementCollectFilesJob extends AbstractJob
                     break;
             }
         }
+    }
+
+    /**
+     * see also bug https://mantis.ilias.de/view.php?id=30999
+     */
+    protected function getFeedbackDirectory(int $participant_id, int $feedback_giver) : string
+    {
+        $dir = self::FBK_DIRECTORY . DIRECTORY_SEPARATOR .
+            "to_" . ilExSubmission::getDirectoryNameFromUserData($participant_id) . DIRECTORY_SEPARATOR .
+            "from_" . ilExSubmission::getDirectoryNameFromUserData($feedback_giver);
+        return $dir;
     }
 
     /**

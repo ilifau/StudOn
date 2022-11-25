@@ -440,11 +440,12 @@ export default class TinyWrapper {
       // backspace (8)
       if ([8].includes(ev.keyCode)) {
         wrapper.mergePrevious = (
-          currentRng.commonAncestorContainer.previousSibling === null &&
+          wrapper.isFirstNode(currentRng.commonAncestorContainer) &&
           currentRng.collapsed &&
           currentRng.startOffset === 0 &&
           currentRng.endOffset === 0
         );
+
         if (wrapper.mergePrevious) {
           const dom = tiny.dom;
           if (dom.select('ol,ul')) {    // do not allow to outdent first list element
@@ -596,6 +597,14 @@ export default class TinyWrapper {
         cb();
       });
       wrapper.autoScroll();
+      this.clearUndo();
+    }
+  }
+
+  // see e.g. #32336
+  clearUndo() {
+    if (this.tiny) {
+      this.tiny.undoManager.clear();
     }
   }
 
@@ -750,6 +759,8 @@ export default class TinyWrapper {
       back_el = back_el.parentNode;
     }
 
+    this.log(back_el);
+
     if (!back_el) {
       return;
     }
@@ -888,6 +899,7 @@ export default class TinyWrapper {
     }
     this.autoResize();
     this.setParagraphClass(characteristic);
+    this.clearUndo();
   }
 
   getText() {
@@ -1023,4 +1035,13 @@ export default class TinyWrapper {
     ed.selection.collapse(false);
   }
 
+  disable() {
+    const ed = this.tiny;
+    ed.getBody().setAttribute('contenteditable', false);
+  }
+
+  enable() {
+    const ed = this.tiny;
+    ed.getBody().setAttribute('contenteditable', true);
+  }
 }

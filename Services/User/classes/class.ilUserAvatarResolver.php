@@ -50,6 +50,18 @@ class ilUserAvatarResolver
      */
     private $size = 'small';
     /**
+     * @var ilDBInterface
+     */
+    private $db;
+    /**
+     * @var ilLanguage
+     */
+    private $lng;
+    /**
+     * @var ilObjUser
+     */
+    private $user;
+    /**
      * @var Factory
      */
     protected $ui;
@@ -78,9 +90,6 @@ class ilUserAvatarResolver
 
     private function init() : void
     {
-        if ($this->letter_avatars_activated === false) {
-            return;
-        }
         $in = $this->db->in('usr_pref.keyword', array('public_upload', 'public_profile'), false, 'text');
         $res = $this->db->queryF(
             "
@@ -90,8 +99,8 @@ class ilUserAvatarResolver
             array('integer'),
             array($this->user_id)
         );
-
-        while ($row = $this->db->fetchAssoc($res)) {
+        
+        while ($row = $this->db->fetchAssoc($res)) { // MUST be loop
             $this->login = $row['login'];
             $this->firstname = $row['firstname'];
             $this->lastname = $row['lastname'];
@@ -156,7 +165,7 @@ class ilUserAvatarResolver
             );
         }
 
-        return $this->ui->symbol()->avatar()->letter($this->login)->withAlternativeText($alternative_text);
+        return $this->ui->symbol()->avatar()->letter($this->abbreviation)->withAlternativeText($alternative_text);
     }
 
     public function getLegacyPictureURL() : string

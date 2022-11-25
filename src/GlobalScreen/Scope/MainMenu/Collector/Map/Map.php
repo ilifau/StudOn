@@ -114,13 +114,12 @@ class Map implements Filterable, Walkable
         return $this->filtered->offsetExists($identification->serialize());
     }
 
-    /**
-     * @return bool
-     */
+    
     public function has() : bool
     {
         return $this->raw->count() > 0;
     }
+    
 
     private function applyFilters() : void
     {
@@ -142,6 +141,15 @@ class Map implements Filterable, Walkable
             $this->filters = [];
         }
     }
+
+    /**
+     * @return \Generator|isItem[]
+     */
+    public function getAllFromRaw() : \Generator
+    {
+        yield from $this->raw;
+    }
+
 
     /**
      * @return \Generator|isItem[]

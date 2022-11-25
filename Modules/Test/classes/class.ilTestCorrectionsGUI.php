@@ -83,7 +83,6 @@ class ilTestCorrectionsGUI
                 $this->testOBJ->getRefId()
             );
 
-            $table_gui->setQuestionTitleLinksEnabled(true);
             $table_gui->setQuestionRemoveRowButtonEnabled(true);
             $table_gui->init();
 
@@ -433,7 +432,12 @@ class ilTestCorrectionsGUI
     {
         $this->DIC->tabs()->clearTargets();
         $this->DIC->tabs()->clearSubTabs();
-        
+
+        $this->DIC->help()->setScreenIdComponent("tst");
+        $this->DIC->help()->setScreenId("scoringadjust");
+        $this->DIC->help()->setSubScreenId($activeTabId);
+
+
         $this->DIC->tabs()->setBackTarget(
             $this->DIC->language()->txt('back'),
             $this->DIC->ctrl()->getLinkTarget($this, 'showQuestionList')

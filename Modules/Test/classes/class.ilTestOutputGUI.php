@@ -52,6 +52,18 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
             ilTestPlayerLayoutProvider::TEST_PLAYER_KIOSK_MODE_ENABLED,
             $this->object->getKioskMode()
         );
+        $DIC->globalScreen()->tool()->context()->current()->addAdditionalData(
+            ilTestPlayerLayoutProvider::TEST_PLAYER_TITLE,
+            $this->object->getTitle()
+        );
+        $instance_name =  $DIC['ilSetting']->get('short_inst_name');
+        if(trim($instance_name) === '') {
+            $instance_name = 'ILIAS';
+        }
+        $DIC->globalScreen()->tool()->context()->current()->addAdditionalData(
+            ilTestPlayerLayoutProvider::TEST_PLAYER_SHORT_TITLE,
+            $instance_name
+        );
 
         $testSessionFactory = new ilTestSessionFactory($this->object);
         $this->testSession = $testSessionFactory->getSession($_GET['active_id']);
@@ -272,6 +284,12 @@ abstract class ilTestOutputGUI extends ilTestPlayerAbstractGUI
     
     protected function showQuestionCmd()
     {
+        global $DIC;
+        $help = $DIC->help();
+        $help->setScreenIdComponent("tst");
+        $help->setScreenId("assessment");
+        $help->setSubScreenId("question");
+
         $_SESSION['tst_pass_finish'] = 0;
 
         $_SESSION["active_time_id"] = $this->object->startWorkingTime(

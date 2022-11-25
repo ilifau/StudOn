@@ -31,7 +31,7 @@ class ilLTIToolProvider extends ToolProvider\ToolProvider
     protected $logger = null;
 
 
-    public $debugMode = true; //ACHTUNG weg bei Produktiv-Umgebung
+    public $debugMode = false; //ACHTUNG true weg bei Produktiv-Umgebung
     /**
  * Permitted LTI versions for messages.
  */
@@ -786,6 +786,7 @@ class ilLTIToolProvider extends ToolProvider\ToolProvider
         }
         if ($this->ok && isset($this->context)) {
             $this->context->save();//ACHTUNG TODO UWE
+            $this->logger->dump(get_class($this->context));
         }
 
         // fau: fixLtiContextLog - context may not be set

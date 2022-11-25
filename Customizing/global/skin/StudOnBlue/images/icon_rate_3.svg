@@ -1,27 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!-- Generator: Adobe Illustrator 26.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+	 viewBox="0 0 280 266.3" style="enable-background:new 0 0 280 266.3;" xml:space="preserve">
 <style type="text/css">
-	
-		.st0{clip-path:url(#SVGID_1_);fill:#161616;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
-	.st1{fill:#F2F2F2;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st0{fill:#B54F00;}
 </style>
-<g>
-	<g>
-		<g>
-			<defs>
-				<polygon id="SVGID_744_" points="2,12.9 7.3,20.2 7.3,29.3 10.4,28.4 10.4,10 				"/>
-			</defs>
-			<use xlink:href="#SVGID_744_"  style="overflow:visible;fill:#161616;"/>
-			<clipPath id="SVGID_1_">
-				<use xlink:href="#SVGID_744_"  style="overflow:visible;"/>
-			</clipPath>
-			<rect x="2" y="10" class="st0" width="8.4" height="19.3"/>
-			
-				<use xlink:href="#SVGID_744_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;"/>
-		</g>
-	</g>
-	<polygon class="st1" points="16,2.7 10.6,10 10.4,10 10.4,28.4 16,26.6 24.7,29.3 24.8,20.2 30,12.9 21.4,10 	"/>
-</g>
+<path class="st0" d="M84,89.2l11.2-3.8L140,25.1l44.8,60.3l71.2,24l-43.5,61.3l-0.8,75.2L140,223.5L84,241V89.2z M140,0L85.9,72.8
+	L0,101.7l0,0l31.2,43.9l21.3,30.1l1,90.7l86.5-27.1l0,0l86.5,27.1l1-90.7l52.5-73.9l-85.9-28.9L140,0z"/>
 </svg>
