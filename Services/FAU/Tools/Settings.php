@@ -142,7 +142,7 @@ class Settings
     }
 
     /**
-     * Get the ids of org units to which the creation of courses should be restricted
+     * Get the ids of org units to which the creation of courses should be restricted FOR THE NEXT SEMESTER
      * courses should only be created for these units and their child units
      * @return int[]
      */
