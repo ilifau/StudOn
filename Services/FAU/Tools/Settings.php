@@ -14,6 +14,7 @@ class Settings
     const FALLBACK_PARENT_CAT_ID = 'fau_fallback_parent_cat_id';
     const MOVE_PARENT_CAT_IDS = 'fau_move_parent_cat_ids';
     const EXCLUDE_CREATE_ORG_IDS = 'fau_exclude_create_org_ids';
+    const RESTRICT_CREATE_ORG_IDS = 'fau_restrict_create_org_ids';
     const AUTHOR_ROLE_TEMPLATE_ID = 'fau_author_role_template_id';
     const MANAGER_ROLE_TEMPLATE_ID = 'fau_manager_role_template_id';
     const DIP_QUERY_STATUS = 'fau_dip_query_status';
@@ -125,8 +126,8 @@ class Settings
     }
 
     /**
-     * Get the ids of org units for which the creation of courses shoud be exluded
-     * Their child units should also be excluded
+     * Get the ids of org units in which the creation of courses should be excluded
+     * courses should not be created for these units and their child units
      * @return int[]
      */
     public function getExcludeCreateOrgIds() : array
@@ -134,6 +135,22 @@ class Settings
         return $this->getCachedValue(self::EXCLUDE_CREATE_ORG_IDS, function() {
             $ids = [];
             foreach (explode(',', (string) ilCust::get(self::EXCLUDE_CREATE_ORG_IDS)) as $id) {
+                $ids[] = (int) trim($id);
+            }
+            return $ids;
+        });
+    }
+
+    /**
+     * Get the ids of org units to which the creation of courses should be restricted
+     * courses should only be created for these units and their child units
+     * @return int[]
+     */
+    public function getRestrictCreateOrgIds() : array
+    {
+        return $this->getCachedValue(self::RESTRICT_CREATE_ORG_IDS, function() {
+            $ids = [];
+            foreach (explode(',', (string) ilCust::get(self::RESTRICT_CREATE_ORG_IDS)) as $id) {
                 $ids[] = (int) trim($id);
             }
             return $ids;

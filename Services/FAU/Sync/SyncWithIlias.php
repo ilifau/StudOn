@@ -75,32 +75,36 @@ class SyncWithIlias extends SyncBase
     /**
      * Synchronize the campo courses for selected terms
      * @param int|null $orgunit_id optional restriction to an orgunit and their subunits
-     * @param bool $negate negate the restriction (find courses not within the orgunit)
      */
-    public function synchronize(?int $orgunit_id = null, ?bool $negate = false) : void
+    public function synchronize(?int $orgunit_id = null) : void
     {
-        $unit_ids = null;
+        $create_unit_ids = null;
+        $update_unit_ids = null;
+
         if (!empty($orgunit_id)) {
-            if (!empty($unit = $this->org->repo()->getOrgunit($orgunit_id))) {
-                $unit_ids = $this->org->repo()->getOrgunitIdsByPath($unit->getPath());
-            }
-            else {
-                $unit_ids = [];
-            }
+            $create_unit_ids =  $this->sync->trees()->getOrgUnitIdsWithDescendants([$orgunit_id]);
+            $update_unit_ids = $create_unit_ids;
+        }
+        elseif (!empty($this->settings->getRestrictCreateOrgIds())) {
+            $create_unit_ids = $this->sync->trees()->getOrgUnitIdsWithDescendants($this->settings->getRestrictCreateOrgIds());
         }
 
         if ($this->init()) {
             foreach ($this->sync->getTermsToSync() as $term) {
                 $this->info('SYNC term ' . $term->toString() . '...');
 
-                // restrict to the courses within or not within the units, if given
-                $course_ids = null;
-                if (isset($unit_ids)) {
-                    $course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($unit_ids, $term, false, $negate);
+                // restrict to the courses within within the selected units, if given
+                $create_course_ids = null;
+                $update_course_ids = null;
+                if (isset($create_unit_ids)) {
+                    $create_course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($create_unit_ids, $term, false);
+                }
+                if (isset($update_unit_ids)) {
+                    $update_course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($update_unit_ids, $term, false);
                 }
 
-                $this->increaseItemsAdded($this->createCourses($term, $course_ids));
-                $this->increaseItemsUpdated($this->updateCourses($term, $course_ids));
+                $this->increaseItemsAdded($this->createCourses($term, $create_course_ids));
+                $this->increaseItemsUpdated($this->updateCourses($term, $update_course_ids));
                 $this->increaseItemsUpdated($this->moveLostCourses($term));
             }
         }
