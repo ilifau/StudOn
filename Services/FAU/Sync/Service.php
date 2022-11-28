@@ -72,8 +72,10 @@ class Service extends SubService
 
     /**
      * Get the terms for which the courses should be created or updated
-     * End synchronisation with the end of the semester
-     * Start synchronisation for next semester at 1st of June and 1st of December
+     *
+     * Always sync the current semester (Winter from 1st of October, Summer from 1st of April)
+     * End synchronisation of the previous semester at 1st of June and 1st of December (2 months after end)
+     * Start synchronisation for the next semester at 1st of June and 1st of December (4 months in advance)
      * @return Term[]
      */
     public function getTermsToSync() : array
@@ -94,6 +96,7 @@ class Service extends SubService
         }
         elseif ($month < 6) {
             return [
+                new Term($year - 1, 2),     // last winter term
                 new Term($year, 1),              // current summer term
             ];
         }
@@ -105,6 +108,7 @@ class Service extends SubService
         }
         elseif ($month < 12) {
             return [
+                new Term($year, 1),             // last summer term
                 new Term($year, 2),             // current winter term
             ];
         }

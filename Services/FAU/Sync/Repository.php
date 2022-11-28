@@ -197,7 +197,7 @@ class Repository extends RecordRepo
      * @param Term $term
      * @return StudOnMember[]
      */
-    public function getMembersOfCoursesToSync(Term $term) : array
+    public function getMembersOfCoursesToSyncBack(Term $term) : array
     {
         $query = "
             SELECT c.course_id, p.person_id, m.module_id, 'registered' status, c.term_year, c.term_type_id,
@@ -221,7 +221,7 @@ class Repository extends RecordRepo
      * @param Term $term
      * @return StudOnCourse[]
      */
-    public function getCoursesToSync(Term $term) : array
+    public function getCoursesToSyncBack(Term $term) : array
     {
         $query = "
             SELECT c.course_id, c.term_year, c.term_type_id,
@@ -239,5 +239,20 @@ class Repository extends RecordRepo
             AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer');
 
         return $this->queryRecords($query, StudOnCourse::model(), false, true);
+    }
+
+
+    /**
+     * Get the ids of courses in a term where members or settings can be sent back to campo
+     * @param Term $term
+     * @return array
+     */
+    public function getCourseIdsToSyncBack(Term $term) : array
+    {
+        $query = "SELECT course_id FROM fau_study_courses"
+            ." WHERE term_year = " . $this->db->quote($term->getYear(), 'integer')
+            ." AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer')
+            ." AND ilias_obj_id IS NOT NULL";
+        return $this->getIntegerList($query, 'course_id', false);
     }
 }
