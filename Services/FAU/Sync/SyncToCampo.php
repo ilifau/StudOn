@@ -32,7 +32,7 @@ class SyncToCampo extends SyncBase
         $this->info('syncStudOnCourses...');
         $existing = $this->staging->repo()->getStudOnCourses($term);
 
-        foreach ($this->sync->repo()->getCoursesToSync($term) as $course) {
+        foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
             if (!isset($existing[$course->key()])) {
                 $this->staging->repo()->save($course);
             }
@@ -56,9 +56,12 @@ class SyncToCampo extends SyncBase
     public function syncMembers(Term $term) : void
     {
         $this->info('syncStudOnMembers...');
+        // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembers($term);
+        // get the courses in the tern that have an ilias object assigned
+        $course_ids = $this->sync->repo()->getCourseIdsToSyncBack($term);
 
-        foreach ($this->sync->repo()->getMembersOfCoursesToSync($term) as $member) {
+        foreach ($this->sync->repo()->getMembersOfCoursesToSyncBack($term) as $member) {
             if (!isset($existing[$member->key()])) {
                 $this->staging->repo()->save($member);
                 $this->increaseItemsAdded();
@@ -67,14 +70,17 @@ class SyncToCampo extends SyncBase
                 $this->staging->repo()->save($member);
                 $this->increaseItemsUpdated();
             }
-            // record is still needed
+            // existing member in campo is still assigned in studon
             unset($existing[$member->key()]);
         }
 
-        // delete existing records that are no longer needed
+        // delete remaining existing members in campo that are no longer assigned in studon
+        // don't delete those of older courses where the studon object is deleted or connected with another course
         foreach ($existing as $member) {
-            $this->staging->repo()->delete($member);
-            $this->increaseItemsDeleted();
+            if (in_array($member->getCourseId(), $course_ids)) {
+                $this->staging->repo()->delete($member);
+                $this->increaseItemsDeleted();
+            }
         }
     }
 
