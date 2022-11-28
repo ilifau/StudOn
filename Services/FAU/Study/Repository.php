@@ -256,7 +256,7 @@ class Repository extends RecordRepo
      * Get the course ids of courses offered by org units with given ids
      * @return int[]
      */
-    public function getCourseIdsOfOrgUnitsInTerm(array $unit_ids, Term $term, $useCache = true, $negate = false) : array
+    public function getCourseIdsOfOrgUnitsInTerm(array $unit_ids, Term $term, $useCache = true) : array
     {
         $query = "
         SELECT c.course_id
@@ -264,7 +264,7 @@ class Repository extends RecordRepo
         JOIN fau_study_events e ON e.event_id = c.event_id
         JOIN fau_study_event_orgs o ON o.event_id = e.event_id
         JOIN fau_org_orgunits u ON u.fauorg_nr = o.fauorg_nr
-        WHERE " . $this->db->in('u.id', $unit_ids, $negate, 'integer')
+        WHERE " . $this->db->in('u.id', $unit_ids, false, 'integer')
         . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
         . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         return $this->getIntegerList($query, 'course_id', $useCache);

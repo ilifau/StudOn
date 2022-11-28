@@ -42,23 +42,31 @@ class TreeMatching
     }
 
     /**
+     * Extend a list of orgunit ids with the ids of their descendants
+     * @param int[] $ids
+     * @return int[]
+     */
+    public function getOrgUnitIdsWithDescendants(array $ids) : array
+    {
+        foreach($this->dic->fau()->org()->repo()->getOrgunitPathsByIds($ids) as $path) {
+            $ids = array_merge($ids, $this->dic->fau()->org()->repo()->getOrgunitIdsByPath($path));
+        }
+        return $ids;
+    }
+
+
+
+    /**
      * Fetch the org unit paths that should be excluded from course creation
      */
     protected function getExcludeCreateOrgPaths() : array
     {
-        if (isset($this->exclude_create_org_paths)) {
-            return $this->exclude_create_org_paths;
+        if (!isset($this->exclude_create_org_paths)) {
+            $this->exclude_create_org_paths = $this->dic->fau()->org()->repo()->getOrgunitPathsByIds(
+                $this->dic->fau()->tools()->settings()->getExcludeCreateOrgIds()
+            );
         }
-
-        $paths = [];
-        foreach ($this->dic->fau()->tools()->settings()->getExcludeCreateOrgIds() as $id) {
-            if (!empty($unit = $this->dic->fau()->org()->repo()->getOrgunit($id))) {
-                $paths[] = $unit->getPath();
-            }
-        }
-
-        $this->exclude_create_org_paths = $paths;
-        return $paths;
+        return $this->exclude_create_org_paths;
     }
 
     /**

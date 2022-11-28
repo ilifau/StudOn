@@ -78,6 +78,19 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Orgunit::model(), false);
     }
 
+    /**
+     * Get the paths of orgunits with ids
+     * @param int[] $ids
+     * @return string[]
+     */
+    public function getOrgunitPathsByIds(array $ids, bool $useCache = true) : array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+        $query = "SELECT path FROM fau_org_orgunits WHERE " . $this->db->in('id', $ids, false, 'integer');
+        return $this->getStringList($query, 'path', $useCache);
+    }
 
 
     /**
