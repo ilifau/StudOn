@@ -1,22 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="16px" height="16px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
-<g>
-	<defs>
-		<polygon id="SVGID_1_" points="23.4,10.5 27.6,9.3 18.6,3 18.9,7.3 15.8,11.8 10.1,13.2 14.6,16.4 9.6,23.6 7.9,27.8 11.4,24.8 
-			16.4,17.6 20.9,20.8 20.3,15 		"/>
-	</defs>
-	<clipPath id="SVGID_2_">
-		<use xlink:href="#SVGID_1_"  overflow="visible"/>
-	</clipPath>
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Ebene_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#BAE1FF;}
 	
-		<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="-111.3076" y1="242.6788" x2="-110.3076" y2="242.6788" gradientTransform="matrix(1.8021 1.2619 1.2619 -1.8021 -89.5561 592.0469)">
-		<stop  offset="0" style="stop-color:#4C6586"/>
-		<stop  offset="1.983430e-02" style="stop-color:#4C6586"/>
-		<stop  offset="1" style="stop-color:#5A78A0"/>
-	</linearGradient>
-	<polygon clip-path="url(#SVGID_2_)" fill="url(#SVGID_3_)" points="14.4,-6.2 39.2,11.2 21.1,37 -3.7,19.7 	"/>
+		.st1{clip-path:url(#SVGID_2_);fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g id="Ebene_2_1_">
+</g>
+<g>
+	<g>
+		<g>
+			<polygon id="SVGID_782_" class="st0" points="22.3,10.6 27.1,9.2 16.9,2 17.4,7 13.7,11.9 7.4,13.5 12.4,17.1 6.8,25.2 4.9,30 
+				8.8,26.6 14.4,18.5 19.6,22.1 18.9,15.5 			"/>
+		</g>
+		<g>
+			<defs>
+				<polygon id="SVGID_6_" points="22.3,10.6 27.1,9.2 16.9,2 17.4,7 13.7,11.9 7.4,13.5 12.4,17.1 6.8,25.2 4.9,30 8.8,26.6 
+					14.4,18.5 19.6,22.1 18.9,15.5 				"/>
+			</defs>
+			<clipPath id="SVGID_2_">
+				<use xlink:href="#SVGID_6_"  style="overflow:visible;"/>
+			</clipPath>
+			<polygon class="st1" points="12.2,-8.4 40.1,11.3 19.8,40.4 -8.1,21 			"/>
+		</g>
+		<g>
+			<polygon id="SVGID_1_" class="st2" points="22.3,10.6 27.1,9.2 16.9,2 17.4,7 13.7,11.9 7.4,13.5 12.4,17.1 6.8,25.2 4.9,30 
+				8.8,26.6 14.4,18.5 19.6,22.1 18.9,15.5 			"/>
+		</g>
+	</g>
 </g>
 </svg>

@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Generator: Adobe Illustrator 22.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="16px" height="16px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
-<g>
-	<defs>
-		<polygon id="SVGID_1_" points="23.4,10.5 27.6,9.3 18.6,3 18.9,7.3 15.8,11.8 10.1,13.2 14.6,16.4 9.6,23.6 7.9,27.8 11.4,24.8 
-			16.4,17.6 20.9,20.8 20.3,15 		"/>
-	</defs>
-	<clipPath id="SVGID_2_">
-		<use xlink:href="#SVGID_1_"  overflow="visible"/>
-	</clipPath>
+	 width="16px" height="16px" viewBox="0 0 16 16" style="enable-background:new 0 0 16 16;" xml:space="preserve">
+<style type="text/css">
 	
-		<linearGradient id="SVGID_3_" gradientUnits="userSpaceOnUse" x1="-111.3076" y1="242.6788" x2="-110.3076" y2="242.6788" gradientTransform="matrix(1.8021 1.2619 1.2619 -1.8021 -89.5561 592.0469)">
-		<stop  offset="0" style="stop-color:#4C6586"/>
-		<stop  offset="1.983430e-02" style="stop-color:#4C6586"/>
-		<stop  offset="1" style="stop-color:#5A78A0"/>
-	</linearGradient>
-	<polygon clip-path="url(#SVGID_2_)" fill="url(#SVGID_3_)" points="14.4,-6.2 39.2,11.2 21.1,37 -3.7,19.7 	"/>
+		.st0{clip-path:url(#SVGID_1_);fill:#BAE1FF;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g>
+	<g>
+		<defs>
+			<polygon id="SVGID_782_" points="10.8,5.6 12.9,5 8.4,1.8 8.6,4 7,6.2 4.2,6.9 6.4,8.5 3.9,12.1 3.1,14.2 4.8,12.7 7.3,9.1 
+				9.6,10.7 9.3,7.8 			"/>
+		</defs>
+		<use xlink:href="#SVGID_782_"  style="overflow:visible;fill:#BAE1FF;"/>
+		<clipPath id="SVGID_1_">
+			<use xlink:href="#SVGID_782_"  style="overflow:visible;"/>
+		</clipPath>
+		<polygon class="st0" points="6.3,-2.8 18.7,5.9 9.7,18.8 -2.7,10.2 		"/>
+		
+			<use xlink:href="#SVGID_782_"  style="overflow:visible;fill:none;stroke:#161616;stroke-width:0.75;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;"/>
+	</g>
 </g>
 </svg>
