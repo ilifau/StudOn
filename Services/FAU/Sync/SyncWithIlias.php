@@ -93,10 +93,11 @@ class SyncWithIlias extends SyncBase
             foreach ($this->sync->getTermsToSync() as $term) {
                 $this->info('SYNC term ' . $term->toString() . '...');
 
-                // restrict to the courses within within the selected units, if given
+                // restrict to the courses within the selected units, if given
                 $create_course_ids = null;
                 $update_course_ids = null;
-                if (isset($create_unit_ids)) {
+                // respect a restriction only if given by parameter or for the next semester
+                if (isset($create_unit_ids) && (isset($orgunit_id) || $term->toString() == $this->dic->fau()->study()->getNextTerm()->toString())) {
                     $create_course_ids = $this->study->repo()->getCourseIdsOfOrgUnitsInTerm($create_unit_ids, $term, false);
                 }
                 if (isset($update_unit_ids)) {
