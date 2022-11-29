@@ -22,7 +22,7 @@ abstract class assQuestion
     const IMG_MIME_TYPE_JPG = 'image/jpeg';
     const IMG_MIME_TYPE_PNG = 'image/png';
     const IMG_MIME_TYPE_GIF = 'image/gif';
-    
+
     protected static $allowedFileExtensionsByMimeType = array(
         self::IMG_MIME_TYPE_JPG => array('jpg', 'jpeg'),
         self::IMG_MIME_TYPE_PNG => array('png'),
@@ -166,7 +166,7 @@ abstract class assQuestion
     * Number of tries
     */
     private $nr_of_tries;
-    
+
     /**
     * Associative array to store properties
     */
@@ -182,7 +182,7 @@ abstract class assQuestion
      * @var string
      */
     protected $external_id = '';
-    
+
     /**
      * constant for additional content editing mode "default"
      */
@@ -199,7 +199,7 @@ abstract class assQuestion
      * @var string
      */
     private $additinalContentEditingMode = null;
-    
+
     /**
      * feedback object for question
      *
@@ -227,7 +227,7 @@ abstract class assQuestion
      * @var int
      */
     public $defaultnroftries = 0;
-    
+
     /**
      * @var array[ilQuestionChangeListener]
      */
@@ -249,7 +249,7 @@ abstract class assQuestion
      * @var null|int
      */
     protected $step = null;
-    
+
     protected $lastChange;
 
     /**
@@ -261,7 +261,7 @@ abstract class assQuestion
      * @var bool
      */
     private $obligationsToBeConsidered = false;
-    
+
     // fau: testNav - new variable $testQuestionConfig
     /**
      * @var ilTestQuestionConfig
@@ -276,16 +276,16 @@ abstract class assQuestion
      */
     protected $validateSolutionMessage;
     // fau.
-    
+
     /**
      * @var ilAssQuestionLifecycle
      */
     protected $lifecycle;
-    
+
     protected static $allowedImageMaterialFileExtensionsByMimeType = array(
         'image/jpeg' => array('jpg', 'jpeg'), 'image/png' => array('png'), 'image/gif' => array('gif')
     );
-    
+
     /**
     * assQuestion constructor
     *
@@ -341,22 +341,22 @@ abstract class assQuestion
         $this->setExternalId('');
 
         $this->questionActionCmd = 'handleQuestionAction';
-        
+
         $this->lastChange = null;
 
         require_once 'Services/Randomization/classes/class.ilArrayElementOrderKeeper.php';
         $this->shuffler = new ilArrayElementOrderKeeper();
-        
+
         $this->lifecycle = ilAssQuestionLifecycle::getDraftInstance();
     }
-    
+
     protected static $forcePassResultsUpdateEnabled = false;
-    
+
     public static function setForcePassResultUpdateEnabled($forcePassResultsUpdateEnabled)
     {
         self::$forcePassResultsUpdateEnabled = $forcePassResultsUpdateEnabled;
     }
-    
+
     public static function isForcePassResultUpdateEnabled()
     {
         return self::$forcePassResultsUpdateEnabled;
@@ -397,9 +397,9 @@ abstract class assQuestion
             self::getAllowedFileExtensionsForMimeType($mimeType)
         );
     }
-    
+
     // hey: prevPassSolutions - question action actracted (heavy use in fileupload refactoring)
-    
+
     /**
      * @return string
      */
@@ -408,14 +408,14 @@ abstract class assQuestion
         if (!isset($_POST['cmd']) || !isset($_POST['cmd'][$this->questionActionCmd])) {
             return '';
         }
-        
+
         if (!is_array($_POST['cmd'][$this->questionActionCmd]) || !count($_POST['cmd'][$this->questionActionCmd])) {
             return '';
         }
-        
+
         return key($_POST['cmd'][$this->questionActionCmd]);
     }
-    
+
     /**
      * @param string $postSubmissionFieldname
      * @return bool
@@ -425,18 +425,18 @@ abstract class assQuestion
         if (!isset($_POST[$postSubmissionFieldname])) {
             return false;
         }
-        
+
         if (!is_array($_POST[$postSubmissionFieldname])) {
             return false;
         }
-        
+
         if (!count($_POST[$postSubmissionFieldname])) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * @param $active_id
      * @param $pass
@@ -447,10 +447,10 @@ abstract class assQuestion
         if (is_integer($pass) && $pass >= 0) {
             return $pass;
         }
-        
+
         return $this->lookupCurrentTestPass($active_id, $pass);
     }
-    
+
     /**
      * @param $active_id
      * @param $pass
@@ -461,7 +461,7 @@ abstract class assQuestion
         require_once 'Modules/Test/classes/class.ilObjTest.php';
         return ilObjTest::_getPass($active_id);
     }
-    
+
     /**
      * @param $active_id
      * @return int
@@ -470,21 +470,21 @@ abstract class assQuestion
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         $ilDB = $DIC['ilDB'];
-        
+
         $result = $ilDB->queryF(
             "SELECT test_fi FROM tst_active WHERE active_id = %s",
             array('integer'),
             array($active_id)
         );
-        
+
         while ($row = $ilDB->fetchAssoc($result)) {
             return $row["test_fi"];
         }
-        
+
         return null;
     }
     // hey.
-    
+
     /**
      * @param integer $active_id
      * @param string $langVar
@@ -576,7 +576,7 @@ abstract class assQuestion
             $h->save();
         }
     }
-    
+
     /**
     * Returns a QTI xml representation of the question
     *
@@ -613,7 +613,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $result = $ilDB->queryF(
             "SELECT * FROM qpl_questions WHERE obj_fi = %s AND title = %s",
             array('integer','text'),
@@ -857,7 +857,7 @@ abstract class assQuestion
     {
         return $this->outputType;
     }
-    
+
     /**
     * Returns true if the question type supports JavaScript output
     *
@@ -873,7 +873,7 @@ abstract class assQuestion
     {
         return true;
     }
-    
+
     public function requiresJsSwitch()
     {
         return $this->supportsJavascriptOutput() && $this->supportsNonJsOutput();
@@ -941,7 +941,7 @@ abstract class assQuestion
     {
         $this->obj_id = $obj_id;
     }
-    
+
     /**
      * @return ilAssQuestionLifecycle
      */
@@ -949,7 +949,7 @@ abstract class assQuestion
     {
         return $this->lifecycle;
     }
-    
+
     /**
      * @param ilAssQuestionLifecycle $lifecycle
      */
@@ -1028,7 +1028,7 @@ abstract class assQuestion
             return array();
         }
     }
-    
+
     /**
     * Returns the number of suggested solutions associated with a question
     *
@@ -1124,7 +1124,7 @@ abstract class assQuestion
             return array();
         }
     }
-    
+
     /**
     * Return the suggested solutions
     *
@@ -1134,7 +1134,7 @@ abstract class assQuestion
     {
         return $this->suggested_solutions;
     }
-    
+
     /**
     * Returns the points, a learner has reached answering the question
     *
@@ -1176,7 +1176,7 @@ abstract class assQuestion
     {
         return round(self::_getReachedPoints($active_id, $this->getId(), $pass), 2);
     }
-    
+
     /**
     * Returns the maximum points, a learner can reach answering the question
     *
@@ -1187,7 +1187,7 @@ abstract class assQuestion
     {
         return $this->points;
     }
-        
+
     /**
      *  returns the reached points ...
      * - calculated by concrete question type class
@@ -1205,11 +1205,11 @@ abstract class assQuestion
             include_once "./Modules/Test/classes/class.ilObjTest.php";
             $pass = ilObjTest::_getPass($active_id);
         }
-            
+
         // determine reached points for submitted solution
         $reached_points = $this->calculateReachedPoints($active_id, $pass, $authorizedSolution);
-            
-            
+
+
 
         // deduct points for requested hints from reached points
         require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionHintTracking.php';
@@ -1219,10 +1219,10 @@ abstract class assQuestion
 
         // adjust reached points regarding to tests scoring options
         $reached_points = $this->adjustReachedPointsByScoringOptions($reached_points, $active_id, $pass);
-            
+
         return $reached_points;
     }
-    
+
     /**
      * Calculates the question results from a previously saved question solution
      *
@@ -1237,12 +1237,12 @@ abstract class assQuestion
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $ilUser = $DIC['ilUser'];
-        
+
         if (is_null($pass)) {
             include_once "./Modules/Test/classes/class.ilObjTest.php";
             $pass = ilObjTest::_getPass($active_id);
         }
-        
+
         // determine reached points for submitted solution
         $reached_points = $this->calculateReachedPoints($active_id, $pass);
 
@@ -1254,13 +1254,13 @@ abstract class assQuestion
 
         // adjust reached points regarding to tests scoring options
         $reached_points = $this->adjustReachedPointsByScoringOptions($reached_points, $active_id, $pass);
-        
+
         if ($obligationsEnabled && ilObjTest::isQuestionObligatory($this->getId())) {
             $isAnswered = $this->isAnswered($active_id, $pass);
         } else {
             $isAnswered = true;
         }
-        
+
         if (is_null($reached_points)) {
             $reached_points = 0;
         }
@@ -1271,7 +1271,7 @@ abstract class assQuestion
         $this->getProcessLocker()->executeUserQuestionResultUpdateOperation(function () use ($ilDB, $active_id, $pass, $reached_points, $requestsStatisticData, $isAnswered, $existingSolutions) {
             $query = "
 			DELETE FROM		tst_test_result
-			
+
 			WHERE			active_fi = %s
 			AND				question_fi = %s
 			AND				pass = %s
@@ -1314,7 +1314,7 @@ abstract class assQuestion
         // fau.
 
         include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
-        
+
         if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
             assQuestion::logAction(
                 sprintf(
@@ -1382,7 +1382,7 @@ abstract class assQuestion
         $this->savePreviewData($previewSession);
         return $this->validateSolutionSubmit();
     }
-    
+
     public function validateSolutionSubmit()
     {
         return true;
@@ -1423,7 +1423,7 @@ abstract class assQuestion
     {
         $previewSession->setParticipantsSolution($this->getSolutionSubmit());
     }
-    
+
     /** @TODO Move this to a proper place. */
     public static function _updateTestResultCache($active_id, ilAssQuestionProcessLocker $processLocker = null)
     {
@@ -1432,7 +1432,7 @@ abstract class assQuestion
 
         include_once "./Modules/Test/classes/class.ilObjTest.php";
         include_once "./Modules/Test/classes/class.assMarkSchema.php";
-        
+
         $pass = ilObjTest::_getResultPass($active_id);
 
         $query = "
@@ -1441,39 +1441,39 @@ abstract class assQuestion
 			WHERE		active_fi = %s
 			AND			pass = %s
 		";
-        
+
         $result = $ilDB->queryF(
             $query,
             array('integer','integer'),
             array($active_id, $pass)
         );
-        
-        $row = $ilDB->fetchAssoc($result);
-        
-        $max = $row['maxpoints'];
-        $reached = $row['points'];
-        
-        $obligationsAnswered = (int) $row['obligations_answered'];
-        
+
+        $row_result = $ilDB->fetchAssoc($result);
+
+        $max = $row_result['maxpoints'];
+        $reached = $row_result['points'];
+
+        $obligationsAnswered = (int) $row_result['obligations_answered'];
+
         include_once "./Modules/Test/classes/class.assMarkSchema.php";
-        
+
         $percentage = (!$max) ? 0 : ($reached / $max) * 100.0;
-        
+
         $mark = ASS_MarkSchema::_getMatchingMarkFromActiveId($active_id, $percentage);
-        
+
         $isPassed = ($mark["passed"] ? 1 : 0);
         $isFailed = (!$mark["passed"] ? 1 : 0);
 
-        $userTestResultUpdateCallback = function () use ($ilDB, $active_id, $pass, $max, $reached, $isFailed, $isPassed, $obligationsAnswered, $row, $mark) {
+        $userTestResultUpdateCallback = function () use ($ilDB, $active_id, $pass, $max, $reached, $isFailed, $isPassed, $obligationsAnswered, $row_result, $mark) {
             $passedOnceBefore = 0;
             $query = "SELECT passed_once FROM tst_result_cache WHERE active_fi = %s";
             $res = $ilDB->queryF($query, array('integer'), array($active_id));
             while ($row = $ilDB->fetchAssoc($res)) {
                 $passedOnceBefore = (int) $row['passed_once'];
             }
-            
+
             $passedOnce = (int) ($isPassed || $passedOnceBefore);
-                
+
             $ilDB->manipulateF(
                 "DELETE FROM tst_result_cache WHERE active_fi = %s",
                 array('integer'),
@@ -1491,8 +1491,8 @@ abstract class assQuestion
                 'passed' => array('integer', $isPassed),
                 'failed' => array('integer', $isFailed),
                 'tstamp' => array('integer', time()),
-                'hint_count' => array('integer', $row['hint_count']),
-                'hint_points' => array('float', $row['hint_points']),
+                'hint_count' => array('integer', $row_result['hint_count']),
+                'hint_points' => array('float', $row_result['hint_points']),
                 'obligations_answered' => array('integer', $obligationsAnswered)
             ));
         };
@@ -1503,7 +1503,7 @@ abstract class assQuestion
             $userTestResultUpdateCallback();
         }
     }
-    
+
     /** @TODO Move this to a proper place. */
     public static function _updateTestPassResults($active_id, $pass, $obligationsEnabled = false, ilAssQuestionProcessLocker $processLocker = null, $test_obj_id = null)
     {
@@ -1520,7 +1520,7 @@ abstract class assQuestion
             $time = ilObjTest::_getWorkingTimeOfParticipantForPass($active_id, $pass);
         }
 
-        
+
         // update test pass results
         // fau: fixWrongQuestionsCount - filter by question_ids of that pass
         $result = $ilDB->queryF(
@@ -1569,9 +1569,9 @@ abstract class assQuestion
             } else {
                 $obligations_answered = 1;
             }
-            
+
             $row = $ilDB->fetchAssoc($result);
-            
+
             if ($row['reachedpoints'] === null) {
                 $row['reachedpoints'] = 0;
             }
@@ -1613,9 +1613,9 @@ abstract class assQuestion
                 $updatePassResultCallback();
             }
         }
-        
+
         assQuestion::_updateTestResultCache($active_id, $processLocker);
-        
+
         return array(
             'active_fi' => $active_id,
             'pass' => $pass,
@@ -1645,10 +1645,10 @@ abstract class assQuestion
         if (strlen($question_id)) {
             $original_id = self::_getOriginalId($question_id);
         }
-        
+
         require_once 'Modules/Test/classes/class.ilObjAssessmentFolder.php';
         require_once 'Modules/Test/classes/class.ilObjTest.php';
-        
+
         ilObjAssessmentFolder::_addLog(
             $GLOBALS['DIC']['ilUser']->getId(),
             ilObjTest::_getObjectIDFromActiveID($active_id),
@@ -1657,7 +1657,7 @@ abstract class assQuestion
             $original_id
         );
     }
-    
+
     /**
     * Move an uploaded media file to an public accessible temp dir to present it
     *
@@ -1680,7 +1680,7 @@ abstract class assQuestion
             return $temp_name;
         }
     }
-    
+
     /**
     * Returns the path for a suggested solution
     *
@@ -1701,7 +1701,7 @@ abstract class assQuestion
     {
         return CLIENT_WEB_DIR . "/assessment/$this->obj_id/$this->id/java/";
     }
-    
+
     /**
     * Returns the image path for web accessable images of a question.
     * The image path is under the CLIENT_WEB_DIR in assessment/REFERENCE_ID_OF_QUESTION_POOL/ID_OF_QUESTION/images
@@ -1713,14 +1713,14 @@ abstract class assQuestion
         if ($question_id === null) {
             $question_id = $this->id;
         }
-        
+
         if ($object_id === null) {
             $object_id = $this->obj_id;
         }
-        
+
         return $this->buildImagePath($question_id, $object_id);
     }
-    
+
     public function buildImagePath($questionId, $parentObjectId)
     {
         return CLIENT_WEB_DIR . "/assessment/{$parentObjectId}/{$questionId}/images/";
@@ -1802,22 +1802,22 @@ abstract class assQuestion
             // hey.
             return $this->getSolutionValues($activeId, $pass, true);
         }
-        
+
         return $this->getUserSolutionPreferingIntermediate($activeId, $pass);
     }
     // hey.
-    
+
     public function getUserSolutionPreferingIntermediate($active_id, $pass = null)
     {
         $solution = $this->getSolutionValues($active_id, $pass, false);
-        
+
         if (!count($solution)) {
             $solution = $this->getSolutionValues($active_id, $pass, true);
         }
-        
+
         return $solution;
     }
-    
+
     /**
     * Loads solutions of a given user from the database an returns it
     */
@@ -1825,7 +1825,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         if (is_null($pass)) {
             $pass = $this->getSolutionMaxPass($active_id);
         }
@@ -1840,7 +1840,7 @@ abstract class assQuestion
 				AND step = %s
 				AND authorized = %s
 				ORDER BY solution_id";
-            
+
             $result = $ilDB->queryF(
                 $query,
                 array('integer', 'integer', 'integer', 'integer', 'integer'),
@@ -1851,12 +1851,12 @@ abstract class assQuestion
 				SELECT *
 				FROM tst_solutions
 				WHERE active_fi = %s
-				AND question_fi = %s 
+				AND question_fi = %s
 		  		AND pass = %s
 				AND authorized = %s
 				ORDER BY solution_id
 			";
-            
+
             $result = $ilDB->queryF(
                 $query,
                 array('integer', 'integer', 'integer', 'integer'),
@@ -1883,7 +1883,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         if ($question_id < 1) {
             $question_id = $this->getId();
         }
@@ -1921,7 +1921,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         if ($question_id < 1) {
             $question_id = $this->id;
         }
@@ -1980,7 +1980,7 @@ abstract class assQuestion
     {
         return "";
     }
-    
+
     /**
     * Returns the name of the answer table in the database
     *
@@ -2003,11 +2003,11 @@ abstract class assQuestion
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $answer_table_name = $this->getAnswerTableName();
-        
+
         if (!is_array($answer_table_name)) {
             $answer_table_name = array($answer_table_name);
         }
-        
+
         foreach ($answer_table_name as $table) {
             if (strlen($table)) {
                 $affectedRows = $ilDB->manipulateF(
@@ -2029,13 +2029,13 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $additional_table_name = $this->getAdditionalTableName();
-        
+
         if (!is_array($additional_table_name)) {
             $additional_table_name = array($additional_table_name);
         }
-        
+
         foreach ($additional_table_name as $table) {
             if (strlen($table)) {
                 $affectedRows = $ilDB->manipulateF(
@@ -2072,7 +2072,7 @@ abstract class assQuestion
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $ilLog = $DIC['ilLog'];
-        
+
         if ($question_id < 1) {
             return true;
         } // nothing to do
@@ -2094,7 +2094,7 @@ abstract class assQuestion
             $ilLog->write("EXCEPTION: Could not delete page of question $question_id: $e");
             return false;
         }
-        
+
         $affectedRows = $ilDB->manipulateF(
             "DELETE FROM qpl_questions WHERE question_id = %s",
             array('integer'),
@@ -2137,7 +2137,7 @@ abstract class assQuestion
             $ilLog->write("EXCEPTION: Could not delete suggested solutions of question $question_id: $e");
             return false;
         }
-                
+
         try {
             $directory = CLIENT_WEB_DIR . "/assessment/" . $obj_id . "/$question_id";
             if (preg_match("/\d+/", $obj_id) and preg_match("/\d+/", $question_id) and is_dir($directory)) {
@@ -2167,10 +2167,10 @@ abstract class assQuestion
             $ilLog->write("EXCEPTION: Error deleting the media objects of question $question_id: $e");
             return false;
         }
-        
+
         require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionHintTracking.php';
         ilAssQuestionHintTracking::deleteRequestsByQuestionIds(array($question_id));
-        
+
         require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionHintList.php';
         ilAssQuestionHintList::deleteHintsByQuestionIds(array($question_id));
 
@@ -2185,7 +2185,7 @@ abstract class assQuestion
         }
 
         $this->deleteTaxonomyAssignments();
-        
+
         try {
             // update question count of question pool
             include_once "./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php";
@@ -2194,18 +2194,18 @@ abstract class assQuestion
             $ilLog->write("EXCEPTION: Error updating the question pool question count of question pool " . $this->getObjId() . " when deleting question $question_id: $e");
             return false;
         }
-        
+
         $this->notifyQuestionDeleted($this);
-        
+
         return true;
     }
-    
+
     private function deleteTaxonomyAssignments()
     {
         require_once 'Services/Taxonomy/classes/class.ilObjTaxonomy.php';
         require_once 'Services/Taxonomy/classes/class.ilTaxNodeAssignment.php';
         $taxIds = ilObjTaxonomy::getUsageOfObject($this->getObjId());
-        
+
         foreach ($taxIds as $taxId) {
             $taxNodeAssignment = new ilTaxNodeAssignment('qpl', $this->getObjId(), 'quest', $taxId);
             $taxNodeAssignment->deleteAssignmentsOfItem($this->getId());
@@ -2315,7 +2315,7 @@ abstract class assQuestion
             return "";
         }
     }
-    
+
     /**
     * Returns question text
     *
@@ -2337,24 +2337,24 @@ abstract class assQuestion
             return "";
         }
     }
-    
+
     public static function isFileAvailable($file)
     {
         if (!file_exists($file)) {
             return false;
         }
-        
+
         if (!is_file($file)) {
             return false;
         }
-        
+
         if (!is_readable($file)) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     public function copyXHTMLMediaObjectsOfQuestion($a_q_id)
     {
         include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
@@ -2363,7 +2363,7 @@ abstract class assQuestion
             ilObjMediaObject::_saveUsage($mob, "qpl:html", $this->getId());
         }
     }
-    
+
     public function syncXHTMLMediaObjectsOfQuestion()
     {
         include_once("./Services/MediaObjects/classes/class.ilObjMediaObject.php");
@@ -2372,7 +2372,7 @@ abstract class assQuestion
             ilObjMediaObject::_saveUsage($mob, "qpl:html", $this->original_id);
         }
     }
-    
+
     /**
     * create page object of question
     */
@@ -2446,7 +2446,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         if ($question_id < 1) {
             return "";
         }
@@ -2468,12 +2468,12 @@ abstract class assQuestion
     {
         $this->original_id = $original_id;
     }
-    
+
     public function getOriginalId()
     {
         return $this->original_id;
     }
-    
+
     protected static $imageSourceFixReplaceMap = array(
         'ok.svg' => 'ok.png', 'not_ok.svg' => 'not_ok.png',
         'checkbox_checked.svg' => 'checkbox_checked.png',
@@ -2481,49 +2481,49 @@ abstract class assQuestion
         'radiobutton_checked.svg' => 'radiobutton_checked.png',
         'radiobutton_unchecked.svg' => 'radiobutton_unchecked.png'
     );
-    
+
     public function fixSvgToPng($imageFilenameContainingString)
     {
         $needles = array_keys(self::$imageSourceFixReplaceMap);
         $replacements = array_values(self::$imageSourceFixReplaceMap);
         return str_replace($needles, $replacements, $imageFilenameContainingString);
     }
-    
-    
+
+
     public function fixUnavailableSkinImageSources($html)
     {
         $matches = null;
         if (preg_match_all('/src="(.*?)"/m', $html, $matches)) {
             $sources = $matches[1];
-            
+
             $needleReplacementMap = array();
-            
+
             foreach ($sources as $src) {
                 $file = ilUtil::removeTrailingPathSeparators(ILIAS_ABSOLUTE_PATH) . DIRECTORY_SEPARATOR . $src;
-                
+
                 if (file_exists($file)) {
                     continue;
                 }
-                
+
                 $levels = explode(DIRECTORY_SEPARATOR, $src);
                 if (count($levels) < 5 || $levels[0] != 'Customizing' || $levels[2] != 'skin') {
                     continue;
                 }
-                
+
                 $component = '';
-                
+
                 if ($levels[4] == 'Modules' || $levels[4] == 'Services') {
                     $component = $levels[4] . DIRECTORY_SEPARATOR . $levels[5];
                 }
-                
+
                 $needleReplacementMap[$src] = ilUtil::getImagePath(basename($src), $component);
             }
-            
+
             if (count($needleReplacementMap)) {
                 $html = str_replace(array_keys($needleReplacementMap), array_values($needleReplacementMap), $html);
             }
         }
-        
+
         return $html;
     }
 
@@ -2547,7 +2547,7 @@ abstract class assQuestion
             $data = $ilDB->fetchAssoc($result);
             $this->external_id = $data['external_id'];
         }
-        
+
         $result = $ilDB->queryF(
             "SELECT * FROM qpl_sol_sug WHERE question_fi = %s",
             array('integer'),
@@ -2579,7 +2579,7 @@ abstract class assQuestion
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $ilUser = $DIC['ilUser'];
-        
+
         $complete = "0";
         $estw_time = $this->getEstimatedWorkingTime();
         $estw_time = sprintf("%02d:%02d:%02d", $estw_time['h'], $estw_time['m'], $estw_time['s']);
@@ -2591,7 +2591,7 @@ abstract class assQuestion
                 // question pool must not try to purge
                 $tstamp = time();
             }
-            
+
             $next_id = $ilDB->nextId('qpl_questions');
             $affectedRows = $ilDB->insert("qpl_questions", array(
                 "question_id" => array("integer", $next_id),
@@ -2613,15 +2613,15 @@ abstract class assQuestion
                 'add_cont_edit_mode' => array('text', $this->getAdditionalContentEditingMode())
             ));
             $this->setId($next_id);
-            
+
             if ($a_create_page) {
                 // create page object of question
                 $this->createPageObject();
             }
         }
-        
+
         $this->notifyQuestionCreated();
-        
+
         return $this->getId();
     }
 
@@ -2690,7 +2690,7 @@ abstract class assQuestion
         global $DIC;
 
         $this->updateSuggestedSolutions();
-        
+
         // remove unused media objects from ILIAS
         $this->cleanupMediaObjectUsage();
 
@@ -2711,10 +2711,10 @@ abstract class assQuestion
         // update question count of question pool
         include_once "./Modules/TestQuestionPool/classes/class.ilObjQuestionPool.php";
         ilObjQuestionPool::_updateQuestionCount($this->obj_id);
-        
+
         $this->notifyQuestionEdited($this);
     }
-    
+
     /**
      * @deprecated
      */
@@ -2722,42 +2722,42 @@ abstract class assQuestion
     {
         self::saveOriginalId($this->getId(), $newId);
     }
-    
+
     public static function saveOriginalId($questionId, $originalId)
     {
         $query = "UPDATE qpl_questions SET tstamp = %s, original_id = %s WHERE question_id = %s";
-        
+
         $GLOBALS['DIC']['ilDB']->manipulateF(
             $query,
             array('integer','integer', 'text'),
             array(time(), $originalId, $questionId)
         );
     }
-    
+
     public static function resetOriginalId($questionId)
     {
         $query = "UPDATE qpl_questions SET tstamp = %s, original_id = NULL WHERE question_id = %s";
-        
+
         $GLOBALS['DIC']['ilDB']->manipulateF(
             $query,
             array('integer', 'text'),
             array(time(), $questionId)
         );
     }
-    
+
     /**
     * Will be called when a question is duplicated (inside a question pool or for insertion in a test)
     */
     protected function onDuplicate($originalParentId, $originalQuestionId, $duplicateParentId, $duplicateQuestionId)
     {
         $this->duplicateSuggestedSolutionFiles($originalParentId, $originalQuestionId);
-        
+
         // duplicate question feeback
         $this->feedbackOBJ->duplicateFeedback($originalQuestionId, $duplicateQuestionId);
-        
+
         // duplicate question hints
         $this->duplicateQuestionHints($originalQuestionId, $duplicateQuestionId);
-        
+
         // duplicate skill assignments
         $this->duplicateSkillAssignments($originalParentId, $originalQuestionId, $duplicateParentId, $duplicateQuestionId);
     }
@@ -2771,24 +2771,24 @@ abstract class assQuestion
         // sync question feeback
         $this->feedbackOBJ->syncFeedback($origQuestionId, $dupQuestionId);
     }
-    
+
     /**
     * Will be called when a question is copied (into another question pool)
     */
     protected function onCopy($sourceParentId, $sourceQuestionId, $targetParentId, $targetQuestionId)
     {
         $this->copySuggestedSolutionFiles($sourceParentId, $sourceQuestionId);
-        
+
         // duplicate question feeback
         $this->feedbackOBJ->duplicateFeedback($sourceQuestionId, $targetQuestionId);
-        
+
         // duplicate question hints
         $this->duplicateQuestionHints($sourceQuestionId, $targetQuestionId);
 
         // duplicate skill assignments
         $this->duplicateSkillAssignments($sourceParentId, $sourceQuestionId, $targetParentId, $targetQuestionId);
     }
-    
+
     /**
     * Deletes all suggestes solutions in the database
     */
@@ -2808,7 +2808,7 @@ abstract class assQuestion
         $this->suggested_solutions = array();
         ilUtil::delDir($this->getSuggestedSolutionPath());
     }
-    
+
     /**
     * Returns a suggested solution for a given subquestion index
     *
@@ -2990,7 +2990,7 @@ abstract class assQuestion
         }
         $this->cleanupMediaObjectUsage();
     }
-    
+
     /**
     * Saves a suggested solution for the question.
     * If there is more than one subquestion (i.e. close questions) may enter a subquestion index.
@@ -3013,7 +3013,7 @@ abstract class assQuestion
                 $subquestion_index
             )
         );
-        
+
         $next_id = $ilDB->nextId('qpl_sol_sug');
         include_once("./Services/RTE/classes/class.ilRTE.php");
         /** @var ilDBInterface $ilDB */
@@ -3069,7 +3069,7 @@ abstract class assQuestion
         }
         return $resolved_link;
     }
-    
+
     public function _resolveIntLinks($question_id)
     {
         global $DIC;
@@ -3117,7 +3117,7 @@ abstract class assQuestion
             }
         }
     }
-    
+
     public static function _getInternalLinkHref($target = "")
     {
         global $DIC;
@@ -3152,7 +3152,7 @@ abstract class assQuestion
         }
         return $href;
     }
-    
+
     /**
     * Returns the original id of a question
     *
@@ -3208,13 +3208,13 @@ abstract class assQuestion
         if (!$this->getOriginalId()) {
             return;
         }
-        
+
         $originalObjId = self::lookupOriginalParentObjId($this->getOriginalId());
-        
+
         if (!$originalObjId) {
             return;
         }
-        
+
         $id = $this->getId();
         $objId = $this->getObjId();
         $original = $this->getOriginalId();
@@ -3224,9 +3224,9 @@ abstract class assQuestion
         $this->setId($original);
         $this->setOriginalId(null);
         $this->setObjId($originalObjId);
-        
+
         $this->saveToDb();
-        
+
         $this->deletePageOfQuestion($original);
         $this->createPageObject();
         $this->copyPageOfQuestion($id);
@@ -3234,7 +3234,7 @@ abstract class assQuestion
         $this->setId($id);
         $this->setOriginalId($original);
         $this->setObjId($objId);
-        
+
         $this->updateSuggestedSolutions($original);
         $this->syncXHTMLMediaObjectsOfQuestion();
 
@@ -3257,7 +3257,7 @@ abstract class assQuestion
         if ($question_id < 1) {
             return false;
         }
-        
+
         $result = $ilDB->queryF(
             "SELECT question_id FROM qpl_questions WHERE question_id = %s",
             array('integer'),
@@ -3320,7 +3320,7 @@ abstract class assQuestion
         $ilCtrl = $DIC['ilCtrl'];
         $ilDB = $DIC['ilDB'];
         $lng = $DIC['lng'];
-        
+
         if (strcmp($question_id, "") != 0) {
             $question_type = assQuestion::_getQuestionType($question_id);
             if (!strlen($question_type)) {
@@ -3330,14 +3330,14 @@ abstract class assQuestion
             $objectClassname = self::getObjectClassNameByQuestionType($question_type);
             $question = new $objectClassname();
             $question->loadFromDb($question_id);
-            
+
             $feedbackObjectClassname = self::getFeedbackClassNameByQuestionType($question_type);
             $question->feedbackOBJ = new $feedbackObjectClassname($question, $ilCtrl, $ilDB, $lng);
-            
+
             return $question;
         }
     }
-    
+
     /**
     * Returns the maximum available points for the question
     *
@@ -3353,7 +3353,7 @@ abstract class assQuestion
         }
     }
 
-    
+
     /**
     * Sets the maximum available points for the question
     *
@@ -3364,7 +3364,7 @@ abstract class assQuestion
     {
         $this->points = $a_points;
     }
-    
+
     /**
     * Returns the maximum pass a users question solution
     *
@@ -3423,7 +3423,7 @@ abstract class assQuestion
         if (($question_id < 1) || ($user_id < 1)) {
             return false;
         }
-        
+
         $result = $ilDB->queryF(
             "SELECT obj_fi FROM qpl_questions WHERE question_id = %s",
             array('integer'),
@@ -3449,7 +3449,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         if ($question_id < 1) {
             return 0;
         }
@@ -3460,7 +3460,7 @@ abstract class assQuestion
         );
         return $result->numRows();
     }
-    
+
     /**
      * Returns the points, a learner has reached answering the question.
      * The points are calculated from the given answers.
@@ -3497,7 +3497,7 @@ abstract class assQuestion
     {
         return $points > 0 ? $points : 0;
     }
-    
+
     public function isPreviewSolutionCorrect(ilAssQuestionPreviewSession $previewSession)
     {
         $reachedPoints = $this->calculateReachedPointsFromPreviewSession($previewSession);
@@ -3505,7 +3505,7 @@ abstract class assQuestion
         if ($reachedPoints < $this->getMaximumPoints()) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -3549,7 +3549,7 @@ abstract class assQuestion
     public static function _isWorkedThrough($active_id, $question_id, $pass = null)
     {
         return self::lookupResultRecordExist($active_id, $question_id, $pass);
-        
+
         // oldschool "workedthru"
 
         global $DIC;
@@ -3594,7 +3594,7 @@ abstract class assQuestion
         );
         return ($res->numRows() == count($a_question_ids)) ? true : false;
     }
-    
+
     /**
     * Checks if a given string contains HTML or not
     *
@@ -3607,7 +3607,7 @@ abstract class assQuestion
     {
         return ilUtil::isHTML($a_text);
     }
-    
+
     /**
     * Prepares a string for a text area output in tests
     *
@@ -3648,7 +3648,7 @@ abstract class assQuestion
         }
         return $result;
     }
-    
+
     /**
     * Creates a QTI material tag from a plain text or xhtml text
     *
@@ -3690,21 +3690,21 @@ abstract class assQuestion
             $a_xml_writer->xmlEndTag("material");
         }
     }
-    
+
     public function buildHashedImageFilename($plain_image_filename, $unique = false)
     {
         $extension = "";
-        
+
         if (preg_match("/.*\.(png|jpg|gif|jpeg)$/i", $plain_image_filename, $matches)) {
             $extension = "." . $matches[1];
         }
-        
+
         if ($unique) {
             $plain_image_filename = uniqid($plain_image_filename . microtime(true));
         }
-        
+
         $hashed_filename = md5($plain_image_filename) . $extension;
-        
+
         return $hashed_filename;
     }
 
@@ -3770,7 +3770,7 @@ abstract class assQuestion
                 include_once "./Modules/Test/classes/class.ilObjTest.php";
                 include_once './Modules/Course/classes/class.ilCourseObjectiveResult.php';
                 ilCourseObjectiveResult::_updateObjectiveResult(ilObjTest::_getUserIdFromActiveId($active_id), $question_id, $points);
-    
+
                 include_once("./Modules/Test/classes/class.ilObjAssessmentFolder.php");
                 if (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
                     global $DIC;
@@ -3790,7 +3790,7 @@ abstract class assQuestion
             return false;
         }
     }
-    
+
     /**
     * Gets the question string of the question object
     *
@@ -3813,6 +3813,9 @@ abstract class assQuestion
     public function setQuestion($question = "")
     {
         $this->question = $question;
+        if ($question !== '') {
+            $this->question = $this->getHtmlQuestionContentPurifier()->purify($question);
+        }
     }
 
     /**
@@ -3821,7 +3824,7 @@ abstract class assQuestion
     * @return string The question type of the question
     */
     abstract public function getQuestionType();
-    
+
     /**
     * Returns the question type of the question
     *
@@ -3834,7 +3837,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $result = $ilDB->queryF(
             "SELECT question_type_id FROM qpl_qst_type WHERE type_tag = %s",
             array('text'),
@@ -3884,7 +3887,7 @@ abstract class assQuestion
             }
         }
     }
-    
+
     /**
     * Collects all text in the question which could contain media objects
     * which were created with the Rich Text Editor
@@ -3897,7 +3900,7 @@ abstract class assQuestion
         $collected .= $this->feedbackOBJ->getGenericFeedbackContent($this->getId(), false);
         $collected .= $this->feedbackOBJ->getGenericFeedbackContent($this->getId(), true);
         $collected .= $this->feedbackOBJ->getAllSpecificAnswerFeedbackContents($this->getId());
-        
+
         foreach ($this->suggested_solutions as $solution_array) {
             $collected .= $solution_array["value"];
         }
@@ -3922,7 +3925,7 @@ abstract class assQuestion
         include_once("./Services/RTE/classes/class.ilRTE.php");
         ilRTE::_cleanupMediaObjectUsage($combinedtext, "qpl:html", $this->getId());
     }
-    
+
     /**
     * Gets all instances of the question
     *
@@ -4310,12 +4313,12 @@ abstract class assQuestion
                 break;
         }
     }
-    
+
     public function getNrOfTries()
     {
         return (int) $this->nr_of_tries;
     }
-    
+
     public function setNrOfTries($a_nr_of_tries)
     {
         $this->nr_of_tries = $a_nr_of_tries;
@@ -4368,7 +4371,7 @@ abstract class assQuestion
     }
 
     // scorm2004-start ???
-    
+
     /**
      * Set prevent rte usage
      *
@@ -4388,7 +4391,7 @@ abstract class assQuestion
     {
         return $this->prevent_rte_usage;
     }
-    
+
     /**
      * @param ilAssSelfAssessmentMigrator $migrator
      */
@@ -4397,10 +4400,10 @@ abstract class assQuestion
         $this->lmMigrateQuestionTypeGenericContent($migrator);
         $this->lmMigrateQuestionTypeSpecificContent($migrator);
         $this->saveToDb();
-        
+
         $this->feedbackOBJ->migrateContentForLearningModule($migrator, $this->getId());
     }
-    
+
     /**
      * @param ilAssSelfAssessmentMigrator $migrator
      */
@@ -4408,7 +4411,7 @@ abstract class assQuestion
     {
         $this->setQuestion($migrator->migrateToLmContent($this->getQuestion()));
     }
-    
+
     /**
      * @param ilAssSelfAssessmentMigrator $migrator
      */
@@ -4416,7 +4419,7 @@ abstract class assQuestion
     {
         // overwrite if any question type specific content except feedback needs to be migrated
     }
-    
+
     /**
      * Set Self-Assessment Editing Mode.
      *
@@ -4446,7 +4449,7 @@ abstract class assQuestion
     {
         $this->defaultnroftries = $a_defaultnroftries;
     }
-    
+
     /**
      * Get Default Nr of Tries
      *
@@ -4456,7 +4459,7 @@ abstract class assQuestion
     {
         return (int) $this->defaultnroftries;
     }
-    
+
     // scorm2004-end ???
 
     /**
@@ -4496,14 +4499,14 @@ abstract class assQuestion
     {
         require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionHintList.php';
         $hintIds = ilAssQuestionHintList::duplicateListForQuestion($originalQuestionId, $duplicateQuestionId);
-        
+
         if ($this->isAdditionalContentEditingModePageObject()) {
             require_once 'Modules/TestQuestionPool/classes/class.ilAssHintPage.php';
-            
+
             foreach ($hintIds as $originalHintId => $duplicateHintId) {
                 $originalPageObject = new ilAssHintPage($originalHintId);
                 $originalXML = $originalPageObject->getXMLContent();
-                
+
                 $duplicatePageObject = new ilAssHintPage();
                 $duplicatePageObject->setId($duplicateHintId);
                 $duplicatePageObject->setParentId($this->getId());
@@ -4517,16 +4520,16 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         require_once 'Modules/TestQuestionPool/classes/class.ilAssQuestionSkillAssignmentList.php';
         $assignmentList = new ilAssQuestionSkillAssignmentList($ilDB);
         $assignmentList->setParentObjId($srcParentId);
         $assignmentList->setQuestionIdFilter($srcQuestionId);
         $assignmentList->loadFromDb();
-        
+
         foreach ($assignmentList->getAssignmentsByQuestionId($srcQuestionId) as $assignment) {
             /* @var ilAssQuestionSkillAssignment $assignment */
-            
+
             $assignment->setParentObjId($trgParentId);
             $assignment->setQuestionId($trgQuestionId);
             $assignment->saveToDb();
@@ -4543,16 +4546,16 @@ abstract class assQuestion
         $assignmentList->setParentObjId($trgParentId);
         $assignmentList->setQuestionIdFilter($trgQuestionId);
         $assignmentList->loadFromDb();
-        
+
         foreach ($assignmentList->getAssignmentsByQuestionId($trgQuestionId) as $assignment) {
             /* @var ilAssQuestionSkillAssignment $assignment */
 
             $assignment->deleteFromDb();
         }
-        
+
         $this->duplicateSkillAssignments($srcParentId, $srcQuestionId, $trgParentId, $trgQuestionId);
     }
-    
+
     /**
      * returns boolean wether the question
      * is answered during test pass or not
@@ -4569,7 +4572,7 @@ abstract class assQuestion
     {
         return true;
     }
-    
+
     /**
      * returns boolean wether it is possible to set
      * this question type as obligatory or not
@@ -4586,12 +4589,12 @@ abstract class assQuestion
     {
         return false;
     }
-    
+
     public function isAutosaveable()
     {
         return true;
     }
-    
+
     /**
      * returns the number of existing solution records
      * for the given test active / pass and given question id
@@ -4608,28 +4611,28 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "
 			SELECT		count(active_fi) cnt
-			
+
 			FROM		tst_solutions
-			
+
 			WHERE		active_fi = %s
 			AND			question_fi = %s
 			AND			pass = %s
 		";
-        
+
         $res = $ilDB->queryF(
             $query,
             array('integer','integer','integer'),
             array($activeId, $questionId, $pass)
         );
-        
+
         $row = $ilDB->fetchAssoc($res);
-        
+
         return (int) $row['cnt'];
     }
-    
+
     /**
      * getter for additional content editing mode for this question
      *
@@ -4640,7 +4643,7 @@ abstract class assQuestion
     {
         return $this->additinalContentEditingMode;
     }
-    
+
     /**
      * setter for additional content editing mode for this question
      *
@@ -4653,10 +4656,10 @@ abstract class assQuestion
             require_once 'Modules/TestQuestionPool/exceptions/class.ilTestQuestionPoolException.php';
             throw new ilTestQuestionPoolException('invalid additional content editing mode given: ' . $additinalContentEditingMode);
         }
-        
+
         $this->additinalContentEditingMode = $additinalContentEditingMode;
     }
-    
+
     /**
      * isser for additional "pageobject" content editing mode
      *
@@ -4667,7 +4670,7 @@ abstract class assQuestion
     {
         return $this->getAdditionalContentEditingMode() == assQuestion::ADDITIONAL_CONTENT_EDITING_MODE_IPE;
     }
-    
+
     /**
      * returns the fact wether the passed additional content mode is valid or not
      *
@@ -4680,10 +4683,10 @@ abstract class assQuestion
         if (in_array($additionalContentEditingMode, $this->getValidAdditionalContentEditingModes())) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * getter for valid additional content editing modes
      *
@@ -4697,7 +4700,7 @@ abstract class assQuestion
             self::ADDITIONAL_CONTENT_EDITING_MODE_IPE
         );
     }
-    
+
     /**
      * @param ilQuestionChangeListener $listener
      */
@@ -4705,7 +4708,7 @@ abstract class assQuestion
     {
         $this->questionChangeListeners[] = $listener;
     }
-    
+
     /**
      * @return array[ilQuestionChangeListener]
      */
@@ -4713,21 +4716,21 @@ abstract class assQuestion
     {
         return $this->questionChangeListeners;
     }
-    
+
     private function notifyQuestionCreated()
     {
         foreach ($this->getQuestionChangeListeners() as $listener) {
             $listener->notifyQuestionCreated($this);
         }
     }
-    
+
     private function notifyQuestionEdited()
     {
         foreach ($this->getQuestionChangeListeners() as $listener) {
             $listener->notifyQuestionEdited($this);
         }
     }
-    
+
     private function notifyQuestionDeleted()
     {
         foreach ($this->getQuestionChangeListeners() as $listener) {
@@ -4744,15 +4747,11 @@ abstract class assQuestion
         return ilHtmlPurifierFactory::_getInstanceByType('qpl_usersolution');
     }
 
-    /**
-     * @return ilAssHtmlUserSolutionPurifier
-     */
-    public function getHtmlQuestionContentPurifier()
+    public function getHtmlQuestionContentPurifier() : ilAssHtmlUserSolutionPurifier
     {
-        require_once 'Services/Html/classes/class.ilHtmlPurifierFactory.php';
         return ilHtmlPurifierFactory::_getInstanceByType('qpl_usersolution');
     }
-    
+
     protected function buildQuestionDataQuery()
     {
         return "
@@ -4841,7 +4840,7 @@ abstract class assQuestion
             array($solutionId)
         );
     }
-    
+
     // hey: prevPassSolutions - selected file reuse, copy solution records
     /**
      * @param $solutionId
@@ -4859,13 +4858,13 @@ abstract class assQuestion
             array('integer'),
             array($solutionId)
         );
-        
+
         while ($row = $ilDB->fetchAssoc($res)) {
             return $row;
         }
     }
     // hey.
-    
+
     /**
      * @param int $active_id
      * @param int $pass
@@ -4944,7 +4943,7 @@ abstract class assQuestion
         $ilDB = $DIC['ilDB'];
 
         $next_id = $ilDB->nextId("tst_solutions");
-        
+
         $fieldData = array(
             "solution_id" => array("integer", $next_id),
             "active_fi" => array("integer", $active_id),
@@ -5022,7 +5021,7 @@ abstract class assQuestion
         return $ilDB->update('tst_solutions', $fieldData, $whereData);
     }
     // fau.
-    
+
     // hey: prevPassSolutions - motivation slowly decreases on imagemap
     const KEY_VALUES_IMPLOSION_SEPARATOR = ':';
     protected static function getKeyValuesImplosionSeparator()
@@ -5037,7 +5036,7 @@ abstract class assQuestion
     {
         return explode(self::getKeyValuesImplosionSeparator(), $keyValues);
     }
-    
+
     protected function deleteDummySolutionRecord($activeId, $passIndex)
     {
         foreach ($this->getSolutionValues($activeId, $passIndex, false) as $solutionRec) {
@@ -5046,21 +5045,21 @@ abstract class assQuestion
             }
         }
     }
-    
+
     protected function isDummySolutionRecord($solutionRecord)
     {
         return !strlen($solutionRecord['value1']) && !strlen($solutionRecord['value2']);
     }
-    
+
     protected function deleteSolutionRecordByValues($activeId, $passIndex, $authorized, $matchValues)
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
         $ilDB = $DIC['ilDB'];
-        
+
         $types = array("integer", "integer", "integer", "integer");
         $values = array($activeId, $this->getId(), $passIndex, (int) $authorized);
         $valuesCondition = array();
-        
+
         foreach ($matchValues as $valueField => $value) {
             switch ($valueField) {
                 case 'value1':
@@ -5069,15 +5068,15 @@ abstract class assQuestion
                     $types[] = 'text';
                     $values[] = $value;
                     break;
-                
+
                 default:
                     require_once 'Modules/TestQuestionPool/exceptions/class.ilTestQuestionPoolException.php';
                     throw new ilTestQuestionPoolException('invalid value field given: ' . $valueField);
             }
         }
-        
+
         $valuesCondition = implode(' AND ', $valuesCondition);
-        
+
         $query = "
 			DELETE FROM tst_solutions
 			WHERE active_fi = %s
@@ -5086,35 +5085,35 @@ abstract class assQuestion
 			AND authorized = %s
 			AND $valuesCondition
 		";
-        
+
         if ($this->getStep() !== null) {
             $query .= " AND step = %s ";
             $types[] = 'integer';
             $values[] = $this->getStep();
         }
-        
+
         $ilDB->manipulateF($query, $types, $values);
     }
-    
+
     protected function duplicateIntermediateSolutionAuthorized($activeId, $passIndex)
     {
         foreach ($this->getSolutionValues($activeId, $passIndex, false) as $rec) {
             $this->saveCurrentSolution($activeId, $passIndex, $rec['value1'], $rec['value2'], true, $rec['tstamp']);
         }
     }
-    
+
     protected function forceExistingIntermediateSolution($activeId, $passIndex, $considerDummyRecordCreation)
     {
         $intermediateSolution = $this->getSolutionValues($activeId, $passIndex, false);
-        
+
         if (!count($intermediateSolution)) {
             // make the authorized solution intermediate (keeping timestamps)
             // this keeps the solution_ids in synch with eventually selected in $_POST['deletefiles']
             $this->updateCurrentSolutionsAuthorization($activeId, $passIndex, false, true);
-            
+
             // create a backup as authorized solution again (keeping timestamps)
             $this->duplicateIntermediateSolutionAuthorized($activeId, $passIndex);
-            
+
             if ($considerDummyRecordCreation) {
                 // create an additional dummy record to indicate the existence of an intermediate solution
                 // even if all entries are deleted from the intermediate solution later
@@ -5188,7 +5187,7 @@ abstract class assQuestion
     {
         return json_encode(array());
     }
-    
+
     abstract public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null);
 
     // hey: prevPassSolutions - check for authorized solution
@@ -5208,7 +5207,7 @@ abstract class assQuestion
         return (bool) $solutionAvailability['authorized'] || (bool) $solutionAvailability['intermediate'];
     }
     // hey.
-    
+
     /**
      * @param $active_id
      * @param $pass
@@ -5284,7 +5283,7 @@ abstract class assQuestion
     {
         return false;
     }
-    
+
     public function addAnswerOptionValue($qIndex, $answerOptionValue, $points)
     {
     }
@@ -5292,12 +5291,12 @@ abstract class assQuestion
     public function removeAllExistingSolutions()
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        
+
         $query = "DELETE FROM tst_solutions WHERE question_fi = %s";
-        
+
         $DIC->database()->manipulateF($query, array('integer'), array($this->getId()));
     }
-    
+
     public function removeExistingSolutions($activeId, $pass)
     {
         global $DIC;
@@ -5327,7 +5326,7 @@ abstract class assQuestion
         $this->removeResultRecord($activeId, $pass);
 
         $this->log($activeId, "log_user_solution_willingly_deleted");
-        
+
         self::_updateTestPassResults(
             $activeId,
             $pass,
@@ -5341,7 +5340,7 @@ abstract class assQuestion
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "
 			DELETE FROM tst_test_result
 			WHERE active_fi = %s
@@ -5359,14 +5358,14 @@ abstract class assQuestion
             array($activeId, $this->getId(), $pass)
         );
     }
-    
+
     public static function missingResultRecordExists($activeId, $pass, $questionIds)
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $IN_questionIds = $ilDB->in('question_fi', $questionIds, false, 'integer');
-        
+
         $query = "
 			SELECT COUNT(*) cnt
 			FROM tst_test_result
@@ -5383,14 +5382,14 @@ abstract class assQuestion
 
         return $row['cnt'] < count($questionIds);
     }
-    
+
     public static function getQuestionsMissingResultRecord($activeId, $pass, $questionIds)
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $IN_questionIds = $ilDB->in('question_fi', $questionIds, false, 'integer');
-        
+
         $query = "
 			SELECT question_fi
 			FROM tst_test_result
@@ -5404,13 +5403,13 @@ abstract class assQuestion
             array('integer', 'integer'),
             array($activeId, $pass)
         );
-        
+
         $questionsHavingResultRecord = array();
-        
+
         while ($row = $ilDB->fetchAssoc($res)) {
             $questionsHavingResultRecord[] = $row['question_fi'];
         }
-        
+
         $questionsMissingResultRecordt = array_diff(
             $questionIds,
             $questionsHavingResultRecord
@@ -5436,7 +5435,7 @@ abstract class assQuestion
 
         return $row['cnt'] > 0;
     }
-    
+
     /**
      * @param array $indexedValues
      * @return array $valuePairs
@@ -5444,14 +5443,14 @@ abstract class assQuestion
     public function fetchValuePairsFromIndexedValues(array $indexedValues)
     {
         $valuePairs = array();
-        
+
         foreach ($indexedValues as $value1 => $value2) {
             $valuePairs[] = array('value1' => $value1, 'value2' => $value2);
         }
-        
+
         return $valuePairs;
     }
-    
+
     /**
      * @param array $valuePairs
      * @return array $indexedValues
@@ -5459,11 +5458,11 @@ abstract class assQuestion
     public function fetchIndexedValuesFromValuePairs(array $valuePairs)
     {
         $indexedValues = array();
-        
+
         foreach ($valuePairs as $valuePair) {
             $indexedValues[ $valuePair['value1'] ] = $valuePair['value2'];
         }
-        
+
         return $indexedValues;
     }
 
@@ -5505,7 +5504,7 @@ abstract class assQuestion
      * @var ilTestQuestionConfig
      */
     private $testQuestionConfigInstance = null;
-    
+
     /**
      * Get the test question configuration (initialised once)
      * @return ilTestQuestionConfig
@@ -5515,10 +5514,10 @@ abstract class assQuestion
         if ($this->testQuestionConfigInstance === null) {
             $this->testQuestionConfigInstance = $this->buildTestPresentationConfig();
         }
-        
+
         return $this->testQuestionConfigInstance;
     }
-    
+
     /**
      * build basic test question configuration instance
      *
