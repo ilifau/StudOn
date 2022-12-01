@@ -151,7 +151,8 @@ common#:#accept_updated_user_agreement#:#Die Nutzungsbedingungen wurden neu form
 common#:#accept_user_agreement#:#Bitte akzeptieren Sie die Nutzungsvereinbarung am Ende dieser Seite, um das System nutzen zu können.
 common#:#archive_structure#:#Archiv-Struktur
 common#:#caches_flushed#:#Die Caches wurden aktualisiert.
-common#:#campo_course_not_found#:#Mit dieser Lehrveranstaltung ist noch kein StudOn-Kurs verbunden.###fau: campoLink
+common#:#campo_course_not_found#:#Für diese Lehrveranstaltung sind noch keine Daten aus campo vorhanden. Bitte warten Sie noch ein bis zwei Stunden auf die nächsten Synchronisation.###fau: campoLink
+common#:#campo_course_not_created#:#Für diese Lehrveranstaltung ist noch kein StudOn-Kurs vorhanden. Die Kurse des Sommersemesters 2023 werden im Januar 2023 automatisch angelegt. Wenn Sie die Kurse Ihrer Einrichtung früher benötigen, wenden Sie sich bitte an studon@fau.de.###fau: campoLink
 common#:#cat_create_exco#:#Neuen externen Inhalt anlegen
 common#:#cat_create_perc#:#Neues Perception-Assessment anlegen
 common#:#cont_limit_starts#:#Beschränkte Wiedergaben
@@ -1141,7 +1142,7 @@ videoportal#:#vp_no_access_granted#:#Für den Benutzer wird kein Zugriff gewähr
 videoportal#:#vp_no_interface_active#:#Die StudOn-Schnittstelle zum Videoportal ist aktuell nicht aktiv.
 videoportal#:#vp_no_reference_found#:#Es wurde keine Referenz auf den Clip oder Kurs gefunden.
 videoportal#:#vp_no_user_found#:#Zum IDM-Benutzer wurde kein entsprechender StudOn-Nutzer gefunden.
-content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal 
+content#:#cont_link_info#:#Hinweis: Falls Ihnen ganz unten ein oder mehrere Objekte angezeigt werden, wählen Sie bitte eines davon aus. ### // fau: mediaSelectInternalLinkInfo - add infotext to link modal
 assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo###fau: campoGrades
 assessment#:#ass_campo_export#:#Ergebnisse für die Notenverbuchung in <i>campo</i> exportieren###fau: campoGrades
 assessment#:#ass_campo_file_written#:#Die Ergebnisdatei für <i>mein campo</i> wurde geschrieben.###fau: campoGrades

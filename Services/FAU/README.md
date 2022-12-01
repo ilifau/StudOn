@@ -9,6 +9,7 @@
 - **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
 - **studySearch** Suchseite nach Lehrveranstaltungen
 - **paraSub** Anmeldung zu Parallengruppen bei der Kursanmeldung
+- **campoLink** Verlinkung von Kursen aus Campo
 - **campoInfo** Anzeigen auf den Info-Seiten
 - **campoCheck** Voraussetzungsprüfung bei der Anmeldung
 - **campoSub** Modulauswahl bei der Kursanmeldung und Übertragen von Kursanmeldungen nach campo

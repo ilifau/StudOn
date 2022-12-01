@@ -481,9 +481,11 @@ class Service extends SubService
                     if (!empty($ref_id)) {
                         $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
                     }
+                    ilUtil::sendFailure($this->lng->txt('campo_course_not_created'), true);
                 }
-
-                ilUtil::sendFailure($this->lng->txt('campo_course_not_found'), true);
+                else {
+                    ilUtil::sendFailure($this->lng->txt('campo_course_not_found'), true);
+                }
             }
         }
         ilUtil::redirect(\ilUserUtil::getStartingPointAsUrl());
