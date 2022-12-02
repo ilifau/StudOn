@@ -1140,3 +1140,4 @@ videoportal#:#vp_no_access_granted#:#No access is granted for the user.
 videoportal#:#vp_no_interface_active#:#The Interface of StudOn to the video portal is currently not active.
 videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
 videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM account.
+pwassist#:#pwassist_enter_username_and_email#:#Enter a username and the associated e-mail address in the fields shown below and click Submit.<br/>StudOn will send a message to that e-mail address. The message contains an address for a web page, where you can enter a new password for the user account. Please also check the SPAM folder in your mailbox, as emails from password support occasionally end up there.<br/>In case you are unable to assign a password to your user account using this form, contact your course administration or send an e-mail to studon@fau.de.
