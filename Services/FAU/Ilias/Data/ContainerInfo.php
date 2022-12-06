@@ -63,6 +63,12 @@ class ContainerInfo
         $this->subscribers = $subscribers;
         $this->waiting_status = $waiting_status;
         $this->assigned = $assigned;
+
+        if (!empty($this->ref_id)) {
+            $this->props = [
+                new ListProperty('StudOn-ID', $this->ref_id)
+            ];
+        }
     }
 
     /**
