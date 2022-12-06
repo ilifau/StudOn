@@ -481,13 +481,13 @@ class FAUStudySteps
 
     protected function changeIndividualInstructorsKey()
     {
-        $this->db->dropIndexByFields('fau_study_indi_insts', ['individual_dates_id']);
+        $this->db->dropIndex('fau_study_indi_insts', $this->db->getPrimaryKeyIdentifier());
         $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id', 'person_id']);
     }
 
     protected function changeInstructorsKey()
     {
-        $this->db->dropIndexByFields('fau_study_instructors', ['planned_dates_id']);
+        $this->db->dropIndex('fau_study_instructors', $this->db->getPrimaryKeyIdentifier());
         $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id', 'person_id']);
     }
 
