@@ -352,26 +352,13 @@ class ilExAssignmentTeam
      */
     protected function cleanLog()
     {
-        $ilDB = $this->db;
-        
-        // #18179
-        
-        $teams = array();
-        $set = $ilDB->query("SELECT DISTINCT(id)" .
-            " FROM il_exc_team");
-        while ($row = $ilDB->fetchAssoc($set)) {
-            $teams[] = $row["id"];
+        // fau: fixTeamLogCleanup - improve performance of query for log entries of deleted teams (needs additional indices)
+        $query = 'SELECT DISTINCT(team_id) FROM il_exc_team_log WHERE NOT EXISTS (SELECT 1 FROM il_exc_team WHERE id = team_id)';
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $this->db->manipulate("DELETE FROM il_exc_team_log WHERE team_id = " . $this->db->quote($row['team_id'], "integer"));
         }
-        
-        $set = $ilDB->query("SELECT DISTINCT(team_id)" .
-            " FROM il_exc_team_log");
-        while ($row = $ilDB->fetchAssoc($set)) {
-            $team_id = $row["team_id"];
-            if (!in_array($team_id, $teams)) {
-                $ilDB->manipulate("DELETE FROM il_exc_team_log" .
-                    " WHERE team_id = " . $ilDB->quote($team_id, "integer"));
-            }
-        }
+        // fau.
     }
     
     /**
