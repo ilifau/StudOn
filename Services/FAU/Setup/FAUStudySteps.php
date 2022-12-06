@@ -77,6 +77,16 @@ class FAUStudySteps
         $this->changeEventCommentClob();
     }
 
+    public function custom_step_113()
+    {
+        $this->changeIndividualInstructorsKey();
+    }
+
+    public function custom_step_114()
+    {
+        $this->changeInstructorsKey();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -467,6 +477,18 @@ class FAUStudySteps
     {
         $this->db->modifyTableColumn('fau_study_events', 'comment',
             ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function changeIndividualInstructorsKey()
+    {
+        $this->db->dropIndexByFields('fau_study_indi_insts', ['individual_dates_id']);
+        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id', 'person_id']);
+    }
+
+    protected function changeInstructorsKey()
+    {
+        $this->db->dropIndexByFields('fau_study_instructors', ['planned_dates_id']);
+        $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id', 'person_id']);
     }
 
 }

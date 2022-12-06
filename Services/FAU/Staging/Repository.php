@@ -163,25 +163,25 @@ class Repository extends RecordRepo
     /**
      * @return IndividualDate[]
      */
-    public function getIndividualDatesToDo() : array
+    public function getIndividualDates() : array
     {
-        return $this->getDipRecords(IndividualDate::model());
+        return $this->getAllRecords(IndividualDate::model(), false);
     }
 
     /**
      * @return IndividualInstructor[]
      */
-    public function getIndividualInstructorsToDo() : array
+    public function getIndividualInstructors() : array
     {
-        return $this->getDipRecords(IndividualInstructor::model());
+        return $this->getAllRecords(IndividualInstructor::model(), false);
     }
 
     /**
      * @return Instructor[]
      */
-    public function getInstructorsToDo() : array
+    public function getInstructors() : array
     {
-        return $this->getDipRecords(Instructor::model());
+        return $this->getAllRecords(Instructor::model(), false);
     }
 
     /**

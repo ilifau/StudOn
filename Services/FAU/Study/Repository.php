@@ -329,29 +329,31 @@ class Repository extends RecordRepo
 
     /**
      * Get the course of a planned date
-     * @return Course|null
+     * @param int[] $planned_dates_ids
+     * @return Course[]
      */
-    public function getCourseOfPlannedDate(int $planned_dates_id, ?Course $default = null) : ?RecordData
+    public function getCoursesOfPlannedDates(array $planned_dates_ids, bool $useCache = true) : array
     {
         $query = "
             SELECT c.* from fau_study_courses c
             JOIN fau_study_plan_dates p ON p.course_id = c.course_id
-            WHERE p.planned_dates_id = " . $this->db->quote($planned_dates_id, 'integer');
-        return $this->getSingleRecord($query, Course::model(), $default);
+            WHERE " . $this->db->in('p.planned_dates_id', $planned_dates_ids, false, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
     }
 
     /**
      * Get the course of an individual date
-     * @return Course|null
+     * @param int[] $individual_dates_ids
+     * @return Course[]
      */
-    public function getCourseOfIndividualDate(int $individual_dates_id, ?Course $default = null) : ?RecordData
+    public function getCoursesOfIndividualDates(array $individual_dates_ids, bool $useCache = true) : array
     {
         $query = "
             SELECT c.* from fau_study_courses c
             JOIN fau_study_plan_dates p ON p.course_id = c.course_id
             JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id
-            WHERE i.individual_dates_id = " . $this->db->quote($individual_dates_id, 'integer');
-        return $this->getSingleRecord($query, Course::model(), $default);
+            WHERE " . $this->db->in('i.individual_dates_id', $individual_dates_ids, false, 'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
     }
 
     /**

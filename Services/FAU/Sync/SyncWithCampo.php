@@ -239,7 +239,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_event
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncEvents() : void
     {
@@ -452,13 +452,20 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_individual_dates
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncIndividualDates() : void
     {
         $this->info('syncIndividualDates...');
-        foreach ($this->staging->repo()->getIndividualDatesToDo() as $record) {
-            $date = new IndividualDate(
+        $existing = $this->sync->repo()->getAllForSync(IndividualDate::model());
+
+        foreach ($this->staging->repo()->getIndividualDates() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new IndividualDate(
                 $record->getIndividualDatesId(),
                 $record->getPlannedDatesId(),
                 $record->getTermYear(),
@@ -469,79 +476,105 @@ class SyncWithCampo extends SyncBase
                 $record->getFamosCode(),
                 $record->getComment(),
                 $record->getCancelled()
-
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($date);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($date);
-                    break;
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
-            $this->staging->repo()->setDipProcessed($record);
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
         }
     }
 
 
     /**
      * Synchronize data found in the staging table campo_individual_instructor
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncIndividualInstructors() : void
     {
         $this->info('syncIndividualInstructors...');
-        foreach ($this->staging->repo()->getIndividualInstructorsToDo() as $record) {
-            $instructor = new IndividualInstructor(
+
+        /** @var IndividualInstructor[] $existing */
+        $existing = $this->sync->repo()->getAllForSync(IndividualInstructor::model());
+        $touched = [];
+
+        foreach ($this->staging->repo()->getIndividualInstructors() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new IndividualInstructor(
                 $record->getIndividualDatesId(),
                 $record->getPersonId()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($instructor);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($instructor);
-                    break;
+            if (!isset($existing[$entry->key()])) {
+                $this->study->repo()->save($entry);
+                $touched[$entry->getIndividualDatesId()] = true;
             }
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
 
-            // mark course as changed to trigger a role update in the related ILIAS course or group
-            if ($course = $this->study->repo()->getCourseOfIndividualDate($record->getIndividualDatesId())) {
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
+            $touched[$entry->getIndividualDatesId()] = true;
+        }
+
+        // set the related courses as changed to trigger an update
+        if (!empty($touched)) {
+            foreach ($this->study->repo()->getCoursesOfIndividualDates(array_keys($touched), false) as $course) {
                 $this->study->repo()->save($course->asChanged(true));
             }
-            $this->staging->repo()->setDipProcessed($record);
         }
     }
 
     /**
      * Synchronize data found in the staging table campo_instructor
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncInstructors() : void
     {
         $this->info('syncInstructors...');
-        foreach ($this->staging->repo()->getInstructorsToDo() as $record) {
-            $instructor = new Instructor (
+
+        /** @var Instructor[] $existing */
+        $existing = $this->sync->repo()->getAllForSync(Instructor::model());
+        $touched = [];
+
+        foreach ($this->staging->repo()->getInstructors() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new Instructor (
                 $record->getPlannedDatesId(),
                 $record->getPersonId()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($instructor);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($instructor);
-                    break;
+            if (!isset($existing[$entry->key()])) {
+                $this->study->repo()->save($entry);
+                $touched[$entry->getPlannedDatesId()] = true;
             }
-            // mark course as changed to trigger a role update in the related ILIAS course or group
-            if ($course = $this->study->repo()->getCourseOfPlannedDate($record->getPlannedDatesId())) {
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
+            $touched[$entry->getPlannedDatesId()] = true;
+        }
+
+        // set the related courses as changed to trigger an update
+        if (!empty($touched)) {
+            foreach ($this->study->repo()->getCoursesOfPlannedDates(array_keys($touched), false) as $course) {
                 $this->study->repo()->save($course->asChanged(true));
             }
-
-            $this->staging->repo()->setDipProcessed($record);
         }
     }
 

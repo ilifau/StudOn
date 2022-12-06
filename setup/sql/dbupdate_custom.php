@@ -1668,3 +1668,17 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_112();
 ?>
+<#113>
+<?php
+/**
+ * fau: fauService - change the primary key of individual instructors
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_113();
+?>
+<#114>
+<?php
+/**
+ * fau: fauService - change the primary key of  instructors
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_114();
+?>
