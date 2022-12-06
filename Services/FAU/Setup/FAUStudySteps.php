@@ -226,7 +226,7 @@ class FAUStudySteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id']);
+        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id', 'person_id']);
         $this->db->addIndex('fau_study_indi_insts', ['person_id'], 'i1');
     }
 
@@ -238,7 +238,7 @@ class FAUStudySteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id']);
+        $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id', 'person_id']);
         $this->db->addIndex('fau_study_instructors', ['person_id'], 'i1');
     }
 
@@ -481,14 +481,23 @@ class FAUStudySteps
 
     protected function changeIndividualInstructorsKey()
     {
-        $this->db->dropIndex('fau_study_indi_insts', $this->db->getPrimaryKeyIdentifier());
-        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id', 'person_id']);
+        $this->db->renameTable('fau_study_indi_insts', 'fau_study_temp');
+        $this->createIndividualInstructorsTable(false);
+        $this->db->manipulate("
+            INSERT INTO fau_study_indi_insts(individual_dates_id, person_id)
+            SELECT individual_dates_id, person_id FROM fau_study_temp
+        ");
+        $this->db->dropTable('fau_study_temp');
     }
 
     protected function changeInstructorsKey()
     {
-        $this->db->dropIndex('fau_study_instructors', $this->db->getPrimaryKeyIdentifier());
-        $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id', 'person_id']);
+        $this->db->renameTable('fau_study_instructors', 'fau_study_temp');
+        $this->createInstructorsTable(false);
+        $this->db->manipulate("
+            INSERT INTO fau_study_instructors(planned_dates_id, person_id)
+            SELECT planned_dates_id, person_id FROM fau_study_temp
+        ");
+        $this->db->dropTable('fau_study_temp');
     }
-
 }
