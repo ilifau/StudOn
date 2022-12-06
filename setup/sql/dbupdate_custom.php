@@ -1661,3 +1661,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_111();
 ?>
+<#112>
+<?php
+/**
+ * fau: fauService - change the 'comment' field in events to clob
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_112();
+?>

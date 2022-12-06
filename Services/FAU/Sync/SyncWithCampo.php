@@ -244,8 +244,18 @@ class SyncWithCampo extends SyncBase
     public function syncEvents() : void
     {
         $this->info('syncEvents...');
-        foreach ($this->staging->repo()->getEventsToDo() as $record) {
-            $event = new Event(
+
+        /** @var Event[] $existing */
+        $existing = $this->sync->repo()->getAllForSync(Event::model());
+        $touched = [];
+
+        foreach ($this->staging->repo()->getEvents() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new Event(
                 $record->getEventId(),
                 $record->getEventtype(),
                 $record->getTitle(),
@@ -253,20 +263,25 @@ class SyncWithCampo extends SyncBase
                 $record->getComment(),
                 $record->getGuest()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($event);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($event);
-                    break;
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
+                $touched[$entry->getEventId()] = true;
             }
-            // set the related courses as changed to trigger an update
-            foreach ($this->study->repo()->getCoursesOfEvent($record->getEventId()) as $course) {
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
+            $touched[$entry->getEventId()] = true;
+        }
+
+        // set the related courses as changed to trigger an update
+        if (!empty($touched)) {
+            foreach ($this->study->repo()->getCoursesOfEvents(array_keys($touched), false) as $course) {
                 $this->study->repo()->save($course->asChanged(true));
             }
-            $this->staging->repo()->setDipProcessed($record);
         }
     }
 

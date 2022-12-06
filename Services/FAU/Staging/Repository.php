@@ -131,9 +131,9 @@ class Repository extends RecordRepo
     /**
      * @return Event[]
      */
-    public function getEventsToDo() : array
+    public function getEvents() : array
     {
-        return $this->getDipRecords(Event::model());
+        return $this->getAllRecords(Event::model(), false);
     }
 
     /**

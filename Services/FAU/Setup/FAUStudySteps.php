@@ -72,6 +72,11 @@ class FAUStudySteps
         $this->changeCourseLiteratureClob();
     }
 
+    public function custom_step_112()
+    {
+        $this->changeEventCommentClob();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -457,4 +462,11 @@ class FAUStudySteps
         $this->db->modifyTableColumn('fau_study_courses', 'literature',
             ['type' => 'clob', 'notnull' => false, 'default' => null]);
     }
+
+    protected function changeEventCommentClob()
+    {
+        $this->db->modifyTableColumn('fau_study_events', 'comment',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
 }
