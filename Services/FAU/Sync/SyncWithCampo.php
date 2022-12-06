@@ -86,41 +86,30 @@ class SyncWithCampo extends SyncBase
     public function syncAchievements() : void
     {
         $this->info('syncAchievements...');
+        $existing = $this->sync->repo()->getAllForSync(Achievement::model());
 
-        // get all achievements from the staging database
-        $stagingIds = [];
-        foreach($this->staging->repo()->getAchievements() as $achievement) {
-            $stagingIds[$achievement->getRequirementId()][$achievement->getPersonId()] = true;
-        }
-
-        // get all achievements from StudOn
-        $studonIds = [];
-        foreach($this->user->repo()->getAllAchievements() as $achievement) {
-            $studonIds[$achievement->getRequirementId()][$achievement->getPersonId()] = true;
-        }
-
-        // treat added achievements (exist in staging, but not yet in StudOn)
-        foreach ($stagingIds as $requirement_id => $person_ids) {
-            foreach ($person_ids as $person_id => $flag) {
-                if (!isset($studonIds[$requirement_id][$person_id])) {
-                    $this->user->repo()->save(new Achievement($requirement_id, $person_id));
-                }
+        foreach($this->staging->repo()->getAchievements() as $record) {
+            $entry = new Achievement(
+                $record->getRequirementId(),
+                $record->getPersonId()
+            );
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
+            // record is still needed
+            unset($existing[$entry->key()]);
         }
 
-        // treat deleted achievements (exist yet in StudOn, but no more in staging)
-        foreach ($studonIds as $requirement_id => $person_ids) {
-            foreach ($person_ids as $person_id => $flag) {
-                if (!isset($stagingIds[$requirement_id][$person_id])) {
-                    $this->user->repo()->delete(new Achievement($requirement_id, $person_id));
-                }
-            }
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->user->repo()->delete($entry);
         }
     }
 
 
     /**
      * Synchronize data found in the staging table campo_course
+     * todo: change sync
      */
     public function syncCourses() : void
     {
@@ -191,28 +180,31 @@ class SyncWithCampo extends SyncBase
     public function syncDocProgrammes() : void
     {
         $this->info('syncDocProgrammes...');
+        $existing = $this->sync->repo()->getAllForSync(DocProgramme::model());
 
-        $stagingRecords = $this->staging->repo()->getDocProgrammes();
-        $studyRecords = $this->study->repo()->getDocProgrammes();
-
-        // sync all staging records to get updates
-        foreach ($stagingRecords as $record) {
-            $this->study->repo()->save(new DocProgramme(
+        foreach ($this->staging->repo()->getDocProgrammes() as $record) {
+           $entry = new DocProgramme(
                 $record->getProgCode(),
                 $record->getProgText(),
                 $record->getProgEndDate()
-            ));
-        }
-        // delete records in StudOn that are no longer in staging
-        foreach ($studyRecords as $record) {
-            if (!isset($stagingRecords[$record->getProgCode()])) {
-                $this->study->repo()->delete($record);
+            );
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
+            // record is still needed
+            unset($existing[$entry->key()]);
+
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->user->repo()->delete($entry);
         }
     }
 
     /**
      * Synchronize data found in the staging table campo_event
+     * todo: change sync
      */
     public function syncEvents() : void
     {
@@ -245,55 +237,77 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_event_orgunit
+     * FULL SYNC
      */
     public function syncEventOrgunits() : void
     {
         $this->info('syncEventOrgunits...');
-        foreach ($this->staging->repo()->getEventOrgunitsToDo() as $record) {
-            $eventUnit = new EventOrgunit(
+        $existing = $this->sync->repo()->getAllForSync(EventOrgunit::model());
+
+        foreach ($this->staging->repo()->getEventOrgunits() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new EventOrgunit(
                 $record->getEventId(),
                 $record->getFauorgNr(),
                 $record ->getRelationId()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::DELETED:
-                    $this->study->repo()->delete($eventUnit);
-                    break;
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                default:
-                    $this->study->repo()->save($eventUnit);
-                    break;
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
-            $this->staging->repo()->setDipProcessed($record);
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
         }
     }
 
     /**
      * Synchronize data found in the staging table campo_event_responsible
+     * FULL SYNC
      */
     public function syncEventResponsibles() : void
     {
         $this->info('syncEventResponsibles...');
-        foreach ($this->staging->repo()->getEventResponsiblesToDo() as $record) {
-            $responsible = new EventResponsible(
+
+        /** @var EventResponsible[] $existing */
+        $existing = $this->sync->repo()->getAllForSync(EventResponsible::model());
+        $touched = [];
+
+        foreach ($this->staging->repo()->getEventResponsibles() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new EventResponsible(
                 $record->getEventId(),
                 $record->getPersonId()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($responsible);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($responsible);
-                    break;
+            if (!isset($existing[$entry->key()])) {
+                $this->study->repo()->save($entry);
+                $touched[$entry->getEventId()] = true;
             }
-            // set the related courses as changed to trigger an update
-            foreach ($this->study->repo()->getCoursesOfEvent($record->getEventId()) as $course) {
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
+            $touched[$entry->getEventId()] = true;
+        }
+
+        // set the related courses as changed to trigger an update
+        if (!empty($touched)) {
+            foreach ($this->study->repo()->getCoursesOfEvents(array_keys($touched)) as $course) {
                 $this->study->repo()->save($course->asChanged(true));
             }
-            $this->staging->repo()->setDipProcessed($record);
         }
     }
 
@@ -308,11 +322,17 @@ class SyncWithCampo extends SyncBase
      */
     public function syncEventModules() : void
     {
-        // get the existing module event relations for a later delete
-        $oldModuleEvents = $this->study->repo()->getModuleEvent(null,false, true);
-
         $this->info('syncEventModules...');
+
+        $existingMod = $this->sync->repo()->getAllForSync(Module::model());
+        $existingModEv = $this->sync->repo()->getAllForSync(ModuleEvent::model());
+
         foreach ($this->staging->repo()->getEventModules() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
             $module = new Module(
                 $record->getModuleId(),
                 $record->getModuleNr(),
@@ -322,25 +342,21 @@ class SyncWithCampo extends SyncBase
                 $record->getModuleId(),
                 $record->getEventId(),
             );
-            switch ($record->getDipStatus()) {
-                case DipData::DELETED:
-                    $this->study->repo()->delete($moduleEvent);
-                    break;
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                default:
-                    $this->study->repo()->save($module);
-                    $this->study->repo()->save($moduleEvent);
-                    break;
+
+            if (!isset($existingMod[$module->key()]) || $existingMod[$module->key()]->hash() != $module->hash()) {
+                $this->study->repo()->save($module);
+                $existingMod[$module->key()] = $module;
             }
-            $this->staging->repo()->setDipProcessed($record);
+            if (!isset($existingModEv[$moduleEvent->key()])) {
+                $this->study->repo()->save($moduleEvent);
+            }
 
             // module event relation is treated, so remove from the list
-            unset($oldModuleEvents[$moduleEvent->key()]);
+            unset($existingModEv[$moduleEvent->key()]);
         }
 
         // delete all remaining old module event relations
-        foreach ($oldModuleEvents as $moduleEvent) {
+        foreach ($existingModEv as $moduleEvent) {
             $this->study->repo()->delete($moduleEvent);
         }
     }
@@ -352,7 +368,7 @@ class SyncWithCampo extends SyncBase
     public function syncEducations() : void
     {
         $this->info('syncEducations...');
-        $existing = $this->user->repo()->getAllEducations();
+        $existing = $this->sync->repo()->getAllForSync(Education::model());
 
         foreach ($this->staging->repo()->getEducations() as $record) {
             if ($record->getDipStatus() == DipData::DELETED) {
@@ -360,7 +376,7 @@ class SyncWithCampo extends SyncBase
                 continue;
             }
 
-            $education = new Education(
+            $entry = new Education(
                 $record->getId(),
                 $record->getSemester(),
                 $record->getPersonId(),
@@ -371,21 +387,22 @@ class SyncWithCampo extends SyncBase
                 $record->getOrgunit(),
                 $record->getAdditionalText()
             );
-            if (!isset($existing[$education->key()]) || $existing[$education->key()]->hash() != $education->hash()) {
-                $this->study->repo()->save($education);
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
             // record is still needed
-            unset($existing[$education->key()]);
+            unset($existing[$entry->key()]);
         }
 
         // delete existing records that are no longer needed
-        foreach ($existing as $education) {
-            $this->study->repo()->delete($education);
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
         }
     }
 
     /**
      * Synchronize data found in the staging table campo_individual_dates
+     * todo: change sync
      */
     public function syncIndividualDates() : void
     {
@@ -420,6 +437,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_individual_instructor
+     * todo: change sync
      */
     public function syncIndividualInstructors() : void
     {
@@ -449,6 +467,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_instructor
+     * todo: change sync
      */
     public function syncInstructors() : void
     {
@@ -486,8 +505,11 @@ class SyncWithCampo extends SyncBase
      */
     public function syncModuleCos() : void
     {
-        $existingCos = $this->study->repo()->getCoursesOfStudy(null, false, true);
-        $existingModCos = $this->study->repo()->getModuleCos(null,null, false, true);
+        /** @var CourseOfStudy[] $workingCos */
+        /** @var CourseOfStudy[] $existingCos */
+        $workingCos = [];
+        $existingCos = $this->sync->repo()->getAllForSync(CourseOfStudy::model());
+        $existingModCos = $this->sync->repo()->getAllForSync(ModuleCos::model());
 
         $this->info('syncModuleCos...');
         foreach ($this->staging->repo()->getModuleCos() as $record) {
@@ -495,35 +517,23 @@ class SyncWithCampo extends SyncBase
                 $this->staging->repo()->setDipProcessed($record);
                 continue;
             }
-            $cos = (new CourseOfStudy(
+            $cos = new CourseOfStudy(
                 $record->getCosId(),
                 $record->getDegree(),
                 $record->getSubject(),
-                null,
+                [$record->getMajor()],
                 $record->getSubjectIndicator(),
                 $record->getVersion()
-            ))->withAddedMajor($record->getMajor());        // add staging major, others will be removed later
+            );
 
-            // save only if changed or added, it may be repeated in staging loop
-            if (!isset($existingCos[$cos->key()])) {
-                //echo "\nINSERT " . $cos->getTitle();
-                $this->study->repo()->save($cos);
-                $existingCos[$cos->key()] = $cos;
+            if (!isset($workingCos[$cos->key()])) {
+                $workingCos[$cos->key()] = $cos;
             }
             else {
-                $cos2 = $existingCos[$cos->key()]
-                    ->withDegree($record->getDegree())
-                    ->withSubject($record->getSubject())
-                    ->withAddedMajor($record->getMajor())   // add staging major, others will be removed later
-                    ->withSubjectIndicator($record->getSubjectIndicator())
-                    ->withVersion($record->getVersion());
-
-                if ($cos2->hash() != $cos->hash()) {
-                    //echo "\nUPDATE " . $cos2->getTitle();
-                    $this->study->repo()->save($cos2);
-                }
-                // update with found major in existing list
-                $existingCos[$cos->key()] = $cos2;
+                // cos may appear multiple times with different majors
+                // update with added major in existing list
+                $workingCos[$cos->key()] = $workingCos[$cos->key()]
+                    ->withAddedMajor($record->getMajor());
             }
 
             $moduleCos = new ModuleCos(
@@ -533,10 +543,8 @@ class SyncWithCampo extends SyncBase
             if (!isset($existingModCos[$moduleCos->key()])) {
                 $this->study->repo()->save($moduleCos);
             }
-            else {
-                // existing record is still needed, this occurs only once in staging loop
-                unset($existingModCos[$moduleCos->key()]);
-            }
+            // record is still needed
+            unset($existingModCos[$moduleCos->key()]);
         }
 
         // delete existing records that are no longer needed
@@ -544,11 +552,9 @@ class SyncWithCampo extends SyncBase
             $this->study->repo()->delete($moduleCos);
         }
 
-        // keep existing courses of study but remove their old majors
-        foreach ($existingCos as $cos) {
-            if (count(array_diff($cos->getMajors(), $cos->getAddedMajors()))) {
-                $cos = $cos->withMajors($cos->getAddedMajors());
-                //echo "\nCLEANUP " . $cos->getTitle();
+        // save the added or changed courses of study
+        foreach ($workingCos as $cos) {
+            if (!isset($existingCos[$cos->key()]) || $existingCos[$cos->key()]->hash() != $cos->hash()) {
                 $this->study->repo()->save($cos);
             }
         }
@@ -566,8 +572,8 @@ class SyncWithCampo extends SyncBase
     {
         $this->info('syncModuleRestrictions...');
 
-        $existingReq = $this->cond->repo()->getRequirements(false, true);
-        $existingRest = $this->cond->repo()->getModuleRestrictions(false, true);
+        $existingReq = $this->sync->repo()->getAllForSync(Requirement::model());
+        $existingRest = $this->sync->repo()->getAllForSync(ModuleRestriction::model());
 
         foreach ($this->staging->repo()->getModuleRestrictions() as $record) {
             if ($record->getDipStatus() == DipData::DELETED) {
@@ -610,60 +616,62 @@ class SyncWithCampo extends SyncBase
 
 
     /**
-     * Synchronize data found in the staging table campo_event_restrictions
-     * This table combines the event to requirement relationship with the requirements data
+     * Synchronize data found in the staging table campo_module_restrictions
+     * This table combines the module to requirement relationship with the requirements data
      *
-     * This is a FULL SYNC since the "deleted" DIP status seems not to be set appropriately
+     * FULL SYNC
      * Requirements don't have to be deleted
      */
     public function syncEventRestrictions() : void
     {
-        // get the existing restrictions for a later delete
-        $oldRestrictions = $this->cond->repo()->getEventRestrictions(false, true);
-
         $this->info('syncEventRestrictions...');
-        // query for all staging data
+
+        $existingReq = $this->sync->repo()->getAllForSync(Requirement::model());
+        $existingRest = $this->sync->repo()->getAllForSync(EventRestriction::model());
+
         foreach ($this->staging->repo()->getEventRestrictions() as $record) {
-            $requirement = new Requirement(
-                $record->getRequirementId(),
-                $record->getRequirementName()
-            );
-            $eventRes = new EventRestriction(
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            if ($record->getRequirementId() != 0) {
+                $requirement = new Requirement(
+                    $record->getRequirementId(),
+                    $record->getRequirementName()
+                );
+                // save only if changed, it may be repeated in staging loop
+                if (!isset($existingReq[$requirement->key()]) || $existingReq[$requirement->key()]->hash() != $requirement->hash()) {
+                    $this->study->repo()->save($requirement);
+                    $existingReq[$requirement->key()] = $requirement;
+                }
+            }
+
+            $eventRest = new EventRestriction(
                 $record->getEventId(),
                 $record->getRestriction(),
                 $record->getRequirementId(),
                 $record->getCompulsory()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::DELETED:
-                    $this->study->repo()->delete($eventRes);
-                    break;
-
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                default:
-                    // restrictions regarding the study semester may have no real requirement
-                    // in this case the requirement id is 0 and the requirement should not be saved
-                    if ($requirement->getRequirementId() !== 0) {
-                        $this->cond->repo()->save($requirement);
-                    }
-                    $this->cond->repo()->save($eventRes);
-                    break;
+            if (!isset($existingRest[$eventRest->key()])) {
+                $this->study->repo()->save($eventRest);
             }
-            $this->staging->repo()->setDipProcessed($record);
-            // restriction is treated, so remove from the delete list
-            unset($oldRestrictions[$eventRes->key()]);
+            else {
+                // existing record is still needed, this occurs only once in staging loop
+                unset($existingRest[$eventRest->key()]);
+            }
         }
 
-        // delete all remaining old restrictions
-        foreach ($oldRestrictions as $restriction) {
-            $this->cond->repo()->delete($restriction);
+        // delete all remaining old module restrictions
+        foreach ($existingRest as $eventRest) {
+            $this->cond->repo()->delete($eventRest);
         }
     }
 
 
     /**
      * Synchronize data found in the staging table campo_planned_dates
+     * todo: change sync
      */
     public function syncPlannedDates() : void
     {
@@ -699,6 +707,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_restrictions
+     * todo: change sync
      */
     public function syncRestrictions() : void
     {
@@ -727,6 +736,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table study_degrees
+     * FULL SYNC
      */
     public function syncStudyDegrees() : void
     {
@@ -754,6 +764,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table study_enrolments
+     * FULL SYNC
      */
     public function syncStudyEnrolments() : void
     {
@@ -781,6 +792,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table study_fields
+     * FULL SYNC
      */
     public function syncStudyFields() : void
     {
@@ -808,6 +820,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table study_forms
+     * FULL SYNC
      */
     public function syncStudyForms() : void
     {
@@ -835,6 +848,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table study_schools
+     * FULL SYNC
      */
     public function syncStudySchools() : void
     {
@@ -863,6 +877,7 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize the data found in the staging table study_subjects
+     * FULL SYNC
      */
     public function syncStudySubjects() : void
     {

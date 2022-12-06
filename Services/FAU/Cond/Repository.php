@@ -95,40 +95,6 @@ class Repository extends RecordRepo
         $this->deleteRecord($record);
     }
 
-    /**
-     * Get all event restrictions, indexed by their compound key
-     * @param bool $useCache cache the resulting records of exactly this query
-     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
-     * @return EventRestriction[]
-     */
-    public function getEventRestrictions($useCache = true, $forceIndex = false) : array
-    {
-        return $this->getAllRecords(EventRestriction::model(), $useCache, $forceIndex);
-    }
-
-
-    /**
-     * Get all module restrictions, indexed by their compound key
-     * @param bool $useCache cache the resulting records of exactly this query
-     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
-     * @return ModuleRestriction[]
-     */
-    public function getModuleRestrictions($useCache = true, $forceIndex = false) : array
-    {
-        return $this->getAllRecords(ModuleRestriction::model(), $useCache, $forceIndex);
-    }
-
-    /**
-     * Get all requirements, indexed by their compound key
-     * @param bool $useCache cache the resulting records of exactly this query
-     * @param bool $forceIndex force using the record key as array index, even if it is composed of several fields
-     * @return ModuleRestriction[]
-     */
-    public function getRequirements($useCache = true, $forceIndex = false) : array
-    {
-        return $this->getAllRecords(Requirement::model(), $useCache, $forceIndex);
-    }
-
 
     /**
      * Get the restrictions assigned to modules

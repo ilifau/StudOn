@@ -284,6 +284,19 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the courses of events
+     * @param int[] $event_ids
+     * @param bool $useCache
+     * @return Course[] indexed by course_id
+     */
+    public function getCoursesOfEvents(array $event_ids, bool $useCache = true) : array
+    {
+        $query = "SELECT * from fau_study_courses WHERE ". $this->db->in('event_id', $event_ids, false,'integer');
+        return $this->queryRecords($query, Course::model(), $useCache);
+    }
+
+
+    /**
      * Get the courses with certain ids
      * @return Course[] indexed by course_id
      */

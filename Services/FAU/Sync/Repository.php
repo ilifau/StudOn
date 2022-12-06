@@ -6,12 +6,25 @@ use FAU\RecordRepo;
 use FAU\Study\Data\Term;
 use FAU\Staging\Data\StudOnMember;
 use FAU\Staging\Data\StudOnCourse;
+use FAU\RecordData;
 
 /**
  * Repository for database access across the sub services used in the synchronisation
  */
 class Repository extends RecordRepo
 {
+
+    /**
+     * Get all records of a type for synchronisation
+     * The array is indexed by keys generated with the key() function of the records
+     * @return RecordData[]
+     */
+    public function getAllForSync(RecordData $model) : array
+    {
+        return $this->getAllRecords($model, false, true);
+    }
+
+
     /**
      * Get the ids of existing users for the responsible persons of the event of a course
      * @return int[]

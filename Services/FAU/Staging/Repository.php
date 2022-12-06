@@ -147,17 +147,17 @@ class Repository extends RecordRepo
     /**
      * @return EventOrgunit[]
      */
-    public function getEventOrgunitsToDo() : array
+    public function getEventOrgunits() : array
     {
-        return $this->getDipRecords(EventOrgunit::model());
+        return $this->getAllRecords(EventOrgunit::model(), false);
     }
 
     /**
      * @return EventResponsible[]
      */
-    public function getEventResponsiblesToDo() : array
+    public function getEventResponsibles() : array
     {
-        return $this->getDipRecords(EventResponsible::model());
+        return $this->getAllRecords(EventResponsible::model(), false);
     }
 
     /**
