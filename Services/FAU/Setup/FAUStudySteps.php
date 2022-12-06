@@ -67,6 +67,11 @@ class FAUStudySteps
         $this->changeCosMajorToMulti();
     }
 
+    public function custom_step_111()
+    {
+        $this->changeCourseLiteratureClob();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -445,5 +450,11 @@ class FAUStudySteps
         }
 
         $this->db->renameTableColumn('fau_study_cos', 'major', 'majors');
+    }
+
+    protected function changeCourseLiteratureClob()
+    {
+        $this->db->modifyTableColumn('fau_study_courses', 'literature',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
     }
 }

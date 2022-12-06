@@ -1654,3 +1654,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_110();
 ?>
+<#110>
+<?php
+/**
+ * fau: fauService - change the 'literature' field in courses to clob
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_111();
+?>

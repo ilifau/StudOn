@@ -22,7 +22,7 @@ class ilFauPatches
     public function syncCampoData()
     {
         $service = $this->dic->fau()->sync()->campo();
-        $service->syncEventResponsibles();
+        $service->synchronize();
     }
 
     public function syncToCampo()

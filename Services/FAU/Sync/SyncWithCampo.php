@@ -109,12 +109,15 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_course
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncCourses() : void
     {
         $this->info('syncCourses...');
-        foreach ($this->staging->repo()->getCoursesToDo() as $record) {
+        /** @var Course[] $existing */
+        $existing = $this->sync->repo()->getAllForSync(Course::model());
+
+        foreach ($this->staging->repo()->getCourses() as $record) {
             $course = new Course(
                 $record->getCourseId(),
                 $record->getEventId(),
@@ -132,44 +135,76 @@ class SyncWithCampo extends SyncBase
                 $record->getContents(),
                 $record->getLiterature(),
             );
-            if ($existing = $this->study->repo()->getCourse($record->getCourseId())) {
+            if (isset($existing[$course->key()])) {
                 $course = $course
-                    ->withIliasObjId($existing->getIliasObjId())
-                    ->withIliasProblem($existing->getIliasProblem())
-                    ->asChanged(true);
+                    ->withIliasObjId($existing[$course->key()]->getIliasObjId())
+                    ->withIliasProblem($existing[$course->key()]->getIliasProblem())
+                    ->withIliasDirtySince($existing[$course->key()]->getIliasDirtySince());
+
+                if ($existing[$course->key()]->hash() != $course->hash()) {
+                    $this->study->repo()->save($course->asChanged(true));
+                }
             }
-            // 'deleted' is treated like 'changed' here
-            // syncWithIlias will decide what to do afterwards
-            $this->study->repo()->save($course);
-            $this->staging->repo()->setDipProcessed($record);
+            elseif (!$course->isDeleted()) {
+                $this->study->repo()->save($course->asChanged(true));
+            }
+            // course is still needed
+            unset($existing[$course->key()]);
+
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+            }
+        }
+
+        // mark remaining existing courses as deleted
+        // this will be processed in SyncWithIlias
+        foreach ($existing as $course) {
+            $this->study->repo()->save($course->withDeleted(true)->asChanged(true));
         }
     }
 
     /**
      * Synchronize data found in the staging table campo_course_responsible
+     * FULL SYNC
      */
     public function syncCourseResponsibles() : void
     {
         $this->info('syncCourseResponsibles...');
-        foreach ($this->staging->repo()->getCourseResponsiblesToDo() as $record) {
-            $responsible = new CourseResponsible(
+
+        /** @var CourseResponsible[] $existing */
+        $existing = $this->sync->repo()->getAllForSync(CourseResponsible::model());
+        $touched = [];
+
+        foreach ($this->staging->repo()->getCourseResponsibles() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new CourseResponsible(
                 $record->getCourseId(),
                 $record->getPersonId()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($responsible);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($responsible);
-                    break;
+
+            if (!isset($existing[$entry->key()])) {
+                $this->study->repo()->save($entry);
+                $touched[$entry->getCourseId()] = true;
             }
-            // mark course as changed to trigger a role update in the related ILIAS course or group
-            if ($course = $this->study->repo()->getCourse($record->getCourseId())) {
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
+            $touched[$entry->getCourseId()] = true;
+        }
+
+        // set the related courses as changed to trigger an update
+        if (!empty($touched)) {
+            foreach ($this->study->repo()->getCoursesByIds(array_keys($touched), false) as $course) {
                 $this->study->repo()->save($course->asChanged(true));
             }
-            $this->staging->repo()->setDipProcessed($record);
         }
     }
 
@@ -305,7 +340,7 @@ class SyncWithCampo extends SyncBase
 
         // set the related courses as changed to trigger an update
         if (!empty($touched)) {
-            foreach ($this->study->repo()->getCoursesOfEvents(array_keys($touched)) as $course) {
+            foreach ($this->study->repo()->getCoursesOfEvents(array_keys($touched), false) as $course) {
                 $this->study->repo()->save($course->asChanged(true));
             }
         }

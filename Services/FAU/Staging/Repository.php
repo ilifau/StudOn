@@ -107,17 +107,17 @@ class Repository extends RecordRepo
     /**
      * @return Course[]
      */
-    public function getCoursesToDo() : array
+    public function getCourses() : array
     {
-        return $this->getDipRecords(Course::model());
+        return $this->getAllRecords(Course::model(), false);
     }
 
     /**
      * @return CourseResponsible[]
      */
-    public function getCourseResponsiblesToDo() : array
+    public function getCourseResponsibles() : array
     {
-        return $this->getDipRecords(CourseResponsible::model());
+        return $this->getAllRecords(CourseResponsible::model(), false);
     }
 
     /**

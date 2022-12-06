@@ -30,7 +30,7 @@ class Course extends RecordData
         'teaching_language' => 'text',
         'compulsory_requirement' => 'text',
         'contents' => 'clob',
-        'literature' => 'text',
+        'literature' => 'clob',
         'ilias_obj_id' => 'integer',
         'ilias_dirty_since' => 'text',
         'ilias_problem' => 'text'
@@ -269,6 +269,19 @@ class Course extends RecordData
         return $clone;
     }
 
+
+    /**
+     * @param string|null $ilias_dirty_since
+     * @return Course
+     */
+    public function withIliasDirtySince(?string $ilias_dirty_since) : self
+    {
+        $clone = clone $this;
+        $clone->ilias_dirty_since = $ilias_dirty_since;
+        return $clone;
+    }
+
+
     /**
      * @param int|null $attendee_maximum
      * @return $this
@@ -277,6 +290,17 @@ class Course extends RecordData
     {
         $clone = clone $this;
         $clone->attendee_maximum = $attendee_maximum;
+        return $clone;
+    }
+
+    /**
+     * @param bool $deleted
+     * @return $this
+     */
+    public function withDeleted(bool $deleted) : self
+    {
+        $clone = clone $this;
+        $clone->deleted = (int) $deleted;
         return $clone;
     }
 
