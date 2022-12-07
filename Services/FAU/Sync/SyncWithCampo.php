@@ -682,13 +682,11 @@ class SyncWithCampo extends SyncBase
                 $record->getRequirementId(),
                 $record->getCompulsory()
             );
-            if (!isset($existingRest[$moduleRest->key()])) {
+            if (!isset($existingRest[$moduleRest->key()]) || $existingRest[$moduleRest->key()]->hash() != $moduleRest->hash()) {
                 $this->study->repo()->save($moduleRest);
             }
-            else {
-                // existing record is still needed, this occurs only once in staging loop
-                unset($existingRest[$moduleRest->key()]);
-            }
+            // existing record is still needed, this occurs only once in staging loop
+            unset($existingRest[$moduleRest->key()]);
         }
 
         // delete all remaining old module restrictions
@@ -736,13 +734,11 @@ class SyncWithCampo extends SyncBase
                 $record->getRequirementId(),
                 $record->getCompulsory()
             );
-            if (!isset($existingRest[$eventRest->key()])) {
+            if (!isset($existingRest[$eventRest->key()]) || $existingRest[$eventRest->key()]->hash() != $eventRest->hash()) {
                 $this->study->repo()->save($eventRest);
             }
-            else {
-                // existing record is still needed, this occurs only once in staging loop
-                unset($existingRest[$eventRest->key()]);
-            }
+            // existing record is still needed, this occurs only once in staging loop
+            unset($existingRest[$eventRest->key()]);
         }
 
         // delete all remaining old module restrictions
@@ -754,13 +750,20 @@ class SyncWithCampo extends SyncBase
 
     /**
      * Synchronize data found in the staging table campo_planned_dates
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncPlannedDates() : void
     {
         $this->info('syncPlannedDates...');
-        foreach ($this->staging->repo()->getPlannedDatesToDo() as $record) {
-            $date = new PlannedDate(
+        $existing = $this->sync->repo()->getAllForSync(PlannedDate::model());
+
+        foreach ($this->staging->repo()->getPlannedDates() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new PlannedDate(
                 $record->getPlannedDatesId(),
                 $record->getCourseId(),
                 $record->getTermYear(),
@@ -775,28 +778,34 @@ class SyncWithCampo extends SyncBase
                 $record->getExpectedAttendees(),
                 $record->getComment()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->study->repo()->save($date);
-                    break;
-                case DipData::DELETED:
-                    $this->study->repo()->delete($date);
-                    break;
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
-            $this->staging->repo()->setDipProcessed($record);
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
         }
     }
 
     /**
      * Synchronize data found in the staging table campo_restrictions
-     * todo: change sync
+     * FULL SYNC
      */
     public function syncRestrictions() : void
     {
         $this->info('syncRestrictions...');
-        foreach ($this->staging->repo()->getRestrictionsToDo() as $record) {
-            $restriction = new Restriction(
+        $existing = $this->sync->repo()->getAllForSync(Restriction::model());
+
+        foreach ($this->staging->repo()->getRestrictions() as $record) {
+            if ($record->getDipStatus() == DipData::DELETED) {
+                $this->staging->repo()->setDipProcessed($record);
+                continue;
+            }
+
+            $entry = new Restriction(
                 $record->getId(),
                 $record->getRestriction(),
                 $record->getType(),
@@ -804,16 +813,15 @@ class SyncWithCampo extends SyncBase
                 $record->getNumber(),
                 $record->getCompulsory()
             );
-            switch ($record->getDipStatus()) {
-                case DipData::INSERTED:
-                case DipData::CHANGED:
-                    $this->cond->repo()->save($restriction);
-                    break;
-                case DipData::DELETED:
-                    $this->cond->repo()->delete($restriction);
-                    break;
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
             }
-            $this->staging->repo()->setDipProcessed($record);
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
         }
     }
 

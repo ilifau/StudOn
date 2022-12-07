@@ -211,17 +211,17 @@ class Repository extends RecordRepo
     /**
      * @return PlannedDate[]
      */
-    public function getPlannedDatesToDo() : array
+    public function getPlannedDates() : array
     {
-        return $this->getDipRecords(PlannedDate::model());
+        return $this->getAllRecords(PlannedDate::model(), false);
     }
 
     /**
      * @return Restriction[]
      */
-    public function getRestrictionsToDo() : array
+    public function getRestrictions() : array
     {
-        return $this->getDipRecords(Restriction::model());
+        return $this->getAllRecords(Restriction::model(), false);
     }
 
     /**
