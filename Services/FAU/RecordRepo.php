@@ -23,7 +23,7 @@ abstract class RecordRepo
      * Echo all write actions if called from the console
      * logging is determined by the log level
      */
-    private $echoWriteActions = true;
+    private $echoWriteActions = false;
 
     /**
      * Cached query results
