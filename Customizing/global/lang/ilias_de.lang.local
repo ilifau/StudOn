@@ -613,6 +613,9 @@ exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
 fau#:#fau_educations#:#Bildungen
 fau#:#fau_educations_of#:#Bildungen von
+fau#:#fau_export_course_members#:#Kursteilnehmer/innen exportieren
+fau#:#fau_export_course_members_info#:#Exportiert eine Übersicht aller Benutzer/innen, die in Lehrveranstaltungen innerhalb dieser Kategorie Mitglieder sind oder auf der Warteliste stehen. Es werden nur Kurse berücksichtigt, bei denen Sie das Recht zur Teilnehmerverwaltung haben.
+fau#:#fau_export_course_members_failed#:#Die Kursteilnehemr/innen konnten nicht exportiert werden!
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s

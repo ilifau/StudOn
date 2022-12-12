@@ -116,4 +116,48 @@ class Repository extends RecordRepo
         $query = "DELETE FROM crs_waiting_list WHERE obj_id = %s";
         $this->db->manipulateF($query, ['integer'], [$from_obj_id]);
     }
+
+
+    /**
+     * Get the user ids of course or group members
+     * @param int[] $obj_ids
+     * @return int[][] user_id => obj_ids
+     */
+    public function getObjectsMemberIds(array $obj_ids) : array
+    {
+        $query = "
+            SELECT r.obj_id, ua.usr_id
+            FROM object_reference r 
+            JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
+            JOIN object_data o ON o.obj_id = fa.rol_id AND (o.title LIKE 'il_crs_member%' OR o.title LIKE 'il_grp_member%')
+            JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
+            WHERE " . $this->db->in('r.obj_id', $obj_ids, false, 'integer');
+        $result = $this->db->query($query);
+
+        $list = [];
+        foreach ($this->db->fetchObject($result) as $row) {
+            $list[$row->usr_id][] = $row->obj_id;
+        }
+        return $list;
+    }
+
+
+    /**
+     * Get the user ids of users on course or group waiting lists
+     * @param int[] $obj_ids
+     * @return int[][] user_id => obj_ids
+     */
+    public function getObjectsWaitingIds(array $obj_ids) : array
+    {
+        $query = "
+            SELECT obj_id, usr_id FROM crs_waiting_list
+            WHERE " . $this->db->in('obj_id', $obj_ids, false, 'integer');
+        $result = $this->db->query($query);
+
+        $list = [];
+        foreach ($this->db->fetchObject($result) as $row) {
+            $list[$row->usr_id][] = $row->obj_id;
+        }
+        return $list;
+    }
 }

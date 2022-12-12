@@ -10,6 +10,7 @@ use FAU\User\Data\Person;
 use FAU\User\Data\Member;
 use FAU\Study\Data\Term;
 use FAU\User\Data\UserOrgRole;
+use FAU\User\Data\UserData;
 
 /**
  * Repository for accessing FAU user data
@@ -38,6 +39,17 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the person data of an ILIAS user
+     * @return Person[]
+     */
+    public function getPersonsOfUsers(array $user_ids) : array
+    {
+        $query = "SELECT * FROM fau_user_persons WHERE " . $this->db->in('user_id', $user_ids, false, 'integer');
+        return $this->queryRecords($query, Person::model());
+    }
+
+
+    /**
      * Get the applied roles of an  ILIAS user
      * @return UserOrgRole[]
      */
@@ -56,6 +68,21 @@ class Repository extends RecordRepo
     public function getEducationsOfPerson(?int $person_id, ?array $orgunits = null) : array
     {
         $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
+        if (!empty($orgunits))  {
+            $query .= " AND " . $this->db->in('orgunit', $orgunits, false,'text');
+        }
+        return $this->queryRecords($query, Education::model());
+    }
+
+    /**
+     * Get the educations assigned to persons
+     * @param int[] $person_ids
+     * @param string[]|null $orgunits    show educations of these orgunits (shorttexts)
+     * @return Education[]
+     */
+    public function getEducationsOfPersons(array $person_ids, ?array $orgunits = null) : array
+    {
+        $query = "SELECT * FROM fau_user_educations WHERE" . $this->db->in('person_id', $person_ids, false,'integer');
         if (!empty($orgunits))  {
             $query .= " AND " . $this->db->in('orgunit', $orgunits, false,'text');
         }
@@ -176,6 +203,18 @@ class Repository extends RecordRepo
             $module_ids[$row['user_id']] = $row['module_id'];
         }
         return $module_ids;
+    }
+
+    /**
+     * Get the data of users
+     * @param int[] $user_ids
+     * @return UserData[]
+     */
+    public function getUserData(array $user_ids) : array
+    {
+        $query = "SELECT user_id, login, firstname, lastname, gender, email, matriculation FROM usr_data WHERE "
+            . $this->db->in('usr_id', $user_ids, false, 'integer');
+        return $this->queryRecords($query, UserData::model(), false, true);
     }
 
     /**

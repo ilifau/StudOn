@@ -613,6 +613,9 @@ exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
 fau#:#fau_educations#:#Educations
 fau#:#fau_educations_of#:#Educations of
+fau#:#fau_export_course_members#:#Export Conrse Members
+fau#:#fau_export_course_members_info#:#Exports an overview of all users who are members of courses within this category or are on the waiting list. Only courses for which you have the right to manage participants are taken into account.
+fau#:#fau_export_course_members_failed#:#The course members couldn't be exported!
 fau#:#fair_autofill_cron#:#Allocate Registrations with Equal Chances
 fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity registration, the free places in groups and courses are automatically allocated.
 fau#:#fair_autofill_cron_result#:#Allocated Places: %s

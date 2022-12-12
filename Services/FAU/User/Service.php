@@ -6,6 +6,10 @@ use ilDatePresentation;
 use FAU\SubService;
 use FAU\User\Data\Member;
 use FAU\Staging\Data\StudonChange;
+use FAU\User\Data\Education;
+use FAU\User\Data\Study;
+use FAU\User\Data\Person;
+use FAU\Study\Data\Term;
 
 /**
  * Service for FAU user related data
@@ -25,6 +29,62 @@ class Service extends SubService
         return $this->repository;
     }
 
+    /**
+     * Get the data of users given by their ids
+     * @param array    $user_ids
+     * @param int|null $ref_id_for_educations
+     * @return array
+     */
+    public function getUserData(array $user_ids, ?int $ref_id_for_educations) : array
+    {
+        $users = $this->repo()->getUserData($user_ids);
+        $persons = $this->repo()->getPersonsOfUsers($user_ids);
+
+        foreach ($persons as $person) {
+            if (!empty($user = $users[$person->getUserId()])) {
+                $users[$user->getUserId()] = $user->withPerson($person);
+            }
+        }
+
+        $orgunits = null;
+        if (!empty($ref_id_for_educations)) {
+            $orgunits = $this->dic->fau()->org()->getShorttextsOnIliasPath($ref_id_for_educations);
+        }
+        $educations = $this->repo()->getEducationsOfPersons(array_keys($persons), $orgunits);
+        foreach ($educations as $education) {
+            if (!empty($person = $persons[$education->getPersonId()]) && !empty($user = $users[$person->getUserId()])) {
+                $users[$user->getUserId()] = $user->withEducation($education);
+            }
+        }
+
+        return $users;
+    }
+
+    /**
+     * Get a textual representation of educations
+     * @param Education[] $educations
+     */
+    public function getEducationsText(array $educations) : string
+    {
+        $texts = [];
+        foreach ($educations as $education) {
+            $texts[$education->getOrgunit()][] = $education->getExamname()
+                . ' (' . $education->getDateOfWork()
+                . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
+                . ')'
+                . (empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText());
+        }
+
+        $alltexts = [];
+        foreach ($texts as $orgunit => $unittexts) {
+            sort($unittexts);
+            $alltexts[] = (count($texts) > 1 ? $orgunit . ": \n" : '')
+                . implode("\n", $unittexts);
+        }
+
+        return implode("\n", $alltexts);
+    }
+
 
     /**
      * Get the educations of a user as text
@@ -36,62 +96,41 @@ class Service extends SubService
      */
     public function getEducationsAsText(int $user_id, ?int $ref_id = null) : string
     {
-        $alltexts = [];
         if (!empty($person = $this->dic->fau()->user()->repo()->getPersonOfUser($user_id))) {
             $orgunits = null;
             if (!empty($ref_id)) {
                 $orgunits = $this->dic->fau()->org()->getShorttextsOnIliasPath($ref_id);
             }
-            $texts = [];
-            foreach ($this->repo()->getEducationsOfPerson($person->getPersonId(), $orgunits) as $education) {
-                $texts[$education->getOrgunit()][] = $education->getExamname()
-                    . ' (' . $education->getDateOfWork()
-                    . (empty($education->getGrade()) ? '' : ', ' . $this->lng->txt('fau_grade') . ' ' . $education->getGrade())
-                    . ')'
-                    . (empty($education->getAdditionalText()) ? '' : ' - ' . $education->getAdditionalText());
-            }
-            foreach ($texts as $orgunit => $unittexts) {
-                sort($unittexts);
-                $alltexts[] = (count($texts) > 1 ? $orgunit . ": \n" : '')
-                    . implode("\n", $unittexts);
-            }
-        }
-        return implode("\n", $alltexts);
+            return $this->getEducationsText($this->repo()->getEducationsOfPerson($person->getPersonId(), $orgunits));
+         }
+        return '';
     }
 
     /**
-     * Get the studies of a user as text
+     * Get a textual representation of a person's studies
      * Studies are separated by newlines
-     * @param int $user_id
-     * @return string
      */
-    public function getStudiesAsText(int $user_id) : string
+    public function getStudiesText(?Person $person = null, ?Term $term = null) : string
     {
-        if (empty($person = $this->repo()->getPersonOfUser($user_id))) {
+        if (empty($person)) {
             return '';
         }
 
-        $texts = [];
-
         // Study data
-        $studies = array_merge(
-            $person->getStudiesOfTerm($this->dic->fau()->study()->getCurrentTerm()),
-            $person->getStudiesOfTerm($this->dic->fau()->study()->getNextTerm())
-        );
-
+        if (isset($term)) {
+            $studies = $person->getStudiesOfTerm($term);
+        }
+        else {
+            $studies = array_merge(
+                $person->getStudiesOfTerm($this->dic->fau()->study()->getCurrentTerm()),
+                $person->getStudiesOfTerm($this->dic->fau()->study()->getNextTerm())
+            );
+        }
         if (empty($studies)) {
             $studies = $person->getStudiesOfTerm($person->getMaxTerm());
         }
 
-//        if ($user_id == 28442) {
-//            echo "<pre>";
-//            echo "Current: ". $this->dic->fau()->study()->getCurrentTerm()->toString();
-//            echo " Max: ". ($person->getMaxTerm() ? $person->getMaxTerm()->toString() : '');
-//            echo " Person: ";
-//            print_r($person);
-//            exit;
-//        }
-
+        $texts = [];
         foreach ($studies as $study) {
             $text = $this->dic->fau()->study()->getReferenceTermText($study->getTerm());
             $text .= empty($study->getEnrollmentName()) ? '' : ' (' . $study->getEnrollmentName() . ')';
@@ -101,8 +140,8 @@ class Service extends SubService
             $faculty_texts = [];
             foreach ($study->getSubjects() as $subject) {
                 $subject_texts[] = $subject->getSubjectName() . ' [' . $subject->getSubjectId() .'] '
-                .sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester())
-                . (empty($subject->getClinicalSemester()) ? '' : ', ' . sprintf($this->lng->txt('studydata_clinical_semester_text'), $subject->getClinicalSemester()));
+                    .sprintf($this->lng->txt('studydata_semester_text'), $subject->getStudySemester())
+                    . (empty($subject->getClinicalSemester()) ? '' : ', ' . sprintf($this->lng->txt('studydata_clinical_semester_text'), $subject->getClinicalSemester()));
                 $faculty_texts[] = $subject->getFacultyName() . ' [' . $subject->getCalculatedSchoolId() . ']';
             }
             $text .= empty($subject_texts) ? '' : (" \n" . implode(', ', $subject_texts));
@@ -128,6 +167,15 @@ class Service extends SubService
 
         return implode(" \n\n", $texts);
     }
+
+    /**
+     * Get the studies of a user as text
+     * Studies are separated by newlines
+     */
+    public function getStudiesAsText(int $user_id) : string
+    {
+        return $this->getStudiesText($this->repo()->getPersonOfUser($user_id));
+     }
 
 
     /**
