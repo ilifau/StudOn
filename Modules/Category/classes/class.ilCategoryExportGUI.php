@@ -52,6 +52,7 @@ class ilCategoryExportGUI extends ilExportGUI
     public function showExportCourseUsersForm()
     {
         $form = new ilPropertyFormGUI();
+        $form->setPreventDoubleSubmission(false);
         $form->setFormAction($this->ctrl->getFormAction($this, 'show'));
         $form->setTitle($this->lng->txt('fau_export_course_members'));
         $form->setDescription($this->lng->txt('fau_export_course_members_info'));
@@ -81,6 +82,8 @@ class ilCategoryExportGUI extends ilExportGUI
 
     public function doExportCourseUsers()
     {
+        $this->listExportFiles();
+
         $export = new CourseUsersExport(Term::fromString((string) $_POST['term_id']), $this->obj->getRefId());
         $file = $export->exportCoursesUsers();
 

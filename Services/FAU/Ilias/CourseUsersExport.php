@@ -60,7 +60,7 @@ class CourseUsersExport extends AbstractExport
         }
 
         $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->events));
-        $this->user_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->events));
+        $this->users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->events));
 
 
         $user_ids = array_unique(array_merge(array_keys($this->users_member), array_keys($this->users_waiting)));
