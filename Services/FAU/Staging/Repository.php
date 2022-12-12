@@ -107,17 +107,17 @@ class Repository extends RecordRepo
     /**
      * @return Course[]
      */
-    public function getCoursesToDo() : array
+    public function getCourses() : array
     {
-        return $this->getDipRecords(Course::model());
+        return $this->getAllRecords(Course::model(), false);
     }
 
     /**
      * @return CourseResponsible[]
      */
-    public function getCourseResponsiblesToDo() : array
+    public function getCourseResponsibles() : array
     {
-        return $this->getDipRecords(CourseResponsible::model());
+        return $this->getAllRecords(CourseResponsible::model(), false);
     }
 
     /**
@@ -131,9 +131,9 @@ class Repository extends RecordRepo
     /**
      * @return Event[]
      */
-    public function getEventsToDo() : array
+    public function getEvents() : array
     {
-        return $this->getDipRecords(Event::model());
+        return $this->getAllRecords(Event::model(), false);
     }
 
     /**
@@ -147,41 +147,41 @@ class Repository extends RecordRepo
     /**
      * @return EventOrgunit[]
      */
-    public function getEventOrgunitsToDo() : array
+    public function getEventOrgunits() : array
     {
-        return $this->getDipRecords(EventOrgunit::model());
+        return $this->getAllRecords(EventOrgunit::model(), false);
     }
 
     /**
      * @return EventResponsible[]
      */
-    public function getEventResponsiblesToDo() : array
+    public function getEventResponsibles() : array
     {
-        return $this->getDipRecords(EventResponsible::model());
+        return $this->getAllRecords(EventResponsible::model(), false);
     }
 
     /**
      * @return IndividualDate[]
      */
-    public function getIndividualDatesToDo() : array
+    public function getIndividualDates() : array
     {
-        return $this->getDipRecords(IndividualDate::model());
+        return $this->getAllRecords(IndividualDate::model(), false);
     }
 
     /**
      * @return IndividualInstructor[]
      */
-    public function getIndividualInstructorsToDo() : array
+    public function getIndividualInstructors() : array
     {
-        return $this->getDipRecords(IndividualInstructor::model());
+        return $this->getAllRecords(IndividualInstructor::model(), false);
     }
 
     /**
      * @return Instructor[]
      */
-    public function getInstructorsToDo() : array
+    public function getInstructors() : array
     {
-        return $this->getDipRecords(Instructor::model());
+        return $this->getAllRecords(Instructor::model(), false);
     }
 
     /**
@@ -211,17 +211,17 @@ class Repository extends RecordRepo
     /**
      * @return PlannedDate[]
      */
-    public function getPlannedDatesToDo() : array
+    public function getPlannedDates() : array
     {
-        return $this->getDipRecords(PlannedDate::model());
+        return $this->getAllRecords(PlannedDate::model(), false);
     }
 
     /**
      * @return Restriction[]
      */
-    public function getRestrictionsToDo() : array
+    public function getRestrictions() : array
     {
-        return $this->getDipRecords(Restriction::model());
+        return $this->getAllRecords(Restriction::model(), false);
     }
 
     /**

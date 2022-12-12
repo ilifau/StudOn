@@ -232,14 +232,14 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($did);
                 break;
 
-            case 'ilexportgui':
+            // fau: campoExport - call category export gui
+            case 'ilcategoryexportgui':
                 $this->prepareOutput();
-                $this->tabs_gui->setTabActive('export');
-                include_once './Services/Export/classes/class.ilExportGUI.php';
-                $exp = new ilExportGUI($this);
-                $exp->addFormat('xml');
+                $this->tabs_gui->activateTab('export');
+                $exp = new ilCategoryExportGUI($this);
                 $this->ctrl->forwardCommand($exp);
                 break;
+                // fau.
 
             case 'ilobjecttranslationgui':
                 $this->checkPermissionBool("write");
@@ -528,12 +528,14 @@ class ilObjCategoryGUI extends ilContainerGUI
         }
 
         if ($ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+            // fau: campoExport - set specific export tab for category
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcategoryexportgui', ''),
                 'export',
-                'ilexportgui'
+                'ilcategoryexportgui'
             );
+            // fau.
         }
         
         // parent tabs (all container: edit_permission, clipboard, trash

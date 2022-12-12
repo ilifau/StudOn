@@ -29,12 +29,6 @@ class CourseOfStudy extends RecordData
     protected ?string $subject_indicator;
     protected ?string $version;
 
-    /**
-     * Majors that have been added by withAddedMajor() function
-     * This is not saved, but needed for a sync
-     * @var string[]
-     */
-    protected $added_majors = [];
 
     /**
      * @param int         $cos_id
@@ -89,14 +83,6 @@ class CourseOfStudy extends RecordData
         return isset($this->majors) ? unserialize($this->majors) : [];
     }
 
-    /**
-     * Get majors that have been added by withAddedMajor() function
-     * @return string[]
-     */
-    public function getAddedMajors() : array
-    {
-        return $this->added_majors;
-    }
 
     public function getSubjectIndicator() : ?string
     {
@@ -122,52 +108,6 @@ class CourseOfStudy extends RecordData
     }
 
 
-
-    /**
-     * @param string|null $degree
-     * @return CourseOfStudy
-     */
-    public function withDegree(?string $degree) : self
-    {
-        $clone = clone($this);
-        $clone->degree = $degree;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $subject
-     * @return CourseOfStudy
-     */
-    public function withSubject(?string $subject) : self
-    {
-        $clone = clone($this);
-        $clone->subject = $subject;
-        return $clone;
-    }
-
-    /**
-     * @param string|null $subject_indicator
-     * @return CourseOfStudy
-     */
-    public function withSubjectIndicator(?string $subject_indicator) : self
-    {
-        $clone = clone($this);
-        $clone->subject_indicator = $subject_indicator;
-        return $clone;
-    }
-
-    /**
-     * Add a major to the list of majors
-     * @param string[] $majors
-     * @return $this
-     */
-    public function withMajors(array $majors) : self
-    {
-        $clone = clone($this);
-        $clone->majors = serialize($majors);
-        return $clone;
-    }
-
     /**
      * Add a major to the list of majors
      * @param string $major
@@ -182,23 +122,6 @@ class CourseOfStudy extends RecordData
         sort($majors);
         $clone->majors = serialize(array_unique($majors));
 
-        $added_majors = $clone->getAddedMajors();
-        $added_majors[] = $major;
-        sort($added_majors);
-        $clone->added_majors = array_unique($added_majors);
-
-        return $clone;
-    }
-
-
-    /**
-     * @param string|null $version
-     * @return CourseOfStudy
-     */
-    public function withVersion(?string $version) : self
-    {
-        $clone = clone($this);
-        $clone->version = $version;
         return $clone;
     }
 }

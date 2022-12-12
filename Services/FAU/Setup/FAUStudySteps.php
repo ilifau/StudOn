@@ -67,6 +67,26 @@ class FAUStudySteps
         $this->changeCosMajorToMulti();
     }
 
+    public function custom_step_111()
+    {
+        $this->changeCourseLiteratureClob();
+    }
+
+    public function custom_step_112()
+    {
+        $this->changeEventCommentClob();
+    }
+
+    public function custom_step_113()
+    {
+        $this->changeIndividualInstructorsKey();
+    }
+
+    public function custom_step_114()
+    {
+        $this->changeInstructorsKey();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -206,7 +226,7 @@ class FAUStudySteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id']);
+        $this->db->addPrimaryKey('fau_study_indi_insts', ['individual_dates_id', 'person_id']);
         $this->db->addIndex('fau_study_indi_insts', ['person_id'], 'i1');
     }
 
@@ -218,7 +238,7 @@ class FAUStudySteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id']);
+        $this->db->addPrimaryKey('fau_study_instructors', ['planned_dates_id', 'person_id']);
         $this->db->addIndex('fau_study_instructors', ['person_id'], 'i1');
     }
 
@@ -445,5 +465,39 @@ class FAUStudySteps
         }
 
         $this->db->renameTableColumn('fau_study_cos', 'major', 'majors');
+    }
+
+    protected function changeCourseLiteratureClob()
+    {
+        $this->db->modifyTableColumn('fau_study_courses', 'literature',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function changeEventCommentClob()
+    {
+        $this->db->modifyTableColumn('fau_study_events', 'comment',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function changeIndividualInstructorsKey()
+    {
+        $this->db->renameTable('fau_study_indi_insts', 'fau_study_temp');
+        $this->createIndividualInstructorsTable(false);
+        $this->db->manipulate("
+            INSERT INTO fau_study_indi_insts(individual_dates_id, person_id)
+            SELECT individual_dates_id, person_id FROM fau_study_temp
+        ");
+        $this->db->dropTable('fau_study_temp');
+    }
+
+    protected function changeInstructorsKey()
+    {
+        $this->db->renameTable('fau_study_instructors', 'fau_study_temp');
+        $this->createInstructorsTable(false);
+        $this->db->manipulate("
+            INSERT INTO fau_study_instructors(planned_dates_id, person_id)
+            SELECT planned_dates_id, person_id FROM fau_study_temp
+        ");
+        $this->db->dropTable('fau_study_temp');
     }
 }

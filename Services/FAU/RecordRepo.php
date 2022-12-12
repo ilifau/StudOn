@@ -14,10 +14,16 @@ abstract class RecordRepo
     protected \ilLogger $logger;
 
     /**
-     * Echo all read and save actions if called from the console
+     * Echo all read actions if called from the console
      * logging is determined by the log level
      */
-    private $echoActions = false;
+    private $echoReadActions = false;
+
+    /**
+     * Echo all write actions if called from the console
+     * logging is determined by the log level
+     */
+    private $echoWriteActions = false;
 
     /**
      * Cached query results
@@ -299,8 +305,13 @@ abstract class RecordRepo
     protected function logAction(string $action, RecordData $record)
     {
         $entry = $action . ' '. get_class($record) . ' | ' . $record->info();
-        if ($this->echoActions && !ilContext::usesHTTP()) {
-            echo $entry . "\n";
+        if (!ilContext::usesHTTP()) {
+            if ($this->echoReadActions && $action == 'READ') {
+                echo $entry . "\n";
+            }
+            if ($this->echoWriteActions &&  $action != 'READ') {
+                echo $entry . "\n";
+            }
         }
 
         if ($this->logger->isHandling(\ilLogLevel::DEBUG)) {

@@ -224,8 +224,12 @@ class ilExportGUI
             $button->setCaption($lng->txt("exp_create_file") . " (" . $format["txt"] . ")", false);
             $button->setCommand("create_" . $format["key"]);
         }
-        
-        $ilToolbar->addButtonInstance($button);
+
+        // fau: campoExport - offer export button only if formats are available
+        if (count($this->getFormats()) > 0) {
+            $ilToolbar->addButtonInstance($button);
+        }
+        // fau.
 
         $table = $this->buildExportTableGUI();
         $table->setSelectAllCheckbox("file");

@@ -58,9 +58,9 @@ class Search
      *
      * @return SearchResultEvent[]
      */
-    public function getEventList() : array
+    public function getEventList(?SearchCondition $a_condition = null) : array
     {
-        $condition = $this->getCondition();
+        $condition = $a_condition ?? $this->getCondition();
         $cache = $this->getCache();
 
         // try to get the list from the cache
@@ -116,9 +116,12 @@ class Search
             }
         }
 
-        // save the total number of list entries
+        // add the total number of list entries
         $condition = $condition->withFound(count($list));
-        $this->setCondition($condition);
+        // save the condition in preferences if it was taken from there
+        if (!isset($a_condition)) {
+            $this->setCondition($condition);
+        }
 
         // get only the entries for the current page
         if (!empty($condition->getLimit())) {
@@ -159,7 +162,7 @@ class Search
     /**
      * Get a condition with added values
      */
-    protected function getProcessedCondition(SearchCondition $condition) : SearchCondition
+    public function getProcessedCondition(SearchCondition $condition) : SearchCondition
     {
         if (!empty($condition->getIliasRefId()) && empty($condition->getIliasPath())) {
             /** @noinspection PhpParamsInspection */

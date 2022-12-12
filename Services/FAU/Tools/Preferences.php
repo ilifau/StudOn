@@ -9,6 +9,7 @@ use FAU\Study\Data\SearchCondition;
 class Preferences
 {
     const TERM_FOR_MY_MEMBERSHIPS = 'fau_term_for_my_memberships';
+    const TERM_FOR_EXPORTS = 'fau_term_for_exports';
     const SEARCH_CONDITION = 'fau_search_condition';
 
     protected Container $dic;
@@ -50,6 +51,24 @@ class Preferences
     {
         $this->setPreference(self::TERM_FOR_MY_MEMBERSHIPS, (string) $term_id);
     }
+
+
+    /**
+     * Get the term id filter for the export of course data or members
+     */
+    public function getTermIdForExports() : string
+    {
+        return $this->getPreference(self::TERM_FOR_EXPORTS);
+    }
+
+    /**
+     * Set the term id filter for the export of course data or members
+     */
+    public function setTermIdForExports(?string $term_id)
+    {
+        $this->setPreference(self::TERM_FOR_EXPORTS, (string) $term_id);
+    }
+
 
 
     /**
