@@ -73,4 +73,15 @@ class StudOnCourse extends RecordData
         return $this->term_type_id;
     }
 
+    /**
+     * @param int|null $attendee_maximum
+     * @return StudOnCourse
+     */
+    public function withAttendeeMaximum(?int $attendee_maximum): StudOnCourse
+    {
+        $clone = clone $this;
+        $clone->attendee_maximum = $attendee_maximum;
+        return $clone;
+    }
+
 }

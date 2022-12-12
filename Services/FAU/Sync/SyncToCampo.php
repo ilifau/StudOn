@@ -29,7 +29,7 @@ class SyncToCampo extends SyncBase
      */
     public function syncCourses(Term $term) : void
     {
-        $this->info('syncStudOnCourses...');
+        $this->info('sync StudOnCourses...');
         $existing = $this->staging->repo()->getStudOnCourses($term);
 
         foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
@@ -81,6 +81,43 @@ class SyncToCampo extends SyncBase
                 $this->staging->repo()->delete($member);
                 $this->increaseItemsDeleted();
             }
+        }
+    }
+
+
+    /**
+     * Update all members of an ilias object in the staging table
+     */
+    public function syncMembersOfObject(int $obj_id) : void
+    {
+        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($obj_id) as $course) {
+            $course_id = $course->getCourseId();
+        }
+        if (empty($course_id)) {
+            return;
+        }
+
+        $this->info('sync StudOnMembers Of Object...');
+        // get the members noted in the staging database
+        $existing = $this->staging->repo()->getStudOnMembersOfCourse($course_id);
+
+        foreach ($this->sync->repo()->getMembersOfIliasObjectToSyncBack($obj_id) as $member) {
+            if (!isset($existing[$member->key()])) {
+                $this->staging->repo()->save($member);
+                $this->increaseItemsAdded();
+            }
+            elseif ($existing[$member->key()]->hash() != $member->hash()) {
+                $this->staging->repo()->save($member);
+                $this->increaseItemsUpdated();
+            }
+            // existing member in campo is still assigned in studon
+            unset($existing[$member->key()]);
+        }
+
+        // delete remaining existing members in campo that are no longer assigned in studon
+        foreach ($existing as $member) {
+            $this->staging->repo()->delete($member);
+            $this->increaseItemsDeleted();
         }
     }
 

@@ -32,7 +32,6 @@ use FAU\Staging\Data\StudyForm;
 use FAU\Staging\Data\StudySchool;
 use FAU\Staging\Data\StudySubject;
 use FAU\Staging\Data\Identity;
-use FAU\Staging\Data\StudonChange;
 use FAU\Staging\Data\StudOnMember;
 use FAU\Staging\Data\StudOnCourse;
 use FAU\Study\Data\Term;
@@ -327,6 +326,27 @@ class Repository extends RecordRepo
     }
 
     /**
+     * @return StudOnMember[]
+     */
+    public function getStudOnMembersOfCourse(int $course_id) : array
+    {
+        $query = "SELECT * FROM studon_members WHERE course_id=" . $this->db->quote($course_id, 'integer');
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
+    }
+
+
+    /**
+     * Get a single StudOnCourse for back sync
+     * @param int $course_id
+     * @return StudOnCourse|null
+     */
+    public function getStudOnCourse(int $course_id) : ?RecordData
+    {
+        $query = "SELECT * FROM studon_courses WHERE course_id=" . $this->db->quote($course_id, 'integer');
+        return $this->getSingleRecord($query, StudOnCourse::model(), null, false);
+    }
+
+    /**
      * @return StudOnCourse[]
      */
     public function getStudOnCourses(Term $term) : array
@@ -415,15 +435,6 @@ class Repository extends RecordRepo
             default:
                 return "dip_status IS NOT NULL";
         }
-    }
-
-
-    /**
-     * Save a change record
-     */
-    public function saveChange(StudonChange $record)
-    {
-        $this->insertRecord($record);
     }
 
 }

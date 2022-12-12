@@ -2,7 +2,6 @@
 
 namespace FAU\Ilias;
 
-use FAU\Staging\Data\StudonChange;
 use FAU\Study\Data\ImportId;
 use ILIAS\DI\Container;
 use ilObject;
@@ -351,21 +350,15 @@ class Objects
 
         // transmit the change of maximum members to campo, if needed
         if ($maximum !== $campoCourse->getAttendeeMaximum()) {
-            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
-            $stagingRepo->saveChange(new StudonChange(
-                null,
-                null,
-                $course_id,
-                null,
-                StudonChange::TYPE_ATTENDEE_MAXIMUM_CHANGED,
-                $maximum,
-                $time,
-                $time,
-                null
-            ));
 
+            // directly write the change back to staging database for campo
+            if (!empty($stagingCourse = $this->dic->fau()->staging()->repo()->getStudOnCourse((int) $course_id))) {
+                $this->dic->fau()->staging()->repo()->save(
+                    $stagingCourse->withAttendeeMaximum($maximum)
+                );
+            }
 
-            // prevent multiple change entries for further updates
+            // prevent multiple changes for further updates
             $this->dic->fau()->study()->repo()->save($campoCourse->withAttendeeMaximum($maximum));
         }
     }

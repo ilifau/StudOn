@@ -5,7 +5,6 @@ namespace FAU\User;
 use ilDatePresentation;
 use FAU\SubService;
 use FAU\User\Data\Member;
-use FAU\Staging\Data\StudonChange;
 use FAU\User\Data\Education;
 use FAU\User\Data\Study;
 use FAU\User\Data\Person;
@@ -235,28 +234,6 @@ class Service extends SubService
 
         // changes should be saved
         if ($change || $force) {
-            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
-
-            // ensure that a change from registration page with module_id
-            // is later than the change from the event handler without module_id
-            if (isset($module_id)) {
-                $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time() + 1);
-            }
-
-            if (!empty($person->getPersonId())) {
-                $stagingRepo->saveChange(new StudonChange(
-                    null,
-                    $person->getPersonId(),
-                    $course_id,
-                    $member->getModuleId(),
-                    StudonChange::TYPE_REGISTERED,
-                    null,
-                    $time,
-                    $time,
-                    null
-                ));
-            }
-
             $this->repo()->save($member);
         }
     }
@@ -280,23 +257,6 @@ class Service extends SubService
 
         // simple membership has been transmitted => delete
         if (isset($member) && !$member->hasAnyRole()) {
-
-            $time = $this->dic->fau()->tools()->convert()->unixToDbTimestamp(time());
-
-            if (!empty($person->getPersonId())) {
-                $stagingRepo->saveChange(new StudonChange(
-                    null,
-                    $person->getPersonId(),
-                    $course_id,
-                    $member->getModuleId(),
-                    StudonChange::TYPE_NOT_REGISTERED,
-                    null,
-                    $time,
-                    $time,
-                    null
-                ));
-            }
-
             $this->repo()->delete($member);
         }
     }
@@ -334,6 +294,9 @@ class Service extends SubService
                     $saved[] = $user_id;
                 }
             }
+
+            // directly write the members back to the staging database
+            $this->dic->fau()->sync()->toCampo()->syncMembersOfObject($obj_id);
         }
         return [array_unique($saved), array_unique($ignored)];
     }

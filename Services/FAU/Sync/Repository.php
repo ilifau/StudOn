@@ -202,17 +202,19 @@ class Repository extends RecordRepo
         return $categories;
     }
 
+
     /**
-     * Get the members of all courses in a term for sending back to campo
+     * Get the base query for course members to sync back to campo
+     * This query must be extended with a condition (term or ilias object)
+     *
      * The status is taken from the learning progress because groups don't have a setting for 'passed' in the member list
      * In courses the status from the member list is written to the learning progress
-     * The status 'failed' can't be set manually yet
-     * @param Term $term
-     * @return StudOnMember[]
+     * The status 'failed' can't be processed by campo - it is mapped to 'registered'
+     * @return string
      */
-    public function getMembersOfCoursesToSyncBack(Term $term) : array
+    protected function getMembersQueryToSyncBack() : string
     {
-        $query = "
+        return "
             SELECT c.course_id, p.person_id, m.module_id, 'registered' status, c.term_year, c.term_type_id,
             CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END AS status
             FROM fau_study_courses c
@@ -223,8 +225,32 @@ class Repository extends RecordRepo
             JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
             LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
             LEFT JOIN ut_lp_marks s ON s.obj_id = r.obj_id AND s.usr_id = p.user_id
-            WHERE c.term_year = " . $this->db->quote($term->getYear(), 'integer') . "
-            AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer');
+        ";
+    }
+
+
+    /**
+     * Get the members of an ilias course for sending back to campo
+     * @return StudOnMember[]
+     */
+    public function getMembersOfIliasObjectToSyncBack(int $obj_id) : array
+    {
+        $query = $this->getMembersQueryToSyncBack() .
+            " WHERE c.ilias_obj_id = " . $this->db->quote($obj_id, 'integer');
+
+        return $this->queryRecords($query, StudOnMember::model(), false, true);
+    }
+
+
+    /**
+     * Get the members of all courses in a term for sending back to campo
+     * @return StudOnMember[]
+     */
+    public function getMembersOfCoursesToSyncBack(Term $term) : array
+    {
+        $query = $this->getMembersQueryToSyncBack() .
+            " WHERE c.term_year = " . $this->db->quote($term->getYear(), 'integer') .
+            " AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer');
 
         return $this->queryRecords($query, StudOnMember::model(), false, true);
     }
