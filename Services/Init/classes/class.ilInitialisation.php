@@ -368,6 +368,34 @@ class ilInitialisation
         };
     }
 
+    // fau: httpPath - new functions getHTTPPathFromIni() and defineHTTPPathFromIni()
+    /**
+     * Read the HTTP path as stringfrom the ini file
+     * @return string
+     */
+    public static function getHTTPPathFromIni()
+    {
+        global $DIC;
+        return (string) $DIC->iliasIni()->readVariable("server", "http_path");
+    }
+
+    /**
+     * Get the HTTP path from the ini file
+     * @return false|string
+     */
+    public static function defineHTTPPathFromIni()
+    {
+        if (empty($path = self::getHTTPPathFromIni())) {
+            return false;
+        }
+        $f = new \ILIAS\Data\Factory();
+        $uri = $f->uri(ilUtil::removeTrailingPathSeparators($path));
+
+        return define('ILIAS_HTTP_PATH', $uri->getBaseURI());
+    }
+    // fau.
+
+
     /**
      * builds http path
      */
@@ -817,9 +845,14 @@ class ilInitialisation
         define("SUFFIX_REPL_DEFAULT", "php,php3,php4,inc,lang,phtml,htaccess");
         define("SUFFIX_REPL_ADDITIONAL", $ilSetting->get("suffix_repl_additional"));
 
+        // fau: httpPath - get the http path from the ini file as fallback
         if (ilContext::usesHTTP()) {
             self::buildHTTPPath();
         }
+        else {
+            self::defineHTTPPathFromIni();
+        }
+        // fau.
     }
 
     /**
