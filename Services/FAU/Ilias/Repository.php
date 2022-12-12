@@ -135,8 +135,8 @@ class Repository extends RecordRepo
         $result = $this->db->query($query);
 
         $list = [];
-        foreach ($this->db->fetchObject($result) as $row) {
-            $list[$row->usr_id][] = $row->obj_id;
+        while ($row = $this->db->fetchAssoc($result)) {
+            $list[$row['usr_id']][] = $row['obj_id'];
         }
         return $list;
     }
@@ -155,8 +155,8 @@ class Repository extends RecordRepo
         $result = $this->db->query($query);
 
         $list = [];
-        foreach ($this->db->fetchObject($result) as $row) {
-            $list[$row->usr_id][] = $row->obj_id;
+        while ($row = $this->db->fetchAssoc($result)) {
+            $list[$row['usr_id']][] = $row['obj_id'];
         }
         return $list;
     }

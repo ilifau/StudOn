@@ -41,7 +41,7 @@ class AbstractExport
     {
         global $DIC;
         $this->dic = $DIC;
-        $this->lng = $DIC->lng;
+        $this->lng = $DIC->language();
 
         $this->spreadsheet = new Spreadsheet();
     }

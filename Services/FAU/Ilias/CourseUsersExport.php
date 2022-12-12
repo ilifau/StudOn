@@ -53,7 +53,8 @@ class CourseUsersExport extends AbstractExport
 
         foreach ($this->dic->fau()->study()->search()->getEventList($condition) as $event) {
             if (!empty($event->getIliasRefId())
-                && $this->dic->access()->checkAccess('manage_members', '', $event->getIliasRefId())) {
+                && $this->dic->access()->checkAccess('manage_members', '', $event->getIliasRefId())
+            ) {
                 $this->events[$event->getIliasObjId()] = $event;
             }
         }
@@ -61,7 +62,8 @@ class CourseUsersExport extends AbstractExport
         $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->events));
         $this->user_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->events));
 
-        $user_ids = array_unique(array_keys($this->users_member, $this->users_waiting));
+
+        $user_ids = array_unique(array_merge(array_keys($this->users_member), array_keys($this->users_waiting)));
         $this->users = $this->dic->fau()->user()->getUserData($user_ids, $this->cat_ref_id);
 
         $columns = array(
@@ -72,13 +74,13 @@ class CourseUsersExport extends AbstractExport
             'email' => $this->lng->txt('email'),
             'matriculation' => $this->lng->txt('matriculation'),
             'studydata' => $this->lng->txt('studydata'),
-            'educations' => $this->lng->txt('studydata'),
+            'educations' => $this->lng->txt('fau_educations'),
             'memberships' => $this->lng->txt('member'),
-            'waiting_lists' =>  $this->lng->txt('crs_waiting_list'),
+            'waiting_lists' => $this->lng->txt('on_waiting_list'),
         );
         $mapping = $this->fillHeaderRow($columns);
 
-        $row = 1;
+        $row = 2;
         foreach ($this->users as $user) {
             $data = [
                 'login' => $user->getLogin(),
@@ -95,6 +97,7 @@ class CourseUsersExport extends AbstractExport
             $this->fillRowData($data, $mapping, $row++);
         }
 
+        $this->adjustSizes();
         return $this->buildExportFile('course_users', $type);
     }
 

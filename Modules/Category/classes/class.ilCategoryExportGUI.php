@@ -34,16 +34,18 @@ class ilCategoryExportGUI extends ilExportGUI
 
         parent::__construct($a_parent_gui, $a_main_obj);
         $this->addFormat('xml');
-
-        if ($this->tree->getDepth($this->obj->getRefId()) >= 4 && ilCust::extendedUserDataAccess()) {
-            $this->addFormat('csv', 'Kursteilnehmer/innen exportieren', $this, 'callExportCourseUsers');
-        }
     }
 
-
-    public function callExportCourseUsers()
+    public function listExportFiles()
     {
-        $this->ctrl->redirect($this, 'showExportCourseUsersForm');
+        parent::listExportFiles();
+        if ($this->tree->getDepth($this->obj->getRefId()) >= 4 && ilCust::extendedUserDataAccess()) {
+
+            $button = ilLinkButton::getInstance();
+            $button->setUrl($this->ctrl->getLinkTarget($this, 'showExportCourseUsersForm'));
+            $button->setCaption($this->lng->txt('fau_export_course_members'), false);
+            $this->dic->toolbar()->addButtonInstance($button);
+        }
     }
 
 
@@ -79,7 +81,7 @@ class ilCategoryExportGUI extends ilExportGUI
 
     public function doExportCourseUsers()
     {
-        $export = new CourseUsersExport(Term::fromString((string) $_GET['term_id']), $this->obj->getRefId());
+        $export = new CourseUsersExport(Term::fromString((string) $_POST['term_id']), $this->obj->getRefId());
         $file = $export->exportCoursesUsers();
 
         if (is_file($file)) {
