@@ -214,7 +214,7 @@ class Repository extends RecordRepo
     {
         $query = "
             SELECT c.course_id, p.person_id, m.module_id, 'registered' status, c.term_year, c.term_type_id,
-            CASE s.status WHEN 2 THEN 'passed' WHEN 3 THEN 'failed' ELSE 'registered' END AS status
+            CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END AS status
             FROM fau_study_courses c
             JOIN object_reference r ON r.obj_id = c.ilias_obj_id
             JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
