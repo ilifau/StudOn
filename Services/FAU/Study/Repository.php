@@ -364,11 +364,14 @@ class Repository extends RecordRepo
      */
     public function getCoursesByTermToCreate(Term $term, ?array $course_ids = null) : array
     {
-        $query = "SELECT * FROM fau_study_courses WHERE ilias_obj_id IS NULL"
-            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+        $query = "SELECT * FROM fau_study_courses "
+            . " WHERE term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         if (is_array($course_ids)) {
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
+        }
+        else {
+            $query .= " AND ilias_obj_id IS NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }
@@ -382,11 +385,14 @@ class Repository extends RecordRepo
      */
     public function getCoursesByTermToUpdate(Term $term, ?array $course_ids = null) : array
     {
-        $query = "SELECT * FROM fau_study_courses WHERE ilias_dirty_since IS NOT NULL"
-            . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
+        $query = "SELECT * FROM fau_study_courses "
+            . " WHERE term_year = " . $this->db->quote($term->getYear(), 'integer')
             . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         if (is_array($course_ids)) {
             $query .= " AND " . $this->db->in('course_id', $course_ids, false, 'integer');
+        }
+        else {
+            $query .= " AND ilias_dirty_since IS NOT NULL";
         }
         return $this->queryRecords($query, Course::model(), false);
     }

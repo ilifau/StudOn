@@ -83,7 +83,7 @@ class ilFauPatches
     }
 
     /**
-     * Create the courses of a term or with specific ids
+     * Update the courses of a term or with specific ids
      */
     public function updateCourses($params = ['term' => '20222', 'course_ids' => null, 'test_run' => true])
     {
