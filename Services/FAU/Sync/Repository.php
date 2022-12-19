@@ -106,7 +106,7 @@ class Repository extends RecordRepo
             $conditions[] = "c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
         }
 
-        $query = sprintf($query, $field) . (empty($conditions) ? '' : " WHERE " . implode('AND', $conditions));
+        $query = sprintf($query, $field) . (empty($conditions) ? '' : " WHERE " . implode(' AND ', $conditions));
         return $this->getIntegerList($query, $key);
     }
 
