@@ -172,7 +172,7 @@ class Repository extends RecordRepo
 
         $restrictions = [];
         while ($row = $this->db->fetchAssoc($result)) {
-            if (empty($restriction = $restrictions[$row['restriction']] ?? null)) {
+            if (empty($restriction = $restrictions[$row['id']][$row['restriction']] ?? null)) {
                 $restriction = new HardRestriction(
                     $row['restriction'],
                     $row['type']
