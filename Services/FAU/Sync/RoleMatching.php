@@ -15,6 +15,7 @@ use ilRecommendedContentManager;
 use ilObjRoleTemplate;
 use FAU\User\Data\OrgRole;
 use FAU\User\Data\UserOrgRole;
+use FAU\Study\Data\Term;
 
 /**
  * Functions for matching the persons related to campo events and courses with ilias course and group roles
@@ -52,336 +53,265 @@ class RoleMatching
     }
 
     /**
-     * Update the roles of responsibilities and instructors in an ilias course or group
+     * Update the roles of responsibilities and instructors in an ilias course or group for a parallel group
      * This is done by comparing the actual responsibilities and instructors tables with the members table
      * At the end the members table should reflect the status in campo for existing users
-     * @see Member
+     *
+     * @param int       $ref_id
+     * @param int       $course_id
+     * @param int|null  $parent_ref_id
+     * @param int|null  $event_id
+     * @param Term|null $erm
      */
-    public function updateParticipants(int $course_id, int $ref_id_for_event, int $ref_id_for_course)
+    public function updateIliasRolesOfCourse(int $ref_id, int $course_id, ?int $parent_ref_id = null, ?int $event_id = null, ?Term $term = null)
     {
-        $obj_id_for_event = ilObject::_lookupObjId($ref_id_for_event);
-        $obj_id_for_course = ilObject::_lookupObjId($ref_id_for_course);
+        // IMPORTANT:
+        // The roles in the parent course have to be updated first!
+        // The updateRoles functions compare the remembered role settings in Member objects with the roles defined by campo
+        // Ilias course or group roles will only be updated when differences between campo and a Member object are detected
+        // updateRolesInDirectObject() saves an updated the Member object with current roles from campo at the end
+        // updateRolesInParentObject() uses virtual Member objects with OR-Combined roles of the Member objects of all child groups
+        //                             These virtual Member objects are not saved
+        // To detect changes the virtual parent Member has to be built before the real Member is updated
 
-        if ($obj_id_for_course == $obj_id_for_event) {
-            // one ilias course for campo event and course
-            $crs_participants = new ilCourseParticipants($obj_id_for_event);
-            $grp_participants = null;
-        } else {
-            // ilias course for campo event with ilias group for campo course
-            $crs_participants = new ilCourseParticipants($obj_id_for_event);
-            $grp_participants = new ilGroupParticipants($obj_id_for_course);
+        if (isset($parent_ref_id) && isset($event_id) && isset($term)) {
+            $this->updateRolesInParentObject($parent_ref_id, $event_id, $term);
         }
+        $this->updateRolesInDirectObject($ref_id, $course_id);
+    }
 
-        // don't use cache because members table is updated during sync
-        $members = $this->user->repo()->getMembersOfObject($obj_id_for_course, false);
-        $touched = [];
 
-        $this->updateParticipatRole(
-            Member::ROLE_EVENT_RESPONSIBLE,
-            $this->sync->repo()->getUserIdsOfEventResponsibles($course_id),
-            $obj_id_for_course,
-            $crs_participants,
-            $grp_participants,
-            $members,
-            $touched
-        );
+    /**
+     * Update the roles of responsibilities and instructors in an ilias course or group for a parallel group
+     * @see updateIliasRolesOfCourse
+     */
+    protected function updateRolesInDirectObject(int $ref_id, int $course_id, ?int $user_id = null)
+    {
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $participants = ilParticipants::getInstance($ref_id);
 
-        $this->updateParticipatRole(
-            Member::ROLE_COURSE_RESPONSIBLE,
-            $this->sync->repo()->getUserIdsOfCourseResponsibles($course_id),
-            $obj_id_for_course,
-            $crs_participants,
-            $grp_participants,
-            $members,
-            $touched
-        );
+        // get the member data of the object
+        $cur_members = $this->user->repo()->getMembersOfObject($obj_id, $user_id, false);
 
-        $this->updateParticipatRole(
-            Member::ROLE_INSTRUCTOR,
-            $this->sync->repo()->getUserIdsOfInstructors($course_id),
-            $obj_id_for_course,
-            $crs_participants,
-            $grp_participants,
-            $members,
-            $touched
-        );
+        // get the current roles defined by campo
+        $event_resps = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_EVENT_RESPONSIBLE, 'user_id', $user_id, $course_id);
+        $course_resps = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_COURSE_RESPONSIBLE, 'user_id', $user_id, $course_id);
+        $instructors = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INSTRUCTOR, 'user_id', $user_id, $course_id);
+        $indiv_insts = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INDIVIDUAL_INSTRUCTOR, 'user_id', $user_id, $course_id);
 
-        $this->updateParticipatRole(
-            Member::ROLE_INDIVIDUAL_INSTRUCTOR,
-            $this->sync->repo()->getUserIdsOfIndividualInstructors($course_id),
-            $obj_id_for_course,
-            $crs_participants,
-            $grp_participants,
-            $members,
-            $touched
-        );
+        $user_ids = array_unique(array_merge($event_resps, $course_resps, $instructors, $indiv_insts));
+        foreach ($user_ids as $user_id) {
+            $cur_member = $cur_members[$user_id] ?? null;
+            $new_member = new Member(
+                    $obj_id,
+                    $user_id,
+                    isset($cur_member) ? $cur_member->getModuleId() : null,
+                    isset($event_resps[$user_id]),
+                    isset($course_resps[$user_id]),
+                    isset($instructors[$user_id]),
+                    isset($indiv_insts[$user_id])
+            );
 
-        // save or delete the modified member records
-        foreach ($touched as $member) {
-            if ($member->hasData()) {
-                $this->user->repo()->save($member);
-            } else {
-                $this->user->repo()->delete($member);
+            // member has new or changed roles => update the participant
+            if (!isset($cur_member) || $cur_member->hash() != $new_member->hash()) {
+                $this->updateParticipantInDirectObject($participants, $new_member);
+                $this->user->repo()->save($new_member);
             }
+            // membership is treated
+            unset($cur_members[$user_id]);
         }
 
-        // remove the default owner from the participants
-        $crs_participants->delete($this->settings->getDefaultOwnerId());
-        if (isset($grp_participants)) {
-            $grp_participants->delete($this->settings->getDefaultOwnerId());
+        // treat the remaining member records that have no new role
+        foreach ($cur_members as $cur_member) {
+            $cur_member = $cur_member->withoutRoles();
+            $this->updateParticipantInDirectObject($participants, $cur_member);
+            if ($cur_member->hasData()) {
+                $this->user->repo()->save($cur_member);
+            }
+            else {
+                $this->user->repo()->delete($cur_member);
+            }
         }
     }
 
     /**
-     * Update the roles of responsibilities and instructors in ilias courses or groups for a user
-     * This is done by comparing the actual responsibilities and instructors tables with the members table for this user
-     * At the end the members table should reflect the status in campo for the user
+     * Update the roles of responsibilities and instructors in an ilias course with nested parallel groups
+     * @see updateIliasRolesOfCourse
+     */
+    protected function updateRolesInParentObject(int $ref_id, int $event_id, Term $term, ?int $user_id = null)
+    {
+        $obj_id = ilObject::_lookupObjId($ref_id);
+        $participants = ilParticipants::getInstance($ref_id);
+
+        // get the merged virtual member data of the child objects
+        $cur_members = $this->getMergedMembers($this->user->repo()->getMembersOfEventInTerm($event_id, $term, $user_id, false));
+
+        // get the current roles defined by campo
+        $event_resps = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_EVENT_RESPONSIBLE, 'user_id', $user_id, null, $event_id, $term);
+        $course_resps = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_COURSE_RESPONSIBLE, 'user_id', $user_id, null, $event_id, $term);
+        $instructors = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INSTRUCTOR, 'user_id', null, $user_id, $event_id, $term);
+        $indiv_insts = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INDIVIDUAL_INSTRUCTOR, 'user_id', $user_id, null, $event_id, $term);
+
+        $user_ids = array_unique(array_merge($event_resps, $course_resps, $instructors, $indiv_insts));
+        foreach ($user_ids as $user_id) {
+            $cur_member = $cur_members[$user_id] ?? null;
+            $new_member = new Member(
+                $obj_id,
+                $user_id,
+                isset($cur_member) ? $cur_member->getModuleId() : null,
+                isset($event_resps[$user_id]),
+                isset($course_resps[$user_id]),
+                isset($instructors[$user_id]),
+                isset($indiv_insts[$user_id])
+            );
+
+            // member has new or changed roles => update the participant
+            // virtual member record is not saved here!
+            // member records will be updated with the roles in the direct object later
+            if (!isset($cur_member) || $cur_member->hash() != $new_member->hash()) {
+                $this->updateParticipantInParentObject($participants, $new_member);
+            }
+            // membership is treated
+            unset($cur_members[$user_id]);
+        }
+
+        // treat the remaining memberships without a role
+        foreach ($cur_members as $cur_member) {
+            $cur_member = $cur_member->withoutRoles();
+            $this->updateParticipantInParentObject($participants, $cur_member);
+        }
+    }
+
+    /**
+     * Get virtual member objects for an event from the member objects of the nested courses
+     * The return array has a virtual member object (without obj_id) for each user
+     * The roles in this object are OR-combined roles of the user's member objects
+     *
+     * @param Member[] $members
+     * @return Member[] (indexed by user id)
+     */
+    protected function getMergedMembers(array $members)
+    {
+        $merged = [];
+        foreach($members as $member) {
+            $member2 = $merged[$member->getUserId()] ?? Member::model();
+
+            $merged[$member->getUserId()] = new Member(
+                0,
+                $member->getUserId(),
+                null,
+                $member->isEventResponsible() || $member2->isEventResponsible(),
+                $member->isCourseResponsible() || $member2->isCourseResponsible(),
+                $member->isInstructor() || $member2->isInstructor(),
+                $member->isIndividualInstructor() || $member2->isIndividualInstructor()
+            );
+        }
+        return $merged;
+    }
+
+    /**
+     * Update the participant in the ILIAS object for a parallel group (group or course)
+     *
+     * @param ilCourseParticipants|ilGroupParticipants $participants      Participants of the ilias object
+     * @param Member  $member            Member record of the user with new role settings
+     */
+    protected function updateParticipantInDirectObject(ilParticipants $participants, Member $member)
+    {
+        $admin_role = $participants instanceof ilCourseParticipants ? IL_CRS_ADMIN : IL_GRP_ADMIN;
+
+        if ($member->hasAnyRole()) {
+            // member has responsibility, so add it or set it as admin
+            if ($participants->isAdmin($member->getUserId())) {
+                return;
+            } elseif ($participants->isAssigned($member->getUserId())) {
+                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId($admin_role)]);
+            } else {
+                $participants->add($member->getUserId(), $admin_role);
+            }
+        }
+        else {
+            // member has no responsibility, so remove it as admin
+            // don't remove users with other roles
+            if ($participants->isAdmin($member->getUserId())) {
+                $participants->delete($member->getUserId());
+            }
+        }
+    }
+
+
+    /**
+     * Update the participant in the parent course of nested parallel groups
+     * The parent course represents the campo event
+     * The event responsibles should be admins, other roles should be tutors
+     *
+     * @param ilCourseParticipants $participants      participants of the course
+     * @param Member  $member   virtual member object with OR-combined roles of nested groups
+     */
+    protected function updateParticipantInParentObject(ilParticipants $participants, Member $member)
+    {
+        if ($member->isEventResponsible()) {
+            // member has responsibility for the whole event, so add or set it as admin
+            if ($participants->isAdmin($member->getUserId())) {
+                return;
+            } elseif ($participants->isAssigned($member->getUserId())) {
+                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId(IL_CRS_ADMIN)]);
+            } else {
+                $participants->add($member->getUserId(), IL_CRS_ADMIN);
+            }
+        }
+        elseif ($member->hasAnyRole()) {
+            // member has responsibility in at least one nested group, so add or set it as tutor
+            if ($participants->isTutor($member->getUserId())) {
+                return;
+            } elseif ($participants->isAssigned($member->getUserId())) {
+                $participants->updateRoleAssignments($member->getUserId(), [$participants->getRoleId(IL_CRS_TUTOR)]);
+            } else {
+                $participants->add($member->getUserId(), IL_CRS_TUTOR);
+            }
+        }
+        else {
+            // member has no responsibility, so remove it as admin or tutor
+            // don't remove users with other roles
+            if ($participants->isAdmin($member->getUserId()) || $participants->isTutor($member->getUserId())) {
+                $participants->delete($member->getUserId());
+            }
+        }
+    }
+
+    /**
+     * Apply roles of responsibilities and instructors in ilias courses or groups for a new ilias user
+     * It is assumed the no roles have to be removed for a new user
+     * So only the courses for the current roles from campo are treated
+     * At the end the members table should reflect the status in campo for the new user
      * @see Member
      */
-    public function updateUserParticipation($user_id)
+    public function applyNewUserCourseRoles($user_id)
     {
-        $all_memberships = $this->user->repo()->getMembersOfUser($user_id);
+       foreach ($this->sync->getTermsToSync() as $term) {
 
-        foreach ($this->sync->getTermsToSync() as $term) {
+            // get the course ids for roles defined by campo
+            $event_resps = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_EVENT_RESPONSIBLE, 'course_id', $user_id, null, null, $term);
+            $course_resps = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_COURSE_RESPONSIBLE, 'course_id', $user_id, null, null, $term);
+            $instructors = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INSTRUCTOR, 'course_id', $user_id, null, null, $term);
+            $indiv_insts = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INDIVIDUAL_INSTRUCTOR, 'course_id', $user_id, null, null, $term);
 
-            $event_resp_course_ids = $this->sync->repo()->getCourseIdsOfEventResponsible($user_id, $term);
-            $course_resp_course_ids = $this->sync->repo()->getCourseIdsOfCourseResponsible($user_id, $term);
-            $instructor_course_ids = $this->sync->repo()->getCourseIdsOfInstructor($user_id, $term);
-            $indiv_inst_course_ids = $this->sync->repo()->getCourseIdsOfIndividualInstructor($user_id, $term);
-
-            // look at all courses where the user has a sole
+            // look at all courses where the user has a role
             $course_ids = array_unique(array_merge(
-                $event_resp_course_ids, $course_resp_course_ids, $instructor_course_ids, $indiv_inst_course_ids
+                $event_resps, $course_resps, $instructors, $indiv_insts
             ));
+
             foreach ($this->study->repo()->getCoursesByIds($course_ids) as $course_id => $course) {
-
-                $crs_participants = null;
-                $grp_participants = null;
-
                 if (empty($ref_id = $this->ilias->objects()->getIliasRefIdForCourse($course))) {
                     continue;
-                } else {
-                    switch (ilObject::_lookupType($ref_id, true)) {
-                        case 'crs':
-                            $crs_participants = new ilCourseParticipants($course->getIliasObjId());
-                            break;
-
-                        case 'grp':
-                            $parent_ref = $this->dic->repositoryTree()->getParentId($ref_id);
-                            $crs_participants = new ilCourseParticipants(ilObject::_lookupObjId($parent_ref));
-                            $grp_participants = new ilGroupParticipants($course->getIliasObjId());
-                            break;
-                    }
                 }
-
-                // Use the same function for roles update as updateParticipants() of a course
-                // The arrays for both user_ids and members have at maximum the updated user as key
-                // so other members and course/group users are not affected
-                $members = isset($all_memberships[$course->getIliasObjId()]) ?
-                    [$user_id => $all_memberships[$course->getIliasObjId()]] : [];
-                $touched = [];
-
-                $this->updateParticipatRole(
-                    Member::ROLE_EVENT_RESPONSIBLE,
-                    in_array($course_id, $event_resp_course_ids) ? [$user_id] : [],
-                    $course->getIliasObjId(),
-                    $crs_participants,
-                    $grp_participants,
-                    $members,
-                    $touched
-                );
-
-                $this->updateParticipatRole(
-                    Member::ROLE_COURSE_RESPONSIBLE,
-                    in_array($course_id, $course_resp_course_ids) ? [$user_id] : [],
-                    $course->getIliasObjId(),
-                    $crs_participants,
-                    $grp_participants,
-                    $members,
-                    $touched
-                );
-
-                $this->updateParticipatRole(
-                    Member::ROLE_INSTRUCTOR,
-                    in_array($course_id, $instructor_course_ids) ? [$user_id] : [],
-                    $course->getIliasObjId(),
-                    $crs_participants,
-                    $grp_participants,
-                    $members,
-                    $touched
-                );
-
-                $this->updateParticipatRole(
-                    Member::ROLE_INDIVIDUAL_INSTRUCTOR,
-                    in_array($course_id, $indiv_inst_course_ids) ? [$user_id] : [],
-                    $course->getIliasObjId(),
-                    $crs_participants,
-                    $grp_participants,
-                    $members,
-                    $touched
-                );
-
-                // save or delete the modified member record (should be only one)
-                foreach ($touched as $member) {
-                    if ($member->hasData()) {
-                        $this->user->repo()->save($member);
-                    } else {
-                        $this->user->repo()->delete($member);
-                    }
+                elseif (!empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id)))  {
+                    $this->updateRolesInParentObject($parent_ref, $course->getEventId(), $term, $user_id);
                 }
-            }
+                $this->updateRolesInDirectObject($ref_id, $course_id, $user_id);
+             }
         }
     }
 
-    /**
-     * Update the users of a certain ilias course or group role
-     * Update the role setting in the members table of these users
-     * @param string                $mem_role         role that should be checked in a member record
-     * @param int[]                 $user_ids         list of users that should get the role
-     * @param int                   $mem_obj_id       object id for new member records
-     * @param ?ilCourseParticipants $crs_participants participants of ilias course
-     * @param ?ilGroupParticipants  $grp_participants participants of ilias group
-     * @param Member[] &            $members          array of member data (user_id => Member) to be checked
-     * @param Member[] &            $touched          array of member data (user_id => Member) to be saved later
-     */
-    protected function updateParticipatRole(
-        string $mem_role,
-        array $user_ids,
-        int $mem_obj_id,
-        ?ilCourseParticipants $crs_participants,
-        ?ilGroupParticipants $grp_participants,
-        array &$members,
-        array &$touched
-    ) {
-        // determine which course/group roles should be set
-        switch ($mem_role) {
-            case Member::ROLE_EVENT_RESPONSIBLE:
-                $crs_role = IL_CRS_ADMIN;
-                $grp_role = null;
-                break;
-
-            case Member::ROLE_COURSE_RESPONSIBLE:
-            case Member::ROLE_INSTRUCTOR:
-            case Member::ROLE_INDIVIDUAL_INSTRUCTOR:
-                $crs_role = isset($grp_participants) ? IL_CRS_TUTOR : IL_CRS_ADMIN;
-                $grp_role = isset($grp_participants) ? IL_GRP_ADMIN : null;
-                break;
-
-            default:
-                $crs_role = null;
-                $grp_role = null;
-        }
-
-        $mem_ids = [];
-        foreach ($members as $user_id => $member) {
-            if ($member->hasRole($mem_role)) {
-                $mem_ids[] = $user_id;
-            }
-        }
-
-//        echo "\nmem_role: " . $mem_role;
-//        echo "\ncrs_role: " . $crs_role;
-//        echo "\ngrp_role: " . $grp_role;
-//        echo "\nuser_ids: " . implode(',', $user_ids);
-//        echo "\nmem_obj_id: " . $mem_obj_id;
-//        echo "\nmem_ids: " . implode(',', $user_ids);
-//
-//        echo "\nMembers before: ";
-//        var_dump($members);
-
-        // added users
-        foreach (array_diff($user_ids, $mem_ids) as $user_id) {
-
-            $member = $members[$user_id] ?? new Member($mem_obj_id, $user_id);
-            $member = $member->withRole($mem_role, true);
-            $members[$user_id] = $member;
-            $touched[$user_id] = $member;
-
-            if (isset($crs_role) && isset($crs_participants)) {
-                $this->addToParticipantRole($crs_participants, $user_id, $crs_role);
-            }
-            if (isset($grp_role) && isset($grp_participants)) {
-                $this->addToParticipantRole($grp_participants, $user_id, $grp_role);
-            }
-        }
-
-        // removed users
-        foreach (array_diff($mem_ids, $user_ids) as $user_id) {
-
-            $member = $members[$user_id] ?? new Member($mem_obj_id, $user_id);
-            $member = $member->withRole($mem_role, false);
-            $members[$user_id] = $member;
-            $touched[$user_id] = $member;
-
-            if (isset($crs_role) && isset($crs_participants)) {
-                $this->removeFromParticipantRole($crs_participants, $user_id, $crs_role);
-            }
-            if (isset($grp_role) && isset($grp_participants)) {
-                $this->removeFromParticipantRole($grp_participants, $user_id, $grp_role);
-            }
-        }
-
-//        echo "\nMembers after: ";
-//        var_dump($members);
-    }
-
-    /**
-     * Add a user with a certain role to the ilias object
-     */
-    protected function addToParticipantRole(ilParticipants $participants, int $user_id, int $role_type)
-    {
-        switch ($role_type) {
-            case IL_CRS_ADMIN;
-            case IL_GRP_ADMIN:
-                if ($participants->isAdmin($user_id)) {
-                    return;
-                } elseif ($participants->isAssigned($user_id)) {
-                    $participants->updateRoleAssignments($user_id, [$participants->getRoleId($role_type)]);
-
-                } else {
-                    $participants->add($user_id, $role_type);
-                }
-                break;
-
-            case IL_CRS_TUTOR:
-                if ($participants->isTutor($user_id)) {
-                    return;
-                } elseif ($participants->isAssigned($user_id)) {
-                    // Don't decrease a course role from admin to tutor
-                    if (!$participants->isAdmin($user_id)) {
-                        $participants->updateRoleAssignments($user_id, [$participants->getRoleId($role_type)]);
-                    }
-                } else {
-                    $participants->add($user_id, $role_type);
-                }
-                break;
-        }
-    }
-
-    /**
-     * Remove a user with a certain role from the ilias object
-     */
-    protected function removeFromParticipantRole(ilParticipants $participants, int $user_id, int $role_type)
-    {
-        if (!$participants->isAssigned($user_id)) {
-            return; //already no participant
-        }
-
-        switch ($role_type) {
-            case IL_CRS_ADMIN:
-            case IL_GRP_ADMIN:
-                if ($participants->isAdmin($user_id)) {
-                    $participants->delete($user_id);
-                }
-                break;
-
-            case IL_CRS_TUTOR:
-                if ($participants->isTutor($user_id)) {
-                    $participants->delete($user_id);
-                }
-                break;
-        }
-    }
 
     /**
      * Check if the participant list in the object differs from the remembered list of changes by campo
@@ -398,7 +328,7 @@ class RoleMatching
             // in groups the event responsibles are no participants, the others are admins
             $part_ids = (new ilGroupParticipants($obj_id))->getParticipants();
             $mem_ids = $this->user->repo()->getUserIdsOfObjectMembers($obj_id, false,
-                null, 1, 1, 1,);
+                null, 1, 1, 1);
         } else {
             return true;
         }

@@ -146,7 +146,7 @@ class ilFAUAppEventListener implements ilAppEventListener
         }
 
         // delete the membership status
-        foreach ($this->dic->fau()->user()->repo()->getMembersOfObject($obj_id , false) as $member) {
+        foreach ($this->dic->fau()->user()->repo()->getMembersOfObject($obj_id , null, false) as $member) {
             $this->dic->fau()->user()->repo()->delete($member);
         }
 

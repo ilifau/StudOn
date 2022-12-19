@@ -111,13 +111,44 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the member records of an ilias user
+     * @return Member[]     indexed by obj_id
+     */
+    public function getMembersOfUser(int $user_id, bool $useCache = true) : array
+    {
+        $query = "SELECT * FROM fau_user_members WHERE user_id = " . $this->db->quote($user_id, 'integer');
+        return $this->queryRecords($query, Member::model(), $useCache, true, 'obj_id');
+    }
+
+    /**
      * Get the member records of an ilias object (course or group) which are assigned by campo
      * @return Member[]     indexed by user_id
      */
-    public function getMembersOfObject(int $obj_id, bool $useCache = true) : array
+    public function getMembersOfObject(int $obj_id, ?int $user_id = null, bool $useCache = true) : array
     {
         $query = "SELECT * FROM fau_user_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
+        if (isset($user_id)) {
+            $query .= " AND user_id = " . $this->db->quote($user_id, 'integer');
+        }
         return $this->queryRecords($query, Member::model(), $useCache, true, 'user_id');
+    }
+
+    /**
+     * Get the member records of ilias objects (courses or groups) which are assigned to a campo event for a term
+     * @return Member[]
+     */
+    public function getMembersOfEventInTerm(int $event_id, Term $term, ?int $user_id = null, bool $useCache = false) : array
+    {
+        $query = "SELECT m.* FROM fau_user_members m
+            JOIN fau_study_courses c on c.ilias_obj_id = m.obj_id
+            WHERE c.event_id = " . $this->db->quote($event_id, 'integer')
+            . " AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
+            . " AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+
+        if (isset($user_id)) {
+            $query .= " AND m.user_id = " . $this->db->quote($user_id, 'integer');
+        }
+        return $this->queryRecords($query, Member::model(), $useCache);
     }
 
     /**
@@ -174,16 +205,6 @@ class Repository extends RecordRepo
         return $this->getIntegerList($query, 'user_id', $useCache);
     }
 
-
-    /**
-     * Get the member records of an ilias user
-     * @return Member[]     indexed by obj_id
-     */
-    public function getMembersOfUser(int $user_id, bool $useCache = true) : array
-    {
-        $query = "SELECT * FROM fau_user_members WHERE user_id = " . $this->db->quote($user_id, 'integer');
-        return $this->queryRecords($query, Member::model(), $useCache, true, 'obj_id');
-    }
 
     /**
      * Get the module ids selected by participants

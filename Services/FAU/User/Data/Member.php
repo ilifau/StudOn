@@ -234,4 +234,17 @@ class Member extends RecordData
         $clone->$role = (int) $flag;
         return $clone;
     }
+
+    /**
+     * Remove all specific roles from the member
+     */
+    public function withoutRoles() : Member
+    {
+        $clone = clone($this);
+        $clone->event_responsible = 0;
+        $clone->course_responsible = 0;
+        $clone->instructor = 0;
+        $clone->individual_instructor = 0;
+        return $clone;
+    }
 }

@@ -7,6 +7,7 @@ use FAU\Study\Data\Term;
 use FAU\Staging\Data\StudOnMember;
 use FAU\Staging\Data\StudOnCourse;
 use FAU\RecordData;
+use FAU\User\Data\Member;
 
 /**
  * Repository for database access across the sub services used in the synchronisation
@@ -26,118 +27,87 @@ class Repository extends RecordRepo
 
 
     /**
-     * Get the ids of existing users for the responsible persons of the event of a course
+     * Get the ids of courses or users with a specific role assignment
+     * @param string    $role   role to query for (see Member)
+     * @param string    $key    key to return (user_id oder course_id)
+     * @param int|null  $user_id        for condition
+     * @param int|null  $course_id      for condition
+     * @param int|null  $event_id       for condition
+     * @param Term|null $term           for condition
      * @return int[]
      */
-    public function getUserIdsOfEventResponsibles(int $course_id) : array
+    public function getIdsForCampoRoles(
+        string $role,
+        string $key,
+        ?int $user_id = null,
+        ?int $course_id = null,
+        ?int $event_id = null,
+        ?Term $term = null
+    ) : array
     {
-        $query = "SELECT p.user_id FROM fau_user_persons p"
-            ." JOIN fau_study_event_resps e ON e.person_id = p.person_id"
-            ." JOIN fau_study_courses c ON c.event_id = e.event_id"
-            ." WHERE c.course_id =" . $this->db->quote($course_id, 'integer');
-        return $this->getIntegerList($query, 'user_id');
-    }
+        switch ($key) {
+            case 'user_id':
+                $field = 'p.user_id';
+                break;
+            case 'course_id':
+                $field = 'c.course_id';
+                break;
+            default:
+                return [];
+        }
 
-    /**
-     * Get the ids of existing users for the responsible persons of a course
-     * @return int[]
-     */
-    public function getUserIdsOfCourseResponsibles(int $course_id) : array
-    {
-        $query = "SELECT p.user_id FROM fau_user_persons p"
-            ." JOIN fau_study_course_resps c ON c.person_id = p.person_id"
-            ." WHERE c.course_id =" . $this->db->quote($course_id, 'integer');
-        return $this->getIntegerList($query, 'user_id');
-    }
+        switch ($role) {
+            case Member::ROLE_EVENT_RESPONSIBLE:
+                $query = "SELECT %s 
+                    FROM fau_user_persons p
+                    JOIN fau_study_event_resps e ON e.person_id = p.person_id
+                    JOIN fau_study_courses c ON c.event_id = e.event_id";
+                    break;
 
-    /**
-     * Get the ids of existing users for the instructors of a course
-     * @return int[]
-     */
-    public function getUserIdsOfInstructors(int $course_id) : array
-    {
-        $query = "SELECT p.user_id FROM fau_user_persons p"
-            ." JOIN fau_study_instructors i ON i.person_id = p.person_id"
-            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = i.planned_dates_id"
-            ." WHERE d.course_id =" . $this->db->quote($course_id, 'integer');
-        return $this->getIntegerList($query, 'user_id');
-    }
+            case Member::ROLE_COURSE_RESPONSIBLE:
+                $query = "SELECT %s
+                    FROM fau_user_persons p
+                    JOIN fau_study_course_resps r ON r.person_id = p.person_id
+                    JOIN fau_study_courses c ON c.course_id = r.course_id";
+                    break;
 
-    /**
-     * Get the ids of existing users for the individual instructors in a course
-     * @return int[]
-     */
-    public function getUserIdsOfIndividualInstructors(int $course_id) : array
-    {
-        $query = "SELECT p.user_id FROM fau_user_persons p"
-            ." JOIN fau_study_indi_insts i ON i.person_id = p.person_id"
-            ." JOIN fau_study_indi_dates id ON id.individual_dates_id = i.individual_dates_id"
-            ." JOIN fau_study_plan_dates pd ON pd.planned_dates_id = id.planned_dates_id"
-            ." WHERE pd.course_id =" . $this->db->quote($course_id, 'integer');
-        return $this->getIntegerList($query, 'user_id');
-    }
+                case Member::ROLE_INSTRUCTOR:
+                $query = "SELECT %s 
+                    FROM fau_user_persons p
+                    JOIN fau_study_instructors i ON i.person_id = p.person_id
+                    JOIN fau_study_plan_dates d ON d.planned_dates_id = i.planned_dates_id
+                    JOIN fau_study_courses c ON c.course_id = d.course_id";
+                    break;
 
-    /**
-     * Get the ids of courses in a term where a user is responsible for the event
-     * @return int[]
-     */
-    public function getCourseIdsOfEventResponsible(int $user_id, Term $term) : array
-    {
-        $query = "SELECT c.course_id FROM fau_user_persons p"
-            ." JOIN fau_study_event_resps e ON e.person_id = p.person_id"
-            ." JOIN fau_study_courses c ON c.event_id = e.event_id"
-            ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
-            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-        return $this->getIntegerList($query, 'course_id');
-    }
+            case Member::ROLE_INDIVIDUAL_INSTRUCTOR:
+                $query = "SELECT %s 
+                    FROM fau_user_persons p
+                    JOIN fau_study_indi_insts i ON i.person_id = p.person_id
+                    JOIN fau_study_indi_dates id ON id.individual_dates_id = i.individual_dates_id
+                    JOIN fau_study_plan_dates pd ON pd.planned_dates_id = id.planned_dates_id
+                    JOIN fau_study_courses c ON c.course_id = pd.course_id";
+                    break;
+            default:
+                return [];
+        }
 
-    /**
-     *  Get the ids of courses in a term where a user is responsible for the course
-     * @return int[]
-     */
-    public function getCourseIdsOfCourseResponsible(int $user_id, Term $term) : array
-    {
-        $query = "SELECT c.course_id FROM fau_user_persons p"
-            ." JOIN fau_study_course_resps r ON r.person_id = p.person_id"
-            ." JOIN fau_study_courses c ON c.course_id = r.course_id"
-            ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
-            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-        return $this->getIntegerList($query, 'course_id');
-    }
+        $conditions = [];
+        if (isset($user_id)) {
+            $conditions[] = "p.user_id = " . $this->db->quote($user_id, 'integer');
+        }
+        if (isset($course_id)) {
+            $conditions[] = "c.course_id =" . $this->db->quote($course_id, 'integer');
+        }
+        if (isset($event_id)) {
+            $conditions[] = "c.event_id = " . $this->db->quote($event_id, 'integer');
+        }
+        if (isset($term)) {
+            $conditions[] = "c.term_year = " . $this->db->quote($term->getYear(), 'integer');
+            $conditions[] = "c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        }
 
-    /**
-     * Get the ids of courses in a term where a user is instructor
-     * @return int[]
-     */
-    public function getCourseIdsOfInstructor(int $user_id, Term $term) : array
-    {
-        $query = "SELECT c.course_id FROM fau_user_persons p"
-            ." JOIN fau_study_instructors i ON i.person_id = p.person_id"
-            ." JOIN fau_study_plan_dates d ON d.planned_dates_id = i.planned_dates_id"
-            ." JOIN fau_study_courses c ON c.course_id = d.course_id"
-            ." WHERE p.user_id = " . $this->db->quote($user_id, 'integer')
-            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-        return $this->getIntegerList($query, 'course_id');
-    }
-
-    /**
-     * Get the ids of existing users for the individual instructors in a course
-     * @return int[]
-     */
-    public function getCourseIdsOfIndividualInstructor(int $user_id, Term $term) : array
-    {
-        $query = "SELECT c.course_id FROM fau_user_persons p"
-            ." JOIN fau_study_indi_insts i ON i.person_id = p.person_id"
-            ." JOIN fau_study_indi_dates id ON id.individual_dates_id = i.individual_dates_id"
-            ." JOIN fau_study_plan_dates pd ON pd.planned_dates_id = id.planned_dates_id"
-            ." JOIN fau_study_courses c ON c.course_id = pd.course_id"
-            ." WHERE p.user_id =" . $this->db->quote($user_id, 'integer')
-            ." AND c.term_year = " . $this->db->quote($term->getYear(), 'integer')
-            ." AND c.term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
-        return $this->getIntegerList($query, 'course_id');
+        $query = sprintf($query, $field) . (empty($conditions) ? '' : " WHERE " . implode('AND', $conditions));
+        return $this->getIntegerList($query, $key);
     }
 
 

@@ -199,7 +199,7 @@ class SyncWithIlias extends SyncBase
                 case 'create_single_course':
                     $ref_id = $this->dic->fau()->ilias()->objects()->createIliasCourse($parent_ref, $term, $event, $course)->getRefId();
                     $this->updateIliasCourse($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $ref_id, $ref_id);
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId());
                     break;
 
                 case 'create_course_and_group':
@@ -208,14 +208,14 @@ class SyncWithIlias extends SyncBase
                     // don't use course data for the event - courses are the groups inside
                     $this->updateIliasCourse($parent_ref, $term, $event, null) ;
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId(), $parent_ref, $event->getEventId(), $term);
                     break;
 
                 case 'create_group_in_course':
                     // course for the event already exists
                     $ref_id = $this->dic->fau()->ilias()->objects()->createIliasGroup($parent_ref, $term, $event, $course)->getRefId();
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId(), $parent_ref, $event->getEventId(), $term);
                     break;
 
                 default:
@@ -312,7 +312,7 @@ class SyncWithIlias extends SyncBase
                 case 'update_single_course':
                     // ilias course is used for campo event and course, ref_ids are the same
                     $this->updateIliasCourse($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $ref_id, $ref_id);
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId());
                     break;
 
                 case 'update_group_in_course':
@@ -320,8 +320,7 @@ class SyncWithIlias extends SyncBase
                     $this->updateIliasCourse($parent_ref, $term, $event, null);
                     // ilias group is used for the campo course, ref_ids are different
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
-                    $this->sync->roles()->updateParticipants($course->getCourseId(), $parent_ref, $ref_id);
-                    break;
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId(), $parent_ref, $event->getEventId(), $term);
             }
 
             // set the course as proceeded

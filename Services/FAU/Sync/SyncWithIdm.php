@@ -133,9 +133,9 @@ class SyncWithIdm extends SyncBase
         }
 
         // set the responsible or instructor roles for a newly created account
-        // (update for existing users is done in the sync of courses)
+        // (update for existing users is done in the sync of courses and would be too time consuming here)
         if ($new) {
-            $this->sync->roles()->updateUserParticipation($userObj->getId());
+            $this->sync->roles()->applyNewUserCourseRoles($userObj->getId());
         }
     }
 
