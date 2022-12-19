@@ -106,10 +106,10 @@ class RoleMatching
                     $obj_id,
                     $user_id,
                     isset($cur_member) ? $cur_member->getModuleId() : null,
-                    isset($event_resps[$user_id]),
-                    isset($course_resps[$user_id]),
-                    isset($instructors[$user_id]),
-                    isset($indiv_insts[$user_id])
+                    in_array($user_id, $event_resps),
+                    in_array($user_id, $course_resps),
+                    in_array($user_id, $instructors),
+                    in_array($user_id, $indiv_insts)
             );
 
             // member has new or changed roles => update the participant
@@ -159,10 +159,10 @@ class RoleMatching
                 $obj_id,
                 $user_id,
                 isset($cur_member) ? $cur_member->getModuleId() : null,
-                isset($event_resps[$user_id]),
-                isset($course_resps[$user_id]),
-                isset($instructors[$user_id]),
-                isset($indiv_insts[$user_id])
+                in_array($user_id, $event_resps),
+                in_array($user_id, $course_resps),
+                in_array($user_id, $instructors),
+                in_array($user_id, $indiv_insts)
             );
 
             // member has new or changed roles => update the participant
