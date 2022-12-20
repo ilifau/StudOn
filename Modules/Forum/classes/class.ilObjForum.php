@@ -589,7 +589,7 @@ class ilObjForum extends ilObject
             // fau.
 
 
-            $old_forum_files = new ilFileDataForum($this->getId(), $old_post_id);
+            $old_forum_files = new ilFileDataForum($this->getId(), $top_pos_pk);
             $old_forum_files->ilClone($new_obj->getId(), $newPostId);
         }
 
