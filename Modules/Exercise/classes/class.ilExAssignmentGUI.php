@@ -575,7 +575,7 @@ class ilExAssignmentGUI
                 $a_info->addProperty(
                     $lng->txt("exc_comment"),
                     // fau: exFeedbackHtml - allow secure html output
-                    nl2br(ilUtil::secureString($lpcomment))
+                    nl2br(ilUtil::secureString(htmlentities($lpcomment)))
                     // fau.
                 );
 
