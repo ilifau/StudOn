@@ -79,6 +79,9 @@ class Service extends SubService
         if (isset($term) && $term->toString() == '20222') {
             $link .= '&periodId=395';
         }
+        if (isset($term) && $term->toString() == '20231') {
+            $link .= '&periodId=387';
+        }
         return $link;
     }
 
