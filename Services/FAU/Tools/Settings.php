@@ -135,8 +135,10 @@ class Settings
         return $this->getCachedValue(self::EXCLUDE_CREATE_ORG_IDS, function() {
             $ids = [];
             foreach (explode(',', (string) ilCust::get(self::EXCLUDE_CREATE_ORG_IDS)) as $id) {
-                $ids[] = (int) trim($id);
-            }
+                $id = trim($id);
+                if (!empty($id)) {
+                    $ids[] = (int) trim($id);
+                }            }
             return $ids;
         });
     }
@@ -151,7 +153,10 @@ class Settings
         return $this->getCachedValue(self::RESTRICT_CREATE_ORG_IDS, function() {
             $ids = [];
             foreach (explode(',', (string) ilCust::get(self::RESTRICT_CREATE_ORG_IDS)) as $id) {
-                $ids[] = (int) trim($id);
+                $id = trim($id);
+                if (!empty($id)) {
+                    $ids[] = (int) trim($id);
+                }
             }
             return $ids;
         });
