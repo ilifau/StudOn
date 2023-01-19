@@ -616,10 +616,13 @@ fau#:#fau_educations_of#:#Educations of
 fau#:#fau_export_course_members#:#Export Conrse Members
 fau#:#fau_export_course_members_info#:#Exports an overview of all users who are members of courses within this category or are on the waiting list. Only courses for which you have the right to manage participants are taken into account.
 fau#:#fau_export_course_members_failed#:#The course members couldn't be exported!
+fau#:#fau_export_with_group_members#:#With Groups
+fau#:#fau_export_with_group_members_info#:#Exports also the members of groups within this category or within its courses
 fau#:#fair_autofill_cron#:#Allocate Registrations with Equal Chances
 fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity registration, the free places in groups and courses are automatically allocated.
 fau#:#fair_autofill_cron_result#:#Allocated Places: %s
 fau#:#fau_add_no_group_possible#:#Admission not possible, as no group can be assigned!
+fau#:#fau_course_export_term_info#:#The semester selection works only for courses that are associated with courses from Campo. If you want to export other courses, choose 'Until summer term 2022 / without term'.
 fau#:#fau_campo_assigned_orgunits#:#Assigned Institutiuons
 fau#:#fau_campo_course_is_cancelled#:#This event is cancelled!
 fau#:#fau_campo_course_is_deleted#:#This event is deleted!

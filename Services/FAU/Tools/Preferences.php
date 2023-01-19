@@ -10,6 +10,7 @@ class Preferences
 {
     const TERM_FOR_MY_MEMBERSHIPS = 'fau_term_for_my_memberships';
     const TERM_FOR_EXPORTS = 'fau_term_for_exports';
+    const EXPORT_WITH_GROUPS = 'fau_export_with_groups';
     const SEARCH_CONDITION = 'fau_search_condition';
 
     protected Container $dic;
@@ -69,6 +70,22 @@ class Preferences
         $this->setPreference(self::TERM_FOR_EXPORTS, (string) $term_id);
     }
 
+
+    /**
+     * Get if the export function in a category should include groups and not only courses
+     */
+    public function getExportWithGroups() : bool
+    {
+        return (bool) $this->getPreference(self::EXPORT_WITH_GROUPS);
+    }
+
+    /**
+     * Set if the export function in a category should include groups and not only courses
+     */
+    public function setExportWithGroups(bool $export)
+    {
+        $this->setPreference(self::EXPORT_WITH_GROUPS, (string) $export);
+    }
 
 
     /**

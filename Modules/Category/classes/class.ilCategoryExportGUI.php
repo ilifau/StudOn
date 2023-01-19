@@ -58,11 +58,11 @@ class ilCategoryExportGUI extends ilExportGUI
         $form->setDescription($this->lng->txt('fau_export_course_members_info'));
 
         $term = new ilSelectInputGUI($this->lng->txt('studydata_semester'), 'term_id');
-        $options = $this->dic->fau()->study()->getTermSearchOptions(null, false);
+        $term->setInfo($this->lng->txt('fau_course_export_term_info'));
+        $options = $this->dic->fau()->study()->getTermSearchOptions(null, true);
         $current = $this->dic->fau()->study()->getCurrentTerm()->toString();
         $preferred = $this->dic->fau()->tools()->preferences()->getTermIdForExports();
         $term->setOptions($options);
-
         if (isset($options[$preferred])) {
             $term->setValue($preferred);
         }
@@ -73,6 +73,12 @@ class ilCategoryExportGUI extends ilExportGUI
             $term->setValue((string) current($options));
         }
         $form->addItem($term);
+
+        $groups = new ilCheckboxInputGUI($this->lng->txt('fau_export_with_group_members'), 'export_with_groups');
+        $groups->setInfo($this->lng->txt('fau_export_with_group_members_info'));
+        $groups->setChecked($this->dic->fau()->tools()->preferences()->getExportWithGroups());
+        $form->addItem($groups);
+
         $form->addCommandButton('doExportCourseUsers', $this->lng->txt('export'));
         $form->addCommandButton('listExportFiles', $this->lng->txt('cancel'));
 
@@ -82,9 +88,12 @@ class ilCategoryExportGUI extends ilExportGUI
 
     public function doExportCourseUsers()
     {
+        $this->dic->fau()->tools()->preferences()->setTermIdForExports((string) $_POST['term_id']);
+        $this->dic->fau()->tools()->preferences()->setExportWithGroups((bool) $_POST['export_with_groups']);
+
         $this->listExportFiles();
 
-        $export = new CourseUsersExport(Term::fromString((string) $_POST['term_id']), $this->obj->getRefId());
+        $export = new CourseUsersExport($this->obj->getRefId(), Term::fromString((string) $_POST['term_id']), (bool) $_POST['export_with_groups']);
         $file = $export->exportCoursesUsers();
 
         if (is_file($file)) {

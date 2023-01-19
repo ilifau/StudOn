@@ -39,19 +39,23 @@ class Service extends SubService
         $users = $this->repo()->getUserData($user_ids);
         $persons = $this->repo()->getPersonsOfUsers($user_ids);
 
-        foreach ($persons as $person) {
-            if (!empty($user = $users[$person->getUserId()])) {
-                $users[$user->getUserId()] = $user->withPerson($person);
+        $persons_by_person_id = [];
+        foreach ($persons as $user_id => $person) {
+            if (!empty($user = $users[$user_id])) {
+                $users[$user_id] = $user->withPerson($person);
+            }
+            if (!empty($person->getPersonId())) {
+                $persons_by_person_id[$person->getPersonId()] = $person;
             }
         }
 
         $orgunits = null;
         if (!empty($ref_id_for_educations)) {
-            $orgunits = $this->dic->fau()->org()->getShorttextsOnIliasPath($ref_id_for_educations);
+            $orgunits = $this->dic->fau()->org()->getLongtextsOnIliasPath($ref_id_for_educations);
         }
-        $educations = $this->repo()->getEducationsOfPersons(array_keys($persons), $orgunits);
+        $educations = $this->repo()->getEducationsOfPersons(array_keys($persons_by_person_id), $orgunits);
         foreach ($educations as $education) {
-            if (!empty($person = $persons[$education->getPersonId()]) && !empty($user = $users[$person->getUserId()])) {
+            if (!empty($person = $persons_by_person_id[$education->getPersonId()]) && !empty($user = $users[$person->getUserId()])) {
                 $users[$user->getUserId()] = $user->withEducation($education);
             }
         }
@@ -98,7 +102,7 @@ class Service extends SubService
         if (!empty($person = $this->dic->fau()->user()->repo()->getPersonOfUser($user_id))) {
             $orgunits = null;
             if (!empty($ref_id)) {
-                $orgunits = $this->dic->fau()->org()->getShorttextsOnIliasPath($ref_id);
+                $orgunits = $this->dic->fau()->org()->getLongtextsOnIliasPath($ref_id);
             }
             return $this->getEducationsText($this->repo()->getEducationsOfPerson($person->getPersonId(), $orgunits));
          }

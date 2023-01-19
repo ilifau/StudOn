@@ -14,6 +14,19 @@ class Service extends SubService
     protected Repository $repository;
 
     /**
+     * Longtexts of of units where also the longtexts of all child units should be returned by getLongtextsOnIliasPath()
+     * This is used for querying the educations of users that should be displayed or exported
+     *
+     * E.g. Educations of the "Sprachenzentrum" should also include educations of "Sprachenzentrum, Abteilung Fremdsprachenausbildung Nürnberg"
+     * even if we are in a different sub tree of the StudOn category for "Sprachenzentrum"
+     *
+     * @var string[]
+     */
+    protected $longtexts_with_childs = [
+        'Sprachenzentrum'
+    ];
+
+    /**
      * Get the repository for user data
      */
     public function repo() : Repository
@@ -60,20 +73,29 @@ class Service extends SubService
     }
 
     /**
-     * Get the shorttexts of the org units that are found on the path of an ilias reference
+     * Get the longtexts of the org units that are found on the path of an ilias reference
      * @param int|null $ref_id
      * @return string[]
+     * @see self::$longtexts_with_childs
      */
-    public function getShorttextsOnIliasPath(?int $ref_id) : array
+    public function getLongtextsOnIliasPath(?int $ref_id) : array
     {
         if (empty($ref_id)) {
             return [];
         }
         $texts = [];
         $path_ids = $this->dic->repositoryTree()->getPathId($ref_id);
-        foreach ($this->repo()->getOrgunitsByRefIds($path_ids) as $unit) {
-            $texts[] = $unit->getShorttext();
+
+        $units = $this->repo()->getOrgunitsByRefIds($path_ids);
+        foreach ($units as $unit) {
+            if (in_array($unit->getLongtext(), $this->longtexts_with_childs)) {
+                $childs = $this->repo()->getOrgunitsByPath($unit->getPath());
+                foreach ($childs as $child) {
+                    $texts[] = $child->getLongtext();
+                }
+            }
+            $texts[] = $unit->getLongtext();
         }
-        return $texts;
+        return array_unique($texts);
     }
 }

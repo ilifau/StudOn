@@ -22,9 +22,11 @@ class Term
             $this->type_id = null;
             $this->valid = false;
         }
-        $this->year = $year;
-        $this->type_id = $type_id;
-        $this->valid = true;
+        else {
+            $this->year = $year;
+            $this->type_id = $type_id;
+            $this->valid = true;
+        }
     }
 
      public function getYear() : ?int

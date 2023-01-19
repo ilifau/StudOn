@@ -2,7 +2,10 @@
 
 namespace FAU\Ilias;
 
+use FAU\Ilias\Data\ContainerData;
 use FAU\RecordRepo;
+use FAU\Study\Data\ImportId;
+use FAU\Study\Data\Term;
 
 /**
  * Repository for accessing ilias data
@@ -159,5 +162,67 @@ class Repository extends RecordRepo
             $list[$row['usr_id']][] = $row['obj_id'];
         }
         return $list;
+    }
+
+
+    /**
+     * Get the path of a node in the repository treen
+     */
+    public function getTreePath(int $ref_id) : ?string
+    {
+        $query = "SELECT path from tree WHERE child = " . $this->db->quote($ref_id, 'integer');
+        $result = $this->db->query($query);
+        if ($row = $this->db->fetchAssoc($result)) {
+            return (string) $row['path'];
+        }
+        else {
+            return null;
+        }
+    }
+
+
+    /**
+     * fins the data of courses or groups within a parent
+     * @return ContainerData[] (indexed by object id)
+     */
+    public function findCoursesOrGroups(int $parent_ref_id, ?Term $term = null, $with_groups = true) : array
+    {
+        $containers = [];
+
+        if (empty($path = $this->getTreePath($parent_ref_id))) {
+            return [];
+        }
+
+        $query = "SELECT r.ref_id, o.*
+            FROM tree t
+            JOIN object_reference r ON r.ref_id = t.child
+            JOIN object_data o ON o.obj_id = r.obj_id
+            WHERE " . $this->db->like('t.path', 'text', $path . '%', false);
+
+        if (isset($term) && $term->isValid()) {
+            $query .= "AND " . $this->db->like('o.import_id', 'text', 'FAU/Term=' . $term->toString() . '%', false);
+        }
+
+        if ($with_groups) {
+            $query .= " AND o.type in ('crs', 'grp')";
+        }
+        else {
+            $query .= " AND o.type = 'crs'";
+        }
+
+
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            $containers[$row['obj_id']] = new ContainerData(
+                (string) $row['title'],
+                (string) $row['description'],
+                (string) $row['type'],
+                (int) $row['ref_id'],
+                (int) $row['obj_id'],
+                ImportId::fromString($row['import_id'])
+            );
+        }
+
+        return $containers;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace FAU\Ilias;
 
+use FAU\Ilias\Data\ContainerData;
 use FAU\Study\Data\SearchCondition;
 use ILIAS\DI\Container;
 use FAU\Study\Data\SearchResultEvent;
@@ -13,11 +14,13 @@ class CourseUsersExport extends AbstractExport
     protected Container $dic;
     protected \ilLanguage $lng;
 
-    protected Term $term;
     protected int $cat_ref_id;
+    protected ?Term $term;
+    protected bool $export_with_groups;
 
-    /** @var SearchResultEvent[]  (indexed by obj_id) */
-    protected array $events = [];
+
+    /** @var ContainerData[] (indexed by obj_id) */
+    protected array $containers = [];
 
     /** @var UserData[] (indexed by usr_id) */
     protected array $users = [];
@@ -33,12 +36,13 @@ class CourseUsersExport extends AbstractExport
      * @param string $term_id
      * @param int    $cat_ref_id
      */
-    public function __construct(Term $term, int $cat_ref_id)
+    public function __construct(int $cat_ref_id, ?Term $term, bool $export_with_groups = false)
     {
         parent::__construct();
 
         $this->term = $term;
         $this->cat_ref_id = $cat_ref_id;
+        $this->export_with_groups = $export_with_groups;
     }
 
     /**
@@ -48,20 +52,15 @@ class CourseUsersExport extends AbstractExport
      */
     public function exportCoursesUsers(string $type = self::TYPE_EXCEL) : string
     {
-        $condition = new SearchCondition('', $this->term->toString(), '', '', $this->cat_ref_id, false);
-        $condition = $this->dic->fau()->study()->search()->getProcessedCondition($condition)->withLimit(999999);
-
-        foreach ($this->dic->fau()->study()->search()->getEventList($condition) as $event) {
-            if (!empty($event->getIliasRefId())
-                && $this->dic->access()->checkAccess('manage_members', '', $event->getIliasRefId())
+        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($this->cat_ref_id, $this->term, $this->export_with_groups) as $container) {
+            if ($this->dic->access()->checkAccess('manage_members', '', $container->getRefId())
             ) {
-                $this->events[$event->getIliasObjId()] = $event;
+                $this->containers[$container->getObjId()] = $container;
             }
         }
 
-        $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->events));
-        $this->users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->events));
-
+        $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->containers));
+        $this->users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->containers));
 
         $user_ids = array_unique(array_merge(array_keys($this->users_member), array_keys($this->users_waiting)));
         $this->users = $this->dic->fau()->user()->getUserData($user_ids, $this->cat_ref_id);
@@ -91,8 +90,8 @@ class CourseUsersExport extends AbstractExport
                 'matriculation' => $user->getMatriculation(),
                 'studydata' => $this->dic->fau()->user()->getStudiesText($user->getPerson(), $this->term),
                 'educations' => $this->dic->fau()->user()->getEducationsText($user->getEducations()),
-                'memberships' => $this->getEventsAsText($this->users_member[$user->getUserId()] ?? []),
-                'waiting_lists' =>  $this->getEventsAsText($this->users_waiting[$user->getUserId()] ?? []),
+                'memberships' => $this->getContainersAsText($this->users_member[$user->getUserId()] ?? []),
+                'waiting_lists' =>  $this->getContainersAsText($this->users_waiting[$user->getUserId()] ?? []),
             ];
             $this->fillRowData($data, $mapping, $row++);
         }
@@ -106,12 +105,12 @@ class CourseUsersExport extends AbstractExport
      * @param array $obj_ids
      * @return string
      */
-    protected function getEventsAsText(array $obj_ids) : string
+    protected function getContainersAsText(array $obj_ids) : string
     {
         $texts = [];
         foreach ($obj_ids as $obj_id) {
-            $event = $this->events[$obj_id];
-            $texts[] = $event->getIliasTitle() . ' [' . \ilLink::_getStaticLink($event->getIliasRefId()) . ']';
+            $container = $this->containers[$obj_id];
+            $texts[] = $container->getTitle() . ' [' . \ilLink::_getStaticLink($container->getRefId()) . ']';
         }
         return implode("\n", $texts);
     }

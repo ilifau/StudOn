@@ -615,7 +615,9 @@ fau#:#fau_educations#:#Bildungen
 fau#:#fau_educations_of#:#Bildungen von
 fau#:#fau_export_course_members#:#Kursteilnehmer/innen exportieren
 fau#:#fau_export_course_members_info#:#Exportiert eine Übersicht aller Benutzer/innen, die in Lehrveranstaltungen innerhalb dieser Kategorie Mitglieder sind oder auf der Warteliste stehen. Es werden nur Kurse berücksichtigt, bei denen Sie das Recht zur Teilnehmerverwaltung haben.
-fau#:#fau_export_course_members_failed#:#Die Kursteilnehemr/innen konnten nicht exportiert werden!
+fau#:#fau_export_course_members_failed#:#Die Kursteilnehmer/innen konnten nicht exportiert werden!
+fau#:#fau_export_with_group_members#:#Mit Gruppen
+fau#:#fau_export_with_group_members_info#:#Exportiert auch die Teilnehmer/innen von Gruppen in diesem Bereich oder innerhalb der Kurse
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
@@ -647,6 +649,7 @@ fau#:#fau_check_info_failed_restrictions#:#Nicht erfüllt
 fau#:#fau_check_info_passed_restrictions#:#Erfüllt
 fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s
 fau#:#fau_course#:#Parallelgruppe
+fau#:#fau_course_export_term_info#:#Die Semesterauswahl funktioniert nur bei Kursen, die mit Lehrveranstaltungen aus Campo verbunden sind. Wenn Sie andere Kurse exportieren möchten, wählen Sie "Bis Sommersemester 2022 / ohne Semesterangabe"
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_info_campo#:#Die Liste enthält einen oder mehrere Kurse für Lehrveranstaltungen aus Campo. Beim Löschen wird die Verbindung zu Campo aufgehoben. Falls eine Lehrveranstaltung im Semester dennoch angeboten wird, erzeugt StudOn bei der nächsten Synchronisation (in der Regel stündlich) wieder einen neuen Kurs. Sie könenn das verhindern, indem Sie die Parallelgruppen in Campo löschen oder ausfallen lassen. Warten Sie dann eine bis zwei Stunden. Danach können sie den StudOn-Kurs löschen, ohne dass er wieder angelegt wird.
