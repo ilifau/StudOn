@@ -68,7 +68,7 @@ class Repository extends RecordRepo
     public function getEducationsOfPerson(?int $person_id, ?array $orgunits = null) : array
     {
         $query = "SELECT * FROM fau_user_educations WHERE person_id = " . $this->db->quote((int) $person_id, 'integer');
-        if (!empty($orgunits))  {
+        if (isset($orgunits))  {
             $query .= " AND " . $this->db->in('orgunit', $orgunits, false,'text');
         }
         return $this->queryRecords($query, Education::model());
@@ -83,7 +83,7 @@ class Repository extends RecordRepo
     public function getEducationsOfPersons(array $person_ids, ?array $orgunits = null) : array
     {
         $query = "SELECT * FROM fau_user_educations WHERE " . $this->db->in('person_id', $person_ids, false,'integer');
-        if (!empty($orgunits))  {
+        if (isset($orgunits))  {
             $query .= " AND " . $this->db->in('orgunit', $orgunits, false,'text');
         }
         return $this->queryRecords($query, Education::model());
