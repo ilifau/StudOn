@@ -14,6 +14,7 @@ use FAU\Cond\Data\DocCondition;
 use FAU\Cond\Data\HardRestriction;
 use FAU\Cond\Data\HardExpression;
 use FAU\Cond\Data\HardRequirement;
+use FAU\Study\Data\Module;
 
 /**
  * Repository for accessing condition data
@@ -218,7 +219,7 @@ class Repository extends RecordRepo
 
 
     /**
-     * Check if an event has restrictions
+     * Check if an event has event based restrictions
      * @param int $event_id
      * @return bool
      */
@@ -229,5 +230,39 @@ class Repository extends RecordRepo
             . " LIMIT 1";
 
         return !empty($this->getIntegerList($query, 'event_id'));
+    }
+
+    /**
+     * Check if an event has module based restrictions
+     * @param int $event_id
+     * @return bool
+     */
+    public function hasModuleRestrictions(int $event_id) : bool
+    {
+        $query = "SELECT mr.module_id FROM fau_cond_mod_rests mr "
+        . " JOIN fau_study_mod_events me ON mr.module_id = me.module_id"
+        . " WHERE me.event_id = "
+            . $this->db->quote($event_id, 'integer')
+            . " LIMIT 1";
+
+        return !empty($this->getIntegerList($query, 'module_id'));
+    }
+
+    /**
+     * Get the modules of an event that have a rewstriction or courses of study assigned
+     * @param int $event_id  (get all if null, none if empty)
+     * @return Module[]
+     */
+    public function getModulesOfEventWithRestrictionOrCos(int $event_id) : array
+    {
+        $query = "SELECT m.* FROM fau_study_modules m "
+            . " JOIN fau_study_mod_events e ON m.module_id = e.module_id "
+            . " WHERE e.event_id=" . $this->db->quote($event_id, 'integer')
+            . " AND ( "
+            . "     EXISTS (SELECT 1 FROM fau_study_module_cos mc WHERE mc.module_id = m.module_id)"
+            . "     OR EXISTS (SELECT 1 FROM fau_cond_mod_rests mr WHERE mr.module_id = m.module_id)"
+            . " )";
+
+        return $this->queryRecords($query, Module::model());
     }
 }

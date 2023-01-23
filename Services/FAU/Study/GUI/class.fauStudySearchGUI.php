@@ -252,7 +252,7 @@ class fauStudySearchGUI extends BaseGUI
                 $description = $event->getIliasDescription();
                 $url = $this->dic->fau()->study()->getCampoUrl($event->getEventId(), $term);
                 $description .= ' &nbsp; <a target="_blank" href="' . $url . '">' . $this->lng->txt('fau_campo_link') . '</a>';
-                if ($this->dic->fau()->cond()->hard()->hasEventRestrictionsOrModules($event->getEventId())) {
+                if ($this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
                     $description .= ' &nbsp; ' . fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString());
                 }
 

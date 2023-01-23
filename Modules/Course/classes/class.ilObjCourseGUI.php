@@ -666,7 +666,7 @@ class ilObjCourseGUI extends ilContainerGUI
             }
 
             // show restrictions
-            if ($DIC->fau()->cond()->hard()->hasEventRestrictionsOrModules($event->getEventId())) {
+            if ($DIC->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
 
                 $restrictions_html = '';
                 $restrictions_html = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $importId->getTermId());

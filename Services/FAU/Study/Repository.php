@@ -447,29 +447,19 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Module::model());
     }
 
-    /**
-     * Get the modules of an event
-     * @param int $event_id  (get all if null, none if empty)
-     * @return Module[]
-     */
-    public function getModulesOfEvent(int $event_id) : array
-    {
-        $query = "SELECT m.* FROM fau_study_modules m JOIN fau_study_mod_events e ON m.module_id = e.module_id WHERE e.event_id="
-            . $this->db->quote($event_id, 'integer');
-        return $this->queryRecords($query, Module::model());
-    }
 
     /**
-     * Check if an event has modules
+     * Check if an event has modules with assigned courses of study
      * @param int $event_id
      * @return bool
      */
-    public function hasEventModules(int $event_id) : bool
+    public function hasModuleWithCos(int $event_id) : bool
     {
-        $query = "SELECT module_id FROM fau_study_mod_events WHERE event_id = "
+        $query = "SELECT mc.module_id FROM fau_study_mod_events me "
+            . " JOIN fau_study_module_cos mc ON mc.module_id = me.module_id"
+            . " WHERE me.event_id = "
             . $this->db->quote($event_id, 'integer')
             . " LIMIT 1";
-
         return !empty($this->getIntegerList($query, 'module_id'));
     }
 
