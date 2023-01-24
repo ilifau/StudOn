@@ -660,6 +660,14 @@ fau#:#fau_module_select#:#Register the event for a module:
 fau#:#fau_move_selected_courses#:#Move Selected Courses
 fau#:#fau_org_data_update#:#Update FAU.Org-Data
 fau#:#fau_org_data_update_info#:#Updated the data for organisation units at the FAU
+fau#:#fau_org_number#:#Number in FAU.ORG: %s
+fau#:#fau_org_collect_courses#:#The <b>Campo courses</b> of all subordinate units are filed at this level.
+fau#:#fau_org_studon_roles_not_assignable#:#No employees are directly assigned to this organizational unit, therefore the roles <b>StudOn author</b> and <b>StudOn manager</b> are not assigned via the IdM portal. If you need such roles, please contact the <a href="mailto:studon@fau.de">StudOn team</a>.
+fau#:#fau_org_studon_author_assignable#:#The role <b>StudOn author</b> is assigned to all employees directly assigned to this institution, but can be removed by the institution management in the IdM portal under "Role administration teaching".
+fau#:#fau_org_studon_manager_assignable#:#The role <b>StudOn Manager</b> can be assigned and removed by the institution management in the IdM portal under "Role administration teaching".
+fau#:#fau_org_studon_manager_ignored#:#he assignment of the <b>StudOn Manager</b> role in the IdM portal is ignored by StudOn at this high level. If necessary, clarify tthis with all included institutions and contact the <a href="mailto:studon@fau.de">StudOn team</a>.
+fau#:#fau_org_studon_author_missing#:#The <b>StudOn author</b> role has not yet been set up. Please contact the <a href="mailto:studon@fau.de">StudOn team</a>.
+fau#:#fau_org_studon_manager_missing#:#The <b>StudOn manager</b> role has not yet been set up. Please contact the <a href="mailto:studon@fau.de">StudOn team</a>.
 fau#:#fau_parallel_groups#:#Parallel groups
 fau#:#fau_relation#:#FAU Relation
 fau#:#fau_relation_orgunits#:#Assigned Units

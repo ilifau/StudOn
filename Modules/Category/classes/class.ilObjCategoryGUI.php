@@ -658,26 +658,45 @@ class ilObjCategoryGUI extends ilContainerGUI
             }
         }
 
-        // fau: campoInfo - show info on course info page
+        // fau: campoInfo - show organisational info on category info page, don't show common meta data
         global $DIC;
         if (!empty($units = $DIC->fau()->org()->repo()->getOrgunitsByRefId($this->object->getRefId()))) {
-            $info->addSection($this->lng->txt('fau_relation'));
-            $list = [];
+            $roles = $DIC->fau()->sync()->roles();
+            $info->addSection($this->lng->txt('fau_relation_orgunits'));
+
             foreach ($units as $unit) {
-                $list[] = $unit->getLongtext() . ' (' . $unit->getFauorgNr() . ')';
+                $list = [];
+                $list[] = sprintf($this->lng->txt('fau_org_number'), $unit->getFauorgNr());
+
+                if ($unit->getCollectCourses()) {
+                    $list[] = $this->lng->txt('fau_org_collect_courses');
+                }
+                if (!$unit->getAssignable()) {
+                    $list[] = $this->lng->txt('fau_org_studon_roles_not_assignable');
+                }
+                else {
+                    if (empty($roles->findAuthorRole($this->object->getRefId()))) {
+                        $list[] = $this->lng->txt('fau_org_studon_author_missing');
+                    }
+                    else {
+                        $list[] = $this->lng->txt('fau_org_studon_author_assignable');
+                    }
+
+                    if ($unit->getNoManager()) {
+                        $list[] = $this->lng->txt('fau_org_studon_manager_ignored');
+                    }
+                    elseif (empty($roles->findManagerRole($this->object->getRefId()))) {
+                        $list[] = $this->lng->txt('fau_org_studon_manager_missing');
+                    }
+                    else {
+                        $list[] = $this->lng->txt('fau_org_studon_manager_assignable');
+                    }
+                }
+
+                $info->addProperty($unit->getLongtext(), $DIC->fau()->tools()->format()->list($list));
             }
-            $info->addProperty($this->lng->txt('fau_relation_orgunits'), implode('<br>', $list));
         }
         // fau.
-
-        include_once('Services/AdvancedMetaData/classes/class.ilAdvancedMDRecordGUI.php');
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'cat', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
-        
-
-        // standard meta data
-        $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
         
         // forward the command
         if ($ilCtrl->getNextClass() == "ilinfoscreengui") {

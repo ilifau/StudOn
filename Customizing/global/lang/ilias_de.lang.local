@@ -662,6 +662,14 @@ fau#:#fau_module_select#:#Veranstaltung für Modul/Konto belegen
 fau#:#fau_move_selected_courses#:#Ausgewählte Kurse verschieben
 fau#:#fau_org_data_update#:#FAU.Org-Daten aktualisieren
 fau#:#fau_org_data_update_info#:#Aktualisiert die Daten zu Organisationseinheiten an der FAU
+fau#:#fau_org_number#:#Nummer in FAU.ORG: %s
+fau#:#fau_org_collect_courses#:#Die <b>Campo-Kurse</b> aller untergeordneten Einrichtungen werden auf dieser Ebene abgelegt.
+fau#:#fau_org_studon_roles_not_assignable#:#Dieser Organisationseinheit werden keine Beschäftigten direkt zugeordnet, daher werden die Rollen <b>StudOn-Autor/in</b> und <b>StudOn-Manager/in</b> nicht über das IdM-Portal vergeben. Falls Sie solche Rollen benötigen, wenden Sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
+fau#:#fau_org_studon_author_assignable#:#Die Rolle <b>StudOn-Autor/in</b> wird an alle dieser Einrichtung direkt zugeordneten Beschäftigten vergeben, kann aber im IdM-Portal unter "Rollenverwaltung Lehre" von der Einrichtungsleitung entfent werden.
+fau#:#fau_org_studon_manager_assignable#:#Die Rolle <b>StudOn-Manager/in</b> kann im IdM-Portal unter "Rollenverwaltung Lehre" von der Einrichtungsleitung vergeben und entfernt werden.
+fau#:#fau_org_studon_manager_ignored#:#Die Vergabe der Rolle <b>StudOn-Manager/in</b> im IdM-Portal wird von StudOn auf dieser hohen Ebene ignoriert. Falls notwendig, klären Sie die Vergabe mit allen enthaltenen Einrichtungen ab und wenden Sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
+fau#:#fau_org_studon_author_missing#:#Die Rolle <b>StudOn-Autor/in</b> ist nocht nicht eingerichtet. Bitte wenden sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
+fau#:#fau_org_studon_manager_missing#:#Die Rolle <b>StudOn-Manager/in</b> ist nocht nicht eingerichtet. Bitte wenden Sie sich an das <a href="mailto:studon@fau.de">StudOn-Team</a>.
 fau#:#fau_parallel_groups#:#Parallelgruppen
 fau#:#fau_relation#:#FAU-Beziehung
 fau#:#fau_relation_orgunits#:#Verbundene Einrichtungen

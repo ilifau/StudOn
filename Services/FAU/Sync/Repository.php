@@ -157,21 +157,6 @@ class Repository extends RecordRepo
         $this->db->manipulate($query);
     }
 
-    /**
-     * Get the ILIAS categories where roles can be assigned
-     * @return string[] ref_ids indexed by fauorg_nr
-     */
-    public function getAssignableCategories() : array
-    {
-        $query = "SELECT fauorg_nr, ilias_ref_id FROM fau_org_orgunits WHERE ilias_ref_id IS NOT NULL AND assignable = 1 AND no_manager = 0";
-        $result = $this->db->query($query);
-        $categories = [];
-        while ($row = $this->db->fetchAssoc($result)) {
-            $categories[$row['fauorg_nr']] = $row['ilias_ref_id'];
-        }
-        return $categories;
-    }
-
 
     /**
      * Get the base query for course members to sync back to campo

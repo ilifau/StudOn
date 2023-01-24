@@ -5,6 +5,7 @@ namespace FAU\Cond;
 use FAU\Cond\Data\Restriction;
 use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\Event;
+use FAU\Tools\Format;
 use FAU\User\Data\Achievement;
 use FAU\User\Data\Subject;
 use ILIAS\DI\Container;
@@ -32,6 +33,7 @@ class HardRestrictions
     protected ilLanguage $lng;
     protected Service $service;
     protected Repository $repo;
+    protected Format $format;
 
     /**
      * Last object check is passed
@@ -107,9 +109,9 @@ class HardRestrictions
         $this->lng = $dic->language();
         $this->service = $dic->fau()->cond();
         $this->repo = $dic->fau()->cond()->repo();
+        $this->format = $dic->fau()->tools()->format();
     }
-
-
+    
 
     /**
      * Get all restriction texts of an event
@@ -141,7 +143,7 @@ class HardRestrictions
             foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudyForModule($module->getModuleId()) as $cos) {
                 if ($checked) {
                     $fitting = in_array($cos->getCosId(), $module->getFittingCosIds());
-                    $studyTexts[] =  $this->formatText($cos->getTitle(), $fitting, $html) . ' ' . $this->formatCheck($fitting, $html);
+                    $studyTexts[] =  $this->format->text($cos->getTitle(), $fitting, $html) . ' ' . $this->format->check($fitting, $html);
                 }
                 else {
                     $studyTexts[] =  $cos->getTitle();
@@ -150,9 +152,9 @@ class HardRestrictions
             if (!empty($studyTexts)) {
                 $studyTexts = array_unique($studyTexts);
                 sort($studyTexts);
-                $label = $this->formatLabel( $this->lng->txt(
+                $label = $this->format->label( $this->lng->txt(
                     count($studyTexts) == 1 ? 'studydata_cos' : 'fau_rest_one_of_studies'), '', '', $html);
-                $resTexts[] = $label . $this->formatList($studyTexts, $html);
+                $resTexts[] = $label . $this->format->list($studyTexts, $html);
             }
 
 
@@ -162,12 +164,12 @@ class HardRestrictions
             }
 
             // put all module information together
-            $label = $this->formatLabel($this->lng->txt('fau_module'),  $module->getModuleName(), $module->getModuleNr(), $html);
+            $label = $this->format->label($this->lng->txt('fau_module'),  $module->getModuleName(), $module->getModuleNr(), $html);
             if (!empty($resTexts)) {
-                $texts[] = $label . $this->formatList($resTexts, $html);
+                $texts[] = $label . $this->format->list($resTexts, $html);
             }
             else {
-                $texts[] = $label . $this->formatList([$this->lng->txt('fau_rest_module_in_cos')], $html);
+                $texts[] = $label . $this->format->list([$this->lng->txt('fau_rest_module_in_cos')], $html);
             }
         }
 
@@ -184,29 +186,29 @@ class HardRestrictions
                     $cosTexts = [];
                     foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudy($restriction->getRegardingCosIds()) as $cos) {
                         $cosTexts[] = $cos->getTitle()
-                            . ($checked ? ' ' . $this->formatCheck(in_array($cos->getCosId(), $restriction->getFittingCosIds()), $html) : '');
+                            . ($checked ? ' ' . $this->format->check(in_array($cos->getCosId(), $restriction->getFittingCosIds()), $html) : '');
                     }
                     $resTexts[] = $this->getRestrictionAsText($restriction, $html, $checked) . ' - ' . $this->lng->txt('fau_rest_regarding_cos')
-                        . $this->formatList(array_unique($cosTexts), $html);
+                        . $this->format->list(array_unique($cosTexts), $html);
                 }
                 elseif (!empty($restriction->getExceptionCosIds())) {
                     $cosTexts = [];
                     foreach ($this->dic->fau()->study()->repo()->getCoursesOfStudy($restriction->getExceptionCosIds()) as $cos) {
                         $cosTexts[] = $cos->getTitle()
-                            . ($checked ? ' ' . $this->formatCheck(in_array($cos->getCosId(), $restriction->getFittingCosIds()), $html) : '');
+                            . ($checked ? ' ' . $this->format->check(in_array($cos->getCosId(), $restriction->getFittingCosIds()), $html) : '');
                     }
                     $resTexts[] = $this->getRestrictionAsText($restriction, $html, $checked) . ' - ' . $this->lng->txt('fau_rest_exception_cos')
-                        . $this->formatList(array_unique($cosTexts), $html);
+                        . $this->format->list(array_unique($cosTexts), $html);
                 }
                 else {
                     $resTexts[] = $this->getRestrictionAsText($restriction, $html, $checked);
                 }
             }
-            $label = $this->formatLabel($this->lng->txt('fau_campo_event'), '', '', $html);
-            $texts = array_merge([$label . $this->formatList($resTexts, $html)], $texts);
+            $label = $this->format->label($this->lng->txt('fau_campo_event'), '', '', $html);
+            $texts = array_merge([$label . $this->format->list($resTexts, $html)], $texts);
         }
 
-        return $this->formatList($texts, $html, true);
+        return $this->format->list($texts, $html, true);
     }
 
 
@@ -225,7 +227,7 @@ class HardRestrictions
         foreach ($restriction->getRequirements() as $requirement) {
             if ($requirement->getId() != 0) {
                 $reqNames[] = $requirement->getName()
-                    . ($checked ? ' ' . $this->formatCheck($requirement->isSatisfied(), $html) : '');
+                    . ($checked ? ' ' . $this->format->check($requirement->isSatisfied(), $html) : '');
             }
         }
 
@@ -245,11 +247,11 @@ class HardRestrictions
             switch ($restriction->getType()) {
                 case HardRestriction::TYPE_SUBJECT_SEMESTER:
                     $text .= $expression->getNumber() . '. ' . $this->lng->txt('fau_rest_subject_semester')
-                        . ($checked ? ' ' . $this->formatCheck($expression->isSatisfied(), true) : '');
+                        . ($checked ? ' ' . $this->format->check($expression->isSatisfied(), true) : '');
                     break;
                 case HardRestriction::TYPE_CLINICAL_SEMESTER:
                     $text .= $expression->getNumber() . '. ' . $this->lng->txt('fau_rest_clinical_semester')
-                        . ($checked ? ' ' . $this->formatCheck($expression->isSatisfied(), true) : '');
+                        . ($checked ? ' ' . $this->format->check($expression->isSatisfied(), true) : '');
                     break;
                 case HardRestriction::TYPE_REQUIREMENT:
 
@@ -280,7 +282,7 @@ class HardRestrictions
                             $text .= ' '. $this->lng->txt('fau_rest_pf_wp');
                             break;
                     }
-                    $text .= ($checked ? ' ' . $this->formatCheck($expression->isSatisfied(), false) : '');
+                    $text .= ($checked ? ' ' . $this->format->check($expression->isSatisfied(), false) : '');
                     break;
             }
             $expTexts[] = $text;
@@ -509,7 +511,7 @@ class HardRestrictions
         foreach ($this->checkedUserCos as $cos) {
             $list[] = $cos->getTitle(false);
         }
-        return $this->formatList($list, $html);
+        return $this->format->list($list, $html);
 
     }
 
@@ -787,91 +789,4 @@ class HardRestrictions
 
         return $checkedRestriction->withSatisfied($oneExpressionPassed);
     }
-
-
-    /**
-     * Format a text as a label for a following list
-     * @param string|null $prefix
-     * @param string|null $text
-     * @param string|null $addition
-     * @param bool $html
-     * @return string
-     */
-    protected function formatLabel(?string $prefix, ?string $text, ?string $addition, bool $html = true)
-    {
-        if (!empty($prefix) && !empty($text)) {
-            $prefix .= ' ';
-        }
-        if (!empty($addition)) {
-            $addition = ' (' . $addition . ')';
-        }
-
-        if ($html) {
-            return $prefix . "<strong>" . $text . "</strong>" . $addition . ": \n";
-        }
-        else {
-            return $prefix . $text . $addition . ": \n";
-        }
-    }
-
-    /**
-     * Format a list of texts for display
-     * @param string[] $texts
-     * @param bool $html    use HTML to format
-     * @param bool $wide    separate the elements with an additional newline if not formatted by html
-     */
-    protected function formatList(array $texts, bool $html = true, bool $wide = false)
-    {
-        if (empty($texts)) {
-            return '';
-        }
-        elseif ($html) {
-            foreach ($texts as $index => $element) {
-                $texts[$index] = '<li>' . $element . '</li>';
-            }
-            return '<ul>' . implode("\n", $texts) . '</ul>';
-        }
-        elseif ($wide) {
-            return implode("\n\n", $texts);
-        }
-        else {
-            return implode(";\n", $texts);
-        }
-    }
-
-    /**
-     * Format a satisfied / not satisfied result of a check
-     * @param bool $result
-     * @param bool $html
-     */
-    protected function formatCheck(bool $result, bool $html)
-    {
-        if ($html) {
-            return $result ?
-                '<span style="font-weight: bold; color: green;">✓</span>' :
-                '<span style="font-weight: bold; color: red;">✗</span>';
-        }
-        else {
-            return $result ? '✓' : '✗';
-        }
-    }
-
-    /**
-     * Format a text with an optional highlight
-     *
-     * @param bool $result
-     * @param bool $html
-     */
-    protected function formatText(string $text, bool $highlight, bool $html)
-    {
-        if ($html) {
-            return $highlight ?
-                '<strong>' . $text . '</strong>' :
-                $text;
-        }
-        else {
-            return $text;
-        }
-    }
-
 }

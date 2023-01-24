@@ -703,17 +703,27 @@ class ilInfoScreenGUI
                 }
             }
         }
+    }
+    // END ChangeEvent: Display standard object info
 
-        // fau: showUpperPermissions - show info about users with special rights
 
-        global $ilAccess, $rbacreview, $tree;
-        $a_obj = $this->gui_object->object;
+    // fau: showUpperPermissions - new function addObjectPermissions
+    /**
+     * @return void
+     * @throws ilDatabaseException
+     * @throws ilObjectNotFoundException
+     */
+    protected function addObjectPermissions()
+    {
+        global $DIC;
+        $rbacreview = $DIC->rbac()->review();
 
-        if (is_object($a_obj)
-            and ilCust::get('ilias_show_roles_info')
-            and $ilUser->getId() != ANONYMOUS_USER_ID) {
-            $type = $a_obj->getType();
-            $ref_id = $a_obj->getRefId();
+        if (is_object($this->gui_object->object)
+            && ilCust::get('ilias_show_roles_info')
+            && $this->user->getId() != ANONYMOUS_USER_ID
+        ) {
+            $type = $this->gui_object->object->getType();
+            $ref_id = $this->gui_object->object->getRefId();
 
             // get the roles depending on the object type
             switch ($type) {
@@ -724,7 +734,7 @@ class ilInfoScreenGUI
                     $permissions = array('edit_permission', 'delete');
 
                     // show lercturers to managers and admins
-                    if ($ilAccess->checkAccess('write', '', $ref_id, $type)) {
+                    if ($this->access->checkAccess('write', '', $ref_id, $type)) {
                         $permissions[] = 'create_crs';
                     }
 
@@ -757,14 +767,14 @@ class ilInfoScreenGUI
             }
 
             $special_roles = array('il_crs_admin','il_crs_member','il_crs_tutor',
-                                    'il_grp_admin', 'il_grp_member');
+                'il_grp_admin', 'il_grp_member');
 
             $user_fields = array('usr_id','login','firsname','lastname');
 
             // create a section for each found permission
             foreach ($permissions as $perm) {
                 if (is_array($roles[$perm])) {
-                    $this->addSection($lng->txt($lang_prefix . $perm));
+                    $this->addSection($this->lng->txt($lang_prefix . $perm));
 
                     foreach ($roles[$perm] as $role_id => $role_data) {
                         $title = $role_data['title'];
@@ -780,9 +790,9 @@ class ilInfoScreenGUI
                         // these may have long member lists
                         foreach ($special_roles as $spec) {
                             if (strpos($title, $spec, 0) !== false) {
-                                $details = $lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
+                                $details = $this->lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
 
-                                $this->addProperty($lng->txt($spec), $details);
+                                $this->addProperty($this->lng->txt($spec), $details);
                                 continue 2;
                             }
                         }
@@ -797,9 +807,9 @@ class ilInfoScreenGUI
                         foreach ($users as $user_id) {
                             if ($userObj = ilObjectFactory::getInstanceByObjId($user_id, false)) {
                                 if ($userObj->hasPublicProfile()) {
-                                    $ilCtrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $userObj->getId());
-                                    $userlist[] = '<a href=' . $ilCtrl->getLinkTargetByClass("ilpublicuserprofilegui", "getHTML") . '>'
-                                                    . $userObj->getLogin() . '</a>';
+                                    $this->ctrl->setParameterByClass("ilpublicuserprofilegui", "user_id", $userObj->getId());
+                                    $userlist[] = '<a href=' . $this->ctrl->getLinkTargetByClass("ilpublicuserprofilegui", "getHTML") . '>'
+                                        . $userObj->getLogin() . '</a>';
                                 } else {
                                     $userlist[] = $userObj->getLogin();
                                 }
@@ -814,9 +824,9 @@ class ilInfoScreenGUI
                         }
 
 
-                        $details = $lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
+                        $details = $this->lng->txt($object_type) . ': <a href="' . $object_link . '">' . $object_title . '</a>';
                         if (count($userlist)) {
-                            $details .= '<br />' . $lng->txt('users') . ': ' . implode(', ', $userlist) ;
+                            $details .= '<br />' . $this->lng->txt('users') . ': ' . implode(', ', $userlist) ;
                         }
 
                         $this->addProperty($title, $details);
@@ -825,14 +835,14 @@ class ilInfoScreenGUI
             }
 
             // add info about StudOn administrators
-            if (in_array($type, array('cat','crs','grp')) and $ilAccess->checkAccess('write', '', $ref_id, $type)) {
-                $this->addSection($lng->txt('info_section_studon_admins'));
-                $this->addProperty($lng->txt('administrator'), $lng->txt('info_section_studon_admins_details'));
+            if (in_array($type, array('cat','crs','grp')) and $this->access->checkAccess('write', '', $ref_id, $type)) {
+                $this->addSection($this->lng->txt('info_section_studon_admins'));
+                $this->addProperty($this->lng->txt('administrator'), $this->lng->txt('info_section_studon_admins_details'));
             }
         }
-        // fau.
     }
-    // END ChangeEvent: Display standard object info
+    // fau.
+
     /**
     * show summary page
     */
@@ -1044,6 +1054,9 @@ class ilInfoScreenGUI
         }
 
         if (is_object($this->gui_object->object)) {
+            // fau: showUpperPermissions - place permissions info above object sections
+            $this->addObjectPermissions();
+            // fau.
             $this->addObjectSections();
         }
 

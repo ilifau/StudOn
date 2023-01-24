@@ -370,36 +370,38 @@ class RoleMatching
                 && ilObject::_exists($unit->getIliasRefId(), true, 'cat')
                 && !ilObject::_isInTrash($unit->getIliasRefId())
             ) {
-                $idmSet[$role->getType() . $unit->getIliasRefId()] = [$role->getType(), $unit->getIliasRefId(), $unit->getFauorgNr()];
+                $idmSet[$role->getType() . $unit->getIliasRefId()] = [
+                    $role->getType(),
+                    $unit->getIliasRefId(),
+                    $unit->getNoManager()
+                ];
             }
         }
 
         // get the roles remembered for the user
         $userSet = [];
         foreach ($this->dic->fau()->user()->repo()->getOrgRolesOfUser($user_id) as $role) {
-            $userSet[$role->getType() . $role->getRefId()] = [$role->getType(), $role->getRefId()];
+            $userSet[$role->getType() . $role->getRefId()] = [
+                $role->getType(),
+                $role->getRefId()
+            ];
         }
 
         // add the roles that are found in idm but not remembered for the user
         foreach (array_diff_key($idmSet, $userSet) as $set) {
-            list($type, $ref_id, $orgunit) = $set;
+            list($type, $ref_id, $no_manager) = $set;
+
             $role_id = null;
             switch ($type) {
                 case OrgRole::TYPE_AUTHOR:
                     $role_id = $this->findAuthorRole($ref_id);
-                    if (empty($role_id)) {
-                        // takes too long - create the roles in a batch
-                        //$role_id = $this->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
-                    }
-                    break;
-                case OrgRole::TYPE_MANAGER:
-                    $role_id = $this->findManagerRole($ref_id);
-                    if (empty($role_id)) {
-                        // takes too long - create the roles in a batch
-                        // $role_id = $this->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
-                    }
                     break;
 
+                case OrgRole::TYPE_MANAGER:
+                    if (empty($no_manager)) {
+                        $role_id = $this->findManagerRole($ref_id);
+                    }
+                    break;
             }
             if (!empty($role_id)) {
                 $this->dic->rbac()->admin()->assignUser($role_id, $person->getUserId());
@@ -411,15 +413,16 @@ class RoleMatching
         // remove the roles that are remembered for the user but don't exist in idm anymore
         foreach (array_diff_key($userSet, $idmSet) as $set) {
             list($type, $ref_id) = $set;
+
             $role_id = null;
             switch ($type) {
                 case OrgRole::TYPE_AUTHOR:
                     $role_id = $this->findAuthorRole($ref_id);
                     break;
+
                 case OrgRole::TYPE_MANAGER:
                     $role_id = $this->findManagerRole($ref_id);
                     break;
-
             }
             if (!empty($role_id)) {
                 $this->dic->rbac()->admin()->deassignUser($role_id, $person->getUserId());
@@ -453,8 +456,8 @@ class RoleMatching
      * This checks the actual set permissions on the container object, not templates
      *
      * @param $ref_id
-     * @param string[] $required_operations     names of the required permissions
-     * @param string[] $forbidden_operations    names of the forbidden permissions
+     * @param string[] $required_operations     names of the required permissions, all must match
+     * @param string[] $forbidden_operations    names of the forbidden permissions, none shound match
      * @return int|null     found role id
      */
     protected function findRoleByPermissions($ref_id, array $required_operations, array $forbidden_operations) : ?int

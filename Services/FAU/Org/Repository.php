@@ -49,7 +49,6 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, Orgunit::model(), false);
     }
 
-
     /**
      * @return Orgunit[]
      */
@@ -57,6 +56,15 @@ class Repository extends RecordRepo
     {
        $query = "SELECT * FROM fau_org_orgunits WHERE ilias_ref_id IS NOT NULL";
        return $this->queryRecords($query, Orgunit::model(), false);
+    }
+
+    /**
+     * @return Orgunit[]
+     */
+    public function getAssignableOrgunitsWithRefId() : array
+    {
+        $query = "SELECT * FROM fau_org_orgunits WHERE assignable = 1 AND ilias_ref_id IS NOT NULL";
+        return $this->queryRecords($query, Orgunit::model(), false);
     }
 
     /**

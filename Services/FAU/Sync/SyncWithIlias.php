@@ -588,25 +588,25 @@ class SyncWithIlias extends SyncBase
     }
 
     /**
-     * Create the emissing manager and author roles in a category
-     * @param int[] list of excluded ref_ids
+     * Create the missing manager and author roles in a category
+     * @param int[] $exclude list of excluded ref_ids
      */
     public function createMissingOrgRoles(array $exclude = [])
     {
         $roles = $this->dic->fau()->sync()->roles();
-        foreach ($this->sync->repo()->getAssignableCategories() as $orgunit => $ref_id) {
-            if (in_array($ref_id, $exclude)) {
-                $this->info("EXCLUDE $ref_id");
+        foreach ($this->org->repo()->getAssignableOrgunitsWithRefId() as $orgunit) {
+            if (in_array($orgunit->getIliasRefId(), $exclude)) {
+                $this->info("EXCLUDE " . $orgunit->getIliasRefId());
                 continue;
             }
 
-            if (empty($roles->findManagerRole($ref_id))) {
-                $this->info("CREATE Manager in $ref_id");
-                $roles->createOrgRole($orgunit, $ref_id, $this->settings->getManagerRoleTemplateId(), true);
+            if (empty($orgunit->getNoManager()) && empty($roles->findManagerRole($orgunit->getIliasRefId()))) {
+                $this->info("CREATE Manager in " . $orgunit->getIliasRefId());
+                $roles->createOrgRole($orgunit->getFauorgNr(), $orgunit->getIliasRefId(), $this->settings->getManagerRoleTemplateId(), true);
             }
-            if (empty($roles->findAuthorRole($ref_id))) {
-                $this->info("CREATE Author in $ref_id");
-                $roles->createOrgRole($orgunit, $ref_id, $this->settings->getAuthorRoleTemplateId(), true);
+            if (empty($roles->findAuthorRole($orgunit->getIliasRefId()))) {
+                $this->info("CREATE Author in " . $orgunit->getIliasRefId());
+                $roles->createOrgRole($orgunit->getFauorgNr(), $orgunit->getIliasRefId(), $this->settings->getAuthorRoleTemplateId(), true);
             }
         }
     }

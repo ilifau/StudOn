@@ -10,6 +10,7 @@ use FAU\SubService;
 class Service extends SubService
 {
     protected Convert $convert;
+    protected Format $format;
 
     /**
      * Get the functions to convert data
@@ -20,6 +21,17 @@ class Service extends SubService
             $this->convert = new Convert($this->dic);
         }
         return $this->convert;
+    }
+
+    /**
+     * Get the functions to format data
+     */
+    public function format() : Format
+    {
+        if(!isset($this->format)) {
+            $this->format = new Format($this->dic);
+        }
+        return $this->format;
     }
 
 
