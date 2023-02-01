@@ -115,8 +115,16 @@ class ilExternalFeed
                 define('IL_FEED_PROXY_PORT', "");
             }
         }
-        
-        $feed = @fetch_rss($a_url);
+
+        // fau: fixExternalFeed - catch an exception
+        try {
+            $feed = @fetch_rss($a_url);
+        }
+        catch (Exception $e) {
+            return $e->getMessage();
+        }
+        // fau.
+
         if (!$feed) {
             $error = magpie_error();
             
@@ -135,12 +143,17 @@ class ilExternalFeed
     */
     public function fetch()
     {
-        // fau: fixExternalFeed
-        return false;
-        // fau.
-
         if ($this->getUrl() != "") {
-            $this->feed = @fetch_rss($this->getUrl());
+
+            // fau: fixExternalFeed - catch an exception
+            try {
+                $this->feed = @fetch_rss($this->getUrl());
+            }
+            catch (Exception $e ) {
+                $this->setError($e->getMessage());
+                return false;
+            }
+            // fau.
         }
         
         if (!$this->feed) {

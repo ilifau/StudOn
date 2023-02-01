@@ -235,7 +235,9 @@ function error ($errormsg, $lvl=E_USER_WARNING) {
         if ( $errormsg ) {
             $errormsg = "MagpieRSS: $errormsg";
             $MAGPIE_ERROR = $errormsg;
-            trigger_error( $errormsg, $lvl);                
+            // fau: fixExternalFeed - throw exception instead of error
+            throw new Exception($errormsg);
+            // fau.
         }
 }
 
@@ -265,6 +267,62 @@ function magpie_error ($errormsg="") {
     Output:     an HTTP response object (see Snoopy.class.inc)  
 \*=======================================================================*/
 function _fetch_remote_file ($url, $headers = "" ) {
+
+    // fau: fixExternalFeed - use curl instead of Snoopy
+    try {
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_HEADER, true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_TIMEOUT, MAGPIE_FETCH_TIME_OUT);
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curl, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($curl, CURLOPT_USERAGENT, MAGPIE_USER_AGENT);
+
+        if (!empty(IL_FEED_PROXY_HOST)) {
+            curl_setopt($curl, CURLOPT_PROXY, IL_FEED_PROXY_HOST);
+        }
+        if (!empty(IL_FEED_PROXY_PORT)) {
+            curl_setopt($curl, CURLOPT_PROXYPORT, IL_FEED_PROXY_PORT);
+        }
+
+        $response = (string) curl_exec($curl);
+        $response_code = (string) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $error = curl_error($curl);
+        $errno = curl_errno($curl);
+        $status = $response_code;
+        if ($errno == CURLE_OPERATION_TIMEDOUT) {
+            $status = '-100';
+        }
+
+        $header_size = curl_getinfo( $curl, CURLINFO_HEADER_SIZE );
+        $header = substr( $response , 0 , $header_size );
+        $headers = explode( "\r\n" , $header);
+        $body = substr( $response, $header_size );
+
+        curl_close($curl);
+
+        $return = [
+            'status' => $status,
+            'response_code' => $response_code,
+            'error' => $error,
+            'results' => $body,
+            'headers' =>  $headers
+        ];
+    }
+    catch (Exception $e) {
+        $return = [
+            'status' => '500',
+            'response_code' => '500',
+            'error' => $e->getMessage(),
+            'results' => '',
+            'headers' => []
+        ];
+    }
+
+    return (object) $return;
+    // fau.
+
+
     // Snoopy is an HTTP client in PHP
     $client = new Snoopy();
 
