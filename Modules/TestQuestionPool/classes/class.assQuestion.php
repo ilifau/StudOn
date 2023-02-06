@@ -3780,12 +3780,9 @@ abstract class assQuestion
                     $username = ilObjTestAccess::_getParticipantData($active_id);
                     assQuestion::logAction(sprintf($lng->txtlng("assessment", "log_answer_changed_points", ilObjAssessmentFolder::_getLogLanguage()), $username, $old_points, $points, $ilUser->getFullname() . " (" . $ilUser->getLogin() . ")"), $active_id, $question_id);
                 }
-                // fau: fixManScoringSuccessMessage - return TRUE for _setReachedPoints only if points are changed
-                return true;
             }
 
-            return false;
-        // fau.
+                return true;
         } else {
             return false;
         }
