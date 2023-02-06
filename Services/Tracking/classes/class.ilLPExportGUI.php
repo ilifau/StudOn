@@ -21,14 +21,10 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
 {
     private $form;
     public $tools = null;
-    private $export_subdir;
 
     public function __construct($a_mode, $a_ref_id)
     {
         parent::__construct($a_mode, $a_ref_id);
-             
-        include_once './Services/Object/classes/class.ilObjectLP.php';
-        $this->export_subdir = $this->getObjId();
         $this->tools = new ilLPExportTools($this->obj_id);
     }
 
@@ -56,21 +52,9 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
         $ilHelp = $DIC['ilHelp'];
 
         $ilHelp->setSubScreenId("trac_export");
-        /*
-        $info = $this->obj_lp->getSettingsInfo();
-        if ($info) {
-            ilUtil::sendInfo($info);
-        }*/
-        
-        // get the saved export options
-        $values = array();
-        $values['matriculations'] = $this->tools->getOption('matriculations');
         $form = $this->initFormSettings();
-        $form->setValuesByArray($values);
         $this->tpl->setContent(
-          /*  $this->handleLPUsageInfo() .*/
-            $form->getHTML() /*.
-            $this->getTableByMode()*/
+            $form->getHTML() 
         );
         $this->form = $form;
     }
@@ -114,13 +98,18 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
             $this->tpl->setVariable("ADM_CONTENT", $form->getHTML());
             return;
         }
-        
-        $mess = $this->tools->createExportFile($this->form->getInput('matriculations'), $this->export_subdir);
-        if ($mess) {
-            ilUtil::sendInfo($mess, true);
+
+        $success = $this->tools->createExportFile($this->form->getInput('matriculations'), $this->export_subdir);
+        if($success)
+        {
+            ilUtil::sendSuccess($lng->txt("ass_lp_export_file_written"), true);
+            $ilCtrl->redirectByClass('illearningprogressgui');
         }
-        ilUtil::sendSuccess($lng->txt("ass_lp_export_file_written"), true);
-        $ilCtrl->redirectByClass('illearningprogressgui');
+        else
+        {
+            ilUtil::sendFailure($lng->txt("ass_lp_export_file_error"), true);
+            $ilCtrl->redirectByClass('illearningprogressgui');
+        }
     }
     
     /**

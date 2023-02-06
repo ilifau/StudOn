@@ -10,10 +10,7 @@ include_once "Services/Tracking/classes/class.ilLearningProgressBaseGUI.php";
 */
 class ilLPExportTools
 {
-    private $lp_obj = null;
     private $obj_id;
-    private $options = array();
-    private $tracked_user = null;
       
     /**
      * constructor
@@ -22,28 +19,13 @@ class ilLPExportTools
     public function __construct($a_obj_id)
     {
         $this->obj_id = $a_obj_id;
-        $this->lp_obj = ilObjectLP::getInstance($this->obj_id);
-    }
-       
-    
-    /**
-     * get an option value
-     *
-     * @param 	string	key
-     * @return 	string	value
-     */
-    public function getOption($a_key)
-    {
-        return $this->options[$a_key];
     }
         
     /**
      * create the export files for my campus
      */
-    public function createExportFile($matriculations, $export_subdir)
+    public function createExportFile($matriculations)
     {
-        global $lng;
-        
         $matriculations = preg_split('/\r\n|\r|\n/',$matriculations);
         // build the header row
         $header = array("Matrikelnummer", "Benutzername", "Vorname", "Nachname", "Note", "Statuscode", "Statusbezeichnung");
@@ -79,14 +61,12 @@ class ilLPExportTools
         }
        
         // sort the rows by matriculation number
-       // ksort($rows);
-        
-        $this->writeExportFileCSV($header, $rows, $export_subdir);
-        
-        return "";
+        // ksort($rows);
+            
+        return $this->writeExportFileCSV($header, $rows);
     }
     
-    protected function gatherLPUsers()
+    private function gatherLPUsers()
     {
         include_once "Services/Tracking/classes/class.ilLPMarks.php";
         $user_ids = ilLPMarks::_getAllUserIds($this->obj_id);
@@ -102,7 +82,7 @@ class ilLPExportTools
      * @param 	array	header fields
      * @param 	array	row arrays
      */
-    public function writeExportFileCSV($a_header = array(), $a_rows = array(), $export_subdir)
+    private function writeExportFileCSV($a_header = array(), $a_rows = array())
     {
         // get the export directory
         $this->export_dir = ilUtil::getDataDir()."/temp/";
@@ -119,6 +99,7 @@ class ilLPExportTools
             fwrite($file, utf8_decode(implode(';', $row) . "\r\n"));
         }
         fclose($file);
-        ilUtil::deliverFile($filename, 'lp_export.csv');
+        ilUtil::deliverFile($filename, 'lp_export.csv', '', false, false);
+        return true;
     }
 }
