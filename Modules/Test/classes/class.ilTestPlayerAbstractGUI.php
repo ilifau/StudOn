@@ -1136,6 +1136,11 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
         global $DIC;
         $ilUser = $DIC['ilUser'];
 
+        //this is an abomination for release_8!
+        //proper "kiosk-handling" is _very_ much encouraged for 9.
+        $this->tpl->addCSS('Modules/Test/templates/default/test_kiosk_header.css');
+        //end of hack
+
         $template = new ilTemplate('tpl.il_as_tst_kiosk_head.html', true, true, 'Modules/Test');
         if ($this->object->getShowKioskModeTitle()) {
             $template->setCurrentBlock("kiosk_show_title");
@@ -1966,8 +1971,6 @@ abstract class ilTestPlayerAbstractGUI extends ilTestServiceGUI
 
     protected function populateKioskHead()
     {
-        ilUtil::sendInfo(); // ???
-
         $head = $this->getKioskHead();
 
         if (strlen($head)) {

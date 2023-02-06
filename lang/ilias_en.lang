@@ -5724,7 +5724,8 @@ common#:#udf_delete_sure#:#Are you sure you want to delete this field and all as
 common#:#udf_duplicate_entries#:#The values have to be unique.
 common#:#udf_field_deleted#:#Deleted field.
 common#:#udf_name_already_exists#:#This field name already exists. Please choose a different name.
-common#:#udf_required_requires_visib_reg#:#When field is set to ‘required’, it must be set to ‘visible in registration’
+common#:#udf_required_and_visible_requires_changeable#:#When a field is ‘Required’ and ‘Visible in Personal Data’, it must also be ‘Changeable in Profile’
+common#:#udf_required_requires_visib_reg#:#When a field is ‘Required’, it must also be ‘Visible in Registration’
 common#:#udf_type_date#:#Date
 common#:#udf_type_datetime#:#Date and Time
 common#:#udf_type_select#:#Selection List (Single Choice)
@@ -7117,8 +7118,8 @@ content#:#glo_online_info#:#Only if the glossary is online, users are able to us
 content#:#glo_presentation_mode#:#Presentation Mode
 content#:#glo_presentation_view#:#Presentation View
 content#:#glo_quick_navigation#:#Quick Navigation
-content#:#glo_show_taxonomy#:#Show Taxonomy
-content#:#glo_show_taxonomy_info#:#The taxonomy will be visible in the presentation view of the glossary and can be used to select referenced terms.
+content#:#glo_show_taxonomy#:#Taxonomy
+content#:#glo_show_taxonomy_info#:#The taxonomy is offered in the presentation view for filtering the glossary terms. It can be created in the sub-tab 'Taxonomy'.
 content#:#glo_style#:#Glossary Style
 content#:#glo_table_form#:#In Table Form
 content#:#glo_table_form_info#:#Terms and definition are first shown in a two-column overview. Clicking the term opens the full content of a term on a separate screen.
@@ -8464,7 +8465,7 @@ dcl#:#dcl_last_update_description#:#The date the entry was last edited.
 dcl#:#dcl_learning_progress#:#Show the learning progress of the linked module of the viewer
 dcl#:#dcl_legend_placeholders#:#Placeholders
 dcl#:#dcl_length#:#Length
-dcl#:#dcl_length_info#:#(for more than 200 characters, use the additional option Text Area)
+dcl#:#dcl_length_info#:#Number of characters a user can enter (maximum 4000). For more than 200 characters, use the additional option Text Area.
 dcl#:#dcl_limit_end#:#End
 dcl#:#dcl_limit_start#:#Start
 dcl#:#dcl_limited#:#Limited Add / Edit / Delete Period
@@ -10878,7 +10879,7 @@ mathjax#:#mathjax_limiter#:#Inline Delimiters
 mathjax#:#mathjax_limiter_info#:#Select the inline delimiters as they are configured in your MathJax installation.
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_path_to_mathjax#:#URL to MathJax
-mathjax#:#mathjax_path_to_mathjax_desc#:#E.g. https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe or a URL to your local installation. ILIAS 6 and 7 supports MathJax 2.7, not yet MathJax 3. Please note the attached 'Safe'. Otherwise ILIAS becomes vulnerable to XSS attacks via MathJax code with JavaScript.
+mathjax#:#mathjax_path_to_mathjax_desc#:#E.g. https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe or a URL to your local installation. ILIAS 6 and 7 supports MathJax 2.7, not yet MathJax 3. Please note the attached 'Safe'. Otherwise ILIAS becomes vulnerable to XSS attacks via MathJax code with JavaScript.
 mathjax#:#mathjax_server_address#:#Server Address
 mathjax#:#mathjax_server_address_info#:#E.g. http://localhost:8003
 mathjax#:#mathjax_server_cache_cleared#:#The MathJax cache was cleared.
@@ -11081,7 +11082,9 @@ meta#:#md_adv_record_lng_table_lng#:#Language
 meta#:#md_adv_records#:#Included Data Sets
 meta#:#md_adv_records_exported#:#A new export file has been created.
 meta#:#md_adv_scope#:#Scope
+meta#:#md_adv_scope_info#:#Usage of this custom metadata set will be limited to selected parts of the repository.
 meta#:#md_adv_scope_list_header#:#Limited to:
+meta#:#md_adv_scope_objects#:#Data Set Effective From
 meta#:#md_adv_searchable#:#Searchable
 meta#:#md_adv_select_one_file#:#Please choose one file.
 meta#:#md_adv_show#:#Show
@@ -13779,6 +13782,7 @@ registration#:#reg_confirmation_hash_life_time#:#Lifetime
 registration#:#reg_confirmation_hash_life_time_expired#:#The confirmation link is not valid anymore. Please register again!
 registration#:#reg_confirmation_hash_life_time_info#:#Enter the lifetime (seconds) of confirmation links. Recommended value is 1800 seconds.
 registration#:#reg_confirmation_hash_not_found#:#No user account could be matched to this confirmation link.
+registration#:#reg_confirmation_hash_not_passed#:#The confirmation link is incomplete.
 registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to ILIAS. You will receive a confirmation e-mail in the next minutes. Please confirm your registration by clicking the confirmation link in this mail.<br />You will be redirected to the <a href="%s" title="login screen">login screen</a> after 20 seconds.
 registration#:#reg_default#:#Default
 registration#:#reg_deleted_assignment#:#Deleted assignment(s).

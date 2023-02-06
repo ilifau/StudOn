@@ -52,6 +52,20 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
 
         return null;
     }
+    public function getResponsiveLogoModification(CalledContexts $called_contexts) : ?LogoModification
+    {
+        if ($this->isKioskModeEnabled($called_contexts)) {
+            $logo = $this->globalScreen()->layout()->factory()->logo();
+
+            $logo = $logo->withModification(function (Image $current) {
+                return null;
+            });
+
+            return $logo->withHighPriority();
+        }
+
+        return null;
+    }
 
 
     public function getMainBarModification(CalledContexts $called_contexts) : ?MainBarModification
@@ -120,9 +134,12 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $title = $called_contexts->current()->getAdditionalData()->get(self::TEST_PLAYER_SHORT_TITLE);
+            if($title == null) {
+                $title = '';
+            }
             return $this->globalScreen()->layout()->factory()->short_title()
             ->withModification(
-                function (string $content) use ($title): string {
+                function (string $content) use ($title) : string {
                     return $title;
                 }
             )
@@ -135,9 +152,12 @@ class ilTestPlayerLayoutProvider extends AbstractModificationProvider implements
     {
         if ($this->isKioskModeEnabled($called_contexts)) {
             $title = $called_contexts->current()->getAdditionalData()->get(self::TEST_PLAYER_TITLE);
+            if($title == null) {
+                $title = '';
+            }
             return $this->globalScreen()->layout()->factory()->view_title()
             ->withModification(
-                function (string $content) use ($title): string {
+                function (string $content) use ($title) : string {
                     return $title;
                 }
             )

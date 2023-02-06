@@ -176,6 +176,9 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
         if ($ilUser->getId() != ANONYMOUS_USER_ID && $a_parent_obj->allowsStorno()) {
             // fau.
             $this->addMultiCommand('rsvConfirmCancel', $lng->txt('book_set_cancel'));
+            if ($ilAccess->checkAccess('write', '', $this->ref_id)) {
+                $this->addMultiCommand('rsvConfirmDelete', $lng->txt('delete'));
+            }
             $this->setSelectAllCheckbox('mrsv');
         }
 
@@ -486,7 +489,6 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
         $f = new ilBookingReservationDBRepositoryFactory();
         $repo = $f->getRepo();
         $data = $repo->getListByDate($this->has_schedule, $ids, $filter);
-        
         if ($this->advmd) {
             // advanced metadata
             $this->record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_FILTER, "book", $this->pool_id, "bobj");
@@ -527,8 +529,10 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
             }
 
             // see ilCourseParticipantsTableGUI
-            $user_columns = array_diff($user_columns,
-                ['consultation_hour', 'prtf', 'roles', 'org_units']);
+            $user_columns = array_diff(
+                $user_columns,
+                ['consultation_hour', 'prtf', 'roles', 'org_units']
+            );
 
             // user data fields
             $query = new ilUserQuery();
@@ -743,6 +747,7 @@ class ilBookingReservationsTableGUI extends ilTable2GUI
         }
 
         $add_cols["user_name"] = $this->lng->txt("user");
+        $add_cols["login"] = $this->lng->txt("login");
 
         // user columns
         foreach ($this->getSelectedColumns() as $col) {

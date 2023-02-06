@@ -5723,6 +5723,7 @@ common#:#udf_delete_sure#:#Sind Sie sicher, dass Sie diese Feld und alle zugehö
 common#:#udf_duplicate_entries#:#Die Werte müssen eindeutig sein.
 common#:#udf_field_deleted#:#Das Feld wurde gelöscht.
 common#:#udf_name_already_exists#:#Ein Feld mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Feldnamen.
+common#:#udf_required_and_visible_requires_changeable#:#Wenn die Einstellungen "Erforderliche Angabe" und "Sichtbar in den persönlichen Daten" aktiviert sind, muss auch "Kann durch Benutzer selbst im Profil geändert werden" aktiviert sein
 common#:#udf_required_requires_visib_reg#:#Die Einstellung "Erforderliche Angabe" erfordert die Einstellung "Sichtbar im Registrierungsformular"
 common#:#udf_type_date#:#Datum
 common#:#udf_type_datetime#:#Datum und Uhrzeit
@@ -7117,7 +7118,7 @@ content#:#glo_presentation_mode#:#Ansicht
 content#:#glo_presentation_view#:#Präsentationsansicht
 content#:#glo_quick_navigation#:#Schnellzugriff
 content#:#glo_show_taxonomy#:#Taxonomie
-content#:#glo_show_taxonomy_info#:#Die Taxonomie wird in der Präsentationsansicht angezeigt und kann zur Auswahl von Begriffen genutzt werden.
+content#:#glo_show_taxonomy_info#:#Die Taxonomie wird in der Präsentationsansicht zum Filtern der Glossarbegriffe angeboten. Sie kann im Unterreiter „Taxonomie“ angelegt werden.
 content#:#glo_style#:#Glossar-Style
 content#:#glo_table_form#:#Tabelle
 content#:#glo_table_form_info#:#Begriffe und gekürzte Definitionen werden in einer Übersichtstabelle dargestellt. Beim Anklicken eines Begriffes wird dieser mit der vollständigen Definition angezeigt.
@@ -8423,7 +8424,7 @@ dcl#:#dcl_err_formula_field_not_found#:#Feld mit dem Titel '%s' existiert nicht
 dcl#:#dcl_error_parsing_expression#:#Fehler beim Evaluieren des Ausdrucks
 dcl#:#dcl_export_enabled#:#Tabelle exportieren
 dcl#:#dcl_export_enabled_desc#:#Alle Benutzer können die Daten der Tabelle selber exportieren. Dazu müssen in der Übersicht "Felder der ausgewählten Tabelle" die Felder einzeln als exportierbar ausgewählt werden.
-dcl#:#dcl_export_finished#:#Export Abgeschlossen
+dcl#:#dcl_export_finished#:#Export abgeschlossen
 dcl#:#dcl_export_started#:#Asynchroner Export gestartet
 dcl#:#dcl_field_datatype#:#Feld Datentyp
 dcl#:#dcl_field_description#:#Beschreibung
@@ -8463,7 +8464,7 @@ dcl#:#dcl_last_update_description#:#Das Datum, an dem dieser Eintrag zuletzt ge�
 dcl#:#dcl_learning_progress#:#Lernfortschritt anzeigen
 dcl#:#dcl_legend_placeholders#:#Platzhalter
 dcl#:#dcl_length#:#Länge
-dcl#:#dcl_length_info#:#Maximale Anzahl von Zeichen, die ein Benutzer eingeben kann. Bei mehr als 200 Zeichen aktivieren Sie zusätzlich die Option "Mehrzeiliges Texteingabefeld".
+dcl#:#dcl_length_info#:#Anzahl von Zeichen, die ein Benutzer eingeben kann (Maximal 4000). Bei mehr als 200 Zeichen aktivieren Sie zusätzlich die Option "Mehrzeiliges Texteingabefeld".
 dcl#:#dcl_limit_end#:#Ende
 dcl#:#dcl_limit_start#:#Start
 dcl#:#dcl_limited#:#Zeitlich begrenzte Bearbeitung
@@ -10877,7 +10878,7 @@ mathjax#:#mathjax_limiter#:#Trennzeichen
 mathjax#:#mathjax_limiter_info#:#Wählen Sie die Trennzeichen, wie Sie in Ihrer MathJax-Installation konfiguriert sind.
 mathjax#:#mathjax_mathjax#:#MathJax
 mathjax#:#mathjax_path_to_mathjax#:#URL zu MathJax
-mathjax#:#mathjax_path_to_mathjax_desc#:#Zum Beispiel: https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe oder eine URL zu Ihrer lokalen Installation. ILIAS 6 und 7 unterstützt MathJax 2.7, noch nicht MathJax 3. Bitte beachten Sie das angehänge "Safe". Andernfalls wird ILIAS über MathJax-Code mit JavaScript anfällig für XSS-Angriffe.
+mathjax#:#mathjax_path_to_mathjax_desc#:#Zum Beispiel: https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe oder eine URL zu Ihrer lokalen Installation. ILIAS 6 und 7 unterstützt MathJax 2.7, noch nicht MathJax 3. Bitte beachten Sie das angehänge "Safe". Andernfalls wird ILIAS über MathJax-Code mit JavaScript anfällig für XSS-Angriffe.
 mathjax#:#mathjax_server_address#:#Server-Adresse
 mathjax#:#mathjax_server_address_info#:#z.B. http://localhost:8003
 mathjax#:#mathjax_server_cache_cleared#:#Der MathJax-Cache wurde geleert.
@@ -11080,7 +11081,9 @@ meta#:#md_adv_record_lng_table_lng#:#Sprache
 meta#:#md_adv_records#:#Enthaltene Datensätze
 meta#:#md_adv_records_exported#:#Eine neue Exportdatei wurde angelegt.
 meta#:#md_adv_scope#:#Gültigkeitsbereich
+meta#:#md_adv_scope_info#:#Die Nutzung dieses benutzerdefinierten Metadatensatzes wird auf Teilbereiche des Magazins beschränkt.
 meta#:#md_adv_scope_list_header#:#Beschränkt auf:
+meta#:#md_adv_scope_objects#:#Datensatz wirksam ab
 meta#:#md_adv_searchable#:#Durchsuchbar
 meta#:#md_adv_select_one_file#:#Bitte wählen Sie eine Datei aus.
 meta#:#md_adv_show#:#Anzeigen
@@ -13778,6 +13781,7 @@ registration#:#reg_confirmation_hash_life_time#:#Gültigkeitsdauer
 registration#:#reg_confirmation_hash_life_time_expired#:#Der Bestätigungslink ist nicht mehr gültig. Bitte registrieren Sie sich erneut!
 registration#:#reg_confirmation_hash_life_time_info#:#Geben Sie die Gültigkeitsdauer des Bestätigungslinks (in Sekunden) an. Empfohlener Wert sind 1800 Sekunden.
 registration#:#reg_confirmation_hash_not_found#:#Dieser Bestätigungslink passt zu keinem Benutzerkonto.
+registration#:#reg_confirmation_hash_not_passed#:#Der Bestätigungslink ist unvollständig.
 registration#:#reg_confirmation_link_successful#:#Sie haben sich erfolgreich bei ILIAS registriert. Jetzt müssen Sie noch Ihr Benutzerkonto aktivieren. Dazu wurde Ihnen soeben eine E-Mail mit einem Bestätigungslink geschickt. Bitte klicken Sie innerhalb der nächsten Minuten auf den Bestätigungslink, um Ihr Benutzerkonto zu aktivieren. Danach können Sie sich in ILIAS einloggen.
 registration#:#reg_default#:#Standard
 registration#:#reg_deleted_assignment#:#Die Zuordnungen wurde(n) gelöscht.

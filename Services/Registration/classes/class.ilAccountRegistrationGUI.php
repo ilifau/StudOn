@@ -484,18 +484,18 @@ class ilAccountRegistrationGUI
             $login = $this->__generateLogin();
             $_POST['username'] = $login;
             $this->form->getItemByPostVar('username')->setValue($login);
-        } elseif (!ilUtil::isLogin($login)) {
+        }
+        elseif ($form_valid) {
             // fau.
-            $login_obj->setAlert($this->lng->txt("login_invalid"));
-            $form_valid = false;
-        } elseif (ilObjUser::_loginExists($login)) {
-            $login_obj->setAlert($this->lng->txt("login_exists"));
-            $form_valid = false;
-        } elseif ((int) $ilSetting->get('allow_change_loginname') &&
-            (int) $ilSetting->get('reuse_of_loginnames') == 0 &&
-            ilObjUser::_doesLoginnameExistInHistory($login)) {
-            $login_obj->setAlert($this->lng->txt('login_exists'));
-            $form_valid = false;
+            if (ilObjUser::_loginExists($login)) {
+                $login_obj->setAlert($this->lng->txt("login_exists"));
+                $form_valid = false;
+            } elseif ((int) $ilSetting->get('allow_change_loginname') &&
+                (int) $ilSetting->get('reuse_of_loginnames') == 0 &&
+                ilObjUser::_doesLoginnameExistInHistory($login)) {
+                $login_obj->setAlert($this->lng->txt("login_exists"));
+                $form_valid = false;
+            }
         }
 
         if (!$form_valid) {

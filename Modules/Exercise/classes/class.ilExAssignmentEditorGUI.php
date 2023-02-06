@@ -760,9 +760,9 @@ class ilExAssignmentEditorGUI
             }
             // fau.
         }
-        
+
         $valid = $a_form->checkInput();
-        
+
         if ($protected_peer_review_groups) {
             // checkInput() will add alert to disabled fields
             $a_form->getItemByPostVar("deadline")->setAlert(null);

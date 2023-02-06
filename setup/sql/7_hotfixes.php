@@ -1609,8 +1609,10 @@ if (!$ilDB->indexExistsByFields('style_template', ['style_id'])) {
 ?>
 <#91>
 <?php
-if ($ilDB->uniqueConstraintExists('cmix_token', array('obj_id', 'usr_id'))) {
-    $ilDB->dropUniqueConstraintByFields('cmix_token', array('obj_id', 'usr_id'));
+//avoid notices for $ilDB->uniqueConstraintExists and dropUniqueConstraintByFields
+try {
+    $ilDB->dropUniqueConstraint('cmix_token', 'c1');
+} catch (\Exception $e) {
 }
 $ilDB->addUniqueConstraint('cmix_token', array('obj_id', 'usr_id', 'ref_id'), 'c1');
 ?>
@@ -1626,6 +1628,26 @@ else {
     // change the default value
     $old = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
     $new = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe';
+
+    $ilDB->manipulateF(
+        "UPDATE settings SET value=%s WHERE module='MathJax' AND keyword='path_to_mathjax' AND value=%s",
+        array('text','text'),
+        array($new, $old)
+    );
+}
+?>
+<#93>
+<?php
+// change default URL as recommended here: https://www.mathjax.org/MathJax-v2-7-9-available/
+$check = "SELECT * FROM settings WHERE module = 'MathJax' AND keyword = 'enable' AND VALUE = '1'";
+$result = $ilDB->query($check);
+if ($row = $ilDB->fetchAssoc($result)) {
+    // don't change the url of an activated mathjax
+}
+else {
+    // change the default value
+    $old = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe';
+    $new = 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML,Safe';
 
     $ilDB->manipulateF(
         "UPDATE settings SET value=%s WHERE module='MathJax' AND keyword='path_to_mathjax' AND value=%s",
