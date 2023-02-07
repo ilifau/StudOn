@@ -59,10 +59,11 @@ class ilLPExportTools
                     $row[]= ilLPMarks::_lookupMark($user, $this->obj_id);
                     $status = ilLPStatus::_lookupStatus($this->obj_id, $user);
                     $row[] = $status;
-                    $row[] = ilLearningProgressBaseGUI::_getStatusText($status);
+                    $row[] = $this->getStatusText($status);
+                    break;
                 }
-                $rows[] = $row;
             }
+            $rows[] = $row;
         }
             
         return $this->writeExportFileCSV($header, $rows);
@@ -107,6 +108,17 @@ class ilLPExportTools
         ilUtil::deliverFile($filename, 'lp_export.csv', '', false, true);
         
         return true;
+    }
+
+    /**
+     * Get status description from statuscode
+     */
+    private function getStatusText($status)
+    {
+        if($status == 0)
+            return ilLearningProgressBaseGUI::_getStatusText(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM);
+        else 
+            return ilLearningProgressBaseGUI::_getStatusText($status);
     }
 }
 // fau.
