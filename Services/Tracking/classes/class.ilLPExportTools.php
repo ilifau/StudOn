@@ -34,7 +34,7 @@ class ilLPExportTools
     {
         $matriculations = preg_split('/\r\n|\r|\n/',$matriculations);
         // build the header row
-        $header = array("Matriculation Number", "Login", "First Name", "Last Name", "Note", "Statuscode", "Status Description");
+        $header = array("Matriculation Number", "Login", "First Name", "Last Name", "Mark", "Statuscode", "Status Description");
         
         // build the data rows
         $rows = array();
