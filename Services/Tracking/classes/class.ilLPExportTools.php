@@ -6,8 +6,13 @@ include_once "Services/Tracking/classes/class.ilLPStatus.php";
 include_once "Services/Tracking/classes/class.ilLearningProgressBaseGUI.php";
 
 /**
-* Tools for learning progress export 
-*/
+ * Class ilLPExportTools - tools for learning progress export
+ *
+ * @author Christina Fuchs <christina.fuchs@ili.fau.de>
+ *
+ * @version $Id$
+ *
+ */
 class ilLPExportTools
 {
     private $obj_id;
@@ -22,13 +27,14 @@ class ilLPExportTools
     }
         
     /**
-     * create the export files for my campus
+     * create the learning progress export file and download
+     * @param string $matriculations - list of matriculations
      */
     public function createExportFile($matriculations)
     {
         $matriculations = preg_split('/\r\n|\r|\n/',$matriculations);
         // build the header row
-        $header = array("Matrikelnummer", "Benutzername", "Vorname", "Nachname", "Note", "Statuscode", "Statusbezeichnung");
+        $header = array("Matriculation Number", "Login", "First Name", "Last Name", "Note", "Statuscode", "Status Description");
         
         // build the data rows
         $rows = array();
@@ -55,29 +61,26 @@ class ilLPExportTools
                     $row[] = $status;
                     $row[] = ilLearningProgressBaseGUI::_getStatusText($status);
                 }
-                // index with padded matriculation for sorting
-                $rows[sprintf("m%020d", $matriculation)] = $row;
+                $rows[] = $row;
             }
         }
-       
-        // sort the rows by matriculation number
-        // ksort($rows);
             
         return $this->writeExportFileCSV($header, $rows);
     }
     
+    /**
+     * gather users with learning progress
+     */
     private function gatherLPUsers()
     {
         include_once "Services/Tracking/classes/class.ilLPMarks.php";
         $user_ids = ilLPMarks::_getAllUserIds($this->obj_id);
-        
-        //include_once "Services/Tracking/classes/class.ilChangeEvent.php";
-        //$user_ids = array_merge($user_ids, ilChangeEvent::_getAllUserIds($this->obj_id));
-        
+       
         return $user_ids;
     }
+
     /**
-     * write the result data to CSV export file
+     * write the result data to CSV file and download the file
      *
      * @param 	array	header fields
      * @param 	array	row arrays
@@ -99,7 +102,11 @@ class ilLPExportTools
             fwrite($file, utf8_decode(implode(';', $row) . "\r\n"));
         }
         fclose($file);
-        ilUtil::deliverFile($filename, 'lp_export.csv', '', false, false);
+
+        // download fie and delete afterwards
+        ilUtil::deliverFile($filename, 'lp_export.csv', '', false, true);
+        
         return true;
     }
 }
+// fau.

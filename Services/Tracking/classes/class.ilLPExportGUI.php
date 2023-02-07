@@ -12,15 +12,11 @@ include_once "./Services/Tracking/classes/class.ilLPExportTools.php";
  *
  * @version $Id$
  *
- * @ilCtrl_Calls ilLPExportGUI:
- *
- * @ingroup ServicesTracking
- *
  */
 class ilLPExportGUI extends ilLearningProgressBaseGUI
 {
     private $form;
-    public $tools = null;
+    private $tools = null;
 
     public function __construct($a_mode, $a_ref_id)
     {
@@ -71,15 +67,16 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
         
         include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
-        $form->setFormAction($ilCtrl->getFormAction($this, "submitExportForm"));
-        $form->setTitle($lng->txt("track_export"));
+        $form->setPreventDoubleSubmission(false);
 
-        $matr = new ilTextAreaInputGUI($lng->txt("track_lp_matriculation_numbers"), 'matriculations');
-        $matr->setInfo($lng->txt('track_lp_matriculation_numbers_info'));
+        $form->setFormAction($ilCtrl->getFormAction($this, "submitExportForm"));
+        $form->setTitle($lng->txt("trac_export_title"));
+
+        $matr = new ilTextAreaInputGUI($lng->txt("trac_lp_matriculation_numbers"), 'matriculations');
+        $matr->setInfo($lng->txt('trac_lp_matriculation_numbers_info'));
         $form->addItem($matr);
 
-        $form->addCommandButton("submitExportForm", $this->lng->txt("track_create_export_file"));
-        $form->addCommandButton("cancel", $this->lng->txt("cancel"));
+        $form->addCommandButton("submitExportForm", $this->lng->txt("trac_create_export_file"));
         
         $this->form = $form;  
         return $this->form;      
@@ -88,7 +85,7 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
     /**
      * submit the export form to create the export file
      */
-    public function submitExportForm()
+    private function submitExportForm()
     {
         global $ilCtrl, $lng;
         
@@ -99,26 +96,7 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
             return;
         }
 
-        $success = $this->tools->createExportFile($this->form->getInput('matriculations'), $this->export_subdir);
-        if($success)
-        {
-            ilUtil::sendSuccess($lng->txt("ass_lp_export_file_written"), true);
-            $ilCtrl->redirectByClass('illearningprogressgui');
-        }
-        else
-        {
-            ilUtil::sendFailure($lng->txt("ass_lp_export_file_error"), true);
-            $ilCtrl->redirectByClass('illearningprogressgui');
-        }
-    }
-    
-    /**
-     * cancel the export form
-     */
-    public function cancel()
-    {
-        global $ilCtrl;
-        $ilCtrl->redirectByClass('illearningprogressgui');
+        $success = $this->tools->createExportFile($this->form->getInput('matriculations'));
     }
 }
 // fau.

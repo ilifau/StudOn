@@ -94,12 +94,10 @@ shib_devmode_login = ""                 ;force a login at shibboleth authenticat
 studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are checked (comma-separated without spaces)
 
 tst_notify_remote = "0"                 ;send mails to users at remote installation (for exam)
-tst_export_mycampus = "1"               ;enable the export of test results for my campus
-tst_export_campo = "1"                  ;enable the export of test results for campo 
+tst_export_mycampus = "0"               ;enable the export of test results for my campus
+tst_export_campo = "0"                  ;enable the export of test results for campo
 tst_prevent_image_drag = "0"			;prevent the dragging of images an links to texts fields in tests
 tst_prevent_image_validate = "0"        ;fau: preventQtiImageValidate - prevent validation of images at test/pool import
-
-export_learningprogress ="1"            ;enable the learningprogress export
 
 univis_server = ""                      ;only the server name, e.g. univis.uni-erlangen.de
 univis_port = ""                        ;port sor testing socket connection in univis2mysql

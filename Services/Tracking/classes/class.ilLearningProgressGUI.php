@@ -96,7 +96,7 @@ class ilLearningProgressGUI extends ilLearningProgressBaseGUI
                 // fau: LPExport
             case 'illpexportgui':
                 include_once 'Services/Tracking/classes/class.ilLPExportGUI.php';
-
+                $this->__setSubTabs(self::LP_ACTIVE_EXPORT);
                 $this->__setCmdClass('illpexportgui');
                 $export_gui = new ilLPExportGUI($this->getMode(), $this->getRefId());
                 $this->ctrl->forwardCommand($export_gui);
