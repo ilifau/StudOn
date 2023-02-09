@@ -1764,6 +1764,14 @@ class ilUtil
         clearstatcache();			// prevent is_link from using cache
         $dir_realpath = realpath($dir);
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $name => $f) {
+            // fau: fixUnzipPermissions - set the correct permissions
+            if (is_dir($name)) {
+                chmod($name, 0755);
+            }
+            else {
+                chmod($name, 0644);
+            }
+            // fau.
             if (is_link($name)) {
                 $target = readlink($name);
                 if (substr($target, 0, strlen($dir_realpath)) != $dir_realpath) {
@@ -2470,11 +2478,15 @@ class ilUtil
         }
 
         foreach ($files as $file) {
+            // fau: fixUnzipPermissions - set the correct permissions
             if (is_dir($a_dir . "/" . $file) and ($file != "." and $file != "..")) {
+                chmod($a_dir . "/" . $file, 0755);
                 ilUtil::delDir($a_dir . "/" . $file);
             } elseif ($file != "." and $file != "..") {
+                chmod($a_dir . "/" . $file, 0644);
                 unlink($a_dir . "/" . $file);
             }
+            // fau.
         }
 
         closedir($current_dir);
