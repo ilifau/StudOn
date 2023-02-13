@@ -87,6 +87,11 @@ class FAUStudySteps
         $this->changeInstructorsKey();
     }
 
+    public function custom_step_115()
+    {
+        $this->addCourseRespSortOrder();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -499,5 +504,14 @@ class FAUStudySteps
             SELECT planned_dates_id, person_id FROM fau_study_temp
         ");
         $this->db->dropTable('fau_study_temp');
+    }
+
+    protected function addCourseRespSortOrder()
+    {
+        if (!$this->db->tableColumnExists('fau_study_course_resps', 'sort_order')) {
+            $this->db->addTableColumn('fau_study_course_resps','sort_order',
+                ['type' => 'integer',    'length' => 4,      'notnull' => false],
+            );
+        }
     }
 }

@@ -11,23 +11,27 @@ class CourseResponsible extends DipData
         'person_id' => 'integer',
     ];
     protected const otherTypes = [
+        'sort_order' => 'integer'
     ];
 
     protected int $course_id;
     protected int $person_id;
+    protected ?int $sort_order;
 
     public function __construct(
         int $course_id,
-        int $person_id
+        int $person_id,
+        ?int $sort_order = null
     )
     {
         $this->course_id = $course_id;
         $this->person_id = $person_id;
+        $this->sort_order = $sort_order;
     }
 
     public static function model(): self
     {
-        return new self(0,0);
+        return new self(0,0, null);
     }
 
     /**
@@ -44,5 +48,13 @@ class CourseResponsible extends DipData
     public function getPersonId() : int
     {
         return $this->person_id;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getSortOrder() : ?int
+    {
+        return $this->sort_order;
     }
 }
