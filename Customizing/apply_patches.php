@@ -46,7 +46,6 @@ $p->login();
 //$p->applyPatch('ilSpecificPatches.countExerciseUploads', array('start_id'=> 737000));
 //$p->applyPatch('ilSpecificPatches.sendMassMail', array('subject' => 'Update am 14.3.2022 / Update on 3/14/2022', 'bodyfile'=> 'data/mail.txt'));
 //$p->applyPatch('ilSpecificPatches.moveVhbIdentifiersToKeywords');
-//$p->applyPatch('ilSpecificPatches.prepareTempOrgData');
 //$p->applyPatch('ilSpecificPatches.migrateMyCampusCourses');
 
 //$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2019-10-14_bis_2020-10-24/online.log'));

@@ -59,7 +59,7 @@ class ilSpecificPatches
 
     /**
      * Create separate H5P objects for H5P contents in ILIAS pages
-     * Copied or imported pages may have vreated double usages of the same content id
+     * Copied or imported pages may have created double usages of the same content id
      */
     public function splitH5PPageContents()
     {
@@ -700,43 +700,6 @@ class ilSpecificPatches
     }
     // fau.
 
-
-    // fau: orgData - handle temporary table for category assignment
-    /**
-     * Prepare the temporary orgdata table for export
-     * @param string[] $params
-     * @return bool
-     */
-
-    function prepareTempOrgData($params = array())
-    {
-        $this->createOrgDataPath(0,'',0);
-        return true;
-    }
-
-    /**
-     * @param int $parent
-     * @param string $parentPath
-     * @param int depth
-     */
-    private function createOrgDataPath($parent, $parentPath, $depth)
-    {
-        global $DIC;
-
-        $db = $DIC->database();
-        $q = ' UPDATE _fau_orgunit
-			SET path = CONCAT(COALESCE(' . $db->quote($parentPath, 'text') . ', \'\'), COALESCE( ' . $db->cast("id", "text") . ' , \'\')),
-			depth =  '. $db->quote($depth, 'integer') . '
-			WHERE parent_id = %s';
-        $r = $db->manipulateF($q, array('integer'), array($parent));
-
-        $r = $db->queryF('SELECT id FROM _fau_orgunit WHERE parent_id = %s', array('integer'), array($parent));
-
-        while ($row = $db->fetchAssoc($r)) {
-            $this->createOrgDataPath($row['id'], $parentPath . $row['id'] . '.', $depth + 1);
-        }
-    }
-    // fau.
 
 
     // fau: campusSub - patch to change the registration settings of mycampus courses
