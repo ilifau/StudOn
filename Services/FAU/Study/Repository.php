@@ -112,6 +112,20 @@ class Repository extends RecordRepo
     }
 
     /**
+     * @return Term[]
+     */
+    public function getStoredTermsByString() : array
+    {
+        $terms = [];
+        /** @var Term $term */
+        foreach($this->getAllRecords(Term::model(), true) as $term) {
+            $terms[$term->toString()] = $term;
+        }
+        return $terms;
+    }
+
+
+    /**
      * Get a single Doc Programme
      * @return DocProgramme|null
      */

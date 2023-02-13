@@ -76,11 +76,12 @@ class Service extends SubService
     public function getCampoUrl(int $event_id, ?Term $term = null)
     {
         $link = 'https://www.campo.fau.de:443/qisserver/pages/startFlow.xhtml?_flowId=detailView-flow&unitId=' . $event_id;
-        if (isset($term) && $term->toString() == '20222') {
-            $link .= '&periodId=395';
-        }
-        if (isset($term) && $term->toString() == '20231') {
-            $link .= '&periodId=387';
+        if (isset($term)) {
+            $terms = $this->repo()->getStoredTermsByString();
+            if (isset($terms[$term->toString()])) {
+                $stored = $terms[$term->toString()];
+                $link .= '&periodId=' . $stored->getPeriodId();
+            }
         }
         return $link;
     }
