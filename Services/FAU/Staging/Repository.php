@@ -36,6 +36,7 @@ use FAU\Staging\Data\StudOnMember;
 use FAU\Staging\Data\StudOnCourse;
 use FAU\Study\Data\Term;
 use FAU\RecordData;
+use FAU\Staging\Data\StudyTerm;
 
 /**
  * Repository for accessing the staging database
@@ -313,6 +314,14 @@ class Repository extends RecordRepo
     public function getStudySubjects() : array
     {
         return $this->getAllRecords(StudySubject::model());
+    }
+
+    /**
+     * @return StudyTerm[]
+     */
+    public function getStudyTerms() : array
+    {
+        return $this->getAllRecords(StudyTerm::model());
     }
 
     /**

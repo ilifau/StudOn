@@ -16,19 +16,18 @@ use FAU\RecordData;
  */
 class Term extends RecordData
 {
+    public const TYPE_ID_SUMMER = 1;
+    public const TYPE_ID_WINTER = 2;
+
     protected const tableName = 'fau_study_terms';
     protected const hasSequence = false;
     protected const keyTypes = [
-        'period_id' => 'integer',
+        'period_id' => 'integer'
     ];
     protected const otherTypes = [
         'year' => 'integer',
-        'type_id' => 'integer',
+        'type_id' => 'integer'
     ];
-
-    const TYPE_ID_SUMMER = 1;
-    const TYPE_ID_WINTER = 2;
-
 
     protected bool $valid = false;
 

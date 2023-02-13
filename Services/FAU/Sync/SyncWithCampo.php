@@ -31,6 +31,7 @@ use FAU\Study\Data\StudyForm;
 use FAU\Study\Data\StudySchool;
 use FAU\Study\Data\StudySubject;
 use FAU\Study\Data\Course;
+use FAU\Study\Data\Term;
 
 /**
  * Synchronisation of data coming from campo
@@ -54,6 +55,7 @@ class SyncWithCampo extends SyncBase
         $this->syncStudyForms();
         $this->syncStudySchools();
         $this->syncStudySubjects();
+        $this->syncTerms();
 
         // study structure
         // courses must be synced first, changes in other data may set the dirty status in the course data
@@ -88,7 +90,7 @@ class SyncWithCampo extends SyncBase
         $this->info('syncAchievements...');
         $existing = $this->sync->repo()->getAllForSync(Achievement::model());
 
-        foreach($this->staging->repo()->getAchievements() as $record) {
+        foreach ($this->staging->repo()->getAchievements() as $record) {
             $entry = new Achievement(
                 $record->getRequirementId(),
                 $record->getPersonId()
@@ -105,7 +107,6 @@ class SyncWithCampo extends SyncBase
             $this->user->repo()->delete($entry);
         }
     }
-
 
     /**
      * Synchronize data found in the staging table campo_course
@@ -144,8 +145,7 @@ class SyncWithCampo extends SyncBase
                 if ($existing[$course->key()]->hash() != $course->hash()) {
                     $this->study->repo()->save($course->asChanged(true));
                 }
-            }
-            elseif (!$course->isDeleted()) {
+            } elseif (!$course->isDeleted()) {
                 $this->study->repo()->save($course->asChanged(true));
             }
             // course is still needed
@@ -190,8 +190,7 @@ class SyncWithCampo extends SyncBase
             if (!isset($existing[$entry->key()])) {
                 $this->study->repo()->save($entry);
                 $touched[$entry->getCourseId()] = true;
-            }
-            elseif ($existing[$entry->key()]->hash() != $entry->hash()) {
+            } elseif ($existing[$entry->key()]->hash() != $entry->hash()) {
                 // sort order is changed - no need to update the course
                 $this->study->repo()->save($entry);
             }
@@ -224,7 +223,7 @@ class SyncWithCampo extends SyncBase
         $existing = $this->sync->repo()->getAllForSync(DocProgramme::model());
 
         foreach ($this->staging->repo()->getDocProgrammes() as $record) {
-           $entry = new DocProgramme(
+            $entry = new DocProgramme(
                 $record->getProgCode(),
                 $record->getProgText(),
                 $record->getProgEndDate()
@@ -309,7 +308,7 @@ class SyncWithCampo extends SyncBase
             $entry = new EventOrgunit(
                 $record->getEventId(),
                 $record->getFauorgNr(),
-                $record ->getRelationId()
+                $record->getRelationId()
             );
             if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
                 $this->study->repo()->save($entry);
@@ -367,12 +366,10 @@ class SyncWithCampo extends SyncBase
         }
     }
 
-
     /**
      * Synchronize data found in the staging table campo_module
      * This table combines the event to module relationship with the module data
      * The data is saved to different tables for the relationship and the module data
-     *
      * FULL SYNC
      * Modules don't have to be deleted
      */
@@ -495,7 +492,6 @@ class SyncWithCampo extends SyncBase
         }
     }
 
-
     /**
      * Synchronize data found in the staging table campo_individual_instructor
      * FULL SYNC
@@ -587,7 +583,6 @@ class SyncWithCampo extends SyncBase
     /**
      * Synchronize data found in the staging table campo_module_cos
      * This table combines the module to course of study relationship with the course of study data
-     *
      * FULL SYNC
      * Module to Course of Study relations are deleted if they no longer exist
      * Courses of study don't have to be deleted
@@ -617,8 +612,7 @@ class SyncWithCampo extends SyncBase
 
             if (!isset($workingCos[$cos->key()])) {
                 $workingCos[$cos->key()] = $cos;
-            }
-            else {
+            } else {
                 // cos may appear multiple times with different majors
                 // update with added major in existing list
                 $workingCos[$cos->key()] = $workingCos[$cos->key()]
@@ -649,11 +643,9 @@ class SyncWithCampo extends SyncBase
         }
     }
 
-
     /**
      * Synchronize data found in the staging table campo_module_restrictions
      * This table combines the module to requirement relationship with the requirements data
-     *
      * FULL SYNC
      * Requirements don't have to be deleted
      */
@@ -701,11 +693,9 @@ class SyncWithCampo extends SyncBase
         }
     }
 
-
     /**
      * Synchronize data found in the staging table campo_module_restrictions
      * This table combines the module to requirement relationship with the requirements data
-     *
      * FULL SYNC
      * Requirements don't have to be deleted
      */
@@ -752,7 +742,6 @@ class SyncWithCampo extends SyncBase
             $this->cond->repo()->delete($eventRest);
         }
     }
-
 
     /**
      * Synchronize data found in the staging table campo_planned_dates
@@ -971,7 +960,6 @@ class SyncWithCampo extends SyncBase
         }
     }
 
-
     /**
      * Synchronize the data found in the staging table study_subjects
      * FULL SYNC
@@ -1001,5 +989,32 @@ class SyncWithCampo extends SyncBase
         }
     }
 
+    /**
+     * Synchronize the data found in the staging table study_terms
+     * FULL SYNC
+     */
+    public function syncTerms() : void
+    {
+        $this->info('syncTerms...');
+        $existing = $this->sync->repo()->getAllForSync(Term::model());
+
+        foreach ($this->staging->repo()->getStudyTerms() as $record) {
+            $entry = new Term(
+                $record->getTermYear(),
+                $record->getTermTypeId(),
+                $record->getPeriodId()
+            );
+            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+                $this->study->repo()->save($entry);
+            }
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->user->repo()->delete($entry);
+        }
+    }
 }
 

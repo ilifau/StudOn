@@ -23,7 +23,7 @@ class StudyTerm extends RecordData
     public function __construct(
         int $term_year,
         int $term_type_id,
-        int $period_id,
+        int $period_id
     )
     {
         $this->period_id = $period_id;
