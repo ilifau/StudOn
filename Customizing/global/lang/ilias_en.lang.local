@@ -1155,3 +1155,8 @@ videoportal#:#vp_no_interface_active#:#The Interface of StudOn to the video port
 videoportal#:#vp_no_reference_found#:#No Reference to this clip or course is found in StudOn.
 videoportal#:#vp_no_user_found#:#No StudOn user is found for the given IDM account.
 pwassist#:#pwassist_enter_username_and_email#:#Enter a username and the associated e-mail address in the fields shown below and click Submit.<br/>StudOn will send a message to that e-mail address. The message contains an address for a web page, where you can enter a new password for the user account. Please also check the SPAM folder in your mailbox, as emails from password support occasionally end up there.<br/>In case you are unable to assign a password to your user account using this form, contact your course administration or send an e-mail to studon@fau.de.
+trac#:#trac_export#:#Export###fau: LPExport
+trac#:#trac_export_title#:#Learning Progress Export###fau: LPExport
+trac#:#trac_lp_matriculation_numbers_info#:#Enter the matriculation numbers for which you want to export the learning progress (one matriculation number per line). <br/> By clicking on the export button, a csv file is generated with the following columns:<br/><ul><li>Matriculation Number</li><li>Login</li><li>First Name</li><li>Last Name</li><li>Mark</li><li>Statuscode (Values: 0 = Not Attempted, 1 = In Progress, 2 = Completed, 3 = Failed)</li><li>Status Description</li></ul>.###fau: LPExport
+trac#:#trac_lp_matriculation_numbers#:#Matriculation Numbers###fau: LPExport   
+trac#:#trac_create_export_file#:#Download Export File###fau: LPExport 

@@ -12,6 +12,7 @@ include_once './Services/Tracking/classes/class.ilLearningProgressBaseGUI.php';
 *
 * @ilCtrl_Calls ilLearningProgressGUI: ilLPListOfObjectsGUI, ilLPListOfSettingsGUI, ilLPListOfProgressGUI
 * @ilCtrl_Calls ilLearningProgressGUI: ilLPObjectStatisticsGUI
+* @ilCtrl_Calls ilLearningProgressGUI: ilLPExportGUI
 *
 */
 class ilLearningProgressGUI extends ilLearningProgressBaseGUI
@@ -92,7 +93,14 @@ class ilLearningProgressGUI extends ilLearningProgressBaseGUI
                 $ost_gui = new ilLPObjectStatisticsGUI($this->getMode(), $this->getRefId());
                 $this->ctrl->forwardCommand($ost_gui);
                 break;
-            
+                // fau: LPExport
+            case 'illpexportgui':
+                $this->__setSubTabs(self::LP_ACTIVE_EXPORT);
+                $this->__setCmdClass('illpexportgui');
+                $export_gui = new ilLPExportGUI($this->getMode(), $this->getRefId());
+                $this->ctrl->forwardCommand($export_gui);
+                break;
+                // fau.
             default:
                 $cmd = $this->ctrl->getCmd();
                 if (!$cmd) {
