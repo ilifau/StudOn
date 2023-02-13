@@ -1,9 +1,6 @@
 <?php
 // fau: LPExport
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
-include_once "Services/Tracking/classes/class.ilLPMarks.php";
-include_once "Services/Tracking/classes/class.ilLPStatus.php";
-include_once "Services/Tracking/classes/class.ilLearningProgressBaseGUI.php";
 
 /**
  * Class ilLPExportTools - tools for learning progress export
@@ -33,18 +30,25 @@ class ilLPExportTools
     public function createExportFile($matriculations)
     {
         $matriculations = preg_split('/\r\n|\r|\n/',$matriculations);
+        
         // build the header row
-        $header = array("Matriculation Number", "Login", "First Name", "Last Name", "Mark", "Statuscode", "Status Description");
+        $csv = new ilCSVWriter();
+        $csv->setSeparator(";");
+        $csv->addColumn("Matriculation Number");
+        $csv->addColumn("Login");
+        $csv->addColumn("First Name");
+        $csv->addColumn("Last Name");
+        $csv->addColumn("Mark");
+        $csv->addColumn("Statuscode");
+        $csv->addColumn("Status Description");
         
         // build the data rows
-        $rows = array();
-
         $users = $this->gatherLPUsers();
         
         foreach ($matriculations as $matriculation)
         {
-            $row = array();
-            $row[] = $matriculation;
+            $csv->addRow();
+            $csv->addColumn($matriculation);
 
             foreach ($users as $user)
             {
@@ -52,21 +56,21 @@ class ilLPExportTools
                 
                 if($userfields["matriculation"] == $matriculation)
                 {
-                    $row[] = $userfields['login'];
-                    $row[] = $userfields['firstname'];
-                    $row[] = $userfields['lastname'];
+                    $csv->addColumn($userfields['login']);
+                    $csv->addColumn($userfields['firstname']);
+                    $csv->addColumn($userfields['lastname']);
 
-                    $row[]= ilLPMarks::_lookupMark($user, $this->obj_id);
+                    $csv->addColumn(ilLPMarks::_lookupMark($user, $this->obj_id));
                     $status = ilLPStatus::_lookupStatus($this->obj_id, $user);
-                    $row[] = $status;
-                    $row[] = $this->getStatusText($status);
+                    $csv->addColumn($status);
+                    $csv->addColumn($this->getStatusText($status));
                     break;
                 }
             }
-            $rows[] = $row;
         }
             
-        return $this->writeExportFileCSV($header, $rows);
+        $date = new ilDate(time(), IL_CAL_UNIX);
+        ilUtil::deliverData($csv->getCSVString(), $date->get(IL_CAL_FKT_DATE, 'Y-m-d')."_lp_export.csv", "text/csv");
     }
     
     /**
@@ -74,40 +78,9 @@ class ilLPExportTools
      */
     private function gatherLPUsers()
     {
-        include_once "Services/Tracking/classes/class.ilLPMarks.php";
         $user_ids = ilLPMarks::_getAllUserIds($this->obj_id);
        
         return $user_ids;
-    }
-
-    /**
-     * write the result data to CSV file and download the file
-     *
-     * @param 	array	header fields
-     * @param 	array	row arrays
-     */
-    private function writeExportFileCSV($a_header = array(), $a_rows = array())
-    {
-        // get the export directory
-        $this->export_dir = ilUtil::getDataDir()."/temp/";
-        $type = "csv";
-
-        // write the CSV file
-        $filename = $this->export_dir . 'lp_export.csv';
-        if(file_exists($filename)) {
-            unlink($filename);
-        }
-        $file = fopen($filename, "w");
-        fwrite($file, utf8_decode(implode(';', $a_header) . "\r\n"));
-        foreach ($a_rows as $key => $row) {
-            fwrite($file, utf8_decode(implode(';', $row) . "\r\n"));
-        }
-        fclose($file);
-
-        // download fie and delete afterwards
-        ilUtil::deliverFile($filename, 'lp_export.csv', '', false, true);
-        
-        return true;
     }
 
     /**
@@ -115,10 +88,12 @@ class ilLPExportTools
      */
     private function getStatusText($status)
     {
-        if($status == 0)
+        if($status == 0){
             return ilLearningProgressBaseGUI::_getStatusText(ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM);
-        else 
+        }
+        else{ 
             return ilLearningProgressBaseGUI::_getStatusText($status);
+        }
     }
 }
 // fau.

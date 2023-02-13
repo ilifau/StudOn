@@ -2,9 +2,6 @@
 // fau: LPExport
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-include_once './Services/Tracking/classes/class.ilLearningProgressBaseGUI.php';
-include_once "./Services/Tracking/classes/class.ilLPExportTools.php";
-
 /**
  * Class ilLPExportGUI
  *
@@ -63,9 +60,11 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
      */
     protected function initFormSettings()
     {
-        global $ilCtrl, $lng;
+        global $DIC;
+
+        $ilCtrl = $DIC['ilCtrl'];
+        $lng = $DIC['lng'];
         
-        include_once("./Services/Form/classes/class.ilPropertyFormGUI.php");
         $form = new ilPropertyFormGUI();
         $form->setPreventDoubleSubmission(false);
 
@@ -87,7 +86,10 @@ class ilLPExportGUI extends ilLearningProgressBaseGUI
      */
     private function submitExportForm()
     {
-        global $ilCtrl, $lng;
+        global $DIC;
+
+        $ilCtrl = $DIC['ilCtrl'];
+        $lng = $DIC['lng'];
         
         $form = $this->initFormSettings();
         if (!$form->checkInput()) {

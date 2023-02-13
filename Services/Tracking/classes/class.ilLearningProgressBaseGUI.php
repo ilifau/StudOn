@@ -242,7 +242,6 @@ class ilLearningProgressBaseGUI
                         );
 
                         // fau: LPExport
-                        include_once './Services/Tracking/classes/class.ilLPExportGUI.php';
                         $this->tabs_gui->addSubTabTarget(
                             "trac_export",
                             $this->ctrl->getLinkTargetByClass("illpexportgui", ''),
