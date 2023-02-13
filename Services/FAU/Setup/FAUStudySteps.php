@@ -92,6 +92,11 @@ class FAUStudySteps
         $this->addCourseRespSortOrder();
     }
 
+    public function custom_step_116()
+    {
+        $this->createTermsTable(false);
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -513,5 +518,17 @@ class FAUStudySteps
                 ['type' => 'integer',    'length' => 4,      'notnull' => false],
             );
         }
+    }
+
+    protected function createTermsTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_study_terms', [
+            'period_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'year'          => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'type_id'       => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_terms', ['period_id']);
     }
 }

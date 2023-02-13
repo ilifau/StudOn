@@ -2,19 +2,44 @@
 
 namespace FAU\Study\Data;
 
-class Term
+use FAU\RecordData;
+
+/**
+ * Data defining a study term (i.e. semester)
+ *
+ * Terms are stored at different places in StudOn either with a string representation or with separate year and type_id
+ * These term objects are created on the fly when they are needed and don't have a period_id
+ *
+ * Terms with a period_id are stored in the table fau_study_terms
+ * These terms are synced from the table study_terms in the staging database
+ * The period_id is only used to generate course links from studon to campo
+ */
+class Term extends RecordData
 {
+    protected const tableName = 'fau_study_terms';
+    protected const hasSequence = false;
+    protected const keyTypes = [
+        'period_id' => 'integer',
+    ];
+    protected const otherTypes = [
+        'year' => 'integer',
+        'type_id' => 'integer',
+    ];
+
     const TYPE_ID_SUMMER = 1;
     const TYPE_ID_WINTER = 2;
+
 
     protected bool $valid = false;
 
     protected ?int $year;
     protected ?int $type_id;
+    protected ?int $period_id;
 
     public function __construct(
         ?int $year,
-        ?int $type_id
+        ?int $type_id,
+        ?int $period_id = null
     )
     {
         if ($year == null || $year < 2000 || $type_id == null || $type_id < 1 || $type_id > 2) {
@@ -27,9 +52,17 @@ class Term
             $this->type_id = $type_id;
             $this->valid = true;
         }
+
+        $this->period_id = $period_id;
     }
 
-     public function getYear() : ?int
+    public static function model(): self
+    {
+        return new self(0, 0, null);
+    }
+
+
+    public function getYear() : ?int
     {
         return $this->year;
     }
@@ -39,8 +72,16 @@ class Term
         return $this->type_id;
     }
 
+    /**
+     * @return int|null
+     */
+    public function getPeriodId() : ?int
+    {
+        return $this->period_id;
+    }
 
-     public function isValid() : bool
+
+    public function isValid() : bool
     {
         return $this->valid;
     }
@@ -56,7 +97,7 @@ class Term
         $year = (int) substr($string, 0, 4);
         $type_id = (int) substr($string, 4, 1);
 
-        return new self($year, $type_id);
+        return new self($year, $type_id, null);
     }
 
 }

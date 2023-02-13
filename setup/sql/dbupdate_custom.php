@@ -1689,3 +1689,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_115();
 ?>
+<#116>
+<?php
+/**
+ * fau: fauService - create the terms table
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_116();
+?>
