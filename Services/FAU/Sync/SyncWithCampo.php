@@ -183,13 +183,19 @@ class SyncWithCampo extends SyncBase
 
             $entry = new CourseResponsible(
                 $record->getCourseId(),
-                $record->getPersonId()
+                $record->getPersonId(),
+                $record->getSortOrder()
             );
 
             if (!isset($existing[$entry->key()])) {
                 $this->study->repo()->save($entry);
                 $touched[$entry->getCourseId()] = true;
             }
+            elseif ($existing[$entry->key()]->hash() != $entry->hash()) {
+                // sort order is changed - no need to update the course
+                $this->study->repo()->save($entry);
+            }
+
             // record is still needed
             unset($existing[$entry->key()]);
         }
