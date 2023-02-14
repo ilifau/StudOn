@@ -5,6 +5,9 @@ namespace FAU\Org;
 use ILIAS\DI\Container;
 use FAU\Org\Data\Orgunit;
 use FAU\SubService;
+use ilLink;
+use ilObjectGUI;
+use ilUtil;
 
 /**
  * Service for organisational data
@@ -98,4 +101,29 @@ class Service extends SubService
         }
         return array_unique($texts);
     }
+
+    /**
+     * Resolve a link target coming frm campo
+     */
+    public function redirectFromTarget(string $target)
+    {
+        $parts = explode('_', $target);
+
+        if ($parts[0] == 'orgunit') {
+            $number = (string) $parts[1];
+
+            if (!empty($unit = $this->repo()->getOrgunitByNumber($number))) {
+                if (!empty($ref_id = $unit->getIliasRefId())) {
+                    $this->dic->ctrl()->redirectToURL(ilLink::_getStaticLink($ref_id));
+                }
+                ilUtil::sendFailure(sprintf($this->lng->txt('campo_orgunit_not_connected'), $unit->getLongtext() . '(' . $unit->getFauorgNr() . ')'), true);
+            }
+            else {
+                ilUtil::sendFailure(sprintf($this->lng->txt('campo_orgunit_not_found'), $number), true);
+            }
+
+        }
+        ilUtil::redirect(\ilUserUtil::getStartingPointAsUrl());
+    }
+
 }

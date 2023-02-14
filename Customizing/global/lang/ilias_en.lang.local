@@ -153,7 +153,9 @@ common#:#archive_structure#:#Archive Structure
 common#:#caches_flushed#:#The Caches were flushed.
 common#:#campo_course_not_found#:#There is no data from campo for this course yet. Please wait one or two hours for the next synchronization.###fau: campoLink
 common#:#campo_course_not_created#:#There is no StudOn course for this course yet. Courses for the summer semester 2023 will be created automatically in January 2023. If you need your institution's courses earlier, please contact studon@fau.de.###fau: campoLink
-ccommon#:#cat_create_exco#:#Create new external content
+common#:#campo_orgunit_not_found#:#The organisational unit %s is not found!###fau: campoLink
+common#:#campo_orgunit_not_connected#:#The organisational unit %s is not connected with a studon category. Please contact studon@fau.de.###fau: campoLink
+common#:#cat_create_exco#:#Create new external content
 common#:#cat_create_perc#:#Create new Perception-Assessment
 common#:#cont_limit_starts#:#Limited Playbacks
 common#:#cont_limit_starts_context#:#Context for Counting

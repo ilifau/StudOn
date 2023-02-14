@@ -58,6 +58,11 @@ if (substr($_GET['target'], 0, 6) == 'campo_') {
     global $DIC;
     $DIC->fau()->study()->redirectFromTarget($_GET['target']);
 }
+if (substr($_GET['target'], 0, 8) == 'orgunit_') {
+    global $DIC;
+    $DIC->fau()->org()->redirectFromTarget($_GET['target']);
+}
+
 // fau.
 
 // fau: numericLink - lookup the type when only the ref_id or obj_id is given
