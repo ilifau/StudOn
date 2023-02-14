@@ -29,8 +29,6 @@ class Term extends RecordData
         'type_id' => 'integer'
     ];
 
-    protected bool $valid = false;
-
     protected ?int $year;
     protected ?int $type_id;
     protected ?int $period_id;
@@ -41,17 +39,8 @@ class Term extends RecordData
         ?int $period_id = null
     )
     {
-        if ($year == null || $year < 2000 || $type_id == null || $type_id < 1 || $type_id > 2) {
-            $this->year = null;
-            $this->type_id = null;
-            $this->valid = false;
-        }
-        else {
-            $this->year = $year;
-            $this->type_id = $type_id;
-            $this->valid = true;
-        }
-
+        $this->year = $year;
+        $this->type_id = $type_id;
         $this->period_id = $period_id;
     }
 
@@ -82,7 +71,7 @@ class Term extends RecordData
 
     public function isValid() : bool
     {
-        return $this->valid;
+        return $this->year >=2000 && ($this->type_id ==1 || $this->type_id == 2);
     }
 
     public function toString() : ?string
