@@ -1692,7 +1692,14 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
 <#116>
 <?php
 /**
- * fau: fauService - create the event types table
+ * fau: fauService - create the terms table
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_116();
+?>
+<#117>
+<?php
+/**
+ * fau: fauService - create the event types table
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_117();
 ?>
