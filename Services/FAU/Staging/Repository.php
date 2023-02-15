@@ -137,6 +137,16 @@ class Repository extends RecordRepo
     }
 
     /**
+     * @return string[]
+     */
+    public function getEventTypeValues() : array
+    {
+        $query = "SELECT DISTINCT eventtype FROM campo_event";
+        return $this->getStringList($query, 'eventtype', false);
+    }
+
+
+    /**
      * @return EventModule[]
      */
     public function getEventModules() : array

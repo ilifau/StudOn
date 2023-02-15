@@ -32,6 +32,7 @@ use FAU\Study\Data\StudySchool;
 use FAU\Study\Data\StudySubject;
 use FAU\Study\Data\Course;
 use FAU\Study\Data\Term;
+use FAU\Study\Data\EventType;
 
 /**
  * Synchronisation of data coming from campo
@@ -47,38 +48,39 @@ class SyncWithCampo extends SyncBase
      */
     public function synchronize() : void
     {
-        // value sources
-        $this->syncDocProgrammes();
-        $this->syncStudyDegrees();
-        $this->syncStudyEnrolments();
-        $this->syncStudyFields();
-        $this->syncStudyForms();
-        $this->syncStudySchools();
-        $this->syncStudySubjects();
-        $this->syncTerms();
-
-        // study structure
-        // courses must be synced first, changes in other data may set the dirty status in the course data
-        $this->syncCourses();
-        $this->syncEvents();
-        $this->syncEventOrgunits();
-        $this->syncEventModules();
-        $this->syncModuleCos();
-        $this->syncPlannedDates();
-        $this->syncIndividualDates();
-
-        // conditions
-        $this->syncModuleRestrictions();
-        $this->syncEventRestrictions();
-        $this->syncRestrictions();
-
-        // person assignments
-        $this->syncEventResponsibles();
-        $this->syncCourseResponsibles();
-        $this->syncInstructors();
-        $this->syncIndividualInstructors();
-        $this->syncAchievements();
-        $this->syncEducations();
+//        // value sources
+//        $this->syncDocProgrammes();
+//        $this->syncStudyDegrees();
+//        $this->syncStudyEnrolments();
+//        $this->syncStudyFields();
+//        $this->syncStudyForms();
+//        $this->syncStudySchools();
+//        $this->syncStudySubjects();
+//        $this->syncTerms();
+//
+//        // study structure
+//        // courses must be synced first, changes in other data may set the dirty status in the course data
+//        $this->syncCourses();
+//        $this->syncEvents();
+//        $this->syncEventOrgunits();
+        $this->syncEventTypes();
+//        $this->syncEventModules();
+//        $this->syncModuleCos();
+//        $this->syncPlannedDates();
+//        $this->syncIndividualDates();
+//
+//        // conditions
+//        $this->syncModuleRestrictions();
+//        $this->syncEventRestrictions();
+//        $this->syncRestrictions();
+//
+//        // person assignments
+//        $this->syncEventResponsibles();
+//        $this->syncCourseResponsibles();
+//        $this->syncInstructors();
+//        $this->syncIndividualInstructors();
+//        $this->syncAchievements();
+//        $this->syncEducations();
     }
 
     /**
@@ -289,6 +291,30 @@ class SyncWithCampo extends SyncBase
             }
         }
     }
+    /**
+     * Synchronize the list of distinct event types
+     * FULL SYNC
+     */
+
+    public function syncEventTypes() : void
+    {
+        $this->info('syncEventTypes...');
+        $existing = $this->sync->repo()->getAllForSync(EventType::model());
+
+        foreach ($this->staging->repo()->getEventTypeValues() as $value) {
+            $entry = new EventType($value, null, null);
+            if (!isset($existing[$entry->key()])) {
+                $this->study->repo()->save($entry);
+            }
+            // record is still needed
+            unset($existing[$entry->key()]);
+        }
+        // delete existing records that are no longer needed
+        foreach ($existing as $entry) {
+            $this->study->repo()->delete($entry);
+        }
+    }
+
 
     /**
      * Synchronize data found in the staging table campo_event_orgunit

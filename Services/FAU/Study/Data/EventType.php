@@ -19,9 +19,9 @@ class EventType extends RecordData
         'eval_id' => 'text'
     ];
 
-    private string $type_de;
-    private ?string $type_en;
-    private ?string $eval_id;
+    protected string $type_de;
+    protected ?string $type_en;
+    protected ?string $eval_id;
 
     public function __construct(
         string $type_de,
