@@ -547,7 +547,7 @@ class FAUStudySteps
         ],
             $drop
         );
-        $this->db->addPrimaryKey('fau_study_event_types', ['title_de']);
+        $this->db->addPrimaryKey('fau_study_event_types', ['type_de']);
     }
 
 }
