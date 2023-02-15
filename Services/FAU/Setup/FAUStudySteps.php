@@ -97,6 +97,11 @@ class FAUStudySteps
         $this->createTermsTable(false);
     }
 
+    public function custom_step_117()
+    {
+        $this->createEventTypesTable(false);
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -531,4 +536,18 @@ class FAUStudySteps
         );
         $this->db->addPrimaryKey('fau_study_terms', ['period_id']);
     }
+
+
+    protected function createEventTypesTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_study_event_types', [
+            'type_de'     => ['type' => 'text',    'length' => 250,      'notnull' => true],
+            'type_en'     => ['type' => 'text',    'length' => 250,      'notnull' => false],
+            'eval_id'     => ['type' => 'text',    'length' => 250,      'notnull' => false],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_event_types', ['title_de']);
+    }
+
 }
