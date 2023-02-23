@@ -110,6 +110,16 @@ class ilFauPatches
     }
 
     /**
+     * Find the parent category in which the courses of an event should be created
+     */
+    public function findParentCategoryForEvent($params = ['event_id' => 0])
+    {
+        $treeMatching = $this->dic->fau()->sync()->trees();
+        $ref_id = $treeMatching->findParentCategoryForEvent($params['event_id']);
+        var_dump($ref_id);
+    }
+
+    /**
      *
      */
     public function sendMailsToSolveConflicts()

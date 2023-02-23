@@ -48,39 +48,39 @@ class SyncWithCampo extends SyncBase
      */
     public function synchronize() : void
     {
-//        // value sources
-//        $this->syncDocProgrammes();
-//        $this->syncStudyDegrees();
-//        $this->syncStudyEnrolments();
-//        $this->syncStudyFields();
-//        $this->syncStudyForms();
-//        $this->syncStudySchools();
-//        $this->syncStudySubjects();
-//        $this->syncTerms();
-//
-//        // study structure
-//        // courses must be synced first, changes in other data may set the dirty status in the course data
-//        $this->syncCourses();
-//        $this->syncEvents();
-//        $this->syncEventOrgunits();
+        // value sources
+        $this->syncDocProgrammes();
+        $this->syncStudyDegrees();
+        $this->syncStudyEnrolments();
+        $this->syncStudyFields();
+        $this->syncStudyForms();
+        $this->syncStudySchools();
+        $this->syncStudySubjects();
+        $this->syncTerms();
+
+        // study structure
+        // courses must be synced first, changes in other data may set the dirty status in the course data
+        $this->syncCourses();
+        $this->syncEvents();
+        $this->syncEventOrgunits();
         $this->syncEventTypes();
-//        $this->syncEventModules();
-//        $this->syncModuleCos();
-//        $this->syncPlannedDates();
-//        $this->syncIndividualDates();
-//
-//        // conditions
-//        $this->syncModuleRestrictions();
-//        $this->syncEventRestrictions();
-//        $this->syncRestrictions();
-//
-//        // person assignments
-//        $this->syncEventResponsibles();
-//        $this->syncCourseResponsibles();
-//        $this->syncInstructors();
-//        $this->syncIndividualInstructors();
-//        $this->syncAchievements();
-//        $this->syncEducations();
+        $this->syncEventModules();
+        $this->syncModuleCos();
+        $this->syncPlannedDates();
+        $this->syncIndividualDates();
+
+        // conditions
+        $this->syncModuleRestrictions();
+        $this->syncEventRestrictions();
+        $this->syncRestrictions();
+
+        // person assignments
+        $this->syncEventResponsibles();
+        $this->syncCourseResponsibles();
+        $this->syncInstructors();
+        $this->syncIndividualInstructors();
+        $this->syncAchievements();
+        $this->syncEducations();
     }
 
     /**

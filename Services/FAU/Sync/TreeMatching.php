@@ -110,6 +110,38 @@ class TreeMatching
         return $this->createCourseCategory($parent_ref_id, $term, $creationUnit);
     }
 
+    /**
+     * Find the parent ILIAS category in which courses of an event should be created
+     * The courses will actually be created in a sub category for the semester
+     * @return void
+     */
+    public function findParentCategoryForEvent(int $event_id)  : ?int
+    {
+        $creationUnit = null;
+
+        // search for an org unit that allows course creation and has an ilias category assigned
+        foreach ($this->study->repo()->getEventOrgunitsByEventId($event_id) as $unit) {
+            if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
+                continue; // next assigned unit
+            }
+            if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
+                continue; // next assigned unit
+            }
+            break;  // creationUnit found
+        }
+        if (empty($creationUnit)) {
+            return null;
+        }
+        // check if org unit is excluded from course creation
+        foreach ($this->getExcludeCreateOrgPaths() as $path) {
+            if (substr($creationUnit->getPath(), 0, strlen($path)) == $path) {
+                return null;
+            }
+        }
+
+        return  $creationUnit->getIliasRefId();
+    }
+
 
     /**
      * Find or create the ILIAS category where the course for an event and term should be created

@@ -22,6 +22,7 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.syncToCampo');
 
+//$p->applyPatch('ilFauPatches.findParentCategoryForEvent', ['event_id' => 111384]);
 //$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
 //$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
 
