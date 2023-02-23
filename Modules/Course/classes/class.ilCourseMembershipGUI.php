@@ -586,4 +586,32 @@ class ilCourseMembershipGUI extends ilMembershipGUI
         $this->getCtrl()->redirect($this, 'participants');
     }
     // fau.
+
+    // fau: PassedFlagCG
+    protected function bulkSetPassedFlag()
+    {
+        global $DIC;
+
+        $ilAccess = $DIC['ilAccess'];
+        
+        $participants = (array) $_POST['participants'];
+        $visible_members = (array) $_POST['visible_member_ids'];
+        
+        if (!is_array($participants) or !count($participants)) {
+            ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        foreach ($participants as $participant) {
+            if ($ilAccess->checkAccess("grade", "", $this->getParentObject()->getRefId())) {
+                $this->getMembersObject()->updatePassed($participant, in_array($participant, $visible_members), true);
+                $this->updateLPFromStatus($participant, in_array($participant, $visible_members));
+            }
+        }
+
+        ilUtil::sendSuccess($this->lng->txt('selected_members_set_to_passed'), true);
+        $this->ctrl->redirect($this, "participants");
+
+        return true;
+    }
+    // fau.
 }
