@@ -362,12 +362,12 @@ class Transfer
         $type = ilObject::_lookupType($ref_id, true);
         switch ($type) {
             case 'crs':
-                $former_role_title = self::FORMER_COURSE_MEMBER;
+                $former_role_title = self::FORMER_COURSE_MEMBER . ' (' . $ref_id . ')';
                 $member_role_title = 'il_crs_member';
                 break;
 
             case 'grp':
-                $former_role_title = self::FORMER_GROUP_MEMBER;
+                $former_role_title = self::FORMER_GROUP_MEMBER . ' (' . $ref_id . ')';
                 $member_role_title = 'il_grp_member';
                 break;
 
