@@ -628,6 +628,9 @@ fau#:#fau_course_export_term_info#:#The semester selection works only for course
 fau#:#fau_campo_assigned_orgunits#:#Assigned Institutiuons
 fau#:#fau_campo_course_is_cancelled#:#This event is cancelled!
 fau#:#fau_campo_course_is_deleted#:#This event is deleted!
+fau#:#fau_campo_course_is_missing_for_ilias_course#:#This course has no corresponding released event or parallel group in campo!
+fau#:#fau_campo_course_is_missing_for_ilias_group#:#This group has no corresponding released parallel group in campo!
+fau#:#fau_campo_course_is_missing_prefix#:#[Missing Campo Connection]
 fau#:#fau_campo_courses#:#Campo Courses
 fau#:#fau_campo_courses_desc#:#These courses were created automatically. They can be moved to suitable places.
 fau#:#fau_campo_data_update#:#Update Campo Data

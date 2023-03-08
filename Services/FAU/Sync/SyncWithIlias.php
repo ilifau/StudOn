@@ -400,12 +400,19 @@ class SyncWithIlias extends SyncBase
             return false;
         }
 
+        // get the reference of a parent course
+        if (!empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id))) {
+            $parent_course = new ilObjCourse($parent_ref);
+        }
+
         // get the object, correct type is already checked in the caller
         if (ilObject::_lookupType($ref_id, true) == 'crs') {
             $object = new ilObjCourse($ref_id);
+            $object->setDescription($this->lng->txt('fau_campo_course_is_missing_for_ilias_course'));
         }
         elseif (ilObject::_lookupType($ref_id, true) == 'grp') {
             $object = new ilObjGroup($ref_id);
+            $object->setDescription($this->lng->txt('fau_campo_course_is_missing_for_ilias_group'));
         }
         else {
             return false;
@@ -413,15 +420,19 @@ class SyncWithIlias extends SyncBase
 
         // always provide the info and delete the import id
         // do not yet update to allow a check for manual changes
-        $object->setDescription($this->lng->txt('fau_campo_course_is_deleted'));
+        $object->setTitle($this->lng->txt('fau_campo_course_is_missing_prefix') . ' ' . $object->getTitle());
         $object->setImportId(null);
+
+//        echo "Manually changed: " . $this->isObjectManuallyChanged($object) . "\n";
+//        echo "UndeletedContents: " . $this->ilias->objects()->hasUndeletedContents($ref_id) . "\n";
+//        echo "LocalMemberChanges:" . $this->sync->roles()->hasLocalMemberChanges($ref_id) . "\n";
 
         if ($this->isObjectManuallyChanged($object)
             || $this->ilias->objects()->hasUndeletedContents($ref_id)
             || $this->sync->roles()->hasLocalMemberChanges($ref_id)
-        )
-        {
+        ) {
             // object is already touched by an admin => just save the info
+            // has to be done here because it changes the update time which affects isObjectManuallyChanged
             $object->update();
         }
         else {
@@ -429,22 +440,17 @@ class SyncWithIlias extends SyncBase
             // save the changes, even if object will be moved to trash
             $object->update();
             try {
-                // get the reference of a parent course
-                $parent_ref = $this->ilias->objects()->findParentIliasCourse($ref_id);
-
                 // this checks delete permission on all objects
                 // so the cron job user needs the global admin role!
                 ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($ref_id), [$ref_id]);
 
                 // delete the parent course of a group if it is empty and not yet touched
-                if ($object->getType() == 'grp' && !empty($parent_ref)
+                if (!empty($parent_course)
+                    && !$this->isObjectManuallyChanged($parent_course)
+                    && !$this->ilias->objects()->hasUndeletedContents($parent_ref)
                 ) {
-                    $parent = new ilObjCourse($parent_ref);
-                    if (!$this->isObjectManuallyChanged($parent)
-                        && !$this->ilias->objects()->hasUndeletedContents($parent_ref))
-                    {
-                        ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($parent_ref), [$parent_ref]);
-                    }
+                    ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($parent_ref), [$parent_ref]);
+                    $parent_course = null;
                 }
             }
             catch (Exception $e) {
@@ -454,7 +460,22 @@ class SyncWithIlias extends SyncBase
         }
 
         // always delete the course record, the staging record is already deleted
+        // has to be done before calling findChildParallelGroups() of the parent
         $this->study->repo()->delete($course);
+
+
+        // check if parent sourse should loose the campo connection
+        if (!empty($parent_course)) {
+            if (empty($this->ilias->objects()->findChildParallelGroups($parent_ref, false))) {
+                // no other parallel groups are connected in the parent
+                // delete the campo connection of the parent course
+                $parent_course->setTitle($this->lng->txt('fau_campo_course_is_missing_prefix') . ' ' . $parent_course->getTitle());
+                $parent_course->setDescription($this->lng->txt('fau_campo_course_is_missing_for_ilias_course'));
+                $parent_course->setImportId(null);
+                $parent_course->update();
+            }
+        }
+
         return true;
     }
 

@@ -61,10 +61,10 @@ class Service extends SubService
     /**
      * Check if an object is needed for campo
      */
-    public function isObjectForCampo(int $obj_id) : bool
+    public function isObjectForCampo(int $obj_id, $useCache = true) : bool
     {
-        return $this->repo()->isIliasObjIdUsedInCourses($obj_id)
-            || $this->repo()->getImportId($obj_id)->isForCampo();
+        return $this->repo()->isIliasObjIdUsedInCourses($obj_id, $useCache)
+            || $this->repo()->getImportId($obj_id, $useCache)->isForCampo();
     }
 
     /**

@@ -244,14 +244,14 @@ class Repository extends RecordRepo
      * Count the courses an event has in a term
      * Exclude the deleted or cancelled courses
      */
-    public function countCoursesOfEventInTerm(int $event_id, Term $term) : int
+    public function countCoursesOfEventInTerm(int $event_id, Term $term, $useCache = true) : int
     {
         $query = "SELECT COUNT(*) FROM fau_study_courses WHERE event_id = " . $this->db->quote($event_id, 'integer')
         . " AND term_year = " . $this->db->quote($term->getYear(), 'integer')
         . " AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer')
         . " AND (deleted IS NULL or deleted = 0)"
         . " AND (cancelled IS NULL or cancelled = 0)";
-        return $this->countRecords($query);
+        return $this->countRecords($query, $useCache);
     }
 
     /**
@@ -414,19 +414,19 @@ class Repository extends RecordRepo
     /**
      * Check if an object id of ilias is stored in records of campo courses
      */
-    public function isIliasObjIdUsedInCourses(int $obj_id) : bool
+    public function isIliasObjIdUsedInCourses(int $obj_id, $useCache = true) : bool
     {
         $query = "SELECT course_id FROM fau_study_courses WHERE ilias_obj_id = " . $this->db->quote($obj_id, 'integer');
-        return $this->hasRecord($query);
+        return $this->hasRecord($query, $useCache);
     }
 
     /**
      * Get the Import id from an ilias object
      */
-    public function getImportId(int $obj_id) : ImportId
+    public function getImportId(int $obj_id, $useCache = true) : ImportId
     {
         $query = "SELECT import_id FROM object_data WHERE obj_id = " . $this->db->quote($obj_id, 'integer');
-        foreach ($this->getStringList($query, 'import_id') as $import_id) {
+        foreach ($this->getStringList($query, 'import_id', $useCache) as $import_id) {
             return ImportId::fromString($import_id);
         }
         return ImportId::fromString('');
