@@ -99,7 +99,14 @@ class RoleMatching
         $instructors = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INSTRUCTOR, 'user_id', $user_id, $course_id);
         $indiv_insts = $this->sync->repo()->getIdsForCampoRoles(Member::ROLE_INDIVIDUAL_INSTRUCTOR, 'user_id', $user_id, $course_id);
 
-        $user_ids = array_unique(array_merge($event_resps, $course_resps, $instructors, $indiv_insts));
+        if ($participants instanceof ilCourseParticipants) {
+            $user_ids = array_unique(array_merge($event_resps, $course_resps, $instructors, $indiv_insts));
+        }
+        else {
+            // event responsibles are not added as admins in the parallel groups
+            $user_ids = array_unique(array_merge($course_resps, $instructors, $indiv_insts));
+        }
+
         foreach ($user_ids as $user_id) {
             $cur_member = $cur_members[$user_id] ?? null;
             $new_member = new Member(
