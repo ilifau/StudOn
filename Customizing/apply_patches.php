@@ -19,6 +19,7 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.syncCampoData');
+//$p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
 //$p->applyPatch('ilFauPatches.syncToCampo');
 
@@ -30,7 +31,7 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
-//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => [], 'test_run' => false]);
+//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => [307155], 'test_run' => false]);
 
 //$p->applyPatch('ilFauPatches.removeUntouchedDoubleCourses');
