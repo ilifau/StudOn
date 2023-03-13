@@ -68,7 +68,7 @@ class Objects
     public function findParentIliasCourse(int $ref_id) : ?int
     {
         foreach ($this->dic->repositoryTree()->getPathId($ref_id) as $path_id) {
-            if (ilObject::_lookupType($path_id, true) == 'crs') {
+            if ($path_id != $ref_id && ilObject::_lookupType($path_id, true) == 'crs') {
                 return $path_id;
             }
         }

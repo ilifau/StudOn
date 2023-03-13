@@ -11,7 +11,7 @@ use FAU\RecordData;
  */
 class LostCourse extends RecordData
 {
-    protected const tableName = 'fau_study_courses';
+    protected const tableName = 'fau_study_lost_courses';
     protected const hasSequence = false;
     protected const keyTypes = [
         'course_id' => 'integer',

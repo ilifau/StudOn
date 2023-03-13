@@ -3,6 +3,7 @@
 namespace FAU\Sync;
 
 use Exception;
+use FAU\Study\Data\LostCourse;
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\Course;
@@ -434,6 +435,9 @@ class SyncWithIlias extends SyncBase
             // object is already touched by an admin => just save the info
             // has to be done here because it changes the update time which affects isObjectManuallyChanged
             $object->update();
+
+            // save the lost connection
+            $this->study->repo()->save(new LostCourse($course->getCourseId(), $object->getId()));
         }
         else {
             // object is not yet changed => object can be deleted
@@ -445,6 +449,7 @@ class SyncWithIlias extends SyncBase
                 ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($ref_id), [$ref_id]);
 
                 // delete the parent course of a group if it is empty and not yet touched
+                // member changes can't be detected for the parent course
                 if (!empty($parent_course)
                     && !$this->isObjectManuallyChanged($parent_course)
                     && !$this->ilias->objects()->hasUndeletedContents($parent_ref)

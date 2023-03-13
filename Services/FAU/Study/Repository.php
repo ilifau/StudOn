@@ -3,6 +3,7 @@
 namespace FAU\Study;
 
 use FAU\RecordRepo;
+use FAU\Study\Data\LostCourse;
 use FAU\Study\Data\Module;
 use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\ModuleCos;
@@ -651,7 +652,7 @@ class Repository extends RecordRepo
 
     /**
      * Save record data of an allowed type
-     * @param Course|CourseOfStudy|CourseResponsible|DocProgramme|EventOrgunit|EventResponsible|IndividualDate|IndividualInstructor|Instructor|Module|ModuleCos|ModuleEvent|PlannedDate|StudyDegree|StudyEnrolment|StudyField|StudyForm|StudySchool|StudySubject $record
+     * @param Course|CourseOfStudy|CourseResponsible|DocProgramme|EventOrgunit|EventResponsible|IndividualDate|IndividualInstructor|Instructor|LostCourse|Module|ModuleCos|ModuleEvent|PlannedDate|StudyDegree|StudyEnrolment|StudyField|StudyForm|StudySchool|StudySubject $record
      */
     public function save(RecordData $record)
     {
