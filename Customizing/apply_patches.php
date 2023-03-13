@@ -33,6 +33,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20222', 'course_ids' => [], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20222', 'course_ids' => [307155], 'test_run' => false]);
 
+//$p->applyPatch('ilFauPatches.removeUntouchedDoubleCourses');
+
 /*****************
 * Specific actions
 ******************/

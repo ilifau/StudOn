@@ -1,5 +1,6 @@
 <?php
 
+use FAU\Study\Data\LostCourse;
 use ILIAS\DI\Container;
 use FAU\Setup\Setup;
 use FAU\Study\Data\Term;
@@ -175,6 +176,119 @@ JOIN object_reference r2 ON r2.obj_id = o2.obj_id AND r2.deleted IS NULL
             }
             else {
                 echo $count++ . ': ' . $address . " (ok)\n";
+            }
+        }
+    }
+
+    /**
+     * Remove courses that were automatically created because the old courses lost their campo connection
+     * This happened because up to March 3, 2023 all courses were transferred to studon, after that date only the released ones
+     */
+    public function removeUntouchedDoubleCourses()
+    {
+        $query = "
+            SELECT c.course_id, r.ref_id, o.obj_id, o.`type`, o.title,
+            CONCAT('https://www.studon.fau.de/', r.ref_id) link
+            FROM fau_study_courses c
+            JOIN fau_study_lost_courses cc ON cc.course_id = c.course_id
+            JOIN object_data o ON o.obj_id = c.ilias_obj_id
+            JOIN object_reference r ON r.obj_id = o.obj_id AND r.deleted IS NULL
+            JOIN object_data oc ON oc.obj_id = cc.ilias_obj_id
+            JOIN object_reference rc ON rc.obj_id = oc.obj_id AND rc.deleted IS NULL
+            WHERE c.ilias_obj_id IS NOT NULL
+            AND o.create_date = o.last_update
+            AND c.ilias_obj_id <> cc.ilias_obj_id
+            AND oc.import_id IS null
+            ORDER BY o.title, c.course_id
+        ";
+
+        $result = $this->dic->database()->query($query);
+        while ($row = $this->dic->database()->fetchAssoc($result)) {
+
+            echo "\n\n[" . $row['type'] . '] ' . $row['link'] . ' ' . $row['title'] . '...';
+
+            $ref_id = $row['ref_id'];
+            $obj_id = $row['obj_id'];
+            $course = $this->dic->fau()->study()->repo()->getCourse($row['course_id']);
+
+            // get the reference of a parent course
+            $parent_course = null;
+            if (!empty($parent_ref = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($ref_id))) {
+                $parent_course = new ilObjCourse($parent_ref);
+            }
+
+            // get the object, correct type is already checked in the caller
+            if (ilObject::_lookupType($ref_id, true) == 'crs') {
+                $object = new ilObjCourse($ref_id);
+                $object->setDescription($this->dic->language()->txt('fau_campo_course_is_missing_for_ilias_course'));
+            }
+            elseif (ilObject::_lookupType($ref_id, true) == 'grp') {
+                $object = new ilObjGroup($ref_id);
+                $object->setDescription($this->dic->language()->txt('fau_campo_course_is_missing_for_ilias_group'));
+            }
+            else {
+                continue; // next row
+            }
+
+            // always provide the info and delete the import id
+            // do not yet update to allow a check for manual changes
+            $object->setTitle($this->dic->language()->txt('fau_campo_course_is_missing_prefix') . ' ' . $object->getTitle());
+            $object->setImportId(null);
+
+//            echo "\nManually changed: " . $this->dic->fau()->sync()->ilias()->isObjectManuallyChanged($object) . "\n";
+//            echo "\nUndeletedContents: " . $this->dic->fau()->ilias()->objects()->hasUndeletedContents($ref_id) . "\n";
+//            echo "\nLocalMemberChanges:" . $this->dic->fau()->sync()->roles()->hasLocalMemberChanges($ref_id) . "\n";
+
+            if ($this->dic->fau()->sync()->ilias()->isObjectManuallyChanged($object)
+                || $this->dic->fau()->ilias()->objects()->hasUndeletedContents($ref_id)
+                || $this->dic->fau()->sync()->roles()->hasLocalMemberChanges($ref_id)
+            ) {
+                echo "\nObject is touched.";
+                continue;
+            }
+
+            // save the changes, even if object will be moved to trash
+            echo "\n Update Object";
+            $object->update();
+            try {
+                // this checks delete permission on all objects
+                // so the cron job user needs the global admin role!
+                echo "\n Delete Object";
+                ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($ref_id), [$ref_id]);
+
+                // delete the parent course of a group if it is empty and not yet touched
+                // member changes can't be detected for the parent course
+                if (!empty($parent_course)
+                    && !$this->dic->fau()->sync()->ilias()->isObjectManuallyChanged($parent_course)
+                    && !$this->dic->fau()->ilias()->objects()->hasUndeletedContents($parent_ref)
+                ) {
+                    echo "\n Delete Parent";
+                    ilRepUtil::deleteObjects($this->dic->repositoryTree()->getParentId($parent_ref), [$parent_ref]);
+                    $parent_course = null;
+                }
+            }
+            catch (Exception $e) {
+                echo "\n". $e->getMessage();
+                continue;
+            }
+
+            // always delete the course record, the staging record is already deleted
+            // has to be done before calling findChildParallelGroups() of the parent
+
+            $this->dic->fau()->study()->repo()->save($course->withIliasObjId(null)->asChanged(false));
+
+
+            // check if parent course should loose the campo connection
+            if (!empty($parent_course)) {
+                if (empty($this->dic->fau()->ilias()->objects()->findChildParallelGroups($parent_ref, false))) {
+                    // no other parallel groups are connected in the parent
+                    // delete the campo connection of the parent course
+                    $parent_course->setTitle($this->dic->language()->txt('fau_campo_course_is_missing_prefix') . ' ' . $parent_course->getTitle());
+                    $parent_course->setDescription($this->dic->language()->txt('fau_campo_course_is_missing_for_ilias_course'));
+                    $parent_course->setImportId(null);
+                    echo "\n Update Parent";
+                    $parent_course->update();
+                }
             }
         }
     }

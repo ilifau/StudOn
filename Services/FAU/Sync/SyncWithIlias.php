@@ -515,7 +515,7 @@ class SyncWithIlias extends SyncBase
         $this->study->repo()->delete($course);
 
 
-        // check if parent sourse should loose the campo connection
+        // check if parent course should loose the campo connection
         if (!empty($parent_course)) {
             if (empty($this->ilias->objects()->findChildParallelGroups($parent_ref, false))) {
                 // no other parallel groups are connected in the parent
@@ -650,7 +650,7 @@ class SyncWithIlias extends SyncBase
     /**
      * Check if an object has been manually changed
      */
-    protected function isObjectManuallyChanged(ilObject $object) : bool
+    public function isObjectManuallyChanged(ilObject $object) : bool
     {
         $created = (int) $this->tools->convert()->dbTimestampToUnix($object->getCreateDate());
         $updated = (int) $this->tools->convert()->dbTimestampToUnix($object->getLastUpdateDate());
