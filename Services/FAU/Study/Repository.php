@@ -528,6 +528,17 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get a remembered lost course connection
+     * @return LostCourse|null
+     */
+    public function getLostCourse(int $course_id) : ?RecordData
+    {
+        $query = "SELECT * from fau_study_lost_courses WHERE course_id = " . $this->db->quote($course_id, 'integer');
+        return $this->getSingleRecord($query, LostCourse::model());
+    }
+
+
+    /**
      * Get Module to Course of Study assignments
      * @param int[]|null $module_ids   (get all if null, none if empty)
      * @param int[]|null $cos_ids   (get all if null, none if empty)
@@ -661,7 +672,7 @@ class Repository extends RecordRepo
 
     /**
      * Delete record data of an allowed type
-     * @param Course|CourseOfStudy|CourseResponsible|DocProgramme|EventOrgunit|EventResponsible|IndividualDate|IndividualInstructor|Instructor|Module|ModuleCos|ModuleEvent|PlannedDate|StudyDegree|StudyEnrolment|StudyField|StudyForm|StudySchool|StudySubject $record
+     * @param Course|CourseOfStudy|CourseResponsible|DocProgramme|EventOrgunit|EventResponsible|IndividualDate|IndividualInstructor|Instructor|LostCourse|Module|ModuleCos|ModuleEvent|PlannedDate|StudyDegree|StudyEnrolment|StudyField|StudyForm|StudySchool|StudySubject $record
      */
     public function delete(RecordData $record)
     {

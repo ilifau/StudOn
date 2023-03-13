@@ -3,6 +3,7 @@
 namespace FAU\Sync;
 
 use FAU\RecordRepo;
+use FAU\Study\Data\ImportId;
 use FAU\Study\Data\Term;
 use FAU\Staging\Data\StudOnMember;
 use FAU\Staging\Data\StudOnCourse;
@@ -148,7 +149,17 @@ class Repository extends RecordRepo
     }
 
     /**
-     * Remove the import id from an object
+     * update the FAU import id in an object
+     */
+    public function updateObjectFauImportId(int $obj_id, ImportId $import_id)
+    {
+        $query = "UPDATE object_data set import_id = " . $this->db->quote($import_id->toString(), 'text')
+            ." WHERE obj_id = ". $this->db->quote($obj_id, 'integer');
+        $this->db->manipulate($query);
+    }
+
+    /**
+     * Remove the FAU import id from an object
      */
     public function removeObjectFauImportId(int $obj_id)
     {

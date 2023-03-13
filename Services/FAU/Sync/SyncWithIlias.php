@@ -152,44 +152,59 @@ class SyncWithIlias extends SyncBase
             $parent_ref = null;
             $other_refs = [];
 
-            // check what to create
-            if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) == 1) {
-                // single parallel groups are created as courses
-                $action = 'create_single_course';
+            if (!empty($reuse_ref = $this->getReusableRefId($course))) {
+                // check what to restore
+                if (ilObject::_lookupType($reuse_ref, true) == 'crs') {
+                    $action = 'reuse_single_course';
+                    $this->info('REUSE single course');
+                }
+                else {
+                    $action = 'reuse_group_in_course';
+                    $parent_ref = $this->ilias->objects()->findParentIliasCourse($reuse_ref);
+                    $this->info('REUSE group in course');
+                }
             }
             else {
-                // multiple parallel groups are created as groups in a course by default
-                $action = "create_course_and_group";
+                // check what to create
+                if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) == 1) {
+                    // single parallel groups are created as courses
+                    $action = 'create_single_course';
+                }
+                else {
+                    // multiple parallel groups are created as groups in a course by default
+                    $action = "create_course_and_group";
 
-                // check if other parallel groups already have ilias objects
-                // don't use cache because we are in an update loop
-                foreach ($this->study->repo()->getCoursesOfEventInTerm($event->getEventId(), $term, false) as $other) {
-                    if ($other->getCourseId() != $course->getCourseId()
-                        && !$other->isDeleted()
-                        && !empty($other_ref_id = $this->ilias->objects()->getIliasRefIdForCourse($other))) {
-                        $other_refs[] = $other_ref_id;
-                        switch (ilObject::_lookupType($other_ref_id, true)) {
-                            case 'crs':
-                                // other parallel groups are already ilias courses, create the same
-                                $action = 'create_single_course';
-                                break;
-                            case 'grp':
-                                // other parallel groups are ilias groups, create the new in the same course
-                                $action = 'create_group_in_course';
-                                $parent_ref = $this->dic->repositoryTree()->getParentId($other_ref_id);
-                                break;
+                    // check if other parallel groups already have ilias objects
+                    // don't use cache because we are in an update loop
+                    foreach ($this->study->repo()->getCoursesOfEventInTerm($event->getEventId(), $term, false) as $other) {
+                        if ($other->getCourseId() != $course->getCourseId()
+                            && !$other->isDeleted()
+                            && !empty($other_ref_id = $this->ilias->objects()->getIliasRefIdForCourse($other))) {
+                            $other_refs[] = $other_ref_id;
+                            switch (ilObject::_lookupType($other_ref_id, true)) {
+                                case 'crs':
+                                    // other parallel groups are already ilias courses, create the same
+                                    $action = 'create_single_course';
+                                    break;
+                                case 'grp':
+                                    // other parallel groups are ilias groups, create the new in the same course
+                                    $action = 'create_group_in_course';
+                                    $parent_ref = $this->dic->repositoryTree()->getParentId($other_ref_id);
+                                    break;
+                            }
                         }
                     }
                 }
+
+                // get or create the place for a new course if no parent_ref is set above
+                // don't create the object for this course if no parent_ref can be found
+                if (empty($parent_ref = $parent_ref ?? $this->sync->trees()->findOrCreateCourseCategory($course, $term))) {
+                    // problem is already saved in the function
+                    $this->info('Failed: no suitable parent found.');
+                    continue;
+                }
             }
 
-            // get or create the place for a new course if no parent_ref is set above
-            // don't create the object for this course if no parent_ref can be found
-            if (empty($parent_ref = $parent_ref ?? $this->sync->trees()->findOrCreateCourseCategory($course, $term))) {
-                // problem is already saved in the function
-                $this->info('Failed: no suitable parent found.');
-                continue;
-            }
 
             if ($test_run) {
                 continue;
@@ -197,6 +212,35 @@ class SyncWithIlias extends SyncBase
 
             // create the object(s)
             switch ($action) {
+                case 'reuse_single_course':
+                    $ref_id = $reuse_ref;
+                    $obj_id = ilObject::_lookupObjId($ref_id);
+
+                    // restore the connection and force an update of title and description
+                    $this->sync->repo()->updateObjectFauImportId($obj_id, new ImportId($term->toString(), $course->getEventId(), $course->getCourseId()));
+                    $this->sync->repo()->resetObjectLastUpdate($obj_id);
+
+                    $this->updateIliasCourse($ref_id, $term, $event, $course);
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId());
+                    break;
+
+                case 'reuse_group_in_course':
+                    $ref_id = $reuse_ref;
+                    $obj_id = ilObject::_lookupObjId($ref_id);
+                    $parent_obj_id = ilObject::_lookupObjId($parent_ref);
+
+                    // restore the connection and force an update of title and description
+                    $this->sync->repo()->updateObjectFauImportId($obj_id, new ImportId($term->toString(), $course->getEventId(), $course->getCourseId()));
+                    $this->sync->repo()->updateObjectFauImportId($parent_obj_id, new ImportId($term->toString(), $course->getEventId()));
+                    $this->sync->repo()->resetObjectLastUpdate($obj_id);
+                    $this->sync->repo()->resetObjectLastUpdate($parent_obj_id);
+
+                    $this->updateIliasGroup($ref_id, $term, $event, $course);
+                    $this->updateIliasCourse($parent_ref, $term, $event, null);
+                    $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId(), $parent_ref, $event->getEventId(), $term);
+                    break;
+
+
                 case 'create_single_course':
                     $ref_id = $this->dic->fau()->ilias()->objects()->createIliasCourse($parent_ref, $term, $event, $course)->getRefId();
                     $this->updateIliasCourse($ref_id, $term, $event, $course);
@@ -207,7 +251,7 @@ class SyncWithIlias extends SyncBase
                     $parent_ref = $this->dic->fau()->ilias()->objects()->createIliasCourse($parent_ref, $term, $event, null)->getRefId();
                     $ref_id = $this->dic->fau()->ilias()->objects()->createIliasGroup($parent_ref,  $term, $event, $course)->getRefId();
                     // don't use course data for the event - courses are the groups inside
-                    $this->updateIliasCourse($parent_ref, $term, $event, null) ;
+                    $this->updateIliasCourse($parent_ref, $term, $event, null);
                     $this->updateIliasGroup($ref_id, $term, $event, $course);
                     $this->sync->roles()->updateIliasRolesOfCourse($ref_id, $course->getCourseId(), $parent_ref, $event->getEventId(), $term);
                     break;
@@ -460,8 +504,10 @@ class SyncWithIlias extends SyncBase
             }
             catch (Exception $e) {
                 throw $e;
-                //ignore the error - the info is already saved
             }
+
+            // delete any remembered lost connection
+            $this->study->repo()->delete(new LostCourse($course->getCourseId(), 0));
         }
 
         // always delete the course record, the staging record is already deleted
@@ -635,5 +681,67 @@ class SyncWithIlias extends SyncBase
                 $roles->createOrgRole($orgunit->getFauorgNr(), $orgunit->getIliasRefId(), $this->settings->getAuthorRoleTemplateId(), true);
             }
         }
+    }
+
+    /**
+     * Check if an ilias object with lost connection can be reused instead of creating a new object
+     */
+    protected function getReusableRefId(Course $course) : ?int
+    {
+        $term = new Term($course->getTermYear(), $course->getTermTypeId());
+
+        if (empty($lost = $this->study->repo()->getLostCourse($course->getCourseId()))) {
+            // $this->info('no lost connection found');
+            return null;
+        }
+
+        foreach (ilObject::_getAllReferences($lost->getIliasObjId()) as $ref_id) {
+            if (ilObject::_isInTrash($ref_id)) {
+                // $this->info('dont restore connections for objects in trash');
+                return null;
+            }
+        }
+        if (empty($ref_id)) {
+            // $this->info('object not found at all');
+            return null;
+        }
+
+        $obj_import_id = $this->study->repo()->getImportId($lost->getIliasObjId());
+        if ($obj_import_id->isForCampo()
+            && $obj_import_id->getTermId() != $term->getTypeId()
+            && $obj_import_id->getEventId() != $course->getEventId()
+            && $obj_import_id->getCourseId() != $course->getCourseId()
+           ) {
+            // $this->info('object has now a different campo connection');
+            return null;
+        }
+
+        if (ilObject::_lookupType($lost->getIliasObjId()) == 'crs') {
+            // $this->info('all checks passed for direct ilias courses');
+            return $ref_id;
+        }
+
+        if (ilObject::_lookupType($lost->getIliasObjId()) != 'grp') {
+            // $this->info('must be ilias course or group');
+            return null;
+        }
+
+        if (empty($parent_ref_id = $this->ilias->objects()->findParentIliasCourse($ref_id))) {
+            // $this->info('group must be within a course');
+            return null;
+        }
+
+        $parent_obj_id = ilObject::_lookupObjId($parent_ref_id);
+        $parent_import_id = $this->study->repo()->getImportId($parent_obj_id);
+        if ($parent_import_id->isForCampo()
+            && $parent_import_id->getTermId() != $term->getTypeId()
+            && $parent_import_id->getEventId() != $course->getEventId()
+        ) {
+            // $this->info('parent has now a different campo connection');
+            return null;
+        }
+
+        // $this->info('All checks passed');
+        return $ref_id;
     }
 }
