@@ -19,7 +19,7 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.syncCampoData');
-$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
 //$p->applyPatch('ilFauPatches.syncToCampo');
 
 //$p->applyPatch('ilFauPatches.findParentCategoryForEvent', ['event_id' => 111384]);
