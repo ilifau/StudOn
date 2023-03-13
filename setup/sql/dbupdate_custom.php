@@ -1703,3 +1703,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_117();
 ?>
+<#118>
+<?php
+/**
+ * fau: fauService - create the lost courses table
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_118();
+?>

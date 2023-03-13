@@ -102,6 +102,11 @@ class FAUStudySteps
         $this->createEventTypesTable(false);
     }
 
+    public function custom_step_118()
+    {
+        $this->createLostCoursesTable(false);
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -550,4 +555,16 @@ class FAUStudySteps
         $this->db->addPrimaryKey('fau_study_event_types', ['type_de']);
     }
 
+
+    protected function createLostCoursesTable(bool $drop = false)
+    {
+        $this->db->createTable('fau_study_lost_courses', [
+            'course_id'     => ['type' => 'integer',    'length' => 4,      'notnull' => true],
+            'ilias_obj_id'  => ['type' => 'integer',    'length' => 4,      'notnull' => false],
+        ],
+            $drop
+        );
+        $this->db->addPrimaryKey('fau_study_lost_courses', ['course_id']);
+        $this->db->addIndex('fau_study_lost_courses', ['ilias_obj_id'], 'i1');
+    }
 }
