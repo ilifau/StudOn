@@ -650,8 +650,24 @@ abstract class Registration extends AbstractRegistration
      */
     public function canBeFilled() : bool
     {
-        return !$this->object->inSubscriptionFairTime()
-            && (!$this->hasMaxMembers() || $this->getFreePlaces() > $this->waitingList->getFirstBlockedPlaces());
+        if ($this->object->inSubscriptionFairTime()) {
+            return false;
+        }
+        if ($this->waitingList->getCountUsers() - $this->waitingList->getCountToConfirm() == 0) {
+            return false;
+        }
+        if ($this->hasMaxMembers() && $this->getFreePlaces() <= $this->waitingList->getFirstBlockedPlaces()) {
+            return false;
+        }
+        if ($this->object->hasParallelGroups()) {
+            foreach ($this->groups as $group) {
+                if ($this->canGroupBeFilled($group)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -659,8 +675,16 @@ abstract class Registration extends AbstractRegistration
      */
     protected function canGroupBeFilled(ContainerInfo $group) : bool
     {
-        return !$this->object->inSubscriptionFairTime()
-            && (!$group->hasMaxMembers() || $group->getFreePlaces() > $group->getWaitingList()->getFirstBlockedPlaces());
+        if ($this->object->inSubscriptionFairTime()) {
+            return false;
+        }
+        if ($group->getWaitingList()->getCountUsers() - $group->getWaitingList()->getCountToConfirm() == 0) {
+            return false;
+        }
+        if ($group->hasMaxMembers() && $group->getFreePlaces() <=  $group->getWaitingList()->getFirstBlockedPlaces()) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -673,25 +697,51 @@ abstract class Registration extends AbstractRegistration
             return null;
         }
 
+//        log_line('<pre>');
+//        foreach ($this->groups as $group) {
+//            if ($group->getWaitingList()->getCountUsers() - $group->getWaitingList()->getCountToConfirm() == 0) {
+//                log_line('NO ACCEPTED: ' . $group->getTitle());
+//            }
+//            elseif ($this->canGroupBeFilled($group)) {
+//                log_line('FREE:        ' . $group->getTitle());
+//            }
+//            else {
+//                log_line('BLOCKED:     ' . $group->getTitle());
+//            }
+//        }
+
+
         foreach ($this->waitingList->getAllPositions() as $pos) {
 
             // fault tolerance - normally each position should have users
             // call recalculate() of the waiting list after each manipulation
             if (empty($user_ids = $this->waitingList->getPositionUsers($pos))) {
+//                log_line('empty position ' . $pos);
                 continue;
             }
             // all users on the same position should have the same chance
             shuffle($user_ids);
+//            log_line('---');
+//            log_line('users on position ' . $pos .': ' . implode(', ', $user_ids));
 
             foreach ($user_ids as $user_id) {
+//                log_line(ilobjUser::_lookupFullname($user_id));
                 // don't assign a user that needs confirmation
                 if ($this->waitingList->isToConfirm($user_id)) {
+//                    log_line('   => TO CONFIRM');
                     continue;
                 }
                 // if course has groups, check if one group can be filled
                 if (empty($this->groups) || !empty($this->getFillableGroups($user_id))) {
+//                    log_line('   => GROUP FOUND');
                     return $user_id;
                 }
+                foreach ($this->groups as $group) {
+                    if ($group->getWaitingList()->isOnList($user_id)) {
+//                        log_line(' - ' .$group->getTitle());
+                    }
+                }
+//                log_line('   => NO GROUP');
             }
         }
         return null;
