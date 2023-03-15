@@ -110,6 +110,16 @@ class ilGroupMembershipGUI extends ilMembershipGUI
      */
     protected function updateParticipantsStatus()
     {
+        // fau: PassedFlagCG
+        global $DIC;
+        $ilAccess = $DIC['ilAccess'];
+        $ilErr = $DIC['ilErr'];
+        $ilUser = $DIC['ilUser'];
+        $rbacadmin = $DIC['rbacadmin'];
+
+        $passed = (array) $_POST['passed'];
+        // fau.
+
         $participants = (array) $_POST['visible_member_ids'];
         $notification = (array) $_POST['notification'];
         $contact = (array) $_POST['contact'];
@@ -117,6 +127,12 @@ class ilGroupMembershipGUI extends ilMembershipGUI
         ilLoggerFactory::getLogger('grp')->dump($contact);
 
         foreach ($participants as $mem_id) {
+            // fau: PassedFlagCG
+            if ($ilAccess->checkAccess("grade", "", $this->getParentObject()->getRefId())) {
+                $this->getMembersObject()->updatePassed($mem_id, in_array($mem_id, $passed), true);
+                $this->updateLPFromStatus($mem_id, in_array($mem_id, $passed));
+            }
+            // fau.
             if ($this->getMembersObject()->isAdmin($mem_id)) {
                 $this->getMembersObject()->updateContact($mem_id, in_array($mem_id, $contact));
                 $this->getMembersObject()->updateNotification($mem_id, in_array($mem_id, $notification));
@@ -255,4 +271,36 @@ class ilGroupMembershipGUI extends ilMembershipGUI
 
         return $context_options;
     }
+
+
+    // fau: PassedFlagCG
+    protected function bulkSetPassedFlag()
+    {
+        global $DIC;
+
+        $ilAccess = $DIC['ilAccess'];
+        
+        $participants = (array) $_POST['participants'];
+        $visible_members = (array) $_POST['visible_member_ids'];
+        
+        if (!$ilAccess->checkAccess("grade", "", $this->getParentObject()->getRefId()))
+        {
+            ilUtil::sendFailure($this->lng->txt("no_permission"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        if (!is_array($participants) or !count($participants)) {
+            ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        foreach ($participants as $participant) {
+            $this->getMembersObject()->updatePassed($participant, in_array($participant, $visible_members), true);
+            $this->updateLPFromStatus($participant, in_array($participant, $visible_members));
+        }
+
+        ilUtil::sendSuccess($this->lng->txt('crs_selected_members_set_to_passed'), true);
+        $this->ctrl->redirect($this, "participants");
+
+        return true;
+    }
+    // fau.
 }

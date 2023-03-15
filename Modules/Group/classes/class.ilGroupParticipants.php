@@ -292,4 +292,101 @@ class ilGroupParticipants extends ilParticipants
         return true;
     }
     // fau.
+
+    // fau: PassedFlagCG
+        /**
+     * Update passed status
+     *
+     * @access public
+     * @param int $usr_id
+     * @param bool $passed
+     * @param bool $a_manual
+     * @param bool $a_no_origin
+     */
+    public function updatePassed($a_usr_id, $a_passed, $a_manual = false, $a_no_origin = false)
+    {
+        $this->participants_status[$a_usr_id]['passed'] = (int) $a_passed;
+
+        return self::_updatePassed($this->obj_id, $a_usr_id, $a_passed, $a_manual, $a_no_origin);
+    }
+
+
+    /**
+     * Update passed status (static)
+     *
+     * @access public
+     *
+     * @param int  $a_obj_id
+     * @param int  $a_usr_id
+     * @param bool $a_passed
+     * @param bool $a_manual
+     * @param bool $a_no_origin
+     *
+     * @return bool
+     */
+    public static function _updatePassed($a_obj_id, $a_usr_id, $a_passed, $a_manual = false, $a_no_origin = false)
+    {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+        $ilUser = $DIC['ilUser'];
+        $ilAppEventHandler = $DIC['ilAppEventHandler'];
+        /**
+         * @var $ilAppEventHandler ilAppEventHandler
+         */
+
+        // #11600
+        $origin = -1;
+        if ($a_manual) {
+            $origin = $ilUser->getId();
+        }
+        
+        $query = "SELECT passed FROM obj_members " .
+        "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') . " " .
+        "AND usr_id = " . $ilDB->quote($a_usr_id, 'integer');
+        $res = $ilDB->query($query);
+        $update_query = '';
+        if ($res->numRows()) {
+            // #9284 - only needs updating when status has changed
+            $old = $ilDB->fetchAssoc($res);
+            if ((int) $old["passed"] != (int) $a_passed) {
+                $update_query = "UPDATE obj_members SET " .
+                    "passed = " . $ilDB->quote((int) $a_passed, 'integer') . ", " .
+                    "origin = " . $ilDB->quote($origin, 'integer') . ", " .
+                    "origin_ts = " . $ilDB->quote(time(), 'integer') . " " .
+                    "WHERE obj_id = " . $ilDB->quote($a_obj_id, 'integer') . " " .
+                    "AND usr_id = " . $ilDB->quote($a_usr_id, 'integer');
+            }
+        } else {
+            // when member is added we should not set any date
+            // see ilObjCourse::checkLPStatusSync()
+            if ($a_no_origin && !$a_passed) {
+                $origin = 0;
+                $origin_ts = 0;
+            } else {
+                $origin_ts = time();
+            }
+            
+            $update_query = "INSERT INTO obj_members (passed,obj_id,usr_id,notification,blocked,origin,origin_ts) " .
+                "VALUES ( " .
+                $ilDB->quote((int) $a_passed, 'integer') . ", " .
+                $ilDB->quote($a_obj_id, 'integer') . ", " .
+                $ilDB->quote($a_usr_id, 'integer') . ", " .
+                $ilDB->quote(0, 'integer') . ", " .
+                $ilDB->quote(0, 'integer') . ", " .
+                $ilDB->quote($origin, 'integer') . ", " .
+                $ilDB->quote($origin_ts, 'integer') . ")";
+        }
+        if (strlen($update_query)) {
+            $ilDB->manipulate($update_query);
+            if ($a_passed) {
+                $ilAppEventHandler->raise('Modules/Course', 'participantHasPassedCourse', array(
+                    'obj_id' => $a_obj_id,
+                    'usr_id' => $a_usr_id,
+                ));
+            }
+        }
+        return true;
+    }
+    // fau.
 }

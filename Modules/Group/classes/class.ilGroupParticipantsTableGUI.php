@@ -89,6 +89,13 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
             $this->addColumn($this->lng->txt('learning_progress'), 'progress');
         }
 
+        // fau: PassedFlagCG
+        $this->addColumn($this->lng->txt('crs_member_passed'), 'passed');
+  //      if ($this->show_lp_status_sync) {
+  //          $this->addColumn($this->lng->txt('crs_member_passed_status_changed'), 'passed_info');
+  //      }
+        // .fau
+
         if ($this->privacy->enabledGroupAccessTimes()) {
             $this->addColumn($this->lng->txt('last_access'), 'access_time_unix');
         }
@@ -112,6 +119,9 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         $this->addMultiCommand('editParticipants', $this->lng->txt('edit'));
         $this->addMultiCommand('confirmDeleteParticipants', $this->lng->txt('remove'));
         $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('mmbr_btn_mail_selected_users'));
+        // fau: PassedFlagCG
+        $this->addMultiCommand('bulkSetPassedFlag', $this->lng->txt('grp_bulk_set_passed_flag'));
+        // fau.
         $this->lng->loadLanguageModule('user');
         $this->addMultiCommand('addToClipboard', $this->lng->txt('clipboard_add_btn'));
         
@@ -270,6 +280,19 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
         }
         
         $this->tpl->setVariable('VAL_POSTNAME', 'participants');
+
+        // fau: PassedFlagCG
+        if ($ilAccess->checkAccess("grade", "", $this->rep_object->getRefId())) {
+            $this->tpl->setCurrentBlock('grade');
+            $this->tpl->setVariable('VAL_PASSED_ID', $a_set['usr_id']);
+            $this->tpl->setVariable('VAL_PASSED_CHECKED', ($a_set['passed'] ? 'checked="checked"' : ''));
+            $this->tpl->parseCurrentBlock();
+        } else {
+            $this->tpl->setVariable('VAL_PASSED_TXT', ($a_set['passed']
+                ? $this->lng->txt("yes")
+                : $this->lng->txt("no")));
+        }
+        // fau.
 
         if ($this->getParticipants()->isAdmin($a_set['usr_id'])) {
             $this->tpl->setVariable('VAL_CONTACT_ID', $a_set['usr_id']);

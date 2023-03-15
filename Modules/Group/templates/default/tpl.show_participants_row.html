@@ -34,6 +34,18 @@
 		{VAL_ACCESS}
 	</td>
 	<!--  END access_time -->
+	<!-- fau: PassedFlagCG -->
+	<td class="std">
+		<!--  BEGIN grade -->
+		<input type="checkbox" name="passed[]" value="{VAL_PASSED_ID}" {VAL_PASSED_CHECKED} />
+		<!--  END grade -->{VAL_PASSED_TXT}
+	</td>
+	<!-- BEGIN passed_info_col -->
+	<td class="std">
+		{PASSED_INFO}
+	</td>
+	<!-- END passed_info_col -->
+	<!-- fau. -->
 	<td class="std">
 		<!-- BEGIN with_contact -->
 		<input type="checkbox" name="contact[]" value="{VAL_CONTACT_ID}" {VAL_CONTACT_CHECKED} />
