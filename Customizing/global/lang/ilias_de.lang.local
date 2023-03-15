@@ -78,7 +78,7 @@ assessment#:#send_simple_results_to_participants_failed#:#Die folgenden Nutzer k
 assessment#:#send_simple_results_to_participants_success#:#Die folgenden Nutzer wurden angeschrieben:<br />%s
 assessment#:#sent_simple_results_to_participants#:#Die Ergebnisse wurden an die Teilnehmer gesendet
 assessment#:#show_detailed_results_with_correct_solutions#:#Detaillierte Testergebnisse mit korrekten Lösungen (bewerteter Testdurchlauf)
-assessment#:#tst_authorship_statement#:#Selbstständigkeitserklärung
+assessment#:#tst_authorship_statement#:#Eigenständigkeitserklärung bestätigen
 assessment#:#tst_filter_order_by#:#Reihenfolge der Fragen
 assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell mischt, bleiben die Fragen dieser Auswahlregel hintereinander. Ihre Sortierung kann hier bestimmt werden.
 assessment#:#tst_filter_order_description#:#Nach Beschreibung
@@ -95,7 +95,7 @@ assessment#:#tst_mark_tst_failed#:#Resultierende Note "nicht bestanden"
 assessment#:#tst_mark_tst_failed_details#:#Dieser Text ersetzt die Standardmeldung auf der Ergebnisseite eines nicht bestandenen Tests. Sie können darin die folgenden Platzhalter verwenden:<br /><strong>[mark]</strong> : Offizielle Bezeichnung der Notenstufe,<br /><strong>[markshort]</strong> : Kurzbezeichnung der Notenstufe,<br /><strong>[percentage]</strong> : Prozent gelöst,<br /><strong>[reached]</strong> : erreichte Punktzahl,<br /><strong>[max]</strong> : maximale Punktzahl.
 assessment#:#tst_mark_tst_passed#:#Resultierende Note "bestanden"
 assessment#:#tst_mark_tst_passed_details#:#Dieser Text ersetzt die Standardmeldung auf der Ergebnisseite eines bestandenen Tests. Sie können darin die folgenden Platzhalter verwenden:<br /><strong>[mark]</strong> : Offizielle Bezeichnung der Notenstufe,<br /><strong>[markshort]</strong> : Kurzbezeichnung der Notenstufe,<br /><strong>[percentage]</strong> : Prozent gelöst,<br /><strong>[reached]</strong> : erreichte Punktzahl,<br /><strong>[max]</strong> : maximale Punktzahl.
-assessment#:#tst_msg_authorship_statement_required#:#Bitte lesen und bestätigen Sie die Selbständigkeitserklärung!
+assessment#:#tst_msg_authorship_statement_required#:#Bitte lesen und bestätigen Sie die Eigenständigkeitserklärung!
 assessment#:#tst_msg_rand_quest_set_has_double_originals#:#Die zufällige Fragenauswahl enthält doppelte Originale. Bitte synchronisieren sie den Test erneut, möglichst nicht über einen Load Balancer!
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Zur Regel %s gibt es weniger als die erforderlichen Fragen. Für jede Regel muss es genug Fragen geben, die zu keiner anderen Regel passen.
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Zur Regel %s wurde keine Fragengruppe mit der erforderlichen Anzahl an Fragen gefunden!###fau: taxGroupFilter
@@ -107,8 +107,8 @@ assessment#:#tst_recalculated_solutions#:#Die Ergebnisse wurden neu berechnet
 assessment#:#tst_recalculate_selected_solutions_confirm#:#Die Ergebnisse der ausgewählten Teilnehmer werden neu berechnet. Manuelle Bewertungen bleiben dabei erhalten.!
 assessment#:#tst_recalculate_solutions#:#Ergebnisse neu berechnen
 assessment#:#tst_recalculate_solutions_confirm#:#Die Ergebnisse aller Teilnehmer werden neu berechnet. Manuelle Bewertungen bleiben dabei erhalten. Die Berechnung kann lange dauern!
-assessment#:#tst_require_authorship_statement#:#Selbstständigkeitserklärung
-assessment#:#tst_require_authorship_statement_desc#:#Erfordert zum Teststart die Bestätigung einer Selbstständigkeitserklärung
+assessment#:#tst_require_authorship_statement#:#Eigenständigkeitserklärung
+assessment#:#tst_require_authorship_statement_desc#:#Erfordert zum Teststart die Bestätigung einer Eigenstständigkeitserklärung
 assessment#:#tst_tbl_col_pass_finished#:#Letzter bewerteter Zugriff###fau: testParticipantsResultsTable
 assessment#:#tst_tbl_col_started_passes#:#Gestartete Durchläufe###fau: testParticipantsResultsTable
 assessment#:#tst_use_previous_answer#:#Die angezeigte Lösung aus dem vorherigen Durchgang übernehmen
@@ -452,7 +452,7 @@ crs#:#export_lp_status#:#Status
 dateplaner#:#cal_export_timezone_tz#:#Benutze StudOn-Zeitzone
 dcl#:#dcl_max_import_done#:#Die Datei enthält %s Datensätze, aber es wurden nur die ersten %s importiert. Wenn Sie mehr Datensätze importieren möchten, teilen Sie Ihre Datei bitte auf.###fau: dcImportLimit
 dcl#:#dcl_max_import_simulate#:#Die Datei enthält %s Datensätze, aber es können nur %s auf einmal importiert werden. Wenn Sie mehr Datensätze importieren möchten, teilen Sie Ihre Datei bitte auf.###fau: dcImportLimit
-exc#:#exc_accept_authorship_statement#:#Erklärung bestätigen
+exc#:#exc_accept_authorship_statement#:#Eigenständigkeitserklärung bestätigen
 exc#:#exc_ass_type_test_object#:#Test-Objekt
 exc#:#exc_ass_type_test_object_info#:#Test-Objekt, dessen Status und Punkte automatisch als Bewertung dieser Einheit übernommen werden. Die Bewertung wird mit jedem Testdurchlauf innerhalb der Abgabefrist aktualisiert. Dabei wird je nach Testeinstellung der beste oder letzte Durchlauf gewertet. Bitte stellen Sie sicher, dass die Testeinstellungen zum Terminplan dieser Einhalt passen.
 exc#:#exc_ass_type_test_open#:#Test öffnen
@@ -463,8 +463,8 @@ exc#:#exc_ass_type_test_sync#:#Testergebnisse synchronisieren
 exc#:#exc_ass_type_test_synced#:#Die Testergebnisse wurden synchronisiert.
 exc#:#exc_ass_type_test_sync_info#:#Die vorhandenen Testergebnisse aller Teilnehmer werden neu übertragen. Bei Teams wird das späteste Testergebnis für alle Mitglieder verwendet.
 exc#:#exc_ass_type_test_sync_label#:#Für Administratoren
-exc#:#exc_authorship_statement#:#Selbstständigkeitserklärung
-exc#:#exc_authorship_statement_accepted_at#:#Erklärung bestätigt: %s
+exc#:#exc_authorship_statement#:#Eigenständigkeitserklärung
+exc#:#exc_authorship_statement_accepted_at#:#Eigenständigkeitserklärung bestätigt: %s
 exc#:#exc_calculate_overall_results#:#Gesamtergebnisse berechnen
 exc#:#exc_calc_all_calculated#:#Alle Gesamtergebnisse wurden neu berechnet.
 exc#:#exc_calc_calculate#:#Berechnen
@@ -536,7 +536,7 @@ exc#:#exc_max_team_size#:#Maximale Teamgröße
 exc#:#exc_max_team_size_info#:#Lassen Sie das Feld leer, wenn Sie kein Limit setzen möchten
 exc#:#exc_max_x_points#:#max. %s Punkte
 exc#:#exc_mem_delete_perm_failure#:#Sie benötigen zum Löschen von Abgaben das Recht, die Einstellungen der Übung zu bearbeiten.
-exc#:#exc_msg_authorship_statement_required#:#Bitte lesen und bestätigen Sie die Selbständigkeitserklärung!
+exc#:#exc_msg_authorship_statement_required#:#Bitte lesen und bestätigen Sie die Eigenständigkeitserklärung!
 exc#:#exc_multi_feedback_by_submissions_hint#:#Wenn Sie Ihr Feedback direkt als Kommentare in den abgegebenen Dateien (z.B. bei PDFs) geben, können Sie auch mit dem unter "Alle Abgaben herunterladen" Archiv arbeiten.
 exc#:#exc_multi_feedback_by_submissions_warning#:#Sie haben wahrscheinlich das unter "Alle Abgaben herunterladen" bereitgestellte Archiv hochgeladen. Enthalten die Dateien darin ihr Feedback, z.B. als Kommentare? Dann können sie sie als Feedback speichern.
 exc#:#exc_notgraded#:#Nicht bewertet
@@ -569,9 +569,9 @@ exc#:#exc_plag_visible_info#:#Bei Verdacht werden Status und Kommentar nur den T
 exc#:#exc_preliminary_info#:#Sie sehen hier eine vorläufige Bewertung aus den bereits bekannt gegebenen Übungseinheiten.
 exc#:#exc_preliminary_mark#:#Vorläufige Note/Punkte
 exc#:#exc_preliminary_status#:#Vorläufiger Status
-exc#:#exc_require_authorship_statement#:#Selbstständigkeitserklärung
-exc#:#exc_require_authorship_statement_default#:#Bei neuen Übungseinheiten ist die Anforderung einer Selbständigkeitserklärung voreingstellt.
-exc#:#exc_require_authorship_statement_desc#:#Erfordert zur Abgabe die Bestätigung einer Selbstständigkeitserklärung
+exc#:#exc_require_authorship_statement#:#Eigenständigkeitserklärung
+exc#:#exc_require_authorship_statement_default#:#Bei neuen Übungseinheiten ist die Anforderung einer Eigenständigkeitserklärung voreingstellt.
+exc#:#exc_require_authorship_statement_desc#:#Erfordert zur Abgabe die Bestätigung einer Eigenstständigkeitserklärung
 exc#:#exc_result_available_after#:#Ergebnis verfügbar ab
 exc#:#exc_result_time#:#Ergebnistermin
 exc#:#exc_result_time_info#:#Wenn gesetzt, können die Bewertung und das Feedback des Tutors erst ab diesem Termin eingesehen werden. Vorher erfolgt auch keine automatische Benachrichtigung.

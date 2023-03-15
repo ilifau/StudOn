@@ -78,7 +78,7 @@ assessment#:#send_simple_results_to_participants_failed#:#The following users co
 assessment#:#send_simple_results_to_participants_success#:#The following users have been wrote to:<br />%s
 assessment#:#sent_simple_results_to_participants#:#The results have been send to the participants
 assessment#:#show_detailed_results_with_correct_solutions#:#Detailed testresults with correct solutions (evaluated testrun)
-assessment#:#tst_authorship_statement#:#Declaration of own Work
+assessment#:#tst_authorship_statement#:#Confirm declaration of originality
 assessment#:#tst_filter_order_by#:#Questions Order
 assessment#:#tst_filter_order_by_info#:#When the test doesn't shuffle the questions, then the questions of this rule are presented in a sequence. Their order is defined here.
 assessment#:#tst_filter_order_description#:#By Description
@@ -95,7 +95,7 @@ assessment#:#tst_mark_tst_failed#:#Resulting Mark "not succeeded"
 assessment#:#tst_mark_tst_failed_details#:#This text replaces the stadnardmessage on the solutionsite of a unsucceeded test. You can use following placeholder:<br /><strong>[mark]</strong> : Official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
 assessment#:#tst_mark_tst_passed#:#Resulting Mark "succeeded"
 assessment#:#tst_mark_tst_passed_details#:#This text replaces the standardmessage on the solutionsite of a succeeded test. You can use following placeholder:<br /><strong>[mark]</strong> : official label of the grading scale,<br /><strong>[markshort]</strong> : short label of the grading scale,<br /><strong>[percentage]</strong> : percent solved,<br /><strong>[reached]</strong> : reached score,<br /><strong>[max]</strong> : maximum score.
-assessment#:#tst_msg_authorship_statement_required#:#Please read and confirm the declaration of own work!
+assessment#:#tst_msg_authorship_statement_required#:#Please read and confirm the declaration of originality!
 assessment#:#tst_msg_rand_quest_set_has_double_originals#:#The random selection has double originals. Please synchronize the set again, prteferrably not via a load balancer!
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_detail#:#Rule %s requires more questions than available. Each rule must have enough questions that don't fit to another rule.
 assessment#:#tst_msg_rand_quest_set_pass_not_buildable_group#:#Rule %s provides no question group with the required amount of questions!###fau: taxGroupFilter
@@ -107,8 +107,8 @@ assessment#:#tst_recalculate_selected_solutions_confirm#:#Recalculate the soluti
 assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
 assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of all participants. Manual scorings will be kept. The calculation may took a long time!
 assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
-assessment#:#tst_require_authorship_statement#:#Declaration of own Work
-assessment#:#tst_require_authorship_statement_desc#:#A confirmation of the declaration of own work is required to submit the exercise.
+assessment#:#tst_require_authorship_statement#:#Declaration of originality
+assessment#:#tst_require_authorship_statement_desc#:#A confirmation of the declaration of originality is required to submit the exercise.
 assessment#:#tst_tbl_col_pass_finished#:#Last Scored Accessf###fau: testParticipantsResultsTable
 assessment#:#tst_tbl_col_started_passes#:#Started Passes###fau: testParticipantsResultsTable
 assessment#:#tst_use_previous_answer#:#Take the shown solution of the previous test tun
@@ -463,7 +463,7 @@ exc#:#exc_ass_type_test_sync#:#Synchronize Test Results
 exc#:#exc_ass_type_test_sync_info#:#The existing test results of all partipipants will be transmitted to the exercise. In teams the latest test result of all team members will be used.
 exc#:#exc_ass_type_test_sync_label#:#For Administrators
 exc#:#exc_ass_type_test_synced#:#The test results are transmitted.
-exc#:#exc_authorship_statement#:#Declaration of own Work
+exc#:#exc_authorship_statement#:#Declaration of originality
 exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
@@ -536,7 +536,7 @@ exc#:#exc_max_team_size#:#Maximum Team Size
 exc#:#exc_max_team_size_info#:#Leave the field empty to set no limit
 exc#:#exc_max_x_points#:#max. %s points
 exc#:#exc_mem_delete_perm_failure#:#You need the permission to edit the exercise settings in order to delete submissions!
-exc#:#exc_msg_authorship_statement_required#:#Please read and confirm the declaration of own work!
+exc#:#exc_msg_authorship_statement_required#:#Please read and confirm the declaration of originality!
 exc#:#exc_multi_feedback_by_submissions_hint#:#You may use the Archive created with "Download All Submissions" if you insert your comments directly in the submitted files (e.h. PDFs).
 exc#:#exc_multi_feedback_by_submissions_warning#:#You probably uploaded the archive provided by "Download All Submissions". Did you enter your feedback directly in the submitted files? Then you can save them as feedback.
 exc#:#exc_no_assignments_for_grading#:#No assignments available for grading.
@@ -569,9 +569,9 @@ exc#:#exc_plagiarism#:#Plagiarism
 exc#:#exc_preliminary_info#:#Sie sehen hier eine vorläufige Bewertung aus den bereits bekannt gegebenen Übungseinheiten.
 exc#:#exc_preliminary_mark#:#Preliminary Grade/Points
 exc#:#exc_preliminary_status#:#Preliminary Status
-exc#:#exc_require_authorship_statement#:#Declaration of own Work
-exc#:#exc_require_authorship_statement_default#:#An declaration of own work is required by default for new exercise assignments
-exc#:#exc_require_authorship_statement_desc#:#A confirmation of the declaration of own work is required to submit the exercise.
+exc#:#exc_require_authorship_statement#:#Declaration of originality
+exc#:#exc_require_authorship_statement_default#:#An declaration of originality is required by default for new exercise assignments
+exc#:#exc_require_authorship_statement_desc#:#A confirmation of the declaration of originality is required to submit the exercise.
 exc#:#exc_result_available_after#:#Result available after
 exc#:#exc_result_time#:#Result Availability
 exc#:#exc_result_time_info#:#The result and tutor Feedback will be available after this date. No feedback email is automatically sent before this date.
