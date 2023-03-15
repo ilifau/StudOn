@@ -597,7 +597,7 @@ class ilCourseMembershipGUI extends ilMembershipGUI
         $participants = (array) $_POST['participants'];
         $visible_members = (array) $_POST['visible_member_ids'];
         
-        if (!$ilAccess->checkAccess("edit_learning_progress", "", $this->getParentObject()->getRefId()))
+        if (!$ilAccess->checkAccess("grade", "", $this->getParentObject()->getRefId()))
         {
             ilUtil::sendFailure($this->lng->txt("no_permission"), true);
             $this->ctrl->redirect($this, 'participants');
