@@ -375,6 +375,7 @@ common#:#sub_subscription_object#:#Anmeldeobjekt
 common#:#sub_time_not_in_activation_time#:#Der Beitrittszeitraum muss innerhalb der zeitlich begrenzten Verfügbarkeit liegen!
 common#:#sub_to_confirm_message#:#Sie müssen noch über Aufnahmeanträge auf der Warteliste entscheiden.
 common#:#sub_to_fill_message#:#Sie können freie Plätze aus der Warteliste befüllen.
+common#:#sub_to_fill_message_group#:#Sie können freie Plätze aus der Warteliste im übergeordneten Kurs befüllen.
 common#:#to_home#:#Startseite
 common#:#to_login#:#Zum Login
 common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie sich Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>###fau: regCodes

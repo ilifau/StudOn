@@ -408,7 +408,7 @@ abstract class Registration extends AbstractRegistration
                     // user is already assigned to a grouped course
                     || ilObjCourseGrouping::_checkGroupingDependencies($this->object, $user_id) == false
                 ) {
-                    // user can't be added - so remove from waiting lists
+                    // user can't be added - so remove from waiting lists, trigger recalculation on list
                     $this->removeUserSubscription($user_id);
                     continue;
                 }
@@ -430,7 +430,7 @@ abstract class Registration extends AbstractRegistration
                 $added_users[] = $user_id;
                 $this->checkLPStatusSync($user_id);
 
-                // delete user from this and grouped waiting lists
+                // delete user from this and grouped waiting lists, trigger recalculation on list
                 $this->removeUserSubscription($user_id);
                 foreach ($grouping_ref_ids as $ref_id) {
                     ilWaitingList::deleteUserEntry($user_id, ilObject::_lookupObjId($ref_id));
@@ -651,7 +651,7 @@ abstract class Registration extends AbstractRegistration
     public function canBeFilled() : bool
     {
         return !$this->object->inSubscriptionFairTime()
-            && (!$this->hasMaxMembers() || $this->getFreePlaces() > $this->waitingList->getCountToConfirm());
+            && (!$this->hasMaxMembers() || $this->getFreePlaces() > $this->waitingList->getFirstBlockedPlaces());
     }
 
     /**
@@ -660,7 +660,7 @@ abstract class Registration extends AbstractRegistration
     protected function canGroupBeFilled(ContainerInfo $group) : bool
     {
         return !$this->object->inSubscriptionFairTime()
-            && (!$group->hasMaxMembers() || $group->getFreePlaces() > $group->getWaitingList()->getCountToConfirm());
+            && (!$group->hasMaxMembers() || $group->getFreePlaces() > $group->getWaitingList()->getFirstBlockedPlaces());
     }
 
     /**

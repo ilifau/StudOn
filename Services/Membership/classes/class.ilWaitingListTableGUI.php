@@ -149,8 +149,13 @@ class ilWaitingListTableGUI extends ilTable2GUI
 
         // check if places are free and can be filled (fair time is over)
         if ($registration->canBeFilled()) {
-            $todo_messages[] = $this->lng->txt('sub_to_fill_message');
-            $this->addCommandButton('confirmFillFreePlaces', $this->lng->txt('sub_fill_free_places'));
+            if ($this->getRepositoryObject()->isParallelGroup()) {
+                $todo_messages[] = $this->lng->txt('sub_to_fill_message_group');
+            } else {
+                $todo_messages[] = $this->lng->txt('sub_to_fill_message');
+                $this->addCommandButton('confirmFillFreePlaces', $this->lng->txt('sub_fill_free_places'));
+            }
+
         }
 
         ilUtil::sendInfo(implode('<br />', $todo_messages));

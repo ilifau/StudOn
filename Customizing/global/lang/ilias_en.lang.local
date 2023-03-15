@@ -374,6 +374,7 @@ common#:#sub_subscription_object#:#Subscription Object
 common#:#sub_time_not_in_activation_time#:#The registration period must be within the availability period!
 common#:#sub_to_confirm_message#:#You have to decide on membership requests.
 common#:#sub_to_fill_message#:#You can fill free places from the waiting list.
+common#:#sub_to_fill_message_group#:#You can fill free places from the waiting list in the parent course.
 common#:#subscribers_or_waiting_list#:#Subscribers/Waiting list
 common#:#to_home#:#Home
 common#:#to_login#:#To the Login

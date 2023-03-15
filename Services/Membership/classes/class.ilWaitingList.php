@@ -48,6 +48,11 @@ abstract class ilWaitingList
     private $to_confirm_ids = array();
     // fau.
 
+    // fau: fairSub - class variable for first blocled places
+    private $first_blocked_places = 0;
+    // fau.
+
+
     // fau: fairSub - class variable for users on a waiting list position	(position => user_id[])
     private $position_ids = array();
     // fau.
@@ -548,6 +553,25 @@ abstract class ilWaitingList
     }
     // fau.
 
+
+    // fau: fairSub - new function getFirstBlockedPlaces()
+    /**
+     * Get the number of places that must be kept free before the first user can be added from the list
+     * This is the number of pending confirmation with earlier or equal submision time than the first user without
+     * Is can be compared with the free places to decide if at least one free place can be filled
+     *
+     * Don't use this to calculate the whole amount of places that can be filled!
+     * After the first user is added, other pending confirmations may block further users
+     * So the recalculate() function has to be called after adding a user from the list
+     *
+     * @see self::recalculate()
+     */
+    public function getFirstBlockedPlaces() : int
+    {
+        return $this->first_blocked_places;
+    }
+    // fau.
+
     /**
      * get position
      *
@@ -746,13 +770,16 @@ abstract class ilWaitingList
         $position = 0;
         $previous = 0;
         $effective = 0;
+        $count_first_blocked = true;
         $this->user_ids = array();
         $this->position_ids = array();
         $this->to_confirm_ids = array();
+        $this->first_blocked_places = 0;
 
         // calculate
         foreach ($sort as $sub_time => $user_ids) {
             $position++;
+            $pos_has_addable = false;
             foreach ($user_ids as $user_id) {
                 $counter++;
                 if ($position > $previous) {
@@ -767,7 +794,16 @@ abstract class ilWaitingList
                 $this->position_ids[$position][] = $user_id;
                 if ($this->users[$user_id]['to_confirm'] == self::REQUEST_TO_CONFIRM) {
                     $this->to_confirm_ids[] = $user_id;
+                    if ($count_first_blocked) {
+                        $this->first_blocked_places++;
+                    }
+                } else {
+                    $pos_has_addable = true;
                 }
+            }
+            // stop counting the first blocked places if position has at least one user without confirmation meed
+            if ($pos_has_addable) {
+                $count_first_blocked = false;
             }
         }
     }
