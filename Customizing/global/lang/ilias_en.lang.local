@@ -107,7 +107,7 @@ assessment#:#tst_recalculate_selected_solutions_confirm#:#Recalculate the soluti
 assessment#:#tst_recalculate_solutions#:#Recalculate Solutions
 assessment#:#tst_recalculate_solutions_confirm#:#Recalculate the solutions of all participants. Manual scorings will be kept. The calculation may took a long time!
 assessment#:#tst_recalculated_solutions#:#The solutions were recalculated
-assessment#:#tst_require_authorship_statement#:#Declaration of originality
+assessment#:#tst_require_authorship_statement#:#Declaration of Originality
 assessment#:#tst_require_authorship_statement_desc#:#A confirmation of the Declaration of Originality is required to submit the exercise.
 assessment#:#tst_tbl_col_pass_finished#:#Last Scored Accessf###fau: testParticipantsResultsTable
 assessment#:#tst_tbl_col_started_passes#:#Started Passes###fau: testParticipantsResultsTable
@@ -464,7 +464,7 @@ exc#:#exc_ass_type_test_sync#:#Synchronize Test Results
 exc#:#exc_ass_type_test_sync_info#:#The existing test results of all partipipants will be transmitted to the exercise. In teams the latest test result of all team members will be used.
 exc#:#exc_ass_type_test_sync_label#:#For Administrators
 exc#:#exc_ass_type_test_synced#:#The test results are transmitted.
-exc#:#exc_authorship_statement#:#Declaration of originality
+exc#:#exc_authorship_statement#:#Declaration of Originality
 exc#:#exc_authorship_statement_accepted_at#:#Declaration of Originality accepted: %s
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
