@@ -1520,8 +1520,12 @@ class ilMembershipGUI
         // this will send a notification related to the course because the group is not yet accessible to the user
         if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
             $waiting_lists = $DIC->fau()->ilias()->objects()->getCourseAndParallelGroupsWaitingLists($this->getParentObject()->getRefId());
-            $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
-            $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
+            if ($this->getParentObject()->isParallelGroup()) {
+                $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
+                $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
+            } else {
+                $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
+            }
         }
         else {
             $waiting_lists = [$this->initWaitingList()];
@@ -1846,8 +1850,12 @@ class ilMembershipGUI
         global $DIC;
         if ($DIC->fau()->ilias()->objects()->isParallelGroupOrParentCourse($this->getParentObject())) {
             $waiting_lists = $DIC->fau()->ilias()->objects()->getCourseAndParallelGroupsWaitingLists($this->getParentObject()->getRefId());
-            $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
-            $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
+            if ($this->getParentObject()->isParallelGroup()) {
+                $course_ref_id = $DIC->fau()->ilias()->objects()->findParentIliasCourse($this->getParentObject()->getRefId());
+                $registration = $DIC->fau()->ilias()->getRegistration(new ilObjCourse($course_ref_id));
+            } else {
+                $registration = $DIC->fau()->ilias()->getRegistration($this->getParentObject());
+            }
         }
         elseif ($DIC->fau()->ilias()->objects()->isRegistrationHandlerSupported($this->getParentObject())) {
             $waiting_lists = [$this->initWaitingList()];
