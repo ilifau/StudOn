@@ -56,6 +56,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     const MAIL_ALLOWED_ALL = 1;
     const MAIL_ALLOWED_TUTORS = 2;
 
+    // fau: PassedFlagCG
+    const STATUS_DETERMINATION_LP = 1;
+    // fau.
+
     public $SHOW_MEMBERS_ENABLED = 1;
     public $SHOW_MEMBERS_DISABLED = 0;
     
@@ -83,6 +87,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
     private $session_limit = 0;
     private $session_prev = -1;
     private $session_next = -1;
+    
+    // fau: PassedFlagCG
+    private $status_dt = null;
+    // fau.
 
 
     /**
@@ -157,6 +165,10 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         $tree = $DIC['tree'];
 
         $this->tree = &$tree;
+
+        // fau: PassedFlagCG
+        $this->setStatusDetermination(self::STATUS_DETERMINATION_LP);
+        // fau.
 
         $this->type = "grp";
         parent::__construct($a_id, $a_call_by_reference);
@@ -2422,4 +2434,35 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         return $this->items[(int) $a_admin_panel_enabled][(int) $a_include_side_block];
     }
 
+    // fau: PassedFlagCG
+    /**
+     * Set status determination mode
+     *
+     * @param int $a_value
+     */
+    public function setStatusDetermination($a_value)
+    {
+        $a_value = (int) $a_value;
+        
+        // #13905
+        if ($a_value == self::STATUS_DETERMINATION_LP) {
+            include_once("Services/Tracking/classes/class.ilObjUserTracking.php");
+            if (!ilObjUserTracking::_enabledLearningProgress()) {
+                $a_value = self::STATUS_DETERMINATION_MANUAL;
+            }
+        }
+        
+        $this->status_dt = $a_value;
+    }
+    
+    /**
+     * Get status determination mode
+     *
+     * @return int
+     */
+    public function getStatusDetermination()
+    {
+        return $this->status_dt;
+    }
+    // fau.
 } //END class.ilObjGroup

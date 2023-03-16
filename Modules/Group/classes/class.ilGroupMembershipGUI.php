@@ -205,9 +205,12 @@ class ilGroupMembershipGUI extends ilMembershipGUI
     /**
      * Update lp from status
      */
-    protected function updateLPFromStatus()
+    protected function updateLPFromStatus($a_member_id, $a_passed)
     {
-        return null;
+        //return null;
+        // fau: PassedFlagCG
+        return $this->getParentGUI()->updateLPFromStatus($a_member_id, $a_passed);
+        // fau.
     }
     
     /**

@@ -1129,7 +1129,13 @@ class ilObjGroupGUI extends ilContainerGUI
             $tmp_data['contact'] = $this->object->members_obj->isContact($usr_id) ? 1 : 0;
             $tmp_data['usr_id'] = $usr_id;
             $tmp_data['login'] = ilObjUser::_lookupLogin($usr_id);
-            
+            // fau: PassedFlagCG
+            $tmp_data['passed'] = $this->object->getMembersObject()->hasPassed($usr_id) ? 1 : 0;
+          // column update status 
+          // if ($this->object->getStatusDetermination() == ilObjGroup::STATUS_DETERMINATION_LP) {
+          //      $tmp_data['passed_info'] = $this->object->getMembersObject()->getPassedInfo($usr_id);
+          //  }
+            // fau.
             foreach ((array) $profile_data[$usr_id] as $field => $value) {
                 $tmp_data[$field] = $value;
             }
@@ -2578,4 +2584,44 @@ class ilObjGroupGUI extends ilContainerGUI
     {
         $this->ctrl->setReturn($this, "view");
     }
+
+
+    // fau: PassedFlagCG
+    /**
+     * sync course status and lp status
+     *
+     * @param int $a_member_id
+     * @param bool $a_has_passed
+     */
+    public function updateLPFromStatus($a_member_id, $a_has_passed)
+    {
+        global $DIC;
+
+        $ilUser = $DIC['ilUser'];
+        
+        include_once("Services/Tracking/classes/class.ilObjUserTracking.php");
+        if (ilObjUserTracking::_enabledLearningProgress() &&
+            $this->object->getStatusDetermination() == ilObjCourse::STATUS_DETERMINATION_LP) {
+            include_once './Services/Object/classes/class.ilObjectLP.php';
+            $olp = ilObjectLP::getInstance($this->object->getId());
+            if ($olp->getCurrentMode() == ilLPObjSettings::LP_MODE_MANUAL_BY_TUTOR) {
+                include_once 'Services/Tracking/classes/class.ilLPMarks.php';
+                $marks = new ilLPMarks($this->object->getId(), $a_member_id);
+                
+                // only if status has changed
+                if ($marks->getCompleted() != $a_has_passed) {
+                    $marks->setCompleted($a_has_passed);
+                    $marks->update();
+                    
+                    // as course is origin of LP status change, block syncing
+                    include_once("./Modules/Course/classes/class.ilCourseAppEventListener.php");
+                    ilCourseAppEventListener::setBlockedForLP(true);
+
+                    include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
+                    ilLPStatusWrapper::_updateStatus($this->object->getId(), $a_member_id);
+                }
+            }
+        }
+    }
+    // fau.
 } // END class.ilObjGroupGUI
