@@ -453,7 +453,7 @@ crs#:#export_lp_status#:#Status
 dateplaner#:#cal_export_timezone_tz#:#Benutze StudOn-Zeitzone
 dcl#:#dcl_max_import_done#:#Die Datei enthält %s Datensätze, aber es wurden nur die ersten %s importiert. Wenn Sie mehr Datensätze importieren möchten, teilen Sie Ihre Datei bitte auf.###fau: dcImportLimit
 dcl#:#dcl_max_import_simulate#:#Die Datei enthält %s Datensätze, aber es können nur %s auf einmal importiert werden. Wenn Sie mehr Datensätze importieren möchten, teilen Sie Ihre Datei bitte auf.###fau: dcImportLimit
-exc#:#exc_accept_authorship_statement#:#Eigenständigkeitserklärung
+exc#:#exc_accept_authorship_statement#:#Eigenständigkeitserklärung bestätigen
 exc#:#exc_ass_type_test_object#:#Test-Objekt
 exc#:#exc_ass_type_test_object_info#:#Test-Objekt, dessen Status und Punkte automatisch als Bewertung dieser Einheit übernommen werden. Die Bewertung wird mit jedem Testdurchlauf innerhalb der Abgabefrist aktualisiert. Dabei wird je nach Testeinstellung der beste oder letzte Durchlauf gewertet. Bitte stellen Sie sicher, dass die Testeinstellungen zum Terminplan dieser Einhalt passen.
 exc#:#exc_ass_type_test_open#:#Test öffnen
