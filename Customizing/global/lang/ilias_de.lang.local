@@ -78,7 +78,7 @@ assessment#:#send_simple_results_to_participants_failed#:#Die folgenden Nutzer k
 assessment#:#send_simple_results_to_participants_success#:#Die folgenden Nutzer wurden angeschrieben:<br />%s
 assessment#:#sent_simple_results_to_participants#:#Die Ergebnisse wurden an die Teilnehmer gesendet
 assessment#:#show_detailed_results_with_correct_solutions#:#Detaillierte Testergebnisse mit korrekten Lösungen (bewerteter Testdurchlauf)
-assessment#:#tst_authorship_statement#:#Eigenständigkeitserklärung bestätigen
+assessment#:#tst_authorship_statement#:#Eigenständigkeitserklärung
 assessment#:#tst_filter_order_by#:#Reihenfolge der Fragen
 assessment#:#tst_filter_order_by_info#:#Wenn der Test die Fragen nicht generell mischt, bleiben die Fragen dieser Auswahlregel hintereinander. Ihre Sortierung kann hier bestimmt werden.
 assessment#:#tst_filter_order_description#:#Nach Beschreibung
