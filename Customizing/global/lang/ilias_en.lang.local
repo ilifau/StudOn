@@ -453,7 +453,7 @@ crs#:#export_lp_status#:#Status
 dateplaner#:#cal_export_timezone_tz#:#Use ILIAS-Timezone
 dcl#:#dcl_max_import_done#:#The file has %s records, but only the first %s were imported. Please split your file if you need to import more records.###fau: dcImportLimit
 dcl#:#dcl_max_import_simulate#:#The file has %s records, but only %s can be imported in one upload. Please split your file if you need to import more records.###fau: dcImportLimit
-exc#:#exc_accept_authorship_statement#:#Accept Statement
+exc#:#exc_accept_authorship_statement#:#Accept Declaration of Originality
 exc#:#exc_ass_type_test_object#:#Test Object
 exc#:#exc_ass_type_test_object_info#:#Test object whose status and points are automatically taken over as the evaluation of this assignment. The evaluation is updated with each test run within the submission deadline. Depending on the test settings, the best or last run is evaluated. Please make sure that the test settings match the schedule of this assignment.
 exc#:#exc_ass_type_test_open#:#Open Test
@@ -465,7 +465,7 @@ exc#:#exc_ass_type_test_sync_info#:#The existing test results of all partipipant
 exc#:#exc_ass_type_test_sync_label#:#For Administrators
 exc#:#exc_ass_type_test_synced#:#The test results are transmitted.
 exc#:#exc_authorship_statement#:#Declaration of originality
-exc#:#exc_authorship_statement_accepted_at#:#Statement accepted: %s
+exc#:#exc_authorship_statement_accepted_at#:#Declaration of Originality accepted: %s
 exc#:#exc_calc_all_calculated#:#All overall results have been recalculated.
 exc#:#exc_calc_calculate#:#Calculate
 exc#:#exc_calc_confirm_all#:#Calculate the overall result of all participants?
