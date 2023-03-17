@@ -1131,10 +1131,6 @@ class ilObjGroupGUI extends ilContainerGUI
             $tmp_data['login'] = ilObjUser::_lookupLogin($usr_id);
             // fau: PassedFlagCG
             $tmp_data['passed'] = $this->object->getMembersObject()->hasPassed($usr_id) ? 1 : 0;
-          // column update status 
-          // if ($this->object->getStatusDetermination() == ilObjGroup::STATUS_DETERMINATION_LP) {
-          //      $tmp_data['passed_info'] = $this->object->getMembersObject()->getPassedInfo($usr_id);
-          //  }
             // fau.
             foreach ((array) $profile_data[$usr_id] as $field => $value) {
                 $tmp_data[$field] = $value;
