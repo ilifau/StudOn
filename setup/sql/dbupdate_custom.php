@@ -1710,3 +1710,10 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_118();
 ?>
+<#119>
+<?php
+/**
+ * fau: fauService - change planned dates comment to clob
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_119();
+?>

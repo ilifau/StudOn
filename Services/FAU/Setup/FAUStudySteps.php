@@ -107,6 +107,12 @@ class FAUStudySteps
         $this->createLostCoursesTable(false);
     }
 
+    public function custom_step_119()
+    {
+        $this->changePlannedDatesCommentClob();
+    }
+
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -567,4 +573,12 @@ class FAUStudySteps
         $this->db->addPrimaryKey('fau_study_lost_courses', ['course_id']);
         $this->db->addIndex('fau_study_lost_courses', ['ilias_obj_id'], 'i1');
     }
+
+
+    protected function changePlannedDatesCommentClob()
+    {
+        $this->db->modifyTableColumn('fau_study_plan_dates', 'comment',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
 }

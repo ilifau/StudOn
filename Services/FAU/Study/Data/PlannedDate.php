@@ -23,7 +23,7 @@ class PlannedDate extends RecordData
         'enddate' => 'date',
         'famos_code' => 'text',
         'expected_attendees' => 'integer',
-        'comment' => 'text',
+        'comment' => 'clob',
     ];
     
     protected int $planned_dates_id;
