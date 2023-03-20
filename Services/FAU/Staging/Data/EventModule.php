@@ -2,10 +2,12 @@
 
 namespace FAU\Staging\Data;
 
+use FAU\RecordData;
+
 /**
  * Record of the campo_module table
  */
-class EventModule extends DipData
+class EventModule extends RecordData
 {
     // table name has only the module - but modules may be repeated for their events
     protected const tableName = 'campo_module';

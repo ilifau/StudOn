@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class CourseResponsible extends DipData
+use FAU\RecordData;
+
+class CourseResponsible extends RecordData
 {
     protected const tableName = 'campo_course_responsible';
     protected const hasSequence = false;

@@ -4,7 +4,6 @@ namespace FAU\Sync;
 
 
 use ILIAS\DI\Container;
-use FAU\Staging\Data\DipData;
 use FAU\Study\Data\Module;
 use FAU\Study\Data\ModuleCos;
 use FAU\Study\Data\CourseOfStudy;
@@ -132,7 +131,7 @@ class SyncWithCampo extends SyncBase
                 $record->getHoursPerWeek(),
                 $record->getAttendeeMaximum(),
                 $record->getCancelled(),
-                $record->getDeleted(), // deleted courses got their flag copied from the DIP status
+                $record->getDeleted(),
                 $record->getTeachingLanguage(),
                 $record->getCompulsoryRequirement(),
                 $record->getContents(),
@@ -152,10 +151,6 @@ class SyncWithCampo extends SyncBase
             }
             // course is still needed
             unset($existing[$course->key()]);
-
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-            }
         }
 
         // mark remaining existing courses as deleted
@@ -178,11 +173,6 @@ class SyncWithCampo extends SyncBase
         $touched = [];
 
         foreach ($this->staging->repo()->getCourseResponsibles() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new CourseResponsible(
                 $record->getCourseId(),
                 $record->getPersonId(),
@@ -257,11 +247,6 @@ class SyncWithCampo extends SyncBase
         $touched = [];
 
         foreach ($this->staging->repo()->getEvents() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new Event(
                 $record->getEventId(),
                 $record->getEventtype(),
@@ -326,11 +311,6 @@ class SyncWithCampo extends SyncBase
         $existing = $this->sync->repo()->getAllForSync(EventOrgunit::model());
 
         foreach ($this->staging->repo()->getEventOrgunits() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new EventOrgunit(
                 $record->getEventId(),
                 $record->getFauorgNr(),
@@ -361,11 +341,6 @@ class SyncWithCampo extends SyncBase
         $touched = [];
 
         foreach ($this->staging->repo()->getEventResponsibles() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new EventResponsible(
                 $record->getEventId(),
                 $record->getPersonId()
@@ -407,11 +382,6 @@ class SyncWithCampo extends SyncBase
         $existingModEv = $this->sync->repo()->getAllForSync(ModuleEvent::model());
 
         foreach ($this->staging->repo()->getEventModules() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $module = new Module(
                 $record->getModuleId(),
                 $record->getModuleNr(),
@@ -450,11 +420,6 @@ class SyncWithCampo extends SyncBase
         $existing = $this->sync->repo()->getAllForSync(Education::model());
 
         foreach ($this->staging->repo()->getEducations() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new Education(
                 $record->getId(),
                 $record->getSemester(),
@@ -489,11 +454,6 @@ class SyncWithCampo extends SyncBase
         $existing = $this->sync->repo()->getAllForSync(IndividualDate::model());
 
         foreach ($this->staging->repo()->getIndividualDates() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new IndividualDate(
                 $record->getIndividualDatesId(),
                 $record->getPlannedDatesId(),
@@ -531,11 +491,6 @@ class SyncWithCampo extends SyncBase
         $touched = [];
 
         foreach ($this->staging->repo()->getIndividualInstructors() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new IndividualInstructor(
                 $record->getIndividualDatesId(),
                 $record->getPersonId()
@@ -575,11 +530,6 @@ class SyncWithCampo extends SyncBase
         $touched = [];
 
         foreach ($this->staging->repo()->getInstructors() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new Instructor (
                 $record->getPlannedDatesId(),
                 $record->getPersonId()
@@ -623,10 +573,6 @@ class SyncWithCampo extends SyncBase
 
         $this->info('syncModuleCos...');
         foreach ($this->staging->repo()->getModuleCos() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
             $cos = new CourseOfStudy(
                 $record->getCosId(),
                 $record->getDegree(),
@@ -683,11 +629,6 @@ class SyncWithCampo extends SyncBase
         $existingRest = $this->sync->repo()->getAllForSync(ModuleRestriction::model());
 
         foreach ($this->staging->repo()->getModuleRestrictions() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             if ($record->getRequirementId() != 0) {
                 $requirement = new Requirement(
                     $record->getRequirementId(),
@@ -733,11 +674,6 @@ class SyncWithCampo extends SyncBase
         $existingRest = $this->sync->repo()->getAllForSync(EventRestriction::model());
 
         foreach ($this->staging->repo()->getEventRestrictions() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             if ($record->getRequirementId() != 0) {
                 $requirement = new Requirement(
                     $record->getRequirementId(),
@@ -779,11 +715,6 @@ class SyncWithCampo extends SyncBase
         $existing = $this->sync->repo()->getAllForSync(PlannedDate::model());
 
         foreach ($this->staging->repo()->getPlannedDates() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new PlannedDate(
                 $record->getPlannedDatesId(),
                 $record->getCourseId(),
@@ -821,11 +752,6 @@ class SyncWithCampo extends SyncBase
         $existing = $this->sync->repo()->getAllForSync(Restriction::model());
 
         foreach ($this->staging->repo()->getRestrictions() as $record) {
-            if ($record->getDipStatus() == DipData::DELETED) {
-                $this->staging->repo()->setDipProcessed($record);
-                continue;
-            }
-
             $entry = new Restriction(
                 $record->getId(),
                 $record->getRestriction(),

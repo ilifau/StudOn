@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class Restriction extends DipData
+use FAU\RecordData;
+
+class Restriction extends RecordData
 {
     protected const tableName = 'campo_restrictions';
     protected const hasSequence = false;

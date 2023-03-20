@@ -4,7 +4,6 @@ namespace FAU\Staging;
 
 use FAU\RecordRepo;
 use FAU\Staging\Data\Education;
-use FAU\Staging\Data\DipData;
 use FAU\Staging\Data\EventModule;
 use FAU\Staging\Data\ModuleCos;
 use FAU\Staging\Data\Achievement;
@@ -44,37 +43,6 @@ use FAU\Staging\Data\StudyTerm;
  */
 class Repository extends RecordRepo
 {
-    /**
-     * Query only records with a DIP status
-     * TRUE in production
-     * FALSE in development
-     */
-    private bool $queryStatus = true;
-
-
-    /**
-     * Set the status of processed DIP records in the database
-     * TRUE in production
-     * FALSE in development
-     */
-    private bool $setProcessed = true;
-
-    /**
-     * Enable that the campo synchronization should query for DIP records with a status flag
-     */
-    public function enableDipQueryStatus(bool $enabled = true)
-    {
-        $this->queryStatus = $enabled;
-    }
-
-    /**
-     * Enable that the campo synchronization should clear the DIP flag when a record is processed
-     */
-    public function enableDipSetProcessed(bool $enabled = true)
-    {
-        $this->setProcessed = $enabled;
-    }
-
     /**
      * Get the identity of a user
      */
@@ -392,68 +360,6 @@ class Repository extends RecordRepo
     public function delete(RecordData $record)
     {
         $this->deleteRecord($record);
-    }
-
-
-
-    /**
-     * Get the record objects for DIP table rows with a certain status
-     *
-     * @return static[]
-     */
-    private function getDipRecords(DipData $model, string $dip_status = DipData::MARKED) : array
-    {
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier($model::tableName());
-        if ($this->queryStatus) {
-            $query .= " WHERE " . $this->getDipStatusCondition($dip_status);
-        }
-        $query .= " ORDER BY dip_timestamp ASC ";
-
-        // DIP Records are read once - no caching needed
-        return $this->queryRecords($query, $model, false);
-    }
-
-    /**
-     * @param static $record
-     */
-    public function setDipProcessed(DipData $record)
-    {
-        if (!$this->setProcessed) {
-            return;
-        }
-
-        switch ($record->getDipStatus()) {
-            case DipData::INSERTED:
-            case DipData::CHANGED:
-                $dip_fields = [
-                    'dip_status' => ['text', null]
-                ];
-                $key_fields = $this->getFieldsArray($record, $record::tableKeyTypes());
-                $this->db->update($record::tableName(), $dip_fields, $key_fields);
-                break;
-
-            case DipData::DELETED:
-                $this->deleteRecord($record);
-        }
-    }
-
-
-    /**
-     * Get the SQL condition to query for a DIP status
-     */
-    private function getDipStatusCondition(string $dip_status) : string
-    {
-        switch ($dip_status) {
-            case DipData::INSERTED:
-                return "dip_status = 'inserted'";
-            case DipData::CHANGED:
-                return "dip_status = 'changed'";
-            case DipData::DELETED:
-                return "dip_status = 'deleted'";
-            case DipData::MARKED:
-            default:
-                return "dip_status IS NOT NULL";
-        }
     }
 
 }

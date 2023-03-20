@@ -2,10 +2,12 @@
 
 namespace FAU\Staging\Data;
 
+use FAU\RecordData;
+
 /**
  * Record of the education table
  */
-class Education extends DipData
+class Education extends RecordData
 {
     protected const tableName = 'campo_specific_educations';
     protected const hasSequence = false;

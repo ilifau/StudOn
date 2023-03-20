@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class Course extends DipData
+use FAU\RecordData;
+
+class Course extends RecordData
 {
     protected const tableName = 'campo_course';
     protected const hasSequence = false;
@@ -197,6 +199,6 @@ class Course extends DipData
      */
     public function getDeleted() : bool
     {
-        return $this->getDipStatus() == DipData::DELETED;
+        return false;
     }
 }

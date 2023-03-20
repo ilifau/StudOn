@@ -17,8 +17,6 @@ class Settings
     const RESTRICT_CREATE_ORG_IDS = 'fau_restrict_create_org_ids';
     const AUTHOR_ROLE_TEMPLATE_ID = 'fau_author_role_template_id';
     const MANAGER_ROLE_TEMPLATE_ID = 'fau_manager_role_template_id';
-    const DIP_QUERY_STATUS = 'fau_dip_query_status';
-    const DIP_SET_PROCESSED = 'fau_dip_set_processed';
 
     protected Container $dic;
 
@@ -162,26 +160,5 @@ class Settings
         });
     }
 
-
-    /**
-     * Get if the campo synchronization should query for DIP records with a status flag
-     */
-    public function getDipQueryStatus() : bool
-    {
-        return $this->getCachedValue(self::DIP_QUERY_STATUS, function() {
-            return (bool) ilCust::get(self::DIP_QUERY_STATUS);
-        });
-    }
-
-
-    /**
-     * Get if the campo synchronization should clear the DIP flag when a record is processed
-     */
-    public function getDipSetProcessed() : bool
-    {
-        return $this->getCachedValue(self::DIP_SET_PROCESSED, function() {
-            return (bool) ilCust::get(self::DIP_SET_PROCESSED);
-        });
-    }
 
 }

@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class Event extends DipData
+use FAU\RecordData;
+
+class Event extends RecordData
 {
     protected const tableName = 'campo_event';
     protected const hasSequence = false;

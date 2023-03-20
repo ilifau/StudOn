@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class Instructor extends DipData
+use FAU\RecordData;
+
+class Instructor extends RecordData
 {
     protected const tableName = 'campo_instructor';
     protected const hasSequence = false;

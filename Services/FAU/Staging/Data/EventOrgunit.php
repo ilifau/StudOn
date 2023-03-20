@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class EventOrgunit extends DipData
+use FAU\RecordData;
+
+class EventOrgunit extends RecordData
 {
     protected const tableName = 'campo_event_orgunit';
     protected const hasSequence = false;

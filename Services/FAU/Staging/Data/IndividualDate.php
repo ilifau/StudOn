@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class IndividualDate extends DipData
+use FAU\RecordData;
+
+class IndividualDate extends RecordData
 {
     protected const tableName = 'campo_individual_dates';
     protected const hasSequence = false;

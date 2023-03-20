@@ -2,10 +2,12 @@
 
 namespace FAU\Staging\Data;
 
+use FAU\RecordData;
+
 /**
  * Record of the campo_module_cos table
  */
-class ModuleCos extends DipData
+class ModuleCos extends RecordData
 {
     protected const tableName = 'campo_module_cos';
     protected const hasSequence = false;

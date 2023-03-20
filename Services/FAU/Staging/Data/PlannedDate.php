@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class PlannedDate extends DipData
+use FAU\RecordData;
+
+class PlannedDate extends RecordData
 {
     protected const tableName = 'campo_planned_dates';
     protected const hasSequence = false;

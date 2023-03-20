@@ -43,8 +43,6 @@ fau_exclude_create_org_ids = ""         ;ids of org units to be excluded from th
 fau_restrict_create_org_ids = ""        ;ids of org units to which the creation of courses should be restricted (including their descendants) FOR THE NEXT SEMESTER
 fau_author_role_template_id = ""        ;id of the author role template for categories
 fau_manager_role_template_id = ""       ;id of the manager role template for categories
-fau_dip_query_status = "1"              ;query for the status of records when synchronizing from DIP tables in the staging database
-fau_dip_set_processed = "1"             ;set the processing status of DIP records when synchronizing with the staging database
 
 ilias_guest_role_id = "5"				;Role Id of Guests
 ilias_copy_by_soap = "1"				;fau: copyBySoap - setting to use SOAP client to copy container objects

@@ -2,7 +2,9 @@
 
 namespace FAU\Staging\Data;
 
-class Achievement extends DipData
+use FAU\RecordData;
+
+class Achievement extends RecordData
 {
     protected const tableName = 'campo_achievements';
     protected const hasSequence = false;
