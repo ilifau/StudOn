@@ -58,6 +58,7 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
 
     // fau: PassedFlagCG
     const STATUS_DETERMINATION_LP = 1;
+    const STATUS_DETERMINATION_MANUAL = 2;
     // fau.
 
     public $SHOW_MEMBERS_ENABLED = 1;
@@ -2446,7 +2447,6 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
         
         // #13905
         if ($a_value == self::STATUS_DETERMINATION_LP) {
-            include_once("Services/Tracking/classes/class.ilObjUserTracking.php");
             if (!ilObjUserTracking::_enabledLearningProgress()) {
                 $a_value = self::STATUS_DETERMINATION_MANUAL;
             }

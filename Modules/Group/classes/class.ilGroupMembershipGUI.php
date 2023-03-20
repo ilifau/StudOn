@@ -300,7 +300,7 @@ class ilGroupMembershipGUI extends ilMembershipGUI
             $this->updateLPFromStatus($participant, in_array($participant, $visible_members));
         }
 
-        ilUtil::sendSuccess($this->lng->txt('crs_selected_members_set_to_passed'), true);
+        ilUtil::sendSuccess($this->lng->txt('grp_selected_members_set_to_passed'), true);
         $this->ctrl->redirect($this, "participants");
 
         return true;

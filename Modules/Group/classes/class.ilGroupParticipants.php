@@ -294,7 +294,7 @@ class ilGroupParticipants extends ilParticipants
     // fau.
 
     // fau: PassedFlagCG
-        /**
+    /**
      * Update passed status
      *
      * @access public
@@ -379,7 +379,7 @@ class ilGroupParticipants extends ilParticipants
         }
         if (strlen($update_query)) {
             $ilDB->manipulate($update_query);
-            if ($a_passed) {
+            if ($a_passed) { // fau: PassedFlagCG ToDo ???
                 $ilAppEventHandler->raise('Modules/Course', 'participantHasPassedCourse', array(
                     'obj_id' => $a_obj_id,
                     'usr_id' => $a_usr_id,

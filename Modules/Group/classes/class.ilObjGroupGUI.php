@@ -2592,16 +2592,12 @@ class ilObjGroupGUI extends ilContainerGUI
     public function updateLPFromStatus($a_member_id, $a_has_passed)
     {
         global $DIC;
-
         $ilUser = $DIC['ilUser'];
         
-        include_once("Services/Tracking/classes/class.ilObjUserTracking.php");
         if (ilObjUserTracking::_enabledLearningProgress() &&
-            $this->object->getStatusDetermination() == ilObjCourse::STATUS_DETERMINATION_LP) {
-            include_once './Services/Object/classes/class.ilObjectLP.php';
+            $this->object->getStatusDetermination() == ilObjGroup::STATUS_DETERMINATION_LP) {
             $olp = ilObjectLP::getInstance($this->object->getId());
             if ($olp->getCurrentMode() == ilLPObjSettings::LP_MODE_MANUAL_BY_TUTOR) {
-                include_once 'Services/Tracking/classes/class.ilLPMarks.php';
                 $marks = new ilLPMarks($this->object->getId(), $a_member_id);
                 
                 // only if status has changed
@@ -2610,10 +2606,8 @@ class ilObjGroupGUI extends ilContainerGUI
                     $marks->update();
                     
                     // as course is origin of LP status change, block syncing
-                    include_once("./Modules/Course/classes/class.ilCourseAppEventListener.php");
-                    ilCourseAppEventListener::setBlockedForLP(true);
+                    ilCourseAppEventListener::setBlockedForLP(true); // fau: PassedFlagCG ToDo ???
 
-                    include_once("./Services/Tracking/classes/class.ilLPStatusWrapper.php");
                     ilLPStatusWrapper::_updateStatus($this->object->getId(), $a_member_id);
                 }
             }

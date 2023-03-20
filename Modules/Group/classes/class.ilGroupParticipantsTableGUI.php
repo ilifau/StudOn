@@ -91,10 +91,7 @@ class ilGroupParticipantsTableGUI extends ilParticipantTableGUI
 
         // fau: PassedFlagCG
         $this->addColumn($this->lng->txt('crs_member_passed'), 'passed');
-  //      if ($this->show_lp_status_sync) {
-  //          $this->addColumn($this->lng->txt('crs_member_passed_status_changed'), 'passed_info');
-  //      }
-        // .fau
+        // fau.
 
         if ($this->privacy->enabledGroupAccessTimes()) {
             $this->addColumn($this->lng->txt('last_access'), 'access_time_unix');

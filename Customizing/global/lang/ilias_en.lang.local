@@ -1164,3 +1164,5 @@ trac#:#trac_lp_matriculation_numbers#:#Matriculation Numbers###fau: LPExport
 trac#:#trac_create_export_file#:#Download Export File###fau: LPExport 
 crs#:#crs_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed
 crs#:#crs_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed
+grp#:#grp_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed
+grp#:#grp_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed
