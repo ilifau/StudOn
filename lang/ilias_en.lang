@@ -1386,6 +1386,7 @@ assessment#:#tst_count_correct_solutions#:#Only Correct and Complete Answers Sco
 assessment#:#tst_count_correct_solutions_desc#:#Participants score either the maximum number of points for a fully correct and complete answer or 0 points in every other case. This is also valid for questions that define points for partial answers.
 assessment#:#tst_count_partial_solutions#:#Incomplete or Partly Wrong Answers Score Points
 assessment#:#tst_count_partial_solutions_desc#:#When a question defines points for partial answers, points for correctly provided partial answers are added up: Participants can score points for incomplete or partly wrong answers on these questions.
+assessment#:#tst_current_run_no_longer_valid#:#Your current test run is no longer valid. <br>It was probably completed already or finished by a tutor.
 assessment#:#tst_default_settings#:#Personal Default Settings
 assessment#:#tst_defaults_applied#:#The selected test defaults have been applied.
 assessment#:#tst_defaults_apply_not_possible#:#ILIAS could not apply the selected test defaults to this test! Maybe this test already contains participant data sets.
@@ -2041,47 +2042,54 @@ auth#:#auth_info_migrate#:#If you have already an ILIAS account, enter username 
 auth#:#auth_ldap_server_ds#:#LDAP-Server
 auth#:#auth_login_editor#:#Loginscreen Editor
 auth#:#auth_oidc#:#OpenId Connect
+auth#:#auth_oidc_failed#:#Login via OpenID Connect failed
 auth#:#auth_oidc_login_element_info#:#Login to ILIAS via OpenID Connect
-auth#:#auth_oidc_mapping_table#:#Zuordnung von ILIAS-Benutzerdaten zu OpenId Connect Attributen
-auth#:#auth_oidc_profile#:#Zuordnung der Profildaten
+auth#:#auth_oidc_mapping_table#:#Mapping ILIAS User Information to OpenID Connect Attributes
+auth#:#auth_oidc_profile#:#User Profile Mapping
 auth#:#auth_oidc_role_info#:#OpenID Connect Attribute::Value (e.g: "roles::employee").
-auth#:#auth_oidc_role_mapping_table#:#Zurodnung von ILIAS-Rollen zu OpenId Connect Attributen
-auth#:#auth_oidc_roles#:#Rollenzuordnung
-auth#:#auth_oidc_settings#:#Server-Einstellungen
-auth#:#auth_oidc_settings_activation#:#OpenID Connect aktivieren
+auth#:#auth_oidc_role_mapping_table#:#Mapping ILIAS Roles to OpenID Connect Attributes.
+auth#:#auth_oidc_roles#:#Role Assignment
+auth#:#auth_oidc_settings#:#Server Settings
+auth#:#auth_oidc_settings_activation#:#Enable OpenID Connect
 auth#:#auth_oidc_settings_additional_scopes#:#Additional Scopes
-auth#:#auth_oidc_settings_client_id#:#Client-ID
-auth#:#auth_oidc_settings_custom_session_duration#:#Sitzungsdauer
-auth#:#auth_oidc_settings_custom_session_duration_option#:#Eigene Sitzungsdauer
-auth#:#auth_oidc_settings_custom_session_duration_type#:#Einstellungen zur Sitzungsdauer
-auth#:#auth_oidc_settings_default_role#:#Rollenzuordnung
-auth#:#auth_oidc_settings_default_role_info#:#Bitte wählen Sie eine globale Rolle für neu anzulegende ILIAS-Benutzer
-auth#:#auth_oidc_settings_img#:#Bild
-auth#:#auth_oidc_settings_img_file_info#:#Laden Sie ein Bild hoch das auf der Anmeldeseite angezeigt werden soll. Das Bild verlinkt automatisch auf das OpenId Connect Anmeldeskript.
-auth#:#auth_oidc_settings_invalid_scopes#:#The following values are no valid Scopes: %s
-auth#:#auth_oidc_settings_le#:#Darstellung Anmeldeseite
-auth#:#auth_oidc_settings_login_option_default#:#Anmeldung nicht erzwingen
-auth#:#auth_oidc_settings_login_option_default_info#:#Eine Anmeldung beim OpenId Connect Server ist nicht notwendig, wenn bereits eine gültige Sitzung vorliegt.
-auth#:#auth_oidc_settings_login_option_enforce#:#Anmeldung erzwingen
-auth#:#auth_oidc_settings_login_option_enforce_info#:#Eine Anmeldung beim OpenId Connect Server ist in jedem Fall notwendig - auch wenn bereits eine gültige Sitzung vorliegt.
-auth#:#auth_oidc_settings_login_options#:#Anmeldeoptionen
-auth#:#auth_oidc_settings_logout_scope#:#Verhalten beim Abmelden
-auth#:#auth_oidc_settings_logout_scope_global#:#Global abmelden
-auth#:#auth_oidc_settings_logout_scope_global_info#:#Wenn aktiviert, wird beim Abmelden sowohl die OpenId Connect Sitzung als auch die ILIAS-Sitzung beendet.
-auth#:#auth_oidc_settings_logout_scope_local#:#nur bei ILIAS abmelden
-auth#:#auth_oidc_settings_logout_scope_local_info#:#Wenn aktiviert, wird beim Abmelden nur die ILIAS-Sitzung beendet.
-auth#:#auth_oidc_settings_provider#:#Provider-Url
-auth#:#auth_oidc_settings_secret#:#Client-Schlüssel
-auth#:#auth_oidc_settings_section_user_sync#:#Einstellungen zur Benutzersynchronisierung
-auth#:#auth_oidc_settings_session_duration#:#Dauer
-auth#:#auth_oidc_settings_title#:#OpenID Connect Authentifizierung konfigurieren
+auth#:#auth_oidc_settings_client_id#:#Client ID
+auth#:#auth_oidc_settings_custom_session_duration#:#Session Duration
+auth#:#auth_oidc_settings_custom_session_duration_option#:#Duration of Own Session
+auth#:#auth_oidc_settings_custom_session_duration_type#:#Session Duration Settings
+auth#:#auth_oidc_settings_default_role#:#Role Assignment
+auth#:#auth_oidc_settings_default_role_info#:#Please select a global role for the ILIAS user accounts that will be created for users who have authenticated themselves using OpenID Connect.
+auth#:#auth_oidc_settings_discovery_error#:#Retrieving the Discovery URL failed with: %s
+auth#:#auth_oidc_settings_discovery_url#:#Discovery URL of the provider
+auth#:#auth_oidc_settings_img#:#Image
+auth#:#auth_oidc_settings_img_file_info#:#Upload an image that you would like to have shown on the login page. The image will link automatically to the OpenID Connect login script.
+auth#:#auth_oidc_settings_invalid_scopes#:#The following values are not valid Scopes: %s
+auth#:#auth_oidc_settings_le#:#Visual Presentation of Login Page
+auth#:#auth_oidc_settings_login_option_default#:#Login Not Required
+auth#:#auth_oidc_settings_login_option_default_info#:#Users are not required to log in via the OpenID Connect server if a valid session is in progress.
+auth#:#auth_oidc_settings_login_option_enforce#:#Login Required
+auth#:#auth_oidc_settings_login_option_enforce_info#:#Users are always required to log in via the OpenId Connect Server – even if there is already a valid session in progress.
+auth#:#auth_oidc_settings_login_options#:#Login Options
+auth#:#auth_oidc_settings_logout_scope#:#Logout Options
+auth#:#auth_oidc_settings_logout_scope_global#:#Log Out Globally
+auth#:#auth_oidc_settings_logout_scope_global_info#:#When a users logs out, they end both their OpenID Connect session and their ILIAS session.
+auth#:#auth_oidc_settings_logout_scope_local#:#Log Out of ILIAS ONLY
+auth#:#auth_oidc_settings_logout_scope_local_info#:#When a user logs out, they only end their session in  ILIAS, not their OpenID Connect session.
+auth#:#auth_oidc_settings_provider#:#Provider URL
+auth#:#auth_oidc_settings_secret#:#Client Key
+auth#:#auth_oidc_settings_section_user_sync#:#User Synchronisation Settings
+auth#:#auth_oidc_settings_session_duration#:#Duration
+auth#:#auth_oidc_settings_title#:#Configure OpenID Connect Authentification
 auth#:#auth_oidc_settings_txt#:#Text
-auth#:#auth_oidc_settings_txt_val_info#:#Tragen Sie einen Text ein der auf der Anmeldeseite angezeigt werden soll. Der Text verlinkt automatisch auf das OpenId Connect Anmeldeskript.
-auth#:#auth_oidc_settings_user_attr#:#Attributname der Benutzerzugänge
-auth#:#auth_oidc_settings_user_sync#:#Automatische Synchronisierung
-auth#:#auth_oidc_settings_user_sync_info#:#Wenn aktiviert, wird für Benutzer, die sich erfolgreich gegen Open ID Connect authentifiziert haben aber kein ILIAS-Benutzerkonto besitzen, automatisch ein neues Benutzerkonto erzeugt.
-auth#:#auth_oidc_update_field_info#:#Automatisch aktualisieren
-auth#:#auth_oidc_update_role_info#:#Nur bei Erstanmeldung (automatische Synchronisierung) anwenden
+auth#:#auth_oidc_settings_txt_val_info#:#Enter a text to be displayed on the login page. The text will link automatically to the OpenID Connect login script.
+auth#:#auth_oidc_settings_user_attr#:#Attribute name of user accounts
+auth#:#auth_oidc_settings_user_sync#:#Synchronise Automatically
+auth#:#auth_oidc_settings_user_sync_info#:#Users who do not have an ILIAS account, but have successfully authenticated themselves using OpenID Connect, will have an ILIAS account created for them automatically.
+auth#:#auth_oidc_settings_validate_scope_custom#:#Use custom OpenID Connect Discovery url
+auth#:#auth_oidc_settings_validate_scope_default#:#Use :Provider-URL:/.well-known/openid-configuration
+auth#:#auth_oidc_settings_validate_scope_none#:#Do not validate Scopes on saving
+auth#:#auth_oidc_settings_validate_scopes#:#Validate Scopes upon saving
+auth#:#auth_oidc_update_field_info#:#Update Automatically
+auth#:#auth_oidc_update_role_info#:#Only Synchronise Automatically the First Time a User Logs In.
 auth#:#auth_oidconnect#:#OpenID Connect
 auth#:#auth_page_type_auth#:#Login Page
 auth#:#auth_rad_migration#:#Account Migration:
@@ -2519,6 +2527,7 @@ book#:#book_no_preferences_for_you#:#No preferences have been stored for you.
 book#:#book_not#:#Not
 book#:#book_not_enough_preferences#:#You selected not enough preferences. The preferences have not been saved.
 book#:#book_notification#:#Send Reservation Notifications
+book#:#book_notification_cron_not_active#:#Note: The corresponding cron job "Send Reservation Notifications" is currently not activated.
 book#:#book_notification_info#:#Send a list of reservations of the next day to users (own reservations) and admins (if activated).
 book#:#book_nr_of_preferences#:#Number of Preferences
 book#:#book_nr_of_preferences_info#:#Number of preferences each participant can indicate.
@@ -2806,7 +2815,7 @@ chatroom#:#banned#:#You have been banned from this chat room
 chatroom#:#bans#:#Bans
 chatroom#:#chat_address#:#Address
 chatroom#:#chat_anonymous_not_allowed#:#Please login to use the chat.
-chatroom#:#chat_auth_token_info#:#Please define unique strings used by ILIAS for authentication purposes when sending requests to the chat server. You can automatically create these strings by clicking the corresponding button. Please note that the chat server is able to communicate with multiple ILIAS clients, but each client id has to be <b>unique</b>.
+chatroom#:#chat_auth_token_info#:#Please define unique strings used by ILIAS for authentication purposes when sending requests to the chat server. You can automatically create these strings by clicking the corresponding button. Please note that the chat server is able to communicate with multiple ILIAS clients, but each client name has to be <b>unique</b>.
 chatroom#:#chat_ban#:#Ban
 chatroom#:#chat_connection_disconnected#:#--- <b>#username#</b> left the chat room ---
 chatroom#:#chat_connection_established#:#+++ <b>#username#</b> has entered chat room +++
@@ -3654,7 +3663,6 @@ common#:#categories_imported#:#Category import complete.
 common#:#catr#:#Category Link
 common#:#catr_edit_info#:#Please choose one category for creating a new link.
 common#:#catr_new#:#Create Category Link
-common#:#cc#:#CC
 common#:#certificate#:#Certificate
 common#:#certificate_file_already_exists_error#:#The certificate file already exists in the file system.
 common#:#certificate_file_input_output_error#:#The certificate file was found but couldn't be deleted because of internal errors. Please contact your administrator.
@@ -5976,6 +5984,7 @@ cont#:#cont_filter_fields#:#Filter Fields
 cont#:#cont_filter_record#:#Record
 cont#:#cont_found_objects#:#Found Objects
 cont#:#cont_item_list#:#List
+cont#:#cont_item_list_info#:#Display content objects in a list.
 cont#:#cont_list_presentation#:#Item Presentation
 cont#:#cont_mem_skills#:#Competences
 cont#:#cont_news_edited#:#Bearbeitet
@@ -6029,6 +6038,7 @@ cont#:#cont_std_filter_title_8#:#Object Type
 cont#:#cont_std_filter_title_9#:#Online/Offline
 cont#:#cont_std_record_title#:#Standard
 cont#:#cont_tile_view#:#Tiles
+cont#:#cont_tile_view_info#:#Display content objects as thumbnail-style tiles. Images for these tiles can be uploaded in the settings of each individual object.
 contact#:#contact_awrn_ap_contacts#:#Approved Contacts
 contact#:#contact_awrn_ap_contacts_info#:#All contacts approved by the user are listed.
 contact#:#contact_awrn_req_contacts#:#Contact Requests
@@ -10602,7 +10612,6 @@ lti#:#user_provider_subtab#:#Providers Defined by Users
 ltiv#:#ltiv_create#:#Create Certificate for LTI Consumer Object
 ltiv#:#ltiv_create_info#:#Select a completed LTI consumer object to generate a certificate for it
 mail#:#back_to_folder#:#Back to Folder
-mail#:#bc#:#BCC
 mail#:#chat_users_have_been_invited#:#The following users have been invited:
 mail#:#chat_users_without_login#:#The following users don't have an ILIAS account and can't be invited to a chat room:
 mail#:#chat_users_without_permission#:#The following users don't have access to the selected chat room:
@@ -10627,9 +10636,11 @@ mail#:#mail_assign_entry_to_mailing_list#:#Assign an Entry of Your Contacts to M
 mail#:#mail_attachment_file_not_exist#:#At least one of the following attachments does not exist: %1$s
 mail#:#mail_attachments#:#Attachments
 mail#:#mail_auto_generated_info#:#This mail was automatically sent to you by the ILIAS installation %s, %s
+mail#:#mail_bcc#:#BCC
 mail#:#mail_bg_task_desc#:#Subject: %s
 mail#:#mail_bg_task_title#:#E-mail Delivery
 mail#:#mail_both_email#:#Both E-Mail Addresses
+mail#:#mail_cc#:#CC
 mail#:#mail_change_to_folder#:#Switch to folder: %s
 mail#:#mail_create_tpl#:#Create Text Templates
 mail#:#mail_cronjob_notification_info#:#You can activate a periodic notification about new mail here.
@@ -10843,6 +10854,7 @@ mail#:#placeholders_advise#:#Personal placeholders are only substituted for reci
 mail#:#search_content#:#Search Result
 mail#:#search_recipients#:#Search Recipients
 mail#:#second_email_missing_info#:#Selection not possible because no second e-mail address has been entered
+mail#:#select_mail_with_subject_x#:#Select mail with subject „%s“
 mail#:#send_mail_admins#:#All Administrators
 mail#:#send_mail_members#:#All Members
 mail#:#send_mail_to#:#Mail to
@@ -12004,7 +12016,7 @@ obj#:#obj_show_header_actions#:#Show Header Actions
 obj#:#obj_show_title_and_icon#:#Show Title and Icon
 obj#:#obj_target_location#:#Target Location
 obj#:#obj_tile_image#:#Tile Image
-obj#:#obj_tile_image_info#:#The tile image will be used, if the container (course, folder, group, ...) activates the tile view presentation. To avoid performance issues, upload files with a resolution of 72dpi and a width less than 1000 px. Otherwise the display of the page will be unnecessarily delayed.
+obj#:#obj_tile_image_info#:#This image will be used as a thumbnail-style image (called a tile) to represent this object in the container (e.g. the category, folder group etc.) in which it is located. The tile is only used if the parent container sets its ‘Item Presentation’ (or 'Content Display Options' - see above) to ‘Tiles’ (rather than ‘List’). To avoid performance issues, only upload files with a resolution of 72dpi and a width of less than 1000 px.
 obj#:#obj_tool_booking#:#Resources
 obj#:#obj_tool_booking_info#:#Use the booking pools to book resources.
 obj#:#obj_tool_ext_mail_subject_prefix#:#Mail Subject Prefix
@@ -13783,7 +13795,7 @@ registration#:#reg_confirmation_hash_life_time_expired#:#The confirmation link i
 registration#:#reg_confirmation_hash_life_time_info#:#Enter the lifetime (seconds) of confirmation links. Recommended value is 1800 seconds.
 registration#:#reg_confirmation_hash_not_found#:#No user account could be matched to this confirmation link.
 registration#:#reg_confirmation_hash_not_passed#:#The confirmation link is incomplete.
-registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to ILIAS. You will receive a confirmation e-mail in the next minutes. Please confirm your registration by clicking the confirmation link in this mail.<br />You will be redirected to the <a href="%s" title="login screen">login screen</a> after 20 seconds.
+registration#:#reg_confirmation_link_successful#:#You successfully submitted an account request to ILIAS. You will receive a confirmation e-mail in the next minutes. Please confirm your registration by clicking the confirmation link in this mail.
 registration#:#reg_default#:#Default
 registration#:#reg_deleted_assignment#:#Deleted assignment(s).
 registration#:#reg_direct#:#Direct Registration
@@ -15970,7 +15982,7 @@ tos#:#tos_period#:#Period
 tos#:#tos_period_from#:#From
 tos#:#tos_period_until#:#Until
 tos#:#tos_reevaluate_on_login#:#Reevaluate on Successful Login
-tos#:#tos_reevaluate_on_login_desc#:#If enabled, ILIAS checks if the user has to accept a new document after successful login. This applies for the cased, where the criteria of a signed document do not match anymore, and a new document can be determined based on the current user criteria.
+tos#:#tos_reevaluate_on_login_desc#:#If enabled, ILIAS checks if the user has to accept a new document after successful login. This applies for the case, where the criteria of a signed document do not match anymore, and a new document can be determined based on the current user criteria.
 tos#:#tos_reset_successful#:#The terms of service have been reset successfully.
 tos#:#tos_reset_tos_for_all_users#:#Reset Terms of Service
 tos#:#tos_saved_sorting#:#The sorting has been saved.
