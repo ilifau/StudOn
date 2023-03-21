@@ -656,6 +656,10 @@ fau#:#fau_check_info_passed_restrictions#:#Erfüllt
 fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_course_export_term_info#:#Die Semesterauswahl funktioniert nur bei Kursen, die mit Lehrveranstaltungen aus Campo verbunden sind. Wenn Sie andere Kurse exportieren möchten, wählen Sie "Bis Sommersemester 2022 / ohne Semesterangabe"
+fau#:#fau_dates_planned#:#Terminplan
+fau#:#fau_dates_planned_for#:#Terminplan für
+fau#:#fau_dates_missing#:#Kein Termin angegeben
+fau#:#fau_dates_indiv#:#Einzeltermine
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_info_campo#:#Die Liste enthält einen oder mehrere Kurse für Lehrveranstaltungen aus Campo. Beim Löschen wird die Verbindung zu Campo aufgehoben. Falls eine Lehrveranstaltung im Semester dennoch angeboten wird, erzeugt StudOn bei der nächsten Synchronisation (in der Regel stündlich) wieder einen neuen Kurs. Sie könenn das verhindern, indem Sie die Parallelgruppen in Campo löschen oder ausfallen lassen. Warten Sie dann eine bis zwei Stunden. Danach können sie den StudOn-Kurs löschen, ohne dass er wieder angelegt wird.

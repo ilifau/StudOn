@@ -80,7 +80,7 @@ class fauDatesInfoGUI extends BaseGUI
 
         $this->ctrl->setParameter($this, 'course_id', $course_id);
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
-                         ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDatesModal'));
+                         ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDatesModal', '', true));
 
         $text = $this->service->dates()->getPlannedDatesList($course_id, false);
 

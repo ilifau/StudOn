@@ -22,6 +22,7 @@ class Service extends SubService
     protected Repository $repository;
     protected Matching $matching;
     protected Search $search;
+    protected Dates $dates;
 
 
     /**
@@ -57,6 +58,13 @@ class Service extends SubService
         return $this->search;
     }
 
+    public function dates() : Dates
+    {
+        if(!isset($this->dates)) {
+            $this->dates = new Dates($this->dic);
+        }
+        return $this->dates;
+    }
 
     /**
      * Check if an object is needed for campo

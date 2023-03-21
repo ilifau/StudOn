@@ -58,6 +58,9 @@ class ilObjCourseListGUI extends ilObjectListGUI
         if (!empty($link = $DIC->fau()->study()->getCampoLinkForObject($this->obj_id))) {
             $this->addCustomProperty('', $link, false, true);
         }
+        if (!empty($info = fauDatesInfoGUI::getInstance()->getLinkedDatesInfo(null, $this->obj_id))) {
+            $this->setAdditionalInformation($info);
+        }
         // fau.
     }
 

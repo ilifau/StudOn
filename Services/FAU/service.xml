@@ -10,6 +10,7 @@
 	</crons>
 	<baseclasses>
 		<baseclass name="fauStudySearchGUI" dir="Study/GUI" />
+		<baseclass name="fauDatesInfoGUI" dir="Study/GUI" />
 		<baseclass name="fauHardRestrictionsGUI" dir="Cond/GUI" />
 	</baseclasses>
 	<events>

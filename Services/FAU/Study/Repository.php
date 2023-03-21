@@ -125,6 +125,17 @@ class Repository extends RecordRepo
         return $terms;
     }
 
+    /**
+     * Get the planned dates of a course
+     * @return PlannedDate[]
+     */
+    public function getPlannedDatesOfCourse(int $course_id) : array
+    {
+        $query = "SELECT * from fau_study_plan_dates WHERE course_id=" . $this->db->quote($course_id, 'integer')
+        . ' ORDER BY startdate, starttime';
+        return $this->queryRecords($query, PlannedDate::model());
+    }
+
 
     /**
      * Get a single Doc Programme
