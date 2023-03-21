@@ -72,20 +72,25 @@ class fauDatesInfoGUI extends BaseGUI
     {
         if (empty($course_id)) {
             $importId = $this->repo->getImportId((int) $obj_id);
-            $course_id = $importId->getCourseId();
+            $course_id = (int) $importId->getCourseId();
         }
         if (empty($course_id)) {
             return '';
         }
+        if (empty($text = $this->service->dates()->getPlannedDatesList($course_id, false))) {
+            return '';
+        }
+
+        $text = ilUtil::shortenText($text, 100, true);
+
 
         $this->ctrl->setParameter($this, 'course_id', $course_id);
-        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
-                         ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDatesModal', '', true));
-
-        $text = $this->service->dates()->getPlannedDatesList($course_id, false);
-
+        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy((string) $course_id))
+            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDatesModal'))
+            ->withResetSignals();
         $button = $this->factory->button()->shy('» ' . $text, '#')
-                          ->withOnClick($modal->getShowSignal());
+            ->withResetTriggeredSignals()
+             ->withOnClick($modal->getShowSignal());
 
         return $this->renderer->render([$modal, $button]);
     }
@@ -104,7 +109,7 @@ class fauDatesInfoGUI extends BaseGUI
 
         if (!empty($course)) {
             if (!empty($course->getIliasObjId())) {
-                $title = sprintf($this->lng->txt('fau_dates_for'), ilObject::_lookupTitle($course->getIliasObjId()));
+                $title = sprintf($this->lng->txt('fau_dates_planned_for'), ilObject::_lookupTitle($course->getIliasObjId()));
             }
             else {
                 $title = $course->getTitle();

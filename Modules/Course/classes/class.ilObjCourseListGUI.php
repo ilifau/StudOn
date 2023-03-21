@@ -55,11 +55,11 @@ class ilObjCourseListGUI extends ilObjectListGUI
         // fau: campoInfo - show link to course in campo
         // use custom property to hide the display in the result list of campo search
         global $DIC;
+        if (!empty($info = fauDatesInfoGUI::getInstance()->getLinkedDatesInfo(null, $this->obj_id))) {
+            $this->addCustomProperty('', $info, false, true);
+        }
         if (!empty($link = $DIC->fau()->study()->getCampoLinkForObject($this->obj_id))) {
             $this->addCustomProperty('', $link, false, true);
-        }
-        if (!empty($info = fauDatesInfoGUI::getInstance()->getLinkedDatesInfo(null, $this->obj_id))) {
-            $this->setAdditionalInformation($info);
         }
         // fau.
     }

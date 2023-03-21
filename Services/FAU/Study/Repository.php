@@ -136,6 +136,18 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, PlannedDate::model());
     }
 
+    /**
+     * Get the individual dates of a course
+     * @return IndividualDate[]
+     */
+    public function getIndividualDatesOfCourse(int $course_id) : array
+    {
+        $query = "SELECT i.* FROM fau_study_indi_dates i JOIN fau_study_plan_dates p ON p.planned_dates_id = i.planned_dates_id"
+            . " WHERE p.course_id =" . $this->db->quote($course_id, 'integer')
+            . " ORDER BY i.date, i.starttime";
+        return $this->queryRecords($query, IndividualDate::model());
+    }
+
 
     /**
      * Get a single Doc Programme

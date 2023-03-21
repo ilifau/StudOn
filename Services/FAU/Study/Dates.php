@@ -38,20 +38,6 @@ class Dates
     }
 
 
-    public function getDatesInfoForObject(int $obj_id) : string
-    {
-        $importId = $this->repo->getImportId($obj_id);
-        If (!empty($course_id = $importId->getCourseId())) {
-            $planned_list = $this->getPlannedDatesList($course_id, true);
-            if (!empty($planned_list)) {
-                $indiv_list = $this->getIndividualDatesList($course_id, true);
-                return \fauTextViewGUI::getInstance()->showWithModal($planned_list . $indiv_list, 'Planned Dates', 100);
-            }
-        }
-        return '';
-
-    }
-
     /**
      * Get the list of planned datees for a course
      */
@@ -60,8 +46,8 @@ class Dates
         $list = [];
         foreach ($this->repo->getPlannedDatesOfCourse($course_id) as $date) {
             $parts = [];
-            if (!empty($date->getRhythm())) {
-                $parts[] = $date->getRhythm();
+            if (!empty($text = $this->getRhythmText((string) $date->getRhythm()))) {
+                $parts[] = $text;
             }
             $timeparts = [];
             if (!empty($date->getStartdate())) {
@@ -95,9 +81,32 @@ class Dates
     }
 
 
+    /**
+     * Get the list of individual dates of a course
+     */
     public function getIndividualDatesList(int $course_id, bool $html = true) : string
     {
-        return $this->getPlannedDatesList($course_id, $html);
+        $list = [];
+        foreach($this->repo->getIndividualDatesOfCourse($course_id) as $date) {
+            $parts = [];
+            if (!empty($date->getDate())) {
+                $parts[] = $this->getWeekday($date->getDate())
+                . ' ' . $this->getDatespan($date->getDate(), null);
+            }
+            if (!empty($date->getStarttime())) {
+                $parts[] = $this->getTimespan($date->getStarttime(), $date->getEndtime());
+            }
+            if (!empty($parts)) {
+                $list[] = implode(', ', $parts);
+            }
+        }
+
+        if ($html) {
+            return $this->dic->fau()->tools()->format()->list($list, $html, true);
+        }
+        else {
+            return implode(' | ', $list);
+        }
     }
 
 
@@ -107,6 +116,9 @@ class Dates
     protected function getRhythmText(string $rhythm) : string
     {
         switch($rhythm) {
+            case 'wöchentlich':
+                return '';
+
             case '14-täglich':
             case 'Blockveranstaltung':
             case 'Blockveranstaltung+Sa':
@@ -114,7 +126,6 @@ class Dates
             case 'Einzeltermin':
             case 'nach Vereinbarung':
             case 'vierwöchentlich':
-            case 'wöchentlich':
             default:
                 return $rhythm;
         }

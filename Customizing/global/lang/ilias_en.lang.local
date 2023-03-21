@@ -626,6 +626,10 @@ fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity re
 fau#:#fair_autofill_cron_result#:#Allocated Places: %s
 fau#:#fau_add_no_group_possible#:#Admission not possible, as no group can be assigned!
 fau#:#fau_course_export_term_info#:#The semester selection works only for courses that are associated with courses from Campo. If you want to export other courses, choose 'Until summer term 2022 / without term'.
+fau#:#fau_dates_planned#:#Planned Dates
+fau#:#fau_dates_planned_for#:#Planned Dates for %s
+fau#:#fau_dates_missing#:#No date planned
+fau#:#fau_dates_indiv#:#Individual Dates
 fau#:#fau_campo_assigned_orgunits#:#Assigned Institutiuons
 fau#:#fau_campo_course_is_cancelled#:#This event is cancelled!
 fau#:#fau_campo_course_is_deleted#:#This event is deleted!

@@ -657,7 +657,7 @@ fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s
 fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_course_export_term_info#:#Die Semesterauswahl funktioniert nur bei Kursen, die mit Lehrveranstaltungen aus Campo verbunden sind. Wenn Sie andere Kurse exportieren möchten, wählen Sie "Bis Sommersemester 2022 / ohne Semesterangabe"
 fau#:#fau_dates_planned#:#Terminplan
-fau#:#fau_dates_planned_for#:#Terminplan für
+fau#:#fau_dates_planned_for#:#Terminplan für %s
 fau#:#fau_dates_missing#:#Kein Termin angegeben
 fau#:#fau_dates_indiv#:#Einzeltermine
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
