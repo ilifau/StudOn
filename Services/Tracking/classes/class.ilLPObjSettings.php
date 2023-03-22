@@ -200,7 +200,7 @@ class ilLPObjSettings
 
         $ilDB = $DIC['ilDB'];
 
-        $query = "INSERT INTO ut_lp_settings (obj_id,obj_type,u_mode,visits) " .
+        $query = "REPLACE INTO ut_lp_settings (obj_id,obj_type,u_mode,visits) " .
             "VALUES( " .
             $this->db->quote($a_new_obj_id, 'integer') . ", " .
             $this->db->quote($this->getObjType(), 'text') . ", " .
