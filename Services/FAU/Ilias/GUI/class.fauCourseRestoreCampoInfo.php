@@ -5,10 +5,10 @@ use FAU\Study\Data\ImportId;
 use FAU\Sync\SyncWithIlias;
 
 /**
- * GUI for transferring a campo connection to another course
- * @ilCtrl_IsCalledBy fauCourseTransferGUI: ilObjCourseGUI
+ * GUI for restoring the Campo Title and Description
+ * @ilCtrl_IsCalledBy fauCourseRestoreCampoInfoGUI: ilObjCourseGUI
  */
-class fauCourseRestoreCampoInfo extends BaseGUI
+class fauCourseRestoreCampoInfoGUI extends BaseGUI
 {
     protected ilObjCourse $object;
 

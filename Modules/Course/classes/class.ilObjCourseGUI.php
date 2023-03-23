@@ -197,11 +197,20 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->toolbar->addSeparator();
                 $this->toolbar->addButtonInstance($button);
 
+                // restoring campoInfo uses the same preconditions as campotransfer
+                //TODO: but needs mentioning in the anpassungs-file
+                $btnRestore = ilLinkButton::getInstance();
+                $btnRestore->setCaption('fau_reset_course_title');
+                $btnRestore->setUrl($this->ctrl->getLinkTargetByClass('fauCourseRestoreCampoInfoGUI', 'restoreCampoInfo'));
+                $this->toolbar->addSeparator();
+                $this->toolbar->addButtonInstance($btnRestore);
+
                 if ($this->object->hasParallelGroups()) {
                     $button = ilLinkButton::getInstance();
                     $button->setCaption('fau_split_course');
                     $button->setUrl($this->ctrl->getLinkTargetByClass('fauCourseTransferGUI', 'showSplitOptions'));
                     $this->toolbar->addButtonInstance($button);
+
                 }
 
                 if (!empty($import_id->getCourseId()) && count($DIC->fau()->study()->repo()->getObjectIdsWithImportId($import_id)) > 1)
@@ -2781,6 +2790,19 @@ class ilObjCourseGUI extends ilContainerGUI
                 $course = $this->object;
                 $transfer_gui->init($course);
                 $this->ctrl->forwardCommand($transfer_gui);
+                break;
+// fau.
+
+// fau: campoResetInfo
+            case "fauCourseRestoreCampoInfoGUI":
+                $this->checkPermission("write");
+                $this->tabs_gui->setTabActive('view_content');
+                $this->ctrl->setReturn($this, "view");
+                $restore_gui = new fauCourseRestoreCampoInfoGUI();
+                /** @var ilObjCourse $course */
+                $course = $this->object;
+                $restore_gui->init($course);
+                $this->ctrl->forwardCommand($restore_gui);
                 break;
 // fau.
 
