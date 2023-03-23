@@ -1,15 +1,13 @@
 <?php
 
 use FAU\BaseGUI;
-use FAU\Study\Data\ImportId;
-use FAU\Study\Data\Event;
 use FAU\Study\Repository;
 
 /**
- * GUI for the display of planned and individualDates
- * @ilCtrl_Calls fauDatesInfoGUI:
+ * GUI for the display of course related data
+ * @ilCtrl_Calls fauStudyInfoGUI:
  */
-class fauDatesInfoGUI extends BaseGUI
+class fauStudyInfoGUI extends BaseGUI
 {
     protected \FAU\Study\Service $service;
     protected Repository $repo;
