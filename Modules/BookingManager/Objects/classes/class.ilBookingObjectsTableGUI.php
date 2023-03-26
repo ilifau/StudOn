@@ -34,6 +34,8 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
     protected $filter; // [array]
     protected $ui_factory;
     protected $ui_renderer;
+    protected $stornoAllowed; //[bool]
+    protected $objBookingPool; //[ilObjBookingPool]
 
     /**
      * @var bool
@@ -81,7 +83,9 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
             $ilAccess->checkAccess('write', '', $this->ref_id));
 
         $this->advmd = ilObjBookingPool::getAdvancedMDFields($this->ref_id);
-        
+        $this->objBookingPool = new ilObjBookingPool($this->ref_id);
+        $this->stornoAllowed = $this->objBookingPool->getUserStorno();
+
         $this->setId("bkobj");
 
         parent::__construct($a_parent_obj, $a_parent_cmd);
@@ -367,7 +371,7 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
 
             $ilCtrl->setParameter($this->parent_obj, 'sseed', '');
         }
-        
+
         // #16663
         if (!$this->has_schedule && $has_booking) {
             if (trim($a_set['post_text']) || $a_set['post_file']) {
@@ -377,8 +381,10 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
                 );
             }
             $ilCtrl->setParameterByClass("ilbookingreservationsgui", 'object_id', $a_set['booking_object_id']);
-            $items[] = $this->ui_factory->button()->shy($lng->txt('book_set_cancel'), $ilCtrl->getLinkTargetByClass("ilbookingreservationsgui", 'rsvConfirmCancelUser'));
-            $ilCtrl->setParameterByClass("ilbookingreservationsgui", 'object_id', "");
+            if($this->stornoAllowed) {
+                $items[] = $this->ui_factory->button()->shy($lng->txt('book_set_cancel'), $ilCtrl->getLinkTargetByClass("ilbookingreservationsgui", 'rsvConfirmCancelUser'));
+                $ilCtrl->setParameterByClass("ilbookingreservationsgui", 'object_id', "");
+            }
         }
             
         if ($this->may_edit || $has_booking) {
