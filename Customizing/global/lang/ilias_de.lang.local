@@ -198,7 +198,7 @@ common#:#footer_hotline#:#Hotline: +49 9131 85 61133
 common#:#footer_imprint#:#Impressum
 common#:#footer_privacy#:#Datenschutz
 common#:#footer_realised_with#:#Realisiert mit ILIAS
-common#:#footer_test_new_lang_var#:#test für neue Sprachvariable // fau: keepNewLangVars, keepAllLocalChanges
+common#:#footer_test_new_lang_var#:#test für neue Sprachvariable 2 // fau: keepNewLangVars, keepAllLocalChanges
 common#:#footer_server#:#Server:
 common#:#general_info#:#Allgemeine Informationen
 common#:#groupings_assigned_obj_info_crs#:#Sie können hier Kurse auswählen, bei denen Sie Schreibrecht haben.
