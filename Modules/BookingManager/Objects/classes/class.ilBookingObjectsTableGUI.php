@@ -34,8 +34,10 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
     protected $filter; // [array]
     protected $ui_factory;
     protected $ui_renderer;
+    // fau: stornoBook - variables to check if storno is allowed in this object
     protected $stornoAllowed; //[bool]
     protected $objBookingPool; //[ilObjBookingPool]
+    // fau.
 
     /**
      * @var bool
@@ -83,8 +85,10 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
             $ilAccess->checkAccess('write', '', $this->ref_id));
 
         $this->advmd = ilObjBookingPool::getAdvancedMDFields($this->ref_id);
+        // fau: stornoBook - init storno-check-variables and fill with object-infos
         $this->objBookingPool = new ilObjBookingPool($this->ref_id);
         $this->stornoAllowed = $this->objBookingPool->getUserStorno();
+        // fau.
 
         $this->setId("bkobj");
 
@@ -381,10 +385,12 @@ class ilBookingObjectsTableGUI extends ilTable2GUI
                 );
             }
             $ilCtrl->setParameterByClass("ilbookingreservationsgui", 'object_id', $a_set['booking_object_id']);
+            // fau: stornoBook - check if storno is allowed, if so, show booking cancelation action-menu-entry
             if($this->stornoAllowed) {
                 $items[] = $this->ui_factory->button()->shy($lng->txt('book_set_cancel'), $ilCtrl->getLinkTargetByClass("ilbookingreservationsgui", 'rsvConfirmCancelUser'));
                 $ilCtrl->setParameterByClass("ilbookingreservationsgui", 'object_id', "");
             }
+            // .fau
         }
             
         if ($this->may_edit || $has_booking) {
