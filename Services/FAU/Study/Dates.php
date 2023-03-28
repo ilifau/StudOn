@@ -39,12 +39,13 @@ class Dates
 
 
     /**
-     * Get the list of planned datees for a course
+     * Get the list of planned dates for a course
+     * return string[]
      */
-    public function getPlannedDatesList(int $course_id, bool $html = true) : string
+    public function getPlannedDatesList(?int $course_id, bool $with_instructors) : array
     {
         $list = [];
-        foreach ($this->repo->getPlannedDatesOfCourse($course_id) as $date) {
+        foreach ($this->repo->getPlannedDatesOfCourse((int) $course_id) as $date) {
             $parts = [];
             if (!empty($text = $this->getRhythmText((string) $date->getRhythm()))) {
                 $parts[] = $text;
@@ -66,25 +67,23 @@ class Dates
             if (!empty($date->getStartdate())) {
                 $parts[] = $this->getDatespan($date->getStartdate(), $date->getEnddate());
             }
+            if ($with_instructors && !empty($instructors = $this->service->persons()->getInstructorsList($date->getPlannedDatesId()))) {
+                $parts[] = implode(', ', $instructors);
+            }
 
             if (!empty($parts)) {
                 $list[] = implode(', ', $parts);
             }
         }
-
-        if ($html) {
-            return $this->dic->fau()->tools()->format()->list($list, $html, true);
-        }
-        else {
-            return implode(' | ', $list);
-        }
+        return $list;
     }
 
 
     /**
      * Get the list of individual dates of a course
+     * @return string[]
      */
-    public function getIndividualDatesList(int $course_id, bool $html = true) : string
+    public function getIndividualDatesList(int $course_id, bool $with_instructors) : array
     {
         $list = [];
         foreach($this->repo->getIndividualDatesOfCourse($course_id) as $date) {
@@ -96,17 +95,15 @@ class Dates
             if (!empty($date->getStarttime())) {
                 $parts[] = $this->getTimespan($date->getStarttime(), $date->getEndtime());
             }
+            if ($with_instructors && !empty($instructors = $this->service->persons()->getIndividualInstructorsList($date->getIndividualDatesId()))) {
+                $parts[] = implode(', ', $instructors);
+            }
+
             if (!empty($parts)) {
                 $list[] = implode(', ', $parts);
             }
         }
-
-        if ($html) {
-            return $this->dic->fau()->tools()->format()->list($list, $html, true);
-        }
-        else {
-            return implode(' | ', $list);
-        }
+        return $list;
     }
 
 

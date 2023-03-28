@@ -23,6 +23,7 @@ class Service extends SubService
     protected Matching $matching;
     protected Search $search;
     protected Dates $dates;
+    protected Persons $persons;
 
 
     /**
@@ -65,6 +66,15 @@ class Service extends SubService
         }
         return $this->dates;
     }
+
+    public function persons() : Persons
+    {
+        if(!isset($this->persons)) {
+            $this->persons = new Persons($this->dic);
+        }
+        return $this->persons;
+    }
+
 
     /**
      * Check if an object is needed for campo

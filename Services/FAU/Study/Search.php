@@ -87,14 +87,13 @@ class Search
 
                 foreach ($event->getObjects() as $object) {
 
-                    $type = ilObject::_lookupType($object->getObjId());
-                    if ($type == 'crs') {
+                    if ($object->getType() == 'crs') {
                         $ref_id = $object->getRefId();
                         $obj_id = $object->getObjId();
                         $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id);
                         $list[$event->getSortKey()] = $event;
                     }
-                    elseif ($type == 'grp') {
+                    elseif ($object->getType() == 'grp') {
                         $ref_id = $this->dic->fau()->ilias()->objects()->findParentIliasCourse($object->getRefId());
                         $obj_id = ilObject::_lookupObjId($ref_id);
                         $event = $event->withIliasRefId($ref_id)->withIliasObjId($obj_id)->withNested(true);

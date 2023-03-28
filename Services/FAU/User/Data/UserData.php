@@ -33,6 +33,7 @@ class UserData extends RecordData
     protected ?string $matriculation;
 
     protected ?Person $person = null;
+    protected ?bool $public_profile = false;
 
     /** @var Education[]  */
     protected array $educations = [];
@@ -134,6 +135,14 @@ class UserData extends RecordData
     }
 
     /**
+     * @return bool|null
+     */
+    public function hasPublicProfile() : bool
+    {
+        return (bool) $this->public_profile;
+    }
+
+    /**
      * @param Person|null $person
      * @return self
      */
@@ -152,6 +161,18 @@ class UserData extends RecordData
     {
         $clone = clone $this;
         $clone->educations[] = $education;
+        return $clone;
+    }
+
+
+    /**
+     * @param bool|null $public_profile
+     * @return UserData
+     */
+    public function withPublicProfile(bool $public_profile) : self
+    {
+        $clone = clone $this;
+        $clone->public_profile = $public_profile;
         return $clone;
     }
 }

@@ -626,6 +626,7 @@ fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
 fau#:#fau_add_no_group_possible#:#Aufnahme nicht möglich, da keine Gruppe zuteilbar!
 fau#:#fau_campo_assigned_orgunits#:#Beteiligte Einrichtungen
+fau#:#fau_campo_course#:#Parallelgruppe
 fau#:#fau_campo_courses#:#Campo-Kurse
 fau#:#fau_campo_courses_desc#:#Diese Kurse wurden automatisch erstellt. Sie können an geeignete Stellen verschoben werden.
 fau#:#fau_campo_course_is_cancelled#:#Diese Veranstaltung fällt aus!
@@ -638,8 +639,12 @@ fau#:#fau_campo_data_update_info#:#Aktualisiert die Daten zu den Lehrveranstaltu
 fau#:#fau_campo_members_update#:#Campo-Mitgliedschaften aktualisieren
 fau#:#fau_campo_members_update_info#:#Aktualisiert die maximalen Teilnehmerzahlen und Kursmitgliedschaften aus StudOn für Campo
 fau#:#fau_campo_event#:#Lehrveranstaltung
+fau#:#fau_campo_event_type#:#Veranstaltungstyp
 fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Veranstaltung in campo
+fau#:#fau_campo_responsibles#:#Verantwortliche Personen
+fau#:#fau_campo_hours_per_week#:#Wochenstunden
+fau#:#fau_campo_literature#:#Literatur
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da die folgenden Bedingungen nicht erfüllt sind:
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
@@ -654,15 +659,14 @@ fau#:#fau_check_info_failed_term_not_valid#:#Nicht erfüllt: Kein Semester angeg
 fau#:#fau_check_info_failed_restrictions#:#Nicht erfüllt
 fau#:#fau_check_info_passed_restrictions#:#Erfüllt
 fau#:#fau_check_info_restrictions_for#:#Voraussetzungen für %s
-fau#:#fau_course#:#Parallelgruppe
 fau#:#fau_course_export_term_info#:#Die Semesterauswahl funktioniert nur bei Kursen, die mit Lehrveranstaltungen aus Campo verbunden sind. Wenn Sie andere Kurse exportieren möchten, wählen Sie "Bis Sommersemester 2022 / ohne Semesterangabe"
+fau#:#fau_dates#:#Termine
 fau#:#fau_dates_planned#:#Terminplan
-fau#:#fau_dates_planned_for#:#Terminplan für %s
-fau#:#fau_dates_missing#:#Kein Termin angegeben
 fau#:#fau_dates_indiv#:#Einzeltermine
 fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_info_campo#:#Die Liste enthält einen oder mehrere Kurse für Lehrveranstaltungen aus Campo. Beim Löschen wird die Verbindung zu Campo aufgehoben. Falls eine Lehrveranstaltung im Semester dennoch angeboten wird, erzeugt StudOn bei der nächsten Synchronisation (in der Regel stündlich) wieder einen neuen Kurs. Sie könenn das verhindern, indem Sie die Parallelgruppen in Campo löschen oder ausfallen lassen. Warten Sie dann eine bis zwei Stunden. Danach können sie den StudOn-Kurs löschen, ohne dass er wieder angelegt wird.
+fau#:#fau_details_link#:#» Details
 fau#:#fau_grade#:#Note
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System

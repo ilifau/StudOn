@@ -614,7 +614,7 @@ class SyncWithIlias extends SyncBase
         if (isset($course)) {
             $title = $course->getTitle();
             if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
-                $title .= $course->getKParallelgroupId() ? ' ( ' . $this->lng->txt('fau_course') . ' ' . $course->getKParallelgroupId() . ')' : '';
+                $title .= $course->getKParallelgroupId() ? ' ( ' . $this->lng->txt('fau_campo_course') . ' ' . $course->getKParallelgroupId() . ')' : '';
             }
         }
         else {

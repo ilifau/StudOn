@@ -377,9 +377,11 @@ class ilObjCourseGUI extends ilContainerGUI
         $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'crs', $this->object->getId());
         $record_gui->setInfoObject($info);
         $record_gui->parse();
-        
-        // meta data
-        $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
+
+        // fau: infoScreen - don't show metadata section
+        // metadata
+        // $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
+        // fau.
              
         // contact
         if ($this->object->hasContactData()) {
@@ -603,6 +605,13 @@ class ilObjCourseGUI extends ilContainerGUI
             );
         }
 
+        // fau: campoInfo - show info on course info page
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
+        if ($importId->isForCampo()) {
+            fauStudyInfoGUI::getInstance()->addInfoScreenSections($info, $importId, $this->ref_id);
+        }
+        // fau.
+
         // Confirmation
         include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
         $privacy = ilPrivacySettings::_getInstance();
@@ -621,71 +630,6 @@ class ilObjCourseGUI extends ilContainerGUI
                 $info->addProperty($this->lng->txt('ps_crs_user_fields'), $fields);
             }
         }
-
-        // fau: campoInfo - sshow info on course info page
-        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
-        if (!empty($event_id = $importId->getEventId())
-            && !empty($event = $DIC->fau()->study()->repo()->getEvent($event_id))
-        ) {
-            $info->addSection($this->lng->txt('fau_campo_event'));
-
-            // show campo link
-            $url = $DIC->fau()->study()->getCampoUrl($event_id, \FAU\Study\Data\Term::fromString($importId->getTermId()));
-            $link = '<a target="_blank" href="' . $url . '">' . $event->getTitle() . '</a>';
-            $info->addProperty($this->lng->txt('fau_campo_link_title'), $link);
-
-            // show org units
-            $list = [];
-            foreach ($DIC->fau()->study()->repo()->getEventOrgunitsByEventId($event_id) as $eventOrgunit) {
-                $unit = $DIC->fau()->org()->repo()->getOrgunitByNumber($eventOrgunit->getFauorgNr());
-                if (!empty($unit)) {
-                    if (!empty($unit->getIliasRefId())) {
-                        $title = '<a href="' . ilLink::_getStaticLink($unit->getIliasRefId()) .'">'. $unit->getLongtext() . '</a>';
-                    }
-                    else {
-                        $title = $unit->getLongtext();
-                    }
-                    $list[] = $title . ' (' . $unit->getFauorgNr() . ')';
-                }
-            }
-            $info->addProperty($this->lng->txt('fau_campo_assigned_orgunits'), implode('<br>', $list));
-
-            // show parallel groups
-            if ($this->object->hasParallelGroups()) {
-                $list = [];
-                foreach ($DIC->fau()->ilias()->objects()->getParallelGroupsInfos($this->ref_id) as $group) {
-                    $entry = $group->getTitle();
-                    if (!empty($group->getInfoHtml())) {
-                        $entry .= '<br><small>' . $group->getInfoHtml() . '</small>';
-                    }
-                    $list[] = '<li>' . $entry . '</li>';
-                }
-                if (!empty($list)) {
-                   $info->addProperty($this->lng->txt('fau_parallel_groups'), '<ul>'. implode('', $list) . '</ul>');
-                }
-            }
-
-            // show restrictions
-            if ($DIC->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
-
-                $restrictions_html = '';
-                $restrictions_html = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $importId->getTermId());
-
-                $hardRestrictions = $DIC->fau()->cond()->hard();
-                $hardRestrictionsGUI = fauHardRestrictionsGUI::getInstance();
-                $matches_restrictions = $hardRestrictions->checkObject($this->object->getId(), $DIC->user()->getId());
-                $matches_message = $hardRestrictions->getCheckResultMessage();
-                $matches_html = $hardRestrictionsGUI->getResultWithModalHtml(
-                    $matches_restrictions,
-                    $matches_message,
-                    $DIC->user()->getFullname(),
-                    null
-                );
-
-                $info->addProperty($this->lng->txt('fau_rest_hard_restrictions'), $restrictions_html . ' | ' . $matches_html);
-            }
-        }
-        // fau.
 
 
         $info->enableLearningProgress(true);

@@ -5,6 +5,7 @@ use FAU\Study\Data\SearchCondition;
 use FAU\Study\Search;
 use ILIAS\UI\Component\Item\Group;
 use ILIAS\UI\Component\ViewControl\Pagination;
+use FAU\Study\Data\ImportId;
 
 /**
  * Search for events from campo
@@ -236,7 +237,7 @@ class fauStudySearchGUI extends BaseGUI
         $this->allow_move = false;
         foreach ($this->search->getEventList() as $event) {
 
-            if(empty($event->getIliasRefId()) || !$event->isVisible()) {
+            if (empty($event->getIliasRefId()) || !$event->isVisible()) {
                 $item = $this->factory->item()->standard((string) $event->getEventTitle())
                     ->withDescription((string) $event->getEventShorttext())
                     ->withLeadIcon($icon_missing)
@@ -247,36 +248,24 @@ class fauStudySearchGUI extends BaseGUI
                     ->withCheckbox(self::CHECKBOX_NAME);
             }
             else {
+                $import_id = new ImportId($term->toString(), $event->getEventId(), $event->getSingleCourseId());
+
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
                 $title = $event->getIliasTitle();
-                $description = $event->getIliasDescription();
-                $url = $this->dic->fau()->study()->getCampoUrl($event->getEventId(), $term);
-                $description .= ' &nbsp; <a target="_blank" href="' . $url . '">' . $this->lng->txt('fau_campo_link') . '</a>';
-                if ($this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
-                    $description .= ' &nbsp; ' . fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId(), $term->toString());
-                }
 
+                $description = $event->getIliasDescription();
+                $description .= ' &nbsp; ' . fauStudyInfoGUI::getInstance()->getLinksLine($import_id, $event->getIliasRefId());
                 $description .= $pathGUI->getPath(1, $event->getIliasRefId());
+                if ($event->isNested()) {
+                    $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'
+                        .fauStudyInfoGUI::getInstance()->getParallelGroupsInfo($event->getIliasRefId(), false);
+                }
 
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
                 $props = [];
                 foreach ($listGUI->getProperties() as $property) {
                     $props[$property['property']] = $property['value'];
                 }
-                if ($event->isNested()) {
-                    $list = [];
-                    foreach ($this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($event->getIliasRefId()) as $group) {
-                        $entry = $group->getTitle();
-                        if (!empty($group->getInfoHtml())) {
-                            $entry .= '<br><small>' . $group->getInfoHtml() . '</small>';
-                        }
-                        $list[] = '<li>' . $entry . '</li>';
-                    }
-                    if (!empty($list)) {
-                        $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'. '<ul>'. implode('', $list) . '</ul>';
-                    }
-                }
-
                 $item = $this->factory->item()->standard('<a href="' . $link . '">'.$title.'</a>')
                     ->withDescription($description)
                     ->withLeadIcon($icon_crs)

@@ -333,18 +333,6 @@ class HardRestrictions
         return $modules;
     }
 
-    /**
-     * Get the link to show restrictions of an object
-     */
-    public function getRestrictionsLinkForObject(int $obj_id) : string
-    {
-        if ($this->hasObjectRestrictions($obj_id)) {
-            $importId = $this->dic->fau()->study()->repo()->getImportId($obj_id);
-            return \fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink((int) $importId->getEventId(), (string) $importId->getTermId());
-        }
-        return '';
-    }
-
 
     /**
      * Check if restrictions are defined for an object

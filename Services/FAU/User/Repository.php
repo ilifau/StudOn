@@ -239,6 +239,38 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the data of user accounts for person ids
+     * @param int[] $person_ids
+     * @return UserData[]
+     */
+    public function getUserDataOfPersons(array $person_ids) : array
+    {
+        $query = "SELECT u.usr_id, u.login, u.firstname, u.lastname, u.gender, u.email, u.matriculation 
+            FROM usr_data u
+            JOIN fau_user_persons p ON p.user_id = u.usr_id
+            WHERE " . $this->db->in('person_id', $person_ids, false, 'integer');
+        return $this->queryRecords($query, UserData::model());
+
+    }
+
+    /**
+     * Add the info about public profile to the data of users
+     * @param UserData[] $users
+     * @return UserData[]
+     */
+    public function addPublicProfile(array $users) : array
+    {
+        $query = "SELECT usr_id FROM usr_pref WHERE keyword = 'public_profile' AND (value = 'y' OR value = 'g')
+            AND " . $this->db->in('usr_id', array_keys($users), false, 'integer');
+
+        foreach ($this->getIntegerList($query, 'usr_id') as $usr_id) {
+            $users[$usr_id] = $users[$usr_id]->withPublicProfile(true);
+        }
+        return $users;
+    }
+
+
+    /**
      * Save record data of an allowed type
      * @param Achievement|Education|Person $record
      */

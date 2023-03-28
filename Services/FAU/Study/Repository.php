@@ -148,6 +148,25 @@ class Repository extends RecordRepo
         return $this->queryRecords($query, IndividualDate::model());
     }
 
+    /**
+     * Get the person ids of the instructors of a planned date
+     * @return int[]
+     */
+    public function getInstructors(int $planned_dates_id) : array
+    {
+        $query = "SELECT person_id FROM fau_study_instructors WHERE planned_dates_id = " . $this->db->quote($planned_dates_id, 'integer');
+        return $this->getIntegerList($query, 'person_id');
+    }
+
+    /**
+     * Get the person ids of the instructors of a planned date
+     * @return int[]
+     */
+    public function getIndividualInstructors(int $individial_dates_id) : array
+    {
+        $query = "SELECT person_id FROM fau_study_indi_insts WHERE individual_dates_id = " . $this->db->quote($individial_dates_id, 'integer');
+        return $this->getIntegerList($query, 'person_id');
+    }
 
     /**
      * Get a single Doc Programme
@@ -262,6 +281,15 @@ class Repository extends RecordRepo
         $query = "SELECT * from fau_study_event_orgs WHERE event_id = " . $this->db->quote($event_id, 'integer')
             ." ORDER BY relation_id";
         return $this->queryRecords($query, EventOrgunit::model());
+    }
+
+    /**
+     * Get the responsibles for an event
+     */
+    public function getEventResponsibles(int $event_id) : array
+    {
+        $query = "SELECT person_id FROM fau_study_event_resps WHERE event_id=" . $this->db->quote($event_id, 'integer');
+        return $this->getIntegerList($query, 'person_id');
     }
 
     /**
@@ -434,6 +462,17 @@ class Repository extends RecordRepo
         }
         return $this->queryRecords($query, Course::model(), false);
     }
+
+    /**
+     * Get the responsibles for course
+     */
+    public function getCourseResponsibles(int $course_id) : array
+    {
+        $query = "SELECT person_id FROM fau_study_course_resps WHERE course_id=" . $this->db->quote($course_id, 'integer')
+            . " ORDER BY sort_order";
+        return $this->getIntegerList($query, 'person_id');
+    }
+
 
     /**
      * Check if an object id of ilias is stored in records of campo courses
@@ -653,7 +692,7 @@ class Repository extends RecordRepo
         }
 
         $query = "
-            SELECT DISTINCT e.event_id, e.eventtype , e.title, e.shorttext, e.guest, r.obj_id, r.ref_id
+            SELECT DISTINCT e.event_id, e.eventtype , e.title, e.shorttext, e.guest, c.course_id, r.obj_id, r.ref_id, o.type
             FROM fau_study_events e 
             JOIN fau_study_courses c ON c.event_id = e.event_id
             $modJoin 
@@ -672,12 +711,15 @@ class Repository extends RecordRepo
         $events = [];
         while ($row = $this->db->fetchAssoc($result)) {
             $event = SearchResultEvent::from($row);
-            $object = SearchResultObject::from($row);
             if (isset($events[$event->getEventId()])) {
                 $event = $events[$event->getEventId()];
             }
+            $object = SearchResultObject::from($row);
             if ($object->isValid()) {
                 $event = $event->withObject($object);
+            }
+            if(!empty($row['course_id'])) {
+                $event = $event->withCourseId((int) $row['course_id']);
             }
             $events[$event->getEventId()] = $event;
         }

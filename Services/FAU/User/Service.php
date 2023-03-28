@@ -9,6 +9,7 @@ use FAU\User\Data\Education;
 use FAU\User\Data\Study;
 use FAU\User\Data\Person;
 use FAU\Study\Data\Term;
+use FAU\User\Data\UserData;
 
 /**
  * Service for FAU user related data
@@ -62,6 +63,45 @@ class Service extends SubService
 
         return $users;
     }
+
+    /**
+     * Get the user data of users with person_ids
+     * This will not add person or education records
+     * @param array $person_ids
+     * @return UserData[]
+     */
+    public function getShortUserDataOfPersons(array $person_ids) : array
+    {
+        $users = $this->repo()->getUserDataOfPersons($person_ids);
+        return $this->repo()->addPublicProfile($users);
+    }
+
+
+    /**
+     * Get the textual representation of a user
+     * If the person has a public profile and html is true, then the profile is linked
+     */
+    public function getUserText(UserData $user, bool $with_profile = true) : string
+    {
+        if ($with_profile) {
+            $login = $user->getLogin();
+            if ($user->hasPublicProfile()) {
+                $pgui = new \ilPublicUserProfileGUI($user->getUserId());
+                $pgui->setEmbedded(true);
+                $content = $this->dic->ui()->factory()->legacy($pgui->getHTML());
+                $popover = $this->dic->ui()->factory()->popover()->standard($content)->withResetSignals();
+                $button = $this->dic->ui()->factory()->button()->shy($login, '#')
+                                   ->withResetTriggeredSignals()
+                                   ->withOnClick($popover->getShowSignal());
+                $login = $this->dic->ui()->renderer()->render([$popover, $button]);
+            }
+            return $user->getFirstname() . ' ' . $user->getLastname(). ' (' . $login . ')';
+        }
+        else {
+            return $user->getFirstname() . ' ' . $user->getLastname();
+        }
+    }
+
 
     /**
      * Get a textual representation of educations

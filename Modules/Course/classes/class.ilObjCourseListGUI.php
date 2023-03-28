@@ -52,14 +52,20 @@ class ilObjCourseListGUI extends ilObjectListGUI
 
         $this->conditions_ok = ilConditionHandler::_checkAllConditionsOfTarget($a_ref_id, $this->obj_id);
 
-        // fau: campoInfo - show link to course in campo
+        // fau: campoInfo - show info and links from campo
         // use custom property to hide the display in the result list of campo search
         global $DIC;
-        if (!empty($info = fauStudyInfoGUI::getInstance()->getLinkedDatesInfo(null, $this->obj_id))) {
-            $this->addCustomProperty('', $info, false, true);
+        $info_gui = fauStudyInfoGUI::getInstance();
+        $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id);
+
+        if (!empty($line = $info_gui->getDatesLine($import_id))) {
+            $this->addCustomProperty('', $line, false, true);
         }
-        if (!empty($link = $DIC->fau()->study()->getCampoLinkForObject($this->obj_id))) {
-            $this->addCustomProperty('', $link, false, true);
+        if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
+            $this->addCustomProperty('', $line, false, true);
+        }
+        if (!empty($line = $info_gui->getLinksLine($import_id, $this->ref_id))) {
+            $this->addCustomProperty('', $line, false, true);
         }
         // fau.
     }

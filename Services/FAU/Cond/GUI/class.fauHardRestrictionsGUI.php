@@ -98,13 +98,11 @@ class fauHardRestrictionsGUI extends BaseGUI
     /**
      * Get the link for a modal to show all restrictions of an event (without check)
      * @param int    $event_id
-     * @param string $term_id       e.g. '20222'
      * @return string   html code of the link
      */
-    public function getRestrictionsModalLink(int $event_id, string $term_id) : string
+    public function getRestrictionsModalLink(int $event_id) : string
     {
         $this->ctrl->setParameter($this, 'event_id', $event_id);
-        $this->ctrl->setParameter($this, 'term_id', $term_id);
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
                          ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
@@ -122,9 +120,7 @@ class fauHardRestrictionsGUI extends BaseGUI
     {
         $params = $this->request->getQueryParams();
         $event_id = isset($params['event_id']) ? (int) $params['event_id'] : null;
-        $term_id = isset($params['term_id']) ? (string) $params['term_id'] : null;
 
-        $import_id = new ImportId($term_id, $event_id);
         $event = $this->dic->fau()->study()->repo()->getEvent($event_id, Event::model());
         $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $event->getTitle());
         $content = $this->factory->legacy($this->service->hard()->getEventRestrictionTexts($event_id));

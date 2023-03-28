@@ -30,6 +30,9 @@ class SearchResultEvent extends RecordData
     protected bool $moveable = false;
     protected bool $nested = false;
 
+    /** @var int[] */
+    protected array $course_ids = [];
+
     public function __construct (
         int $event_id,
         ?string $eventtype,
@@ -136,6 +139,26 @@ class SearchResultEvent extends RecordData
     public function getSortKey() : string
     {
         return ($this->ilias_title ?? $this->title) . $this->event_id . $this->ilias_ref_id;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getCourseIds() : array
+    {
+        return $this->course_ids;
+    }
+
+    /**
+     * Get the course id if the event has only one course
+     * @return int|null
+     */
+    public function getSingleCourseId() : ?int
+    {
+        if (count($this->course_ids) == 1) {
+            return $this->course_ids[0];
+        }
+        return null;
     }
 
     /**
@@ -252,4 +275,10 @@ class SearchResultEvent extends RecordData
         return $clone;
     }
 
+    public function withCourseId(int $course_id) : SearchResultEvent
+    {
+        $clone = clone $this;
+        $clone->course_ids[] = $course_id;
+        return $clone;
+    }
 }

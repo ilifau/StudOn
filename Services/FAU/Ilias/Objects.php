@@ -140,13 +140,15 @@ class Objects
 
         // add the registration info fpr parallel groups
         // not added by ilObjGroupAccess::lookupRegistrationInfo because registration is disabled for parallel group
+        $limits = [];
         if ($groupInfo->hasMaxMembers()) {
-            $limits = array();
             $limits[] = $this->dic->language()->txt("mem_max_users") . $groupInfo->getMaxMembers();
             $limits[] = $this->dic->language()->txt("mem_free_places") . ': ' . $groupInfo->getFreePlaces();
-            if ($groupInfo->getSubscribers() > 0) {
-                $limits[] = $this->dic->language()->txt("subscribers_or_waiting_list") . ': ' . (string) ($groupInfo->getSubscribers());
-            }
+        }
+        if ($groupInfo->hasMaxMembers() || $groupInfo->getSubscribers() > 0) {
+            $limits[] = $this->dic->language()->txt("subscribers_or_waiting_list") . ': ' . (string) ($groupInfo->getSubscribers());
+        }
+        if (!empty($limits)) {
             $groupInfo = $groupInfo->withProperty(new ListProperty(null, implode(' &nbsp; ', $limits)));
         }
 
