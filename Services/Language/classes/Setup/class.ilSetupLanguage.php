@@ -557,6 +557,7 @@ class ilSetupLanguage extends ilLanguage
                                 $change_date
                             );
                             // fau.
+                        }
                     }
                     $query .= sprintf(
                         "(%s,%s,%s,%s,%s,%s),",
