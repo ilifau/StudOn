@@ -1,21 +1,25 @@
-<?php declare(strict_types=1);
-
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- ********************************************************************
- */
+<?php
+/*
+    +-----------------------------------------------------------------------------+
+    | ILIAS open source                                                           |
+    +-----------------------------------------------------------------------------+
+    | Copyright (c) 1998-2009 ILIAS open source, University of Cologne            |
+    |                                                                             |
+    | This program is free software; you can redistribute it and/or               |
+    | modify it under the terms of the GNU General Public License                 |
+    | as published by the Free Software Foundation; either version 2              |
+    | of the License, or (at your option) any later version.                      |
+    |                                                                             |
+    | This program is distributed in the hope that it will be useful,             |
+    | but WITHOUT ANY WARRANTY; without even the implied warranty of              |
+    | MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the               |
+    | GNU General Public License for more details.                                |
+    |                                                                             |
+    | You should have received a copy of the GNU General Public License           |
+    | along with this program; if not, write to the Free Software                 |
+    | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. |
+    +-----------------------------------------------------------------------------+
+*/
 
 
 
@@ -86,8 +90,6 @@ class ilSetupLanguage extends ilLanguage
      * @access   private
      */
     public $comment_separator = "###";
-    
-    protected $db;
 
     /**
      * Constructor
@@ -95,11 +97,13 @@ class ilSetupLanguage extends ilLanguage
      * the text array is two-dimensional. First dimension is the language.
      * Second dimension is the languagetopic. Content is the translation.
      * @access   public
-     * @param    string $a_lang_key languagecode (two characters), e.g. "de", "en", "in"
+     * @param    string      languagecode (two characters), e.g. "de", "en", "in"
+     * @return   boolean     false if reading failed
      */
     public function __construct($a_lang_key)
     {
-        $this->lang_key = $a_lang_key ?: $this->lang_default;
+        $this->lang_key = ($a_lang_key) ? $a_lang_key : $this->lang_default;
+
         $il_absolute_path = realpath(dirname(__FILE__) . '/../../../../');
         $this->lang_path = $il_absolute_path . "/lang";
         $this->cust_lang_path = $il_absolute_path . "/Customizing/global/lang";
@@ -110,7 +114,7 @@ class ilSetupLanguage extends ilLanguage
      *
      * if the topic is not in the list, the topic itself with "-" will be returned
      * @access   public
-     * @param    string $a_topic topic
+     * @param    string  topic
      * @return   string  text clear-text
      */
     public function txt($a_topic, $a_default_lang_fallback_mod = '')
@@ -142,8 +146,8 @@ class ilSetupLanguage extends ilLanguage
     /**
      * install languages
      *
-     * @param    array $a_lang_keys  array with lang_keys of languages to install
-     * @return   array|boolean true on success
+     * @param    array   array with lang_keys of languages to install
+     * @return   boolean true on success
      */
     public function installLanguages($a_lang_keys, $a_local_keys)
     {
@@ -230,7 +234,7 @@ class ilSetupLanguage extends ilLanguage
             }
         }
 
-        return ($err_lang) ?: true;
+        return ($err_lang) ? $err_lang : true;
     }
 
 
@@ -312,7 +316,7 @@ class ilSetupLanguage extends ilLanguage
      *
      * @param    string      $a_lang_key     international language key (2 digits)
      * @param    string      $scope          empty (global) or "local"
-     * @return   bool      $info_text      message about results of check OR "1" if all checks successfully passed
+     * @return   string      $info_text      message about results of check OR "1" if all checks successfully passed
      */
     protected function checkLanguage($a_lang_key, $scope = '')
     {
@@ -371,8 +375,8 @@ class ilSetupLanguage extends ilLanguage
      * This function seeks for a special keyword where the language information starts.
      * If found it returns the plain language information; otherwise returns false.
      *
-     * @param    array      $content    expect an ILIAS lang-file
-     * @return   bool|string[]      $content    content without header info OR false if no valid header was found
+     * @param    string      $content    expect an ILIAS lang-file
+     * @return   string      $content    content without header info OR false if no valid header was found
      * @access   private
      */
     protected function cut_header($content)
@@ -389,8 +393,8 @@ class ilSetupLanguage extends ilLanguage
 
     /**
      * remove language data from database
-     * @param   string  $a_lang_key   language key
-     * @param   string  $a_mode   "all" or "keep_local"
+     * @param   string     language key
+     * @param   string     "all" or "keep_local"
      */
     protected function flushLanguage($a_lang_key, $a_mode = 'all')
     {
@@ -407,7 +411,7 @@ class ilSetupLanguage extends ilLanguage
     /**
     * Delete languge data
     *
-    * @param	string	$a_lang_key	lang key
+    * @param	string		lang key
     */
     public static function _deleteLangData($a_lang_key, $a_keep_local_change)
     {
@@ -425,10 +429,10 @@ class ilSetupLanguage extends ilLanguage
 
     /**
     * get locally changed language entries
-    * @param   string $a_lang_key   language key
-    * @param   string $a_min_date 	minimum change date "yyyy-mm-dd hh:mm:ss"
-    * @param   string $a_max_date	maximum change date "yyyy-mm-dd hh:mm:ss"
-    * @return  array       [module][identifier] => value
+    * @param   string     language key
+    * @param    string  	minimum change date "yyyy-mm-dd hh:mm:ss"
+    * @param    string  	maximum change date "yyyy-mm-dd hh:mm:ss"
+    * @return   array       [module][identifier] => value
     */
     public function getLocalChanges($a_lang_key, $a_min_date = "", $a_max_date = "")
     {
@@ -490,7 +494,6 @@ class ilSetupLanguage extends ilLanguage
         chdir($path);
 
         $lang_file = "ilias_" . $lang_key . ".lang" . $scopeExtension;
-        $change_date = null;
 
         if (is_file($lang_file)) {
             // initialize the array for updating lng_modules below
@@ -511,9 +514,7 @@ class ilSetupLanguage extends ilLanguage
                     $local_changes = $this->getLocalChanges($lang_key);
                     // fau.
                 }
-    
-                $query_check = false;
-                $query = "INSERT INTO lng_data (module,identifier,lang_key,value,local_change,remarks) VALUES ";
+
                 foreach ($content as $key => $val) {
                     // split the line of the language file
                     // [0]:	module
@@ -521,34 +522,44 @@ class ilSetupLanguage extends ilLanguage
                     // [2]:	value
                     // [3]:	comment (optional)
                     $separated = explode($this->separator, trim($val));
-        
+
                     //get position of the comment_separator
                     $pos = strpos($separated[2], $this->comment_separator);
-        
+
                     if ($pos !== false) {
                         //cut comment of
                         $separated[2] = substr($separated[2], 0, $pos);
                     }
-        
+
                     // check if the value has a local change
                     if (isset($local_changes[$separated[0]])) {
                         $local_value = $local_changes[$separated[0]][$separated[1]] ?? null;
                     } else {
-                        $local_value = "";
+                        $local_value = null;
                     }
-        
+
                     if (empty($scope)) {
-                        if ($local_value != "" && $local_value != $separated[2]) {
+                        if ($local_value != "" and $local_value != $separated[2]) {
                             // keep the locally changed value
                             $lang_array[$separated[0]][$separated[1]] = $local_value;
-                            continue;
+                        } else {
+                            // insert a new value if no local value exists
+                            // reset local_change if the values are equal
+                            ilSetupLanguage::replaceLangEntry(
+                                $separated[0],
+                                $separated[1],
+                                $lang_key,
+                                $separated[2]
+                            );
+
+                            $lang_array[$separated[0]][$separated[1]] = $separated[2];
                         }
-                    } elseif ($scope === "local") {
-                        if ($local_value !== "") {
+                    } elseif ($scope == 'local') {
+                        if ($local_value != "") {
                             // keep a locally changed value that is newer than the local file
                             $lang_array[$separated[0]][$separated[1]] = $local_value;
+                        } else {
                             // fau: keepNewLangVars - add new variables from the local language file
-                        }else {
                             ilSetupLanguage::replaceLangEntry(
                                 $separated[0],
                                 $separated[1],
@@ -557,67 +568,110 @@ class ilSetupLanguage extends ilLanguage
                                 $change_date
                             );
                             // fau.
+                            $lang_array[$separated[0]][$separated[1]] = $separated[2];
                         }
                     }
-                    $query .= sprintf(
-                        "(%s,%s,%s,%s,%s,%s),",
-                        $ilDB->quote($separated[0], "text"),
-                        $ilDB->quote($separated[1], "text"),
-                        $ilDB->quote($lang_key, "text"),
-                        $ilDB->quote($separated[2], "text"),
-                        $ilDB->quote($change_date, "timestamp"),
-                        $ilDB->quote($separated[3] ?? null, "text")
-                    );
-                    $query_check = true;
-                    $lang_array[$separated[0]][$separated[1]] = $separated[2];
-                }
-                $query = rtrim($query, ",") . " ON DUPLICATE KEY UPDATE value=VALUES(value),remarks=VALUES(remarks);";
-                if ($query_check) {
-                    $ilDB->manipulate($query);
                 }
             }
-    
-            $query = "INSERT INTO lng_modules (module, lang_key, lang_array) VALUES ";
-            $modules_to_delete = [];
+
             foreach ($lang_array as $module => $lang_arr) {
-                if ($scope === "local") {
+                if ($scope == "local") {
                     $q = "SELECT * FROM lng_modules WHERE " .
                         " lang_key = " . $ilDB->quote($lang_key, "text") .
                         " AND module = " . $ilDB->quote($module, "text");
                     $set = $ilDB->query($q);
                     $row = $ilDB->fetchAssoc($set);
-                    $arr2 = isset($row["lang_array"]) ? unserialize($row["lang_array"], ["allowed_classes" => false]) : "";
+                    $arr2 = unserialize($row["lang_array"]);
                     if (is_array($arr2)) {
                         $lang_arr = array_merge($arr2, $lang_arr);
-                        $modules_to_delete[] = $module;
                     }
                 }
-                $query .= sprintf(
-                    "(%s,%s,%s),",
-                    $ilDB->quote($module, "text"),
-                    $ilDB->quote($lang_key, "text"),
-                    $ilDB->quote(serialize($lang_arr), "clob")
-                );
+                ilSetupLanguage::replaceLangModule($lang_key, $module, $lang_arr);
             }
-    
-            if ($scope === "local") {
-                // delete only modules for which there are language variables in a local language file
-                // see mantis #36972
-                $inModulesToDelete = $ilDB->in('module', $modules_to_delete, false, 'text');
-                $ilDB->manipulate(sprintf("DELETE FROM lng_modules WHERE lang_key = %s AND $inModulesToDelete",
-                    $ilDB->quote($lang_key, "text")
-                ));
-            } else {
-                $ilDB->manipulate(sprintf("DELETE FROM lng_modules WHERE lang_key = %s",
-                    $ilDB->quote($lang_key, "text")
-                ));
-            }
-    
-            $query = rtrim($query, ",") . ";";
-            $ilDB->manipulate($query);
         }
 
         chdir($tmpPath);
+    }
+
+    /**
+    * Replace language module array
+    */
+    final public static function replaceLangModule($a_key, $a_module, $a_array)
+    {
+        global $ilDB;
+        
+        $ilDB->manipulate(sprintf(
+            "DELETE FROM lng_modules WHERE lang_key = %s AND module = %s",
+            $ilDB->quote($a_key, "text"),
+            $ilDB->quote($a_module, "text")
+        ));
+        /*$ilDB->manipulate(sprintf("INSERT INTO lng_modules (lang_key, module, lang_array) VALUES ".
+            "(%s,%s,%s)", $ilDB->quote($a_key, "text"),
+            $ilDB->quote($a_module, "text"),
+            $ilDB->quote(serialize($a_array), "clob")));*/
+        $ilDB->insert("lng_modules", array(
+            "lang_key" => array("text", $a_key),
+            "module" => array("text", $a_module),
+            "lang_array" => array("clob", serialize($a_array))
+            ));
+    }
+
+    /**
+    * Replace lang entry
+    */
+    final public static function replaceLangEntry(
+        $a_module,
+        $a_identifier,
+        $a_lang_key,
+        $a_value,
+        $a_local_change = null
+    ) {
+        global $ilDB;
+
+        $ilDB->manipulate(sprintf(
+            "DELETE FROM lng_data WHERE module = %s AND " .
+            "identifier = %s AND lang_key = %s",
+            $ilDB->quote($a_module, "text"),
+            $ilDB->quote($a_identifier, "text"),
+            $ilDB->quote($a_lang_key, "text")
+        ));
+
+        // insert a new value if no local value exists
+        // reset local_change if the values are equal
+        $ilDB->manipulate(sprintf(
+            "INSERT INTO lng_data " .
+            "(module, identifier, lang_key, value, local_change) " .
+            "VALUES (%s,%s,%s,%s,%s)",
+            $ilDB->quote($a_module, "text"),
+            $ilDB->quote($a_identifier, "text"),
+            $ilDB->quote($a_lang_key, "text"),
+            $ilDB->quote($a_value, "text"),
+            $ilDB->quote($a_local_change, "timestamp")
+        ));
+    }
+
+    /**
+    * Update lang entry
+    */
+    final public static function updateLangEntry(
+        $a_module,
+        $a_identifier,
+        $a_lang_key,
+        $a_value,
+        $a_local_change = null
+    ) {
+        global $ilDB;
+        
+        $ilDB->manipulate(sprintf(
+            "UPDATE lng_data " .
+            "SET value = %s, local_change = %s " .
+            "WHERE module = %s AND identifier = %s AND lang_key = %s ",
+            $ilDB->quote($a_value, "text"),
+            $ilDB->quote($a_local_change, "timestamp"),
+            $ilDB->quote($a_module, "text"),
+            $ilDB->quote($a_identifier, "text"),
+            $ilDB->quote($a_lang_key, "text")
+        ));
     }
 
     /**
@@ -653,18 +707,17 @@ class ilSetupLanguage extends ilLanguage
         $tmpPath = getcwd();
         chdir($this->lang_path);
 
-        $installableLanguages = [];
         // get available lang-files
         while ($entry = $d->read()) {
             if (is_file($entry) && (preg_match("~(^ilias_.{2}\.lang$)~", $entry))) {
                 $lang_key = substr($entry, 6, 2);
-                $installableLanguages[] = $lang_key;
+                $languages1[] = $lang_key;
             }
         }
 
         chdir($tmpPath);
 
-        return $installableLanguages;
+        return $languages1;
     }
     
     /**
