@@ -61,6 +61,35 @@ class ilObjGroupListGUI extends ilObjectListGUI
     }
 
     /**
+     * @inheritdoc
+     */
+    public function initItem($a_ref_id, $a_obj_id, $type, $a_title = "", $a_description = "")
+    {
+        parent::initItem($a_ref_id, $a_obj_id, $type, $a_title, $a_description);
+
+
+        // fau: campoInfo - show info and links from campo
+        // use custom property to hide the display in the result list of campo search
+        global $DIC;
+        $info_gui = $DIC->fau()->study()->info();
+        $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id)->withEventId(null);
+        if ($import_id->isForCampo()) {
+            if (!empty($line = $info_gui->getDatesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getDetailsLink($import_id, $this->ref_id, $this->lng->txt('fau_details_link')))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+        }
+
+        // fau.
+    }
+
+
+    /**
     * Overwrite this method, if link target is not build by ctrl class
     * (e.g. "lm_presentation.php", "forum.php"). This is the case
     * for all links now, but bringing everything to ilCtrl should

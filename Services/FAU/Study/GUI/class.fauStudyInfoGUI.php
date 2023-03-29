@@ -97,7 +97,7 @@ class fauStudyInfoGUI extends BaseGUI
     /**
      * Get the link to show the details for an event or course
      */
-    protected function getDetailsLink(ImportId $import_id, int $ref_id, string $title)
+    public function getDetailsLink(ImportId $import_id, int $ref_id, string $title)
     {
         $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
         $this->ctrl->setParameter($this, 'ref_id', $ref_id);

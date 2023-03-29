@@ -57,15 +57,16 @@ class ilObjCourseListGUI extends ilObjectListGUI
         global $DIC;
         $info_gui = $DIC->fau()->study()->info();
         $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id);
-
-        if (!empty($line = $info_gui->getDatesLine($import_id))) {
-            $this->addCustomProperty('', $line, false, true);
-        }
-        if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
-            $this->addCustomProperty('', $line, false, true);
-        }
-        if (!empty($line = $info_gui->getLinksLine($import_id, $this->ref_id))) {
-            $this->addCustomProperty('', $line, false, true);
+        if ($import_id->isForCampo()) {
+            if (!empty($line = $info_gui->getDatesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getResponsiblesLine($import_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
+            if (!empty($line = $info_gui->getLinksLine($import_id, $this->ref_id))) {
+                $this->addCustomProperty('', $line, false, true);
+            }
         }
         // fau.
     }
