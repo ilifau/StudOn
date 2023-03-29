@@ -18442,38 +18442,16 @@ body.ilPrtfPdfBody .ilPCMyCoursesToggle img {
   -webkit-hyphens: auto;
   hyphens: auto;
 }
+#onscreenchat-container .chat-window-wrapper .panel-footer-for-shadow {
+  height: 0;
+  width: 0;
+}
 #onscreenchat-container .chat-window-wrapper .iosOnScreenChatMessageContainer {
-  background-color: transparent;
-}
-#onscreenchat-container .chat-window-wrapper .iosOnScreenChatMessageContainer .iosOnScreenChatMessagePlaceholder {
-  position: absolute;
-  z-index: 0;
-  border: 0 none !important;
-  background-color: transparent;
-  opacity: 0.5;
-}
-#onscreenchat-container .chat-window-wrapper .iosOnScreenChatMessageContainer .iosOnScreenChatMessage {
-  background-color: transparent;
-  position: relative;
-  z-index: 1;
-  white-space: pre-wrap;
-  user-select: text;
-  outline: none;
-  overflow-x: hidden;
-  height: auto;
-  min-height: 26px;
-  max-height: 75px;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  -ms-word-break: break-all;
-  word-break: break-all;
-  word-break: break-word;
-  -ms-hyphens: auto;
-  -moz-hyphens: auto;
-  -webkit-hyphens: auto;
-  hyphens: auto;
-  cursor: text;
-  padding-right: 26px;
+  resize: none;
+  width: 100%;
+  border: 1px solid;
+  background: white;
+  height: 25px;
 }
 #onscreenchat-container .chat-window-wrapper .osc_truncate_username {
   width: 150px;
@@ -19433,23 +19411,18 @@ span.ilProfileBadge .modal .img-responsive {
   width: 50%;
   overflow-x: auto;
 }
-/* fau: showBestSolutionBelow  - show best solution below the user input */
 .lcol.participant {
-  width: 100%;
-  float: none;
-  overflow-x: visible;
+  width: 49%;
+  overflow-x: auto;
 }
 .rcol.solution {
-  width: 100%;
-  float: none;
-  overflow-x: visible;
-  margin-top: 1em;
+  width: 49%;
+  overflow-x: auto;
   padding: 5px;
   background: #E2FFC7;
   /* Fallback IE 6-8 */
   background: rgba(226, 255, 199, 0.4);
 }
-/* fau. */
 #kioskOptions {
   clear: both;
   overflow: hidden;
@@ -19513,12 +19486,6 @@ div.ilc_Question {
   padding: 0.25em;
   margin-top: 1em;
 }
-/* fau: showBestSolutionBelow  - new style for solution (needed here and in test_print)*/
-.questionPrintviewCorrectSolution {
-  border-left: 3px dotted green;
-  padding-left: 10px;
-}
-/* fau. */
 .solutionbox {
   color: black;
   background-color: white;
@@ -19967,6 +19934,70 @@ div.ilc_Page.readonly textarea[disabled] {
 #tst_output #tst_right h1.ilc_page_title_PageTitle {
   margin-bottom: 6px;
 }
+.dd-item {
+  font-size: 14px;
+}
+li.dd-item.ilc_qordli_OrderListItem > ul li.dd-item.ilc_qordli_OrderListItem {
+  border: 2px white solid;
+}
+/* fau: showBestSolutionBelow  - show best solution below the user input */
+.lcol.participant {
+  width: 100%;
+  float: none;
+  overflow-x: visible;
+}
+.rcol.solution {
+  width: 100%;
+  float: none;
+  overflow-x: visible;
+  margin-top: 1em;
+  padding: 5px;
+  background: #E2FFC7;
+  /* Fallback IE 6-8 */
+  background: rgba(226, 255, 199, 0.4);
+}
+/* fau. */
+/* fau: showBestSolutionBelow  - new style for solution (needed here and in test_print)*/
+.questionPrintviewCorrectSolution {
+  border-left: 3px dotted green;
+  padding-left: 10px;
+}
+/* fau. */
+/* fau: testNav - icon for answered/unanswered questions in shortlist */
+ul.shortlist li {
+  padding: 0 0 6px 15px;
+  background-repeat: no-repeat;
+  background-size: 10px;
+  background-position: 0px 5px;
+}
+ul.shortlist li.answered {
+  background-image: url('../../../../templates/default/images/answered.svg');
+}
+ul.shortlist li.unanswered {
+  background-image: url('../../../../templates/default/images/answered_not.svg');
+}
+/* fau. */
+/* fau: testNav - added and changed styles */
+td.ilc_Page {
+  padding: 15px;
+}
+.ilTestQuestionSubtitleBlocks {
+  margin-top: -12px;
+}
+.ilTestMarkQuestionIcon {
+  width: 12px;
+  height: 12px;
+}
+.ilTestAnswerStatusIcon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-top: -3px;
+}
+.ilTestQuestionAction.disabled a {
+  color: #b0b0b0 !important;
+}
+/* fau. */
 .noMargin {
   margin: 0;
 }
@@ -20216,4 +20247,3 @@ table.mceToolbar td {
   border: 1px solid #dddddd;
   border-radius: 0.25em;
 }
-/*# sourceMappingURL=delos.css.map */

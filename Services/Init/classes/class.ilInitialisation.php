@@ -1,5 +1,19 @@
 <?php
-/* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 // TODO:
 use ILIAS\BackgroundTasks\Dependencies\DependencyMap\BaseDependencyMap;
@@ -586,7 +600,7 @@ class ilInitialisation
             $mess = array(
                 "en" => "The server is not available due to maintenance." .
                     " We apologise for any inconvenience.",
-                "de" => "Der Server ist aufgrund von Wartungsarbeiten aktuell nicht verf&uuml;gbar.".
+                "de" => "Der Server ist aufgrund von Wartungsarbeiten aktuell nicht verf&uuml;gbar." .
                     " Wir bitten um Verst&auml;ndnis. Versuchen Sie es sp&auml;ter noch einmal."
             );
             $mess_id = "init_error_maintenance";
@@ -1145,6 +1159,8 @@ class ilInitialisation
 
             // add notices to error reporting
             error_reporting(E_ALL);
+        } else {
+            error_reporting(E_ALL & ~E_NOTICE);
         }
 
         if (defined('DEBUGTOOLS') && DEBUGTOOLS) {
@@ -1254,7 +1270,7 @@ class ilInitialisation
     public static function handleErrorReporting()
     {
         // push the error level as high as possible / sane
-        error_reporting(E_ALL & ~E_NOTICE);
+        error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 
         // see handleDevMode() - error reporting might be overwritten again
         // but we need the client ini first
@@ -1557,7 +1573,7 @@ class ilInitialisation
     private static function initGlobalScreen(\ILIAS\DI\Container $c)
     {
         $c['global_screen'] = function () use ($c) {
-            return new Services(new ilGSProviderFactory($c), htmlentities(str_replace(" ", "_", ILIAS_VERSION)));
+            return new Services(new ilGSProviderFactory($c), htmlentities(str_replace([" ", ".", "-"], "_", ILIAS_VERSION_NUMERIC)));
         };
         $c->globalScreen()->tool()->context()->stack()->clear();
         $c->globalScreen()->tool()->context()->claim()->main();

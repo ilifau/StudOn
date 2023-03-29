@@ -282,6 +282,10 @@ class ilFSStorageExercise extends ilFileSystemStorage
     {
         $files = array();
 
+        if ($a_user_id === "t") {   // team assignment without team, see #36253
+            return[];
+        }
+
         if ($a_subpath) {
             $dir = $this->getFeedbackPath($a_user_id) . '/' . $a_subpath;
             $prefix = $a_subpath . '/';
@@ -302,7 +306,6 @@ class ilFSStorageExercise extends ilFileSystemStorage
                 }
             }
         }
-        
         return $files;
     }
     // fau.

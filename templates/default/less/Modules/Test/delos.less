@@ -92,6 +92,15 @@
     }
 }
 
+// nested vertical ordering question
+.dd-item {
+    font-size: @il-font-size-base;
+}
+// make nested layers more clear
+li.dd-item.ilc_qordli_OrderListItem > ul li.dd-item.ilc_qordli_OrderListItem {
+    border: 2px white solid;
+}
+
 /* fau: showBestSolutionBelow  - show best solution below the user input */
 .lcol.participant
 {

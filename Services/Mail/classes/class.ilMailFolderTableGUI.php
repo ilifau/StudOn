@@ -514,6 +514,11 @@ class ilMailFolderTableGUI extends ilTable2GUI
             if (is_array($this->getSelectedItems()) && in_array($mail['mail_id'], $this->getSelectedItems(), false)) {
                 $mail['checked'] = ' checked="checked" ';
             }
+            
+            $mail['txt_select_mail_with_subject'] = sprintf(
+                $this->lng->txt('select_mail_with_subject_x'),
+                htmlspecialchars($mail['m_subject'])
+            );
 
             if ($this->isDraftFolder() || $this->isSentFolder()) {
                 $mail['rcp_to'] = $mail['mail_login'] = ilUtil::htmlencodePlainString(
@@ -626,7 +631,9 @@ class ilMailFolderTableGUI extends ilTable2GUI
         $titleTemplate->setVariable('TXT_MAIL_S', $this->lng->txt('mail_s'));
         $titleTemplate->setVariable('MAIL_COUNT_UNREAD', $unreadCount);
         $titleTemplate->setVariable('TXT_UNREAD', $this->lng->txt('unread'));
-
+        // fau: addMailToolNote - Adding Note for Description where to find Tool in MailBox
+        $titleTemplate->setVariable('TOOLBOX_INFO', $this->lng->txt('mail_folder_tools'));
+        // fau.
         parent::setTitle($titleTemplate->get(), $imgFolder);
 
         return $this;

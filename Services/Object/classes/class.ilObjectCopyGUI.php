@@ -139,6 +139,7 @@ class ilObjectCopyGUI
         $this->lng = $lng;
         $this->lng->loadLanguageModule('search');
         $this->lng->loadLanguageModule('obj');
+        $this->ctrl->saveParameter($this, "crtcb");
 
         $this->parent_obj = $a_parent_gui;
         
@@ -1059,6 +1060,7 @@ class ilObjectCopyGUI
 
                 // Delete wizard options
                 $wizard_options->deleteAll();
+                $this->parent_obj->callCreationCallback($new_obj);
 
                 // rbac log
                 include_once "Services/AccessControl/classes/class.ilRbacLog.php";
@@ -1253,9 +1255,14 @@ class ilObjectCopyGUI
             false,
             $this->getSubMode()
         );
-        
         $this->targets_copy_id[$a_target] = $result['copy_id'];
-
+        $new_ref_id = (int) $result['ref_id'];
+        if ($new_ref_id > 0) {
+            $new_obj = ilObjectFactory::getInstanceByRefId((int) $result['ref_id'], false);
+            if ($new_obj instanceof ilObject) {
+                $this->parent_obj->callCreationCallback($new_obj);
+            }
+        }
         return $result;
     }
     
