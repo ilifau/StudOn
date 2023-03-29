@@ -1467,9 +1467,10 @@ class ilObjGroupGUI extends ilContainerGUI
         $info->enablePrivateNotes();
         $info->enableLearningProgress(true);
 
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'grp', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
+        // fau: infoScreen - don't show metadata section
+        // $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'grp', $this->object->getId());
+        // $record_gui->setInfoObject($info);
+        // $record_gui->parse();
 
         // fau: infoScreen - don't show metadata section
         // meta data
@@ -1631,12 +1632,9 @@ class ilObjGroupGUI extends ilContainerGUI
         }
 
         // fau: campoInfo - show info on group info page
-        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
-        // set event id null to prevent event info
-        $importId = new \FAU\Study\Data\ImportId($importId->getTermId(), null, $importId->getCourseId());
-        if ($importId->isForCampo()) {
-            fauStudyInfoGUI::getInstance()->addInfoScreenSections($info, $importId, $this->ref_id);
-        }
+        // set event id null to prevent event info being shown
+        $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId())->withEventId(null);
+        $DIC->fau()->study()->info()->addInfoScreenSections($info, $importId, $this->ref_id);
         // fau.
 
         // Confirmation

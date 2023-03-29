@@ -24,6 +24,7 @@ class Service extends SubService
     protected Search $search;
     protected Dates $dates;
     protected Persons $persons;
+    protected \fauStudyInfoGUI $info;
 
 
     /**
@@ -73,6 +74,14 @@ class Service extends SubService
             $this->persons = new Persons($this->dic);
         }
         return $this->persons;
+    }
+
+    public function info() : \fauStudyInfoGUI
+    {
+        if(!isset($this->info)) {
+            $this->info = new \fauStudyInfoGUI();
+        }
+        return $this->info;
     }
 
 

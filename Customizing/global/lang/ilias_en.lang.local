@@ -646,6 +646,7 @@ fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Teaching Event in campo
 fau#:#fau_campo_responsibles#:#Responsible Persons
 fau#:#fau_campo_hours_per_week#:#Hours Per Week
+fau#:#fau_campo_contents#:#Contents
 fau#:#fau_campo_literature#:#Literature
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
 fau#:#fau_check_failed_restrictions#:#You cannot take this course because the following restrictions are not met:
@@ -705,6 +706,14 @@ fau#:#fau_rest_requirements#:#Requirements
 fau#:#fau_rest_subject_semester#:#Subject Semester
 fau#:#fau_rest_regarding_cos#:#only for course of study:
 fau#:#fau_rest_exception_cos#:#except for course of study:
+fau#:#fau_rhythm_weekly#:#Weekly
+fau#:#fau_rhythm_2weekly#:#14-daily
+fau#:#fau_rhythm_4weekly#:#4-weekly
+fau#:#fau_rhythm_block#:#Block event
+fau#:#fau_rhythm_block_sa#:#Block event with Sat
+fau#:#fau_rhythm_block_sa_so#:#Block event with Sat/Sun
+fau#:#fau_rhythm_single#:#Single event
+fau#:#fau_rhythm_by_agreement#:#By Agreement
 fau#:#fau_search#:#Search Events from Campo
 fau#:#fau_search_found_events#:#Found Events:
 fau#:#fau_search_ilias_course#:#StudOn Course

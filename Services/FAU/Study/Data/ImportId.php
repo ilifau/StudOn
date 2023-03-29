@@ -94,11 +94,32 @@ class ImportId
     }
 
     /**
+     * Set the event id
+     */
+    public function withEventId(?int $id) : self
+    {
+        $clone = clone($this);
+        $clone->event_id = $id;
+        return $clone;
+    }
+
+
+    /**
      * @return int|null
      */
     public function getCourseId() : ?int
     {
         return $this->course_id;
+    }
+
+    /**
+     * Set the course id
+     */
+    public function withCourseId(?int $id) : self
+    {
+        $clone = clone($this);
+        $clone->course_id = $id;
+        return $clone;
     }
 
     /**

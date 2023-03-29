@@ -4,12 +4,16 @@ namespace FAU\Study;
 
 use DateTimeImmutable;
 use ILIAS\DI\Container;
+use FAU\Study\Data\PlannedDate;
+use ilLanguage;
 
 class Dates
 {
     protected Container $dic;
+    protected ilLanguage $lng;
     protected Service $service;
     protected Repository $repo;
+
 
     protected $timezone;
 
@@ -30,6 +34,7 @@ class Dates
     public function __construct(Container $dic)
     {
         $this->dic = $dic;
+        $this->lng = $dic->language();
         $this->service = $dic->fau()->study();
         $this->repo = $dic->fau()->study()->repo();
 
@@ -42,12 +47,12 @@ class Dates
      * Get the list of planned dates for a course
      * return string[]
      */
-    public function getPlannedDatesList(?int $course_id, bool $with_instructors) : array
+    public function getPlannedDatesList(?int $course_id, bool $long) : array
     {
         $list = [];
         foreach ($this->repo->getPlannedDatesOfCourse((int) $course_id) as $date) {
             $parts = [];
-            if (!empty($text = $this->getRhythmText((string) $date->getRhythm()))) {
+            if (!empty($text = $this->getRhythmText((string) $date->getRhythm(), $long))) {
                 $parts[] = $text;
             }
             $timeparts = [];
@@ -64,10 +69,10 @@ class Dates
             if (!empty($time)) {
                 $parts[] = $time;
             }
-            if (!empty($date->getStartdate())) {
+            if (($long || !$this->isRegular($date)) && !empty($date->getStartdate())) {
                 $parts[] = $this->getDatespan($date->getStartdate(), $date->getEnddate());
             }
-            if ($with_instructors && !empty($instructors = $this->service->persons()->getInstructorsList($date->getPlannedDatesId()))) {
+            if ($long && !empty($instructors = $this->service->persons()->getInstructorsList($date->getPlannedDatesId()))) {
                 $parts[] = implode(', ', $instructors);
             }
 
@@ -106,23 +111,44 @@ class Dates
         return $list;
     }
 
+    protected function isRegular(PlannedDate $date) : bool
+    {
+        switch($date->getRhythm()) {
+            case 'wöchentlich':
+            case '14-täglich':
+            case 'vierwöchentlich':
+                return true;
+            default:
+                return false;
+        }
+    }
+
 
     /**
      * Get the (translated) text for a thythm
      */
-    protected function getRhythmText(string $rhythm) : string
+    protected function getRhythmText(string $rhythm, bool $long) : string
     {
         switch($rhythm) {
             case 'wöchentlich':
+                if ($long) {
+                    return $this->lng->txt('fau_rhythm_weekly');
+                }
                 return '';
-
             case '14-täglich':
-            case 'Blockveranstaltung':
-            case 'Blockveranstaltung+Sa':
-            case 'Blockveranstaltung+SaundSo':
-            case 'Einzeltermin':
-            case 'nach Vereinbarung':
+                return $this->lng->txt('fau_rhythm_2weekly');
             case 'vierwöchentlich':
+                return $this->lng->txt('fau_rhythm_4weekly');
+            case 'Blockveranstaltung':
+                return $this->lng->txt('fau_rhythm_block');
+            case 'Blockveranstaltung+Sa':
+                return $this->lng->txt('fau_rhythm_block_sa');
+            case 'Blockveranstaltung+SaundSo':
+                return $this->lng->txt('fau_rhythm_block_sa_so');
+            case 'Einzeltermin':
+                return $this->lng->txt('fau_rhythm_single');
+            case 'nach Vereinbarung':
+                return $this->lng->txt('fau_rhythm_by_agreement');
             default:
                 return $rhythm;
         }

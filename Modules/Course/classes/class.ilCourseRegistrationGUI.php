@@ -519,6 +519,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     // fau: paraSub - fill form with the selection of parallel groups
     protected function fillGroupSelection()
     {
+        global $DIC;
+        $info_gui = $DIC->fau()->study()->info();
         if (empty($this->registration->getParallelGroupsInfos())) {
             return;
         }
@@ -541,8 +543,8 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
             else {
                 $group = $group->withProperty((new \FAU\Ilias\Data\ListProperty(null, $this->lng->txt('mem_request_waiting')))->withAlert(true));
             }
-            $option = new ilCheckboxOption($group->getTitle(), $group->getRefId());
-            $option->setInfo($group->getInfoHtml());
+            $option = new ilCheckboxOption($info_gui->getGroupTitleWithDetailsLink($group), $group->getRefId());
+            $option->setInfo($info_gui->getGroupInfo($group, false));
             $option->setDisabled(!$group->isSubscriptionPossible());
             $cb->addOption($option);
         }

@@ -125,6 +125,7 @@ class Objects
         $groupInfo  = new ContainerInfo(
             ilObject::_lookupTitle($obj_id),
             ilObject::_lookupDescription($obj_id),
+            ilObject::_lookupImportId($obj_id),
             'grp',
             $ref_id,
             $obj_id,

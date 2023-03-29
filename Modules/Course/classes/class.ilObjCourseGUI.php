@@ -373,12 +373,12 @@ class ilObjCourseGUI extends ilContainerGUI
             );
         }
 
-        include_once('Services/AdvancedMetaData/classes/class.ilAdvancedMDRecordGUI.php');
-        $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'crs', $this->object->getId());
-        $record_gui->setInfoObject($info);
-        $record_gui->parse();
-
         // fau: infoScreen - don't show metadata section
+        // include_once('Services/AdvancedMetaData/classes/class.ilAdvancedMDRecordGUI.php');
+        // $record_gui = new ilAdvancedMDRecordGUI(ilAdvancedMDRecordGUI::MODE_INFO, 'crs', $this->object->getId());
+        // $record_gui->setInfoObject($info);
+        // $record_gui->parse();
+
         // metadata
         // $info->addMetaDataSections($this->object->getId(), 0, $this->object->getType());
         // fau.
@@ -608,7 +608,7 @@ class ilObjCourseGUI extends ilContainerGUI
         // fau: campoInfo - show info on course info page
         $importId = \FAU\Study\Data\ImportId::fromString($this->object->getImportId());
         if ($importId->isForCampo()) {
-            fauStudyInfoGUI::getInstance()->addInfoScreenSections($info, $importId, $this->ref_id);
+            $DIC->fau()->study()->info()->addInfoScreenSections($info, $importId, $this->ref_id);
         }
         // fau.
 

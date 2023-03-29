@@ -17,6 +17,7 @@ class ContainerInfo
 
     private string $title;
     private ?string $description;
+    private ?string $import_id;
     private string $type;
     private int $ref_id;
     private int $obj_id;
@@ -40,6 +41,7 @@ class ContainerInfo
     public function __construct (
         string $title,
         ?string $description,
+        ?string $import_id,
         string $type,
         int $ref_id,
         int $obj_id,
@@ -53,6 +55,7 @@ class ContainerInfo
     ) {
         $this->title = $title;
         $this->description = $description;
+        $this->import_id = $import_id;
         $this->type = $type;
         $this->ref_id = $ref_id;
         $this->obj_id = $obj_id;
@@ -111,6 +114,13 @@ class ContainerInfo
         return $this->description;
     }
 
+    /**
+     * Get the import id of the object
+     */
+    public function getImportId() : ?string
+    {
+        return $this->import_id;
+    }
 
     /**
      * Get if the object has a maximum of members
@@ -224,22 +234,6 @@ class ContainerInfo
     public function isSubscriptionPossible() : bool
     {
         return $this->isDirectJoinPossible() || $this->hasWaitingList();
-    }
-
-    /**
-     * Get a html code describing the properties
-     */
-    public function getInfoHtml() : string
-    {
-        $strings = [];
-        if (!empty($this->description)) {
-            $strings[] = (string) $this->description;
-        }
-
-        foreach ($this->props as $prop) {
-            $strings[] = $prop->getHtml();
-        }
-        return implode('<br />', $strings);
     }
 
     /**

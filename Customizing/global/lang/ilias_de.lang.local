@@ -644,6 +644,7 @@ fau#:#fau_campo_link#:#» campo
 fau#:#fau_campo_link_title#:#Veranstaltung in campo
 fau#:#fau_campo_responsibles#:#Verantwortliche Personen
 fau#:#fau_campo_hours_per_week#:#Wochenstunden
+fau#:#fau_campo_contents#:#Inhalt
 fau#:#fau_campo_literature#:#Literatur
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da die folgenden Bedingungen nicht erfüllt sind:
@@ -707,6 +708,14 @@ fau#:#fau_rest_requirements#:#Vorleistungen
 fau#:#fau_rest_subject_semester#:#Fachsemester
 fau#:#fau_rest_regarding_cos#:#nur bei Studiengang:
 fau#:#fau_rest_exception_cos#:#ausgenommen bei Studiengang:
+fau#:#fau_rhythm_weekly#:#Wöchentlich
+fau#:#fau_rhythm_2weekly#:#14-täglich
+fau#:#fau_rhythm_4weekly#:#4-wöchentlich
+fau#:#fau_rhythm_block#:#Blockveranstaltung
+fau#:#fau_rhythm_block_sa#:#Blockveranstaltung + Sa
+fau#:#fau_rhythm_block_sa_so#:#Blockveranstaltung + Sa/So
+fau#:#fau_rhythm_single#:#Einzelveranstaltung
+fau#:#fau_rhythm_by_agreement#:#Nach Vereinbarung
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
 fau#:#fau_search_found_events#:#Gefundene Lehrveranstaltungen:
 fau#:#fau_search_ilias_course#:#StudOn-Kurs

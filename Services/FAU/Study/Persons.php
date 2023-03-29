@@ -64,6 +64,9 @@ class Persons
         foreach ($this->dic->fau()->user()->getShortUserDataOfPersons($person_ids) as $userData) {
             $list[] = $this->dic->fau()->user()->getUserText($userData, $with_profile);
         }
+        if (!$with_profile) {
+            $list = array_unique($list);
+        }
         return $list;
     }
 }

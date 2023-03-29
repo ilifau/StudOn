@@ -7,6 +7,9 @@ use FAU\Study\Data\ImportId;
 use FAU\Study\Data\Event;
 use FAU\Study\Data\Course;
 use FAU\Study\Service;
+use FAU\Ilias\Data\ContainerInfo;
+use ILIAS\UI\Component\Button\Button;
+use ILIAS\UI\Component\Modal\Modal;
 
 /**
  * GUI for the display of course related data
@@ -23,20 +26,6 @@ class fauStudyInfoGUI extends BaseGUI
         parent::__construct();
         $this->service = $this->dic->fau()->study();
         $this->repo = $this->dic->fau()->study()->repo();
-    }
-
-
-    /**
-     * Get an instance of the class
-     * @return static
-     */
-    public static function getInstance() : self
-    {
-        static $instance = null;
-        if (!isset($instance)) {
-            $instance = new self();
-        }
-        return $instance;
     }
 
     /**
@@ -83,7 +72,7 @@ class fauStudyInfoGUI extends BaseGUI
     public function getResponsiblesLine(ImportId $import_id) : string
     {
         $list = $this->service->persons()->getResponsiblesList($import_id->getEventId(), $import_id->getCourseId(), false);
-        $text = implode(' | ', $list);
+        $text = implode(' | ', array_unique($list));
         return ilUtil::shortenText($text, 100, true);
     }
 
@@ -95,11 +84,11 @@ class fauStudyInfoGUI extends BaseGUI
     {
         If ($import_id->isForCampo()) {
             $links = [];
-            $links[] = $this->getDetailsLink($import_id, $ref_id);
+            $links[] = $this->getDetailsLink($import_id, $ref_id, $title = $this->lng->txt('fau_details_link'));
             if ($this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($import_id->getEventId())) {
                 $links[] = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($import_id->getEventId());
             }
-            $links[] = $this->getCampoLink($import_id);
+            $links[] = $this->getCampoLink($import_id, $title = $this->lng->txt('fau_campo_link'));
             return implode(' | ', $links);
         }
         return '';
@@ -108,11 +97,10 @@ class fauStudyInfoGUI extends BaseGUI
     /**
      * Get the link to show the details for an event or course
      */
-    protected function getDetailsLink(ImportId $import_id, int $ref_id)
+    protected function getDetailsLink(ImportId $import_id, int $ref_id, string $title)
     {
         $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
         $this->ctrl->setParameter($this, 'ref_id', $ref_id);
-        $title = $this->lng->txt('fau_details_link') ;
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
                                ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal'))
@@ -124,15 +112,39 @@ class fauStudyInfoGUI extends BaseGUI
         return $this->renderer->render([$modal, $button]);
     }
 
+    /**
+     * Get the link to show the details for an event or course
+     */
+    protected function getDetailsModal(ImportId $import_id, int $ref_id): Modal
+    {
+        $this->ctrl->setParameter($this, 'import_id', $import_id->toString());
+        $this->ctrl->setParameter($this, 'ref_id', $ref_id);
+
+        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
+                               ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showDetailsModal'))
+                               ->withResetSignals();
+        return $modal;
+    }
+
+    /**
+     * Get the link to show the details for an event or course
+     */
+    protected function getDetailsButton(Modal $modal, string $title) : Button
+    {
+        $button = $this->factory->button()->shy($title, '#')
+                                ->withResetTriggeredSignals()
+                                ->withOnClick($modal->getShowSignal());
+        return $button;
+    }
+
 
     /**
      * Get the link to campo for an event and term
      */
-    protected function getCampoLink(ImportId $import_id)
+    protected function getCampoLink(ImportId $import_id, string $title)
     {
         $term = Term::fromString($import_id->getTermId());
         $url = $this->service->getCampoUrl($import_id->getEventId(), $term);
-        $title = $this->lng->txt('fau_campo_link'); // . ($term->isValid() ? ' (' . $this->dic->fau()->study()->getTermText($term, true) .')' : '');
         return $this->renderer->render($this->factory->link()->standard($title, $url)->withOpenInNewViewport(true));
     }
 
@@ -163,13 +175,13 @@ class fauStudyInfoGUI extends BaseGUI
         // modal content
         $panels = [];
         if (!empty($event)) {
-            if (!empty($props = $this->getEventProperties($event, $term, $ref_id, empty($course), false))) {
+            if (!empty($props = $this->getEventProperties($event, $term, $ref_id, empty($course), true))) {
                 $panels[] = $this->factory->panel()->standard($this->lng->txt('fau_campo_event'),
                     $this->factory->listing()->descriptive($props));
             }
         }
         if (!empty($course)) {
-            if (!empty($props = $this->getCourseProperties($course, $term))) {
+            if (!empty($props = $this->getCourseProperties($course, $term, true))) {
                 $panels[] = $this->factory->panel()->standard($this->lng->txt('fau_campo_course'),
                     $this->factory->listing()->descriptive($props));
             }
@@ -197,7 +209,7 @@ class fauStudyInfoGUI extends BaseGUI
         $term = Term::fromString((string) $import_id->getTermId());
 
         if (!empty($event)) {
-            if (!empty($props = $this->getEventProperties($event, $term, $ref_id, empty($course), true))) {
+            if (!empty($props = $this->getEventProperties($event, $term, $ref_id, empty($course), false))) {
                 $info->addSection($this->lng->txt('fau_campo_event'));
                 foreach ($props as $label => $content) {
                     $info->addProperty($label, $content);
@@ -205,7 +217,7 @@ class fauStudyInfoGUI extends BaseGUI
             }
         }
         if (!empty($course)) {
-            if (!empty($props = $this->getCourseProperties($course, $term))) {
+            if (!empty($props = $this->getCourseProperties($course, $term, false))) {
                 $info->addSection($this->lng->txt('fau_campo_course'));
                 foreach ($props as $label => $content) {
                     $info->addProperty($label, $content);
@@ -225,7 +237,7 @@ class fauStudyInfoGUI extends BaseGUI
      * Get the properties for the details view of an event
      * @return array title => html
      */
-    protected function getEventProperties(Event $event, Term $term, int $ref_id, bool $with_groups, bool $with_restrictions) : array
+    protected function getEventProperties(Event $event, Term $term, int $ref_id, bool $with_groups, bool $in_modal) : array
     {
         $props = [];
         $import_id = new ImportId($term->toString(), $event->getEventId());
@@ -254,7 +266,7 @@ class fauStudyInfoGUI extends BaseGUI
             $props[$this->lng->txt('fau_campo_responsibles')] = $this->renderList($list);
         }
 
-        if ($with_restrictions && $this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
+        if (!$in_modal && $this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
 
             $restrictions_html = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId());
             $hardRestrictions = $this->dic->fau()->cond()->hard();
@@ -270,7 +282,7 @@ class fauStudyInfoGUI extends BaseGUI
             $props[$this->lng->txt('fau_rest_hard_restrictions')] = $restrictions_html . ' | ' . $matches_html;
         }
 
-        if ($with_groups && !empty($info = $this->getParallelGroupsInfo($ref_id))) {
+        if ($with_groups && !empty($info = $this->getParallelGroupsInfo($ref_id, $in_modal, true))) {
             $props[$this->lng->txt('fau_parallel_groups')]= $info;
         }
 
@@ -281,7 +293,7 @@ class fauStudyInfoGUI extends BaseGUI
      * Get the properties for the details view of a course
      * @return array title => html
      */
-    protected function getCourseProperties(Course $course, Term $term) : array
+    protected function getCourseProperties(Course $course, Term $term, bool $in_modal) : array
     {
         $props = [];
 
@@ -302,10 +314,10 @@ class fauStudyInfoGUI extends BaseGUI
             $props[$this->lng->txt('language')]  = $course->getTeachingLanguage();
         }
         if (!empty($course->getContents())) {
-            $props[$this->lng->txt('contents')]  = $course->getContents();
+            $props[$this->lng->txt('fau_campo_contents')]  = $course->getContents();
         }
         if (!empty($course->getLiterature())) {
-            $props[$this->lng->txt('literature')]  = $course->getLiterature();
+            $props[$this->lng->txt('fau_campo_literature')]  = $course->getLiterature();
         }
         if (!empty($list = $this->service->persons()->getResponsiblesList(null, $course->getCourseId()))) {
             $props[$this->lng->txt('fau_campo_responsibles')] = $this->renderList($list);
@@ -357,17 +369,63 @@ class fauStudyInfoGUI extends BaseGUI
     /**
      * Get a List of parallel groups enclosed in an object
      */
-    public function getParallelGroupsInfo(int $ref_id, bool $aligned = true) : string
+    public function getParallelGroupsInfo(int $ref_id,  bool $in_modal, bool $aligned) : string
     {
         $list = [];
+        $modals = [];
         foreach ($this->dic->fau()->ilias()->objects()->getParallelGroupsInfos($ref_id) as $group) {
-            $entry = $group->getTitle();
-            if (!empty($group->getInfoHtml())) {
-                $entry .= '<br>' . $group->getInfoHtml();
+            if ($in_modal) {
+                $list[] = $this->getGroupInfo($group, true);
+            } else {
+                $import_id = ImportId::fromString((string) $group->getImportId())->withEventId(null);
+                $modal = $this->getDetailsModal($import_id, $group->getRefId());
+                $modals[] = $modal;
+                $list[] = $this->getGroupInfo($group, true, $this->getDetailsButton($modal, $group->getTitle()));
             }
-            $list[] = $entry ;
         }
-        return $this->renderList($list, $aligned);
+        return $this->renderer->render($modals) . $this->renderList($list, $aligned);
+    }
+
+    /**
+     * Get the info about a parallel group
+     */
+    public function getGroupInfo(ContainerInfo $group, bool $with_title, ?Button $title_button = null) : string
+    {
+        // set event id null to prevent event infos being shown in the details modal
+        $import_id = ImportId::fromString((string) $group->getImportId())->withEventId(null);
+
+        $parts = [];
+        if (isset($title_button)) {
+            $parts[] = $this->renderer->render($title_button);
+        }
+        elseif ($with_title) {
+            $parts[] = '<em>' . $group->getTitle() . '</em>';
+        }
+        if (!empty($group->getDescription())) {
+            $parts[] = $group->getDescription();
+        }
+        if (!empty($line = $this->getDatesLine($import_id))) {
+            $parts[] = $line;
+        }
+        if (!empty($line = $this->getResponsiblesLine($import_id))) {
+            $parts[] = $line;
+        }
+        foreach ($group->getProperties() as $prop) {
+            if ($prop->hasAlert()) {
+                $parts[] = '<strong>' . $prop->getString() . '</strong>';
+            }
+            else {
+                $parts[] = $prop->getString();
+            }
+        }
+        return implode("<br />\n", $parts);
+    }
+
+    public function getGroupTitleWithDetailsLink(ContainerInfo $group) : string
+    {
+        // set event id null to prevent event infos being shown in the details modal
+        $import_id = ImportId::fromString((string) $group->getImportId())->withEventId(null);
+        return $this->getDetailsLink($import_id, $group->getRefId(), $group->getTitle());
     }
 
     /**

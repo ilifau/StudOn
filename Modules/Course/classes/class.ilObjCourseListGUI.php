@@ -55,7 +55,7 @@ class ilObjCourseListGUI extends ilObjectListGUI
         // fau: campoInfo - show info and links from campo
         // use custom property to hide the display in the result list of campo search
         global $DIC;
-        $info_gui = fauStudyInfoGUI::getInstance();
+        $info_gui = $DIC->fau()->study()->info();
         $import_id = $DIC->fau()->study()->repo()->getImportId($this->obj_id);
 
         if (!empty($line = $info_gui->getDatesLine($import_id))) {

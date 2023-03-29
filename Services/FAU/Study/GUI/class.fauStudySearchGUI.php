@@ -253,12 +253,13 @@ class fauStudySearchGUI extends BaseGUI
                 $link = ilLink::_getStaticLink($event->getIliasRefId(), 'crs');
                 $title = $event->getIliasTitle();
 
+                $info_gui = $this->dic->fau()->study()->info();
                 $description = $event->getIliasDescription();
-                $description .= ' &nbsp; ' . fauStudyInfoGUI::getInstance()->getLinksLine($import_id, $event->getIliasRefId());
+                $description .= ' &nbsp; ' . $info_gui->getLinksLine($import_id, $event->getIliasRefId());
                 $description .= $pathGUI->getPath(1, $event->getIliasRefId());
                 if ($event->isNested()) {
                     $description .= '<p>' . $this->lng->txt('fau_parallel_groups') .'</p>'
-                        .fauStudyInfoGUI::getInstance()->getParallelGroupsInfo($event->getIliasRefId(), false);
+                        . $info_gui->getParallelGroupsInfo($event->getIliasRefId(), false, false);
                 }
 
                 $listGUI->initItem($event->getIliasRefId(), ilObject::_lookupObjId($event->getIliasRefId()), 'crs');
