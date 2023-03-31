@@ -254,53 +254,51 @@ abstract class ilRegistrationGUI
     {
         global $DIC;
         $hardRestrictions = $DIC->fau()->cond()->hard();
-        $this->matches_restrictions = $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
+        $hardRestrictions->checkObject($this->container->getId(), $DIC->user()->getId());
+        $this->matches_restrictions = $hardRestrictions->getCheckPassed();
         $this->adjustSubType();
 
-        // by default use only the allowed modules
-        $modules = $hardRestrictions->getCheckedAllowedModules();
-        if (empty($modules) && !$this->matches_restrictions) {
-            // if acceptance is needed, use all modules fitting for the study, even if their restrictions failed
-            // acceptance into the course will be acceptance of the selected module
-            $modules = $hardRestrictions->getCheckedFittingModules();
+        // info about matching restrictions
+        $message = $hardRestrictions->getCheckMessage();
+        if ($hardRestrictions->hasObjectRestrictions($this->obj_id)) {
+            $hardRestrictionsGUI = fauHardRestrictionsGUI::getInstance();
+            $message .= '<p>' . $hardRestrictionsGUI->getResultModalLink(
+                    $hardRestrictions,
+                    null,
+                    $this->lng->txt('fau_details_link')
+                ) . '</p>';
         }
+        if (!$this->matches_restrictions) {
+            $message .= '<p><strong>' . $this->lng->txt(empty($hardRestrictions->getCheckedFittingModules()) ?
+                    'fau_check_failed_but_request_without_modules' :
+                    'fau_check_failed_but_request_with_modules'
+                ) . '</strong></p>';
+        }
+        elseif ($this->has_studycond && !$this->matches_studycond) {
+            $message .= '<p><strong>' . $this->lng->txt('fau_check_success_but_soft_failed') . '</strong></p>';
+        }
+        $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
+        $item->setValue($message);
+        $this->form->addItem($item);
 
-        $message = $hardRestrictions->getCheckResultMessage();
-        if (!empty($message)) {
-            if (!$this->matches_restrictions) {
-                $message .= '<br><strong>' . $this->lng->txt(empty($modules) ?
-                        'fau_check_failed_but_request_without_modules' :
-                        'fau_check_failed_but_request_with_modules'
-                    ) . '</strong>';
-            }
-            elseif ($this->has_studycond && !$this->matches_studycond) {
-                $message .= ' ' . $this->lng->txt('fau_check_success_but_soft_failed');
-            }
-            $item = new ilNonEditableValueGUI($this->lng->txt('fau_rest_hard_restrictions'), '', true);
-            $item->setValue($message);
+        // info about courses of study
+        if (!empty($hardRestrictions->getCheckedUserCosTexts())) {
+            $item = new ilNonEditableValueGUI($this->lng->txt('fau_your_courses_of_study'), '', true);
+            $item->setValue($hardRestrictions->getCheckedTermTitle() . "\n" . $hardRestrictions->getCheckedUserCosTexts());
             $this->form->addItem($item);
-
-            if (!empty($hardRestrictions->getCheckedUserCosTexts())) {
-                $item = new ilNonEditableValueGUI($this->lng->txt('fau_your_courses_of_study'), '', true);
-                $item->setValue($hardRestrictions->getCheckedTermTitle() . "\n" . $hardRestrictions->getCheckedUserCosTexts());
-                $this->form->addItem($item);
-            }
         }
 
-        if (!empty($modules)) {
-
+        // module selection
+        if (!empty($hardRestrictions->getCheckedModuleSelectOptions())) {
             /** @var ilWaitingList $list */
             $list = $this->getWaitingList();
             $value = $list->getModuleId($DIC->user()->getId());
-
-            $options = [];
-            foreach ($modules as $module) {
-                $options[$module->getModuleId()] = $module->getLabel();
-            }
             $item = new ilSelectInputGUI($this->lng->txt('fau_module'), 'selected_module');
+            $item->setOptions($hardRestrictions->getCheckedModuleSelectOptions());
+            $item->setDisabledValues($hardRestrictions->getCheckedModuleSelectDisabledIds());
             $item->setRequired(true);
-            $item->setInfo($this->lng->txt('fau_sub_select_module_info'));
-            $item->setOptions($options);
+            $item->setInfo($this->lng->txt('fau_sub_select_module_info') . '<br>'
+                . $this->lng->txt('fau_sub_select_module_info2'));
             if (!empty($value)) {
                 $item->setValue($value);
             }

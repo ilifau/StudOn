@@ -649,12 +649,12 @@ fau#:#fau_campo_hours_per_week#:#Wochenstunden
 fau#:#fau_campo_contents#:#Inhalt
 fau#:#fau_campo_literature#:#Literatur
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
-fau#:#fau_check_failed_restrictions#:#Sie können die Lehrveranstaltung nicht belegen, da die folgenden Bedingungen nicht erfüllt sind:
+fau#:#fau_check_failed_restrictions#:#Die Voraussetzungen zur Belegung dieser Lehrveranstaltung sind nicht erfüllt.
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.
 fau#:#fau_check_failed_but_request_with_modules#:#Sie können auf Antrag in den Kurs aufgenommen werden. Wenn Sie ein Modul auswählen, wird es mit Aufnahme in den Kurs zur Belegung verwendet.
 fau#:#fau_check_failed_but_request_without_modules#:#Sie können auf Antrag in den Kurs aufgenommen werden. Da kein Modul der Veranstaltung zu Ihrem Studiengang passt, wird sie nicht als belegt in Ihren Abschlussdokumenten auftauchen.
 fau#:#fau_check_passed_restrictions#:#Ihr Studium erfüllt die in Campo angegebenen Voraussetzungen.
-fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt es nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
+fau#:#fau_check_success_but_soft_failed#:#Allerdings erfüllt Ihr Studium nicht die in StudOn zusätzlich definierten Studiengangs-Bedingungen.
 fau#:#fau_check_success_no_event#:#Mit diesem Kurs ist keine Lehrveranstaltung verknüpft. Es werden keine Voraussetzungen zur Belegung geprüft.
 fau#:#fau_check_success_no_restriction#:#Für diese Lehrveranstaltung sind in Campo keine Voraussetzungen angegeben.
 fau#:#fau_check_info_failed_no_studydata#:#Nicht erfüllt: Keine Studiengangsdaten für das Semester verfügbar
@@ -670,6 +670,11 @@ fau#:#fau_delete_course_blocked#:#Der Kurs wird für campo benötigt und kann ni
 fau#:#fau_delete_group_blocked#:#Die Gruppe wird für campo benötigt und kann nicht gelöscht werden.
 fau#:#fau_delete_info_campo#:#Die Liste enthält einen oder mehrere Kurse für Lehrveranstaltungen aus Campo. Beim Löschen wird die Verbindung zu Campo aufgehoben. Falls eine Lehrveranstaltung im Semester dennoch angeboten wird, erzeugt StudOn bei der nächsten Synchronisation (in der Regel stündlich) wieder einen neuen Kurs. Sie könenn das verhindern, indem Sie die Parallelgruppen in Campo löschen oder ausfallen lassen. Warten Sie dann eine bis zwei Stunden. Danach können sie den StudOn-Kurs löschen, ohne dass er wieder angelegt wird.
 fau#:#fau_details_link#:#» Details
+fau#:#fau_filter_restrictions#:#Filter für Module mit Voraussetzungen
+fau#:#fau_filter_restrictions_all#:#Alle
+fau#:#fau_filter_restrictions_fitting#:#Passende
+fau#:#fau_filter_restrictions_passed#:#Wählbare
+fau#:#fau_filter_restrictions_selected#:#Gewähltes
 fau#:#fau_grade#:#Note
 fau#:#fau_idm_data_update#:#IDM-Daten aktualisieren
 fau#:#fau_idm_data_update_info#:#Aktualisiert die Daten zu Personen aus dem IDM-System
@@ -745,6 +750,7 @@ fau#:#fau_sub_refuse_all_groups#:#Die Aufnahmeanträge werden im Kurs und in all
 fau#:#fau_sub_select_groups#:#Gruppenauswahl
 fau#:#fau_sub_select_groups_info#:#Bitte wählen Sie eine oder mehrere Parallelgruppen dieser Lehrveranstaltung aus. Falls möglich, werden Sie in eine davon direkt aufgenommen, andernfalls bei allen ausgewählten auf die Warteliste gesetzt.
 fau#:#fau_sub_select_module_info#:#Wählen Sie das Modul oder Konto, für das Sie diese Lehrveranstaltung belegen möchten. Diese Information ist notwendig und erscheint später auf Ihren Abschlussdokumenten.
+fau#:#fau_sub_select_module_info2#:#Die Liste enthält alle Module, die Ihrem Studiengang zugeordnet sind. Ein Haken (✓) bedeutet, dass die Modul-Voraussetzungen erfüllt sind. Ein Kreuz (✗) bedeutet, dass sie nicht erfüllt sind. Solche Module können Sie nur wählen, wenn es keine wählbare Alternative gibt. Dann wird mit der Annahme Ihres Aufnahmeantrags entschieden, dass die Voraussetzungen ignoriert werden können.
 fau#:#fau_sub_message_of#:#Antragstext von
 fau#:#fau_sws#:#SWS
 fau#:#studycond_add_condition#:#Bedingung hinzufügen

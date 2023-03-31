@@ -668,7 +668,8 @@ class ilMemberExport
                     else {
                         $module_id = $this->user_course_data[$usr_id]['module_id'] ?? null;
                     }
-                    $this->addCol($hardRestrictions->getCheckResultInfo(false, $module_id), $row, $col++);
+                    $this->addCol('['. $hardRestrictions->getCheckInfo() . '] '
+                        . $hardRestrictions->getCheckDetails(false, $module_id), $row, $col++);
                 }
                 else {
                     $this->addCol('', $row, $col++);

@@ -357,12 +357,8 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 // fau: campoCheck - fill restrictions column
                 case 'restrictions_passed':
                     $this->tpl->setCurrentBlock('custom_fields');
-                    $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultWithModalHtml(
-                        (bool) $a_set['restrictions_passed'],
-                        (string) $a_set['restrictions_info'],
-                        $a_set['firstname'] . ' ' . $a_set['lastname'],
-                        $a_set['module_id']
-                    ));
+                    $this->tpl->setVariable('VAL_CUST', (string) fauHardRestrictionsGUI::getInstance()->getResultModalLink(
+                        $a_set['restrictions'], $a_set['module_id']));
                     $this->tpl->parseCurrentBlock();
                     break;
                     // fau.
@@ -661,8 +657,9 @@ class ilWaitingListTableGUI extends ilTable2GUI
                 }
 
                 if ($this->isColumnSelected('restrictions_passed')) {
-                    $a_user_data[$usr_id]['restrictions_passed'] = $DIC->fau()->cond()->hard()->checkObject($this->getRepositoryObject()->getId(), $usr_id);
-                    $a_user_data[$usr_id]['restrictions_info'] = $DIC->fau()->cond()->hard()->getCheckResultInfo(true, $wait_usr_data['module_id']);
+                    $hard = $DIC->fau()->cond()->hardChecked($this->getRepositoryObject()->getId(), $usr_id);
+                    $a_user_data[$usr_id]['restrictions'] = $hard;
+                    $a_user_data[$usr_id]['restrictions_passed'] = $hard->getCheckPassed();
                 }
             }
         }

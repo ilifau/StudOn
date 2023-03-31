@@ -267,19 +267,10 @@ class fauStudyInfoGUI extends BaseGUI
         }
 
         if (!$in_modal && $this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
-
-            $restrictions_html = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId());
             $hardRestrictions = $this->dic->fau()->cond()->hard();
-            $hardRestrictionsGUI = fauHardRestrictionsGUI::getInstance();
-            $matches_restrictions = $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
-            $matches_message = $hardRestrictions->getCheckResultMessage();
-            $matches_html = $hardRestrictionsGUI->getResultWithModalHtml(
-                $matches_restrictions,
-                $matches_message,
-                $this->dic->user()->getFullname(),
-                null
-            );
-            $props[$this->lng->txt('fau_rest_hard_restrictions')] = $restrictions_html . ' | ' . $matches_html;
+            $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
+            $result_html = fauHardRestrictionsGUI::getInstance()->getResultModalLink($hardRestrictions);
+            $props[$this->lng->txt('fau_rest_hard_restrictions')] = $result_html;
         }
 
         if ($with_groups && !empty($info = $this->getParallelGroupsInfo($ref_id, $in_modal, true))) {
