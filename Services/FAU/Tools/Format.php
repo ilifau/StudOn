@@ -47,7 +47,7 @@ class Format
      * Format a list of texts for display
      * @param string[] $texts
      * @param bool $html    use HTML to format
-     * @param bool $wide    separate the elements with an additional newline if not formatted by html
+     * @param bool $wide    separate the elements with blank line if not formatted by html
      */
     public function list(array $texts, bool $html = true, bool $wide = false)
     {
@@ -64,7 +64,7 @@ class Format
             return implode("\n\n", $texts);
         }
         else {
-            return implode(";\n", $texts);
+            return implode(" | ", $texts);
         }
     }
 

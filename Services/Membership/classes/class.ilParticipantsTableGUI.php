@@ -164,10 +164,10 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
         if ($this->isColumnSelected('restrictions_passed') || $this->isColumnSelected('module')) {
             $obj_ids = $DIC->fau()->ilias()->objects()->getParallelObjectIds($this->getRepositoryObject());
             $module_ids = $DIC->fau()->user()->repo()->getSelectedModuleIdsOfMembers($obj_ids);
-            $hardRestrictions = $DIC->fau()->cond()->hard();
             foreach ($a_user_data as $user_id => $data) {
-                $data['restrictions_passed'] = $hardRestrictions->checkObject($this->getRepositoryObject()->getId(), $user_id);
-                $data['restrictions_info'] = $hardRestrictions->getCheckResultInfo(true, $module_ids[$user_id] ?? null);
+                $hardRestrictions = $DIC->fau()->cond()->hardChecked($this->getRepositoryObject()->getId(), $user_id);
+                $data['restrictions'] = $hardRestrictions;
+                $data['restrictions_passed'] = $hardRestrictions->getCheckPassed();
                 if (isset($module_ids[$user_id])) {
                     $data['module_id'] = $module_ids[$user_id];
                     foreach($DIC->fau()->study()->repo()->getModules([(int) $data['module_id']]) as $module) {
@@ -203,12 +203,8 @@ abstract class ilParticipantTableGUI extends ilTable2GUI
     {
         $this->tpl->setCurrentBlock('custom_fields');
         if ($this->participants->isMember($a_set['usr_id'])) {
-            $this->tpl->setVariable('VAL_CUST', fauHardRestrictionsGUI::getInstance()->getResultWithModalHtml(
-                (bool) $a_set['restrictions_passed'],
-                (string) $a_set['restrictions_info'],
-                $a_set['firstname'] . ' ' . $a_set['lastname'],
-                $a_set['module_id']
-            ));
+            $this->tpl->setVariable('VAL_CUST',
+                fauHardRestrictionsGUI::getInstance()->getResultModalLink($a_set['restrictions'], $a_set['module_id']));
         }
         else {
             $this->tpl->setVariable('VAL_CUST', '');

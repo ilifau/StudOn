@@ -1,0 +1,20 @@
+<script src="{SOURCE}"></script>
+<div id="{CONTAINER_ID}">
+    <p>{FILTER}:</p>
+    <div class="btn-group il-viewcontrol-mode" aria-label="{ARIA_LABEL}" role="group">
+        <button class="fau-all btn btn-default engaged" onclick="{CLICK_ALL}">{TXT_ALL}</button>
+        <button class="fau-fitting btn btn-default" onclick="{CLICK_FITTING}">{TXT_FITTING}</button>
+        <button class="fau-passed btn btn-default" onclick="{CLICK_PASSED}">{TXT_PASSED}</button>
+        <button class="fau-selected btn btn-default" onclick="{CLICK_SELECTED}">{TXT_SELECTED}</button>
+    </div>
+
+    <p>{RESTRICTIONS}:</p>
+    <ul>
+        <!-- BEGIN item -->
+        <li class="{MODULE} {FITTING} {PASSED} {SELECTED}">{CONTENT}</li>
+        <!-- END item -->
+    </ul>
+</div>
+<script>
+    {INIT}
+</script>

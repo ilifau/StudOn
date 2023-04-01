@@ -48,6 +48,7 @@ class fauHardRestrictionsGUI extends BaseGUI
                 switch ($cmd)
                 {
                     case 'showRestrictionsModal':
+                    case 'showResultModal':
                         $this->$cmd();
                         break;
 
@@ -57,42 +58,6 @@ class fauHardRestrictionsGUI extends BaseGUI
         }
 
         $this->tpl->printToStdout();
-    }
-
-
-    /**
-     * Get a result string that is linked with a modal to show details
-     * @param bool        $passed    Restrictions are passed (will determine the text that is directly shown)
-     * @param string      $info      The detailed info if restrictions are failed (linked in the modal)
-     * @param string      $username  Full name of the user (will be shown in the modal title)
-     * @param int|null    $module_id ID of the selected modal by the user
-     * @param string|null $passed_label    label to be used for passed restrictions
-     * @param string|null $failed_label    label to be used for failed restrictions
-     * @return string
-     */
-    public function getResultWithModalHtml(bool $passed, string $info, string $username, ?int $module_id,
-        ?string $passed_label = null, ?string $failed_label = null) : string
-    {
-        $passed_label = $passed_label ?? $this->lng->txt('fau_check_info_passed_restrictions');
-        $failed_label = $failed_label ??  $this->lng->txt('fau_check_info_failed_restrictions');
-
-        $module_info = '';
-        if (!empty($module_id)) {
-            foreach ($this->dic->fau()->study()->repo()->getModules([$module_id]) as $module) {
-                $module_info = '<p>' . $this->lng->txt('fau_selected_module') . ': '
-                    . $module->getLabel() . '</p>';
-            }
-        }
-
-        $modal = $this->factory->modal()->roundtrip(
-            sprintf($this->lng->txt('fau_check_info_restrictions_for'), $username),
-            $this->factory->legacy($module_info . $info)
-        );
-
-        $button = $this->factory->button()->shy('» ' . ($passed ? $passed_label : $failed_label), '#')
-            ->withOnClick($modal->getShowSignal());
-
-        return $this->renderer->render([$modal, $button]);
     }
 
     /**
@@ -105,13 +70,46 @@ class fauHardRestrictionsGUI extends BaseGUI
         $this->ctrl->setParameter($this, 'event_id', $event_id);
 
         $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
-                         ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
+            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showRestrictionsModal'));
 
         $button = $this->factory->button()->shy('» ' . $this->lng->txt('fau_rest_hard_restrictions'), '#')
-                          ->withOnClick($modal->getShowSignal());
+            ->withOnClick($modal->getShowSignal());
 
         return $this->renderer->render([$modal, $button]);
     }
+
+    /**
+     * Get a linked modal to show the result of a restrictions check
+     * @param \FAU\Cond\HardRestrictions $restrictions checked restrictions
+     * @param int|null    $selected_module_id ID of the selected modal by the user
+     * @param string|null $link_label specific link label to be used for link
+     * @return string
+     */
+    public function getResultModalLink(
+        \FAU\Cond\HardRestrictions $restrictions,
+        ?int $selected_module_id = null,
+        ?string $link_label = null
+    ) : string
+    {
+        $this->ctrl->saveParameter($this, 'ref_id');
+        $this->ctrl->setParameter($this, 'import_id', $restrictions->getCheckedImportId()->toString());
+        $this->ctrl->setParameter($this, 'user_id', $restrictions->getCheckedUserId());
+        $this->ctrl->setParameter($this, 'module_id', $selected_module_id);
+
+        if (!isset($link_label)) {
+            $link_label = '» ' .$this->lng->txt($restrictions->getCheckPassed() ?
+                    'fau_check_info_passed_restrictions' : 'fau_check_info_failed_restrictions');
+        }
+
+        $modal = $this->factory->modal()->roundtrip('', $this->factory->legacy(''))
+            ->withAsyncRenderUrl($this->ctrl->getLinkTarget($this, 'showResultModal'));
+
+        $button = $this->factory->button()->shy($link_label, '#')
+            ->withOnClick($modal->getShowSignal());
+
+        return $this->renderer->render([$modal, $button]);
+    }
+
 
     /**
      * Get an async modal with content to show restrictions
@@ -123,11 +121,108 @@ class fauHardRestrictionsGUI extends BaseGUI
 
         $event = $this->dic->fau()->study()->repo()->getEvent($event_id, Event::model());
         $title = sprintf($this->lng->txt('fau_check_info_restrictions_for'), $event->getTitle());
-        $content = $this->factory->legacy($this->service->hard()->getEventRestrictionTexts($event_id));
-
+        $content = $this->factory->listing()->unordered($this->service->hard()->getEventRestrictionTexts($event_id));
         $modal = $this->factory->modal()->roundtrip($title, $content)
             ->withCancelButtonLabel('close');
         echo $this->renderer->render($modal);
         exit;
+    }
+
+
+    /**
+     * Get an async modal with content to show the result of a restrictions check
+     */
+    protected function showResultModal()
+    {
+        $params = $this->request->getQueryParams();
+        $ref_id = isset($params['ref_id']) ? (int) $params['ref_id'] : 0;
+        $import_id = ImportId::fromString((string) $params['import_id'] ?? '');
+        $user_id = isset($params['user_id']) ? (int) $params['user_id'] : 0;
+        $selected_module_id = isset($params['module_id']) ? (int) $params['module_id'] : 0;
+
+        if (!$user_id == $this->dic->user()->getId() && !$this->dic->access()->checkAccess('manage_members', '', $ref_id)) {
+            exit;
+        }
+
+        $restrictions = $this->dic->fau()->cond()->hard();
+        $restrictions->checkByImportId($import_id, $user_id);
+        $module_info = '';
+        if (!empty($selected_module_id)) {
+            foreach ($this->dic->fau()->study()->repo()->getModules([$selected_module_id]) as $module) {
+                $module_info = $this->lng->txt('fau_selected_module') . ': ' . $module->getLabel();
+            }
+        }
+
+        if (!empty($selected_module_id)) {
+            $filter = 'selected';
+        } elseif($restrictions->getCheckPassed()) {
+            $filter = 'passed';
+        } elseif (!empty($restrictions->getCheckedFittingModules())) {
+            $filter = 'fitting';
+        } else {
+            $filter = 'all';
+        }
+
+        $parts = [$this->factory->legacy('<p>' . $restrictions->getCheckMessage() . '</p>')];
+        if (!empty($restrictions->getCheckedUserCosTexts())) {
+            $parts[] = $this->factory->legacy('<p>' . $this->lng->txt('fau_your_courses_of_study') .
+                ' ('. $restrictions->getCheckedTermTitle(). '):<br>'. $restrictions->getCheckedUserCosTexts() . '</p>');
+                $this->factory->legacy('<p>' . $module_info . '</p>');
+            $parts[] = $this->factory->legacy($this->getCheckedRestrictionsHTML(
+                $restrictions->getCheckedRestrictionTexts(true, $selected_module_id), $filter));
+        }
+
+        $modal = $this->factory->modal()->roundtrip(
+            sprintf($this->lng->txt('fau_check_info_restrictions_for'), ilObjUser::_lookupFullname((int) $restrictions->getCheckedUserId())),
+            $parts
+        )->withCancelButtonLabel('close');
+
+        echo $this->renderer->render($modal);
+        exit;
+    }
+
+
+    /**
+     * Get the list of checked restrictions with a filter for modules
+     * @param \FAU\Cond\Data\RestrictionText[] $restrictionsTexts
+     * @param string $filter
+     */
+    protected function getCheckedRestrictionsHTML(array $restrictionsTexts, $filter='fitting'): string
+    {
+        $tpl = new ilTemplate("tpl.filtered_restrictions.html", true, true, "Services/FAU/Cond/GUI");
+
+        foreach ($restrictionsTexts as $text) {
+            $tpl->setCurrentBlock('item');
+            $tpl->setVariable('CONTENT', $text->getContent());
+            $tpl->setVariable('MODULE', $text->isModule() ? 'module' : '');
+            $tpl->setVariable('FITTING', $text->isFitting() ? 'fitting' : '');
+            $tpl->setVariable('PASSED', $text->isPassed() ? 'passed' : '');
+            $tpl->setVariable('SELECTED', $text->isSelected() ? 'selected' : '');
+            $tpl->parseCurrentBlock();
+        }
+
+        $container_id = str_replace('-', '', (new ILIAS\Data\UUID\Factory)->uuid4AsString());
+        $call = "il.FAU.hardRestrictions.toggleModules('$container_id', '%s'); return false;";
+        $init = "il.FAU.hardRestrictions.toggleModules('$container_id', '%s');";
+
+        $tpl->setVariable('SOURCE', './Services/FAU/Cond/GUI/templates/js/hard_restrictions.js');
+        $tpl->setVariable('INIT', sprintf($init, $filter));
+        $tpl->setVariable('CONTAINER_ID', $container_id);
+        $tpl->setVariable('ARIA_LABEL', $this->lng->txt('fau_filter_restrictions'));
+        $tpl->setVariable('FILTER', $this->lng->txt('fau_filter_restrictions'));
+        $tpl->setVariable('RESTRICTIONS', $this->lng->txt('fau_rest_hard_restrictions'));
+
+
+        $tpl->setVariable('TXT_ALL', $this->lng->txt('fau_filter_restrictions_all'));
+        $tpl->setVariable('TXT_FITTING', $this->lng->txt('fau_filter_restrictions_fitting'));
+        $tpl->setVariable('TXT_PASSED', $this->lng->txt('fau_filter_restrictions_passed'));
+        $tpl->setVariable('TXT_SELECTED', $this->lng->txt('fau_filter_restrictions_selected'));
+
+        $tpl->setVariable('CLICK_ALL', sprintf($call, 'all'));
+        $tpl->setVariable('CLICK_FITTING', sprintf($call, 'fitting'));
+        $tpl->setVariable('CLICK_PASSED', sprintf($call, 'passed'));
+        $tpl->setVariable('CLICK_SELECTED', sprintf($call, 'selected'));
+
+        return $tpl->get();
     }
 }

@@ -3,6 +3,7 @@
 namespace FAU\Cond;
 
 use FAU\Cond\Data\Restriction;
+use FAU\Cond\Data\RestrictionText;
 use FAU\Study\Data\CourseOfStudy;
 use FAU\Study\Data\Event;
 use FAU\Tools\Format;
@@ -54,7 +55,17 @@ class HardRestrictions
     /**
      * Term for which the conditions were checked
      */
-    protected ?Term $checkedTerm;
+    protected ?Term $checkedTerm = null;
+
+    /**
+     * ID of the last checked import id
+     */
+    protected ?ImportId $checkedImportId = null;
+
+    /**
+     * ID of the last checked user
+     */
+    protected ?int $checkedUserId = null;
 
     /**
      * Courses of studies of the user for which the conditions were checked
@@ -65,14 +76,14 @@ class HardRestrictions
     /**
      * Modules that fit the user's courses of study
      * These may have satisfied or unsatisfied restrictions
-     * @var Module[]
+     * @var Module[] (indexed by module id)
      */
     protected $checkedFittingModules = [];
 
     /**
      * Modules that are allowed for a selection at registration
      * The restrictions are cleared in these modules
-     * @var Module[]
+     * @var Module[] (indexed by module id)
      */
     protected array $checkedAllowedModules = [];
 
@@ -81,7 +92,7 @@ class HardRestrictions
      * Modules that are forbidden for a selection at registration
      * The restrictions in these modules are those that are not satisfied
      * Modules without restriction in this array are not studied
-     * @var Module[]
+     * @var Module[] (indexed by module id)
      */
     protected array $checkedForbiddenModules = [];
 
@@ -115,12 +126,17 @@ class HardRestrictions
 
     /**
      * Get all restriction texts of an event
+     * @return string[]
      */
-    public function getEventRestrictionTexts(int $event_id, bool $html = true) : string
+    public function getEventRestrictionTexts(int $event_id, bool $html = true) : array
     {
         $event = $this->getEventWithLoadedRestrictions($event_id);
         $modules = $this->getModulesOfEventWithLoadedRestrictions($event_id);
-        return $this->getRestrictionTexts($event, $modules, $html);
+        $texts = [];
+        foreach ($this->getRestrictionTexts($event, $modules, $html) as $restrictionText) {
+            $texts[] = $restrictionText->getContent();
+        }
+        return $texts;
     }
 
 
@@ -131,8 +147,9 @@ class HardRestrictions
      * @param Module[] $modules     Modules with restriction data
      * @param bool $html            Get formatted html instead of plain text
      * @param bool $checked         The result of a check should be displayed
+     * @return RestrictionText[]    indexed by hash
      */
-    protected function getRestrictionTexts(?Event $event, array $modules, bool $html = true, bool $checked = false) : string
+    protected function getRestrictionTexts(?Event $event, array $modules, bool $html = true, bool $checked = false, ?int $selected_module_id = null) : array
     {
         $texts = [];
         foreach ($modules as $module) {
@@ -166,16 +183,27 @@ class HardRestrictions
             // put all module information together
             $label = $this->format->label($this->lng->txt('fau_module'),  $module->getModuleName(), $module->getModuleNr(), $html);
             if (!empty($resTexts)) {
-                $texts[] = $label . $this->format->list($resTexts, $html);
+                $module_text = $label . $this->format->list($resTexts, $html);
             }
             else {
-                $texts[] = $label . $this->format->list([$this->lng->txt('fau_rest_module_in_cos')], $html);
+                $module_text = $label . $this->format->list([$this->lng->txt('fau_rest_module_in_cos')], $html);
             }
+
+            $restrictionText = new RestrictionText(
+                $module_text,
+                true,
+                isset($this->checkedFittingModules[$module->getModuleId()]),
+                isset($this->checkedAllowedModules[$module->getModuleId()]),
+                $module->getModuleId() == $selected_module_id
+            );
+
+            // avoid doubling of of somilar restictions texts (same content and filtering flags)
+            $texts[$restrictionText->hash()] = $restrictionText;
         }
 
-        // avoid a double showing of the same module with same restrictions for different courses of study
-        $texts = array_unique($texts);
-        sort($texts);
+        usort($texts, function(RestrictionText $text1, RestrictionText $text2) {
+            return $text2->getContent() <=> $text1->getContent();
+        });
 
         // add the restrictions of the event before the module restrictions
         $resTexts = [];
@@ -205,12 +233,20 @@ class HardRestrictions
                 }
             }
             $label = $this->format->label($this->lng->txt('fau_campo_event'), '', '', $html);
-            $texts = array_merge([$label . $this->format->list($resTexts, $html)], $texts);
+
+            $text = new RestrictionText(
+                $label . $this->format->list($resTexts, $html),
+                false,
+                true,
+                isset($this->checkedAllowedEvent) && $this->checkedAllowedEvent->getEventId() == $event->getEventId(),
+                true
+            );
+
+            $texts = array_merge([$text->hash() => $text], $texts);
         }
 
-        return $this->format->list($texts, $html, true);
+        return $texts;
     }
-
 
     /**
      * Get the textual explanation of a restriction
@@ -379,8 +415,12 @@ class HardRestrictions
     {
         $this->clearCheckResult();
 
+        $this->checkedImportId = $import_id;
+        $this->checkedUserId = $user_id;
+
         if (empty($event_id = $import_id->getEventId())) {
-            // manual created course / group => no check message
+            $this->checkMessage = $this->lng->txt('fau_check_success_no_event');
+            $this->checkInfo = $this->lng->txt('fau_check_info_passed');
             return $this->checkPassed = true;
         }
 
@@ -432,55 +472,101 @@ class HardRestrictions
             $this->checkModule($module, $person, $term);
         }
 
+        // set and return the check result
         return $this->checkPassed = (empty($this->checkedForbiddenEvent)
             && (empty($this->checkedForbiddenModules) || !empty($this->checkedAllowedModules)));
     }
 
     /**
-     * Get the HTML message from the registration check
-     * This message can be shown to the student on the registration page
+     * Get the result whether the check is passed
      */
-    public function getCheckResultMessage() : string
+    public function getCheckPassed() : bool
+    {
+        return $this->checkPassed;
+    }
+
+    /**
+     * Get message from the registration check
+     * The message text is directly addressed to the checked user
+     * It can be shown to the student on the registration page and in the check result modal
+     */
+    public function getCheckMessage() : string
     {
         if (!empty($this->checkMessage)) {
             return $this->checkMessage;
         }
 
-        // don't show details for passed check
         if ($this->checkPassed) {
-           return $this->lng->txt('fau_check_passed_restrictions');
+            return $this->lng->txt('fau_check_passed_restrictions');
         }
-
-        // show details for failed event and module restrictions
-        return $this->lng->txt('fau_check_failed_restrictions')
-            . $this->getRestrictionTexts($this->checkedForbiddenEvent, $this->checkedForbiddenModules, true, true);
+        else {
+            return $this->lng->txt('fau_check_failed_restrictions');
+        }
     }
 
     /**
-     * Get the info text from the registration check
-     * This text can be used on the waiting list and for the member export of courses
-     * Only the event and modules are shown that are relevant for the result
+     * Get the info from the registration check
+     * This info is not directly addressed to the cheked user
+     * It can be used in the membership administration and for the member export of courses
      */
-    public function getCheckResultInfo(bool $html = false, ?int $selected_module_id = null) : string
+    public function getCheckInfo() : string
     {
         if (!empty($this->checkInfo)) {
             return $this->checkInfo;
         }
 
+        if ($this->checkPassed) {
+            return $this->lng->txt('fau_check_info_passed_restrictions');
+        }
+        else {
+            return $this->lng->txt('fau_check_info_failed_restrictions');
+        }
+    }
+
+
+    /**
+     * Get the details from the registration check
+     * This text can be used for exports of the waiting list and members
+     * Only the event and modules are shown that are relevant for the result
+     * @return string
+     */
+    public function getCheckDetails(bool $html = true, ?int $selected_module_id = null) : array
+    {
         // select what to be shown for a passed or failed check
-        $label =  $this->lng->txt($this->checkPassed ? 'fau_check_info_passed_restrictions': 'fau_check_info_failed_restrictions');
         $checkedEvent = $this->checkPassed ? $this->checkedAllowedEvent : $this->checkedForbiddenEvent;
         $checkedModules = $this->checkPassed ? $this->checkedAllowedModules : $this->checkedForbiddenModules;
 
-        if (isset($selected_module_id) && isset($this->checkedModules[$selected_module_id])) {
-            // limit the display of restrictions restrictions if a module is selected, e.g. for display in the waiting list
-            return $label . ': ' . $this->getRestrictionTexts($checkedEvent, [$checkedModules[$selected_module_id]], $html, true);
+        if (isset($selected_module_id) && isset($checkedModules[$selected_module_id])) {
+            // limit the display of restrictions restrictions if a module is selected, e.g. member export
+            $texts = $this->getRestrictionTexts($checkedEvent, [$checkedModules[$selected_module_id]], $html, true);
         }
         else {
             // no module selected or selected module not for the event => show all failed event and module restrictions
-            return $label . ': ' . $this->getRestrictionTexts($checkedEvent, $checkedModules, $html, true);
+            $texts = $this->getRestrictionTexts($checkedEvent, $checkedModules, $html, true);
         }
+
+        $details = [];
+        foreach ($texts as $text) {
+            $details[] = $text->getContent();
+        }
+        return $this->format->list($details, $html);
     }
+
+    /**
+     * Get the details from the registration check
+     * This text can be used for exports of the waiting list and members
+     * Only the event and modules are shown that are relevant for the result
+     * @return RestrictionText[]
+     */
+    public function getCheckedRestrictionTexts(bool $html = true, ?int $selected_module_id = null) : array
+    {
+        // select what to be shown for a passed or failed check
+        $checkedEvent = $this->checkPassed ? $this->checkedAllowedEvent : $this->checkedForbiddenEvent;
+        $checkedModules = array_merge($this->checkedAllowedModules, $this->checkedForbiddenModules);
+
+        return $this->getRestrictionTexts($checkedEvent, $checkedModules, $html, true, $selected_module_id);
+    }
+
 
     /**
      * Get the term for which the check was done
@@ -490,8 +576,27 @@ class HardRestrictions
         return $this->checkedTerm ? $this->dic->fau()->study()->getTermText($this->checkedTerm) : '';
     }
 
+
     /**
-     * @return CourseOfStudy
+     * Get the id if the checked import id
+     */
+    public function getCheckedImportId(): ?ImportId
+    {
+        return $this->checkedImportId;
+    }
+
+
+    /**
+     * Get the id if the checked user
+     */
+    public function getCheckedUserId(): ?int
+    {
+        return $this->checkedUserId;
+    }
+
+
+    /**
+     * Get the texts for the checks courses of study of a usr
      */
     public function getCheckedUserCosTexts(bool $html = true) : string
     {
@@ -506,7 +611,7 @@ class HardRestrictions
     /**
      * Get the modules that are allowed for selection at registration
      * If restrictions are fulfilled, then only these modules should be selectable for direct registration
-     * @return Module[]
+     * @return Module[] (indexed by module id)
      */
     public function getCheckedAllowedModules(): array
     {
@@ -515,7 +620,7 @@ class HardRestrictions
 
     /**
      * Get the modules that are forbidden for selection at registration
-     * @return Module[]
+     * @return Module[] (indexed by module id)
      */
     public function getCheckedForbiddenModules(): array
     {
@@ -535,6 +640,47 @@ class HardRestrictions
         return $this->checkedFittingModules;
     }
 
+
+    /**
+     * Get the options to select a module
+     * Include only the modules that fit to the user's courses of study
+     * Modules with failed restrictions can be disabled, @see getCheckedModuleSelectDisabledIds
+     * @return array module id => module label with check result indicator
+     */
+    public function getCheckedModuleSelectOptions() : array
+    {
+        $options = [];
+        foreach ($this->getCheckedFittingModules() as $module) {
+            if (isset($this->checkedAllowedModules[$module->getModuleId()])) {
+                $options[$module->getModuleId()] = '✓ ' . $module->getLabel();
+            }
+            else {
+                $options[$module->getModuleId()] = '✗ ' . $module->getLabel();
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * Get the ids of modules that should be disabled in the module selection
+     * If allowed modules exist, disable all other modules in the list
+     * Don't disable fitting modules, if no modules are allowed
+     * In this case, acceptance into the course is needed
+     * This will be an acceptance of the selected module, even if id doesn't passed the conditions
+     * @return int[]
+     */
+    public function getCheckedModuleSelectDisabledIds() : array
+    {
+        if (empty($this->checkedAllowedModules)) {
+            // disable only forbidden modules that don't fit to the courses of study
+            return array_diff(array_keys($this->checkedForbiddenModules), array_keys($this->checkedFittingModules));
+        }
+        else {
+            // disable all forbidden modules becaause an sllowed module can be selected
+            return array_keys($this->checkedForbiddenModules);
+        }
+    }
+
     /**
      * Clear the result data from a check
      */
@@ -544,6 +690,7 @@ class HardRestrictions
         $this->checkMessage = '';
         $this->checkInfo = '';
         $this->checkedTerm = null;
+        $this->checkedUserId = null;
         $this->checkedUserCos = [];
         $this->checkedAllowedModules = [];
         $this->checkedForbiddenModules = [];

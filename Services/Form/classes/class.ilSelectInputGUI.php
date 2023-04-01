@@ -19,7 +19,9 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     protected $cust_attr = array();
     protected $options = array();
     protected $value;
-    
+
+    protected $disabled_values = array();
+
     /**
     * Constructor
     *
@@ -44,6 +46,15 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
     {
         $this->options = $a_options;
     }
+
+    /**
+     * Set values for options that should be shown as disabled
+     */
+    public function setDisabledValues(array $a_values)
+    {
+        $this->disabled_values = $a_values;
+    }
+
 
     /**
     * Get Options.
@@ -110,11 +121,17 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
             } elseif (!array_key_exists($_POST[$this->getPostVar()], (array) $this->getOptions())) {
                 $this->setAlert($lng->txt('msg_invalid_post_input'));
                 return false;
+            } elseif (in_array($_POST[$this->getPostVar()], $this->disabled_values)) {
+                $this->setAlert($lng->txt('msg_invalid_post_input'));
+                return false;
             }
         } else {
             foreach ($_POST[$this->getPostVar()] as $idx => $value) {
                 $_POST[$this->getPostVar()][$idx] = ilUtil::stripSlashes($value);
                 if (!array_key_exists($value, (array) $this->getOptions())) {
+                    $this->setAlert($lng->txt('msg_invalid_post_input'));
+                    return false;
+                } elseif (in_array($value, $this->disabled_values)) {
                     $this->setAlert($lng->txt('msg_invalid_post_input'));
                     return false;
                 }
@@ -174,6 +191,12 @@ class ilSelectInputGUI extends ilSubEnabledFormPropertyGUI implements ilTableFil
                 $tpl->setVariable(
                     "CHK_SEL_OPTION",
                     'selected="selected"'
+                );
+            }
+            if (in_array($option_value, $this->disabled_values)) {
+                $tpl->setVariable(
+                    "DISABLE_OPTION",
+                    'disabled="disabled"'
                 );
             }
             $tpl->setVariable("TXT_SELECT_OPTION", $option_text);

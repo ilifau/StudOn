@@ -39,6 +39,17 @@ class Service extends SubService
     }
 
     /**
+     * Get the handler for hard restrictions
+     */
+    public function hardChecked(int $obj_id, int $user_id) : HardRestrictions
+    {
+        $hard = new HardRestrictions($this->dic);
+        $hard->checkObject($obj_id, $user_id);
+        return $hard;
+    }
+
+
+    /**
      * Get the handler for soft conditions
      */
     public function soft() : SoftConditions

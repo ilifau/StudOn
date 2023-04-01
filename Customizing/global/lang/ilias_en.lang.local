@@ -650,12 +650,12 @@ fau#:#fau_campo_hours_per_week#:#Hours Per Week
 fau#:#fau_campo_contents#:#Contents
 fau#:#fau_campo_literature#:#Literature
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
-fau#:#fau_check_failed_restrictions#:#You cannot take this course because the following restrictions are not met:
+fau#:#fau_check_failed_restrictions#:#The restrictions for taking this course estrictions are not met.
 fau#:#fau_check_failed_term_not_valid#:#No correct semester is given for this course, therefore no prerequisites can be checked. Please contact the person responsible for the course.
 fau#:#fau_check_failed_but_request_with_modules#:#You can be accepted into the course upon request. If you select a module, it will be used for your degree documents after acceptance into the course.
 fau#:#fau_check_failed_but_request_without_modules#:#You can be accepted into the course upon request. Since no module of the course matches your degree program, it will not show up as taken on your degree documents.
 fau#:#fau_check_passed_restrictions#:#Your studies meet the requirements defined in campo.
-fau#:#fau_check_success_but_soft_failed#:#However, it does not meet the additional program requirements defined in StudOn.
+fau#:#fau_check_success_but_soft_failed#:#However, your studies do not meet the additional program requirements defined in StudOn.
 fau#:#fau_check_success_no_event#:#This course is not connected to an event in campo. There are no restrictions tested.
 fau#:#fau_check_success_no_restriction#:#This course has no restrictions defined in campo.
 fau#:#fau_check_info_failed_no_studydata#:#Not satisfied: No study data available for the term
@@ -667,6 +667,11 @@ fau#:#fau_delete_course_blocked#:#The course is needed for campo and can't be de
 fau#:#fau_delete_group_blocked#:#The group is needed for campo and can't be deleted.
 fau#:#fau_delete_info_campo#:#The list contains one or more courses for courses from Campo. When deleting, the connection to Campo is cancelled. If a course is still offered in the semester, StudOn creates a new course again during the next synchronization (usually hourly). You can prevent this by deleting or dropping the parallel groups in Campo. Then wait one or two hours. After that you can delete the StudOn course without it being created again.
 fau#:#fau_details_link#:#» Details
+fau#:#fau_filter_restrictions#:#Filter for Modules
+fau#:#fau_filter_restrictions_all#:#All Modules
+fau#:#fau_filter_restrictions_fitting#:#Fitting For Study
+fau#:#fau_filter_restrictions_passed#:#Satisfied Restrictions
+fau#:#fau_filter_restrictions_selected#:#Selected Module
 fau#:#fau_grade#:#Grade
 fau#:#fau_idm_data_update#:#Update IDM Data
 fau#:#fau_idm_data_update_info#:#Updates the data for persons from IDM
@@ -742,6 +747,7 @@ fau#:#fau_sub_refuse_all_groups#:#Requests for admission are rejected in the cou
 fau#:#fau_sub_select_groups#:#Choice of Groups
 fau#:#fau_sub_select_groups_info#:#Please select one or more parallel groups of this course. If possible, you will be directly admitted to one of them, otherwise you will be put on the waiting list for all selected ones.
 fau#:#fau_sub_select_module_info#:#Select the module or account for which you wish to take this course. This information is required and will appear on your final documents later.
+fau#:#fau_sub_select_module_info2#:#The list contains all modules that are assigned to your courses of study. A check mark (✓) means that the module requirements are fulfilled. A cross (✗) means that they are not fulfilled. You can only select such modules if there is no selectable alternative. Then, with the acceptance of your registration request, it is decided that the prerequisites can be ignored.
 fau#:#fau_sub_message_of#:#Submission Mesaage of
 fau#:#fau_sws#:#SWS
 fau#:#study_data#:#study data
