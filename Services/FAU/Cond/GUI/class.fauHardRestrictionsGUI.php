@@ -141,7 +141,7 @@ class fauHardRestrictionsGUI extends BaseGUI
         $selected_module_id = isset($params['module_id']) ? (int) $params['module_id'] : 0;
 
         if (!$user_id == $this->dic->user()->getId() && !$this->dic->access()->checkAccess('manage_members', '', $ref_id)) {
-            exit;
+ //           exit;
         }
 
         $restrictions = $this->dic->fau()->cond()->hard();
