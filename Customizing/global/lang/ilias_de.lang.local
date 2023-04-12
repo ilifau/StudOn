@@ -648,6 +648,7 @@ fau#:#fau_campo_responsibles#:#Verantwortliche Personen
 fau#:#fau_campo_hours_per_week#:#Wochenstunden
 fau#:#fau_campo_contents#:#Inhalt
 fau#:#fau_campo_literature#:#Literatur
+fau#:#fau_campo_date_cancelled#:#Termin fällt aus
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Die Voraussetzungen zur Belegung dieser Lehrveranstaltung sind nicht erfüllt.
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.

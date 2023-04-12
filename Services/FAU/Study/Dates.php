@@ -100,12 +100,19 @@ class Dates
             if (!empty($date->getStarttime())) {
                 $parts[] = $this->getTimespan($date->getStarttime(), $date->getEndtime());
             }
-            if ($with_instructors && !empty($instructors = $this->service->persons()->getIndividualInstructorsList($date->getIndividualDatesId()))) {
+            if ($with_instructors
+                    && !empty($date->getCancelled())
+                    && !empty($instructors = $this->service->persons()->getIndividualInstructorsList($date->getIndividualDatesId()))) {
                 $parts[] = implode(', ', $instructors);
             }
 
             if (!empty($parts)) {
-                $list[] = implode(', ', $parts);
+                if (!empty($date->getCancelled())) {
+                    $list[] = '<del>' . implode(', ', $parts) . '</del>, ' . $this->lng->txt('fau_campo_date_cancelled');
+                }
+                else {
+                    $list[] = implode(', ', $parts);
+                }
             }
         }
         return $list;

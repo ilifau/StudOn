@@ -649,6 +649,7 @@ fau#:#fau_campo_responsibles#:#Responsible Persons
 fau#:#fau_campo_hours_per_week#:#Hours Per Week
 fau#:#fau_campo_contents#:#Contents
 fau#:#fau_campo_literature#:#Literature
+fau#:#fau_campo_date_cancelled#:#Date is cancelled
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
 fau#:#fau_check_failed_restrictions#:#The restrictions for taking this course estrictions are not met.
 fau#:#fau_check_failed_term_not_valid#:#No correct semester is given for this course, therefore no prerequisites can be checked. Please contact the person responsible for the course.
