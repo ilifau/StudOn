@@ -318,7 +318,7 @@ class HardRestrictions
                             $text .= ' '. $this->lng->txt('fau_rest_pf_wp');
                             break;
                     }
-                    $text .= ($checked ? ' ' . $this->format->check($expression->isSatisfied(), false) : '');
+                    $text .= ($checked ? ' ' . $this->format->check($expression->isSatisfied(), $html) : '');
                     break;
             }
             $expTexts[] = $text;
