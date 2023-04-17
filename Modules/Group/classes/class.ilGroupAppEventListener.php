@@ -59,11 +59,12 @@ class ilGroupAppEventListener
             $a_parameters['role_id'],
             $new_status
         );
-        
-        if ($a_event == 'deassignUser') {
-            $self = new self();
-            $self->doAutoFill($a_parameters['obj_id']);
+
+        // fau: fairSub - trigger autofill also, if member leaves group or if member is removed in membership admin
+        if ($a_event == 'deassignUser' || $a_event == 'deleteParticipant') {
+            self::doAutoFill($a_parameters['obj_id']);
         }
+        // fau.
     }
     
     /**
@@ -96,9 +97,11 @@ class ilGroupAppEventListener
     */
     public static function handleEvent($a_component, $a_event, $a_parameter)
     {
-        if ($a_component == 'Services/AccessControl') {
+        // fau: fairSub - listen to group events to recognize deleteParticipant for an autofill
+        if ($a_component == 'Services/AccessControl' || $a_component == 'Modules/Group') {
             $listener = new self();
             $listener->handleUserAssignments($a_event, $a_parameter);
         }
+        // fau.
     }
 }
