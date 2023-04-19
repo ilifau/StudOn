@@ -149,7 +149,8 @@ class fauHardRestrictionsGUI extends BaseGUI
         $module_info = '';
         if (!empty($selected_module_id)) {
             foreach ($this->dic->fau()->study()->repo()->getModules([$selected_module_id]) as $module) {
-                $module_info = $this->lng->txt('fau_selected_module') . ': ' . $module->getLabel();
+                $module_info = $this->lng->txt('fau_selected_module') . ': ' .
+                    $this->dic->fau()->tools()->format()->list([$module->getLabel()]);
             }
         }
 
@@ -168,8 +169,13 @@ class fauHardRestrictionsGUI extends BaseGUI
             $parts[] = $this->factory->legacy('<p>' . $this->lng->txt('fau_your_courses_of_study') .
                 ' ('. $restrictions->getCheckedTermTitle(). '):<br>'. $restrictions->getCheckedUserCosTexts() . '</p>');
             $parts[] = $this->factory->legacy('<p>' . $module_info . '</p>');
-            $parts[] = $this->factory->legacy($this->getCheckedRestrictionsHTML(
-                $restrictions->getCheckedRestrictionTexts(true, $selected_module_id), $filter));
+            $parts[] = $this->factory->panel()->standard($this->lng->txt('fau_rest_hard_restrictions'),
+                $this->factory->legacy($this->getCheckedRestrictionsHTML(
+                    $restrictions->getCheckedRestrictionTexts(true, $selected_module_id), $filter)));
+        }
+        else {
+            $parts[] = $this->factory->panel()->standard($this->lng->txt('fau_rest_hard_restrictions'),
+                $this->factory->listing()->unordered($this->service->hard()->getEventRestrictionTexts($import_id->getEventId())));
         }
 
         $modal = $this->factory->modal()->roundtrip(

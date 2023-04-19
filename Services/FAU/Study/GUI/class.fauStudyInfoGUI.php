@@ -269,8 +269,7 @@ class fauStudyInfoGUI extends BaseGUI
         if (!$in_modal && $this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
             $hardRestrictions = $this->dic->fau()->cond()->hard();
             $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
-            $restrictions_html = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($event->getEventId()) . ' &nbsp; ' .
-                        fauHardRestrictionsGUI::getInstance()->getResultModalLink($hardRestrictions);
+            $restrictions_html = fauHardRestrictionsGUI::getInstance()->getResultModalLink($hardRestrictions);
             $props[$this->lng->txt('fau_rest_hard_restrictions')] = $restrictions_html;
         }
 
