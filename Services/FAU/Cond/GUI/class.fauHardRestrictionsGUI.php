@@ -167,7 +167,7 @@ class fauHardRestrictionsGUI extends BaseGUI
         if (!empty($restrictions->getCheckedUserCosTexts())) {
             $parts[] = $this->factory->legacy('<p>' . $this->lng->txt('fau_your_courses_of_study') .
                 ' ('. $restrictions->getCheckedTermTitle(). '):<br>'. $restrictions->getCheckedUserCosTexts() . '</p>');
-                $this->factory->legacy('<p>' . $module_info . '</p>');
+            $parts[] = $this->factory->legacy('<p>' . $module_info . '</p>');
             $parts[] = $this->factory->legacy($this->getCheckedRestrictionsHTML(
                 $restrictions->getCheckedRestrictionTexts(true, $selected_module_id), $filter));
         }
