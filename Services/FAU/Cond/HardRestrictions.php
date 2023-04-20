@@ -530,7 +530,7 @@ class HardRestrictions
      * Only the event and modules are shown that are relevant for the result
      * @return string
      */
-    public function getCheckDetails(bool $html = true, ?int $selected_module_id = null) : array
+    public function getCheckDetails(bool $html = true, ?int $selected_module_id = null) : string
     {
         // select what to be shown for a passed or failed check
         $checkedEvent = $this->checkPassed ? $this->checkedAllowedEvent : $this->checkedForbiddenEvent;
