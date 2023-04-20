@@ -570,9 +570,11 @@ var ChatUsers = function ChatUsers(selector, _translator, _connector) {
 		return {
 			label: _translator.translate('kick'),
 			callback: function() {
-				if(confirm(_translator.translate('kick_question'))) {
-					_connector.kick(this.id, subRoomId);
-				}
+				confirmModal(_translator.translate('kick'), _translator.translate('kick_question')).then(function(x){
+					if(x) {
+						_connector.kick(this.id, subRoomId);
+					}
+				}.bind(this));
 			},
 			permission: ['moderator', 'owner']
 		};
@@ -588,9 +590,11 @@ var ChatUsers = function ChatUsers(selector, _translator, _connector) {
 		return {
 			label: _translator.translate('ban'),
 			callback: function() {
-				if(confirm(_translator.translate('ban_question'))) {
-					_connector.ban(this.id, subRoomId);
-				}
+				confirmModal(_translator.translate('ban'), _translator.translate('ban_question')).then(function(x){
+					if(x) {
+						_connector.ban(this.id, subRoomId);
+					}
+				}.bind(this));
 			},
 			permission: ['moderator']
 		};
@@ -610,6 +614,11 @@ var ChatActions = function ChatActions(selector, _translation, _connector, _priv
 
 	var _$anchor = $(selector);
 	var _menuEntries;
+	let addChatButton = function(entry){
+		addChatButton.willBeAdded.push(entry);
+	};
+	addChatButton.willBeAdded = [];
+
 
 
 	// Done
@@ -617,23 +626,55 @@ var ChatActions = function ChatActions(selector, _translation, _connector, _priv
 	 * Setup ChatActions
 	 */
 	this.init = function() {
+		_resetEntries();
 
-		_$anchor.click(function (e) {
-			e.preventDefault();
-			e.stopPropagation();
-			_resetEntries();
+		$(this).removeClass('chat_new_events');
+		_addLeaveSubRoomAction(); // Done, just permission checks
+		_addDeleteSubRoomAction(); // Done, just permission checks
+		_addCreateSubRoomAction(); // Done, just permission checks
+		_addInviteSubRoomAction();
+		_addClearHistoryAction();
+		_addSeparator(); // Done
+		_addEnterRoomActions(); // Done, just permission checks
 
-			$(this).removeClass('chat_new_events');
+		const box = document.querySelector('#chat_function_list');
+		const createButton = function (entry) {
+			if (entry.separator) {
+				const hr = document.createElement('hr');
+				return hr;
+			}
+			const node = document.createElement('button');
+			node.style.display = 'block';
+			node.style.margin = '0 0 5px 0';
+			node.classList.add('btn-link');
+			node.classList.add('btn');
+			node.textContent = entry.label;
+			node.addEventListener('click', entry.callback);
 
-			_addLeaveSubRoomAction(); // Done, just permission checks
-			_addDeleteSubRoomAction(); // Done, just permission checks
-			_addCreateSubRoomAction(); // Done, just permission checks
-			_addInviteSubRoomAction();
-			_addClearHistoryAction();
-			_addSeparator(); // Done
-			_addEnterRoomActions(); // Done, just permission checks
+			return node;
+		};
 
-			$(this).ilChatMenu('show', _menuEntries, true);
+		const all = _menuEntries.concat(addChatButton.willBeAdded);
+		addChatButton = function(x){
+			box.appendChild(createButton(x));
+		};
+		all.forEach(addChatButton);
+	};
+
+	this.addPrivateRoom = function(room){
+		addChatButton({
+			label: room.title,
+			callback: function () {
+				room.new_events = false;
+				if (currentRoom == room.proom_id) {
+					return;
+				} else if (room.proom_id == 0 && currentRoom != 0) {
+					_connector.leavePrivateRoom(currentRoom);
+					currentRoom = 0;
+					return;
+				}
+				_connector.enterPrivateRoom(room.proom_id);
+			}
 		});
 	};
 
@@ -687,9 +728,11 @@ var ChatActions = function ChatActions(selector, _translation, _connector, _priv
 			_menuEntries.push({
 				label: _translation.translate('delete_private_room'),
 				callback: function() {
-					if(confirm(_translation.translate('delete_private_room_question'))) {
-						_connector.deletePrivateRoom(subRoomId);
-					}
+					confirmModal(_translation.translate('delete_private_room'), _translation.translate('delete_private_room_question')).then(function(x){
+						if(x) {
+							_connector.deletePrivateRoom(subRoomId);
+						}
+					});
 				},
 				permission: ['moderator', 'owner']
 			});
@@ -866,9 +909,11 @@ var ChatActions = function ChatActions(selector, _translation, _connector, _priv
 			_menuEntries.push({
 				label: _translation.translate('clear_room_history'),
 				callback: function() {
-					if (confirm(_translation.translate('clear_room_history_question'))) {
-						_connector.clear(currentRoom);
-					}
+					confirmModal(_translation.translate('clear_room_history'), _translation.translate('clear_room_history_question'), _translation.translate('delete')).then(function(x){
+						if (x) {
+							_connector.clear(currentRoom);
+						}
+					});
 				}
 			});
 		}
@@ -1323,10 +1368,11 @@ var ServerConnector = function ServerConnector(url, scope, user, userManager, gu
 		logger.logServerResponse('private_room_created');
 
 		$('#chat_messages').ilChatMessageArea('addScope', messageObject.subRoomId, messageObject);
+		chatActions.addPrivateRoom({proom_id: messageObject.subRoomId, title: messageObject.title});
 		$('#private_rooms').ilChatList('add', {
-			id:    messageObject.subRoomId,
+			id: messageObject.subRoomId,
 			label: messageObject.title,
-			type:  'room',
+			type: 'room',
 			owner: messageObject.ownerId
 		});
 	}
@@ -1699,8 +1745,6 @@ il.Util.addOnLoad(function () {
 
 			smileys.render();
 
-			// Insert Chatheader into HTML next to AKTION-Button
-			gui.renderHeaderAndActionButton();
 			// When private rooms are disabled, dont show chat header
 			gui.showHeadline(initial.private_rooms_enabled);
 			// Resizes Chatwindow every 500 miliseconds
@@ -1772,6 +1816,7 @@ il.Util.addOnLoad(function () {
 			});
 
 			// Add initial private rooms to Chatlist
+			initial.private_rooms.forEach(chatActions.addPrivateRoom);
 			$(initial.private_rooms).each(function () {
 				$('#private_rooms').ilChatList('add', {
 					id:    this.proom_id,
@@ -1863,6 +1908,43 @@ il.Util.addOnLoad(function () {
 				}
 			}
 
-		}
+		};
 	}(jQuery)
 });
+
+    /**
+     * @param {string} label
+     * @param {string} message
+     * @param {undefined|string} buttonLabel
+     * @return {Promise<bool>}
+     */
+    const confirmModal = function(label, message, buttonLabel){
+        return new Promise(function(resolve){
+            const body = document.createElement('div');
+            body.textContent = message;
+            body.className = 'alert alert-warning';
+            const header = document.createElement('div');
+            header.classList.add('modal-title');
+            header.textContent = label;
+
+            const modal = il.Modal.dialogue({
+                body: body,
+                header: header,
+                buttons: [
+                    {
+                        type: 'button',
+                        label: buttonLabel || label,
+                        callback: function(){
+                            resolve(true);
+                            resolve = function(){};
+                            modal.hide();
+                        }
+                    },
+                    {type: 'button', label: translation.translate('cancel'), callback: function(){modal.hide();}},
+                ],
+                onHide: function(){
+                    resolve(false);
+                }
+            });
+        });
+    };

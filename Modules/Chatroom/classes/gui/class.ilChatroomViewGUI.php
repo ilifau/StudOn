@@ -1,8 +1,28 @@
 <?php
 /* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-require_once 'Modules/Chatroom/classes/class.ilChatroom.php';
-require_once 'Modules/Chatroom/classes/class.ilChatroomUser.php';
+declare(strict_types=1);
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+use ILIAS\Filesystem\Stream\Streams;
+use ILIAS\HTTP\Response\ResponseHeader;
+use ILIAS\UI\Component\Component;
+
 
 /**
  * Class ilChatroomViewGUI
@@ -12,6 +32,15 @@ require_once 'Modules/Chatroom/classes/class.ilChatroomUser.php';
  */
 class ilChatroomViewGUI extends ilChatroomGUIHandler
 {
+    private $uiFactory;
+
+    public function __construct(ilChatroomObjectGUI $gui)
+    {
+        global $DIC;
+        parent::__construct($gui);
+        $this->uiFactory = $DIC->ui()->factory();
+    }
+
     /**
      * Joins user to chatroom with custom username, fetched from
      * $_REQUEST['custom_username_text'] or by calling buld method.
@@ -72,6 +101,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
      */
     private function showRoom(ilChatroom $room, ilChatroomUser $chat_user)
     {
+        $this->ilLng->loadLanguageModule('chatroom');
         $this->redirectIfNoPermission('read');
 
         $user_id = $chat_user->getUserId();
@@ -213,27 +243,87 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
         $roomTpl->setVariable('LBL_USER_TEXT', $this->ilLng->txt('invite_username'));
         $roomTpl->setVariable('LBL_AUTO_SCROLL', $this->ilLng->txt('auto_scroll'));
 
-        $roomTpl->setVariable('INITIAL_USERS', json_encode($room->getConnectedUsers()));
+        $initial->state = new stdClass();
+        $initial->state->scrolling = true;
 
-        $this->renderFileUploadForm($roomTpl);
-        $this->renderSendMessageBox($roomTpl);
+        $roomTpl->setVariable('INITIAL_DATA', json_encode($initial, JSON_THROW_ON_ERROR));
+        $roomTpl->setVariable('INITIAL_USERS', json_encode($room->getConnectedUsers(), JSON_THROW_ON_ERROR));
+        $roomTpl->setVariable('CHAT_OUTPUT', $this->panel($this->ilLng->txt('messages'), $this->legacy('<div id="chat_messages"></div>')));
+        $roomTpl->setVariable('CHAT_INPUT', $this->panel($this->ilLng->txt('write_message'), $this->sendMessageForm()));
+
         $this->renderLanguageVariables($roomTpl);
 
         require_once 'Services/UIComponent/Modal/classes/class.ilModalGUI.php';
         ilModalGUI::initJS();
 
+        $this->mainTpl->setContent($roomTpl->get());
+        $this->mainTpl->setRightContent($this->userList() . $this->chatFunctions());
+    }
+
+    private function sendMessageForm(): Component
+    {
+        $template = new ilTemplate('tpl.chatroom_send_message_form.html', true, true, 'Modules/Chatroom');
+        $this->renderSendMessageBox($template);
+
+        return $this->legacy($template->get());
+    }
+
+    private function userList(): string
+    {
         $roomRightTpl = new ilTemplate('tpl.chatroom_right.html', true, true, 'Modules/Chatroom');
         $this->renderRightUsersBlock($roomRightTpl);
 
-        require_once 'Services/UIComponent/Panel/classes/class.ilPanelGUI.php';
-        $right_content_panel = ilPanelGUI::getInstance();
-        $right_content_panel->setHeading($this->ilLng->txt('users'));
-        $right_content_panel->setPanelStyle(ilPanelGUI::PANEL_STYLE_SECONDARY);
-        $right_content_panel->setHeadingStyle(ilPanelGUI::HEADING_STYLE_BLOCK);
-        $right_content_panel->setBody($roomRightTpl->get());
+        return $this->panel($this->ilLng->txt('users'), $this->legacy($roomRightTpl->get()));
+    }
 
-        $this->mainTpl->setContent($roomTpl->get());
-        $this->mainTpl->setRightContent($right_content_panel->getHTML());
+    private function chatFunctions(): string
+    {
+        $auto_scroll = $this
+                     ->uiFactory
+                     ->button()
+                     ->toggle(
+                         $this->ilLng->txt('auto_scroll'),
+                         '#',
+                         '#',
+                         true
+                     )
+                     ->withAriaLabel($this->ilLng->txt('auto_scroll'))
+                     ->withOnLoadCode(static function (string $id): string {
+                         return '$("#' . $id . '").on("click", function(e) {
+                                     let t = $(this), msg = $("#chat_messages");
+                                     if (t.hasClass("on")) {
+                                         msg.trigger("msg-scrolling:toggle", [true]);
+                                     } else {
+                                         msg.trigger("msg-scrolling:toggle", [false]);
+                                     }
+                                 });';
+                     });
+
+        return $this->panel($this->ilLng->txt('chat_functions'), [
+            $this->legacy('<div id="chat_function_list"></div>'),
+            $this->legacy($this->checkbox($auto_scroll)),
+        ]);
+    }
+
+    private function checkbox(Component $component): string
+    {
+        global $DIC;
+        return sprintf('<div class="chatroom-centered-checkboxes">%s</div>', $DIC->ui()->renderer()->render($component));
+    }
+
+    private function legacy(string $html): Component
+    {
+        global $DIC;
+        return $DIC->ui()->factory()->legacy($html);
+    }
+
+    private function panel(string $title, $body): string
+    {
+        global $DIC;
+
+        $panel = $DIC->ui()->factory()->panel()->standard($title, $body);
+
+        return $DIC->ui()->renderer()->render($panel);
     }
 
     /**
@@ -266,10 +356,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
      */
     protected function renderSendMessageBox(ilTemplate $roomTpl)
     {
-        $roomTpl->setVariable('LBL_MESSAGE', $this->ilLng->txt('chat_message'));
         $roomTpl->setVariable('LBL_TOALL', $this->ilLng->txt('chat_message_to_all'));
-        $roomTpl->setVariable('LBL_OPTIONS', $this->ilLng->txt('chat_message_options'));
-        $roomTpl->setVariable('LBL_DISPLAY', $this->ilLng->txt('chat_message_display'));
         $roomTpl->setVariable('LBL_SEND', $this->ilLng->txt('send'));
     }
 
@@ -306,6 +393,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
             'LBL_PRIVATE_ROOM_ENTERED_USER' => 'private_room_entered_user',
             'LBL_KICKED_FROM_PRIVATE_ROOM' => 'kicked_from_private_room',
             'LBL_OK' => 'ok',
+            'LBL_DELETE' => 'delete',
             'LBL_INVITE' => 'chat_invite',
             'LBL_CANCEL' => 'cancel',
             'LBL_WHISPER_TO' => 'whisper_to',
@@ -497,7 +585,7 @@ class ilChatroomViewGUI extends ilChatroomGUIHandler
         $user_ids = array_filter(array_map('intval', array_map('trim', explode(',', $_GET['usr_ids']))));
 
         $room = ilChatroom::byObjectId($this->gui->object->getId());
-        $chatRoomUserDetails = ilChatroomUser::getUserInformation($user_ids, $room->getRoomId());
+        $chatRoomUserDetails = ilChatroomUser::getUserInformation($user_ids, (int) $room->getRoomId());
         $chatRoomUserDetailsByUsrId = array_combine(
             array_map(
                 function (stdClass $userData) {

@@ -16678,7 +16678,15 @@ li.smallPad {
   hyphens: auto;
   width: 100%;
   min-height: 200px;
-  background-color: #f9f9f9;
+}
+.chatroom-centered-checkboxes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.chatroom-centered-checkboxes label {
+  margin: 0 5px 0 0;
 }
 #chat_users {
   overflow: auto;

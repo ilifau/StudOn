@@ -7,6 +7,8 @@ require_once 'Modules/Chatroom/classes/class.ilChatroom.php';
 require_once 'Modules/Chatroom/classes/class.ilObjChatroomAccess.php';
 require_once 'Modules/Chatroom/classes/class.ilChatroomObjectGUI.php';
 
+use ILIAS\Chatroom\AccessBridge;
+
 /**
  * Class ilObjChatroomGUI
  * GUI class for chatroom objects.
@@ -231,6 +233,20 @@ class ilObjChatroomGUI extends ilChatroomObjectGUI
                 }
                 break;
         }
+        $this->addHeaderAction();
+    }
+
+    protected function createActionDispatcherGUI(): ilCommonActionDispatcherGUI
+    {
+        global $DIC;
+
+        return new ilCommonActionDispatcherGUI(
+            ilCommonActionDispatcherGUI::TYPE_REPOSITORY,
+            new AccessBridge($DIC->rbac()->system()),
+            $this->object->getType(),
+            $this->ref_id,
+            $this->object->getId()
+        );
     }
 
     /**

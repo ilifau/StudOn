@@ -412,6 +412,17 @@ class ilObjectGUI
         $lgui->initItem($this->object->getRefId(), $this->object->getId(), $this->object->getType());
         $this->tpl->setAlertProperties($lgui->getAlertProperties());
     }
+
+    protected function createActionDispatcherGUI(): ilCommonActionDispatcherGUI
+    {
+        return new ilCommonActionDispatcherGUI(
+            ilCommonActionDispatcherGUI::TYPE_REPOSITORY,
+            $this->access,
+            $this->object->getType(),
+            $this->ref_id,
+            $this->object->getId()
+        );
+    }
     
     /**
      * Add header action menu
@@ -425,14 +436,7 @@ class ilObjectGUI
         $ilAccess = $this->access;
         
         if (!$this->creation_mode && $this->object) {
-            include_once "Services/Object/classes/class.ilCommonActionDispatcherGUI.php";
-            $dispatcher = new ilCommonActionDispatcherGUI(
-                ilCommonActionDispatcherGUI::TYPE_REPOSITORY,
-                $ilAccess,
-                $this->object->getType(),
-                $this->ref_id,
-                $this->object->getId()
-            );
+            $dispatcher = $this->createActionDispatcherGUI();
             
             $dispatcher->setSubObject($a_sub_type, $a_sub_id);
             
