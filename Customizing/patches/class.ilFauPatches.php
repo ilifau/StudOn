@@ -180,6 +180,96 @@ JOIN object_reference r2 ON r2.obj_id = o2.obj_id AND r2.deleted IS NULL
         }
     }
 
+
+    public function cleanupDoubleAccounts()
+    {
+        $table = '_double_ext_accounts';
+
+        $mail_student = file_get_contents(__DIR__ . '/cleanup_double_account_student.html');
+        $mail_other = file_get_contents(__DIR__ . '/cleanup_double_account_other.html');
+
+        $query = "SELECT * FROM $table WHERE processed = 0";
+
+        $result = $this->dic->database()->query($query);
+        while ($row = $this->dic->database()->fetchAssoc($result)) {
+
+            $ext_account = $row['ext_account'];
+            $is_student = !empty($row['fau_student']);
+            $login1 = $row['login1'];
+            $login2 = $row['login2'];
+            $email1 = $row['email1'];
+            $email2 = $row['email2'];
+
+            echo "\n". $ext_account;
+
+
+            $user_id1 = ilObjUser::getUserIdByLogin($login1);
+            $user_id2 = ilObjUser::getUserIdByLogin($login2);
+
+            if (empty($user_id1) || empty($user_id2)) {
+                echo ' - empty';
+                continue;
+            }
+
+            $user1 = new ilObjUser($user_id1);
+            $user2 = new ilObjUser($user_id2);
+
+            if ($is_student) {
+                echo ' - student';
+                $user2->setAuthMode('local');
+                $user2->setExternalAccount(null);
+                $user2->update();
+
+                $user1->setAuthMode('shibboleth');
+                $user1->setExternalAccount($ext_account);
+                $user1->update();
+
+                $body = $mail_student;
+                $salutation = ilMail::getSalutation($user_id1);
+            }
+            else {
+                echo '- other';
+                $user1->setAuthMode('local');
+                $user1->setExternalAccount(null);
+                $user1->update();
+                $user1->updateLogin($login1 . '-lokal');
+
+                $user2->setAuthMode('shibboleth');
+                $user2->setExternalAccount($ext_account);
+                $user2->update();
+
+                $body = $mail_other;
+                $salutation = ilMail::getSalutation($user_id2);
+            }
+
+            $emails = [];
+            if (!empty($email1)) {
+                $emails[] = $email1;
+            }
+            if (!empty($email2)) {
+                $emails[] = $email2;
+            }
+            $to = implode(', ', array_unique($emails));
+
+            $body = str_replace('{salutation}', $salutation, $body);
+            $body = str_replace('{ext_account}', $ext_account, $body);
+            $body = str_replace('{login1}', $login1, $body);
+            $body = str_replace('{login2}', $login2, $body);
+            $body = str_replace('{email1}', $email1, $body);
+            $body = str_replace('{email2}', $email2, $body);
+
+            $mail = new ilMimeMail();
+            $mail->To($to);
+            $mail->Subject('IDM-Verknüpfung Ihrer StudOn-Accounts');
+            $mail->Body($body);
+            $mail->From(new ilMailMimeSenderSystem($this->dic->settings()));
+            $mail->send();
+
+            $query2 = "UPDATE $table SET processed = 1 WHERE ext_account = " . $this->dic->database()->quote($ext_account, 'text');
+            $this->dic->database()->manipulate($query2);
+        }
+    }
+
     /**
      * Remove courses that were automatically created because the old courses lost their campo connection
      * This happened because up to March 3, 2023 all courses were transferred to studon, after that date only the released ones
