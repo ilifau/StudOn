@@ -3,7 +3,6 @@ if (php_sapi_name() != 'cli') {
     die('only cli allowed');
 }
 chdir(dirname(__FILE__) . "/..");
-findChanges('fim:', '/fim:\s+\[(\w+)\]/', 'fim_changes.log');
 findChanges('fau:', '/fau:\s+(\w+)\s+/', 'fau_changes.log');
 
 function findChanges($grep_pattern, $preg_pattern, $logfile) {
