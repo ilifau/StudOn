@@ -1174,6 +1174,8 @@ user#:#browser_platform#:#Platform
 user#:#browser_version#:#Browser Version
 user#:#confirm_password_assistance#:#Send a password assistance link to an %s? You will be logged out.
 user#:#current_password_info#:#<strong>Note for vhb students:</strong> Your StudOn password is not the same as the vhb portal! If you do not know your StudOn password yet, select the function "Forgot your password?" above. You will then receive outside StudOn by e-mail a link with which you can set your new password. If you do not find the e-mail, please also check the spam folder of your e-mail inbox.
+user#:#idle_ext_account#:#Inactive IDM Account
+user#:#idle_ext_account_info#:#IDM account to which the user account is no longer connected (e.g. after exmatriculation) or is not yet connected (e.g. for pre-registered students). As soon as a single sign-on is made with this ID, the account is connected to it and switched to "Shibboleth".
 user#:#is_mobile#:#Mobile
 user#:#show_client_info#:#Browser Information
 user#:#user_screen_reader_optimization_info#:#Improve ILIAS for usage with screen readers.

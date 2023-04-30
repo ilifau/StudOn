@@ -1177,6 +1177,8 @@ user#:#browser_platform#:#Betriebssystem
 user#:#browser_version#:#Browser-Version
 user#:#confirm_password_assistance#:#Möchten Sie einen Link zur Änderung Ihres Passworts an %s schicken lassen? Sie werden anschließend ausgeloggt.
 user#:#current_password_info#:#<strong>Hinweis für vhb-Studierende:</strong> Ihr StudOn-Kennwort entspricht nicht dem des vhb-Portals! Wenn Sie Ihr StudOn-Kennwort noch nicht kennen, wählen Sie oben die Funktion "Passwort vergessen?" Sie erhalten dann außerhalb StudOn per E-Mail einen Link mit dem Sie Ihr neues Passwort setzen können. Falls Sie die E-Mail nicht finden, sehen Sie bitte auch im Spam-Ordner Ihres E-Mail-Postfaches nach.
+user#:#idle_ext_account#:#Inaktive IDM-Kennung
+user#:#idle_ext_account_info#:#IDM-Kennung, mit welcher das Benutzerkonto nicht mehr verbunden ist (z.B. nach Exmatrikulation) oder noch nicht verbunden ist (z.B. bei vorab registrierten Studierenden). Sobald ein Single-Sign-On mit dieser Kennung erfolgt, wird der Account mit ihr verbunden und auf "Shibboleth" umgestellt.
 user#:#is_mobile#:#Mobil
 user#:#show_client_info#:#Browser-Informationen
 user#:#user_screen_reader_optimization_info#:#Passt StudOn an die Nutzung mit einem Screenreader / Bildschirmleseprogramm an.

@@ -109,6 +109,10 @@ class ilObjUser extends ilObject
     public $login_attempts;
 
     public $user_defined_data = array();
+
+    // fau: idmIdle - new class variable idle_ext_account
+    protected ?string $idle_ext_account = null;
+    // fau.
     
     /**
     * Contains variable Userdata (Prefs, Settings)
@@ -422,6 +426,9 @@ class ilObjUser extends ilObject
         //authentication
         $this->setAuthMode($a_data['auth_mode']);
         $this->setExternalAccount($a_data['ext_account']);
+        // fau: idmIdle - set idle ext account
+        $this->setIdleExtAccount($a_data['idle_ext_account'] ?? null);
+        // fau.
         
         $this->setIsSelfRegistered((bool) $a_data['is_self_registered']);
     }
@@ -516,6 +523,9 @@ class ilObjUser extends ilObject
             "time_limit_owner" => array("integer", $this->getTimeLimitOwner()),
             "auth_mode" => array("text", $this->getAuthMode()),
             "ext_account" => array("text", $this->getExternalAccount()),
+            // fau: idmIdle - add idle ext account to saveAsNew
+            "idle_ext_account" => array("text", $this->getIdleExtAccount()),
+            // fau.
             "profile_incomplete" => array("integer", $this->getProfileIncomplete()),
             "latitude" => array("text", $this->latitude),
             "longitude" => array("text", $this->longitude),
@@ -608,6 +618,9 @@ class ilObjUser extends ilObject
             "profile_incomplete" => array("integer", $this->getProfileIncomplete()),
             "auth_mode" => array("text", $this->getAuthMode()),
             "ext_account" => array("text", $this->getExternalAccount()),
+            // fau: idmIdle - add idle ext account to update
+            "idle_ext_account" => array("text", $this->getIdleExtAccount()),
+            // fau.
             "latitude" => array("text", $this->latitude),
             "longitude" => array("text", $this->longitude),
             "loc_zoom" => array("integer", (int) $this->loc_zoom),
@@ -3515,6 +3528,24 @@ class ilObjUser extends ilObject
     {
         return $this->ext_account;
     }
+
+    // fau: idmIdle - getter and setter
+    /**
+     * Set the idle ext account
+     */
+    public function setIdleExtAccount(?string $a_str)
+    {
+        $this->idle_ext_account = $a_str;
+    }
+
+    /**
+     * Get the idle ext account
+     */
+    public function getIdleExtAccount() : ?string
+    {
+        return $this->idle_ext_account;
+    }
+    // fau.
 
     /**
      * Get list of external account by authentication method

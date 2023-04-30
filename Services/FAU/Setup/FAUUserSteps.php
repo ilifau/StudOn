@@ -38,6 +38,10 @@ class FAUUserSteps
         $this->addEducationsGrade();
     }
 
+    public function custom_step_121()
+    {
+        $this->addUserIdleExtAccount();
+    }
 
     protected function createUserAchievementsTable(bool $drop = false)
     {
@@ -129,6 +133,15 @@ class FAUUserSteps
         if (!$this->db->tableColumnExists('fau_user_educations', 'grade')) {
             $this->db->addTableColumn('fau_user_educations', 'grade',
                 ['type' => 'float',  'notnull' => false]);
+        }
+    }
+
+    public function addUserIdleExtAccount()
+    {
+        if (!$this->db->tableColumnExists('usr_data', 'idle_ext_account')) {
+            $this->db->addTableColumn('usr_data', 'idle_ext_account',
+                ['type' => 'text',  'length' => 250, 'notnull' => false]);
+            $this->db->addIndex('usr_data', ['idle_ext_account'], 'idl');
         }
     }
 }

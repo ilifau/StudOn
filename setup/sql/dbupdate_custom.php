@@ -1717,3 +1717,16 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_119();
 ?>
+<#120>
+<?php
+// Dummy
+?>
+<#121>
+<?php
+/**
+ * fau: idmIdle - add 'idle_ext_account' column
+ */
+\FAU\Setup\Setup::instance($ilDB)->user()->custom_step_121();
+?>
+
+
