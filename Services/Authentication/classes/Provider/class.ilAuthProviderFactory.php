@@ -113,7 +113,7 @@ class ilAuthProviderFactory
 
             case AUTH_SAML:
                 $this->getLogger()->debug('Using apache authentication.');
-// fau: samlAuth - user StudOn Auth provider
+// fau: samlAuth - use StudOn Auth provider
                 require_once 'Services/Saml/classes/class.ilAuthProviderSamlStudOn.php';
                 require_once 'Services/Saml/classes/class.ilSamlIdp.php';
                 return new ilAuthProviderSamlStudOn($credentials, ilSamlIdp::getIdpIdByAuthMode($a_authmode));

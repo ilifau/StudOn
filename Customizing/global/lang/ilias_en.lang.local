@@ -176,15 +176,7 @@ common#:#dummy_admin_lastname_tca#:#Course adminstrator
 common#:#dummy_user_firstname_mycampus#:#mein campus
 common#:#dummy_user_lastname_mycampus#:#Course registration
 common#:#duration#:#Duration
-common#:#err_inactive_contact#:#Please contact <a href="mailto:studon@fau.de">studon@fau.de</a> to get your account activated.
-common#:#err_inactive_new#:#Your account is not yet active.
-common#:#err_inactive_set#:#Your account is deactivated.
-common#:#err_inactive_sso#:#Please use the <a href="saml_login.php">Single Sign-On</a> with your FAU account, to log into StudOn.
-common#:#err_inactive_time_limit#:#The time limit of your account is exceeded or not yet active.
-common#:#err_inactive_too_long#:#Your account hasn't been used for over one year and is deactivated.
-common#:#err_inactive_wrong_logins#:#Your account had too many failed login attempts and was deactivated.
-common#:#err_wrong_login_assist#:#If you can't remember ypur login data please use the function <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToPasswordAssistance">Forgot Password</a> oder <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToUsernameAssistance">Forgot Username</a>.
-common#:#err_wrong_login_contact#:#If that doesn't help, please contact <a href="mailto:studon@fau.de">studon@fau.de</a>.
+common#:#err_wrong_login_assist#:#<div class=""><p>Please check if the local registration is right for you:</p><ul><li>As an FAU member with IDM identification, please use the <a href="saml_login.php">Single Sign-On</a>.</li><li>As an external member in a course of the Virtual University of Bavaria (vhb), please register via the <a href="https://www.vhb.org">vhb portal</a>.</li><li>As a participant in RRZE training courses, please register via the <a href="https://www.kurse.rrze.fau.de">Training Centre</a> of the RRZE.</li></ul><p>If none of the above applies and you cannot remember your StudOn login details, please use the <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToPasswordAssistance">Forget Password</a> function. If this does not work, please contact <a href="mailto:studon@fau.de">studon@fau.de</a>.</p></div>
 common#:#eval_mark_for_evaluation#:#Mark for lecture evaluation
 common#:#eval_mark_for_evaluation_info#:#If turned on the members will receive the link for the online-evaluation at the end of the semester per email.<br />Requirement for that is the transfer of the lecture data from UnivIS (can be made on the tab "content").
 common#:#eval_mark_for_evaluation_info_import#:#If turned on the members will receive the link for the online-evaluation at the end of the semester per email.

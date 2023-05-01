@@ -25,7 +25,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
             // get the uid attribute
             $this->uid = $this->attributes['urn:mace:dir:attribute-def:uid'][0];
 
-            // nedded since ILIAS 5.4.10
+            // needed since ILIAS 5.4.10
             if (empty($this->uid)) {
                 $this->uid = $this->attributes['urn:oid:0.9.2342.19200300.100.1.1'][0];
             }
@@ -52,7 +52,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
             if (DEVMODE and ilCust::get('shib_devmode_login')) {
                 $login = ilCust::get('shib_devmode_login');
             } else {
-                $login = $this->generateLogin();
+                $login = $this->findOrGenerateLogin();
             }
 
             // set and update the user object
@@ -89,33 +89,34 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
     }
 
     /**
-     * Automatically generates the username/screenname of a Shibboleth user or returns
-     * the user's already existing username
+     * Automatically generates the username/screenname of a Shibboleth user
+     * or returns the user's already existing username
      *
      * @return 	string 	generated username
      */
-    protected function generateLogin()
+    protected function findOrGenerateLogin()
     {
-        // Try the identity as login
-        if ($login = ilObjUser::_findLoginByField('login', $this->identity->getPkPersistentId())) {
-            return $login;
-        }
-
-        // Try the identity as external account
+        // First search for the identity as external account
         if ($login = ilObjUser::_findLoginByField('ext_account', $this->identity->getPkPersistentId())) {
             return $login;
         }
 
-        // Try the matriculation number
-        if (!empty($this->identity->getMatriculation())) {
-            if ($login = ilObjUser::_findLoginByField('matriculation', $this->identity->getMatriculation())) {
-                return $login;
-            }
+        // as a fallback search for an idle external account
+        if ($login = ilObjUser::_findLoginByField('idle_ext_account', $this->identity->getPkPersistentId())) {
+            return $login;
         }
 
-        // use the identity directly if no account is found
-        // a new account will be created with this identity as login
-        return $this->identity->getPkPersistentId();
+        // use the identity as new login name
+        // ensure that this login name is unique
+        // a new account will be created with this login name
+        $login_base = $this->identity->getPkPersistentId();
+        $login = $login_base;
+        $appendix = 0;
+        while (ilObjUser::_loginExists($login)) {
+            $appendix++;
+            $login = $login_base . '.' .$appendix;
+        }
+        return $login;
     }
 
     /**
@@ -136,6 +137,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         $userObj->setPasswd(ilUtil::generatePasswords(1)[0], IL_PASSWD_PLAIN);
         $userObj->setLanguage($DIC->language()->getLangKey());
         $userObj->setAuthMode('shibboleth');
+        $userObj->setExternalAccount($this->identity->getPkPersistentId());
 
         // can be used in test platform for limited access
         if (ilCust::get('shib_create_limited')) {
@@ -152,7 +154,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         $userObj->saveAsNew();
 
         // apply the IDM data and update the user
-        $DIC->fau()->sync()->idm()->applyIdentityToUser($this->identity, $userObj, true);
+        $DIC->fau()->sync()->idm()->applyIdentityToUser($this->identity, $userObj);
 
         // write the preferences
         $userObj->setPref('hits_per_page', $DIC->settings()->get('hits_per_page'));
@@ -176,20 +178,20 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         $userObj = new ilObjUser($user_id);
         $login = $userObj->getLogin();
 
-        // set account to standard sso, if possible
-        if (strpos($login, 'user.') === 0 or        // rewrite local dummy users
-                strpos($login, 'vhb.') === 0 or     // rewrite vhb users
-                strpos($login, '.') === false       // keep firstname.lastname
-            ) {
-
-            if ($login != $this->identity->getPkPersistentId()) {
-                $userObj->updateLogin($this->identity->getPkPersistentId());
-            }
-
-            // set the authentication mode to shibboleth
-            // this will cause the profile fields to be updated in applyIdentityToUser
-            $userObj->setAuthMode("shibboleth");
+        // Update the login name
+        if ($login != $this->identity->getPkPersistentId() && (
+            strpos($login, 'user.') === 0 or        // rewrite local dummy users
+            strpos($login, 'vhb.') === 0            // rewrite vhb users
+        )) {
+            $userObj->updateLogin($this->identity->getPkPersistentId());
         }
+
+        // set the authentication mode to shibboleth
+        // this will cause the profile fields to be updated in applyIdentityToUser
+        $userObj->setAuthMode("shibboleth");
+        $userObj->setExternalAccount($this->identity->getPkPersistentId());
+        $userObj->setIdleExtAccount(null);
+
 
         // reset agreement to force a new acceptance if user is not active
         if (!$userObj->getActive() || !$userObj->checkTimeLimit()) {
@@ -203,7 +205,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         $userObj->setTimeLimitOwner(7);
 
         // apply the IDM data and update the user
-        $DIC->fau()->sync()->idm()->applyIdentityToUser($this->identity, $userObj, false);
+        $DIC->fau()->sync()->idm()->applyIdentityToUser($this->identity, $userObj);
 
         return $userObj;
     }

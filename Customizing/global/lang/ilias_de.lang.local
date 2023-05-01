@@ -176,15 +176,7 @@ common#:#dummy_admin_lastname_tca#:#Kursadminstrator
 common#:#dummy_user_firstname_mycampus#:#mein campus
 common#:#dummy_user_lastname_mycampus#:#Kursanmeldung
 common#:#duration#:#Dauer
-common#:#err_inactive_contact#:#Bitte wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a>, um das Benutzerkonto aktivieren zu lassen.
-common#:#err_inactive_new#:#Das Benutzerkonto wurde noch nicht aktiviert.
-common#:#err_inactive_set#:#Das Benutzerkonto wurde deaktiviert.
-common#:#err_inactive_sso#:#Bitte verwenden Sie das <a href="saml_login.php">Single Sign-On</a> mit Ihrer FAU-Benutzerkennung, um sich bei StudOn anzumelden.
-common#:#err_inactive_time_limit#:#Ihr zeitlich befristeter Zugang ist abgelaufen oder noch nicht aktiv.
-common#:#err_inactive_too_long#:#Das Benutzerkonto wurde länger als ein Jahr nicht mehr verwendet und daher deaktiviert.
-common#:#err_inactive_wrong_logins#:#Das Benutzerkonto wurde wegen zu vieler Fehlversuche deaktiviert.
-common#:#err_wrong_login_assist#:#Wenn Sie sich nicht mehr an Ihre Zugangsdaten erinnern können, verwenden Sie bitte Sie die Funktion <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToPasswordAssistance">Passwort vergessen</a> oder <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToUsernameAssistance">Benutzername vergessen</a>.
-common#:#err_wrong_login_contact#:#Falls das nicht funktioniert, wenden Sie sich bitte an <a href="mailto:studon@fau.de">studon@fau.de</a>.
+common#:#err_wrong_login_assist#:#<p>Bitte prüfen Sie, ob die lokale Anmeldung richtig für Sie ist:</p><ul><li>Als FAU-Mitglied mit IDM-Kennung verwenden Sie bitte das <a href="saml_login.php">Single Sign-On</a></li><li>Als externes Mitglied in einem Kurs der virtuellen Hochschule Bayern (vhb) melden Sie sich bitte über das <a href="https://www.vhb.org">vhb-Portal</a> an.</li><li>Als Teilnehmer/in an Schulungen des RRZE melden sich Sie sich bitte über das <a href="https://www.kurse.rrze.fau.de">Schulungszentrum</a> des RRZE an.</li></ul><p>Wenn keiner der obigen Punkte zutrifft und Sie sich nicht mehr an Ihre StudOn-Zugangsdaten erinnern können, verwenden Sie bitte Sie die Funktion <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToPasswordAssistance">Passwort vergessen</a>. Falls das nicht funktioniert, wenden Sie sich bitte an <a href="mailto:studon@fau.de">studon@fau.de</a>.</p></div>
 common#:#eval_mark_for_evaluation#:#Zur Lehrevaluation vorsehen
 common#:#eval_mark_for_evaluation_info#:#Wenn eingeschaltet, ist diese Veranstaltung zur Lehrevaluation vorgesehen.<br />Voraussetzung dafür ist die Übertragung der Veranstaltungsdaten aus UnivIS (können Sie auf dem Reiter "Inhalt" vornehmen).<br /> Fragen beantwortet das <a href="mailto:qm.phil@zuv.uni-erlangen.de">Büro für Qualitätsmanagement</a>.
 common#:#eval_mark_for_evaluation_info_import#:#Wenn eingeschaltet, ist diese Veranstaltung zur Lehrevaluation vorgesehen.<br /> Fragen beantwortet das <a href="mailto:qm.phil@zuv.uni-erlangen.de">Büro für Qualitätsmanagement</a>.

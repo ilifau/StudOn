@@ -106,10 +106,16 @@ class ilAuthStatus
      */
     public function getTranslatedReason()
     {
+        // fau: loginFailed - add a help text to tie failure message
         if (strlen($this->translated_reason)) {
-            return $this->translated_reason;
+            $message = $this->translated_reason;
         }
-        return $GLOBALS['DIC']->language()->txt($this->getReason());
+        else {
+            $message = $GLOBALS['DIC']->language()->txt($this->getReason());
+        }
+
+        return $message . $GLOBALS['DIC']->language()->txt('err_wrong_login_assist');
+        // fau.
     }
     
     

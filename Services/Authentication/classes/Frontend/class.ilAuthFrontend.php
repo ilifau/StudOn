@@ -246,19 +246,7 @@ class ilAuthFrontend
             $this->getLogger()->info('Authentication failed for inactive user with id: ' . $this->getStatus()->getAuthenticatedUserId());
             $this->getStatus()->setStatus(ilAuthStatus::STATUS_AUTHENTICATION_FAILED);
             $this->getStatus()->setAuthenticatedUserId(ANONYMOUS_USER_ID);
-
-            // fau: loginFailed - get separate reason when login is deactivated due to long inactive time
-            $check = new ilDateTime(time(), IL_CAL_UNIX);
-            $check->increment(IL_CAL_YEAR, -1);
-            $last = new ilDateTime($user->getLastLogin(), IL_CAL_DATETIME);
-            if (ilDate::_before($last, $check)) {
-                $this->getStatus()->setReason('err_inactive_too_long');
-            } elseif (!$user->getLastLogin()) {
-                $this->getStatus()->setReason('err_inactive_new');
-            } else {
-                $this->getStatus()->setReason('err_inactive_set');
-            }
-            // fau.
+            $this->getStatus()->setReason('err_inactive');
             return false;
         }
         
@@ -274,9 +262,7 @@ class ilAuthFrontend
                 $this->getStatus()->setStatus(ilAuthStatus::STATUS_AUTHENTICATION_FAILED);
                 $this->getStatus()->setAuthenticatedUserId(ANONYMOUS_USER_ID);
             }
-            // fau: loginFailed - get a better time limit message
-            $this->getStatus()->setReason('err_inactive_time_limit');
-            // fau.
+            $this->getStatus()->setReason('time_limit_reached');
             return false;
         }
         
@@ -346,16 +332,6 @@ class ilAuthFrontend
             
         // reset counter for failed logins
         ilObjUser::_resetLoginAttempts($user->getId());
-
-        // fau: userData - apply IDM data at login
-        global $DIC;
-        if (!empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getLogin())) ||
-            (!empty($user->getExternalAccount() && !empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getExternalAccount()))))
-        )
-        {
-            $DIC->fau()->sync()->idm()->applyIdentityToUser($identity, $user, false);
-        }
-        // fau.
 
         $this->getLogger()->info('Successfully authenticated: ' . ilObjUser::_lookupLogin($this->getStatus()->getAuthenticatedUserId()));
         $this->getAuthSession()->setAuthenticated(true, $this->getStatus()->getAuthenticatedUserId());

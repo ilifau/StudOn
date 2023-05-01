@@ -51,10 +51,8 @@ ilias_log_request_ips = ""              ;fau: requestLog - comma separates list 
 ilias_show_roles_info = "0"             ;Show roles with permissions on info screen
 ilias_trace_redirects = "0"             ;show redirect info instead of redirecting
 
-local_auth_external = "0"               ;allow local login with external account
 local_auth_matriculation = "0"          ;allow local login with matriculation number
 local_auth_remote = "0"                 ;check password of an account with the same login in a remote platform
-local_auth_idm = "0"                    ;check password of the ext_account in the idm database
 
 lp_refreshes_limit = "0"				;fau: lpRefreshesLimit - limit allowed status refreshes when learning progress is shown
 

@@ -35,6 +35,24 @@ class ilAuthProviderDatabase extends ilAuthProvider implements ilAuthProviderInt
                 $this->handleAuthenticationFail($status, 'err_wrong_login');
                 return false;
             }
+
+            // fau: loginFallback - try for login with matriculation as password
+            // this setting must be restricted to installations where only admins have access
+            // this must be done before the check if local auth is enabled for an account
+            if (ilCust::get('local_auth_matriculation') && $this->getCredentials()->getPassword() != '') {
+                // take the user that is already fount
+                if ($user instanceof ilObjUser) {
+                    $this->getLogger()->debug('Trying to authenticate with matriculation as password for: ' . $user->getLogin());
+                    if ($user->getMatriculation() == $this->getCredentials()->getPassword()) {
+                        $this->getLogger()->debug('Successfully authenticated user: ' . $user->getLogin());
+                        $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
+                        $status->setAuthenticatedUserId($user->getId());
+                        return true;
+                    }
+                }
+            }
+            // fau.
+
             if (!ilAuthUtils::isLocalPasswordEnabledForAuthMode($user->getAuthMode(true))) {
                 $this->getLogger()->debug('DB authentication failed: current user auth mode does not allow local validation.');
                 $this->getLogger()->debug('User auth mode: ' . $user->getAuthMode(true));
@@ -48,43 +66,6 @@ class ilAuthProviderDatabase extends ilAuthProvider implements ilAuthProviderInt
                 return true;
             }
         }
-
-        // fau: loginFallback - try local login with external account
-        if (ilCust::get('local_auth_external')) {
-            $login = false;
-            $login = ($login ? $login : ilObjUser::_checkExternalAuthAccount('local', $this->getCredentials()->getUsername()));
-            $login = ($login ? $login : ilObjUser::_checkExternalAuthAccount('default', $this->getCredentials()->getUsername()));
-            $login = ($login ? $login : ilObjUser::_checkExternalAuthAccount('shibboleth', $this->getCredentials()->getUsername()));
-            if ($login) {
-                $user = ilObjectFactory::getInstanceByObjId(ilObjUser::_lookupId($login), false);
-
-                $this->getLogger()->debug('Trying to authenticate user with ext_account: ' . $login);
-                if ($user instanceof ilObjUser) {
-                    if (ilUserPasswordManager::getInstance()->verifyPassword($user, $this->getCredentials()->getPassword())) {
-                        $this->getLogger()->debug('Successfully authenticated user: ' . $user->getLogin());
-                        $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
-                        $status->setAuthenticatedUserId($user->getId());
-                        return true;
-                    }
-                }
-            }
-        }
-        // fau.
-
-        // fau: loginFallback - try for login with matriculation as password
-        if (ilCust::get('local_auth_matriculation') && $this->getCredentials()->getPassword() != '') {
-            // take the user that is already fount
-            if ($user instanceof ilObjUser) {
-                $this->getLogger()->debug('Trying to authenticate with matriculation as password for: ' . $user->getLogin());
-                if ($user->getMatriculation() == $this->getCredentials()->getPassword()) {
-                    $this->getLogger()->debug('Successfully authenticated user: ' . $user->getLogin());
-                    $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
-                    $status->setAuthenticatedUserId($user->getId());
-                    return true;
-                }
-            }
-        }
-        // fau.
 
         // fau: loginFallback - check password from a remote account with same login
         if (ilCust::get('local_auth_remote')) {
@@ -108,31 +89,6 @@ class ilAuthProviderDatabase extends ilAuthProvider implements ilAuthProviderInt
                         return true;
                     }
 
-                }
-            }
-        }
-        // fau.
-
-
-        // fau: loginFallback - check password from an idm account
-        // fau: userData - check password from an idm account
-        if (ilCust::get('local_auth_idm')) {
-            // take the user that is already found
-            if ($user instanceof ilObjUser) {
-                $this->getLogger()->debug('Trying to authenticate with idm account: ' . $user->getExternalAccount());
-
-                global $DIC;
-                if (empty($identity = $DIC->fau()->staging()->repo()->getIdentity($user->getExternalAccount()))) {
-                    $this->getLogger()->debug('idm data not found');
-                }
-                else {
-                    $idmUser = $DIC->fau()->sync()->idm()->getDummyUserForLocalAuth($identity);
-                    if (ilUserPasswordManager::getInstance()->verifyPassword($idmUser, $this->getCredentials()->getPassword())) {
-                        $this->getLogger()->debug('Successfully authenticated idm user: ' . $user->getExternalAccount());
-                        $status->setStatus(ilAuthStatus::STATUS_AUTHENTICATED);
-                        $status->setAuthenticatedUserId($user->getId());
-                        return true;
-                    }
                 }
             }
         }

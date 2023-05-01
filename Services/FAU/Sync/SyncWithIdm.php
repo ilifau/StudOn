@@ -28,7 +28,7 @@ class SyncWithIdm extends SyncBase
 
     /**
      * Synchronize the person data of all idm accounts
-     * @see \ilAuthProviderSamlStudOn::generateLogin()
+     * @see \ilAuthProviderSamlStudOn::findOrGenerateLogin()
      * @see \ilAuthProviderSamlStudOn::getUpdatedUser()
      */
     public function syncPersonData()
@@ -59,54 +59,36 @@ class SyncWithIdm extends SyncBase
 
     /**
      * Apply the basic IDM data to a user account
-     * Note: the id must exist
+     * Note: the id must exist, external account and auth mode must be already set
+     *
      * @param Identity $identity    data from the identity management
      * @param ilObjUser $userObj    ILIAS user object (already with id)
      */
     public function applyIdentityToUser(Identity $identity, ilObjUser $userObj)
     {
-        // always update the matriculation number
-        if (!empty($identity->getMatriculation())) {
-            $userObj->setMatriculation($identity->getMatriculation());
+        // fields that are updated if they are set in the idm data
+        if (!empty($identity->getGivenName())) {
+            $userObj->setFirstname($identity->getGivenName());
+        }
+        if (!empty($identity->getSn())) {
+            $userObj->setLastname($identity->getSn());
+        }
+        if (!empty($identity->getIliasGender())) {
+            $userObj->setGender($identity->getIliasGender());
         }
 
-        // update the profile fields if auth mode is shibboleth
-        if ($userObj->getAuthMode() == "shibboleth") {
-            if (!empty($identity->getGivenName())) {
-                $userObj->setFirstname($identity->getGivenName());
-            }
-            if (!empty($identity->getSn())) {
-                $userObj->setLastname($identity->getSn());
-            }
-            if (!empty($identity->getIliasGender())) {
-                $userObj->setGender($identity->getIliasGender());
-            }
-            if (!empty($identity->getUserPassword())) {
-                $userObj->setPasswd($identity->getUserPassword(), IL_PASSWD_CRYPTED);
-                if (substr($identity->getUserPassword(), 0, 6) == '{SSHA}') {
-                    $userObj->setPasswordEncodingType('idmssha');
-                } elseif (substr($identity->getUserPassword(), 0, 7) == '{CRYPT}') {
-                    $userObj->setPasswordEncodingType('idmcrypt');
-                }
-            }
-            // don't overwrite an existing e-mail
-            if (!empty($identity->getMail() && empty($userObj->getEmail()))) {
-                $userObj->setEmail($identity->getMail());
-            }
+        // always update the matriculation - this may delete an outdated one
+        $userObj->setMatriculation($identity->getMatriculation());
 
-            // dependent system data
-            $userObj->setFullname();
-            $userObj->setTitle($userObj->getFullname());
-            $userObj->setDescription($userObj->getEmail());
+        // don't overwrite an existing e-mail
+        if (!empty($identity->getMail() && empty($userObj->getEmail()))) {
+            $userObj->setEmail($identity->getMail());
         }
 
-        // set the identity as external account for shibboleth authentication
-        // if it is not already set by another account
-        if (empty($userObj->getExternalAccount())) {
-            if (empty(ilObjUser::_findLoginByField('ext_account', $identity->getPkPersistentId()))) {
-                $userObj->setExternalAccount($identity->getPkPersistentId());
-            }
-        }
+        // dependent system data
+        $userObj->setFullname();
+        $userObj->setTitle($userObj->getFullname());
+        $userObj->setDescription($userObj->getEmail());
 
         // always update the account (this also updates the object title and description)
         $userObj->update();
@@ -194,36 +176,6 @@ class SyncWithIdm extends SyncBase
             }
         }
         return $indexed;
-    }
-
-
-    /**
-     * Get a dummy user object for local password verification
-     * This user object must not be saved!
-     */
-    public function getDummyUserForLocalAuth(Identity $identity): ilObjUser
-    {
-        $userObj = new ilObjUser();
-        $userObj->setFirstname($identity->getGivenName());
-        $userObj->setLastname($identity->getSn());
-        $userObj->setGender($identity->getIliasGender());
-        $userObj->setEmail($identity->getMail());
-        $userObj->setMatriculation($identity->getMatriculation());
-        $userObj->setFullname(); // takes the previously set data
-        $userObj->setTitle($userObj->getFullname());
-        $userObj->setDescription($userObj->getEmail());
-
-        $userObj->setPasswd($identity->getUserPassword(), IL_PASSWD_CRYPTED);
-        if (substr($identity->getUserPassword(), 0, 6) == '{SSHA}') {
-            $userObj->setPasswordEncodingType('idmssha');
-        } elseif (substr($identity->getUserPassword(), 0, 7) == '{CRYPT}') {
-            $userObj->setPasswordEncodingType('idmcrypt');
-        }
-
-        $userObj->setExternalAccount($identity->getPkPersistentId());
-        $userObj->setActive(1, 6);
-
-        return $userObj;
     }
 }
 

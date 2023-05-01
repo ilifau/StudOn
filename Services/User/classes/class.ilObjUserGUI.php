@@ -437,7 +437,7 @@ class ilObjUserGUI extends ilObjectGUI
             }
             $userObj->setUserDefinedData($udf);
 
-            // fau: idmAuth - check authentication settings
+            // fau: samlAuth - check authentication settings
             global $DIC;
             if ($errors = $DIC->fau()->user()->getAuthSettingErrors($userObj)) {
                 ilUtil::sendFailure($this->lng->txt('user_error_auth_settings_wrong')
@@ -760,7 +760,7 @@ class ilObjUserGUI extends ilObjectGUI
         // External account
         $user->setAuthMode($this->form_gui->getInput('auth_mode'));
         $user->setExternalAccount($this->form_gui->getInput('ext_account'));
-        // fau: idmIdle - load form value for idle ext account
+        // fau: samIdle - load form value for idle ext account
         $user->setIdleExtAccount($this->form_gui->getInput('idle_ext_account'));
         // fau.
 
@@ -842,7 +842,7 @@ class ilObjUserGUI extends ilObjectGUI
             #$this->object->assignData($_POST);
             $this->loadValuesFromForm('update');
 
-            // fau: idmAuth - check authentication settings
+            // fau: samlAuth - check authentication settings
             global $DIC;
             if ($errors = $DIC->fau()->user()->getAuthSettingErrors($this->object)) {
                 ilUtil::sendFailure($this->lng->txt('user_error_auth_settings_wrong')
@@ -976,7 +976,7 @@ class ilObjUserGUI extends ilObjectGUI
         //$data["passwd"] = "********";
         //$data["passwd2"] = "********";
         $data["ext_account"] = $this->object->getExternalAccount();
-        // fau: idmIdle - get data for idle_ext_account
+        // fau: samIdle - get data for idle_ext_account
         $data["idle_ext_account"] = $this->object->getIdleExtAccount();
         // fau.
 
@@ -1170,7 +1170,7 @@ class ilObjUserGUI extends ilObjectGUI
             $ext->setInfo($lng->txt("user_ext_account_desc"));
             $this->form_gui->addItem($ext);
 
-            // fau: idmIdle - add idle ext_account to form
+            // fau: samIdle - add idle ext_account to form
             $ext = new ilTextInputGUI($lng->txt("idle_ext_account"), "idle_ext_account");
             $ext->setSize(40);
             $ext->setMaxLength(250);
