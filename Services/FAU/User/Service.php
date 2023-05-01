@@ -30,6 +30,50 @@ class Service extends SubService
     }
 
     /**
+     * Get errors found with the authentiction settings
+     *
+     * @return array    validation errors - empty if ok
+     */
+    public function getAuthSettingErrors(\ilObjUser $user) : array
+    {
+        $errors = [];
+        if ($user->getAuthMode() == 'shibboleth' && empty($user->getExternalAccount())) {
+            $errors[] = $this->lng->txt('user_error_shib_with_empty_ext_account');
+        }
+
+        if (($user->getAuthMode() == 'local' || $user->getAuthMode() == 'default')
+            && !empty($user->getExternalAccount())) {
+            $errors[] = $this->lng->txt('user_error_local_with_ext_account');
+        }
+
+        if ($user->getAuthMode() != 'local' && $user->getAuthMode() != 'default'
+            && !empty($user->getIdleExtAccount())) {
+            $errors[] = $this->lng->txt('user_error_idle_ext_account_not_local');
+        }
+
+
+        if (!empty($identifier = $user->getLogin())
+            && !empty($login = $this->repo()->findLoginWithUsedIdentifier($identifier, (int) $user->getId()))
+        ) {
+            $errors[] = sprintf($this->lng->txt('user_error_identifier_is_used'), $identifier, $login);
+        }
+        elseif (!empty($identifier = $user->getExternalAccount())
+            && !empty($login = $this->repo()->findLoginWithUsedIdentifier($identifier, (int) $user->getId()))
+        ) {
+            $errors[] = sprintf($this->lng->txt('user_error_identifier_is_used'), $identifier, $login);
+        }
+        elseif (!empty($identifier = $user->getIdleExtAccount())
+            && !empty($login = $this->repo()->findLoginWithUsedIdentifier($identifier, (int) $user->getId()))
+        ) {
+            $errors[] = sprintf($this->lng->txt('user_error_identifier_is_used'), $identifier, $login);
+        }
+
+        return $errors;
+    }
+    // fau.
+
+
+    /**
      * Get the data of users given by their ids
      * @param array    $user_ids
      * @param int|null $ref_id_for_educations

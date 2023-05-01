@@ -167,6 +167,24 @@ class Repository extends RecordRepo
         $this->db->manipulateF($query, ['integer'], [$from_obj_id]);
     }
 
+    /**
+     * Get the login o an account ther has an identifier identifiers as login, external account or idle external account
+     */
+    public function findLoginWithUsedIdentifier(string $identifier, int $ignore_user_id) : ?string
+    {
+        $query = "SELECT login FROM usr_data " .
+            " WHERE usr_id <> " . $this->db->quote($ignore_user_id, 'integer') .
+            " AND ( login = " . $this->db->quote($identifier, 'text') .
+            "       OR ext_account = " . $this->db->quote($identifier, 'text') .
+            "       OR idle_ext_account = " . $this->db->quote($identifier, 'text') .
+            " )";
+
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            return $row['login'];
+        }
+        return null;
+    }
 
     /**
      * Get the user ids of the members of an ilias object (course or group) which are assigned by campo

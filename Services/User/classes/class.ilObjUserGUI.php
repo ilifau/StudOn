@@ -437,6 +437,17 @@ class ilObjUserGUI extends ilObjectGUI
             }
             $userObj->setUserDefinedData($udf);
 
+            // fau: idmAuth - check authentication settings
+            global $DIC;
+            if ($errors = $DIC->fau()->user()->getAuthSettingErrors($userObj)) {
+                ilUtil::sendFailure($this->lng->txt('user_error_auth_settings_wrong')
+                    . $DIC->fau()->tools()->format()->list($errors));
+                $this->form_gui->setValuesByPost();
+                return $tpl->setContent($this->form_gui->getHtml());
+            }
+            // fau.
+
+
             $userObj->create();
 
             include_once('./Services/Authentication/classes/class.ilAuthUtils.php');
@@ -830,6 +841,17 @@ class ilObjUserGUI extends ilObjectGUI
 
             #$this->object->assignData($_POST);
             $this->loadValuesFromForm('update');
+
+            // fau: idmAuth - check authentication settings
+            global $DIC;
+            if ($errors = $DIC->fau()->user()->getAuthSettingErrors($this->object)) {
+                ilUtil::sendFailure($this->lng->txt('user_error_auth_settings_wrong')
+                . $DIC->fau()->tools()->format()->list($errors));
+                $this->form_gui->setValuesByPost();
+                return $tpl->setContent($this->form_gui->getHtml());
+            }
+            // fau.
+
 
             $udf = array();
             foreach ($_POST as $k => $v) {
