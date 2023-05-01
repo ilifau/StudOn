@@ -36,6 +36,7 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.removeUntouchedDoubleCourses');
 //$p->applyPatch('ilFauPatches.cleanupDoubleAccounts');
+//$p->applyPatch('ilFauPatches.migrateToShibboleth', ['logins' => ['ox33yhir']]);
 
 /*****************
 * Specific actions
