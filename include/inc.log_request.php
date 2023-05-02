@@ -1,5 +1,69 @@
 <?php
-// fau: requestLog - new class RequestLog.
+// fau: requestLog - request logging functions with handler class
+
+function log_request()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeRequestLog();
+}
+
+function log_soap()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeSoapLog();
+}
+
+function log_server()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeServerLog();
+}
+
+function log_session()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeSessionLog();
+}
+
+function log_var(&$a_var, $a_name = '')
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeVarDump($a_var, $a_name);
+}
+
+function log_backtrace()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeBacktrace();
+}
+
+function log_line($a_line)
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeline($a_line);
+}
+
+function show_log()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->showLog();
+}
+
+function show_backtrace()
+{
+    echo '<br/><pre>';
+    $i = 0;
+    foreach (debug_backtrace() as $step) {
+        if ($i > 0) {
+            echo '[' . $i . '] ' . $step['file'] . ' ' . $step['line'] . ': ' . $step['function'] . "()\n";
+        }
+        $i++;
+    }
+    echo '[' . $i . '] ' . $_SERVER['REQUEST_URI'];
+
+    echo '</pre>';
+}
+
 
 class RequestLog
 {

@@ -1174,11 +1174,12 @@ class ilInitialisation
      */
     protected static function handleRequestLog()
     {
+        require_once "./include/inc.log_request.php";
+
         $ips = ilCust::get('ilias_log_request_ips');
         if (!empty($ips)) {
             foreach (explode(',', $ips) as $ip) {
                 if ($_SERVER['REMOTE_ADDR'] == trim($ip)) {
-                    require_once "./include/inc.log_request.php";
                     $RequestLog = new RequestLog(trim($ip));
                     $RequestLog->writeRequestLog();
                 }
