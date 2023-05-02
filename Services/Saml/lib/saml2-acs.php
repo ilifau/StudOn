@@ -23,17 +23,23 @@ if (!file_exists(getcwd() . '/ilias.ini.php')) {
     die('Please ensure ILIAS is installed!');
 }
 
-$cookie_path .= (!preg_match("/[\/|\\\\]$/", $cookie_path)) ? "/" : "";
+// fau: samlAuth - don't use old setting of the cookie path
+//      The cookie path is now determined by ilInitialisation
+//      Setting a wrong path here would result in the generation of a new session id
+//      This would disturb the workflow for cnanging an existing account to sso
 
-if (isset($_GET["client_id"])) {
-    if ($cookie_path == "\\") {
-        $cookie_path = '/';
-    }
-
-    setcookie('ilClientId', $_GET['client_id'], 0, $cookie_path, '');
-    $_COOKIE['ilClientId'] = $_GET['client_id'];
-}
-define('IL_COOKIE_PATH', $cookie_path);
+//$cookie_path .= (!preg_match("/[\/|\\\\]$/", $cookie_path)) ? "/" : "";
+//
+//if (isset($_GET["client_id"])) {
+//    if ($cookie_path == "\\") {
+//        $cookie_path = '/';
+//    }
+//
+//    setcookie('ilClientId', $_GET['client_id'], 0, $cookie_path, '');
+//    $_COOKIE['ilClientId'] = $_GET['client_id'];
+//}
+//define('IL_COOKIE_PATH', $cookie_path);
+// fau.
 
 require_once 'Services/Context/classes/class.ilContext.php';
 ilContext::init(ilContext::CONTEXT_SAML);
