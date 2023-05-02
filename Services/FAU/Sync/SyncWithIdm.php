@@ -28,7 +28,7 @@ class SyncWithIdm extends SyncBase
 
     /**
      * Synchronize the person data of all idm accounts
-     * @see \ilAuthProviderSamlStudOn::findOrGenerateLogin()
+     * @see \ilAuthProviderSamlStudOn::findLogin()
      * @see \ilAuthProviderSamlStudOn::getUpdatedUser()
      */
     public function syncPersonData()

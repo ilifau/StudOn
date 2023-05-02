@@ -694,7 +694,7 @@ class ilObjUser extends ilObject
     }
 
     // fau: samlAuth - new function _findLoginByField
-    public static function _findLoginByField($fieldname, $value)
+    public static function _findLoginByField($fieldname, $value) : string
     {
         global $DIC;
         $ilDB = $DIC->database();
@@ -707,6 +707,8 @@ class ilObjUser extends ilObject
         if ($row = $ilDB->fetchAssoc($result)) {
             return $row['login'];
         }
+
+        return '';
     }
     // fau.
 

@@ -19,13 +19,21 @@ class ilAuthStatus
     const STATUS_AUTHENTICATION_FAILED = 3;
     const STATUS_ACCOUNT_MIGRATION_REQUIRED = 4;
     const STATUS_CODE_ACTIVATION_REQUIRED = 5;
+
+    // fau: samlChange - new auth status code
+    const STATUS_SSO_CHANGE_REQUIRED = 550;
+    // fau.
     
     private $status = self::STATUS_UNDEFINED;
     private $reason = '';
     private $translated_reason = '';
     private $auth_user_id = 0;
-    
-    
+
+    // fau: samlChange - new class variables in auth status
+    private $sso_change_identity = '';
+    private $sso_change_logins = [];
+    private $sso_change_selected_login = '';
+    // fau.
     
     /**
      * Constructor
@@ -132,4 +140,36 @@ class ilAuthStatus
     {
         return $this->auth_user_id;
     }
+
+    // fau: samlChange - new getters and setters in auth status
+    public function getSsoChangeIdentity(): string
+    {
+        return $this->sso_change_identity;
+    }
+
+    public function setSsoChangeIdentity(string $sso_change_identity): void
+    {
+        $this->sso_change_identity = $sso_change_identity;
+    }
+
+    public function getSsoChangeLogins(): array
+    {
+        return $this->sso_change_logins;
+    }
+
+    public function setSsoChangeLogins(array $sso_change_logins): void
+    {
+        $this->sso_change_logins = $sso_change_logins;
+    }
+
+    public function getSsoChangeSelectedLogin(): string
+    {
+        return $this->sso_change_selected_login;
+    }
+
+    public function setSsoChangeSelectedLogin(string $sso_change_selected_login): void
+    {
+        $this->sso_change_selected_login = $sso_change_selected_login;
+    }
+    // fau.
 }

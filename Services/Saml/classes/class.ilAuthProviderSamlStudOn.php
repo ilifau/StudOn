@@ -4,7 +4,8 @@
 use FAU\Staging\Data\Identity;
 
 /**
- * fau: samlAuth new class for saml authentication in studon
+ * fau: samlAuth - new class for saml authentication in studon
+ * fau: samlChange - initiate and handle change requests
  */
 class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 {
@@ -15,6 +16,8 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
      */
     public function doAuthentication(\ilAuthStatus $status)
     {
+        global $DIC;
+
         if (!is_array($this->attributes) || 0 === count($this->attributes)) {
             $this->getLogger()->warning('Could not parse any attributes from SAML response.');
             $this->handleAuthenticationFail($status, 'auth_shib_not_configured');
@@ -52,8 +55,30 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
             if (DEVMODE and ilCust::get('shib_devmode_login')) {
                 $login = ilCust::get('shib_devmode_login');
             } else {
-                $login = $this->findOrGenerateLogin();
+                $login = $this->findLogin();
             }
+
+            // take an already selected login fon the SSO change
+            if (empty($login) && !empty($status->getSsoChangeSelectedLogin())) {
+                $login = $status->getSsoChangeSelectedLogin();
+            }
+
+            // prepare the SSO change selection
+            if (empty($login)) {
+                $logins = $DIC->fau()->user()->repo()->findLocalLoginsByName($this->identity->getGivenName(), $this->identity->getSn());
+                if (!empty($logins)) {
+                    $status->setStatus(ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED);
+                    $status->setSsoChangeIdentity($this->identity->getPkPersistentId());
+                    $status->setSsoChangeLogins($logins);
+                    return false;
+                }
+            }
+
+            // generate a new login
+            if (empty($login)) {
+                $login = $DIC->fau()->user()->generateLogin($this->identity->getPkPersistentId());
+            }
+
 
             // set and update the user object
             if ($id = (int) ilObjUser::_lookupId($login)) {
@@ -89,12 +114,11 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
     }
 
     /**
-     * Automatically generates the username/screenname of a Shibboleth user
-     * or returns the user's already existing username
+     * Returns the login name of a fitting account
      *
-     * @return 	string 	generated username
+     * @return 	string 	found username or ''
      */
-    protected function findOrGenerateLogin()
+    protected function findLogin()
     {
         // First search for the identity as external account
         if ($login = ilObjUser::_findLoginByField('ext_account', $this->identity->getPkPersistentId())) {
@@ -105,18 +129,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
         if ($login = ilObjUser::_findLoginByField('idle_ext_account', $this->identity->getPkPersistentId())) {
             return $login;
         }
-
-        // use the identity as new login name
-        // ensure that this login name is unique
-        // a new account will be created with this login name
-        $login_base = $this->identity->getPkPersistentId();
-        $login = $login_base;
-        $appendix = 0;
-        while (ilObjUser::_loginExists($login)) {
-            $appendix++;
-            $login = $login_base . '.' .$appendix;
-        }
-        return $login;
+        return '';
     }
 
     /**

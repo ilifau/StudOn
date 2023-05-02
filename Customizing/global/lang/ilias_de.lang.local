@@ -823,6 +823,13 @@ fau#:#studydata_unknown_school#:#Unbekannte Fakultät
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#study_data#:#Studiendaten
+fau#:#sso_change_explanation#:#<p>Ihre IdM-Kennung ist noch mit keinem StudOn-Konto verbunden. StudOn hat aber ein oder mehrere Konten gefunden, die aufgrund von Namensgleichheit Ihnen gehören könnten.</p><p>Wählen Sie es bitte Ihr Konto aus und geben Sie dafür das Passwort ein. Das Konto wird in Zukunft beim Single Sign-On verwendet und seine Rechte automatisch aktualisiert.<p>Wenn Sie sich unsicher sind oder das Kennwort Ihres StudOn-Kontos nicht mehr kennen, klicken Sie bitte auf „Abbrechen“ und wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a>.</p>
+fau#:#sso_change_select_account#:#StudOn-Konto mit meiner IdM-Kennung verbinden
+fau#:#sso_change_selecte_login#:#Benutzername
+fau#:#sso_change_none#:#Keines der Konten gehört zu mir. Ich möchte ein neues StudOn-Konto.
+fau#:#sso_change_please_select#:#Bitte wählen Sie eine der angebotenen Optionen!
+fau#:#sso_change_password_required#:#Die Eingabe des Passworts ist erforderlich!
+fau#:#sso_change_password_is_wrong#:#Das eingegebene Passwort ist falsch!
 fau#:#fau_read_only#:#Schreibgeschützt
 fau#:#fau_your_courses_of_study#:#Ihre Studiengänge
 fau#:#fau_transfer_course#:#Campo-Verbindung übertragen
