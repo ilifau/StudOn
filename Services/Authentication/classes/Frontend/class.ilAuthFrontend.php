@@ -180,8 +180,7 @@ class ilAuthFrontend
                 // fau: samlChange - handle change request
                 case ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED:
                     $this->getLogger()->notice("Account migration required.");
-                    $this->getStatus()->setAuthenticatedUserId(ANONYMOUS_USER_ID);
-                    return true;
+                    return false;
                 // fau.
 
                 case ilAuthStatus::STATUS_ACCOUNT_MIGRATION_REQUIRED:
