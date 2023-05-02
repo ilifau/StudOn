@@ -25,6 +25,12 @@ function log_session()
     $RequestLog->writeSessionLog();
 }
 
+function log_cookies()
+{
+    $RequestLog = RequestLog::getInstance();
+    $RequestLog->writeCookieLog();
+}
+
 function log_var(&$a_var, $a_name = '')
 {
     $RequestLog = RequestLog::getInstance();
@@ -160,6 +166,16 @@ class RequestLog
         $this->write($this->getNamedAssocDump($_SESSION, '$_SESSION'));
     }
 
+    /**
+     * write cookie data to the log file
+     */
+    public function writeCookieLog()
+    {
+        $this->write($this->getNamedAssocDump($_COOKIE, '$_COOKIE'));
+    }
+
+
+
 
     /**
     * write  variable to the log file
@@ -227,7 +243,7 @@ class RequestLog
     {
         $ret = "<style>\n"
             . "body, h1, th, td {font-family: monospace;} \n"
-            . "</style> \n";
+            . "</style><br>\n";
             
         return $ret;
     }
