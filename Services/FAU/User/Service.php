@@ -29,6 +29,21 @@ class Service extends SubService
         return $this->repository;
     }
 
+
+    /**
+     * Generate a unique login name
+     */
+    public function generateLogin(string $login_base) : string
+    {
+        $login = $login_base;
+        $appendix = 0;
+        while (\ilObjUser::_loginExists($login)) {
+            $appendix++;
+            $login = $login_base . '.' .$appendix;
+        }
+        return $login;
+    }
+
     /**
      * Get errors found with the authentiction settings
      *
@@ -70,7 +85,6 @@ class Service extends SubService
 
         return $errors;
     }
-    // fau.
 
 
     /**

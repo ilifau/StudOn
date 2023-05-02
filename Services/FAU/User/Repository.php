@@ -167,24 +167,6 @@ class Repository extends RecordRepo
         $this->db->manipulateF($query, ['integer'], [$from_obj_id]);
     }
 
-    /**
-     * Get the login o an account ther has an identifier identifiers as login, external account or idle external account
-     */
-    public function findLoginWithUsedIdentifier(string $identifier, int $ignore_user_id) : ?string
-    {
-        $query = "SELECT login FROM usr_data " .
-            " WHERE usr_id <> " . $this->db->quote($ignore_user_id, 'integer') .
-            " AND ( login = " . $this->db->quote($identifier, 'text') .
-            "       OR ext_account = " . $this->db->quote($identifier, 'text') .
-            "       OR idle_ext_account = " . $this->db->quote($identifier, 'text') .
-            " )";
-
-        $result = $this->db->query($query);
-        while ($row = $this->db->fetchAssoc($result)) {
-            return $row['login'];
-        }
-        return null;
-    }
 
     /**
      * Get the user ids of the members of an ilias object (course or group) which are assigned by campo
@@ -243,6 +225,48 @@ class Repository extends RecordRepo
         }
         return $module_ids;
     }
+
+    /**
+     * Get the login of an account ther has an identifier identifiers as login, external account or idle external account
+     */
+    public function findLoginWithUsedIdentifier(string $identifier, int $ignore_user_id) : ?string
+    {
+        $query = "SELECT login FROM usr_data " .
+            " WHERE usr_id <> " . $this->db->quote($ignore_user_id, 'integer') .
+            " AND ( login = " . $this->db->quote($identifier, 'text') .
+            "       OR ext_account = " . $this->db->quote($identifier, 'text') .
+            "       OR idle_ext_account = " . $this->db->quote($identifier, 'text') .
+            " )";
+
+        $result = $this->db->query($query);
+        while ($row = $this->db->fetchAssoc($result)) {
+            return $row['login'];
+        }
+        return null;
+    }
+
+    /**
+     * Find the logins of local accounts with a given firstname and lastname
+     * @return string[]
+     */
+    public function findLocalLoginsByName(?string $firstname, ?string $lastname) : array
+    {
+        $query = "SELECT login FROM usr_data WHERE (auth_mode = 'local' OR auth_mode = 'default)";
+        if (!empty($firstname)) {
+            $query .= " AND firstname = " . $this->db->quote($firstname, 'text');
+        }
+        if (!empty($lastname)) {
+            $query .= " AND lastname = " . $this->db->quote($lastname, 'text');
+        }
+        $result = $this->db->query($query);
+
+        $logins = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $logins[] = $row['login'];
+        }
+        return $logins;
+    }
+
 
     /**
      * Get the data of users
