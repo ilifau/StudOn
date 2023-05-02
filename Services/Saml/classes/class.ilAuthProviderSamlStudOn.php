@@ -55,16 +55,19 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 $login = ilCust::get('shib_devmode_login');
             } else {
                 $login = $this->findLogin();
+                log_var($login, 'findLogin()');
             }
 
             // take an already selected login fon the SSO change
             if (empty($login) && !empty($status->getSsoChangeSelectedLogin())) {
                 $login = $status->getSsoChangeSelectedLogin();
+                log_var($login, 'getSsoChangeSelectedLogin()');
             }
 
             // prepare the SSO change selection
             if (empty($login)) {
                 $logins = $DIC->fau()->user()->repo()->findLocalLoginsByName($this->identity->getGivenName(), $this->identity->getSn());
+                log_var($logins, 'findLocalLoginsByName()');
                 if (!empty($logins)) {
                     $status->setStatus(ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED);
                     $status->setSsoChangeIdentity($this->identity->getPkPersistentId());

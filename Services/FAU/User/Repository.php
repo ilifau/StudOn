@@ -251,7 +251,7 @@ class Repository extends RecordRepo
      */
     public function findLocalLoginsByName(?string $firstname, ?string $lastname) : array
     {
-        $query = "SELECT login FROM usr_data WHERE (auth_mode = 'local' OR auth_mode = 'default)";
+        $query = "SELECT login FROM usr_data WHERE (auth_mode = 'local' OR auth_mode = 'default')";
         if (!empty($firstname)) {
             $query .= " AND firstname = " . $this->db->quote($firstname, 'text');
         }

@@ -177,7 +177,12 @@ class ilAuthFrontend
             switch ($this->getStatus()->getStatus()) {
                 case ilAuthStatus::STATUS_AUTHENTICATED:
                     return $this->handleAuthenticationSuccess($provider);
-                    
+
+                case ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED:
+                    $this->getLogger()->notice("Account migration required.");
+                    $this->getStatus()->setAuthenticatedUserId(ANONYMOUS_USER_ID);
+                    return true;
+
                 case ilAuthStatus::STATUS_ACCOUNT_MIGRATION_REQUIRED:
                     $this->getLogger()->notice("Account migration required.");
                     return $this->handleAccountMigration($provider);

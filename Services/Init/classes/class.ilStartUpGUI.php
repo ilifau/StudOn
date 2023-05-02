@@ -1131,17 +1131,18 @@ class ilStartUpGUI
             $option->addSubItem($password);
             $radio->addOption($option);
         }
-        $option = new ilRadioOption($this->lng->txt('sso_change_none'), '');
-        $option->setInfo('sso_change_none_info');
+        $option = new ilRadioOption($this->lng->txt('sso_change_none'), 'sso_change_none');
         $radio->addOption($option);
-
+        $form->addItem($radio);
 
         $form->addCommandButton('changeToSso', $this->lng->txt('save'));
-        $form->addCommandButton('showLogin', $this->lng->txt('cancel'));
+        $form->addCommandButton('showLoginPage', $this->lng->txt('cancel'));
 
         /** @var ilGlobalTemplate $tpl */
         $tpl = $this->dic->ui()->mainTemplate();
         $tpl->setContent($form->getHTML());
+
+        $tpl->printToStdout();
     }
 
     public function changeToSso() : void
@@ -1156,40 +1157,45 @@ class ilStartUpGUI
 
         $post = $this->httpRequest->getParsedBody();
 
-        // new account should be created
         if (empty($post['selected_login'])) {
+            ilUtil::sendFailure($this->lng->txt('sso_change_please_select'));
+            $this->showChangeToSso();
+            return;
+        }
+
+        // new account should be created
+        if ($post['selected_login'] == 'sso_change_none') {
             ilSession::set('sso_change_selected_login', $this->dic->fau()->user()->generateLogin($identity));
             $this->doSamlAuthentication();
             return;
         }
 
         if (!in_array($post['selected_login'], $logins)) {
-            $this->showLoginPage();
+            ilUtil::sendFailure($this->lng->txt('sso_change_please_select'));
+            $this->showChangeToSso();
             return;
         }
 
         $user_id = ilObjUser::getUserIdByLogin($post['selected_login']);
         if (empty($user_id)) {
-            $this->showLoginPage();
+            ilUtil::sendFailure($this->lng->txt('sso_change_please_select'));
+            $this->showChangeToSso();
             return;
         }
         $user = new ilObjUser($user_id);
 
         if (empty($post['password'])) {
-            ilUtil::sendFailure('sso_change_password_required');
+            ilUtil::sendFailure($this->lng->txt('sso_change_password_required'));
             $this->showChangeToSso();
-            return;
         }
 
-        if (ilUserPasswordManager::getInstance()->verifyPassword($user, $post['password'])) {
-            ilSession::set('sso_change_selected_login', $post['selected_login']);
-            $this->doSamlAuthentication();
-            return;
+        else if (!ilUserPasswordManager::getInstance()->verifyPassword($user, $post['password'])) {
+            ilUtil::sendFailure($this->lng->txt('sso_change_password_is_wrong'));
+            $this->showChangeToSso();
         }
         else {
-            ilUtil::sendFailure('sso_change_password_is_wrong');
+            ilSession::set('sso_change_selected_login', $post['selected_login']);
             $this->doSamlAuthentication();
-            return;
         }
     }
 
@@ -2354,17 +2360,23 @@ class ilStartUpGUI
         switch ($status->getStatus()) {
             case ilAuthStatus::STATUS_AUTHENTICATED:
                 ilLoggerFactory::getLogger('auth')->debug('Authentication successful; Redirecting to starting page.');
+                ilSession::clear('sso_change_identity');
+                ilSession::clear('sso_change_logins');
+                ilSession::clear('sso_change_selected_login');
                 return ilInitialisation::redirectToStartingPage();
 
             case ilAuthStatus::STATUS_SSO_CHANGE_REQUIRED:
                 ilSession::set('sso_change_identity', $status->getSsoChangeIdentity());
                 ilSession::set('sso_change_logins', $status->getSsoChangeLogins());
+
+                log_line('redirect to showChangeToSso');
                 return $GLOBALS['DIC']->ctrl()->redirect($this, 'showChangeToSso');
 
             case ilAuthStatus::STATUS_ACCOUNT_MIGRATION_REQUIRED:
                 return $GLOBALS['DIC']->ctrl()->redirect($this, 'showAccountMigration');
 
             case ilAuthStatus::STATUS_AUTHENTICATION_FAILED:
+                log_line('auth failed, redirect to showLoginPage');
                 ilUtil::sendFailure($status->getTranslatedReason(), true);
                 $GLOBALS['DIC']->ctrl()->redirect($this, 'showLoginPage');
                 return false;

@@ -823,14 +823,11 @@ fau#:#studydata_unknown_school#:#Unbekannte Fakultät
 fau#:#studydata_unknown_semester#:#Unbekanntes Semester
 fau#:#studydata_unknown_subject#:#Unbekanntes Fach
 fau#:#study_data#:#Studiendaten
-fau#:#sso_change_explanation#:#<p>Ihre IdM-Kennung ist noch mit keinem StudOn-Konto verbunden. StudOn hat aber ein oder mehrere Konten gefunden, die aufgrund von Namensgleichheit Ihnen gehören könnten.</p>
-<p>Falls ein Konto davon Ihnen gehört, wählen Sie es bitte aus und geben Sie bitte dafür Ihr bisheriges StudOn-Passwort ein. Klicken Sie dann auf „Speichern“. Das Konto wird mit Ihrer IdM-Kennung verbunden und Sie verwenden in Zukunft das Single Sign-On für dieses Konto. Ihre Schreibrechte für Lehrveranstaltungen oder StudOn-Bereiche können dann automatisch aktualisiert werden.</p>
-<p>Wenn keines der gelisteten Konten Ihnen gehört, wählen Sie bitte „Neues Konto anlegen“ und klicken Sie auf „Speichern“. Sie erhalten dann ein neues StudOn-Konto mit Ihrer IdM-Kennung als Benutzernamen.</p>
-<p>Wenn Sie sich unsicher sind oder das Kennwort Ihres StudOn-Kontos nicht mehr kennen, klicken Sie bitte auf „Abbrechen“ und wenden Sie sich an studon@fau.de.</p>
-fau#:#sso_change_select_account#:#StudOn-Konto auswählen
+fau#:#sso_change_explanation#:#<p>Ihre IdM-Kennung ist noch mit keinem StudOn-Konto verbunden. StudOn hat aber ein oder mehrere Konten gefunden, die aufgrund von Namensgleichheit Ihnen gehören könnten.</p><p>Wählen Sie es bitte Ihr Konto aus und geben Sie dafür das Passwort ein. Das Konto wird in Zukunft beim Single Sign-On verwendet und seine Rechte automatisch aktualisiert.<p>Wenn Sie sich unsicher sind oder das Kennwort Ihres StudOn-Kontos nicht mehr kennen, klicken Sie bitte auf „Abbrechen“ und wenden Sie sich an <a href="mailto:studon@fau.de">studon@fau.de</a>.</p>
+fau#:#sso_change_select_account#:#StudOn-Konto mit meiner IdM-Kennung verbinden
 fau#:#sso_change_selecte_login#:#Benutzername
-fau#:#sso_change_none#:#Keines
-fau#:#sso_change_none_info#:#Keines der Kontent gehört zu mir. Ich möchte einen neuen StudOn-Account mit meiner IDM-Kennung verbinden.
+fau#:#sso_change_none#:#Keines der Konten gehört zu mir. Ich möchte ein neues StudOn-Konto.
+fau#:#sso_change_please_select#:#Bitte wählen Sie eine der angebotenen Optionen!
 fau#:#sso_change_password_required#:#Die Eingabe des Passworts ist erforderlich!
 fau#:#sso_change_password_is_wrong#:#Das eingegebene Passwort ist falsch!
 fau#:#fau_read_only#:#Schreibgeschützt
