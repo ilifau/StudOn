@@ -224,6 +224,7 @@ common#:#lang_refresh_confirm_info#:#ILIAS hat geänderte Sprachvariablen gefund
 common#:#links_password_coded#:#Passwort-Code
 common#:#local_login_to_ilias#:#Bei StudOn lokal anmelden###fau: loginForm
 common#:#local_login_to_ilias_addition#:#Verwenden Sie die Lokale Anmeldung, wenn Sie von StudOn einen lokalen Account bekommen haben.###fau: loginForm
+common#:#local_login_to_ilias_registered#:#Anmelden###fau: regCodes
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
 common#:#mail_folder_tools#:#Ihre Mail-Ordner finden sie unter „Tools“
 common#:#mem_edit_request#:#Anmeldung ändern

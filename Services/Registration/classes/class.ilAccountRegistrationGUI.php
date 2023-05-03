@@ -886,7 +886,7 @@ class ilAccountRegistrationGUI
             $tpl->setVariable('COMMAND', 'doStandardAuthentication');
             $tpl->setVariable('USERNAME', $this->userObj->getLogin());
             $tpl->setVariable('PASSWORD', $password);
-            $tpl->setVariable('TXT_LOGIN', $this->lng->txt('local_login_to_ilias'));
+            $tpl->setVariable('TXT_LOGIN', $this->lng->txt('local_login_to_ilias_registered'));
             $tpl->setVariable('TIMEOUT_URL', 'index.php');
             // fau.
         } elseif ($this->registration_settings->getRegistrationType() == IL_REG_APPROVE) {
