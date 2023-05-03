@@ -110,7 +110,7 @@ class ilObjUser extends ilObject
 
     public $user_defined_data = array();
 
-    // fau: samIdle - new class variable idle_ext_account
+    // fau: samlChange - new class variable idle_ext_account
     protected ?string $idle_ext_account = null;
     // fau.
     
@@ -426,7 +426,7 @@ class ilObjUser extends ilObject
         //authentication
         $this->setAuthMode($a_data['auth_mode']);
         $this->setExternalAccount($a_data['ext_account']);
-        // fau: samIdle - set idle ext account
+        // fau: samlChange - set idle ext account
         $this->setIdleExtAccount($a_data['idle_ext_account'] ?? null);
         // fau.
         
@@ -523,7 +523,7 @@ class ilObjUser extends ilObject
             "time_limit_owner" => array("integer", $this->getTimeLimitOwner()),
             "auth_mode" => array("text", $this->getAuthMode()),
             "ext_account" => array("text", $this->getExternalAccount()),
-            // fau: samIdle - add idle ext account to saveAsNew
+            // fau: samlChange - add idle ext account to saveAsNew
             "idle_ext_account" => array("text", $this->getIdleExtAccount()),
             // fau.
             "profile_incomplete" => array("integer", $this->getProfileIncomplete()),
@@ -618,7 +618,7 @@ class ilObjUser extends ilObject
             "profile_incomplete" => array("integer", $this->getProfileIncomplete()),
             "auth_mode" => array("text", $this->getAuthMode()),
             "ext_account" => array("text", $this->getExternalAccount()),
-            // fau: samIdle - add idle ext account to update
+            // fau: samlChange - add idle ext account to update
             "idle_ext_account" => array("text", $this->getIdleExtAccount()),
             // fau.
             "latitude" => array("text", $this->latitude),
@@ -3531,7 +3531,7 @@ class ilObjUser extends ilObject
         return $this->ext_account;
     }
 
-    // fau: samIdle - getter and setter
+    // fau: samlChange - getter and setter
     /**
      * Set the idle ext account
      */

@@ -5,7 +5,9 @@
 - **fauService** - Einbindung des Service bei der ILIAS-Initialisierung
 - **userData** - Studiengangs- und Organisationsdaten von FAU-Benutzern (Ablösung von idmData und studyData)
 - **studyCond** - Verwaltung und Prüfung von "weichen" Beitrittsbedingungen für Kurse und Gruppen.
-- **samlAuth** - Single Sign-On
+- **studySearch** - Suche nach Lehrvernstaltungen
+- **samlAuth** - Single Sign-On über SAML (Authentifitierungsmodus ist Shibboleth")
+- **samlChange** - Umschreiben vorhandener Acocunt auf Shibboleth oder Lokale
 - **preventCampoDelete** - Löschen von Kursen und Gruppen verhindern, die mit campo verbunden sind. Administratoren können löschen (die Verbindung zu Campo wird dann aufgehoben). Kurse dürfen verschoben werden, Gruppen nicht.
 - **filterMyMem** Filterung der Liste "Meine Mitgliedschaften" nach Semester
 - **studySearch** Suchseite nach Lehrveranstaltungen
