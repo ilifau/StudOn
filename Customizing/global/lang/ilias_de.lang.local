@@ -1210,3 +1210,7 @@ trac#:#trac_export_title#:#Lernfortschritt-Export###fau: LPExport
 trac#:#trac_lp_matriculation_numbers_info#:#Fügen Sie hier die Matrikelnummern ein, für welche Sie den Lernfortschritt exportieren möchten (pro Zeile eine Matrikelnummer). <br/> Mit Klick auf den Export-Button wird eine csv-Datei generiert mit folgenden Spalten:<br/><ul><li>Matrikelnummer</li><li>Benutzername</li><li>Vorname</li><li>Nachname</li><li>Note</li><li>Statuscode (Werte: 0 = Noch nicht bearbeitet, 1 = In Bearbeitung, 2 = Bearbeitet, 3 = Nicht bestanden)</li><li>Statusbezeichnung</li></ul>.###fau: LPExport
 trac#:#trac_lp_matriculation_numbers#:#Matrikelnummern###fau: LPExport   
 trac#:#trac_create_export_file#:#Exportdatei herunterladen###fau: LPExport 
+crs#:#crs_selected_members_set_to_passed#:#Ausgewählte Mitglieder wurden auf Bestanden gesetzt.###fau: PassedFlagCG - Mitglieder auf bestanden setzen
+crs#:#crs_bulk_set_passed_flag#:#Auf Bestanden setzen###fau: PassedFlagCG - Mitglieder auf bestanden setzen
+grp#:#grp_selected_members_set_to_passed#:#Ausgewählte Mitglieder wurden auf Bestanden gesetzt.###fau: PassedFlagCG - Mitglieder auf bestanden setzen
+grp#:#grp_bulk_set_passed_flag#:#Auf Bestanden setzen###fau: PassedFlagCG - Mitglieder auf bestanden setzen

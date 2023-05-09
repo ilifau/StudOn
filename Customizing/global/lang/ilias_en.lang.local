@@ -1193,3 +1193,7 @@ trac#:#trac_export_title#:#Learning Progress Export###fau: LPExport
 trac#:#trac_lp_matriculation_numbers_info#:#Enter the matriculation numbers for which you want to export the learning progress (one matriculation number per line). <br/> By clicking on the export button, a csv file is generated with the following columns:<br/><ul><li>Matriculation Number</li><li>Login</li><li>First Name</li><li>Last Name</li><li>Mark</li><li>Statuscode (Values: 0 = Not Attempted, 1 = In Progress, 2 = Completed, 3 = Failed)</li><li>Status Description</li></ul>.###fau: LPExport
 trac#:#trac_lp_matriculation_numbers#:#Matriculation Numbers###fau: LPExport   
 trac#:#trac_create_export_file#:#Download Export File###fau: LPExport 
+crs#:#crs_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed
+crs#:#crs_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed
+grp#:#grp_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed
+grp#:#grp_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed

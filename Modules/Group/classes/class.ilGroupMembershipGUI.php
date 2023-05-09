@@ -110,6 +110,10 @@ class ilGroupMembershipGUI extends ilMembershipGUI
      */
     protected function updateParticipantsStatus()
     {
+        // fau: setPassedFlag - get the posted values
+        $passed = (array) $_POST['passed'];
+        // fau.
+
         $participants = (array) $_POST['visible_member_ids'];
         $notification = (array) $_POST['notification'];
         $contact = (array) $_POST['contact'];
@@ -117,6 +121,11 @@ class ilGroupMembershipGUI extends ilMembershipGUI
         ilLoggerFactory::getLogger('grp')->dump($contact);
 
         foreach ($participants as $mem_id) {
+            // fau: setPassedFlag - update the lp status when members are saved
+            if ($this->getParentObject()->isManualLPStatusSettingAllowed()) {
+                $this->getParentObject()->setLPStatusManually($mem_id, in_array($mem_id, $passed));
+            }
+            // fau.
             if ($this->getMembersObject()->isAdmin($mem_id)) {
                 $this->getMembersObject()->updateContact($mem_id, in_array($mem_id, $contact));
                 $this->getMembersObject()->updateNotification($mem_id, in_array($mem_id, $notification));
@@ -255,4 +264,32 @@ class ilGroupMembershipGUI extends ilMembershipGUI
 
         return $context_options;
     }
+
+    // fau: setPassedFlag - new command bulkSetPassedFlag()
+    protected function bulkSetPassedFlag()
+    {
+        $participants = (array) $_POST['participants'];
+        $visible_members = (array) $_POST['visible_member_ids'];
+
+        if (!$this->getParentObject()->isManualLPStatusSettingAllowed()) {
+            ilUtil::sendFailure($this->lng->txt("no_permission"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        if (!is_array($participants) or !count($participants)) {
+            ilUtil::sendFailure($this->lng->txt("no_checkbox"), true);
+            $this->ctrl->redirect($this, 'participants');
+        }
+        foreach ($participants as $participant) {
+            if ($this->getMembersObject()->isAssigned($participant)) {
+                $this->getParentObject()->setLPStatusManually($participant, in_array($participant, $visible_members));
+            }
+        }
+
+        ilUtil::sendSuccess($this->lng->txt('grp_selected_members_set_to_passed'), true);
+        $this->ctrl->redirect($this, "participants");
+
+        return true;
+    }
+    // fau.
+
 }

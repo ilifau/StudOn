@@ -145,6 +145,11 @@ class ilCourseParticipantsTableGUI extends ilParticipantTableGUI
         $this->addMultiCommand('editParticipants', $this->lng->txt('edit'));
         $this->addMultiCommand('confirmDeleteParticipants', $this->lng->txt('remove'));
         $this->addMultiCommand('sendMailToSelectedUsers', $this->lng->txt('mmbr_btn_mail_selected_users'));
+        // fau: setPassedFlag - add multi command if grading is allowed
+        if ($DIC->access()->checkAccess("grade", "", $this->getRepositoryObject()->getRefId())) {
+            $this->addMultiCommand('bulkSetPassedFlag', $this->lng->txt('crs_bulk_set_passed_flag'));
+        }
+        // fau.
         $this->lng->loadLanguageModule('user');
         $this->addMultiCommand('addToClipboard', $this->lng->txt('clipboard_add_btn'));
         

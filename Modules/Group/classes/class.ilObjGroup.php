@@ -1789,6 +1789,57 @@ class ilObjGroup extends ilContainer implements ilMembershipRegistrationCodes
             return false;
         }
     }
+
+    // fau: setPassedFlag - new functions isManualLPStatusSettingAllowed() and setLPStatusManually()
+
+    /**
+     * Check if a leaning progress status can be manually set in the membership administration
+     * The grading permission must be given on the object
+     * Learning progress determiniation must be either deactivated or set to manual by tutor
+     * It must not be an automated LP mode (e.g. collection of objects)
+     *
+     * @return bool
+     */
+    public function isManualLPStatusSettingAllowed()
+    {
+        global $DIC;
+        if (!$DIC->access()->checkAccess('grade', '', $this->getRefId())) {
+            // grading permission must be given
+            return false;
+        }
+
+        $olp = ilObjectLP::getInstance($this->getId());
+        if ($olp->getCurrentMode() == ilLPObjSettings::LP_MODE_MANUAL_BY_TUTOR
+            || $olp->getCurrentMode() == ilLPObjSettings::LP_MODE_DEACTIVATED) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Write the learning progress status directly from a given passed flag
+     * This bypasses the status determination according to the learning progress settings
+     * It should also work if the learning progress is deactivated
+     */
+    public function setLPStatusManually($a_member_id, $a_passed)
+    {
+        $marks = new ilLPMarks($this->getId(), $a_member_id);
+
+        // write only if completed has changed
+        if ($marks->getCompleted() != $a_passed) {
+            $marks->setCompleted($a_passed);
+            $marks->update();
+
+            $status = $a_passed ? ilLPStatus::LP_STATUS_COMPLETED_NUM : ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM;
+
+            // write the status directly
+            // ilLPStatusWrapper::_updateStatus() wound not work if LP is deactivated for the object
+            ilLPStatus::writeStatus($this->getId(), $a_member_id, $status);
+        }
+    }
+    // fau.
+
     /**
     * init default roles settings
     * @access	public
