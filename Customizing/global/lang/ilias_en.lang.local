@@ -223,7 +223,7 @@ common#:#lang_refresh_confirm_info#:#ILIAS found changed language variables. Ref
 common#:#links_password_coded#:#password-code
 common#:#local_login_to_ilias#:#Local Login to StudOn###fau: loginForm
 common#:#local_login_to_ilias_addition#:#Use this login if you got a local account from StudOn###fau.
-common#:#local_login_to_ilias_registered#:#Loginn###fau: regCodes
+common#:#local_login_to_ilias_registered#:#Login###fau: regCodes
 common#:#login_required_for_object#:#Bitte melden Sie sich an.
 common#:#mail_folder_tools#:#You will find your Mail-Folder under „Tools“
 common#:#mem_edit_request#:#edit request
