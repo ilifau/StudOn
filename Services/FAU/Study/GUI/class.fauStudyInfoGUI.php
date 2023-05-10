@@ -71,7 +71,8 @@ class fauStudyInfoGUI extends BaseGUI
      */
     public function getResponsiblesLine(ImportId $import_id) : string
     {
-        $list = $this->service->persons()->getResponsiblesList($import_id->getEventId(), $import_id->getCourseId(), false);
+        // don't show event responsibles
+        $list = $this->service->persons()->getResponsiblesList(null, $import_id->getCourseId(), false);
         $text = implode(' | ', array_unique($list));
         return ilUtil::shortenText($text, 100, true);
     }
@@ -262,9 +263,10 @@ class fauStudyInfoGUI extends BaseGUI
         if (!empty($info = $this->getEventOrgunitsInfo($event))) {
             $props[$this->lng->txt('fau_campo_assigned_orgunits')] = $info;
         }
-        if (!empty($list = $this->service->persons()->getResponsiblesList($event->getEventId(), null))) {
-            $props[$this->lng->txt('fau_campo_responsibles')] = $this->renderList($list);
-        }
+// Don't show event responsibles
+//        if (!empty($list = $this->service->persons()->getResponsiblesList($event->getEventId(), null))) {
+//            $props[$this->lng->txt('fau_campo_responsibles')] = $this->renderList($list);
+//        }
 
         if (!$in_modal && $this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
             $hardRestrictions = $this->dic->fau()->cond()->hard();
