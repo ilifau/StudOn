@@ -809,11 +809,11 @@ fau#:#studydata_ref_semester_winter#:#Im Winter %s/%s
 fau#:#studydata_school#:#Fakultät
 fau#:#studydata_semester#:#Semester
 fau#:#studydata_semester_summer#:#Sommersemester %s
-fau#:#studydata_semester_summer_short#:#SS %s
+fau#:#studydata_semester_summer_short#:#Sommer %s
 fau#:#studydata_semester_text#:# %s. Semester
 fau#:#studydata_clinical_semester_text#:# %s. klinisches Semester
 fau#:#studydata_semester_winter#:#Wintersemester %s/%s
-fau#:#studydata_semester_winter_short#:#WS %s/%s
+fau#:#studydata_semester_winter_short#:#Winter %s/%s
 fau#:#studydata_study_no#:#Studiengang %s
 fau#:#studydata_subject#:#Fach
 fau#:#studydata_subject_no#:#Fach %s

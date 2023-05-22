@@ -90,7 +90,9 @@ class fauStudyInfoGUI extends BaseGUI
                 $links[] = fauHardRestrictionsGUI::getInstance()->getRestrictionsModalLink($import_id->getEventId());
             }
             $links[] = $this->getCampoLink($import_id, $title = $this->lng->txt('fau_campo_link'));
-            return implode(' | ', $links);
+
+            $term = $this->service->getTermText(Term::fromString($import_id->getTermId()), true);
+            return $term . ': ' . implode(' | ', $links);
         }
         return '';
     }
@@ -183,7 +185,8 @@ class fauStudyInfoGUI extends BaseGUI
         }
         if (!empty($course)) {
             if (!empty($props = $this->getCourseProperties($course, $term, true))) {
-                $panels[] = $this->factory->panel()->standard($this->lng->txt('fau_campo_course'),
+                $panels[] = $this->factory->panel()->standard($this->lng->txt('fau_campo_course')
+                    . ' (' . $this->service->getTermText($term) . ')',
                     $this->factory->listing()->descriptive($props));
             }
             if (!empty($props = $this->getDateProperties($course))) {
@@ -219,7 +222,7 @@ class fauStudyInfoGUI extends BaseGUI
         }
         if (!empty($course)) {
             if (!empty($props = $this->getCourseProperties($course, $term, false))) {
-                $info->addSection($this->lng->txt('fau_campo_course'));
+                $info->addSection($this->lng->txt('fau_campo_course') . ' (' . $this->service->getTermText($term) . ')');
                 foreach ($props as $label => $content) {
                     $info->addProperty($label, $content);
                 }
@@ -276,7 +279,7 @@ class fauStudyInfoGUI extends BaseGUI
         }
 
         if ($with_groups && !empty($info = $this->getParallelGroupsInfo($ref_id, $in_modal, true))) {
-            $props[$this->lng->txt('fau_parallel_groups')]= $info;
+            $props[$this->lng->txt('fau_parallel_groups') . ' (' . $this->service->getTermText($term) . ')']= $info;
         }
 
         return $props;
