@@ -310,10 +310,19 @@ class fauStudyInfoGUI extends BaseGUI
             $props[$this->lng->txt('language')]  = $course->getTeachingLanguage();
         }
         if (!empty($course->getContents())) {
-            $props[$this->lng->txt('fau_campo_contents')]  = $course->getContents();
+            $props[$this->lng->txt('fau_campo_contents')]  = $this->renderCampoText($course->getContents());
         }
         if (!empty($course->getLiterature())) {
-            $props[$this->lng->txt('fau_campo_literature')]  = $course->getLiterature();
+            $props[$this->lng->txt('fau_campo_literature')]  =  $this->renderCampoText($course->getLiterature());
+        }
+        if (!empty($course->getRecommendedRequirement())) {
+            $props[$this->lng->txt('fau_campo_recommended_requirement')]  =  $this->renderCampoText($course->getRecommendedRequirement());
+        }
+        if (!empty($course->getLearningTarget())) {
+            $props[$this->lng->txt('fau_campo_learning_target')]  =  $this->renderCampoText($course->getLearningTarget());
+        }
+        if (!empty($course->getTargetGroup())) {
+            $props[$this->lng->txt('fau_campo_target_group')]  =  $this->renderCampoText($course->getTargetGroup());
         }
         if (!empty($list = $this->service->persons()->getResponsiblesList(null, $course->getCourseId()))) {
             $props[$this->lng->txt('fau_campo_responsibles')] = $this->renderList($list);
@@ -436,5 +445,28 @@ class fauStudyInfoGUI extends BaseGUI
             $html = '<div style="margin-top:-10px; margin-left:-30px">' . $html . '</div>';
         }
         return $html;
+    }
+
+
+    /**
+     * Render a richtext field from campo
+     * @param string $text
+     * @return void
+     */
+    protected function renderCampoText(?string $text) : string
+    {
+        $additional_tags = ['br','ul','ol','li'];
+
+        foreach ($additional_tags as $tag) {
+            $text = ilUtil::maskTag($text, $tag);
+        }
+
+        $text = ilUtil::secureString($text);
+
+        foreach ($additional_tags as $tag) {
+            $text = ilUtil::unmaskTag($text, $tag);
+        }
+
+        return $text;
     }
 }

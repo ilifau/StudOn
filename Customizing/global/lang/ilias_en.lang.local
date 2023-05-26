@@ -641,7 +641,10 @@ fau#:#fau_campo_link_title#:#Teaching Event in campo
 fau#:#fau_campo_responsibles#:#Responsible Persons
 fau#:#fau_campo_hours_per_week#:#Hours Per Week
 fau#:#fau_campo_contents#:#Contents
-fau#:#fau_campo_literature#:#Literature
+fau#:#fau_campo_literature#:#Bibliography
+fau#:#fau_campo_recommended_requirement#:#Recommended requirements / Organizational notes
+fau#:#fau_campo_learning_target#:#Learning objectives and skills
+fau#:#fau_campo_target_group#:#Target group
 fau#:#fau_campo_date_cancelled#:#Date is cancelled
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
 fau#:#fau_check_failed_restrictions#:#The restrictions for taking this course estrictions are not met.
@@ -1191,8 +1194,8 @@ pwassist#:#pwassist_enter_username_and_email#:#Enter a username and the associat
 trac#:#trac_export#:#Export###fau: LPExport
 trac#:#trac_export_title#:#Learning Progress Export###fau: LPExport
 trac#:#trac_lp_matriculation_numbers_info#:#Enter the matriculation numbers for which you want to export the learning progress (one matriculation number per line). <br/> By clicking on the export button, a csv file is generated with the following columns:<br/><ul><li>Matriculation Number</li><li>Login</li><li>First Name</li><li>Last Name</li><li>Mark</li><li>Statuscode (Values: 0 = Not Attempted, 1 = In Progress, 2 = Completed, 3 = Failed)</li><li>Status Description</li></ul>.###fau: LPExport
-trac#:#trac_lp_matriculation_numbers#:#Matriculation Numbers###fau: LPExport   
-trac#:#trac_create_export_file#:#Download Export File###fau: LPExport 
+trac#:#trac_lp_matriculation_numbers#:#Matriculation Numbers###fau: LPExport
+trac#:#trac_create_export_file#:#Download Export File###fau: LPExport
 crs#:#crs_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed
 crs#:#crs_bulk_set_passed_flag#:#Set to Passed###fau: PassedFlagCG - Bulk set members to passed
 grp#:#grp_selected_members_set_to_passed#:#Selected members set to Passed.###fau: PassedFlagCG - Bulk set members to passed

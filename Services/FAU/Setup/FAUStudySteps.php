@@ -112,6 +112,14 @@ class FAUStudySteps
         $this->changePlannedDatesCommentClob();
     }
 
+    public function custom_step_122()
+    {
+        $this->dropCourseCompulsoryRequirement();
+        $this->addCourseRecommendedRequirement();
+        $this->addCourseLearningTarget();
+        $this->addCourseTargetGroup();
+    }
+
 
 
     protected function createCoursesTable(bool $drop = false)
@@ -581,4 +589,27 @@ class FAUStudySteps
             ['type' => 'clob', 'notnull' => false, 'default' => null]);
     }
 
+
+    protected function dropCourseCompulsoryRequirement()
+    {
+        $this->db->dropTableColumn('fau_study_courses', 'compulsory_requirement');
+    }
+
+    protected function addCourseRecommendedRequirement()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'recommended_requirement',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function addCourseLearningTarget()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'learning_target',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function addCourseTargetGroup()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'target_group',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
 }

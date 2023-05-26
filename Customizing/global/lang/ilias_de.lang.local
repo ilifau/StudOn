@@ -640,7 +640,10 @@ fau#:#fau_campo_link_title#:#Veranstaltung in campo
 fau#:#fau_campo_responsibles#:#Verantwortliche Personen
 fau#:#fau_campo_hours_per_week#:#Wochenstunden
 fau#:#fau_campo_contents#:#Inhalt
-fau#:#fau_campo_literature#:#Literatur
+fau#:#fau_campo_literature#:#Literaturhinweise
+fau#:#fau_campo_recommended_requirement#:#Empfohlene Voraussetzungen / Organisatorisches
+fau#:#fau_campo_learning_target#:#Lernziele und Kompetenzen
+fau#:#fau_campo_target_group#:#Zielgruppe
 fau#:#fau_campo_date_cancelled#:#Termin fällt aus
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Die Voraussetzungen zur Belegung dieser Lehrveranstaltung sind nicht erfüllt.

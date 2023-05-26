@@ -17,7 +17,7 @@
         ));
         $ilDB->addPrimaryKey('usr_study', array('usr_id', 'study_no'));
     }
-    
+
     if (!$ilDB->tableExists('usr_subject')) {
         $ilDB->createTable('usr_subject', array(
             'usr_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
@@ -34,7 +34,7 @@
         ));
         $ilDB->addPrimaryKey('study_schools', array('school_id'));
     }
-    
+
     if (!$ilDB->tableExists('study_subjects')) {
         $ilDB->createTable('study_subjects', array(
             'subject_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
@@ -42,7 +42,7 @@
         ));
         $ilDB->addPrimaryKey('study_subjects', array('subject_id'));
     }
-    
+
     if (!$ilDB->tableExists('study_degrees')) {
         $ilDB->createTable('study_degrees', array(
             'degree_id' => array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0),
@@ -84,7 +84,7 @@
             'subject',
             array('type' => 'text', 'length' => 4000, 'notnull' => false, 'default' => null)
         );
-        
+
         $ilDB->modifyTableColumn(
             'il_subscribers',
             'subject',
@@ -112,7 +112,7 @@
             array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 0)
         );
     }
-    
+
     if (!$ilDB->tableColumnExists('grp_settings', 'lot_list')) {
         $ilDB->addTableColumn(
             'grp_settings',
@@ -220,7 +220,7 @@
             array('type' => 'integer', 'length' => 4, 'notnull' => true, 'default' => 1)
         );
     }
-    
+
     if (!$ilDB->tableColumnExists('grp_settings', 'show_mem_limit')) {
         $ilDB->addTableColumn(
             'grp_settings',
@@ -306,7 +306,7 @@
         "description",
         array('type' => 'text', 'length' => 250, 'notnull' => false, 'default' => null)
     );
-    
+
     $q = "UPDATE object_data dat, object_description des"
     . " SET dat.description = des.description"
     . " WHERE dat.obj_id = des.obj_id"
@@ -1727,6 +1727,13 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  * fau: samlChange - add 'idle_ext_account' column
  */
 \FAU\Setup\Setup::instance($ilDB)->user()->custom_step_121();
+?>
+<#122>
+<?php
+/**
+ * fau: fauService - add clob columns to course
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_122();
 ?>
 
 

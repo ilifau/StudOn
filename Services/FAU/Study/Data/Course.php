@@ -28,9 +28,11 @@ class Course extends RecordData
         'cancelled' => 'integer',
         'deleted' => 'integer',
         'teaching_language' => 'text',
-        'compulsory_requirement' => 'text',
         'contents' => 'clob',
         'literature' => 'clob',
+        'recommended_requirement' => 'clob',
+        'learning_target' => 'clob',
+        'target_group' => 'clob',
         'ilias_obj_id' => 'integer',
         'ilias_dirty_since' => 'text',
         'ilias_problem' => 'text'
@@ -47,9 +49,11 @@ class Course extends RecordData
     protected ?int $cancelled;
     protected ?int $deleted;
     protected ?string $teaching_language;
-    protected ?string $compulsory_requirement;
     protected ?string $contents;
     protected ?string $literature;
+    protected ?string $recommended_requirement;
+    protected ?string $learning_target;
+    protected ?string $target_group;
 
     // not in constructor, added later, initialisation needed
     // obj_id is stored because ref_id may change when course is moved
@@ -70,9 +74,11 @@ class Course extends RecordData
         ?int $cancelled,
         ?int $deleted,
         ?string $teaching_language,
-        ?string $compulsory_requirement,
         ?string $contents,
-        ?string $literature
+        ?string $literature,
+        ?string $recommended_requirement,
+        ?string $learning_target,
+        ?string $target_group
     )
     {
         $this->course_id = $course_id;
@@ -87,9 +93,11 @@ class Course extends RecordData
         $this->cancelled = $cancelled;
         $this->deleted = $deleted;
         $this->teaching_language = $teaching_language;
-        $this->compulsory_requirement = $compulsory_requirement;
         $this->contents = $contents;
         $this->literature = $literature;
+        $this->recommended_requirement = $recommended_requirement;
+        $this->learning_target = $learning_target;
+        $this->target_group = $target_group;
     }
 
     public static function model(): self
@@ -97,7 +105,7 @@ class Course extends RecordData
         return new self(0,null,null,
             null,null,null,null,
             null,null,null, null,
-            null,null,null,null);
+            null,null,null, null, null, null);
     }
 
     /**
@@ -199,14 +207,6 @@ class Course extends RecordData
     /**
      * @return string|null
      */
-    public function getCompulsoryRequirement() : ?string
-    {
-        return $this->compulsory_requirement;
-    }
-
-    /**
-     * @return string|null
-     */
     public function getContents() : ?string
     {
         return $this->contents;
@@ -219,6 +219,31 @@ class Course extends RecordData
     {
         return $this->literature;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getRecommendedRequirement(): ?string
+    {
+        return $this->recommended_requirement;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLearningTarget(): ?string
+    {
+        return $this->learning_target;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTargetGroup(): ?string
+    {
+        return $this->target_group;
+    }
+
 
     /**
      * @return int|null

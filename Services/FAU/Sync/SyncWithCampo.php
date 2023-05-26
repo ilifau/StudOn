@@ -133,9 +133,11 @@ class SyncWithCampo extends SyncBase
                 $record->getCancelled(),
                 $record->getDeleted(),
                 $record->getTeachingLanguage(),
-                $record->getCompulsoryRequirement(),
                 $record->getContents(),
                 $record->getLiterature(),
+                $record->getRecommendedRequirement(),
+                $record->getLearningTarget(),
+                $record->getTargetGroup()
             );
             if (isset($existing[$course->key()])) {
                 $course = $course
