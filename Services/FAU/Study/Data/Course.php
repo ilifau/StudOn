@@ -35,7 +35,8 @@ class Course extends RecordData
         'target_group' => 'clob',
         'ilias_obj_id' => 'integer',
         'ilias_dirty_since' => 'text',
-        'ilias_problem' => 'text'
+        'ilias_problem' => 'text',
+        'needs_passed' => 'integer'
     ];
     protected int $course_id;
     protected ?int $event_id;
@@ -60,6 +61,7 @@ class Course extends RecordData
     protected ?int $ilias_obj_id = null;
     protected ?string $ilias_dirty_since = null;
     protected ?string $ilias_problem = null;
+    protected ?int $needs_passed = 0;
 
     public function __construct(
         int $course_id,
@@ -352,6 +354,25 @@ class Course extends RecordData
             $clone->ilias_dirty_since = null;
         }
 
+        return $clone;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getNeedsPassed(): ?int
+    {
+        return $this->needs_passed;
+    }
+
+    /**
+     * @param int|null $needs_passed
+     * @return Course
+     */
+    public function withNeedsPassed(?int $needs_passed): Course
+    {
+        $clone = clone $this;
+        $clone->needs_passed = $needs_passed;
         return $clone;
     }
 }

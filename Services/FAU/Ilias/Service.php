@@ -81,4 +81,13 @@ class Service extends SubService
         return null;
     }
 
+    /**
+     * Get the GUI for course or group settings
+     * @return \fauCourseSettingsGUI
+     */
+    public function getCourseSettingsGUI()
+    {
+        return new \fauCourseSettingsGUI();
+    }
+
 }
