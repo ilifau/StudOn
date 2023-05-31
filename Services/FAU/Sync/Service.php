@@ -103,7 +103,7 @@ class Service extends SubService
         elseif ($month < 10) {
             return [
                 new Term($year, 1),              // current summer term
-                new Term($year, 2),              // next winter term
+                //new Term($year, 2),              // next winter term
             ];
         }
         elseif ($month < 12) {
