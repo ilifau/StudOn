@@ -18,8 +18,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.sendMailsToSolveConflicts');
 
 //$p->applyPatch('ilFauPatches.syncPersonData');
-//$p->applyPatch('ilFauPatches.syncCampoData');
-//$p->applyPatch('ilFauPatches.syncWithIlias');
+$p->applyPatch('ilFauPatches.syncCampoData');
+$p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
 //$p->applyPatch('ilFauPatches.syncToCampo');
 
