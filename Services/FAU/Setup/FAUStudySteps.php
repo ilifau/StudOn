@@ -125,6 +125,15 @@ class FAUStudySteps
         $this->addCourseNeedsPassed();
     }
 
+    public function custom_step_124()
+    {
+        $this->addCourseTitleDirty();
+        $this->addCourseDescriptionDirty();
+        $this->addCourseEventTitleDirty();
+        $this->addCourseEventDescriptionDirty();
+        $this->addCourseMaximumDirty();
+    }
+
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -622,4 +631,37 @@ class FAUStudySteps
         $this->db->addTableColumn('fau_study_courses', 'needs_passed',
             ['type' => 'integer', 'notnull' => true, 'default' => 1]);
     }
+
+    protected function addCourseTitleDirty()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'title_dirty',
+            ['type' => 'integer', 'notnull' => true, 'default' => 0]);
+    }
+
+    protected function addCourseDescriptionDirty()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'description_dirty',
+            ['type' => 'integer', 'notnull' => true, 'default' => 0]);
+    }
+
+    protected function addCourseEventTitleDirty()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'event_title_dirty',
+            ['type' => 'integer', 'notnull' => true, 'default' => 0]);
+    }
+
+    protected function addCourseEventDescriptionDirty()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'event_description_dirty',
+            ['type' => 'integer', 'notnull' => true, 'default' => 0]);
+    }
+
+    protected function addCourseMaximumDirty()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'maximum_dirty',
+            ['type' => 'integer', 'notnull' => true, 'default' => 0]);
+    }
+
+
+
 }

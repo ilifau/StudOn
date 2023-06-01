@@ -36,7 +36,12 @@ class Course extends RecordData
         'ilias_obj_id' => 'integer',
         'ilias_dirty_since' => 'text',
         'ilias_problem' => 'text',
-        'needs_passed' => 'integer'
+        'needs_passed' => 'integer',
+        'title_dirty' => 'integer',
+        'description_dirty' => 'integer',
+        'event_title_dirty' => 'integer',
+        'event_description_dirty' => 'integer',
+        'maximum_dirty' => 'integer',
     ];
     protected int $course_id;
     protected ?int $event_id;
@@ -62,6 +67,16 @@ class Course extends RecordData
     protected ?string $ilias_dirty_since = null;
     protected ?string $ilias_problem = null;
     protected ?int $needs_passed = 0;
+    
+    // dirty flags for changeable data in ILIAS course or group
+    // will be set true in the campo sync if the underlying data is changed
+    // this triggers the field update in the following ilias sync
+    // afterwards the dirty flag is reset
+    protected int $title_dirty = 0;
+    protected int $description_dirty = 0;
+    protected int $event_title_dirty = 0;
+    protected int $event_description_dirty = 0;
+    protected int $maximum_dirty = 0;
 
     public function __construct(
         int $course_id,
@@ -352,27 +367,127 @@ class Course extends RecordData
         }
         else {
             $clone->ilias_dirty_since = null;
+            $clone->title_dirty = 0;
+            $clone->description_dirty = 0;
+            $clone->event_title_dirty = 0;
+            $clone->event_description_dirty = 0;
+            $clone->maximum_dirty = 0;
         }
 
         return $clone;
     }
 
     /**
-     * @return int|null
+     * @return bool
      */
-    public function getNeedsPassed(): ?int
+    public function getNeedsPassed(): bool
     {
-        return $this->needs_passed;
+        return (bool) $this->needs_passed;
     }
 
     /**
-     * @param int|null $needs_passed
+     * @param bool $needs_passed
      * @return Course
      */
-    public function withNeedsPassed(?int $needs_passed): Course
+    public function withNeedsPassed(bool $needs_passed): Course
     {
         $clone = clone $this;
-        $clone->needs_passed = $needs_passed;
+        $clone->needs_passed = (int) $needs_passed;
+        return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTitleDirty(): bool
+    {
+        return (bool) $this->title_dirty;
+    }
+
+    /**
+     * @param bool $title_dirty
+     * @return Course
+     */
+    public function withTitleDirty(bool $title_dirty): Course
+    {
+        $clone = clone $this;
+        $clone->title_dirty = (int) $title_dirty;
+        return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDescriptionDirty(): bool
+    {
+        return (bool) $this->description_dirty;
+    }
+
+    /**
+     * @param bool $description_dirty
+     * @return Course
+     */
+    public function withDescriptionDirty(bool $description_dirty): Course
+    {
+        $clone = clone $this;
+        $clone->description_dirty = (int) $description_dirty;
+        return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEventTitleDirty(): bool
+    {
+        return (bool) $this->event_title_dirty;
+    }
+
+    /**
+     * @param bool $event_title_dirty
+     * @return Course
+     */
+    public function withEventTitleDirty(bool $event_title_dirty): Course
+    {
+        $clone = clone $this;
+        $clone->event_title_dirty = (int) $event_title_dirty;
+        return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEventDescriptionDirty(): bool
+    {
+        return (bool) $this->event_description_dirty;
+    }
+
+    /**
+     * @param bool $event_description_dirty
+     * @return Course
+     */
+    public function withEventDescriptionDirty(bool $event_description_dirty): Course
+    {
+        $clone = clone $this;
+        $clone->event_description_dirty = (int) $event_description_dirty;
+        return $clone;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isMaximumDirty(): bool
+    {
+        return (bool) $this->maximum_dirty;
+    }
+
+    /**
+     * @param bool $maximum_dirty
+     * @return Course
+     */
+    public function withMaximumDirty(bool $maximum_dirty): Course
+    {
+        $clone = clone $this;
+        $this->maximum_dirty = (int) $maximum_dirty;
         return $clone;
     }
 }

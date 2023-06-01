@@ -140,16 +140,41 @@ class SyncWithCampo extends SyncBase
                 $record->getTargetGroup()
             );
             if (isset($existing[$course->key()])) {
+                $old = $existing[$course->key()];
                 $course = $course
-                    ->withIliasObjId($existing[$course->key()]->getIliasObjId())
-                    ->withIliasProblem($existing[$course->key()]->getIliasProblem())
-                    ->withIliasDirtySince($existing[$course->key()]->getIliasDirtySince());
+                    ->withIliasObjId($old->getIliasObjId())
+                    ->withIliasProblem($old->getIliasProblem())
+                    ->withIliasDirtySince($old->getIliasDirtySince())
+                    ->withTitleDirty($old->isTitleDirty())
+                    ->withDescriptionDirty($old->isDescriptionDirty())
+                    ->withEventTitleDirty($old->isEventTitleDirty())
+                    ->withEventDescriptionDirty($old->isEventDescriptionDirty())
+                    ->withMaximumDirty($old->isMaximumDirty());
 
-                if ($existing[$course->key()]->hash() != $course->hash()) {
+                if ($old->hash() != $course->hash()) {
+                    if ($old->getTitle() != $course->getTitle()
+                        || $old->getKParallelgroupId() != $course->getKParallelgroupId()) {
+                        $course = $course->withTitleDirty(true);
+                    }
+                    if ($old->getHoursPerWeek() != $course->getHoursPerWeek()
+                        || $old->getTeachingLanguage() != $course->getTeachingLanguage()) {
+                        $course = $course->withDescriptionDirty(true);
+                    }
+                    if ($old->getAttendeeMaximum() != $course->getAttendeeMaximum()) {
+                        $course = $course->withMaximumDirty(true);
+                    }
+            
+                    // set the general update trigger
                     $this->study->repo()->save($course->asChanged(true));
                 }
             } elseif (!$course->isDeleted()) {
-                $this->study->repo()->save($course->asChanged(true));
+                $this->study->repo()->save($course
+                    ->withTitleDirty(true)
+                    ->withDescriptionDirty(true)
+                    ->withEventTitleDirty(true)
+                    ->withEventDescriptionDirty(true)
+                    ->withMaximumDirty(true)
+                    ->asChanged(true));
             }
             // course is still needed
             unset($existing[$course->key()]);
@@ -247,6 +272,8 @@ class SyncWithCampo extends SyncBase
         /** @var Event[] $existing */
         $existing = $this->sync->repo()->getAllForSync(Event::model());
         $touched = [];
+        $title_dirty = [];
+        $description_dirty = [];
 
         foreach ($this->staging->repo()->getEvents() as $record) {
             $entry = new Event(
@@ -257,7 +284,19 @@ class SyncWithCampo extends SyncBase
                 $record->getComment(),
                 $record->getGuest()
             );
-            if (!isset($existing[$entry->key()]) || $existing[$entry->key()]->hash() != $entry->hash()) {
+            if (!isset($existing[$entry->key()])) {
+                $this->study->repo()->save($entry);
+                $touched[$entry->getEventId()] = true;
+            }
+            elseif ($existing[$entry->key()]->hash() != $entry->hash()) {
+                $old = $existing[$entry->key()];
+                if ($old->getTitle() != $entry->getTitle()) {
+                    $title_dirty[$entry->getEventId()] = true;
+                }
+                if ($old->getEventtype() != $entry->getEventtype()
+                    || $old->getShorttext() != $entry->getShorttext()) {
+                    $description_dirty[$entry->getEventId()] = true;    
+                }
                 $this->study->repo()->save($entry);
                 $touched[$entry->getEventId()] = true;
             }
@@ -274,6 +313,12 @@ class SyncWithCampo extends SyncBase
         // set the related courses as changed to trigger an update
         if (!empty($touched)) {
             foreach ($this->study->repo()->getCoursesOfEvents(array_keys($touched), false) as $course) {
+                if (isset($title_dirty[$course->getEventId()])) {
+                    $course = $course->withEventTitleDirty(true);
+                }
+                if (isset($description_dirty[$course->getEventId()])) {
+                    $course = $course->withEventDescriptionDirty(true);
+                }
                 $this->study->repo()->save($course->asChanged(true));
             }
         }

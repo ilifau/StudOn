@@ -1742,6 +1742,13 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_123();
 ?>
+<#124>
+<?php
+/**
+ * fau: fauService - add dirty flags for fields
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_124();
+?>
 
 
 

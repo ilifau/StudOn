@@ -42,7 +42,7 @@ class fauCourseSettingsGUI extends BaseGUI
         $import_id = \FAU\Study\Data\ImportId::fromString($object->getImportId());
         if ($import_id->isForCampo()) {
             foreach($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($object->getId()) as $course) {
-                $course = $course->withNeedsPassed((int) $form->getInput('needs_passed'));
+                $course = $course->withNeedsPassed((bool) $form->getInput('needs_passed'));
                 $this->dic->fau()->study()->repo()->save($course);
                 return;
             }
