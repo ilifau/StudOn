@@ -201,9 +201,9 @@ class ilExAssignmentEditorGUI
         $ilCtrl = $this->ctrl;
 
         $ilToolbar->setFormAction($ilCtrl->getFormAction($this, "addAssignment"));
-
-        $ilToolbar->addStickyItem($this->getTypeDropdown());
-
+        
+        $ilToolbar->addStickyItem($this->getTypeDropdown(), true);
+        
         $button = ilSubmitButton::getInstance();
         $button->setCaption("exc_add_assignment");
         $button->setCommand("addAssignment");
@@ -478,12 +478,14 @@ class ilExAssignmentEditorGUI
 
         $desc_input = new ilTextAreaInputGUI($lng->txt("exc_instruction"), "instruction");
         $desc_input->setRows(20);
-        $desc_input->setUseRte(true);
-        // fau: exInstRte - allow latex and set the allowed tags according to the administration settings
+        if (ilObjAdvancedEditing::_getRichTextEditor() === "tinymce") {
+            $desc_input->setUseRte(true);
+            // fau: exInstRte - allow latex and set the allowed tags according to the administration settings
         $desc_input->addPlugin("latex");
         $desc_input->addButton("latex");
         $desc_input->setRTESupport(ilObject::_lookupObjId((int) $_GET['ref_id']), "exc", "exc_ass");
         $desc_input->setRteTags(ilObjAdvancedEditing::_getUsedHTMLTags("exc_ass"));
+        }
         // fau.
         $form->addItem($desc_input);
 

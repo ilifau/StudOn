@@ -681,6 +681,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $link = $this->ctrl->getLinkTargetByClass(get_class($this->getParentObject()), 'sendMailToSelectedUsers');
             $this->tpl->setVariable('MAIL_LINK', $link);
             $this->tpl->setVariable('MAIL_TITLE', $this->lng->txt('crs_mem_send_mail'));
+            $this->ctrl->setParameterByClass(get_class($this->getParentObject()), 'member_id', null);
             return true;
         }
         
@@ -702,6 +703,7 @@ class ilWaitingListTableGUI extends ilTable2GUI
             $this->ctrl->setParameterByClass('ilobjectcustomuserfieldsgui', 'member_id', $a_set['usr_id']);
             $trans = $this->lng->txt($this->getRepositoryObject()->getType() . '_cdf_edit_member');
             $list->addItem($trans, '', $this->ctrl->getLinkTargetByClass('ilobjectcustomuserfieldsgui', 'editMember'));
+            $this->ctrl->setParameterByClass(get_class($this->getParentObject()), 'member_id', null);
         }
 
         if ($a_set['to_confirm']) {

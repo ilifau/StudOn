@@ -113,8 +113,8 @@
 		<xsl:value-of select="$pg_title"/>
 		</h1>
 	</xsl:if>
-	<xsl:if test="$page_toc = 'y' and $mode != 'edit'">{{{{{PageTOC}}}}}</xsl:if>
 	<xsl:comment>COPage-PageTop</xsl:comment>
+	<xsl:if test="$page_toc = 'y' and $mode != 'edit'">{{{{{PageTOC}}}}}</xsl:if>
 	<xsl:if test="$mode = 'edit'">
 		<xsl:if test="$javascript = 'enable'">
 			<div data-copg-ed-type="add-area">
@@ -1918,7 +1918,9 @@
 		<xsl:if test="$mode != 'print'">
 			<xsl:if test="$mode != 'offline'">
 				<a class="ilc_flist_a_FileListItemLink" target="_blank">
-					<xsl:attribute name="href"><xsl:value-of select="$file_download_link"/>&amp;file_id=<xsl:value-of select="./Identifier/@Entry"/></xsl:attribute>
+					<xsl:if test="$enable_href">
+						<xsl:attribute name="href"><xsl:value-of select="$file_download_link"/>&amp;file_id=<xsl:value-of select="./Identifier/@Entry"/></xsl:attribute>
+					</xsl:if>
 					<xsl:call-template name="FileItemText"/>
 				</a>
 			</xsl:if>
@@ -2478,7 +2480,7 @@
 		<!-- text/html -->
 		<xsl:when test="$type = 'text/html'">
 			<xsl:if test = "$enable_html_mob = 'y'">
-				<iframe frameborder="0">
+				<iframe frameborder="0" style="width: 100%;">
 					<xsl:attribute name="src"><xsl:value-of select="$data"/></xsl:attribute>
 					<xsl:if test="$width != ''">
 						<xsl:attribute name="width"><xsl:value-of select="$width"/></xsl:attribute>

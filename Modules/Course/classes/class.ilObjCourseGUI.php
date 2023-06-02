@@ -324,7 +324,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->lng->txt('crs_important_info'),
                 "<strong>" . nl2br(
                     ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
-                               )
+                )
             );
         }
             // fau.
@@ -1739,7 +1739,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getNumberOfPreviousSessions() == -1 ?
                         '' :
                         $this->object->getNumberOfPreviousSessions()
-                    );
+        );
         $prev->setSize(2);
         $prev->setMaxLength(3);
         $sess->addSubItem($prev);
@@ -1751,7 +1751,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getNumberOfNextSessions() == -1 ?
                         '' :
                         $this->object->getNumberOfnextSessions()
-                    );
+        );
         $next->setSize(2);
         $next->setMaxLength(3);
         $sess->addSubItem($next);
@@ -1857,7 +1857,7 @@ class ilObjCourseGUI extends ilContainerGUI
                     ilObjectServiceSettingsGUI::BOOKING,
                     ilObjectServiceSettingsGUI::EXTERNAL_MAIL_PREFIX
                 )
-            );
+        );
 
         $mem = new ilCheckboxInputGUI($this->lng->txt('crs_show_members'), 'show_members');
         $mem->setChecked($this->object->getShowMembers());
@@ -2149,7 +2149,7 @@ class ilObjCourseGUI extends ilContainerGUI
             (
                 ilObjUserTracking::_enabledLearningProgress() and
             ilObjUserTracking::_enabledUserRelatedData()
-        );
+            );
         if ($this->show_tracking) {
             include_once('./Services/Object/classes/class.ilObjectLP.php');
             $olp = ilObjectLP::getInstance($this->object->getId());
@@ -2371,7 +2371,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->getLinkTargetByClass(
                     array("ilobjcoursegui", "ilinfoscreengui"),
                     "showSummary"
-                                 ),
+                ),
                 "infoScreen"
             );
         }
@@ -2489,7 +2489,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->getLinkTargetByClass(
                     array("ilobjcoursegui", "ilinfoscreengui"),
                     "showSummary"
-                                 ),
+                ),
                 "infoScreen",
                 "",
                 "",
@@ -2962,6 +2962,9 @@ class ilObjCourseGUI extends ilContainerGUI
                 include_once './Modules/Course/classes/Objectives/class.ilLOEditorGUI.php';
                 $editor = new ilLOEditorGUI($this->object);
                 $this->ctrl->forwardCommand($editor);
+                if (strtolower($this->ctrl->getCmdClass()) === "illopagegui") {
+                    $header_action = false;
+                }
                 break;
             
             case 'ilcontainerstartobjectsgui':

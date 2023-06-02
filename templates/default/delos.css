@@ -8718,6 +8718,12 @@ fieldset[disabled] .il-table-presentation-viewcontrols .btn-default.engaged.focu
 .il-table-presentation-row .il-table-presentation-actions {
   margin: 5px 0;
 }
+.il-table-presentation-row .il-table-presentation-actions:not(:empty) + .il-table-presentation-row-header {
+  max-width: calc(100% - 11rem);
+}
+.il-table-presentation-row .il-table-presentation-row-header {
+  min-height: 34px;
+}
 .il-table-presentation-row .il-table-presentation-row-header h4 {
   font-size: 17px;
   font-weight: normal;
@@ -8797,6 +8803,9 @@ fieldset[disabled] .il-table-presentation-viewcontrols .btn-default.engaged.focu
 }
 .il-table-data .header.cell {
   font-weight: bold;
+}
+.il-workflow {
+  word-break: break-word;
 }
 .il-workflow-header .il-workflow-title {
   background-color: #f0f0f0;
@@ -10343,9 +10352,6 @@ footer {
 .il-maincontrols-footer .il-footer-permanent-url {
   float: left;
   margin-right: 5px;
-}
-.il-maincontrols-footer .il-footer-permanent-url #current_perma_link {
-  width: 20em;
 }
 .il-maincontrols-footer .il-footer-text {
   float: left;
@@ -14301,7 +14307,6 @@ html.ilc_Fullscreen td > div,
 body.ilc_Fullscreen td > div,
 html.ilc_Fullscreen td > div > figure > div > iframe,
 body.ilc_Fullscreen td > div > figure > div > iframe {
-  height: 100%;
   width: 100%;
 }
 div.ilLMMenu {

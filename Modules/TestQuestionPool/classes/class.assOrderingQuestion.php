@@ -352,6 +352,11 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             }
             foreach ($this->getOrderingElementList() as $element) {
                 $filename = $element->getContent();
+
+                if($filename === "" || $filename === null) {
+                    continue;
+                }
+
                 if (!file_exists($imagepath_original . $filename)
                     || !copy($imagepath_original . $filename, $imagepath . $filename)) {
                     $ilLog->write("image could not be duplicated!!!!");
@@ -1062,6 +1067,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
             foreach ($solutions as $solution) {
                 if ($solution["value1"] == $idx) {
                     $worksheet->setCell($startrow + $i, 0, $solution["value2"]);
+                    $worksheet->setBold($worksheet->getColumnCoord(0) . ($startrow + $i));
                 }
             }
             $element = $this->getOrderingElementList()->getElementBySolutionIdentifier($idx);
