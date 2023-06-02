@@ -165,34 +165,35 @@ class SyncWithIlias extends SyncBase
                 }
             }
             else {
-                // check what to create
-                if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) == 1) {
-                    // single parallel groups are created as courses
-                    $action = 'create_single_course';
-                }
-                else {
-                    // multiple parallel groups are created as groups in a course by default
-                    $action = "create_course_and_group";
+                // Default action for a single parallel group
+                $action = 'create_single_course';
 
-                    // check if other parallel groups already have ilias objects
-                    // don't use cache because we are in an update loop
+                // Specific actions for multipe parallel groups
+                if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
+                    
+                    // collect existing ilias object for the event and term
+                    $other_refs = [];
                     foreach ($this->study->repo()->getCoursesOfEventInTerm($event->getEventId(), $term, false) as $other) {
                         if ($other->getCourseId() != $course->getCourseId()
                             && !$other->isDeleted()
                             && !empty($other_ref_id = $this->ilias->objects()->getIliasRefIdForCourse($other))) {
                             $other_refs[] = $other_ref_id;
-                            switch (ilObject::_lookupType($other_ref_id, true)) {
-                                case 'crs':
-                                    // other parallel groups are already ilias courses, create the same
-                                    $action = 'create_single_course';
-                                    break;
-                                case 'grp':
-                                    // other parallel groups are ilias groups, create the new in the same course
-                                    $action = 'create_group_in_course';
-                                    $parent_ref = $this->dic->repositoryTree()->getParentId($other_ref_id);
-                                    break;
-                            }
                         }
+                    }
+                    if (count($other_refs) == 0) {
+                        // parent course with the first parallel group has to be created
+                        $action = "create_course_and_group";
+                    }
+                    else if (count($other_refs) == 1 && ilObject::_lookupType($other_refs[0], true) == 'crs') {
+                        // single course has to be converted to a parent course, then the new group can be created within
+                        $action = "create_group_in_course";
+                        $parent_ref = $other_refs[0];
+                        $courseObj = new ilObjCourse($parent_ref);
+                        $this->dic->fau()->ilias()->transfer()->changeCampoCourseToNested($courseObj);
+                    }
+                    elseif(!empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($other_refs[0]))) {
+                        // group can just be created in the parent course
+                        $action = "create_group_in_course";
                     }
                 }
 
@@ -543,10 +544,10 @@ class SyncWithIlias extends SyncBase
         
         if ($is_parallel_group) {
             if ($course->isTitleDirty() || !$manually_changed) {
-                $object->setTitle($this->buildTitle($term, $event, $course));
+                $object->setTitle($this->ilias->objects()->buildTitle($term, $event, $course));
             }
             if ($course->isDescriptionDirty() || $course->isEventDescriptionDirty() || !$manually_changed) {
-                $object->setDescription($this->buildDescription($event, $course));
+                $object->setDescription($this->ilias->objects()->buildDescription($event, $course));
             }
             if ($course->isMaximumDirty() || !$manually_changed) {
                 if(empty($course->getAttendeeMaximum())) {
@@ -564,10 +565,10 @@ class SyncWithIlias extends SyncBase
         }
         else {
             if ($course->isEventTitleDirty() || !$manually_changed) {
-                $object->setTitle($this->buildTitle($term, $event, null));
+                $object->setTitle($this->ilias->objects()->buildTitle($term, $event, null));
             }
             if ($course->isEventDescriptionDirty() || !$manually_changed) {
-                $object->setDescription($this->buildDescription($event, null));
+                $object->setDescription($this->ilias->objects()->buildDescription($event, null));
             }
         }
         
@@ -589,10 +590,10 @@ class SyncWithIlias extends SyncBase
         $manually_changed = $this->isObjectManuallyChanged($object);
         
         if ($course->isTitleDirty() || !$manually_changed) {
-            $object->setTitle($this->buildTitle($term, $event, $course));
+            $object->setTitle($this->ilias->objects()->buildTitle($term, $event, $course));
         }
         if ($course->isDescriptionDirty() || $course->isEventDescriptionDirty() || !$manually_changed) {
-            $object->setDescription($this->buildDescription($event, $course));
+            $object->setDescription($this->ilias->objects()->buildDescription($event, $course));
         }
         if ($course->isMaximumDirty() || !$manually_changed) {
             if(empty($course->getAttendeeMaximum())) {
@@ -613,48 +614,7 @@ class SyncWithIlias extends SyncBase
             $this->sync->repo()->resetObjectLastUpdate($object->getId());
         }
     }
-
-    /**
-     * Build the object title
-     */
-    protected function buildTitle(Term $term, Event $event, ?Course $course) : string
-    {
-        if (isset($course)) {
-            $title = $course->getTitle();
-            if ($this->study->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
-                $title .= $course->getKParallelgroupId() ? ' ( ' . $this->lng->txt('fau_campo_course') . ' ' . $course->getKParallelgroupId() . ')' : '';
-            }
-        }
-        else {
-            $title = $event->getTitle();
-        }
-        return (string) $title;
-    }
-
-    /**
-     * Build the object description
-     */
-    protected function buildDescription(Event $event, ?Course $course) : string
-    {
-        $desc = [];
-        if ($event->getEventtype()) {
-            $desc[] = $event->getEventtype();
-        }
-        if ($event->getShorttext()) {
-            $desc[] = $event->getShorttext();
-        }
-        if (isset($course)) {
-            if ($course->getHoursPerWeek()) {
-                $desc[] = $course->getHoursPerWeek() . ' ' . $this->lng->txt('fau_sws');
-            }
-            if ($course->getTeachingLanguage()) {
-                $desc[] = $course->getTeachingLanguage();
-            }
-        }
-
-        return implode(', ', $desc);
-    }
-
+    
     /**
      * Check if an object has been manually changed
      */

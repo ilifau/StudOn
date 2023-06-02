@@ -18,9 +18,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.sendMailsToSolveConflicts');
 
 //$p->applyPatch('ilFauPatches.syncPersonData');
-$p->applyPatch('ilFauPatches.syncCampoData');
-$p->applyPatch('ilFauPatches.syncWithIlias');
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
+//$p->applyPatch('ilFauPatches.syncCampoData');
+//$p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.syncToCampo');
 
 //$p->applyPatch('ilFauPatches.findParentCategoryForEvent', ['event_id' => 111384]);
@@ -28,7 +27,7 @@ $p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
 
 // Create or Update ILI courses
-//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2426]);
+//$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);

@@ -142,6 +142,57 @@ class Transfer
     }
 
     /**
+     * Change an ilias course to a course with enclosed parallel grup
+     */
+    public function changeCampoCourseToNested(ilObjCourse $source) : bool
+    {
+        // deactivate event listener to avoid messages to campo
+        $listener_active = ilFAUAppEventListener::getInstance()->isActive();
+        ilFAUAppEventListener::getInstance()->setActive(false);
+
+        $import_id = ImportId::fromString($source->getImportId());
+        $term = Term::fromString($import_id->getTermId());
+
+        $course = $this->dic->fau()->study()->repo()->getCourse($import_id->getCourseId());
+        $event = $this->dic ->fau()->study()->repo()->getEvent($import_id->getEventId());
+
+        if (!isset($course) || !isset($event)) {
+            return false;
+        }
+
+        // greate group in course with needed settungs
+        $target = $this->dic->fau()->ilias()->objects()->createIliasGroup($source->getRefId(), $term, $event, $course);
+        $target->setImportId($import_id->toString());
+        $target->setOwner($source->getOwner());
+        $target->setTitle($this->dic->fau()->ilias()->objects()->buildTitle($term, $event, $course));
+        $target->setDescription($this->dic->fau()->ilias()->objects()->buildDescription($event, $course));
+        $target->enableMembershipLimitation($source->isSubscriptionMembershipLimited());
+        $target->setMaxMembers($source->getSubscriptionMaxMembers());
+        $target->setMinMembers($source->getSubscriptionMinMembers());
+        $target->update();
+
+        // change the course to a parent course for parallel groups
+        $import_id = $import_id->withCourseId(null);
+        $source->setImportId($import_id->toString());
+        $source->setTitle($this->dic->fau()->ilias()->objects()->buildTitle($term, $event, null));
+        $source->setDescription($this->dic->fau()->ilias()->objects()->buildDescription($event, null));
+        $source->enableSubscriptionMembershipLimitation(false);
+        $source->setSubscriptionMaxMembers(null);
+        $source->setSubscriptionMinMembers(null);
+        $source->update();
+        $source->applyDidacticTemplate($this->dic->fau()->tools()->settings()->getCourseDidacticTemplateId());
+
+        // save the new course relation
+        $this->dic->fau()->study()->repo()->save($course->withIliasObjId($target->id));
+
+        $this->addCourseParticipantsToGroup($source, $target);
+        $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
+
+        ilFAUAppEventListener::getInstance()->setActive($listener_active);
+        return true;
+    }
+
+    /**
      * Solve conflicts with multipe campo connections (import ids)
      */
     public function solveCourseConflicts(ImportId $import_id, ilObjCourse $target)
@@ -160,7 +211,8 @@ class Transfer
                     if (!ilObject::_isInTrash($ref_id)) {
                         $source = new ilObjCourse($ref_id);
                         $this->moveParticipants($source->getMembersObject(), $target->getMembersObject(), IL_CRS_MEMBER, IL_CRS_MEMBER);
-                        $this->dic->fau()->ilias()->repo()->moveWaitingList($source->getId(), $target->getId());
+                        $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
+                        $this->dic->fau()->ilias()->repo()->clearWaitingList($source->getId());
                         $source->setImportId(null);
                         $source->setOfflineStatus(true);
                         $source->update();
@@ -200,7 +252,8 @@ class Transfer
         }
 
         $this->moveGroupToCourseParticipants($parent, $source, $target);
-        $this->dic->fau()->ilias()->repo()->moveWaitingList($source->getId(), $target->getId());
+        $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
+        $this->dic->fau()->ilias()->repo()->clearWaitingList($source->getId());
     }
 
 
@@ -321,6 +374,30 @@ class Transfer
         $this->moveParticipants($parentMembers, $targetMembers, IL_CRS_ADMIN, IL_CRS_ADMIN);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_ADMIN, IL_CRS_ADMIN);
         $this->moveParticipants($sourceMembers, $targetMembers, IL_GRP_MEMBER, IL_CRS_MEMBER);
+    }
+
+    /**
+     * Move the group participants from group to a course
+     */
+    protected function addCourseParticipantsToGroup(ilObjCourse $source, ilObjGroup $target)
+    {
+        $sourceMembers = $source->getMembersObject();
+        $targetMembers = $target->getMembersObject();
+
+
+        // do first to keep the module selection
+        $this->dic->fau()->user()->repo()->moveMembers($source->getId(), $target->getId());
+        
+        foreach ($this->dic->fau()->user()->repo()->getMembersOfObject($target->getId()) as $member) {
+            // don't add the event responsibles to the group
+            if ($member->isCourseResponsible() || $member->isInstructor() || $member->isIndividualInstructor()) {
+                $targetMembers->add($member->getUserId(), IL_GRP_ADMIN);
+            }
+        }
+
+        foreach($sourceMembers->getMembers() as $user_id) {
+            $targetMembers->add($user_id, IL_GRP_MEMBER);
+        }
     }
 
 

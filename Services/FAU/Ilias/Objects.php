@@ -405,4 +405,49 @@ class Objects
         $object->applyDidacticTemplate($this->settings->getGroupDidacticTemplateId());
         return $object;
     }
+
+
+    /**
+     * Build the object title
+     */
+    public function buildTitle(Term $term, Event $event, ?Course $course) : string
+    {
+        if (isset($course)) {
+            $title = $course->getTitle();
+            if ($this->dic->fau()->study()->repo()->countCoursesOfEventInTerm($event->getEventId(), $term) > 1) {
+                $title .= $course->getKParallelgroupId() 
+                    ? ' ( ' . $this->dic->language()->txt('fau_campo_course') . ' ' . $course->getKParallelgroupId() . ')' 
+                    : '';
+            }
+        }
+        else {
+            $title = $event->getTitle();
+        }
+        return (string) $title;
+    }
+
+    /**
+     * Build the object description
+     */
+    public function buildDescription(Event $event, ?Course $course) : string
+    {
+        $desc = [];
+        if ($event->getEventtype()) {
+            $desc[] = $event->getEventtype();
+        }
+        if ($event->getShorttext()) {
+            $desc[] = $event->getShorttext();
+        }
+        if (isset($course)) {
+            if ($course->getHoursPerWeek()) {
+                $desc[] = $course->getHoursPerWeek() . ' ' . $this->dic->language()->txt('fau_sws');
+            }
+            if ($course->getTeachingLanguage()) {
+                $desc[] = $course->getTeachingLanguage();
+            }
+        }
+
+        return implode(', ', $desc);
+    }
+
 }
