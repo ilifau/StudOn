@@ -179,13 +179,6 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         include_once('./Services/Calendar/classes/class.ilDateTime.php');
         $now = new ilDateTime(time(), IL_CAL_UNIX, 'UTC');
 
-        // fau: campusSub - no registration period for subscription by my campus
-        if ($this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
-            or $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
-            return true;
-        }
-        // fau.
-
         // fau: objectSub - no registration period for subscription by object
         if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
             return true;
@@ -270,13 +263,6 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         global $DIC;
         
         $ilUser = $DIC['ilUser'];
-        
-        // fau: campusSub - no membership info for subscription by my campus
-        if ($this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
-            or $this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
-            return true;
-        }
-        // fau.
 
         // fau: objectSub - no max members for subscription by object
         if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
@@ -391,24 +377,6 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
         
         $ilUser = $DIC['ilUser'];
         
-        // fau: campusSub - handle subscription by my campus
-        if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_MYCAMPUS
-            or $this->container->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
-            $reg = new ilCustomInputGUI($this->lng->txt('mem_reg_type'));
-
-            $reg->setHtml(sprintf(
-                $this->lng->txt('crs_subscription_mycampus_registration'),
-                ilUtil::getImagePath('studon/meinCampusSmall.gif'),
-                sprintf(ilCust::get('mycampus_reg_url'), $this->container->getImportId())
-            ));
-            $this->form->addItem($reg);
-
-            // Disable registration
-            $this->enableRegistration(false);
-            return true;
-        }
-        // fau.
-
         // fau: objectSub - fill registration by separate object
         if ($this->container->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
             return $this->fillRegistrationTypeObject($this->container->getSubscriptionRefId());

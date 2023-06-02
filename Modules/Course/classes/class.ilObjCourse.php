@@ -1434,9 +1434,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             "contact_email = " . $ilDB->quote($this->getContactEmail(), 'text') . ", " .
             "contact_consultation = " . $ilDB->quote($this->getContactConsultation(), 'text') . ", " .
             "activation_type = " . $ilDB->quote(!$this->getOfflineStatus(), 'integer') . ", " .
-            // fau: campusSub - cast time limit activation
-            "sub_limitation_type = " . $ilDB->quote((int) $this->getSubscriptionLimitationType(), 'integer') . ", " .
-            // fau.
+            "sub_limitation_type = " . $ilDB->quote($this->getSubscriptionLimitationType(), 'integer') . ", " .
             // fau: objectSub - save sub_ref_id
             "sub_ref_id = " . $ilDB->quote($this->getSubscriptionRefId(), 'integer') . ", " .
             // fau.

@@ -167,7 +167,7 @@ class ilTestCampoTools
     }
     
     /**
-     * create the export files for my campus
+     * create the export files for campo
      */
     public function createExportFiles()
     {

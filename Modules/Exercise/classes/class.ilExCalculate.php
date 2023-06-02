@@ -143,7 +143,7 @@ class ilExCalculate
     
     
     /**
-     * write the mycampus options for this test to the datebase
+     * write the options for this test to the datebase
      */
     public function writeOptions()
     {

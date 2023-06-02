@@ -37,35 +37,6 @@ assessment#:#ass_campo_other_fields#:#Weitere Felder###fau: campoGrades
 assessment#:#ass_campo_test_date#:#individuelles Prüfungsdatum###fau: campoGrades
 assessment#:#ass_campo_test_starttime#:#individieller Prüfungsbeginn###fau: campoGrades
 assessment#:#ass_create_export_campo#:#Erstelle Ergebnisdatei für campo###fau: campoGrades
-assessment#:#ass_create_export_mycampus#:#Erstelle Ergebnisdatei für mein campus
-assessment#:#ass_mycampus_exam_number#:#Prüfungsnummer
-assessment#:#ass_mycampus_exam_number_info#:#Die Prüfungsnummer wird zur korrekten Bennung der Export-Datei benötigt. Bitte importieren Sie die Datei in <i>mein campus</i> mit dem erzeugten Namen.<br />Wenn der StudOn-Test für mehrere Prüfungen verwendet wurde, verwenden Sie die Option "Angemeldete Teilnehmer" um für jede Prüfungs eine eigene Datei auszugeben.
-assessment#:#ass_mycampus_export#:#Ergebnisse für die Notenverbuchung in <i>mein campus</i> exportieren
-assessment#:#ass_mycampus_export_all#:#Alle Teilnehmer
-assessment#:#ass_mycampus_export_all_info#:#Exportiert alle Ergebnisse. <strong>Beim Import in <i>mein campus</i> werden nicht angemeldete Teilnehmer hinzugefügt!</strong>
-assessment#:#ass_mycampus_export_forbidden#:#Um die Ergebnisse für <i>mein campus</i> zu exportieren, müssen Sie das Recht zum Teilnehmerdatenexport haben.<br /><a href="%s">Hier können Sie den Antrag dazu stellen</a>.
-assessment#:#ass_mycampus_export_registered#:#Angemeldete Teilnehmer
-assessment#:#ass_mycampus_export_registered_info#:#Exportiert nur die für eine Prüfung in <i>mein campus</i> angemeldeten Teilnehmer.
-assessment#:#ass_mycampus_export_scope#:#Teilnehmer-Auswahl
-assessment#:#ass_mycampus_file_written#:#Die Ergebnisdatei für <i>mein campus</i> wurde geschrieben.
-assessment#:#ass_mycampus_filter_export#:#Export einschränken
-assessment#:#ass_mycampus_marked#:#benotet
-assessment#:#ass_mycampus_marked_info#:#Bei benoteten Prüfungen muss in <i>mein campus </i> eine korrekte Drittelnote in einer der folgenden Formatierungen eingetragen werden: "1,3", "2.7" oder "400".<br />Bitte geben Sie an, welche Bezeichnung aus dem Notenschema dieses Tests exportiert werden soll. Deren Notenstufen müssen der genannten Formatierung entsprechen.
-assessment#:#ass_mycampus_mark_field#:#Exportierte Note
-assessment#:#ass_mycampus_mark_field_official#:#Offizielle Bezeichnung
-assessment#:#ass_mycampus_mark_field_short#:#Kurzbezeichnung
-assessment#:#ass_mycampus_matcol_not_found#:#Die csv-Datei wurde nicht als Liste von Anmeldungen erkannt!<br />Sie muss in der ersten Zeile die Spaltenbezeichnungen enthalten.<br />Eine Spalte muss als <b>mtknr</b> bezeichnet sein und die Matrikelnummer der angemeldeten Nutzer enthalten.<br />Das Trennzeichen für die Spalten muss <b>;</b> sein.
-assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
-assessment#:#ass_mycampus_not_marked#:#unbenotet
-assessment#:#ass_mycampus_not_marked_info#:#Bei unbenoteten Prüfungen wird für "bestanden" ein "+" und für "nicht bestanden" ein "-" ausgegeben.
-assessment#:#ass_mycampus_other_fields#:#Weitere Felder
-assessment#:#ass_mycampus_other_fields_info#:#Lassen Sie diese Auswahlen leer, wenn es beim Import in <i>mein campus</i> Probleme damit gibt.<br />Minimal wird die Matrikelnummer und die Bewertung exportiert.
-assessment#:#ass_mycampus_rating_type#:#Bewertungsart
-assessment#:#ass_mycampus_registrations_file#:#Prüfungsanmeldungen
-assessment#:#ass_mycampus_registrations_file_info#:#Wählen Sie hier die CSV-Datei die Sie für die Prüfung aus <i>mein campus</i> exportiert haben. Die erzeugte Ergebnisdatei wird den gleichen Namen haben.
-assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die Anmeldedatei ist falsch benannt. Sie muss wie <strong>prf_123.csv</strong> heißen, wobei 123 die Prüfungsnummer ist.
-assessment#:#ass_mycampus_test_date#:#individuelles Prüfungsdatum
-assessment#:#ass_mycampus_test_starttime#:#individieller Prüfungsbeginn
 assessment#:#detailed_output_scoring#:#Detailansgabe mit Lösungen und Punkten
 assessment#:#err_cloze_not_numeric#:#Sie haben Text in eine Lücke eingegeben, die einen Zahlenwert erfordert!
 assessment#:#fq_err_no_numeric_value#:#Bitte geben Sie einen numerischen Wert oder einen Bruch ein.
@@ -173,8 +144,6 @@ common#:#crs_create_perc#:#Neues Perception-Assessment anlegen
 common#:#distinct_registrations#:#Verschiedene Anmeldungen
 common#:#dummy_admin_firstname_tca#:#TCA
 common#:#dummy_admin_lastname_tca#:#Kursadminstrator
-common#:#dummy_user_firstname_mycampus#:#mein campus
-common#:#dummy_user_lastname_mycampus#:#Kursanmeldung
 common#:#duration#:#Dauer
 common#:#err_wrong_login_assist#:#<p>Bitte prüfen Sie, ob die lokale Anmeldung richtig für Sie ist:</p><ul><li>Als FAU-Mitglied mit IDM-Kennung verwenden Sie bitte das <a href="saml_login.php">Single Sign-On</a></li><li>Als externes Mitglied in einem Kurs der virtuellen Hochschule Bayern (vhb) melden Sie sich bitte über das <a href="https://www.vhb.org">vhb-Portal</a> an.</li><li>Als Teilnehmer/in an Schulungen des RRZE melden sich Sie sich bitte über das <a href="https://www.kurse.rrze.fau.de">Schulungszentrum</a> des RRZE an.</li></ul><p>Wenn keiner der obigen Punkte zutrifft und Sie sich nicht mehr an Ihre StudOn-Zugangsdaten erinnern können, verwenden Sie bitte Sie die Funktion <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToPasswordAssistance">Passwort vergessen</a>. Falls das nicht funktioniert, wenden Sie sich bitte an <a href="mailto:studon@fau.de">studon@fau.de</a>.</p></div>
 common#:#eval_mark_for_evaluation#:#Zur Lehrevaluation vorsehen
@@ -424,18 +393,8 @@ crs#:#crs_subscription_event_free#:#Frei
 crs#:#crs_subscription_event_location#:#Ort:
 crs#:#crs_subscription_event_referee#:#Referent/in:
 crs#:#crs_subscription_event_registered#:#Angemeldet
-crs#:#crs_subscription_mycampus#:#Anmeldung über <em>mein campus</em>
-crs#:#crs_subscription_mycampus_info#:#Die Anmeldung erfolgt über das System <em>mein campus</em>. Voraussetzung dafür ist ein Import der Veranstaltungsdaten aus UnivIS. Diese können sie unter "Inhalt / Univis-Import" vornehmen.
-crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>Der Beitritt zu diesem Kurs erfolgt über das System <em>mein campus</em>. Der folgende Link führt Sie zur Startseite von <em>mein campus</em>. Nach dem Login gelangen Sie automatisch zur Anmeldeseite des Kurses.</p><p><a target="_blank" href="%s"><strong>Beitritt über mein campus</strong> (neues Fenster)</a></p>
 crs#:#crs_subscription_options_direct_studycond#:#Direkter Beitritt (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
 crs#:#crs_subscription_options_password_studycond#:#Beitritt mit Kurspasswort (sonst Aufnahmeantrag) für folgende Studierende:<p class="small">%s</p>
-crs#:#crs_sync_my_campus#:#mein campus-Anmeldungen übertragen
-crs#:#crs_sync_my_campus_added#:#Die folgenden Kursmitglieder wurden aus mein campus übernommen : %s.
-crs#:#crs_sync_my_campus_empty#:#Es sind keine übertragbaren Anmeldungen in mein campus vorhanden!
-crs#:#crs_sync_my_campus_failure_connect#:#Konnte keine Verbindung zu mein campus aufbauen!
-crs#:#crs_sync_my_campus_failure_participants#:#Die Anmeldedaten für diesen Kurs konnten nicht abgerufen werden!
-crs#:#crs_sync_my_campus_ok#:#Die Anmeldungen aus mein campus sind als Mitglieder übernommen.
-crs#:#crs_sync_my_campus_waiting#:#Die folgenden Nutzer stehen in mein campus auf der warteliste und müssen dort noch bestätigt werden: %s.
 crs#:#event_enabled#:#Aktiviert
 crs#:#event_max_participants#:#Maximale Teilnehmerzahl
 crs#:#event_max_participants_info#:#Legen Sie hier die maximale Anzahl von Sitzunsteilnehmern fest. Wird die Zahl überschritten, sind keine Anmeldungen mehr möglich ('0' bedeutet unbegrenzt).

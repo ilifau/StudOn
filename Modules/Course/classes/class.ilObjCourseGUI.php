@@ -478,12 +478,6 @@ class ilObjCourseGUI extends ilContainerGUI
                 $txt = $this->lng->txt("crs_info_reg_deactivated");
                 break;
 
-// fau: campusSub - show subscription type mycampus
-            case IL_CRS_SUBSCRIPTION_MYCAMPUS:
-                $txt = $this->lng->txt("crs_subscription_mycampus");
-                break;
-// fau.
-
             default:
 // fau: objectSub - add info about subscription in separate object
                 if ($this->object->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
@@ -536,10 +530,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $info->addProperty($this->lng->txt("crs_info_reg"), $subscription_text . $txt);
         // fau.
 
-        // fau: campusSub - don't show subscription period for mycampus
-        if ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED
-            && $this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_MYCAMPUS) {
-            // fau.
+        if ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             if ($this->object->getSubscriptionUnlimitedStatus()) {
                 $info->addProperty(
                     $this->lng->txt("crs_reg_until"),
@@ -1069,12 +1060,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $sub_period = $form->getItemByPostVar('subscription_period');
         
         $this->object->setSubscriptionType($sub_type);
-        // fau: campusSub - set subscription by my campus
-        if ($sub_type == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
-            $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_MYCAMPUS);  // see ilObjCourse::__createDefaultSettings()
-            $this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_MYCAMPUS);
-        } elseif ($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
-            // fau.
+        if ($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
             if ($sub_period->getStart() && $sub_period->getEnd()) {
                 $this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_LIMITED);
                 $this->object->setSubscriptionStart($sub_period->getStart()->get(IL_CAL_UNIX));
@@ -1085,7 +1071,7 @@ class ilObjCourseGUI extends ilContainerGUI
         } else {
             $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_DIRECT);
             $this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
-        }
+        }        
         
         // registration code
         $this->object->enableRegistrationAccessCode((int) $form->getInput('reg_code_enabled'));
@@ -1444,32 +1430,12 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addItem($section);
         
         $reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'), 'subscription_type');
-        // fau: campusSub - respect also the subscription limitation type for my campus
-        // this is used in studon versions up to 4.3
-        if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
-            $reg_proc->setValue(IL_CRS_SUBSCRIPTION_MYCAMPUS);
-        } else {
-            $reg_proc->setValue(
-                ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
-                    ? $this->object->getSubscriptionType()
-                    : IL_CRS_SUBSCRIPTION_DEACTIVATED
-            );
-        }
-        // fau.
+        $reg_proc->setValue(
+            ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
+                ? $this->object->getSubscriptionType()
+                : IL_CRS_SUBSCRIPTION_DEACTIVATED
+        );
         // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
-
-        // fau: campusSub - add option for my campus subscription
-
-        if (ilCust::get('mycampus_enabled')) {
-            $opt = new ilRadioOption($this->lng->txt('crs_subscription_mycampus'), IL_CRS_SUBSCRIPTION_MYCAMPUS);
-            require_once('./Services/UnivIS/classes/class.ilUnivisLecture.php');
-            if (!ilUnivisLecture::_isIliasImportId($this->object->getImportId())) {
-                $opt->setDisabled(true);
-            }
-            $opt->setInfo($this->lng->txt('crs_subscription_mycampus_info'));
-            $reg_proc->addOption($opt);
-        }
-        // fau.
 
         // fau: objectSub - add option for reference to subscription object
         require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');

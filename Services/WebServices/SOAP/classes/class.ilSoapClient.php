@@ -24,9 +24,7 @@ class ilSoapClient
     /**
      * @var SoapClient
      */
-    // fau: campusSub - make client visible to child classes
-    protected $client = null;
-    // fau.
+    private $client = null;
     
     private $uri;
     

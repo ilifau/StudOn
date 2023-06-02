@@ -37,35 +37,6 @@ assessment#:#ass_campo_other_fields#:#Other fields###fau: campoGrades
 assessment#:#ass_campo_test_date#:#Individual Examination Date###fau: campoGrades
 assessment#:#ass_campo_test_starttime#:#Individual Examination Start###fau: campoGrades
 assessment#:#ass_create_export_campo#:#Create export file for campo###fau: campoGrades
-assessment#:#ass_create_export_mycampus#:#Create resultionfile for my campus
-assessment#:#ass_mycampus_exam_number#:#Exam Number
-assessment#:#ass_mycampus_exam_number_info#:#The exam number is needed for namign the export file. Please imprt the file in <i>mein campus</i> with the created name.<br />If the StudOn-Test is used for more exams, please choose the option "Registered Participants" to export a separate file for each exam.
-assessment#:#ass_mycampus_export#:#Export results for the grades booking in <i>my campus</i>
-assessment#:#ass_mycampus_export_all#:#All Participants
-assessment#:#ass_mycampus_export_all_info#:#Exports all results. <strong>The import to <i>mein campus</i> will add all non-registered users!</strong>
-assessment#:#ass_mycampus_export_forbidden#:#to export the results for <i>my campus</i>, you have to have the permission to export userdata.<br /><a href="%s">Here you can request the admission</a>.
-assessment#:#ass_mycampus_export_registered#:#Registered Participants
-assessment#:#ass_mycampus_export_registered_info#:#Exports only the participants that were registered in <i>mein campus</i>.
-assessment#:#ass_mycampus_export_scope#:#Participants Selection
-assessment#:#ass_mycampus_file_written#:#The results file for <i>my campus</i> was written.
-assessment#:#ass_mycampus_filter_export#:#Limit Export
-assessment#:#ass_mycampus_mark_field#:#Exported Grade
-assessment#:#ass_mycampus_mark_field_official#:#Official Label
-assessment#:#ass_mycampus_mark_field_short#:#Short Label
-assessment#:#ass_mycampus_marked#:#marked
-assessment#:#ass_mycampus_marked_info#:#In marked exams a correct thirds grade has to be registered in <i>my campus </i> in one of the following formats: "1,3", "2.7" or "400".<br />Please declare which label shall be exported from the grade-schema. Their grade-steps have to be in the named format.
-assessment#:#ass_mycampus_matcol_not_found#:#The .csv file was not recognized as a list of registrations!<br />It must have the column titles in the first row.<br />One column must be named as <b>mtknr</b> and this column must have the matriculation numbers of the registered students.<br />The column delimiter must be <b>;</b>
-assessment#:#ass_mycampus_missing_participants#:#Die folgenden zur Prüfung angemeldeten Nutzer wurden nicht als Test-Teilnehmer gefunden: %s
-assessment#:#ass_mycampus_not_marked#:#not marked
-assessment#:#ass_mycampus_not_marked_info#:#In not-marked exams a "+" is displayed for "passed" and a "-" for "not passed".
-assessment#:#ass_mycampus_other_fields#:#Other Fields
-assessment#:#ass_mycampus_other_fields_info#:#Leave this selection empty, if there are problems while importing into <i>my campus</i>.<br />At least the matriculation number and evaluation will be exported.
-assessment#:#ass_mycampus_rating_type#:#Evaluation Mode
-assessment#:#ass_mycampus_registrations_file#:#Exam Registrations
-assessment#:#ass_mycampus_registrations_file_info#:#Plase choose the CSV file that you exported from <i>mein campus</i>. The created result file will have the same name.
-assessment#:#ass_mycampus_registrations_file_wrong_named#:#Die export file is wrongly named.It must be named like <strong>prf_123.csv</strong> with 123 being the exam number.
-assessment#:#ass_mycampus_test_date#:#Individual Exam Date
-assessment#:#ass_mycampus_test_starttime#:#Individual Exam beginning
 assessment#:#detailed_output_scoring#:#detail statement with solutions and points
 assessment#:#err_cloze_not_numeric#:#You entered text in a gap that requires numeric input!
 assessment#:#fq_err_no_numeric_value#:#Please enter a numeric value or a fraction.
@@ -173,8 +144,6 @@ common#:#crs_create_perc#:#Create new Perception-Assessment
 common#:#distinct_registrations#:#Different registrations
 common#:#dummy_admin_firstname_tca#:#TCA
 common#:#dummy_admin_lastname_tca#:#Course adminstrator
-common#:#dummy_user_firstname_mycampus#:#mein campus
-common#:#dummy_user_lastname_mycampus#:#Course registration
 common#:#duration#:#Duration
 common#:#err_wrong_login_assist#:#<div class=""><p>Please check if the local registration is right for you:</p><ul><li>As an FAU member with IDM identification, please use the <a href="saml_login.php">Single Sign-On</a>.</li><li>As an external member in a course of the Virtual University of Bavaria (vhb), please register via the <a href="https://www.vhb.org">vhb portal</a>.</li><li>As a participant in RRZE training courses, please register via the <a href="https://www.kurse.rrze.fau.de">Training Centre</a> of the RRZE.</li></ul><p>If none of the above applies and you cannot remember your StudOn login details, please use the <a href="ilias.php?baseClass=ilStartUpGUI&cmd=jumpToPasswordAssistance">Forget Password</a> function. If this does not work, please contact <a href="mailto:studon@fau.de">studon@fau.de</a>.</p></div>
 common#:#eval_mark_for_evaluation#:#Mark for lecture evaluation
@@ -423,18 +392,8 @@ crs#:#crs_subscription_event_location#:#location:
 crs#:#crs_subscription_event_referee#:#advisor:
 crs#:#crs_subscription_event_registered#:#signed in
 crs#:#crs_subscription_events_header#:#registration to dates
-crs#:#crs_subscription_mycampus#:#Registration by <em>my campus</em>
-crs#:#crs_subscription_mycampus_info#:#The registration takes place by the system <em>my campus</em>. This requires an iport of the lecture data from UnivIS. This can be made by "Content / UnivIS Import".
-crs#:#crs_subscription_mycampus_registration#:#<img src="%s" alt="mein campus logo"/><p>The Joining to this course takes place by the system <em>my campus</em>. The following link leads to the front page of <em>my campus</em>. After the login you get automatically to the registrationsite of the course.</p><p><a target="_blank" href="%s"><strong>Joining by my campus</strong> (new window)</a></p>
 crs#:#crs_subscription_options_direct_studycond#:#Direct joining (otherwise application for admission) for following students:<p class="small">%s</p>
 crs#:#crs_subscription_options_password_studycond#:#Joining with short password (otherwise application for admission) for following students:<p class="small">%s</p>
-crs#:#crs_sync_my_campus#:#my campus-logins transferred
-crs#:#crs_sync_my_campus_added#:#The following course members of my campus have been added: %s.
-crs#:#crs_sync_my_campus_empty#:#There are no transferrable Logins in my campus!
-crs#:#crs_sync_my_campus_failure_connect#:#Could not establish connection to my campus!
-crs#:#crs_sync_my_campus_failure_participants#:#The logindata for this course could not been retrieved!
-crs#:#crs_sync_my_campus_ok#:#The logins of my campus are added as members.
-crs#:#crs_sync_my_campus_waiting#:#The following users are on waiting list in my campus and have to be accepted there: %s.
 crs#:#event_enabled#:#Activated
 crs#:#event_max_participants#:#maximum number of participants
 crs#:#event_max_participants_info#:#Set here the maximum number of sessionparticipants. If the number exceeds, no more registrations are possible ('0' means unlimited).

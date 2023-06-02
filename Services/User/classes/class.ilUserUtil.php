@@ -250,7 +250,7 @@ class ilUserUtil
     // fau.
 
 
-    // fau: campusSub - new function _createDummyAccount
+    // fau: courseDummyAcc - new function _createDummyAccount
     /**
     * Create a dummy account for course registration
     *

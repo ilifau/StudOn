@@ -42,12 +42,6 @@ class ilTestExportGUI extends ilExportGUI
         $this->addFormat('xmlres', $a_parent_gui->lng->txt('ass_create_export_file_with_results'), $this, 'createTestExportWithResults');
         $this->addFormat('csv', $a_parent_gui->lng->txt('ass_create_export_test_results'), $this, 'createTestResultsExport');
 
-        // fau: campusGrades - button to export test results for my campus
-
-        if (ilCust::get('tst_export_mycampus')) {
-            $this->addFormat('prf', $a_parent_gui->lng->txt('ass_create_export_mycampus'), $this, 'createTestResultsMyCampus');
-        }
-        // fau.
         // fau: campoGrades - button to export test results for campo
 
         if (ilCust::get('tst_export_campo')) {
@@ -121,13 +115,6 @@ class ilTestExportGUI extends ilExportGUI
         $ilCtrl->redirectByClass('iltestexportgui');
     }
 
-    // fau: campusGrades - create test results for my campus
-    public function createTestResultsMyCampus()
-    {
-        global $ilCtrl;
-        $ilCtrl->redirectByClass("iltestmycampusgui");
-    }
-    // fau.
     // fau: campoGrades - create test results for campo
     public function createTestResultsCampo()
     {
