@@ -306,8 +306,6 @@ common#:#sub_fair_to_sub_start_min#:#The period of equal chances was set to mini
 common#:#sub_fair_wait_pos_header#:#Pos.
 common#:#sub_fair_waiting#:#Manual Fill and Move Up
 common#:#sub_fair_waiting_info#:#Free places have to be manually filled in the member administration after the end of equal chances. Please use this setting only, if the membership has additional conditions.
-common#:#sub_fair_waiting_univis#:#Like in UnivIS
-common#:#sub_fair_waiting_univis_info#:#The waiting list setting is taken from UnivIS. A a waiting list is set there then 'Automatic Fill and Move Up' will be set, otherwise "Automatic Fill, Rejection Afterwards".
 common#:#sub_fill_free_places#:#Fill Free Places
 common#:#sub_fill_free_places_question#:#Would you like to fill the free places from the waiting list?
 common#:#sub_mail_autofill_requests_body#:#The free places were filled from the waiting list. But there are places kept free for membership requests on which you have to decide manually.
@@ -343,19 +341,6 @@ common#:#to_home#:#Home
 common#:#to_login#:#To the Login
 common#:#txt_registered#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username: <strong>%s</strong></p><p>Please remember your password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>###fau: regCodes
 common#:#txt_registered_pw_is_login#:#<p>You are successfully registered in StudOn.</p><p>Please remember your username/password: <strong>%s</strong></p><p>Click the button below to get into StudOn.</p>
-common#:#univis#:#UnivIS
-common#:#univis_category_course_import#:#import course as courses
-common#:#univis_category_course_update#:#update data of imported courses
-common#:#univis_course_data_delete#:#delete link to the course
-common#:#univis_course_data_import#:#import data of a course
-common#:#univis_course_data_other_import#:#import data of another course
-common#:#univis_course_data_update#:#update course data from UnivIS
-common#:#univis_data_transfer#:#UnivIS Import
-common#:#univis_id#:#UnivIS-ID
-common#:#univis_id_info#:#The direct input of the UnivIS-ID is only for administrators possible. Everyone can import those informations from UnivIS.
-common#:#univis_lecture_link#:#show complete eventdata
-common#:#univis_link_object_not_found#:#To the lecture of UnivIS no course in StudOn has been found. Maybe it is not established or released yet.<br />Please contact the in UnivIS named lecturer.
-common#:#univis_link_to_studon#:#For this lecture an <a href="%s" target="_top">Kurs in StudOn</a> exists.
 common#:#user_menu#:#User Menu
 common#:#view_results#:#show results
 common#:#waiting_list#:#waiting list
@@ -381,8 +366,6 @@ crs#:#crs_mem_set_passed#:#set passed
 crs#:#crs_mem_set_passed_success#:#These selected participants have been set to "passed".
 crs#:#crs_no_list#:#Rejection
 crs#:#crs_reg_limit_reached#:#You could not have been accepted, because the maximum number of participants has been exceeded.
-crs#:#crs_reg_univis#:#like in UnivIS
-crs#:#crs_reg_univis_info#:#The registrationperiod will be overtaken from UnivIS.
 crs#:#crs_reg_user_already_assigned#:#ou are already participant of this course.
 crs#:#crs_reg_user_generic_failure#:#You could not be accepted!
 crs#:#crs_reg_user_on_waiting_list#:#You are already on the waiting list of this course!
@@ -935,201 +918,6 @@ trac#:#trac_mode_questions#:#Answering Questions Correctly###fau: lpQuestionsPer
 trac#:#trac_mode_questions_info#:#Users who answered a certain share of questions correctly will automatically be assigned with the status ‘Completed’. Please use this setting only if there actually are questions in the learning module.###fau: lpQuestionsPercent
 trac#:#trac_mode_questions_percent#:#Share (%)
 trac#:#trac_required_questions_percent#:#Share of correctly answered questions (%)
-univis#:#crs_availability_unvisible_info#:#Der Kurs ist set offline
-univis#:#crs_visibility#:#Visibility
-univis#:#crs_visibility_unvisible#:#Not visible
-univis#:#univis_add_title_short#:#add short title
-univis#:#univis_additional_info#:#Additional informations
-univis#:#univis_allfak#:#language course for listeners of all faculties
-univis#:#univis_allfak_short#:#AllFak
-univis#:#univis_bac#:#Bachelor
-univis#:#univis_bac_short#:#BAC
-univis#:#univis_beginners#:#suitable for beginners
-univis#:#univis_beginners_short#:#Beg.
-univis#:#univis_benschein#:#graded credit
-univis#:#univis_benschein_short#:#gr. credit
-univis#:#univis_category_course_update_no_found#:#No courses with data found in this category of UnivIS. You can also deposit the UnivIS data in an existing course afterwards. For that switch to the course and use the data transfer.
-univis#:#univis_comment#:#comment
-univis#:#univis_confirm_course_data_delete#:#This course is bounded to a lecture at UnivIS, which is needed to transfer admissions from <em>my campus</em>. Every lecture in UnivIS can be matched to only one StudOn course.<br />Do you want to delete the bonding to enable it for another course?
-univis#:#univis_contact_data#:#contact data
-univis#:#univis_course_data_delete_succeeded#:#The bonding to the lecture has been deleted. To delete the informations of the syllabus please go to settings / course info.
-univis#:#univis_course_path#:#Studon-Course in:
-univis#:#univis_credits#:#credit:
-univis#:#univis_date_from#:#from
-univis#:#univis_department_title#:#Name
-univis#:#univis_dipl#:#Diplom
-univis#:#univis_dipl_short#:#DIPL
-univis#:#univis_ects#:#ECTS-Study
-univis#:#univis_ects_credits#:#ECTS-Credits:
-univis#:#univis_ects_credits_short#:#ECTS:
-univis#:#univis_ects_info#:#ECTS-Informations
-univis#:#univis_ects_info_credits#:#Credits:
-univis#:#univis_ects_info_literature#:#Literature:
-univis#:#univis_ects_info_name#:#Title:
-univis#:#univis_ects_info_organizational#:#Organizational:
-univis#:#univis_ects_info_prerequisites#:#Prerequisites:
-univis#:#univis_ects_info_summary#:#Contents:
-univis#:#univis_ects_short#:#ECTS
-univis#:#univis_einf#:#introductory event gem. 10. amending law of the FPO
-univis#:#univis_einf_short#:#Intr.
-univis#:#univis_error_connect#:#The UnivIS-Server is temporarily not available!
-univis#:#univis_error_none#:#No error while importing data from UnivIS
-univis#:#univis_error_transfer#:#There was an error while transfering data!
-univis#:#univis_error_validate#:#No evaluable data has been given back!
-univis#:#univis_fachstud#:#only subjectstudy
-univis#:#univis_fachstud_short#:#sub st.
-univis#:#univis_fruehstud#:#early study
-univis#:#univis_fruehstud_short#:#ea. study
-univis#:#univis_gast#:#only guest listeners authorized
-univis#:#univis_gast_short#:#guest listeners
-univis#:#univis_header_settings#:#selected settings
-univis#:#univis_header_settings_desc#:#You can also edit these settings afterwards.
-univis#:#univis_header_show_on_info_screen#:#Data for view on front page
-univis#:#univis_header_show_on_list#:#Data view on listing
-univis#:#univis_info#:#information
-univis#:#univis_info_set_activation#:#Set or update the availability settings
-univis#:#univis_info_set_description#:#The description will be shown under the title by listing on StudOn. The informations can be taken over from UnivIS, which are shown there by the listing.
-univis#:#univis_info_set_membership_limitation#:#<span class="alert">This setting will be ignored, if the login was per <em>my campus</em></span>
-univis#:#univis_info_set_registration#:#<span class="alert">This setting will be ignored, if the login was per <em>my campus</em></span><br />Without selection the admission period from UnivIS will be taken over and the joining procedure will be set to "direct Joining".
-univis#:#univis_info_set_syllabus#:#In the field "syllabus" the data from the UnivIS-Detail view can be transferred. The Selections correspond to the part-heading there. The field "important informations" stays unchanged for additional informations in StudOn.
-univis#:#univis_info_set_title#:#Doing a new-import, the title will always be taken over. If possible the short title will be set behind in square brackets.
-univis#:#univis_institution#:#Institution
-univis#:#univis_keywords#:#Keywords:
-univis#:#univis_ladidf#:#LADIDF
-univis#:#univis_ladidf_short#:#LADIDF
-univis#:#univis_ladidg#:#LADIDG
-univis#:#univis_ladidg_short#:#LADIDG
-univis#:#univis_ladidh#:#LADIDH
-univis#:#univis_ladidh_short#:#LADIDH
-univis#:#univis_laew#:#LAEW
-univis#:#univis_laew_short#:#LAEW
-univis#:#univis_lafb#:#LAFB
-univis#:#univis_lafb_short#:#LAFB
-univis#:#univis_lafn#:#LAFN
-univis#:#univis_lafn_short#:#LAFN
-univis#:#univis_lafv#:#LAFV
-univis#:#univis_lafv_short#:#LAFV
-univis#:#univis_lecture_conditions_desc#:#Please determine how the lecture data shall be taken over.
-univis#:#univis_lecture_conditions_title#:#Settings for Data-overtake
-univis#:#univis_lecture_message_course_blocked#:#This StudOn-course is not changeable for you. Owner: %s.
-univis#:#univis_lecture_message_course_exists#:#On this a course already exists in StudOn. Owner: %s.
-univis#:#univis_lecture_message_course_hidden#:#On this a course in StudOn exists, which is not visible to you. Owner: %s.
-univis#:#univis_lecture_message_course_parent#:#The lecture is already linked to this course.
-univis#:#univis_lecture_search_import_desc#:#Please insert a search criteria for the lecture, which data you want to enter to this course.
-univis#:#univis_lecture_search_title#:#Search for a lecture
-univis#:#univis_lecture_selection_import_desc#:#Please choose the lecture, which data you want to take over.
-univis#:#univis_lecture_selection_title#:#choose lecture
-univis#:#univis_lecture_title#:#Title
-univis#:#univis_lecture_type_ag#:#Association
-univis#:#univis_lecture_type_ak#:#Advanced Course
-univis#:#univis_lecture_type_awa#:#Instruction for scientific work
-univis#:#univis_lecture_type_ek#:#Introduction course
-univis#:#univis_lecture_type_ex#:#Excursion
-univis#:#univis_lecture_type_gk#:#Basic course
-univis#:#univis_lecture_type_gsz#:#Committees session
-univis#:#univis_lecture_type_hs#:#Advanced Seminar
-univis#:#univis_lecture_type_hvl#:#Main lecture
-univis#:#univis_lecture_type_kk#:#exam paper course
-univis#:#univis_lecture_type_klv#:#clinical visit
-univis#:#univis_lecture_type_ko#:#Colloquium
-univis#:#univis_lecture_type_ku#:#Course
-univis#:#univis_lecture_type_ms#:#Medial seminar
-univis#:#univis_lecture_type_os#:#Upper seminar
-univis#:#univis_lecture_type_pf#:#Examination
-univis#:#univis_lecture_type_pjs#:#Project seminar
-univis#:#univis_lecture_type_ppu#:#Propaedeutic exercise
-univis#:#univis_lecture_type_pr#:#Traineeship
-univis#:#univis_lecture_type_prs#:#Practical seminar
-univis#:#univis_lecture_type_ps#:#Introductory seminar course
-univis#:#univis_lecture_type_re#:#Review course
-univis#:#univis_lecture_type_sem#:#Seminar
-univis#:#univis_lecture_type_sl#:#Miscellaneous lectures
-univis#:#univis_lecture_type_ts#:#Theoretical seminar
-univis#:#univis_lecture_type_tut#:#Seminar conducted by a postgraduate
-univis#:#univis_lecture_type_ue#:#Exercise
-univis#:#univis_lecture_type_v-ue#:#lecture with exercise
-univis#:#univis_lecture_type_vorl#:#lecture
-univis#:#univis_lecturer#:#lecturer
-univis#:#univis_lecturer_name#:#Name
-univis#:#univis_lectures_search_import_desc#:#Please insert a search criteria for the lecture, which you want to apply to StudOn.
-univis#:#univis_lectures_search_title#:#Search for lectures
-univis#:#univis_lectures_selection_import_desc#:#Please choose the lectures, which you want to import.
-univis#:#univis_lectures_selection_title#:#Choose lectures
-univis#:#univis_lectures_selection_update_desc#:#Please choose the lectures, which course data you want to update.
-univis#:#univis_literature#:#recommended literature
-univis#:#univis_mag#:#Master's degree
-univis#:#univis_mag_short#:#MAG
-univis#:#univis_mast#:#Master
-univis#:#univis_mast_short#:#MAST
-univis#:#univis_maxturnout#:#Maximum number of participants:
-univis#:#univis_medabschn1#:#1. Study stage
-univis#:#univis_medabschn1_short#:#1. stage
-univis#:#univis_medabschn2#:#2. Study stage
-univis#:#univis_medabschn2_short#:#2. stage
-univis#:#univis_message_course_updated#:#1 StudOn-course has been updated.
-univis#:#univis_message_courses_updated#:#%s StudOn-course has been updated.
-univis#:#univis_message_lecture_ignored#:#1 lecture has been ignored.
-univis#:#univis_message_lecture_imported#:#1 lecture has been added as StudOn-course.
-univis#:#univis_message_lectures_ignored#:#%s lecture has been ignored.
-univis#:#univis_message_lectures_imported#:#%s lecture has been added as StudOn-course.
-univis#:#univis_message_this_course_updated#:#The course data has been updated.
-univis#:#univis_mycampus_registration#:#For the lecture a login is required. The login takes place per <a href="https://www.campus.uni-erlangen.de/qisserver/rds?univisid=%s" target="_blank"><em>my campus</em></a>.
-univis#:#univis_no_department_found#:#No matching facilities have been found. Please check your search input!
-univis#:#univis_no_lecturer_found#:#No matching persons have been found. Please check your search input!
-univis#:#univis_no_lectures_found#:#No matching lectures have been found. Please check your search input!
-univis#:#univis_no_lectures_selected#:#Please choose a lecture!
-univis#:#univis_no_title_selected#:#Please choose a title!
-univis#:#univis_pattern_too_short#:#Please type at least %s signs as search criteria!
-univis#:#univis_praktjahr#:#Practical year
-univis#:#univis_praktjahr_short#:#Prk. Jahr
-univis#:#univis_prerequisites#:#Requirements / Organizational matters
-univis#:#univis_refine_department#:#There are several departments, which match your search input. Please choose one or refine your search input!
-univis#:#univis_refine_lecturer#:#There are several persons, who match your search input. Please choose one or refine your search input!
-univis#:#univis_schein#:#Credit
-univis#:#univis_schluessel#:#Suitable as key skill
-univis#:#univis_schluessel_short#:#Key
-univis#:#univis_schwerp#:#Study focus areas Phil.I/Phil.II
-univis#:#univis_schwerp_short#:#focus
-univis#:#univis_search_by_department#:#Department
-univis#:#univis_search_by_department_info#:#It will be searched for lectures of a department, whose name matches your search input.
-univis#:#univis_search_by_imported_courses#:#Already imported courses in this categories
-univis#:#univis_search_by_lecturer#:#Lecturer
-univis#:#univis_search_by_lecturer_info#:#It will be searched for lectures of lecturers, whose name matches your searchinput
-univis#:#univis_search_by_title#:#Lecture
-univis#:#univis_search_by_title_info#:#It will be searched for lectures, whose title matches the search input
-univis#:#univis_search_info_retry#:#<br />Advice: maybe search using a different criteria (lectures, departments, lecturers).
-univis#:#univis_search_mode#:#Search per:
-univis#:#univis_select_department#:#Selection
-univis#:#univis_select_department_info#:#These departments have been found by search. Choose one to list its lectures.
-univis#:#univis_select_lecturer#:#Selection
-univis#:#univis_select_lecturer_info#:#These persons have been found by search. Choose one to list his/her lectures.
-univis#:#univis_semester#:#Semester
-univis#:#univis_semester_from#:#from
-univis#:#univis_senior#:#seniors study
-univis#:#univis_senior_short#:#Seniors
-univis#:#univis_set_activation#:#Set availability
-univis#:#univis_set_contact_first#:#Takeover from first lecturer
-univis#:#univis_set_contact_not#:#Do not over take
-univis#:#univis_set_contact_own#:#new contact data:
-univis#:#univis_set_description#:#Takeover description
-univis#:#univis_set_membership_limitation#:#Take over maximum number of participants from UnivIS
-univis#:#univis_set_registration#:#Set registration options
-univis#:#univis_set_syllabus#:#Takeover "syllabus"
-univis#:#univis_set_title#:#Takeover title
-univis#:#univis_short_info#:#short info
-univis#:#univis_ss#:#SS %s
-univis#:#univis_studies#:#subject of study / branch of study
-univis#:#univis_summary#:#Summary
-univis#:#univis_sws#:#SWS
-univis#:#univis_term_bd#:#block lecture
-univis#:#univis_term_d1#:#daily
-univis#:#univis_term_s1#:#single date at
-univis#:#univis_term_w2#:#every 2. week
-univis#:#univis_terms#:#Dates
-univis#:#univis_turnout#:#Expected number of participants:
-univis#:#univis_women#:#women research
-univis#:#univis_women_short#:#women
-univis#:#univis_ws#:#WS %s/%s
 user#:#browser_agent#:#Browser Family
 user#:#browser_desc#:#Broeser Description
 user#:#browser_platform#:#Platform

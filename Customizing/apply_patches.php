@@ -83,15 +83,6 @@ $p->login();
 //$p->applyPatch('ilCleanupPatches.deleteInactiveUsers', array('inactive_since' => '2021-04-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.handleObsoleteTestAccounts', array('limit' => null));
 
-/*******************
-* Patches for UnivIS
-********************/
-
-//$p->applyPatch('ilUnivisPatches.dropUnivisTables');
-//$p->applyPatch('ilUnivisPatches.createUnivisTables');
-//$p->applyPatch('ilUnivisPatches.testUnivisImport');
-
-
 /*******************************
  * New Permissions in ILIAS 4.4
  ******************************/

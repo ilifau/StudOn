@@ -120,23 +120,3 @@ function ilTablePageSelection(el, cmd)
 	el.form.submit();
 	return false;
 }
-
-// fau: univisImport - new function to enable previous/next navigation with POST
-function ilTablePageNavigation(el, cmd, navParam, navValue, formname)
-{
-    var input = document.createElement("input");
-    input.setAttribute("type", "hidden");
-    input.setAttribute("name", cmd);
-    input.setAttribute("value", "1");
-    el.parentNode.appendChild(input);
-
-    var inputNav = document.createElement("input");
-    inputNav.setAttribute("type", "hidden");
-    inputNav.setAttribute("name", navParam);
-    inputNav.setAttribute("value", navValue);
-    el.parentNode.appendChild(inputNav);
-
-    document.forms[formname].submit();
-    return false;
-}
-// fau.

@@ -29,9 +29,6 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
  * fau: studyCond - added ilStudyCondGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
  * fau.
- * fau: univisImport - added ilUnivisImportLecturesGUI to call structure
- * @ilCtrl_Calls ilObjCourseGUI: ilUnivisImportLecturesGUI
- * fau.
  * fau: objectSub - added ilPropertyFormGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilPropertyFormGUI
  * fau.
@@ -284,42 +281,15 @@ class ilObjCourseGUI extends ilContainerGUI
             $info->enableNewsEditing();
         }
 
-        // fau: univisInfo - add link to univis
-        if ($import_id = $this->object->getImportId()) {
-            require_once('./Services/UnivIS/classes/class.ilUnivisLecture.php');
-            if (ilUnivisLecture::_isIliasImportId($import_id)) {
-                $univis_link = '<a href="'
-                    . ilUnivisLecture::_getLinkForIliasImportId($import_id)
-                    . '" target="_blank">'
-                    . $this->lng->txt('univis_lecture_link')
-                    . '</a>';
-            }
-        }
-
         if (
             strlen($this->object->getImportantInformation()) ||
             strlen($this->object->getSyllabus()) ||
             strlen($this->object->getTargetGroup()) ||
-            strlen($univis_link) ||
            count($files)) {
             $info->addSection($this->lng->txt('crs_general_informations'));
         }
 
-        if ((strlen($univis_link))) {
-            $info->addProperty($this->lng->txt('univis'), $univis_link);
-        }
-        // fau.
-
         if (strlen($this->object->getImportantInformation())) {
-            // fau: univisInfo - don't modify string if html is contained
-            if ($this->object->getImportantInformation() !=
-                ilUtil::secureString($this->object->getImportantInformation())
-            ) {
-                $info->addProperty(
-                    $this->lng->txt('crs_important_info'),
-                    ilUtil::makeClickable($this->object->getImportantInformation(), true)
-                );
-            } else {
             $info->addProperty(
                 $this->lng->txt('crs_important_info'),
                 "<strong>" . nl2br(
@@ -327,23 +297,10 @@ class ilObjCourseGUI extends ilContainerGUI
                 )
             );
         }
-            // fau.
-        }
         if (strlen($this->object->getSyllabus())) {
-            // fau: univisInfo - don't modify string if html is contained
-            if ($this->object->getSyllabus() !=
-                ilUtil::secureString($this->object->getSyllabus())
-            ) {
-                $info->addProperty(
-                    $this->lng->txt('crs_syllabus'),
-                    ilUtil::makeClickable($this->object->getSyllabus(), true)
-                );
-            } else {
-                $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
-                    ilUtil::makeClickable($this->object->getSyllabus(), true)
-                ));
-            }
-            // fau.
+            $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
+                ilUtil::makeClickable($this->object->getSyllabus(), true)
+            ));
         }
         if (strlen($this->object->getTargetGroup())) {
             $info->addProperty(
@@ -353,6 +310,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 )
             );
         }
+
         // files
         if (count($files)) {
             $tpl = new ilTemplate('tpl.event_info_file.html', true, true, 'Modules/Course');
@@ -786,36 +744,13 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addCommandButton('cancel', $this->lng->txt('cancel'));
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_important_info'), 'important');
-
-        // fau: univisInfo - use RTE / HTML for important information
-        $area->setUseRTE(true);
-        $area->setRTETagSet('extended');
-        if ($this->object->getImportantInformation() ==
-            ilUtil::secureString($this->object->getImportantInformation())
-        ) {
-            $area->setValue("<strong>" . nl2br(
-                ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
-            ));
-        } else {
-            $area->setValue($this->object->getImportantInformation());
-        }
-        // fau.
+        $area->setValue($this->object->getImportantInformation());
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_syllabus'), 'syllabus');
-        // fau: univisInfo - use RTE / HTML for syllabus
-        $area->setUseRTE(true);
-        $area->setRTETagSet('extended');
-        if ($this->object->getSyllabus() ==
-            ilUtil::secureString($this->object->getSyllabus())
-        ) {
-            $area->setValue(nl2br(ilUtil::makeClickable($this->object->getSyllabus(), true)));
-        } else {
-            $area->setValue($this->object->getSyllabus());
-        }
-        // fau.
+        $area->setValue($this->object->getSyllabus());
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
@@ -824,7 +759,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $tg->setValue($this->object->getTargetGroup());
         $tg->setRows(6);
         $form->addItem($tg);
-
+        
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('crs_info_download'));
         $form->addItem($section);
@@ -901,10 +836,8 @@ class ilObjCourseGUI extends ilContainerGUI
         $file_obj->setTemporaryName($_FILES['file']['tmp_name']);
         $file_obj->setErrorCode($_FILES['file']['error']);
 
-        // fau: univisInfo - allow HTML in course info
-        $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important'], false));
-        $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus'], false));
-        // fau.
+        $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important']));
+        $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus']));
         $this->object->setTargetGroup(\ilUtil::stripSlashes($_POST['target_group']));
         $this->object->setContactName(ilUtil::stripSlashes($_POST['contact_name']));
         $this->object->setContactResponsibility(ilUtil::stripSlashes($_POST['contact_responsibility']));
@@ -2652,14 +2585,6 @@ class ilObjCourseGUI extends ilContainerGUI
                 $mem_gui = new ilCourseMembershipGUI($this, $this->object);
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
-
-// fau: univisImport call Univis Import GUI
-            case "ilunivisimportlecturesgui":
-                include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
-                $univis_gui = new ilUnivISImportLecturesGUI($this);
-                $this->ctrl->forwardCommand($univis_gui);
-                break;
-// fau.
 
 // fau: studyCond - add command class
             case 'ilstudycondgui':

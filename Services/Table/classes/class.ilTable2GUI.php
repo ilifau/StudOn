@@ -1558,11 +1558,7 @@ class ilTable2GUI extends ilTableGUI
             return true;
         }
 
-        // fau: univisImport - respect a third nav parameter set by js for previous/nect naviagetion
-        if ($_POST[$this->getNavParameter() . "3"]) {
-            $this->nav_value = $_POST[$this->getNavParameter() . "3"];
-        } elseif ($_POST[$this->getNavParameter() . "1"] != "") {
-            // fim.
+        if ($_POST[$this->getNavParameter() . "1"] != "") {
             if ($_POST[$this->getNavParameter() . "1"] != $_POST[$this->getNavParameter()]) {
                 $this->nav_value = $_POST[$this->getNavParameter() . "1"];
             } elseif ($_POST[$this->getNavParameter() . "2"] != $_POST[$this->getNavParameter()]) {
@@ -1606,20 +1602,6 @@ class ilTable2GUI extends ilTableGUI
 
         if (!$a_omit_offset) {
             $this->nav_determined = true;
-        }
-    }
-
-    public function storeNavParameter()
-    {
-        if ($this->getOrderField() != "") {
-            $this->storeProperty("order", $this->getOrderField());
-        }
-        if ($this->getOrderDirection() != "") {
-            $this->storeProperty("direction", $this->getOrderDirection());
-        }
-        //echo "-".$this->getOffset()."-";
-        if ($this->getOffset() !== "") {
-            $this->storeProperty("offset", $this->getOffset());
         }
     }
 
@@ -2487,16 +2469,7 @@ class ilTable2GUI extends ilTableGUI
                     $LinkBar .= $sep;
                 }
                 $prevoffset = $this->getOffset() - $this->getLimit();
-                // fau: univisImport - add onclick to use POST for next link
-                $onclick = sprintf(
-                    "onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
-                    $this->parent_cmd,
-                    $this->getNavParameter() . '3',
-                    $this->getOrderField() . ":" . $this->getOrderDirection() . ":" . $prevoffset,
-                    $this->getFormName()
-                );
-                $LinkBar .= "<a $onclick href=\"" . $link . $prevoffset . $hash . "\">" . $layout_prev . "</a>";
-            // fau.
+                $LinkBar .= "<a href=\"" . $link . $prevoffset . $hash . "\">" . $layout_prev . "</a>";
             } else {
                 if ($LinkBar != "") {
                     $LinkBar .= $sep;
@@ -2524,16 +2497,7 @@ class ilTable2GUI extends ilTableGUI
                     $LinkBar .= $sep;
                 }
                 $newoffset = $this->getOffset() + $this->getLimit();
-                // fau: univisImport - add onclick to use POST for next link
-                $onclick = sprintf(
-                    "onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
-                    $this->parent_cmd,
-                    $this->getNavParameter() . '3',
-                    $this->getOrderField() . ":" . $this->getOrderDirection() . ":" . $newoffset,
-                    $this->getFormName()
-                );
-                $LinkBar .= "<a $onclick href=\"" . $link . $newoffset . $hash . "\">" . $layout_next . "</a>";
-            // fau.
+                $LinkBar .= "<a href=\"" . $link . $newoffset . $hash . "\">" . $layout_next . "</a>";
             } else {
                 if ($LinkBar != "") {
                     $LinkBar .= $sep;
@@ -2569,7 +2533,6 @@ class ilTable2GUI extends ilTableGUI
             return false;
         }
     }
-
     public function fillHiddenRow()
     {
         $hidden_row = false;

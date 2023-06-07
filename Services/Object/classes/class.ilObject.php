@@ -1008,31 +1008,6 @@ class ilObject
     }
     // fau.
 
-
-    /**
-    * fau: univisImport - get import id for object id
-    *
-    * @param	int		$a_object_id		object id
-    * @return	string	id                  import_id
-    */
-    public static function _getImportIdForObjectId($a_obj_id)
-    {
-        global $ilDB;
-
-        $ilDB->setLimit(1, 0);
-        $q = "SELECT import_id FROM object_data WHERE obj_id = " . $ilDB->quote($a_obj_id, "integer") .
-            " ORDER BY create_date DESC";
-        $obj_set = $ilDB->query($q);
-
-        if ($obj_rec = $ilDB->fetchAssoc($obj_set)) {
-            return $obj_rec["import_id"];
-        } else {
-            return '';
-        }
-    }
-    // fau.
-
-
     /**
     * get all reference ids of object
     *

@@ -138,17 +138,10 @@ if (!ilStartUpGUI::_checkGoto($_GET["target"])) {
  * rest: 			123_join
  * additional: 		join
  *
- * target: 			univis_2011s.Lecture.21152058_join
- *
- * target_arr: 		array(univis, 2011s.Lecture.21152058, join)
- * target_type: 	univis
- * target_id: 		2011s.Lecture.21152058
- * rest: 			2011s.Lecture.21152058_join
- * additional: 		join
  *
  * called from ilInitialisation:
  * ilStartUpGUI::_checkGoto($_GET["target"])
- * - returns true for target types 'univis' and 'studon'
+ * - returns true for target type 'studon'
  * - returns false for join command if user is anonymous
  *
  * called afterwards from goto.php:
@@ -183,30 +176,6 @@ if ($target_type == 'studon') {
     }
 }
 // fau.
-
-// fau: univisLinks - univis specific goto requests
-// DEPRECATED: univis links are handeled now by univis.php
-if ($target_type == 'univis') {
-    // search for the course by univis_id
-    $obj_id = ilObject::_lookupObjIdByImportId($target_id);
-    if (!$obj_id) {
-        ilUtil::sendFailure($lng->txt('univis_link_object_not_found'), true);
-        ilUtil::redirect('index.php');
-    }
-    $ref_ids = ilObject::_getAllReferences($obj_id);
-    if (count($ref_ids) == 0) {
-        ilUtil::sendFailure($lng->txt('univis_link_object_not_found'), true);
-        ilUtil::redirect('index.php');
-    }
-    $ref_id = end($ref_ids);
-
-    // redefine the parameters for standard target handling
-    $target_type = ilObject::_lookupType($obj_id);
-    $target_id = $ref_id;
-    $rest = $target_id . '_' . $additional;
-}
-// fau.
-
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //

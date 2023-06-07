@@ -25,9 +25,6 @@
 [default]
 ; settings to be changed per client in client.ini.php
 ;
-cat_enable_univis_import = "0"          ;enable univis import for categories
-crs_enable_univis_import = "0"          ;enable univis import for courses
-
 crs_enable_reg_codes = "1"				;enable the use of registration codes
 grp_enable_reg_codes = "1"				;enable the use of registration codes
 
@@ -79,13 +76,6 @@ tst_notify_remote = "0"                 ;send mails to users at remote installat
 tst_export_campo = "0"                  ;enable the export of test results for campo
 tst_prevent_image_drag = "0"			;prevent the dragging of images an links to texts fields in tests
 tst_prevent_image_validate = "0"        ;fau: preventQtiImageValidate - prevent validation of images at test/pool import
-
-univis_server = ""                      ;only the server name, e.g. univis.uni-erlangen.de
-univis_port = ""                        ;port sor testing socket connection in univis2mysql
-univis_prg_url = ""                     ;url if the prg interface (ending with /?)
-univis_tempdir = ""                    ;temporary directory for storing fetched xml files
-univis_semester = ""                    ;set a specific semester for the import (if empty: current and following)
-univis_noimports = ""                   ;don't show imported lectures (1)
 
 unzip_keep_min_kyrillic_percent = "0"   ;min percent of kyrillic characters (if any) to keep the default encoding
 

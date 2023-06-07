@@ -307,8 +307,6 @@ common#:#sub_fair_to_sub_end#:#Die chancengleiche Phase wurde auf das Ende des A
 common#:#sub_fair_to_sub_start_min#:#Die chancengleiche Phase wurde auf den Mindeszeitraum nach Start der Anmedung gesetzt.
 common#:#sub_fair_waiting#:#Manuelles Auslosen und Nachrücken
 common#:#sub_fair_waiting_info#:#Nach der chancengleichen Phase müssen die freien Plätze in der Teilnehmerverwaltung von Hand ausgelost werden. Wählen Sie diese Einstellung nur, wenn die Aufnahme von zusätzlichen Kriterien abhängt.
-common#:#sub_fair_waiting_univis#:#Wie in UnivIS
-common#:#sub_fair_waiting_univis_info#:#Die Einstellung zur Warteliste wird aus UnivIS übernommen. Ist dort eine Warteliste eingestellt, wird "Automatisches Auslosen und Nachrücken" gesetzt, andernfalls "Automatisches Auslosen, danach Abweisung".
 common#:#sub_fair_wait_pos_header#:#Pos.
 common#:#sub_fill_free_places#:#Freie Plätze auffüllen
 common#:#sub_fill_free_places_question#:#Möchten Sie die freien Plätze aus der Warteliste befüllen?
@@ -344,19 +342,6 @@ common#:#to_home#:#Startseite
 common#:#to_login#:#Zum Login
 common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie sich Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>###fau: regCodes
 common#:#txt_registered_pw_is_login#:#<p>Sie haben sich erfolgreich bei StudOn registriert.</p><p>Bitte notieren Sie sich Ihren Benutzernamen/Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie bitte auf den untenstehenden Button, um in StudOn zu gelangen.</p>
-common#:#univis#:#UnivIS
-common#:#univis_category_course_import#:#Lehrveranstaltungen als Kurse importieren
-common#:#univis_category_course_update#:#Daten der importierten Kurse aktualisieren
-common#:#univis_course_data_delete#:#Verbindung mit der Lehrveranstaltung löschen
-common#:#univis_course_data_import#:#Daten einer Lehrveranstaltung importieren
-common#:#univis_course_data_other_import#:#Daten einer anderen Lehrveranstaltung importieren
-common#:#univis_course_data_update#:#Kursdaten aus UnivIS aktualisieren
-common#:#univis_data_transfer#:#UnivIS-Import
-common#:#univis_id#:#UnivIS-ID
-common#:#univis_id_info#:#Die direkte Eingabe der UnivIS-ID ist nur für Administratoren möglich. Andere können diese Information aus UnivIS importieren.
-common#:#univis_lecture_link#:#Komplette Veranstaltungsdaten anzeigen
-common#:#univis_link_object_not_found#:#Zu der Lehrveranstaltung aus UnivIS wurde in StudOn kein passender Kurs gefunden. Möglicherweise ist er noch nicht eingerichtet oder freigegeben.<br />Bitte wenden Sie sich an die in UnivIS genannten Dozentinnen/Dozenten.
-common#:#univis_link_to_studon#:#Zu dieser Veranstaltung gibt es einen <a href="%s" target="_top">Kurs in StudOn.</a>
 common#:#user_menu#:#Nutzer-Menü
 common#:#view_results#:#Ergebnisse anzeigen
 common#:#waiting_list#:#Warteliste
@@ -382,8 +367,6 @@ crs#:#crs_mem_set_passed#:#Bestanden setzen
 crs#:#crs_mem_set_passed_success#:#Dies ausgewählten Teilnehmer wurden auf "Bestanden" gesetzt.
 crs#:#crs_no_list#:#Keine Warteliste
 crs#:#crs_reg_limit_reached#:#Sie konnten nicht mehr aufgenommen werden, da die maximale Teilnehmerzahl überschritten würde.
-crs#:#crs_reg_univis#:#Wie in UnivIS
-crs#:#crs_reg_univis_info#:#Der Anmeldezeitraum wird aus Univis übernommen.
 crs#:#crs_reg_user_already_assigned#:#Sie sind bereits Teilnehmer in diesem Kurs.
 crs#:#crs_reg_user_generic_failure#:#Sie konnten nicht aufgenommen werden!
 crs#:#crs_reg_user_on_waiting_list#:#Sie sind bereits auf der Warteliste dieses Kurses eingetragen!
@@ -938,201 +921,6 @@ trac#:#trac_mode_questions#:#Anteil richtig beantworteter Fragen###fau: lpQuesti
 trac#:#trac_mode_questions_info#:#Benutzer, die einen Anteil Fragen richtig beantwortet haben, erhalten automatisch den Status 'Bearbeitet'. Bitte nutzen Sie diese Option nur, wenn auch tatsächlich Fragen im Lernmodul vorliegen.###fau: lpQuestionsPercent
 trac#:#trac_mode_questions_percent#:#Anteil (%)
 trac#:#trac_required_questions_percent#:#Anteil richtig beantworteter Fragen (%)
-univis#:#crs_availability_unvisible_info#:#Der Kurs wird offline geschaltet
-univis#:#crs_visibility#:#Verfügbarkeit
-univis#:#crs_visibility_unvisible#:#Nicht sichtbar
-univis#:#univis_additional_info#:#Zusätzliche Informationen
-univis#:#univis_add_title_short#:#Kurztitel anhängen
-univis#:#univis_allfak#:#Sprachkurs für Hörer aller Fakultäten
-univis#:#univis_allfak_short#:#AllFak
-univis#:#univis_bac#:#Bachelor
-univis#:#univis_bac_short#:#BAC
-univis#:#univis_beginners#:#für Anfänger geeignet
-univis#:#univis_beginners_short#:#Anf.
-univis#:#univis_benschein#:#benoteter Schein
-univis#:#univis_benschein_short#:#ben. Schein
-univis#:#univis_category_course_update_no_found#:#Es wurden in dieser Kategorie keine Kurse mit Daten aus UnivIS gefunden. Sie können in einem bestehenden Kurs die Univis-Daten auch nachträglich hinterlegen. Wechseln Sie dazu in den Kurs und rufen Sie die Datenübertragung dort auf.
-univis#:#univis_comment#:#Kommentar
-univis#:#univis_confirm_course_data_delete#:#Dieser Kurs ist mit einer Lehrveranstaltung aus UnivIS verbunden, was z.B. benötigt wird, um Anmeldungen aus <em>mein campus</em> zu übertragen. Jeder Lehrveranstaltung in UnivIS kann nur ein StudOn-Kurs zugeordnet sein.<br />Möchten Sie die Verbindung löschen, um sie für einen anderen Kurs zu ermöglichen?
-univis#:#univis_contact_data#:#Kontaktdaten
-univis#:#univis_course_data_delete_succeeded#:#Die Verbindung mit der Lehrveranstaltung wurde gelöscht. Um die Angaben im Kursprogramm zu löschen, gehen Sie bitte auf Einstellungen / Kursinfo.
-univis#:#univis_course_path#:#Studon-Kurs in:
-univis#:#univis_credits#:#Kredit:
-univis#:#univis_date_from#:#ab
-univis#:#univis_department_title#:#Name
-univis#:#univis_dipl#:#Diplom
-univis#:#univis_dipl_short#:#DIPL
-univis#:#univis_ects#:#ECTS-Studium
-univis#:#univis_ects_credits#:#ECTS-Credits:
-univis#:#univis_ects_credits_short#:#ECTS:
-univis#:#univis_ects_info#:#ECTS-Informationen
-univis#:#univis_ects_info_credits#:#Credits:
-univis#:#univis_ects_info_literature#:#Literature:
-univis#:#univis_ects_info_name#:#Title:
-univis#:#univis_ects_info_organizational#:#Organisatorisches:
-univis#:#univis_ects_info_prerequisites#:#Prerequisites:
-univis#:#univis_ects_info_summary#:#Contents:
-univis#:#univis_ects_short#:#ECTS
-univis#:#univis_einf#:#Einführende Veranstaltung gem. 10. Änderungsgesetz d. FPO
-univis#:#univis_einf_short#:#Einf.
-univis#:#univis_error_connect#:#Der UnivIS-Server ist momentan nicht erreichbar!
-univis#:#univis_error_none#:#Kein Fehler beim Import der Daten aus UnivIS
-univis#:#univis_error_transfer#:#Es gab einen Fehler bei der Datenübertragung!
-univis#:#univis_error_validate#:#Es wurden keine auswertbaren Daten zurückgegeben!
-univis#:#univis_fachstud#:#nur Fachstudium
-univis#:#univis_fachstud_short#:#Fachst.
-univis#:#univis_fruehstud#:#Frühstudium
-univis#:#univis_fruehstud_short#:#Frühst.
-univis#:#univis_gast#:#für Gasthörer zugelassen
-univis#:#univis_gast_short#:#Gasthörer
-univis#:#univis_header_settings#:#Ausgewählte Einstellungen
-univis#:#univis_header_settings_desc#:#Sie können diese Einstellungen auch nachträglich ändern.
-univis#:#univis_header_show_on_info_screen#:#Daten zur Anzeige auf der Infoseite
-univis#:#univis_header_show_on_list#:#Daten zur Anzeige bei der Auflistung
-univis#:#univis_info#:#Angaben
-univis#:#univis_info_set_activation#:#Setze oder aktualisiere die Verfügbarkeitseinstellung
-univis#:#univis_info_set_description#:#Die Beschreibung wird bei der Auflistung in StudOn unter dem Titel angezeigt. Aus UnivIS können die Angaben übernommen werden, die dort bei der Auflistung angezeigt werden.
-univis#:#univis_info_set_membership_limitation#:#<span class="alert">Diese Einstellung wird ignoriert, wenn die Anmeldung über <em>mein campus</em> läuft.</span>
-univis#:#univis_info_set_registration#:#<span class="alert">Diese Einstellung wird ignoriert, wenn die Anmeldung über <em>mein campus</em> läuft.</span><br />Ohne Auswahl wird der Anmeldezeitraum aus UnivIS übernommen und das Beitrittsverfahren auf "Direkter Beitritt" eingestellt.
-univis#:#univis_info_set_syllabus#:#In das Feld "Kursprogramm" können die Daten aus der UnivIS-Detailansicht übertragen werden. Die Auswahlen entsprechen den dortigen Teilüberschriften. Das Feld "Wichtige Informationen" bleibt für zusätzliche Angaben in StudOn unverändert.
-univis#:#univis_info_set_title#:#Bei einem Neu-Import wird der Titel immer übernommen. Der Kurztitel wird ggf. in eckigen Klammern dahinter gesetzt.
-univis#:#univis_institution#:#Institution
-univis#:#univis_keywords#:#Schlagwörter:
-univis#:#univis_ladidf#:#LADIDF
-univis#:#univis_ladidf_short#:#LADIDF
-univis#:#univis_ladidg#:#LADIDG
-univis#:#univis_ladidg_short#:#LADIDG
-univis#:#univis_ladidh#:#LADIDH
-univis#:#univis_ladidh_short#:#LADIDH
-univis#:#univis_laew#:#LAEW
-univis#:#univis_laew_short#:#LAEW
-univis#:#univis_lafb#:#LAFB
-univis#:#univis_lafb_short#:#LAFB
-univis#:#univis_lafn#:#LAFN
-univis#:#univis_lafn_short#:#LAFN
-univis#:#univis_lafv#:#LAFV
-univis#:#univis_lafv_short#:#LAFV
-univis#:#univis_lecturer#:#Dozent/in
-univis#:#univis_lecturer_name#:#Name
-univis#:#univis_lectures_search_import_desc#:#Bitte geben Sie ein Suchkriterium für die Lehrveranstaltungen ein, die sie als Kurse in StudOn anlegen möchten.
-univis#:#univis_lectures_search_title#:#Nach Lehrveranstaltungen suchen
-univis#:#univis_lectures_selection_import_desc#:#Bitte wählen Sie die Lehrveranstaltungen aus, die Sie importieren möchten.
-univis#:#univis_lectures_selection_title#:#Lehrveranstaltungen auswählen
-univis#:#univis_lectures_selection_update_desc#:#Bitte wählen Sie die Lehrveranstaltungen aus, deren Kursdaten Sie aktualisieren möchten.
-univis#:#univis_lecture_conditions_desc#:#Bitte legen Sie fest, wie die Lehrveranstaltungs-Daten übernommen werden sollen.
-univis#:#univis_lecture_conditions_title#:#Einstellungen zur Datenübernahme
-univis#:#univis_lecture_message_course_blocked#:#Dieser StudOn-Kurs ist für Sie nicht änderbar. Eigentümer: %s.
-univis#:#univis_lecture_message_course_exists#:#Hierzu gibt es bereits einen Kurs in StudOn. Eigentümer: %s.
-univis#:#univis_lecture_message_course_hidden#:#Hierzu gibt es ein StudOn-Kurs, der für Sie nicht sichtbar ist. Eigentümer: %s.
-univis#:#univis_lecture_message_course_parent#:#Die Lehrveranstaltung ist bereits mit diesem Kurs verknüpft.
-univis#:#univis_lecture_search_import_desc#:#Bitte geben Sie ein Suchkriterium für die Lehrveranstaltung ein, deren Daten Sie im Kurs eintragen möchten.
-univis#:#univis_lecture_search_title#:#Nach einer Lehrveranstaltung suchen
-univis#:#univis_lecture_selection_import_desc#:#Bitte wählen Sie die Lehrveranstaltung aus, deren Daten Sie übernehmen möchten.
-univis#:#univis_lecture_selection_title#:#Lehrveranstaltung auswählen
-univis#:#univis_lecture_title#:#Titel
-univis#:#univis_lecture_type_ag#:#Arbeitsgemeinschaft
-univis#:#univis_lecture_type_ak#:#Aufbaukurs
-univis#:#univis_lecture_type_awa#:#Anleitung zu wiss. Arbeiten
-univis#:#univis_lecture_type_ek#:#Einführungskurs
-univis#:#univis_lecture_type_ex#:#Exkursion
-univis#:#univis_lecture_type_gk#:#Grundkurs
-univis#:#univis_lecture_type_gsz#:#Gremiensitzung
-univis#:#univis_lecture_type_hs#:#Hauptseminar
-univis#:#univis_lecture_type_hvl#:#Hauptvorlesung
-univis#:#univis_lecture_type_kk#:#Klausurenkurs
-univis#:#univis_lecture_type_klv#:#Klinische Visite
-univis#:#univis_lecture_type_ko#:#Kolloquium
-univis#:#univis_lecture_type_ku#:#Kurs
-univis#:#univis_lecture_type_ms#:#Mittelseminar
-univis#:#univis_lecture_type_os#:#Oberseminar
-univis#:#univis_lecture_type_pf#:#Prüfung
-univis#:#univis_lecture_type_pjs#:#Projektseminar
-univis#:#univis_lecture_type_ppu#:#Propädeutische Übung
-univis#:#univis_lecture_type_pr#:#Praktikum
-univis#:#univis_lecture_type_prs#:#Praxisseminar
-univis#:#univis_lecture_type_ps#:#Proseminar
-univis#:#univis_lecture_type_re#:#Repetitorium
-univis#:#univis_lecture_type_sem#:#Seminar
-univis#:#univis_lecture_type_sl#:#Sonstige Lehrveranstaltung
-univis#:#univis_lecture_type_ts#:#Theorieseminar
-univis#:#univis_lecture_type_tut#:#Tutorium
-univis#:#univis_lecture_type_ue#:#Übung
-univis#:#univis_lecture_type_v-ue#:#Vorlesung mit Übung
-univis#:#univis_lecture_type_vorl#:#Vorlesung
-univis#:#univis_literature#:#Empfohlene Literatur
-univis#:#univis_mag#:#Magister
-univis#:#univis_mag_short#:#MAG
-univis#:#univis_mast#:#Master
-univis#:#univis_mast_short#:#MAST
-univis#:#univis_maxturnout#:#Maximale Teilnehmerzahl:
-univis#:#univis_medabschn1#:#1. Studienabschnitt
-univis#:#univis_medabschn1_short#:#1.Abschn.
-univis#:#univis_medabschn2#:#2. Studienabschnitt
-univis#:#univis_medabschn2_short#:#2. Abschn.
-univis#:#univis_message_courses_updated#:#%s StudOn-Kurse wurden aktualisiert.
-univis#:#univis_message_course_updated#:#1 StudOn-Kurs wurde aktualisiert.
-univis#:#univis_message_lectures_ignored#:#%s Lehrveranstaltungen wurde ignoriert.
-univis#:#univis_message_lectures_imported#:#%s Lehrveranstaltungen wurden als StudOn-Kurse angelegt.
-univis#:#univis_message_lecture_ignored#:#1 Lehrveranstaltung wurde ignoriert.
-univis#:#univis_message_lecture_imported#:#1 Lehrveranstaltung wurde als StudOn-Kurs angelegt.
-univis#:#univis_message_this_course_updated#:#Die Kursdaten wurden aktualisiert.
-univis#:#univis_mycampus_registration#:#Für diese Lehrveranstaltung ist eine Anmeldung erforderlich. Die Anmeldung erfolgt über <a href="https://www.campus.uni-erlangen.de/qisserver/rds?univisid=%s" target="_blank"><em>mein campus</em></a>.
-univis#:#univis_no_department_found#:#Es wurden keine passenden Einrichtungen gefunden. Bitte überprüfen Sie Ihre Sucheingabe!
-univis#:#univis_no_lecturer_found#:#Es wurden keine passenden Personen gefunden. Bitte überprüfen Sie Ihre Sucheingabe!
-univis#:#univis_no_lectures_found#:#Es wurden keine passenden Lehrveranstaltungen gefunden. Bitte überprüfen Sie Ihre Sucheingabe!
-univis#:#univis_no_lectures_selected#:#Bitte wählen Sie eine Lehrveranstaltung aus!
-univis#:#univis_no_title_selected#:#Bitte wählen Sie einen Titel!
-univis#:#univis_pattern_too_short#:#Bitte geben Sie mindestens %s Zeichen als Suchkriterium ein!
-univis#:#univis_praktjahr#:#Praktisches Jahr
-univis#:#univis_praktjahr_short#:#Prk. Jahr
-univis#:#univis_prerequisites#:#Voraussetzungen / Organisatorisches
-univis#:#univis_refine_department#:#Es gibt mehrere Einrichtungen, die zu Ihrer Sucheingabe passen. Bitte wählen Sie eine aus oder verfeinern Sie Ihre Sucheingabe!
-univis#:#univis_refine_lecturer#:#Es gibt mehrere Personen, die zu Ihrer Sucheingabe passen. Bitte wählen Sie eine aus oder verfeinern Sie Ihre Sucheingabe!
-univis#:#univis_schein#:#Schein
-univis#:#univis_schluessel#:#geeignet als Schlüsselqualifikation
-univis#:#univis_schluessel_short#:#Schlüssel
-univis#:#univis_schwerp#:#Studienschwerpunkte Phil.I/Phil.II
-univis#:#univis_schwerp_short#:#Schwerp.
-univis#:#univis_search_by_department#:#Einrichtung
-univis#:#univis_search_by_department_info#:#Es wird nach Lehrveranstaltungen einer Einrichtung gesucht, deren Name zur Sucheingabe passt.
-univis#:#univis_search_by_imported_courses#:#Bereits importierte Kurse in dieser Kategorie
-univis#:#univis_search_by_lecturer#:#Dozentin/Dozent
-univis#:#univis_search_by_lecturer_info#:#Es wird nach Lehrveranstaltungen von Dozentinnen und Dozenten gesucht, deren Name zur Sucheingabe passt
-univis#:#univis_search_by_title#:#Lehrveranstaltung
-univis#:#univis_search_by_title_info#:#Es wird nach Lehrveranstaltungen gesucht, deren Titel zur Sucheingabe passt
-univis#:#univis_search_info_retry#:#<br />Tipp: suchen Sie eventuell über ein anderes Kriterium (Lehrveranstaltung, Einrichtung, Dozent).
-univis#:#univis_search_mode#:#Suche über:
-univis#:#univis_select_department#:#Auswahl
-univis#:#univis_select_department_info#:#Diese Einrichtungen wurden bei der Suche gefunden. Wählen Sie eine aus, um deren Lehrveranstaltungen zu listen.
-univis#:#univis_select_lecturer#:#Auswahl
-univis#:#univis_select_lecturer_info#:#Diese Personen wurden bei der Suche gefunden. Wählen Sie eine aus, um deren Lehrveranstaltungen zu listen.
-univis#:#univis_semester#:#Semester
-univis#:#univis_semester_from#:#ab
-univis#:#univis_senior#:#Seniorenstudium
-univis#:#univis_senior_short#:#Senioren
-univis#:#univis_set_activation#:#Verfügbarkeit einstellen
-univis#:#univis_set_contact_first#:#Von erster Dozentin/erstem Dozenten übernehmen
-univis#:#univis_set_contact_not#:#Nicht übernehmen
-univis#:#univis_set_contact_own#:#neue Kontaktdaten:
-univis#:#univis_set_description#:#Beschreibung übernehmen
-univis#:#univis_set_membership_limitation#:#Maximale Teilnehmerzahl aus UnivIS übernehmen
-univis#:#univis_set_registration#:#Registrierungsoptionen einstellen
-univis#:#univis_set_syllabus#:#"Kursprogramm" übernehmen
-univis#:#univis_set_title#:#Titel übernehmen
-univis#:#univis_short_info#:#Kurzangaben
-univis#:#univis_ss#:#SS %s
-univis#:#univis_studies#:#Studienfächer / Studienrichtungen
-univis#:#univis_summary#:#Inhalt
-univis#:#univis_sws#:#SWS
-univis#:#univis_terms#:#Termine
-univis#:#univis_term_bd#:#Blockveranstaltung
-univis#:#univis_term_d1#:#täglich
-univis#:#univis_term_s1#:#Einzeltermin am
-univis#:#univis_term_w2#:#jede 2. Woche
-univis#:#univis_turnout#:#Erwartete Teilnehmerzahl:
-univis#:#univis_women#:#Frauenforschung
-univis#:#univis_women_short#:#Frauen
-univis#:#univis_ws#:#WS %s/%s
 user#:#user_error_auth_settings_wrong#:#Die Authentifizierungsdaten sind nicht gültig.
 user#:#user_error_shib_with_empty_ext_account#:#Der Authentifizierungsmodus "Shibboleth" benötigt eine gültige IDM-Kennung als externes Benutzerkonto.
 user#:#user_error_local_with_ext_account#:#Beim Authentifizierungsmodus "StudOn-Datenbank" darf kein externes Benutzerkonto eingetragen sein.

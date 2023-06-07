@@ -1827,8 +1827,7 @@ class ilStartUpGUI
         $type = $t_arr[0];
 
         // fau: gotoLinks - don't check goto for studon targets
-        // fau: univisLinks don't check goto for univis targets
-        if ($type == "studon" or $type == "univis") {
+        if ($type == "studon") {
             return true;
         }
         // fau.
