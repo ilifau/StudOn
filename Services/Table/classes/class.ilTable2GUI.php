@@ -1605,6 +1605,20 @@ class ilTable2GUI extends ilTableGUI
         }
     }
 
+    public function storeNavParameter()
+    {
+        if ($this->getOrderField() != "") {
+            $this->storeProperty("order", $this->getOrderField());
+        }
+        if ($this->getOrderDirection() != "") {
+            $this->storeProperty("direction", $this->getOrderDirection());
+        }
+        //echo "-".$this->getOffset()."-";
+        if ($this->getOffset() !== "") {
+            $this->storeProperty("offset", $this->getOffset());
+        }
+    }
+    
 
     /**
     * Get HTML
