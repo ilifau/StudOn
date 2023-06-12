@@ -31,18 +31,21 @@ class SyncWithIdm extends SyncBase
      * @see \ilAuthProviderSamlStudOn::findLogin()
      * @see \ilAuthProviderSamlStudOn::getUpdatedUser()
      */
-    public function syncPersonData()
+    public function syncPersonData($uid = null)
     {
         $this->info('syncPersonData...');
-        foreach ($this->staging->repo()->getIdentities() as $identity) {
+        if (isset($uid)) {
+            $identities = [$this->staging->repo()->getIdentity($uid)];
+        }
+        else {
+            $identities = $this->staging->repo()->getIdentities();
+        }
+        
+        foreach ($identities as $identity) {
             $user_id = 0;
 
-             // Try the identity as login
-            if ($login = ilObjUser::_findLoginByField('login', $identity->getPkPersistentId())) {
-                $user_id = (int) ilObjUser::_lookupId($login);
-            }
             // Try the identity as external account
-            else if ($login = ilObjUser::_findLoginByField('ext_account', $identity->getPkPersistentId())) {
+            if ($login = ilObjUser::_findLoginByField('ext_account', $identity->getPkPersistentId())) {
                 $user_id = (int) ilObjUser::_lookupId($login);
             }
 
@@ -98,10 +101,12 @@ class SyncWithIdm extends SyncBase
             $userObj->getId(), $identity->getShibbolethAttributes());
 
         // update or create the assigned person data
-        $new = false;
+        $has_new_person_id = false;
         if (empty($person = $this->user->repo()->getPersonOfUser($userObj->getId()))) {
             $person = Person::model()->withUserId($userObj->getId());
-            $new = true;
+        }
+        if ((int) $identity->getFauCampoPersonId() != (int) $person->getPersonId()) {
+            $has_new_person_id = true;
         }
         $person = $this->getPersonUpdate($person, $identity);
         $this->user->repo()->save($person);
@@ -114,9 +119,9 @@ class SyncWithIdm extends SyncBase
             // ignore exception
         }
 
-        // set the responsible or instructor roles for a newly created account
+        // set the responsible or instructor roles if a person_id is newly assigned
         // (update for existing users is done in the sync of courses and would be too time consuming here)
-        if ($new) {
+        if ($has_new_person_id) {
             $this->sync->roles()->applyNewUserCourseRoles($userObj->getId());
         }
     }
