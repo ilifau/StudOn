@@ -180,9 +180,10 @@ class Repository extends RecordRepo
      */
     protected function getMembersQueryToSyncBack() : string
     {
+        // temporary until dateline for status change is clarified
         return "
             SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
-            CASE c.needs_passed WHEN 1 THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'passed' END AS `status`
+            'registered' AS `status`
             FROM fau_study_courses c
             JOIN object_reference r ON r.obj_id = c.ilias_obj_id
             JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
@@ -192,6 +193,20 @@ class Repository extends RecordRepo
             LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
             LEFT JOIN ut_lp_marks s ON s.obj_id = r.obj_id AND s.usr_id = p.user_id
         ";
+
+        // correct query until dateline for status change is clarified
+//        return "
+//            SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
+//            CASE c.needs_passed WHEN 1 THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'passed' END AS `status`
+//            FROM fau_study_courses c
+//            JOIN object_reference r ON r.obj_id = c.ilias_obj_id
+//            JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
+//            JOIN object_data o ON o.obj_id = fa.rol_id AND (o.title LIKE 'il_crs_member%' OR o.title LIKE 'il_grp_member%')
+//            JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
+//            JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
+//            LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
+//            LEFT JOIN ut_lp_marks s ON s.obj_id = r.obj_id AND s.usr_id = p.user_id
+//        ";
     }
 
 
