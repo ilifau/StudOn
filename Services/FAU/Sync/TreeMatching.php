@@ -152,24 +152,29 @@ class TreeMatching
         $creationUnit = null;
 
         // search for an org unit that allows course creation and has an ilias category assigned
-        foreach ($this->study->repo()->getEventOrgunitsByEventId($course->getEventId()) as $unit) {
-            if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
-                $this->study->repo()->save($course->withIliasProblem(
-                    'Responsible org unit ' . $unit->getFauorgNr() . ' not found!'));
-                continue; // next unit
+        $eventUnits = $this->study->repo()->getEventOrgunitsByEventId($course->getEventId());
+        if (empty($eventUnits)) {
+            $this->study->repo()->save($course->withIliasProblem("No event org unit found for course creation!"));
+        }
+        else {
+            foreach ($eventUnits as $unit) {
+                if (empty($responsibleUnit = $this->org->repo()->getOrgunitByNumber($unit->getFauorgNr()))) {
+                    $this->study->repo()->save($course->withIliasProblem(
+                        'Responsible org unit ' . $unit->getFauorgNr() . ' not found!'));
+                    continue; // next unit
+                }
+                if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
+                    $this->org->repo()->save($responsibleUnit->withProblem(
+                        "No org unit with ilias category found for course creation!\n    "
+                        . implode("\n    ", $this->getOrgPathLog($responsibleUnit,true))
+                    ));
+                    continue;   // next unit
+                }
+                break;  // creationUnit found
             }
-            if (empty($creationUnit = $this->findOrgUnitForCourseCreation($responsibleUnit))) {
-                $this->org->repo()->save($responsibleUnit->withProblem(
-                    "No org unit with ilias category found for course creation!\n    "
-                    . implode("\n    ", $this->getOrgPathLog($responsibleUnit,true))
-                ));
-                continue;   // next unit
-            }
-            break;  // creationUnit found
         }
         // try fallback parent category
         if (empty($creationUnit)) {
-            $this->study->repo()->save($course->withIliasProblem("No org unit found for course creation!"));
             $parent_ref_id = $this->settings->getFallbackParentCatId();
             if (empty($parent_ref_id)) {
                 return null;
@@ -178,8 +183,8 @@ class TreeMatching
         // check if the assigned ilias reference is a category and not deleted
         elseif (ilObject::_lookupType($creationUnit->getIliasRefId(), true) != 'cat'
             || ilObject::_isInTrash($creationUnit->getIliasRefId())) {
-            $this->study->repo()->save($creationUnit->withProblem('No ILIAS category found for the ref_id'));
-            $this->study->repo()->save($course->withIliasProblem("No org unit found for course creation!"));
+            $this->study->repo()->save($creationUnit->withProblem('No ILIAS category found for the ref_id ' . $creationUnit->getIliasRefId()));
+            $this->study->repo()->save($course->withIliasProblem('No ILIAS category found for the ref_id ' . $creationUnit->getIliasRefId()));
             return null;
         }
         else {
