@@ -1477,10 +1477,12 @@ class ilStartUpGUI
             )
         );
 
-        if ((int) $this->user->getAuthMode(true) == AUTH_SAML && $had_external_authentication) {
+        // fau: samlAuth - do SAML logout when auth mode is Shibboleth
+        if ((int) $this->user->getAuthMode(true) == AUTH_SHIBBOLETH && $had_external_authentication) {
             $this->logger->info('Redirecting user to SAML logout script');
             $this->ctrl->redirectToURL('saml.php?action=logout&logout_url=' . urlencode(ILIAS_HTTP_PATH . '/login.php'));
         }
+        // fau.
 
         // reset cookie
         $client_id = $_COOKIE["ilClientId"];
