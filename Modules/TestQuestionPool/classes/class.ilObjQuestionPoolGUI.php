@@ -849,10 +849,6 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
             $newObj->saveToDb();
         }
 
-        // delete import directory
-        // fau: fixTestImportDirectory - cleanup import sub directoy
-        unset($_SESSION["qpl_import_subdir"]);
-        // fau.
         include_once "./Services/Utilities/classes/class.ilUtil.php";
         ilUtil::delDir(dirname(ilObjQuestionPool::_getImportDirectory()));
 
@@ -867,10 +863,6 @@ class ilObjQuestionPoolGUI extends ilObjectGUI
 
     public function cancelImportObject()
     {
-        // fau: fixTestImportDirectory - cleanup import sub directoy
-        unset($_SESSION["qpl_import_subdir"]);
-        // fau.
-
         if ($_POST["questions_only"] == 1) {
             $this->ctrl->redirect($this, "questions");
         } else {

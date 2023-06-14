@@ -1497,24 +1497,12 @@ class ilObjTestGUI extends ilObjectGUI
             $newObj->update();
         }
 
-
-        // delete import directory
-        // fau: fixTestImportDirectory - cleanup import subdirectory
-        unset($_SESSION["tst_import_subdir"]);
-        // fau.
+        
         ilUtil::delDir(ilObjTest::_getImportDirectory());
 
         ilUtil::sendSuccess($this->lng->txt("object_imported"), true);
         ilUtil::redirect("ilias.php?ref_id=" . $newObj->getRefId() . "&baseClass=ilObjTestGUI");
     }
-
-    // fau: fixTestImportDirectory - cleanup import sub directoy
-    public function cancelImportObject()
-    {
-        unset($_SESSION["qpl_import_subdir"]);
-        $this->cancelObject();
-    }
-    // fau.
 
     /**
     * display status information or report errors messages
