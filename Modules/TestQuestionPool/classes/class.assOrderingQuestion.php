@@ -1071,11 +1071,7 @@ class assOrderingQuestion extends assQuestion implements ilObjQuestionScoringAdj
                 }
             }
             $element = $this->getOrderingElementList()->getElementBySolutionIdentifier($idx);
-            // fau: fixOrderingExportXls - avoid error on empty elements
-            if (isset($element)) {
-                $worksheet->setCell($startrow + $i, 1, $element->getContent());
-            }
-            // fau.
+            $worksheet->setCell($startrow + $i, 2, $element->getContent());
             $i++;
         }
 
