@@ -29,6 +29,9 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
  * fau: studyCond - added ilStudyCondGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilStudyCondGUI
  * fau.
+ * fau: univisImport - added ilUnivisImportLecturesGUI to call structure
+ * @ilCtrl_Calls ilObjCourseGUI: ilUnivisImportLecturesGUI
+ * fau.
  * fau: objectSub - added ilPropertyFormGUI to call structure
  * @ilCtrl_Calls ilObjCourseGUI: ilPropertyFormGUI
  * fau.
@@ -285,22 +288,50 @@ class ilObjCourseGUI extends ilContainerGUI
             strlen($this->object->getImportantInformation()) ||
             strlen($this->object->getSyllabus()) ||
             strlen($this->object->getTargetGroup()) ||
+            strlen($univis_link) ||
            count($files)) {
             $info->addSection($this->lng->txt('crs_general_informations'));
         }
 
+        if ((strlen($univis_link))) {
+            $info->addProperty($this->lng->txt('univis'), $univis_link);
+        }
+        // fau.
+
         if (strlen($this->object->getImportantInformation())) {
+            // fau: courseInfoRte - don't modify string if html is contained
+            if ($this->object->getImportantInformation() !=
+                ilUtil::secureString($this->object->getImportantInformation())
+            ) {
+                $info->addProperty(
+                    $this->lng->txt('crs_important_info'),
+                    ilUtil::makeClickable($this->object->getImportantInformation(), true)
+                );
+            } else {
             $info->addProperty(
                 $this->lng->txt('crs_important_info'),
                 "<strong>" . nl2br(
                     ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
-                )
+                               )
             );
         }
+            // fau.
+        }
         if (strlen($this->object->getSyllabus())) {
-            $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
-                ilUtil::makeClickable($this->object->getSyllabus(), true)
-            ));
+            // fau: courseInfoRte - don't modify string if html is contained
+            if ($this->object->getSyllabus() !=
+                ilUtil::secureString($this->object->getSyllabus())
+            ) {
+                $info->addProperty(
+                    $this->lng->txt('crs_syllabus'),
+                    ilUtil::makeClickable($this->object->getSyllabus(), true)
+                );
+            } else {
+                $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
+                    ilUtil::makeClickable($this->object->getSyllabus(), true)
+                ));
+            }
+            // fau.
         }
         if (strlen($this->object->getTargetGroup())) {
             $info->addProperty(
@@ -310,7 +341,6 @@ class ilObjCourseGUI extends ilContainerGUI
                 )
             );
         }
-
         // files
         if (count($files)) {
             $tpl = new ilTemplate('tpl.event_info_file.html', true, true, 'Modules/Course');
@@ -436,6 +466,12 @@ class ilObjCourseGUI extends ilContainerGUI
                 $txt = $this->lng->txt("crs_info_reg_deactivated");
                 break;
 
+// fau: campusSub - show subscription type mycampus
+            case IL_CRS_SUBSCRIPTION_MYCAMPUS:
+                $txt = $this->lng->txt("crs_subscription_mycampus");
+                break;
+// fau.
+
             default:
 // fau: objectSub - add info about subscription in separate object
                 if ($this->object->getSubscriptionType() == IL_CRS_SUBSCRIPTION_OBJECT) {
@@ -488,7 +524,10 @@ class ilObjCourseGUI extends ilContainerGUI
         $info->addProperty($this->lng->txt("crs_info_reg"), $subscription_text . $txt);
         // fau.
 
-        if ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        // fau: campusSub - don't show subscription period for mycampus
+        if ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED
+            && $this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_MYCAMPUS) {
+            // fau.
             if ($this->object->getSubscriptionUnlimitedStatus()) {
                 $info->addProperty(
                     $this->lng->txt("crs_reg_until"),
@@ -744,13 +783,36 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addCommandButton('cancel', $this->lng->txt('cancel'));
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_important_info'), 'important');
-        $area->setValue($this->object->getImportantInformation());
+
+        // fau: courseInfoRte - use RTE / HTML for important information
+        $area->setUseRTE(true);
+        $area->setRTETagSet('extended');
+        if ($this->object->getImportantInformation() ==
+            ilUtil::secureString($this->object->getImportantInformation())
+        ) {
+            $area->setValue("<strong>" . nl2br(
+                ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
+            ));
+        } else {
+            $area->setValue($this->object->getImportantInformation());
+        }
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_syllabus'), 'syllabus');
-        $area->setValue($this->object->getSyllabus());
+        // fau: courseInfoRte - use RTE / HTML for syllabus
+        $area->setUseRTE(true);
+        $area->setRTETagSet('extended');
+        if ($this->object->getSyllabus() ==
+            ilUtil::secureString($this->object->getSyllabus())
+        ) {
+            $area->setValue(nl2br(ilUtil::makeClickable($this->object->getSyllabus(), true)));
+        } else {
+            $area->setValue($this->object->getSyllabus());
+        }
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
@@ -759,7 +821,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $tg->setValue($this->object->getTargetGroup());
         $tg->setRows(6);
         $form->addItem($tg);
-        
+
         $section = new ilFormSectionHeaderGUI();
         $section->setTitle($this->lng->txt('crs_info_download'));
         $form->addItem($section);
@@ -836,8 +898,10 @@ class ilObjCourseGUI extends ilContainerGUI
         $file_obj->setTemporaryName($_FILES['file']['tmp_name']);
         $file_obj->setErrorCode($_FILES['file']['error']);
 
-        $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important']));
-        $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus']));
+        // fau: courseInfoRte - allow HTML in course info
+        $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important'], false));
+        $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus'], false));
+        // fau.
         $this->object->setTargetGroup(\ilUtil::stripSlashes($_POST['target_group']));
         $this->object->setContactName(ilUtil::stripSlashes($_POST['contact_name']));
         $this->object->setContactResponsibility(ilUtil::stripSlashes($_POST['contact_responsibility']));
@@ -993,7 +1057,12 @@ class ilObjCourseGUI extends ilContainerGUI
         $sub_period = $form->getItemByPostVar('subscription_period');
         
         $this->object->setSubscriptionType($sub_type);
-        if ($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+        // fau: campusSub - set subscription by my campus
+        if ($sub_type == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
+            $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_MYCAMPUS);  // see ilObjCourse::__createDefaultSettings()
+            $this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_MYCAMPUS);
+        } elseif ($sub_type != IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+            // fau.
             if ($sub_period->getStart() && $sub_period->getEnd()) {
                 $this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_LIMITED);
                 $this->object->setSubscriptionStart($sub_period->getStart()->get(IL_CAL_UNIX));
@@ -1004,7 +1073,7 @@ class ilObjCourseGUI extends ilContainerGUI
         } else {
             $this->object->setSubscriptionType(IL_CRS_SUBSCRIPTION_DIRECT);
             $this->object->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_DEACTIVATED);
-        }        
+        }
         
         // registration code
         $this->object->enableRegistrationAccessCode((int) $form->getInput('reg_code_enabled'));
@@ -1226,6 +1295,11 @@ class ilObjCourseGUI extends ilContainerGUI
             return $this->editObject($form);
         }
 
+        // fau: campoSub - save the campo settings from the form
+        $DIC->fau()->ilias()->getCourseSettingsGUI()->saveCampoSettingsFromForm($form, $this->object);
+        // fau.
+
+
         return $this->afterUpdate();
     }
 
@@ -1363,12 +1437,32 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addItem($section);
         
         $reg_proc = new ilRadioGroupInputGUI($this->lng->txt('crs_registration_type'), 'subscription_type');
-        $reg_proc->setValue(
-            ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
-                ? $this->object->getSubscriptionType()
-                : IL_CRS_SUBSCRIPTION_DEACTIVATED
-        );
+        // fau: campusSub - respect also the subscription limitation type for my campus
+        // this is used in studon versions up to 4.3
+        if ($this->object->getSubscriptionLimitationType() == IL_CRS_SUBSCRIPTION_MYCAMPUS) {
+            $reg_proc->setValue(IL_CRS_SUBSCRIPTION_MYCAMPUS);
+        } else {
+            $reg_proc->setValue(
+                ($this->object->getSubscriptionLimitationType() != IL_CRS_SUBSCRIPTION_DEACTIVATED)
+                    ? $this->object->getSubscriptionType()
+                    : IL_CRS_SUBSCRIPTION_DEACTIVATED
+            );
+        }
+        // fau.
         // $reg_proc->setInfo($this->lng->txt('crs_reg_type_info'));
+
+        // fau: campusSub - add option for my campus subscription
+
+        if (ilCust::get('mycampus_enabled')) {
+            $opt = new ilRadioOption($this->lng->txt('crs_subscription_mycampus'), IL_CRS_SUBSCRIPTION_MYCAMPUS);
+            require_once('./Services/UnivIS/classes/class.ilUnivisLecture.php');
+            if (!ilUnivisLecture::_isIliasImportId($this->object->getImportId())) {
+                $opt->setDisabled(true);
+            }
+            $opt->setInfo($this->lng->txt('crs_subscription_mycampus_info'));
+            $reg_proc->addOption($opt);
+        }
+        // fau.
 
         // fau: objectSub - add option for reference to subscription object
         require_once('Services/Form/classes/class.ilRepositorySelectorInputGUI.php');
@@ -1638,7 +1732,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getNumberOfPreviousSessions() == -1 ?
                         '' :
                         $this->object->getNumberOfPreviousSessions()
-        );
+                    );
         $prev->setSize(2);
         $prev->setMaxLength(3);
         $sess->addSubItem($prev);
@@ -1650,7 +1744,7 @@ class ilObjCourseGUI extends ilContainerGUI
             $this->object->getNumberOfNextSessions() == -1 ?
                         '' :
                         $this->object->getNumberOfnextSessions()
-        );
+                    );
         $next->setSize(2);
         $next->setMaxLength(3);
         $sess->addSubItem($next);
@@ -1756,7 +1850,7 @@ class ilObjCourseGUI extends ilContainerGUI
                     ilObjectServiceSettingsGUI::BOOKING,
                     ilObjectServiceSettingsGUI::EXTERNAL_MAIL_PREFIX
                 )
-        );
+            );
 
         $mem = new ilCheckboxInputGUI($this->lng->txt('crs_show_members'), 'show_members');
         $mem->setChecked($this->object->getShowMembers());
@@ -1818,7 +1912,11 @@ class ilObjCourseGUI extends ilContainerGUI
         include_once 'Modules/Course/classes/class.ilECSCourseSettings.php';
         $ecs = new ilECSCourseSettings($this->object);
         $ecs->addSettingsToForm($form, 'crs');
-        
+
+        // fau: campoSub - add the campo settings to the form
+        $DIC->fau()->ilias()->getCourseSettingsGUI()->addCampoSettingsToForm($form, $this->object);
+        // fau.
+
         return $form;
     }
 
@@ -2048,7 +2146,7 @@ class ilObjCourseGUI extends ilContainerGUI
             (
                 ilObjUserTracking::_enabledLearningProgress() and
             ilObjUserTracking::_enabledUserRelatedData()
-            );
+        );
         if ($this->show_tracking) {
             include_once('./Services/Object/classes/class.ilObjectLP.php');
             $olp = ilObjectLP::getInstance($this->object->getId());
@@ -2270,7 +2368,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->getLinkTargetByClass(
                     array("ilobjcoursegui", "ilinfoscreengui"),
                     "showSummary"
-                ),
+                                 ),
                 "infoScreen"
             );
         }
@@ -2388,7 +2486,7 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->ctrl->getLinkTargetByClass(
                     array("ilobjcoursegui", "ilinfoscreengui"),
                     "showSummary"
-                ),
+                                 ),
                 "infoScreen",
                 "",
                 "",
@@ -2585,6 +2683,14 @@ class ilObjCourseGUI extends ilContainerGUI
                 $mem_gui = new ilCourseMembershipGUI($this, $this->object);
                 $this->ctrl->forwardCommand($mem_gui);
                 break;
+
+// fau: univisImport call Univis Import GUI
+            case "ilunivisimportlecturesgui":
+                include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
+                $univis_gui = new ilUnivISImportLecturesGUI($this);
+                $this->ctrl->forwardCommand($univis_gui);
+                break;
+// fau.
 
 // fau: studyCond - add command class
             case 'ilstudycondgui':
@@ -2853,9 +2959,6 @@ class ilObjCourseGUI extends ilContainerGUI
                 include_once './Modules/Course/classes/Objectives/class.ilLOEditorGUI.php';
                 $editor = new ilLOEditorGUI($this->object);
                 $this->ctrl->forwardCommand($editor);
-                if (strtolower($this->ctrl->getCmdClass()) === "illopagegui") {
-                    $header_action = false;
-                }
                 break;
             
             case 'ilcontainerstartobjectsgui':
