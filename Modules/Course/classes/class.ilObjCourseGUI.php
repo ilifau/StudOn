@@ -280,27 +280,50 @@ class ilObjCourseGUI extends ilContainerGUI
         if ($ilAccess->checkAccess("write", "", $_GET["ref_id"])) {
             $info->enableNewsEditing();
         }
-
+        
         if (
             strlen($this->object->getImportantInformation()) ||
             strlen($this->object->getSyllabus()) ||
             strlen($this->object->getTargetGroup()) ||
-           count($files)) {
+            count($files)) {
             $info->addSection($this->lng->txt('crs_general_informations'));
         }
 
         if (strlen($this->object->getImportantInformation())) {
+            // fau: courseInfoRTE - don't modify string if html is contained
+            if ($this->object->getImportantInformation() !=
+                ilUtil::secureString($this->object->getImportantInformation())
+            ) {
+                $info->addProperty(
+                    $this->lng->txt('crs_important_info'),
+                    ilUtil::makeClickable($this->object->getImportantInformation(), true)
+                );
+            } else {
             $info->addProperty(
                 $this->lng->txt('crs_important_info'),
                 "<strong>" . nl2br(
                     ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
-                )
+                               )
             );
         }
+            // fau.
+        }
+
         if (strlen($this->object->getSyllabus())) {
-            $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
-                ilUtil::makeClickable($this->object->getSyllabus(), true)
-            ));
+            // fau: courseInfoRTE - don't modify string if html is contained
+            if ($this->object->getSyllabus() !=
+                ilUtil::secureString($this->object->getSyllabus())
+            ) {
+                $info->addProperty(
+                    $this->lng->txt('crs_syllabus'),
+                    ilUtil::makeClickable($this->object->getSyllabus(), true)
+                );
+            } else {
+                $info->addProperty($this->lng->txt('crs_syllabus'), nl2br(
+                    ilUtil::makeClickable($this->object->getSyllabus(), true)
+                ));
+            }
+            // fau.
         }
         if (strlen($this->object->getTargetGroup())) {
             $info->addProperty(
@@ -744,13 +767,35 @@ class ilObjCourseGUI extends ilContainerGUI
         $form->addCommandButton('cancel', $this->lng->txt('cancel'));
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_important_info'), 'important');
-        $area->setValue($this->object->getImportantInformation());
+        // fau: courseInfoRTE - use RTE / HTML for important information
+        $area->setUseRTE(true);
+        $area->setRTETagSet('extended');
+        if ($this->object->getImportantInformation() ==
+            ilUtil::secureString($this->object->getImportantInformation())
+        ) {
+            $area->setValue("<strong>" . nl2br(
+                ilUtil::makeClickable($this->object->getImportantInformation(), true) . "</strong>"
+            ));
+        } else {
+            $area->setValue($this->object->getImportantInformation());
+        }
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
         
         $area = new ilTextAreaInputGUI($this->lng->txt('crs_syllabus'), 'syllabus');
-        $area->setValue($this->object->getSyllabus());
+        // fau: courseInfoRTE - use RTE / HTML for syllabus
+        $area->setUseRTE(true);
+        $area->setRTETagSet('extended');
+        if ($this->object->getSyllabus() ==
+            ilUtil::secureString($this->object->getSyllabus())
+        ) {
+            $area->setValue(nl2br(ilUtil::makeClickable($this->object->getSyllabus(), true)));
+        } else {
+            $area->setValue($this->object->getSyllabus());
+        }
+        // fau.
         $area->setRows(6);
         $area->setCols(80);
         $form->addItem($area);
@@ -836,8 +881,10 @@ class ilObjCourseGUI extends ilContainerGUI
         $file_obj->setTemporaryName($_FILES['file']['tmp_name']);
         $file_obj->setErrorCode($_FILES['file']['error']);
 
-        $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important']));
-        $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus']));
+        // fau: courseInfoRTE - allow HTML in course info
+        $this->object->setImportantInformation(ilUtil::stripSlashes($_POST['important'], false));
+        $this->object->setSyllabus(ilUtil::stripSlashes($_POST['syllabus'], false));
+        // fau.
         $this->object->setTargetGroup(\ilUtil::stripSlashes($_POST['target_group']));
         $this->object->setContactName(ilUtil::stripSlashes($_POST['contact_name']));
         $this->object->setContactResponsibility(ilUtil::stripSlashes($_POST['contact_responsibility']));

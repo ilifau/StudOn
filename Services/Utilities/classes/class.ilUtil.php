@@ -812,6 +812,10 @@ class ilUtil
         // mask existing image tags
         $ret = str_replace('src="http://', '"***masked_im_start***', $ret);
 
+        // fau: courseInfoRTE - mask existing href tags
+        $ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
+        // fau
+
         include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
         $global_wgContLang = $GLOBALS["wgContLang"];
         $GLOBALS["wgContLang"] = new ilMWFakery();
@@ -820,6 +824,10 @@ class ilUtil
 
         // unmask existing image tags
         $ret = str_replace('"***masked_im_start***', 'src="http://', $ret);
+
+        // fau: courseInfoRTE - unmask existing href tags
+        $ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/', 'href="$1', $ret);
+        // fau.
 
         // Should be Safe
 

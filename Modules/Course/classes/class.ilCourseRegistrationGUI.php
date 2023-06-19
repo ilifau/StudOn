@@ -151,18 +151,23 @@ class ilCourseRegistrationGUI extends ilRegistrationGUI
     protected function fillInformations()
     {
         if ($this->container->getImportantInformation()) {
-            $imp = new ilNonEditableValueGUI($this->lng->txt('crs_important_info'), "", true);
-            $value = nl2br(ilUtil::makeClickable($this->container->getImportantInformation(), true));
-            $imp->setValue($value);
+            // fau: courseInfoRTE - user custom input for info
+            $imp = new ilCustomInputGUI($this->lng->txt('crs_important_info'), "", true);
+            $html = nl2br(ilUtil::makeClickable($this->container->getImportantInformation(), true));
+            $imp->setHtml($html);
             $this->form->addItem($imp);
+            // fau.
         }
         
-        if ($this->container->getSyllabus()) {
+        /* fau: courseInfoRTE - don't show syllabus
+        if($this->container->getSyllabus())
+        {
             $syl = new ilNonEditableValueGUI($this->lng->txt('crs_syllabus'), "", true);
-            $value = nl2br(ilUtil::makeClickable($this->container->getSyllabus(), true));
+            $value = nl2br(ilUtil::makeClickable ($this->container->getSyllabus(), true));
             $syl->setValue($value);
             $this->form->addItem($syl);
         }
+        fau. */
     }
     
     /**
