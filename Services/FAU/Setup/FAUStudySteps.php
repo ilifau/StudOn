@@ -133,6 +133,15 @@ class FAUStudySteps
         $this->addCourseEventDescriptionDirty();
         $this->addCourseMaximumDirty();
     }
+    
+    public function custom_step_125()
+    {
+        $this->addCourseContentsAll();
+        $this->addCourseLiteratureAll();
+        $this->addCourseRecommendedRequirementAll();
+        $this->addCourseLearningTargetAll();
+        $this->addCourseTargetGroupAll();
+    }
 
 
     protected function createCoursesTable(bool $drop = false)
@@ -662,6 +671,33 @@ class FAUStudySteps
             ['type' => 'integer', 'notnull' => true, 'default' => 0]);
     }
 
+    protected function addCourseContentsAll()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'contents_all',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
 
+    protected function addCourseLiteratureAll()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'literature_all',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
 
+    protected function addCourseRecommendedRequirementAll()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'recommended_requirement_all',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function addCourseLearningTargetAll()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'learning_target_all',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+
+    protected function addCourseTargetGroupAll()
+    {
+        $this->db->addTableColumn('fau_study_courses', 'target_group_all',
+            ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
 }

@@ -1749,6 +1749,13 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_124();
 ?>
+<#125>
+<?php
+/**
+ * fau: fauService - add more descriptive fields to course
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_125();
+?>
 
 
 

@@ -137,7 +137,12 @@ class SyncWithCampo extends SyncBase
                 $record->getLiterature(),
                 $record->getRecommendedRequirement(),
                 $record->getLearningTarget(),
-                $record->getTargetGroup()
+                $record->getTargetGroup(),
+                $record->getContentsAll(),
+                $record->getLiteratureAll(),
+                $record->getRecommendedRequirementAll(),
+                $record->getLearningTargetAll(),
+                $record->getTargetGroupAll()
             );
             if (isset($existing[$course->key()])) {
                 $old = $existing[$course->key()];

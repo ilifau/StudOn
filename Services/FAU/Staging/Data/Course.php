@@ -26,7 +26,12 @@ class Course extends RecordData
         'literature' => 'clob',
         'recommended_requirement' => 'clob',
         'learning_target' => 'clob',
-        'target_group' => 'clob'
+        'target_group' => 'clob',
+        'contents_all' => 'clob',
+        'literature_all' => 'clob',
+        'recommended_requirement_all' => 'clob',
+        'learning_target_all' => 'clob',
+        'target_group_all' => 'clob'
 
     ];
     protected int $course_id;
@@ -45,6 +50,11 @@ class Course extends RecordData
     protected ?string $recommended_requirement;
     protected ?string $learning_target;
     protected ?string $target_group;
+    protected ?string $contents_all;
+    protected ?string $literature_all;
+    protected ?string $recommended_requirement_all;
+    protected ?string $learning_target_all;
+    protected ?string $target_group_all;
 
 
     public function __construct(
@@ -63,7 +73,12 @@ class Course extends RecordData
         ?string $literature,
         ?string $recommended_requirement,
         ?string $learning_target,
-        ?string $target_group
+        ?string $target_group,
+        ?string $contents_all,
+        ?string $literature_all,
+        ?string $recommended_requirement_all,
+        ?string $learning_target_all,
+        ?string $target_group_all
     )
     {
         $this->course_id = $course_id;
@@ -82,6 +97,11 @@ class Course extends RecordData
         $this->recommended_requirement = $recommended_requirement;
         $this->learning_target = $learning_target;
         $this->target_group = $target_group;
+        $this->contents_all = $contents_all;
+        $this->literature_all = $literature_all;
+        $this->recommended_requirement_all = $recommended_requirement_all;
+        $this->learning_target_all = $learning_target_all;
+        $this->target_group_all = $target_group_all;
     }
 
     public static function model(): self
@@ -89,7 +109,8 @@ class Course extends RecordData
         return new self(0,null,null,
             null,null,null,null,
             null,null,null,
-            null,null,null,null, null, null);
+            null,null,null,null, null, null,
+            null,null,null, null, null);
     }
 
     /**
@@ -220,7 +241,47 @@ class Course extends RecordData
     {
         return $this->target_group;
     }
+    
+    /**
+     * @return string|null
+     */
+    public function getContentsAll() : ?string
+    {
+        return $this->contents_all;
+    }
 
+    /**
+     * @return string|null
+     */
+    public function getLiteratureAll() : ?string
+    {
+        return $this->literature_all;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRecommendedRequirementAll(): ?string
+    {
+        return $this->recommended_requirement_all;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLearningTargetAll(): ?string
+    {
+        return $this->learning_target_all;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTargetGroupAll(): ?string
+    {
+        return $this->target_group_all;
+    }
+    
     /**
      * @return bool
      */
