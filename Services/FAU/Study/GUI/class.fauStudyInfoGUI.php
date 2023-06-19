@@ -270,7 +270,28 @@ class fauStudyInfoGUI extends BaseGUI
 //        if (!empty($list = $this->service->persons()->getResponsiblesList($event->getEventId(), null))) {
 //            $props[$this->lng->txt('fau_campo_responsibles')] = $this->renderList($list);
 //        }
-
+        
+        // take the common texts for all parallelgroups from the firts found group
+        foreach ($this->dic->fau()->study()->repo()->getCoursesOfEventInTerm($event->getEventId(), $term) as $course) {
+            if (!empty($course->getContentsAll())) {
+                $props[$this->lng->txt('fau_campo_contents')]  = $this->renderCampoText($course->getContentsAll());
+            }
+            if (!empty($course->getLiteratureAll())) {
+                $props[$this->lng->txt('fau_campo_literature')]  =  $this->renderCampoText($course->getLiteratureAll());
+            }
+            if (!empty($course->getRecommendedRequirementAll())) {
+                $props[$this->lng->txt('fau_campo_recommended_requirement')]  =  $this->renderCampoText($course->getRecommendedRequirementAll());
+            }
+            if (!empty($course->getLearningTargetAll())) {
+                $props[$this->lng->txt('fau_campo_learning_target')]  =  $this->renderCampoText($course->getLearningTargetAll());
+            }
+            if (!empty($course->getTargetGroupAll())) {
+                $props[$this->lng->txt('fau_campo_target_group')]  =  $this->renderCampoText($course->getTargetGroupAll());
+            }
+            break;
+        }
+        
+        
         if (!$in_modal && $this->dic->fau()->cond()->hard()->hasEventOrModuleRestrictions($event->getEventId())) {
             $hardRestrictions = $this->dic->fau()->cond()->hard();
             $hardRestrictions->checkByImportId($import_id, $this->dic->user()->getId());
