@@ -647,7 +647,7 @@ fau#:#fau_campo_target_group#:#Zielgruppe
 fau#:#fau_campo_date_cancelled#:#Termin fällt aus
 fau#:#fau_campo_settings#:#Einstellungen für Campo
 fau#:#fau_campo_needs_passed_label#:#Erfolgreiche Teilnahme
-fau#:#fau_campo_needs_passed_info#:#Legt fest, welche Mitglieder die Teilnahme in ihrem Transcript Of Records beim dafür gewählten Modul nachgewiesen bekommen.
+fau#:#fau_campo_needs_passed_info#:#Legt fest, welche Mitglieder die Teilnahme in ihrem Transcript Of Records beim dafür gewählten Modul nachgewiesen bekommen. Der Status wird nach dem letzten Kurstermin an campo geliefert.
 fau#:#fau_campo_needs_passed_true#:#Nur bestandene Mitglieder
 fau#:#fau_campo_needs_passed_false#:#Alle Mitglieder
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.

@@ -648,7 +648,7 @@ fau#:#fau_campo_target_group#:#Target group
 fau#:#fau_campo_date_cancelled#:#Date is cancelled
 fau#:#fau_campo_settings#:#Campo Settings
 fau#:#fau_campo_needs_passed_label#:#Successful Participation
-fau#:#fau_campo_needs_passed_info#:#Determines which members have the participation in their Transcript Of Records verified for the selected module.
+fau#:#fau_campo_needs_passed_info#:#Determines which members have the participation in their Transcript Of Records verified for the selected module. The status is delivered to campo after the last course date.
 fau#:#fau_campo_needs_passed_true#:#Only passed members
 fau#:#fau_campo_needs_passed_false#:#All members
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
