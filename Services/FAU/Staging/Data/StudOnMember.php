@@ -20,9 +20,7 @@ class StudOnMember extends RecordData
     ];
 
     public const STATUS_REGISTERED = 'registered';
-    public const STATUS_NOT_REGISTERED = 'not_registered';
     public const STATUS_PASSED = 'passed';
-    public const STATUS_FAILED = 'failed';
 
     protected int $course_id;
     protected int $person_id;
@@ -100,5 +98,16 @@ class StudOnMember extends RecordData
     public function getTermTypeId() : int
     {
         return $this->term_type_id;
+    }
+
+    /**
+     * @param string $status
+     * @return StudOnMember
+     */
+    public function withStatus(string $status): StudOnMember
+    {
+        $clone = clone $this;
+        $clone->status = $status;
+        return $clone;
     }
 }

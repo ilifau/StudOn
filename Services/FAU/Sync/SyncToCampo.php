@@ -4,6 +4,7 @@ namespace FAU\Sync;
 
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
+use FAU\Staging\Data\StudOnMember;
 
 /**
  * Synchronisation of course settings and members from StudOn to campo
@@ -55,13 +56,24 @@ class SyncToCampo extends SyncBase
      */
     public function syncMembers(Term $term) : void
     {
-        $this->info('syncStudOnMembers...');
+        $this->info('sync StudOnMembers...');
         // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembers($term);
         // get the courses in the tern that have an ilias object assigned
         $course_ids = $this->sync->repo()->getCourseIdsToSyncBack($term);
+        // get the timestamps of the maximum individual dates of all courses indexed by course ids
+        $times = $this->sync->repo()->getCoursesMaxDatesAsTimestamps();
+        // earlies maximum individual date of courses for which a passed status should be sent
+        $earliest_passed = time() - 86400;
 
         foreach ($this->sync->repo()->getMembersOfCoursesToSyncBack($term) as $member) {
+            if ($member->getStatus() == StudOnMember::STATUS_PASSED
+                 && isset($times[$member->getCourseId()]) 
+                 && $times[$member->getCourseId()] < $earliest_passed
+            ) {
+                $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+            }
+            
             if (!isset($existing[$member->key()])) {
                 $this->staging->repo()->save($member);
                 $this->increaseItemsAdded();
