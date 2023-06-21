@@ -11,9 +11,11 @@ common#:#err_inactive_contact#:#<br/>Bitte überprüfen Sie in der Kopfzeile, ob
 common#:#err_wrong_login#:#Login Fehlgeschlagen. Benutzername oder Passwort sind ungültig oder Ihr Account ist noch nicht auf der Prüfungsplattform hinterlegt.
 common#:#err_wrong_login_assist#:#Bitte überprüfen Sie in der Kopfzeile, ob Sie die richtige Plattform für Ihre Prüfung gewählt haben. Wählen Sie ggf. die richtige Plattform auf der <a href="https://www.studon-exam.fau.de/">Auswahlseite</a>.
 common#:#err_wrong_login_contact#:#Falls das nicht funktioniert, wenden Sie sich als Dozierende/r bitte an <a href="mailto:studon-exam@ili.@fau.de">studon-exam@ili.fau.de</a>. Als Studierende/r kontaktieren Sie Ihre/n Prüfer/in.
-common#:#local_login_to_ilias#:#Bei der Prüfungsplattform anmelden
+common#:#local_login_to_ilias#:#Bei StudOn-Exam lokal anmelden
 common#:#login_to_ilias#:#Bei StudOn-Exam anmelden
 common#:#local_login_to_ilias_addition#:#Verwenden Sie Ihre StudOn-Zugangsdaten
+common#:#login_to_ilias_via_saml#:#Bei StudOn-Exam via Single Sign-On anmelden
+common#:#saml_login_form_info_txt#:#Verwenden Sie als Mitglied der FAU Ihre IdM-Kennung
 common#:#registration#:#Zur Selbstregistrierung mit Zugangscode
 common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen: <strong>%s</strong></p><p>Bitte notieren Sie Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
 common#:#txt_registered_pw_is_login#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen/Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
