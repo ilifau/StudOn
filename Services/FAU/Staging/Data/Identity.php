@@ -18,7 +18,6 @@ class Identity extends RecordData
         'mail' => 'text',
         'schac_gender' => 'text',
         'schac_personal_unique_code' => 'text',     // has matriculation number
-        'user_password' => 'text',
         'fau_employee' => 'text',
         'fau_student' => 'text',
         'fau_guest' => 'text',
@@ -37,7 +36,6 @@ class Identity extends RecordData
     protected ?string $mail;
     protected ?string $schac_gender;
     protected ?string $schac_personal_unique_code;
-    protected ?string $user_password;
     protected ?string $fau_employee;
     protected ?string $fau_student;
     protected ?string $fau_guest;
@@ -57,7 +55,6 @@ class Identity extends RecordData
         ?string $mail,
         ?string $schac_gender,
         ?string $schac_personal_unique_code,
-        ?string $user_password,
         ?string $fau_employee,
         ?string $fau_student,
         ?string $fau_guest,
@@ -77,7 +74,6 @@ class Identity extends RecordData
         $this->mail = $mail;
         $this->schac_gender = $schac_gender;
         $this->schac_personal_unique_code = $schac_personal_unique_code;
-        $this->user_password = $user_password;
         $this->fau_employee = $fau_employee;
         $this->fau_student = $fau_student;
         $this->fau_guest = $fau_guest;
@@ -95,7 +91,7 @@ class Identity extends RecordData
         return new self('',null,null,null,null,null,
             null,null,null,null,null,
             null,null,null,null,
-            null,null,null,);
+            null,null);
     }
 
     /**
@@ -152,14 +148,6 @@ class Identity extends RecordData
     public function getSchacPersonalUniqueCode() : ?string
     {
         return $this->schac_personal_unique_code;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUserPassword() : ?string
-    {
-        return $this->user_password;
     }
 
     /**

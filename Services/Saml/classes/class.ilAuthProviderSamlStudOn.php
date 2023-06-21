@@ -147,7 +147,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
 
         // set basic account data
         $userObj->setLogin($login);
-        $userObj->setPasswd(ilUtil::generatePasswords(1)[0], IL_PASSWD_PLAIN);
+        $userObj->setPasswd(null);
         $userObj->setLanguage($DIC->language()->getLangKey());
         $userObj->setAuthMode('shibboleth');
         $userObj->setExternalAccount($this->identity->getPkPersistentId());
