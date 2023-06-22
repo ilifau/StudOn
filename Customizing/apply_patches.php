@@ -59,7 +59,7 @@ $p->login();
 
 //$p->applyPatch('ilSpecificPatches.migratePorgNumbers');
 //$p->applyPatch('ilSpecificPatches.renameObjects');
-
+//$p->applyPatch('ilSpecificPatches.syncExamUsers', ["deactivate_missing" => true, "deactivate_participants" => true]);
 
 /***********
  * Cleanups

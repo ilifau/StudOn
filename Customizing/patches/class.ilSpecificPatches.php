@@ -835,5 +835,104 @@ class ilSpecificPatches
             $trans->save();
         }
     }
+
+    /**
+     * @return void
+     */
+    public function syncExamUsers($params=["deactivate_missing" => false, "deactivate_participants" => false]) 
+    {
+        global $DIC;
+        $db = $DIC->database();
+        $review = $DIC->rbac()->review();
+
+        $time_string = (new ilDateTime(time(), IL_CAL_UNIX))->get(IL_CAL_DATETIME);
+        
+        $settings = $DIC->clientIni()->readGroup('db_remote');
+        $remote = new \ilDBPdoMySQLInnoDB();
+        $remote->setDBHost($settings['host']);
+        $remote->setDBPort($settings['port']);
+        $remote->setDBUser($settings['user']);
+        $remote->setDBPassword($settings['pass']);
+        $remote->setDBName($settings['name']);
+        if (!$remote->connect()) {
+            throw new Exception("can't connect to remote db");
+        }
+        
+        // get the participant role id
+        $participant_role_id = 0;
+        $query = "SELECT obj_id FROM object_data WHERE `type` = 'role' AND title = 'Teilnehmer'";
+        $result = $db->query($query);
+        if ($row = $db->fetchAssoc($result)) {
+            $participant_role_id = $row['obj_id'];
+        }
+        
+        // loop through all accounts
+        $query = "SELECT usr_id, login FROM usr_data";
+        $result = $db->query($query);
+        while ($row = $db->fetchAssoc($result)) {
+            $usr_id = $row['usr_id'];
+            $login = $row['login'];
+            
+            if ($login == 'root') {
+                continue;
+            }
+            
+            $query = "SELECT * FROM usr_data where login = " . $db->quote($login, 'text');
+            $result2 = $remote->query($query);
+            if ($data = $remote->fetchAssoc($result2)) {
+                
+                // account is found in remote database
+                echo "\nUPDATE $login";
+                $this->db->update('usr_data',
+                    [
+                        'login' => ['text', $data['login']],
+                        'firstname' => ['text', $data['firstname']],
+                        'lastname' => ['text', $data['lastname']],
+                        'title' => ['text', $data['title']],
+                        'gender' => ['text', $data['gender']],
+                        'email' => ['text', $data['email']],
+                        'institution' => ['text', $data['institution']],
+                        'matriculation' => ['text', $data['matriculation']],
+                        'approve_date' => ['text', $data['approve_date']],
+                        'agree_date' => ['text', $data['agree_date']],
+                        'auth_mode' => ['text', $data['auth_mode']],
+                        'ext_account' => ['text', $data['ext_account']],
+                        'passwd' => ['text', $data['passwd']],
+                        'passwd_enc_type' => ['text', $data['passwd_enc_type']],
+                        'passwd_salt' => ['text', $data['passwd_salt']],
+                        'active' => ['integer', $data['active']],
+                        'time_limit_unlimited' => ['integer', $data['time_limit_unlimited']],
+                        'time_limit_from' => ['integer', $data['time_limit_from']],
+                        'time_limit_until' => ['integer', $data['time_limit_until']],
+                        'last_update' => ['text', $time_string],
+                        'last_password_change' => ['integer', time()],
+                    ],
+                    [
+                        'usr_id' => ['integer', $usr_id]
+                    ]
+                );
+            }
+            elseif ($params['deactivate_missing']) {
+                
+                // account is not found in remote database, so deactivate
+                echo "\nDEACTIVE missing $login";
+                $this->db->update('usr_data', ['active' => 0], ['usr_id' => ['integer', $usr_id]]);
+            }
+
+            if ($params['deactivate_participants']) {
+                $roles = $review->assignedGlobalRoles($usr_id);
+                if (count($roles) == 1 && $roles[0] == $participant_role_id) {
+                    
+                    // account is only participant, so deactivate
+                    echo "\nDEACTIVE participant $login";
+                    $this->db->update('usr_data', ['active' => 0], ['usr_id' => ['integer', $usr_id]]);
+                }
+            }
+        }
+        
+        echo "\nDelete password of shibboleth accounts...";
+        $query = "UPDATE usr_data SET passwd = NULL WHERE auth_mode = 'shibboleth'";
+        $db->manipulate($query);
+    }
 }
 
