@@ -74,7 +74,7 @@ $p->login();
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'lso', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
+$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2022-10-01 00:00:00'));
 //$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2022-10-01 00:00:00'));
