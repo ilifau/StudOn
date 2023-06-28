@@ -77,7 +77,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
     /**
      * @var bool
      */
-    protected $crs_start_time_indication = false;
+    protected $course_start_time_indication = false;
 
     /**
      * @var \ilDateTime | null
@@ -1137,12 +1137,15 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             $certificateLogger,
             new ilCertificateObjectHelper()
         );
-
         $cloneAction->cloneCertificate($this, $new_obj);
 
         $book_service = new ilBookingService();
         $book_service->cloneSettings($this->getId(), $new_obj->getId());
 
+        $badges = ilBadge::getInstancesByParentId($this->getId());
+        foreach ($badges as $badge) {
+            $badge->clone($new_obj->getId());
+        }
 
         return $new_obj;
     }
@@ -1431,9 +1434,7 @@ class ilObjCourse extends ilContainer implements ilMembershipRegistrationCodes
             "contact_email = " . $ilDB->quote($this->getContactEmail(), 'text') . ", " .
             "contact_consultation = " . $ilDB->quote($this->getContactConsultation(), 'text') . ", " .
             "activation_type = " . $ilDB->quote(!$this->getOfflineStatus(), 'integer') . ", " .
-            // fau: campusSub - cast time limit activation
-            "sub_limitation_type = " . $ilDB->quote((int) $this->getSubscriptionLimitationType(), 'integer') . ", " .
-            // fau.
+            "sub_limitation_type = " . $ilDB->quote($this->getSubscriptionLimitationType(), 'integer') . ", " .
             // fau: objectSub - save sub_ref_id
             "sub_ref_id = " . $ilDB->quote($this->getSubscriptionRefId(), 'integer') . ", " .
             // fau.

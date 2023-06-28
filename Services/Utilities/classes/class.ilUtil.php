@@ -18,7 +18,6 @@
 /**
  * @defgroup ServicesUtilities Services/Utilities
  */
-
 use ILIAS\Filesystem\Util\LegacyPathHelper;
 use ILIAS\FileUpload\DTO\ProcessingStatus;
 use ILIAS\FileUpload\DTO\UploadResult;
@@ -813,9 +812,9 @@ class ilUtil
         // mask existing image tags
         $ret = str_replace('src="http://', '"***masked_im_start***', $ret);
 
-        // fau: univisInfo - mask existing href tags
+        // fau: courseInfoRTE - mask existing href tags
         $ret = preg_replace('/href="(http|https|ftp|mailto)/', '"***masked_href_start_$1***', $ret);
-        // fau.
+        // fau
 
         include_once("./Services/Utilities/classes/class.ilMWParserAdapter.php");
         $global_wgContLang = $GLOBALS["wgContLang"];
@@ -826,7 +825,7 @@ class ilUtil
         // unmask existing image tags
         $ret = str_replace('"***masked_im_start***', 'src="http://', $ret);
 
-        // fau: univisInfo - unmask existing href tags
+        // fau: courseInfoRTE - unmask existing href tags
         $ret = preg_replace('/"\*\*\*masked_href_start_(http|https|ftp|mailto)\*\*\*/', 'href="$1', $ret);
         // fau.
 
@@ -3869,6 +3868,14 @@ class ilUtil
                     strtolower($a_old_suffix)) {
                         $pos = strrpos($a_dir . "/" . $file, ".");
                         $new_name = substr($a_dir . "/" . $file, 0, $pos) . "." . $a_new_suffix;
+                        // check if file exists
+                        if (file_exists($new_name)) {
+                            if (is_dir($new_name)) {
+                                ilUtil::delDir($new_name);
+                            } else {
+                                unlink($new_name);
+                            }
+                        }
                         rename($a_dir . "/" . $file, $new_name);
                     }
                 }
@@ -4100,10 +4107,11 @@ class ilUtil
             if (!$upload->hasUploads()) {
                 throw new ilException($DIC->language()->txt("upload_error_file_not_found"));
             }
-            $upload_result = $upload->getResults()[$a_file];
+            $upload_result = $upload->getResults()[$a_file] ?? null;
             if ($upload_result instanceof UploadResult) {
                 $processing_status = $upload_result->getStatus();
-                if ($processing_status->getCode() === ProcessingStatus::REJECTED) {
+                if ($processing_status->getCode() === ProcessingStatus::REJECTED
+                    || $processing_status->getCode() === ProcessingStatus::DENIED) {
                     throw new ilException($processing_status->getMessage());
                 }
             } else {

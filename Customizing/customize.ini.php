@@ -25,9 +25,6 @@
 [default]
 ; settings to be changed per client in client.ini.php
 ;
-cat_enable_univis_import = "0"          ;enable univis import for categories
-crs_enable_univis_import = "0"          ;enable univis import for courses
-
 crs_enable_reg_codes = "1"				;enable the use of registration codes
 grp_enable_reg_codes = "1"				;enable the use of registration codes
 
@@ -58,20 +55,6 @@ lp_refreshes_limit = "0"				;fau: lpRefreshesLimit - limit allowed status refres
 
 mail_by_soap = "1"						;fau: mailBySoap - switch sending of external mails in the background
 
-mycampus_enabled = "0"                  ;enable my campus registration
-mycampus_reg_url = ""                   ;my campus registration url (univis id is included by %s)
-mycampus_soap_url = ""                  ;url of the my campus SOAP service
-mycampus_soap_client = ""               ;client for calling the my campus SOAP service
-mycampus_soap_user = ""                 ;user for calling the my campus SOAP service
-mycampus_soap_password = ""             ;password for calling the my campus SOAP service
-mycampus_sync_waitinglist = "0"         ;add users of waiting list in mein campus to waiting list in studon
-                                        ;(use only once before disconnecting)
-
-mycampus_sync_enabled = "0"				;enable synchronisation by chron-job
-mycampus_sync_logfile = ""				;logfile to be written for mycampus synchronisation
-mycampus_sync_mail_interval = ""		;"year", "month", "week", "day", "hour", "minute", "all"
-mycampus_sync_mail_verbose = "0"		;list all courses (not only those with errors or actions)
-
 remote_soap_server = ""                 ;soap url of a remote installation
 remote_soap_client_id = ""              ;soap client id of the remote server
 remote_soap_user = ""                   ;soap user of a remote installation
@@ -90,17 +73,9 @@ shib_devmode_login = ""                 ;force a login at shibboleth authenticat
 studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are checked (comma-separated without spaces)
 
 tst_notify_remote = "0"                 ;send mails to users at remote installation (for exam)
-tst_export_mycampus = "0"               ;enable the export of test results for my campus
 tst_export_campo = "0"                  ;enable the export of test results for campo
 tst_prevent_image_drag = "0"			;prevent the dragging of images an links to texts fields in tests
 tst_prevent_image_validate = "0"        ;fau: preventQtiImageValidate - prevent validation of images at test/pool import
-
-univis_server = ""                      ;only the server name, e.g. univis.uni-erlangen.de
-univis_port = ""                        ;port sor testing socket connection in univis2mysql
-univis_prg_url = ""                     ;url if the prg interface (ending with /?)
-univis_tempdir = ""                    ;temporary directory for storing fetched xml files
-univis_semester = ""                    ;set a specific semester for the import (if empty: current and following)
-univis_noimports = ""                   ;don't show imported lectures (1)
 
 unzip_keep_min_kyrillic_percent = "0"   ;min percent of kyrillic characters (if any) to keep the default encoding
 

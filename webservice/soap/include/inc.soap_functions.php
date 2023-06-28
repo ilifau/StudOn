@@ -905,62 +905,6 @@ class ilSoapFunctions
     
     // fau: soapFunctions - add new functions
     
-    public static function studonGetResources($sid, $semester)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonGetResources($sid, $semester);
-    }
-    
-    public static function studonHasResource($sid, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonHasResource($sid, $univis_id);
-    }
-
-    public static function studonGetPermaLink($sid, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonGetPermaLink($sid, $univis_id);
-    }
-
-    public static function studonGetMembers($sid, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonGetMembers($sid, $univis_id);
-    }
-
-    public static function studonIsSoapAssignable($sid, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonIsSoapAssignable($sid, $univis_id);
-    }
-
-    public static function studonIsAssigned($sid, $identity, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonIsAssigned($sid, $identity, $univis_id);
-    }
-
-    public static function studonAssignMember($sid, $identity, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonAssignMember($sid, $identity, $univis_id);
-    }
-
-    public static function studonExcludeMember($sid, $identity, $univis_id)
-    {
-        include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
-        $ssa = new ilSoapStudOnAdministration();
-        return $ssa->studonExcludeMember($sid, $identity, $univis_id);
-    }
-
     public function studonCopyCourse($sid, $sourceRefId, $targetRefId, $typesToLink=[]) {
         include_once 'webservice/soap/classes/class.ilSoapStudOnAdministration.php';
         $ssa = new ilSoapStudOnAdministration();

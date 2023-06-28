@@ -644,7 +644,7 @@ class ilTable2GUI extends ilTableGUI
 
         // restore filter values (from stored view)
         if ($this->restore_filter) {
-            if (array_key_exists($a_input_item->getFieldId(), $this->restore_filter_values)) {
+            if (array_key_exists($a_input_item->getFieldId(), $this->restore_filter_values ?? [])) {
                 $this->setFilterValue($a_input_item, $this->restore_filter_values[$a_input_item->getFieldId()]);
             } else {
                 $this->setFilterValue($a_input_item, null); // #14949
@@ -1514,7 +1514,11 @@ class ilTable2GUI extends ilTableGUI
             if ($column["sort_field"] == $this->order_field) {
                 $order_dir = $this->sort_order;
 
-                $lng_change_sort = $this->lng->txt("change_sort_direction");
+                if ($order_dir === "asc") {
+                    $lng_change_sort = $this->lng->txt("sort_ascending_long");
+                } else {
+                    $lng_change_sort = $this->lng->txt("sort_descending_long");
+                }
                 $this->tpl->setVariable("TBL_ORDER_ALT", $lng_change_sort);
             }
 
@@ -1554,11 +1558,7 @@ class ilTable2GUI extends ilTableGUI
             return true;
         }
 
-        // fau: univisImport - respect a third nav parameter set by js for previous/nect naviagetion
-        if ($_POST[$this->getNavParameter() . "3"]) {
-            $this->nav_value = $_POST[$this->getNavParameter() . "3"];
-        } elseif ($_POST[$this->getNavParameter() . "1"] != "") {
-            // fim.
+        if ($_POST[$this->getNavParameter() . "1"] != "") {
             if ($_POST[$this->getNavParameter() . "1"] != $_POST[$this->getNavParameter()]) {
                 $this->nav_value = $_POST[$this->getNavParameter() . "1"];
             } elseif ($_POST[$this->getNavParameter() . "2"] != $_POST[$this->getNavParameter()]) {
@@ -1618,7 +1618,7 @@ class ilTable2GUI extends ilTableGUI
             $this->storeProperty("offset", $this->getOffset());
         }
     }
-
+    
 
     /**
     * Get HTML
@@ -2483,16 +2483,7 @@ class ilTable2GUI extends ilTableGUI
                     $LinkBar .= $sep;
                 }
                 $prevoffset = $this->getOffset() - $this->getLimit();
-                // fau: univisImport - add onclick to use POST for next link
-                $onclick = sprintf(
-                    "onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
-                    $this->parent_cmd,
-                    $this->getNavParameter() . '3',
-                    $this->getOrderField() . ":" . $this->getOrderDirection() . ":" . $prevoffset,
-                    $this->getFormName()
-                );
-                $LinkBar .= "<a $onclick href=\"" . $link . $prevoffset . $hash . "\">" . $layout_prev . "</a>";
-            // fau.
+                $LinkBar .= "<a href=\"" . $link . $prevoffset . $hash . "\">" . $layout_prev . "</a>";
             } else {
                 if ($LinkBar != "") {
                     $LinkBar .= $sep;
@@ -2520,16 +2511,7 @@ class ilTable2GUI extends ilTableGUI
                     $LinkBar .= $sep;
                 }
                 $newoffset = $this->getOffset() + $this->getLimit();
-                // fau: univisImport - add onclick to use POST for next link
-                $onclick = sprintf(
-                    "onclick=\"ilTablePageNavigation(this, 'cmd[%s]', '%s', '%s', '%s')\"",
-                    $this->parent_cmd,
-                    $this->getNavParameter() . '3',
-                    $this->getOrderField() . ":" . $this->getOrderDirection() . ":" . $newoffset,
-                    $this->getFormName()
-                );
-                $LinkBar .= "<a $onclick href=\"" . $link . $newoffset . $hash . "\">" . $layout_next . "</a>";
-            // fau.
+                $LinkBar .= "<a href=\"" . $link . $newoffset . $hash . "\">" . $layout_next . "</a>";
             } else {
                 if ($LinkBar != "") {
                     $LinkBar .= $sep;
@@ -2565,7 +2547,6 @@ class ilTable2GUI extends ilTableGUI
             return false;
         }
     }
-
     public function fillHiddenRow()
     {
         $hidden_row = false;

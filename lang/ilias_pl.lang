@@ -1426,6 +1426,8 @@ assessment#:#tst_failed#:#Failed###07 02 2020 new variable
 assessment#:#tst_failed_imp_qst_skl_assign#:#Nie udało się w drodze importu przyporządkować pytań do następujących kompetencji. Nie udało się zidentyfikować odpowiednich kompetencji w tym systemie.
 assessment#:#tst_failed_imp_skl_thresholds#:#Import wartości progowych dla następujących kompetencji został pominięty, ponieważ w systemie lokalnym przynależna kompetencja wykazuje listę z innymi poziomami.
 assessment#:#tst_feedback#:#Komunikat zwrotny
+assessment#:#tst_feedback_is_given_inline#:#The feedback will be displayed along with your answer.###05 04 2023 new variable
+assessment#:#tst_feedback_not_available_for_answer#:#There is no feedback available for your answer.###05 04 2023 new variable
 assessment#:#tst_filter_lifecycle_enabled#:#Use Lifecycle as Filter###07 02 2020 new variable
 assessment#:#tst_filter_question_type#:#Typ pytania
 assessment#:#tst_filter_question_type_enabled#:#Użyj filtra dla typu pytań
@@ -2550,6 +2552,8 @@ book#:#book_reminder_day#:#Before Reservation
 book#:#book_reminder_day_info#:#Send list of own reservations to users and full list of reservations to admins.
 book#:#book_reminder_days#:#Day(s)
 book#:#book_reminder_setting#:#Reminder
+book#:#book_rerun_assignments#:#Run Assignment Process###05 05 2023 new variable
+book#:#book_rerun_confirmation#:#Attention. The assignments via preference process has already run. You may restart the process, if any errors have occured, e.g. no assignments have been saved. To prevent multiple assignments delete all reservations before restarting the process.###05 05 2023 new variable
 book#:#book_reservation_available#:#%s dostępne
 book#:#book_reservation_confirmed#:#Udało się dokonać rejestracji.
 book#:#book_reservation_failed#:#Nie udało się dokonać rejestracji.
@@ -3841,8 +3845,6 @@ common#:#day#:#Dzień
 common#:#days#:#Dni
 common#:#db_host#:#Serwer bazy danych
 common#:#db_name#:#Nazwa bazy danych
-common#:#db_need_hotfix#:#Hotfix jest dostępny. Otwórz <a href="setup/setup.php">»Setup</a>!
-common#:#db_need_update#:#Baza danych wymaga uaktualnienia!
 common#:#db_pass#:#Hasło do bazy danych
 common#:#db_type#:#Typ bazy danych
 common#:#db_user#:#Użytkownik bazy danych
@@ -5249,6 +5251,7 @@ common#:#predefined_template#:#Predefiniowany szablon roli
 common#:#preferences#:#Preferencje
 common#:#presentation_table_more#:#more
 common#:#preview#:#Podgląd
+common#:#preview_caption#:#Preview %sof %s###05 04 2023 new variable
 common#:#preview_create#:#Utwórz podgląd
 common#:#preview_delete#:#Usuń podgląd
 common#:#preview_learner_info#:#Jeśli opcja jest włączona, to administratorzy kursów i grup mają możliwość obejrzenia określonej zawartości z perspektywy uczącego się.
@@ -5568,6 +5571,7 @@ common#:#short_inst_name#:#Krótki tytuł
 common#:#short_inst_name_info#:#Ten tytuł będzie widniał w pasku tytułu przeglądarki. Jeśli nie wprowadzisz wartości, to będzie użyte 'ILIAS'.
 common#:#show#:#Pokaż
 common#:#show_all_details#:#Pokaż wszystkie szczegóły
+common#:#show_content#:#Show Content###05 05 2023 new variable
 common#:#show_details#:#Pokaż szczegóły
 common#:#show_filter#:#Zastosuj filtr
 common#:#show_hidden_sections#:#Pokaż dodatkowe informacje &raquo;
@@ -5591,8 +5595,10 @@ common#:#soap_user_administration_desc#:#Jeśli wybrane, to wszystkie konta mog�
 common#:#soap_wsdl_path#:#Ścieżka WSDL
 common#:#soap_wsdl_path_info#:#Tutaj możesz podać ścieżkę do pliku WSDL, którą ILIAS ma użyć dla usług sieciowych. Jeśli to pole pozostanie puste, jako domyślna zostanie wykorzystana poniższa ścieżka:%s
 common#:#sort_ascending#:#Sort Ascending###30 04 2021 new variable
+common#:#sort_ascending_long#:#Change Sort Direction to Ascending###31 05 2023 new variable
 common#:#sort_by_this_column#:#Sortuj wg tej kolumny
 common#:#sort_descending#:#Sort Descending###30 04 2021 new variable
+common#:#sort_descending_long#:#Change Sort Direction to Descending###31 05 2023 new variable
 common#:#sort_inherit_prefix#:#Domyślnie
 common#:#sorting_asc#:#Rosnąco
 common#:#sorting_creation_header#:#Wg daty utworzenia
@@ -6462,6 +6468,8 @@ content#:#cont_grid_width_s#:#Mały (small)
 content#:#cont_grid_width_s_info#:#np. smartfon
 content#:#cont_grid_width_xl#:#Bardzo duży (extra large)
 content#:#cont_grid_width_xl_info#:#np. pulpit typu wide
+content#:#cont_hacc_needs_height#:#Please set a content height for horizontal accordions.###05 05 2023 new variable
+content#:#cont_hacc_needs_width#:#Please set a content width for horizontal accordions.###05 05 2023 new variable
 content#:#cont_header#:#Nagłówek
 content#:#cont_height#:#Wysokość
 content#:#cont_help_no_valid_tooltip_id#:#Wprowadzony numer ID porady jest nieważny.
@@ -10536,6 +10544,7 @@ lti#:#lti_object_consumer#:#Odbiorcy LTI
 lti#:#lti_object_release_settings_form#:#Edytuj udostępnienia LTI
 lti#:#lti_provider#:#Udostępnienia LTI
 lti#:#lti_provider_not_avail_msg#:#LTI Provider is set to 'Not Available'###07 02 2020 new variable
+lti#:#lti_provider_not_set_msg#:#LTI Provider is configured incompletely.###05 05 2023 new variable
 lti#:#lti_providing_tab#:#ILIAS as LTI Provider###07 02 2020 new variable
 lti#:#lti_released_objects#:#Udostępnienia obiektów
 lti#:#lti_select_provider#:#Select Provider###07 02 2020 new variable
@@ -10687,6 +10696,7 @@ mail#:#mail_generic_rcp_error#:#Wystąpił błąd przy walidacji odbiorców: %1$
 mail#:#mail_global_reply_to_addr#:#Reply-To###30 04 2021 new variable
 mail#:#mail_global_reply_to_addr_info#:#Please enter the desired 'Reply-To' address.###30 04 2021 new variable
 mail#:#mail_grp_roles#:#Wyślij wiadomość mailową do następujących ról grupy
+mail#:#mail_hint_add_placeholder_x#:#Add the placeholder '%s' to the message body.###05 04 2023 new variable
 mail#:#mail_incoming#:#Poczta przychodząca
 mail#:#mail_incoming_both#:#Lokalna i przesyłana dalej
 mail#:#mail_incoming_local#:#Tylko lokalna

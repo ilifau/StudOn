@@ -583,16 +583,6 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         $gui->render();
     }
 
-    // fau: univisImport - show the actions for univis import
-    public function showUnivisImportActions()
-    {
-        return;
-        include_once "Services/UnivIS/classes/class.ilUnivisImportActionsGUI.php";
-        $gui = new ilUnivisImportActionsGUI($this->object);
-        $gui->render();
-    }
-    // fau.
-
     /**
      * Get content gui object
      *
@@ -684,12 +674,6 @@ class ilContainerGUI extends ilObjectGUI implements ilDesktopItemHandling
         }
 
         $this->showContainerFilter();
-
-        // fau: univisImport - show link to import univis
-        if (ilCust::get($this->object->getType() . '_enable_univis_import')) {
-            $this->showUnivisImportActions();
-        }
-        // fau.
 
         $this->showPermanentLink();
 

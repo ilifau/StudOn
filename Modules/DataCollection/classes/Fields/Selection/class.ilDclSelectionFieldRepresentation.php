@@ -65,13 +65,6 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
         /** @var ilDclSelectionOption[] $options */
         $options = ilDclSelectionOption::getAllForField($this->getField()->getId());
         switch ($this->getField()->getProperty(static::PROP_SELECTION_TYPE)) {
-            case ilDclSelectionFieldModel::SELECTION_TYPE_SINGLE:
-                $input = new ilRadioGroupInputGUI($this->getField()->getTitle(), 'field_' . $this->getField()->getId());
-                foreach ($options as $opt) {
-                    $input->addOption(new ilRadioOption($opt->getValue(), $opt->getOptId()));
-                }
-                $input->setValue(array_keys($options)[0]);
-                break;
             case ilDclSelectionFieldModel::SELECTION_TYPE_MULTI:
                 //				global $DIC;
                 //				$DIC->ui()->mainTemplate()->addOnLoadCode('$("#field_' . $this->getField()->getId() . '").removeClass("input")');
@@ -88,15 +81,21 @@ abstract class ilDclSelectionFieldRepresentation extends ilDclBaseFieldRepresent
                 }
                 $input->setOptions($array);
                 break;
-            // fau: fixDclMissingFieldType - if no type is set -> use combobox
-            default:
-            // fau.
+            case ilDclSelectionFieldModel::SELECTION_TYPE_COMBOBOX:
                 $input = new ilSelectInputGUI($this->getField()->getTitle(), 'field_' . $this->getField()->getId());
                 $array = array();
                 foreach ($options as $opt) {
                     $array[$opt->getOptId()] = $opt->getValue();
                 }
                 $input->setOptions(array("" => $this->lng->txt('dcl_please_select')) + $array);
+                break;
+            case ilDclSelectionFieldModel::SELECTION_TYPE_SINGLE:
+            default:
+                $input = new ilRadioGroupInputGUI($this->getField()->getTitle(), 'field_' . $this->getField()->getId());
+                foreach ($options as $opt) {
+                    $input->addOption(new ilRadioOption($opt->getValue(), $opt->getOptId()));
+                }
+                $input->setValue(array_keys($options)[0]);
                 break;
         }
         $this->setupInputField($input, $this->getField());

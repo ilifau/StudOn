@@ -34,11 +34,10 @@ class ilTestGradingMessageBuilder
      * @var integer
      */
     private $activeId;
-
-    // fau: testGradingMessage - initialize the message text
-    private $messageText = array();
-    // fau.
-
+    /**
+     * @var array
+     */
+    private $messageText = [];
     /**
      * @param ilLanguage $lng
      * @param ilObjTest $testOBJ

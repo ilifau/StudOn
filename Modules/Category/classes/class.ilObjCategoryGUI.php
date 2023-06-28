@@ -14,10 +14,7 @@ require_once "./Services/Container/classes/class.ilContainerGUI.php";
  * @ilCtrl_Calls ilObjCategoryGUI: ilColumnGUI, ilObjectCopyGUI, ilUserTableGUI, ilDidacticTemplateGUI, ilExportGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilObjTaxonomyGUI, ilObjectMetaDataGUI, ilContainerNewsSettingsGUI, ilContainerFilterAdminGUI
  * @ilCtrl_Calls ilObjCategoryGUI: ilRepUtilGUI
- * fau: univisImport - add UnivIS import to the control structure
- * @ilCtrl_Calls ilObjCategoryGUI: ilUnivisImportLecturesGUI
- * fau.
- * @ingroup      ModulesCategory
+  * @ingroup      ModulesCategory
  */
 class ilObjCategoryGUI extends ilContainerGUI
 {
@@ -93,16 +90,6 @@ class ilObjCategoryGUI extends ilContainerGUI
 
         $header_action = true;
         switch ($next_class) {
-            // fau: univisImport - call Univis Import GUI
-            case "ilunivisimportlecturesgui":
-                $this->prepareOutput();
-                include_once('./Services/UnivIS/classes/class.ilUnivisImportLecturesGUI.php');
-                $this->gui_obj = new ilUnivISImportLecturesGUI($this);
-                $ret = &$this->ctrl->forwardCommand($this->gui_obj);
-                break;
-            // fau.
-
-
             case strtolower(ilRepUtilGUI::class):
                 $ru = new \ilRepUtilGUI($this);
                 $this->ctrl->setReturn($this, 'trash');

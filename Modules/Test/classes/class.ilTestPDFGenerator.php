@@ -1,8 +1,19 @@
 <?php
-/* Copyright (c) 1998-2013 ILIAS open source, Extended GPL, see docs/LICENSE */
-
-require_once './Services/PDFGeneration/classes/factory/class.ilHtmlToPdfTransformerFactory.php';
-require_once './Services/PDFGeneration/classes/class.ilPDFGeneratorUtils.php';
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
 /**
  * Class ilTestPDFGenerator
@@ -37,26 +48,24 @@ class ilTestPDFGenerator
 		// fau.
 	}
 
-	/**
-	 * @param $html
-	 * @return string
-	 */
-	private static function makeHtmlDocument($contentHtml, $styleHtml)
-	{
-		if(!is_string($contentHtml) || !strlen(trim($contentHtml)))
-		{
-			return $contentHtml;
-		}
+    /**
+     * @param $html
+     * @return string
+     */
+    private static function makeHtmlDocument($contentHtml, $styleHtml)
+    {
+        if (!is_string($contentHtml) || !strlen(trim($contentHtml))) {
+            return $contentHtml;
+        }
 
-		$html = self::buildHtmlDocument($contentHtml, $styleHtml);
+        $html = self::buildHtmlDocument($contentHtml, $styleHtml);
 
-		$dom = new DOMDocument("1.0", "utf-8");
-		if(!@$dom->loadHTML($html))
-		{
-			return $html;
-		}
+        $dom = new DOMDocument("1.0", "utf-8");
+        if (!@$dom->loadHTML($html)) {
+            return $html;
+        }
 
-		$invalid_elements = array();
+        $invalid_elements = array();
 
 		$script_elements     = $dom->getElementsByTagName('script');
 		foreach($script_elements as $elm)
@@ -109,21 +118,29 @@ class ilTestPDFGenerator
 	{
 		$pdf_output = self::preprocessHTML($pdf_output);
 
-		if (substr($filename, strlen($filename) - 4, 4) != '.pdf')
-		{
-			$filename .= '.pdf';
-		}
-		$pdf_factory = new ilHtmlToPdfTransformerFactory();
-		return $pdf_factory->deliverPDFFromHTMLString($pdf_output, $filename, $output_mode, self::service, $purpose);
+        if (substr($filename, strlen($filename) - 4, 4) != '.pdf') {
+            $filename .= '.pdf';
+        }
+        $pdf_factory = new ilHtmlToPdfTransformerFactory();
 
-	}
+        if (!$pdf_factory->deliverPDFFromHTMLString(
+            $pdf_output,
+            $filename,
+            $output_mode,
+            self::service,
+            $purpose
+        )) {
+            throw new \Exception('could not write PDF');
+        }
+        return true;
+    }
 
-	public static function preprocessHTML($html)
-	{
-		$html = self::makeHtmlDocument($html, '<style>'.self::getCssContent().'</style>');
-		
-		return $html;
-	}
+    public static function preprocessHTML($html)
+    {
+        $html = self::makeHtmlDocument($html, '<style>' . self::getCssContent() . '</style>');
+
+        return $html;
+    }
 
 	protected static function getTemplatePath($a_filename, $module_path = 'Modules/Test/')
 	{
@@ -142,11 +159,11 @@ class ilTestPDFGenerator
 		return $fname;
 	}
 
-	protected static function getCssContent()
-	{
-		$cssContent = file_get_contents( self::getTemplatePath('delos.css', '') );
-		$cssContent .= file_get_contents( self::getTemplatePath('test_pdf.css') );
-		
-		return $cssContent;
-	}
+    protected static function getCssContent()
+    {
+        $cssContent = file_get_contents(self::getTemplatePath('delos.css', ''));
+        $cssContent .= file_get_contents(self::getTemplatePath('test_pdf.css'));
+
+        return $cssContent;
+    }
 }

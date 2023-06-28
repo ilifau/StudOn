@@ -953,9 +953,6 @@ abstract class ilRegistrationGUI
                     $message = str_replace('{REG_TYPE}', $this->lng->txt('crs_reg_no_selfreg'), $message);
                 } else {
                     switch ($this->container->getSubscriptionType()) {
-                        case IL_CRS_SUBSCRIPTION_MYCAMPUS:
-                            $message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
-                            break;
                         // fau: objectSub  - add info in email about guest user request
                         case IL_CRS_SUBSCRIPTION_OBJECT:
                             $message = str_replace('{REG_TYPE}', $this->lng->txt('sub_separate_object'), $message);
