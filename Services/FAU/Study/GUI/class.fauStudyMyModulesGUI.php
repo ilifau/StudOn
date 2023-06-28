@@ -74,6 +74,8 @@ class fauStudyMyModulesGUI extends BaseGUI
     {
         $tpl = new ilTemplate("tpl.fau_study_my_modules.html",true,true,"Services/FAU/Study/GUI");
 
+        $tpl->setVariable('INFO1', $this->lng->txt('fau_my_modules_info1'));
+        $tpl->setVariable('INFO2', $this->lng->txt('fau_my_modules_info2'));
         $tpl->setVariable('FORMACTION', $this->ctrl->getFormAction($this, 'saveModules'));
         $tpl->setVariable('FILTER_HTML', $this->renderer->render($this->getFilter()));
         $tpl->setVariable('LIST_HTML', $this->dic->ui()->renderer()->render($this->getList()));
@@ -84,7 +86,45 @@ class fauStudyMyModulesGUI extends BaseGUI
     
     protected function saveModules()
     {
-        $this->show();
+        $user_id = $this->dic->user()->getId();
+        
+        $params = $this->request->getParsedBody();
+        $module_ids = (array) ($params['module_ids']) ?? [];
+        
+        foreach ($module_ids as $course_id => $module_id) {
+            $module_id = (int) $module_id;
+            $course_id = (int) $course_id;
+            
+            if (!empty($course = $this->dic->fau()->study()->repo()->getCourse($course_id))) {
+                $term = new Term($course->getTermYear(), $course->getTermTypeId());
+                $import_id = new ImportId($term->toString(), $course->getEventId(), $course->getCourseId());
+                
+                if (!empty($obj_id = $course->getIliasObjId())) {
+                    foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
+                        if (ilParticipants::_isParticipant($ref_id, $user_id)) {
+                            $hardRestrictions = $this->dic->fau()->cond()->hard();
+                            $hardRestrictions->checkByImportId($import_id, $user_id);
+                            
+                            if (empty($module_id)) {
+                                $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id)->withModuleId(null);
+                                $this->dic->fau()->user()->repo()->save($member);
+                            }
+                            else {
+                                $options = $hardRestrictions->getCheckedModuleSelectOptions();
+                                $disabled_ids = $hardRestrictions->getCheckedModuleSelectDisabledIds();
+                                if (isset($options[$module_id]) && !in_array($module_id, $disabled_ids)) {
+                                    $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id)->withModuleId($module_id);
+                                    $this->dic->fau()->user()->repo()->save($member);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        $this->tpl->setOnScreenMessage('success', $this->lng->txt('fau_my_modules_is_saved'), true);
+        $this->ctrl->redirect($this, 'show');
     }
     
 
@@ -103,10 +143,17 @@ class fauStudyMyModulesGUI extends BaseGUI
             $this->dic->fau()->tools()->convert()->unixToDbDate(time() - 86400)
         );
 
+        $synced_term_ids = [];
+        foreach ($this->dic->fau()->sync()->getTermsToSync() as $term) {
+            $synced_term_ids[] = $term->toString();
+        }
+        
         $data_items = [];
         $provider =  new ilPDSelectedItemsBlockMembershipsProvider($this->dic->user());
         foreach ($provider->getItems(['crs', 'grp']) as $item) {
             foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($item['obj_id']) as $course) {
+                $term = new Term($course->getTermYear() , $course->getTermTypeId());
+                
                 $item['course_id'] = $course->getCourseId();
                 $item['event_id'] = $course->getEventId();
                 $item['term_year'] = $course->getTermYear();
@@ -119,7 +166,11 @@ class fauStudyMyModulesGUI extends BaseGUI
                 $item['studon_status'] = \ilLearningProgressBaseGUI::_getStatusText($lp_status ?? ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM);
 
                 $last_date = $this->dic->fau()->sync()->repo()->getCourseMaxDateAsTimestamp($course->getCourseId());
-                if (!empty($last_date) && $last_date < $earliest_passed) {
+                if (!in_array($term->toString(), $synced_term_ids)) {
+                    $item['campo_status'] = $this->lng->txt('fau_campo_member_status_not_synced');
+                }
+                
+                elseif (!empty($last_date) && $last_date >= $earliest_passed) {
                     $date_pres = ilDatePresentation::formatDate(new ilDate($last_date, IL_CAL_UNIX));
                     
                     $item['campo_status'] = sprintf($this->lng->txt($course->getNeedsPassed() 
@@ -149,7 +200,7 @@ class fauStudyMyModulesGUI extends BaseGUI
             
             $info_gui = $this->dic->fau()->study()->info();
             $description = $info_gui->getLinksLine($import_id, $item['ref_id'])
-                . $this->getModuleSelectionHtml($import_id->toString(), 'module_id_' . $item['course_id'], $item['module_id']);
+                . $this->getModuleSelectionHtml($import_id->toString(), 'module_ids[' . $item['course_id'] . ']', $item['module_id']);
             
             $props = [
                 $this->lng->txt('fau_campo_member_status_for_campo') => $item['campo_status'],

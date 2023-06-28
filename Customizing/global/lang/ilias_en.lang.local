@@ -593,6 +593,21 @@ fau#:#fau_campo_needs_passed_label#:#Successful Participation
 fau#:#fau_campo_needs_passed_info#:#Determines which members have the participation in their Transcript Of Records verified for the selected module. The status is delivered to campo after the last course date.
 fau#:#fau_campo_needs_passed_true#:#Only passed members
 fau#:#fau_campo_needs_passed_false#:#All members
+fau#:#fau_campo_member_status_for_campo#:#Status message to campo
+fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
+fau#:#fau_campo_member_status_registered_before_needs_passed#:#registered (from %s on successfully participated, if passed in StudOn)
+fau#:#fau_campo_member_status_registered_before_all#:#registered (from %s on successfully participated)
+fau#:#fau_campo_member_status_registered_needs_passed#:#registered (not passed in StudOn)
+fau#:#fau_campo_member_status_passed_all#:#successfully participated (all members)
+fau#:#fau_campo_member_status_passed_needs_passed#:#successfully participated (passed members)
+fau#:#fau_campo_member_status_not_synced#:#No status is sent for the semester
+fau#:#fau_my_modules_selection#:#My Module Selections
+fau#:#fau_my_modules_list#:#My courses and groups with module selection
+fau#:#fau_my_modules_not_found#:#No courses and groups with module selection found
+fau#:#fau_my_modules_save#:#Save module selections
+fau#:#fau_my_modules_is_saved#:#The module selections have been saved.
+fau#:#fau_my_modules_info1#:#This page shows your StudOn courses and groups associated with courses in a semester. For each course you can choose a module to which the course should be assigned in your Transcript Of Records. However, this only happens if you are reported as "successfully participated" to campo. The status is reported after the last course date. The person responsible for the course or group can determine whether all members are reported as passed or only those who have the status "Processed" in StudOn.
+fau#:#fau_my_modules_info2#:#The selection list contains all modules of the course assigned to your degree programme. A tick (✓) means that the module requirements are fulfilled. A cross (✗) means that they are not fulfilled. You can only select such modules if there is no selectable alternative. Then, with the acceptance of your course registration, it was decided that the requirements can be ignored.
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
 fau#:#fau_check_failed_restrictions#:#The restrictions for taking this course estrictions are not met.
 fau#:#fau_check_failed_term_not_valid#:#No correct semester is given for this course, therefore no prerequisites can be checked. Please contact the person responsible for the course.
