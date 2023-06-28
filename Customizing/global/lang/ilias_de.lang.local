@@ -592,6 +592,17 @@ fau#:#fau_campo_needs_passed_label#:#Erfolgreiche Teilnahme
 fau#:#fau_campo_needs_passed_info#:#Legt fest, welche Mitglieder die Teilnahme in ihrem Transcript Of Records beim dafür gewählten Modul nachgewiesen bekommen. Der Status wird nach dem letzten Kurstermin an campo geliefert.
 fau#:#fau_campo_needs_passed_true#:#Nur bestandene Mitglieder
 fau#:#fau_campo_needs_passed_false#:#Alle Mitglieder
+fau#:#fau_campo_member_status_for_campo#:#Status-Meldung an campo
+fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
+fau#:#fau_campo_member_status_registered_before_needs_passed#:#registriert (ab %s erfolgreich teilgenommen, wenn in StudOn bestanden)
+fau#:#fau_campo_member_status_registered_before_all#:#registriert (ab %s erfolgreich teilgenommen) 
+fau#:#fau_campo_member_status_registered_needs_passed#:#registriert (in StudOn nicht bestanden)	
+fau#:#fau_campo_member_status_passed_all#:#erfolgreich teilgenommen (alle Mitglieder)
+fau#:#fau_campo_member_status_passed_needs_passed#:#erfolgreich teilgenommen (bestandene Mitglieder)
+fau#:#fau_my_modules_selection#:#Meine Modulauswahlen
+fau#:#fau_my_modules_list#:#Meine Kurse und Gruppen mit Modulauswahl
+fau#:#fau_my_modules_not_found#:#Keine Kurse und Gruppen mit Modulauswahl gefunden
+fau#:#fau_my_modules_save#:#Modulauswahlen speichern
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Die Voraussetzungen zur Belegung dieser Lehrveranstaltung sind nicht erfüllt.
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.

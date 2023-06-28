@@ -253,11 +253,10 @@ class Repository extends RecordRepo
     public function getCoursesMaxDatesAsTimestamps() : array
     {
         $query = "
-            SELECT c.course_id, UNIX_TIMESTAMP(MAX(i.date)) max_date
-            FROM fau_study_courses c 
-            JOIN fau_study_plan_dates p ON p.course_id = c.course_id
+            SELECT p.course_id, UNIX_TIMESTAMP(MAX(i.date)) max_date
+            FROM fau_study_plan_dates p 
             JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id
-            GROUP BY c.course_id        
+            GROUP BY p.course_id        
         ";
         $times = [];
         $result = $this->db->query($query);
@@ -266,6 +265,27 @@ class Repository extends RecordRepo
         }
         return $times;
     }
+
+    /**
+     * Get the timestamps of the maximum individual date of a course
+     * @param int $course_id
+     * @return int|null
+     */
+    public function getCourseMaxDateAsTimestamp(int $course_id) : ?int
+    {
+        $query = "
+            SELECT UNIX_TIMESTAMP(MAX(i.date)) max_date
+            FROM fau_study_plan_dates p 
+            JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id      
+            WHERE p.course_id =" . $this->db->quote($course_id, 'int') . "       
+        ";
+        $result = $this->db->query($query);
+        if ($row = $this->db->fetchAssoc($result)) {
+            return $row['max_date'];
+        }
+        return null;
+    }
+
     
 
     /**
