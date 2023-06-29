@@ -76,19 +76,15 @@ class Service extends SubService
      * Always sync the current semester (Winter from 1st of October, Summer from 1st of April)
      * End synchronisation of the previous semester at 1st of June and 1st of December (2 months after end)
      * Start synchronisation for the next semester at 1st of June and 1st of December (4 months in advance)
+     * @param bool $syncBack - back synchronisation of course settings and members
      * @return Term[]
      */
-    public function getTermsToSync() : array
+    public function getTermsToSync($syncBack = false) : array
     {
         $year = (int) date('Y');
         $month = (int) date('m');
 
-        if ($year == 2022 && $month < 12) {
-            return [
-                new Term($year, 2)           // start with winter term 2022
-            ];
-        }
-        elseif ($month < 4) {
+        if ($month < 4) {
             return [
                 new Term($year - 1, 2),     // current winter term
                 new Term($year, 1),              // next summer term
@@ -101,10 +97,19 @@ class Service extends SubService
             ];
         }
         elseif ($month < 10) {
-            return [
-                new Term($year, 1),              // current summer term
-                new Term($year, 2),              // next winter term
-            ];
+            if ($syncBack && $year == 2023) {               // special case for back synchronisation in winter 2023
+                return [
+                    new Term($year - 1, 2),     // last winter term (extended delivery)
+                    new Term($year, 1),              // current summer term
+                    new Term($year, 2),              // next winter term
+                ];
+            }
+            else {
+                return [
+                    new Term($year, 1),              // current summer term
+                    new Term($year, 2),              // next winter term
+                ];
+            }
         }
         elseif ($month < 12) {
             return [

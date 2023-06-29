@@ -144,7 +144,7 @@ class fauStudyMyModulesGUI extends BaseGUI
         );
 
         $synced_term_ids = [];
-        foreach ($this->dic->fau()->sync()->getTermsToSync() as $term) {
+        foreach ($this->dic->fau()->sync()->getTermsToSync(true) as $term) {
             $synced_term_ids[] = $term->toString();
         }
         
@@ -158,13 +158,19 @@ class fauStudyMyModulesGUI extends BaseGUI
                 $item['event_id'] = $course->getEventId();
                 $item['term_year'] = $course->getTermYear();
                 $item['term_type_id'] = $course->getTermTypeId();
+                $item['needs_passed'] = $course->getNeedsPassed();
 
                 $member = $this->dic->fau()->user()->repo()->getMember($item['obj_id'], $this->dic->user()->getId());
                 $item['module_id'] = isset($member) ? $member->getModuleId() : null;
                 
                 $lp_status = \ilLPStatus::_lookupStatus($item['obj_id'], $this->dic->user()->getId(), false);
-                $item['studon_status'] = \ilLearningProgressBaseGUI::_getStatusText($lp_status ?? ilLPStatus::LP_STATUS_NOT_ATTEMPTED_NUM);
-
+                if ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM) {
+                    $item['studon_status'] = $this->lng->txt('crs_member_passed');
+                }
+                else {
+                    $item['studon_status'] = $this->lng->txt('crs_member_not_passed');
+                }
+                
                 $last_date = $this->dic->fau()->sync()->repo()->getCourseMaxDateAsTimestamp($course->getCourseId());
                 if (!in_array($term->toString(), $synced_term_ids)) {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_not_synced');
@@ -204,8 +210,11 @@ class fauStudyMyModulesGUI extends BaseGUI
             
             $props = [
                 $this->lng->txt('fau_campo_member_status_for_campo') => $item['campo_status'],
-                $this->lng->txt('fau_campo_member_status_in_studon') => $item['studon_status']
             ];
+            
+            if ($item['needs_passed']) {
+                $props[ $this->lng->txt('fau_campo_member_status_in_studon')] =  $item['studon_status'];
+            }
             
             $gui_item = $this->factory->item()->standard('<a href="' . $link . '">'.$item['title'].'</a>')
                                   ->withDescription($description)

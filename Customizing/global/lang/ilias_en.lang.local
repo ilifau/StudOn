@@ -595,7 +595,7 @@ fau#:#fau_campo_needs_passed_true#:#Only passed members
 fau#:#fau_campo_needs_passed_false#:#All members
 fau#:#fau_campo_member_status_for_campo#:#Status message to campo
 fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
-fau#:#fau_campo_member_status_registered_before_needs_passed#:#registered (from %s on successfully participated, if passed in StudOn)
+fau#:#fau_campo_member_status_registered_before_needs_passed#:#registered (from %s depending on the status in StudOn)
 fau#:#fau_campo_member_status_registered_before_all#:#registered (from %s on successfully participated)
 fau#:#fau_campo_member_status_registered_needs_passed#:#registered (not passed in StudOn)
 fau#:#fau_campo_member_status_passed_all#:#successfully participated (all members)

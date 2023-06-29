@@ -19,7 +19,7 @@ class SyncToCampo extends SyncBase
      */
     public function synchronize() : void
     {
-        foreach ($this->sync->getTermsToSync() as $term) {
+        foreach ($this->sync->getTermsToSync(true) as $term) {
             $this->syncCourses($term);
             $this->syncMembers($term);
         }
