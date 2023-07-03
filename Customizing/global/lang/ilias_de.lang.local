@@ -600,13 +600,13 @@ fau#:#fau_campo_member_status_registered_needs_passed#:#registriert (in StudOn n
 fau#:#fau_campo_member_status_passed_all#:#erfolgreich teilgenommen (alle Mitglieder)
 fau#:#fau_campo_member_status_passed_needs_passed#:#erfolgreich teilgenommen (bestandene Mitglieder)
 fau#:#fau_campo_member_status_not_synced#:#Für das Semester wird kein Status gemeldet
-fau#:#fau_my_modules_selection#:#Meine Modulauswahlen
-fau#:#fau_my_modules_list#:#Meine Kurse und Gruppen mit Modulauswahl
-fau#:#fau_my_modules_not_found#:#Keine Kurse und Gruppen mit Modulauswahl gefunden
-fau#:#fau_my_modules_save#:#Modulauswahlen speichern
-fau#:#fau_my_modules_is_saved#:#Die Modulauswahlen wurden gespeichert.
-fau#:#fau_my_modules_info1#:#Diese Seite zeigt Ihre Kurse und Gruppen, die mit Lehrveranstaltungen eines Semesters verbunden sind. Für jede Veranstaltung können Sie ein Modul wählen, dem die Veranstaltung in Ihrem Transcript Of Records zugeordnet werden soll. Dies geschieht aber nur, wenn Sie als „erfolgreich teilgenommen“ an campo gemeldet werden. Die Meldung erfolgt nach dem letzten Veranstaltungstermin. Die Kurs- oder Gruppenverantwortlichen können festlegen, ob alle Mitglieder als bestanden gemeldet werden, oder nur diejenigen, die in StudOn den Status "Bearbeitet" haben.
-fau#:#fau_my_modules_info2#:#Die Auswahlliste enthält alle Module der Lehrveranstaltung, die Ihrem Studiengang zugeordnet sind. Ein Haken (✓) bedeutet, dass die Modul-Voraussetzungen erfüllt sind. Ein Kreuz (✗) bedeutet, dass sie nicht erfüllt sind. Solche Module können Sie nur wählen, wenn es keine wählbare Alternative gibt. Dann wurde mit der Annahme Ihres Aufnahmeantrags entschieden, dass die Voraussetzungen ignoriert werden können.
+fau#:#fau_my_modules_selection#:#Meine Modul-/Kontenauswahlen
+fau#:#fau_my_modules_list#:#Meine Kurse und Gruppen mit Modul-/Kontenauswahl
+fau#:#fau_my_modules_not_found#:#Keine Kurse und Gruppen mit Modul-/Kotenauswahl gefunden
+fau#:#fau_my_modules_save#:#Auswahlen speichern
+fau#:#fau_my_modules_is_saved#:#Die Auswahlen wurden gespeichert.
+fau#:#fau_my_modules_info1#:#Diese Seite zeigt Ihre Kurse und Gruppen, die mit Lehrveranstaltungen eines Semesters verbunden sind. Für jede Veranstaltung können Sie ein Modul/Konto wählen, dem die Veranstaltung in Ihrem Transcript Of Records zugeordnet werden soll. Dies geschieht aber nur, wenn Sie als „erfolgreich teilgenommen“ an campo gemeldet werden. Die Meldung erfolgt nach dem letzten Veranstaltungstermin. Die Kurs- oder Gruppenverantwortlichen können festlegen, ob alle Mitglieder als bestanden gemeldet werden, oder nur diejenigen, die in StudOn den Status "Bearbeitet" haben.
+fau#:#fau_my_modules_info2#:#Die Auswahlliste enthält alle Module/Konten der Lehrveranstaltung, die Ihrem Studiengang zugeordnet sind. Ein Haken (✓) bedeutet, dass die Voraussetzungen erfüllt sind. Ein Kreuz (✗) bedeutet, dass sie nicht erfüllt sind. Solche Einträge können Sie nur wählen, wenn es keine wählbare Alternative gibt. Dann wurde mit der Annahme Ihres Aufnahmeantrags entschieden, dass die Voraussetzungen ignoriert werden können.
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Die Voraussetzungen zur Belegung dieser Lehrveranstaltung sind nicht erfüllt.
 fau#:#fau_check_failed_term_not_valid#:#Für diese Lehrveranstaltung ist kein korrektes Semester angegeben, daher können keine Voraussetzungen geprüft werden. Bitte wenden Sie sich an die Veranstaltungs-Verantwortlichen.

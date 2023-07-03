@@ -30,7 +30,7 @@ class fauStudyMyModulesGUI extends BaseGUI
     {
         $this->tpl->loadStandardTemplate();
         $this->tpl->setTitle($this->lng->txt('fau_my_modules_selection'));
-        $this->tpl->setTitleIcon(ilObject::_getIcon("", "big", "pecrs"));
+        $this->tpl->setTitleIcon(ilUtil::getImagePath('icon_my_modules.svg'));
 
         $cmd = $this->ctrl->getCmd('show');
         $next_class = $this->ctrl->getNextClass();
