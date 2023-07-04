@@ -943,15 +943,15 @@ class ilMembershipGUI
 
 
         // fau: campoSub - add button in membership toolbar
-        $import_id = \FAU\Study\Data\ImportId::fromString($this->getParentObject()->getImportId());
-        if ($import_id->isForCampo()) {
-            $ilToolbar->addSeparator();
-            $ilToolbar->addButton(
-                $this->lng->txt('fau_send_members'),
-                $this->ctrl->getLinkTarget($this, 'forceMemberSaveToCampo')
-            );
-            $ilToolbar->addSeparator();
-        }
+//        $import_id = \FAU\Study\Data\ImportId::fromString($this->getParentObject()->getImportId());
+//        if ($import_id->isForCampo()) {
+//            $ilToolbar->addSeparator();
+//            $ilToolbar->addButton(
+//                $this->lng->txt('fau_send_members'),
+//                $this->ctrl->getLinkTarget($this, 'forceMemberSaveToCampo')
+//            );
+//            $ilToolbar->addSeparator();
+//        }
         // fau.
 
 
