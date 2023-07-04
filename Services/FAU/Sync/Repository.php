@@ -253,15 +253,23 @@ class Repository extends RecordRepo
     public function getCoursesMaxDatesAsTimestamps() : array
     {
         $query = "
-            SELECT p.course_id, UNIX_TIMESTAMP(MAX(i.date)) max_date
+            SELECT p.course_id, MAX(UNIX_TIMESTAMP(p.enddate)) max_planned_date, MAX(UNIX_TIMESTAMP(i.`date`)) max_individual_date
             FROM fau_study_plan_dates p 
-            JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id
-            GROUP BY p.course_id        
+            LEFT JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id 
+            GROUP BY p.course_id 
         ";
         $times = [];
         $result = $this->db->query($query);
         while ($row = $this->db->fetchAssoc($result)) {
-            $dates[$row['course_id']] = $row['max_date'];
+            $max_planned = $row['max_planned_date'] ?? 0;
+            $max_individual = $row['max_individual_date'] ?? 0;
+            
+            if ($max_planned == 0 && $max_individual == 0) {
+                continue;
+            }
+            else {
+                $times[$row['course_id']] = max($max_planned, $max_individual);
+            }
         }
         return $times;
     }
@@ -274,14 +282,22 @@ class Repository extends RecordRepo
     public function getCourseMaxDateAsTimestamp(int $course_id) : ?int
     {
         $query = "
-            SELECT UNIX_TIMESTAMP(MAX(i.date)) max_date
+            SELECT MAX(UNIX_TIMESTAMP(p.enddate)) max_planned_date, MAX(UNIX_TIMESTAMP(i.`date`)) max_individual_date
             FROM fau_study_plan_dates p 
-            JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id      
+            LEFT JOIN fau_study_indi_dates i ON i.planned_dates_id = p.planned_dates_id    
             WHERE p.course_id =" . $this->db->quote($course_id, 'int') . "       
         ";
         $result = $this->db->query($query);
         if ($row = $this->db->fetchAssoc($result)) {
-            return $row['max_date'];
+            $max_planned = $row['max_planned_date'] ?? 0;
+            $max_individual = $row['max_individual_date'] ?? 0;
+
+            if ($max_planned == 0 && $max_individual == 0) {
+                return null;
+            }
+            else {
+               return max($max_planned, $max_individual);
+            }
         }
         return null;
     }

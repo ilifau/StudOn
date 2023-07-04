@@ -439,6 +439,22 @@ class Service extends SubService
     }
 
     /**
+     * Get the unix timestamp of the end time of a term
+     * @param Term $term
+     * @return int
+     */
+    public function getTermEndTime(Term $term) : int
+    {
+        if ($term->getTypeId() == Term::TYPE_ID_WINTER) {
+            $timestring = ($term->getYear() + 1) . '-04-01 00:00:00';
+        }
+        else {
+            $timestring = $term->getYear() . '-10-01 00:00:00';
+        }
+        return (new \ilDateTime($timestring, IL_CAL_DATETIME))->getUnixTime();
+    }
+
+    /**
      * Get the text for a term in a specific language
      */
     public function getTermTextForLang(?Term $term, string $lang_code, bool $short = false) : string

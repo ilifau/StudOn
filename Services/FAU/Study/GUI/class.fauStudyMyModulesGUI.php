@@ -153,7 +153,9 @@ class fauStudyMyModulesGUI extends BaseGUI
         foreach ($provider->getItems(['crs', 'grp']) as $item) {
             foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($item['obj_id']) as $course) {
                 $term = new Term($course->getTermYear() , $course->getTermTypeId());
-                
+                // fallback end date for courses without a planned or individual end date
+                $term_end = $this->dic->fau()->study()->getTermEndTime($term);
+
                 $item['course_id'] = $course->getCourseId();
                 $item['event_id'] = $course->getEventId();
                 $item['term_year'] = $course->getTermYear();
@@ -171,7 +173,7 @@ class fauStudyMyModulesGUI extends BaseGUI
                     $item['studon_status'] = $this->lng->txt('crs_member_not_passed');
                 }
                 
-                $last_date = $this->dic->fau()->sync()->repo()->getCourseMaxDateAsTimestamp($course->getCourseId());
+                $last_date = $this->dic->fau()->sync()->repo()->getCourseMaxDateAsTimestamp($course->getCourseId()) ?? $term_end;
                 if (!in_array($term->toString(), $synced_term_ids)) {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_not_synced');
                 }

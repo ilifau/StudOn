@@ -30,7 +30,7 @@ class SyncToCampo extends SyncBase
      */
     public function syncCourses(Term $term) : void
     {
-        $this->info('sync StudOnCourses...');
+        $this->info('sync StudOnCourses for Term ' . $term->toString() . '...');
         $existing = $this->staging->repo()->getStudOnCourses($term);
 
         foreach ($this->sync->repo()->getCoursesToSyncBack($term) as $course) {
@@ -56,21 +56,23 @@ class SyncToCampo extends SyncBase
      */
     public function syncMembers(Term $term) : void
     {
-        $this->info('sync StudOnMembers...');
+        $this->info('sync StudOnMembers for Term ' . $term->toString() . '...');
         // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembers($term);
         // get the courses in the tern that have an ilias object assigned
         $course_ids = $this->sync->repo()->getCourseIdsToSyncBack($term);
         // get the timestamps of the maximum individual dates of all courses indexed by course ids
         $times = $this->sync->repo()->getCoursesMaxDatesAsTimestamps();
-        // earlies maximum individual date of courses for which a passed status should be sent
-        $earliest_passed = time() - 86400;
-
+        // earlies maximum date of courses for which a passed status should be sent
+        $earliest_passed = $this->dic->fau()->tools()->convert()->dbDateToUnix(
+            $this->tools->convert()->unixToDbDate(time() - 86400)
+        );
+        // fallback end date for courses without a planned or individual end date
+        $term_end = $this->study->getTermEndTime($term);
+        
         foreach ($this->sync->repo()->getMembersOfCoursesToSyncBack($term) as $member) {
-            if ($member->getStatus() == StudOnMember::STATUS_PASSED
-                 && isset($times[$member->getCourseId()]) 
-                 && $times[$member->getCourseId()] < $earliest_passed
-            ) {
+            $end_time = $times[$member->getCourseId()] ?? $term_end;
+            if ($end_time > $earliest_passed) {
                 $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
             }
             
