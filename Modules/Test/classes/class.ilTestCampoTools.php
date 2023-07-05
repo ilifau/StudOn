@@ -240,15 +240,15 @@ class ilTestCampoTools
               //          } else {
                             // Noten für campo sollen als Zahlen ausgegeben werden, also die Kurzbezeichnung
                             //$row[] = $participant->getMarkOfficial();
-                            $row[] = $participant->getMark();
+              //            $row[] = $participant->getMark();
               //          }
-              /*      } else {
+              /*      } else {*/
                         if ($participant->getPassed()) {
                             $row[] = '+';
                         } else {
                             $row[] = '-';
                         }
-                    }*/
+                   /* }*/
                     $start = $participant->getFirstVisit();
                     
                     if (in_array('date', $other_fields)) {
