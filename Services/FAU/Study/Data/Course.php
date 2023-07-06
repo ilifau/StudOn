@@ -77,7 +77,7 @@ class Course extends RecordData
     protected ?int $ilias_obj_id = null;
     protected ?string $ilias_dirty_since = null;
     protected ?string $ilias_problem = null;
-    protected ?int $needs_passed = 0;
+    protected ?int $needs_passed = 1;
     
     // dirty flags for changeable data in ILIAS course or group
     // will be set true in the campo sync if the underlying data is changed
