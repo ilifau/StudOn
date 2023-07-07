@@ -29,28 +29,28 @@ class ilTestPassFinishTasks
     public function performFinishTasks(ilTestProcessLocker $processLocker)
     {
         $testSession = $this->testSession;
-        
+
         $processLocker->executeTestFinishOperation(function () use ($testSession) {
             if (!$testSession->isSubmitted()) {
                 $testSession->setSubmitted();
                 $testSession->setSubmittedTimestamp();
                 $testSession->saveToDb();
             }
-            
+
             $lastStartedPass = (
                 $testSession->getLastStartedPass() === null ? -1 : $testSession->getLastStartedPass()
             );
-            
+
             $lastFinishedPass = (
                 $testSession->getLastFinishedPass() === null ? -1 : $testSession->getLastFinishedPass()
             );
-            
+
             if ($lastStartedPass > -1 && $lastFinishedPass < $lastStartedPass) {
                 $testSession->setLastFinishedPass($testSession->getPass());
                 $testSession->increaseTestPass(); // saves to db
             }
         });
-        
+
         $this->updateLearningProgressAfterPassFinishedIsWritten();
 
         // fau: exAssTest - call update of exercise submissions
@@ -66,11 +66,11 @@ class ilTestPassFinishTasks
             $this->obj_id,
             ilObjTestAccess::_getParticipantId($this->active_id)
         );
-        
+
         $caller = $this->getCaller();
         $lp = ilLPStatus::_lookupStatus($this->obj_id, $this->testSession->getUserId());
         $debug = "finPass={$this->testSession->getLastFinishedPass()} / Lp={$lp}";
-        
+
         ilObjAssessmentFolder::_addLog(
             $this->testSession->getUserId(),
             $this->obj_id,
@@ -98,7 +98,7 @@ class ilTestPassFinishTasks
         } catch (Exception $e) {
             $trace = $e->getTrace();
         }
-        
+
         return $trace[3]['class'];
     }
 }

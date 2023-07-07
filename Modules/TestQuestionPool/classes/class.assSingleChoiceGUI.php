@@ -663,14 +663,13 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
                         }
                     }
                 }
-
-                $this->object->addAnswer($answertext, $_POST['choice']['points'][$index], $index, $picturefile);
+                $this->object->addAnswer($answertext, $_POST['choice']['points'][$index], $index, $picturefile, $_POST['choice']['answer_id'][$index]);
             }
         } else {
             foreach ($_POST['choice']['answer'] as $index => $answer) {
                 $answertext = $answer;
                 $answertext = preg_replace('/\[tex\](.*)\[\/tex\]/', '<span class="latex">$1</span>', $answertext);
-                $this->object->addAnswer($answertext, $_POST['choice']['points'][$index], $index);
+                $this->object->addAnswer($answertext, $_POST['choice']['points'][$index], $index, $_POST['choice']['answer_id'][$index]);
             }
         }
         // fau.
