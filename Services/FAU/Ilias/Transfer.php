@@ -143,8 +143,9 @@ class Transfer
 
     /**
      * Change an ilias course to a course with enclosed parallel grup
+     * @return int  ref_id of the created nested group
      */
-    public function changeCampoCourseToNested(ilObjCourse $source) : bool
+    public function changeCampoCourseToNested(ilObjCourse $source) : int
     {
         // deactivate event listener to avoid messages to campo
         $listener_active = ilFAUAppEventListener::getInstance()->isActive();
@@ -160,7 +161,7 @@ class Transfer
             return false;
         }
 
-        // greate group in course with needed settungs
+        // create group in course with needed settings
         $target = $this->dic->fau()->ilias()->objects()->createIliasGroup($source->getRefId(), $term, $event, $course);
         $target->setImportId($import_id->toString());
         $target->setOwner($source->getOwner());
@@ -189,7 +190,7 @@ class Transfer
         $this->dic->fau()->ilias()->repo()->copyWaitingList($source->getId(), $target->getId());
 
         ilFAUAppEventListener::getInstance()->setActive($listener_active);
-        return true;
+        return $target->getRefId();
     }
 
     /**

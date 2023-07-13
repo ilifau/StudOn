@@ -189,7 +189,9 @@ class SyncWithIlias extends SyncBase
                         $action = "create_group_in_course";
                         $parent_ref = $other_refs[0];
                         $courseObj = new ilObjCourse($parent_ref);
-                        $this->dic->fau()->ilias()->transfer()->changeCampoCourseToNested($courseObj);
+                        $changed_ref = $this->dic->fau()->ilias()->transfer()->changeCampoCourseToNested($courseObj);
+                        // needed to set the membership limitation correctly
+                        $other_refs = [$changed_ref];
                     }
                     elseif(!empty($parent_ref = $this->ilias->objects()->findParentIliasCourse($other_refs[0]))) {
                         // group can just be created in the parent course

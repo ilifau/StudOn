@@ -30,6 +30,10 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2434]);
 
+// Two test courses at ILI
+//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [365259], 'test_run' => false]);
+//$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [365260], 'test_run' => false]);
+
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);
 
