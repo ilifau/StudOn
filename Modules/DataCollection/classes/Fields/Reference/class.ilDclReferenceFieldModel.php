@@ -40,12 +40,6 @@ class ilDclReferenceFieldModel extends ilDclBaseFieldModel
         $join_str .= "LEFT JOIN il_dcl_stloc{$ref_field->getStorageLocation()}_value AS stloc_{$this->getId()}_joined ON (stloc_{$this->getId()}_joined.record_field_id = record_field_{$this->getId()}_joined.id) ";
 
         $sql_obj = new ilDclRecordQueryObject();
-        // fau: fixDclSortRef - only sort if referenced field has a storage location
-        if (empty($ref_field->getStorageLocation())) {
-            return $sql_obj;
-        }
-        // fau.
-
         $sql_obj->setSelectStatement($select_str);
         $sql_obj->setJoinStatement($join_str);
         $sql_obj->setOrderStatement("field_{$this->getId()} " . $direction);
