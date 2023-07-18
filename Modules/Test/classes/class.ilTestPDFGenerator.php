@@ -17,36 +17,33 @@
 
 /**
  * Class ilTestPDFGenerator
- * 
+ *
  * Class that handles PDF generation for test and assessment.
- * 
+ *
  * @author Maximilian Becker <mbecker@databay.de>
  * @version $Id$
- * 
+ *
  */
-class ilTestPDFGenerator 
+class ilTestPDFGenerator
 {
-	const PDF_OUTPUT_DOWNLOAD = 'D';
-	const PDF_OUTPUT_INLINE = 'I';
-	const PDF_OUTPUT_FILE = 'F';
+    const PDF_OUTPUT_DOWNLOAD = 'D';
+    const PDF_OUTPUT_INLINE = 'I';
+    const PDF_OUTPUT_FILE = 'F';
 
-	const service = "Test";
+    const service = "Test";
 
-	private static function buildHtmlDocument($contentHtml, $styleHtml)
-	{
-	    // fau: fixTestPdfImages - add base tag for relative image paths
-		return "
+    private static function buildHtmlDocument($contentHtml, $styleHtml)
+    {
+        return "
 			<html>
 				<head>
 					<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />
-					<base href=\"". ILIAS_HTTP_PATH ."/index.html\">
  					$styleHtml
  				</head>
 				<body>$contentHtml</body>
 			</html>
 		";
-		// fau.
-	}
+    }
 
     /**
      * @param $html
@@ -67,56 +64,50 @@ class ilTestPDFGenerator
 
         $invalid_elements = array();
 
-		$script_elements     = $dom->getElementsByTagName('script');
-		foreach($script_elements as $elm)
-		{
-			$invalid_elements[] = $elm;
-		}
+        $script_elements = $dom->getElementsByTagName('script');
+        foreach ($script_elements as $elm) {
+            $invalid_elements[] = $elm;
+        }
 
-		foreach($invalid_elements as $elm)
-		{
-			$elm->parentNode->removeChild($elm);
-		}
+        foreach ($invalid_elements as $elm) {
+            $elm->parentNode->removeChild($elm);
+        }
 
-		// remove noprint elems as tcpdf will make empty pdf when hidden by css rules
-		$domX = new DomXPath($dom);
-		foreach($domX->query("//*[contains(@class, 'noprint')]") as $node)
-		{
-			$node->parentNode->removeChild($node);
-		}
+        // remove noprint elems as tcpdf will make empty pdf when hidden by css rules
+        $domX = new DomXPath($dom);
+        foreach ($domX->query("//*[contains(@class, 'noprint')]") as $node) {
+            $node->parentNode->removeChild($node);
+        }
 
-		$dom->encoding = 'UTF-8';
+        $dom->encoding = 'UTF-8';
 
-		$img_src_map = array();
-		foreach($dom->getElementsByTagName('img') as $elm)
-		{
-			/** @var $elm DOMElement $uid */
-			$uid = 'img_src_' . uniqid();
-			$src = $elm->getAttribute('src');
+        $img_src_map = array();
+        foreach ($dom->getElementsByTagName('img') as $elm) {
+            /** @var $elm DOMElement $uid */
+            $uid = 'img_src_' . uniqid();
+            $src = $elm->getAttribute('src');
 
-			$elm->setAttribute('src', $uid);
+            $elm->setAttribute('src', $uid);
 
-			$img_src_map[$uid] = $src;
-		}
+            $img_src_map[$uid] = $src;
+        }
 
-		$cleaned_html = $dom->saveHTML();
+        $cleaned_html = $dom->saveHTML();
 
-		foreach($img_src_map as $uid => $src)
-		{
-			$cleaned_html = str_replace($uid, $src, $cleaned_html);
-		}
+        foreach ($img_src_map as $uid => $src) {
+            $cleaned_html = str_replace($uid, $src, $cleaned_html);
+        }
 
-		if(!$cleaned_html)
-		{
-			return $html;
-		}
+        if (!$cleaned_html) {
+            return $html;
+        }
 
-		return $cleaned_html;
-	}
+        return $cleaned_html;
+    }
 
-	public static function generatePDF($pdf_output, $output_mode, $filename=null, $purpose = null)
-	{
-		$pdf_output = self::preprocessHTML($pdf_output);
+    public static function generatePDF($pdf_output, $output_mode, $filename = null, $purpose = null)
+    {
+        $pdf_output = self::preprocessHTML($pdf_output);
 
         if (substr($filename, strlen($filename) - 4, 4) != '.pdf') {
             $filename .= '.pdf';
@@ -142,22 +133,20 @@ class ilTestPDFGenerator
         return $html;
     }
 
-	protected static function getTemplatePath($a_filename, $module_path = 'Modules/Test/')
-	{
-			// use ilStyleDefinition instead of account to get the current skin
-			include_once "Services/Style/System/classes/class.ilStyleDefinition.php";
-			if (ilStyleDefinition::getCurrentSkin() != "default")
-			{
-				$fname = "./Customizing/global/skin/".
-					ilStyleDefinition::getCurrentSkin()."/".$module_path.basename($a_filename);
-			}
+    protected static function getTemplatePath($a_filename, $module_path = 'Modules/Test/')
+    {
+        // use ilStyleDefinition instead of account to get the current skin
+        include_once "Services/Style/System/classes/class.ilStyleDefinition.php";
+        if (ilStyleDefinition::getCurrentSkin() != "default") {
+            $fname = "./Customizing/global/skin/" .
+                    ilStyleDefinition::getCurrentSkin() . "/" . $module_path . basename($a_filename);
+        }
 
-			if($fname == "" || !file_exists($fname))
-			{
-				$fname = "./".$module_path."templates/default/".basename($a_filename);
-			}
-		return $fname;
-	}
+        if ($fname == "" || !file_exists($fname)) {
+            $fname = "./" . $module_path . "templates/default/" . basename($a_filename);
+        }
+        return $fname;
+    }
 
     protected static function getCssContent()
     {
