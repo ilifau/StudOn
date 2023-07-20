@@ -156,7 +156,7 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
             return null;
         }
         return $this->globalScreen()->layout()->factory()->title()->withModification(
-            function (string $content) : string {
+            function (?string $content) : string {
                 return $this->dic->language()->txt('obj_lso');
             }
         )->withHighPriority();
