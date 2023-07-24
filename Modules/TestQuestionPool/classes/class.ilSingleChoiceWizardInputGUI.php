@@ -13,8 +13,10 @@ require_once 'Services/UIComponent/Glyph/classes/class.ilGlyphGUI.php';
 class ilSingleChoiceWizardInputGUI extends ilTextInputGUI
 {
     /** @var string */
-    protected const ALLOWED_PAGE_HTML_TAGS = "<em>, <strong>";
-
+    // fau: fixScMcAnswerLatex - add <span> as allowed html tag as it is needed for latex code. Broken with commit https://github.com/ilifau/StudOn/commit/2748c283e72b416433be63244ed6a1dcdc0a6406#diff-e38585f6d242f735218aa9d61c29f17fc3703602f18232ad58613b8c252b5b74 
+    protected const ALLOWED_PAGE_HTML_TAGS = "<em>, <strong>, <span>";
+    // fau. 
+    
     protected $values = [];
     protected $allowMove = false;
     protected $singleline = true;
@@ -49,7 +51,7 @@ class ilSingleChoiceWizardInputGUI extends ilTextInputGUI
             if (is_array($a_value['answer'])) {
                 foreach ($a_value['answer'] as $index => $value) {
                     include_once "./Modules/TestQuestionPool/classes/class.assAnswerBinaryStateImage.php";
-                    $answer = new ASS_AnswerBinaryStateImage($value, $a_value['points'][$index], $index, 1, $a_value['imagename'][$index]);
+                    $answer = new ASS_AnswerBinaryStateImage($value, $a_value['points'][$index], $index, 1, $a_value['imagename'][$index], $a_value['answer_id']);
                     array_push($this->values, $answer);
                 }
             }
@@ -369,6 +371,9 @@ class ilSingleChoiceWizardInputGUI extends ilTextInputGUI
                         $tpl->setVariable("PROPERTY_VALUE", ilUtil::prepareFormOutput($value->getPoints()));
                         $tpl->parseCurrentBlock();
                     }
+                    $tpl->setCurrentBlock("prop_answer_id_propval");
+                    $tpl->setVariable("PROPERTY_VALUE", ilUtil::prepareFormOutput($value->getId()));
+                    $tpl->parseCurrentBlock();
                 }
                 $tpl->setCurrentBlock('singleline');
                 $tpl->setVariable("SIZE", $this->getSize());

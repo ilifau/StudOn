@@ -2318,7 +2318,7 @@ class ilLMPresentationGUI
 
         $tabs->setBackTarget(
             $lng->txt("back"),
-            $ilCtrl->getLinkTarget($this, "showPrintViewSelection")
+            $ilCtrl->getLinkTarget($this, "layout")
         );
         
         $c_obj_id = $this->getCurrentPageId();

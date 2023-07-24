@@ -1,4 +1,20 @@
 <?php
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
 
 // fau: fixLsoInLti - use class for title modification
 use ILIAS\GlobalScreen\Scope\Layout\Factory\TitleModification;
@@ -57,7 +73,11 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
         }
         return $this->globalScreen()->layout()->factory()->mainbar()
             ->withModification(
-                function (MainBar $mainbar) : ?MainBar {
+                function (?MainBar $mainbar) : ?MainBar {
+                    if ($mainbar === null) {
+                        $ui = $this->dic->ui();
+                        $mainbar = $ui->factory()->mainControls()->mainbar();
+                    }
                     $entries = $this->data_collection->get(\ilLSPlayer::GS_DATA_LS_MAINBARCONTROLS);
                     $tools = $mainbar->getToolEntries();
                     $mainbar = $mainbar->withClearedEntries();
@@ -81,7 +101,10 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
         }
         return $this->globalScreen()->layout()->factory()->metabar()
             ->withModification(
-                function (MetaBar $metabar) : ?Metabar {
+                function (?MetaBar $metabar) : ?Metabar {
+                    if ($metabar === null) {
+                        return null;
+                    }
                     $metabar = $metabar->withClearedEntries();
                     foreach ($this->data_collection->get(\ilLSPlayer::GS_DATA_LS_METABARCONTROLS) as $key => $entry) {
                         $metabar = $metabar->withAdditionalEntry($key, $entry);
@@ -100,7 +123,7 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
 
         return $this->globalScreen()->layout()->factory()->breadcrumbs()
             ->withModification(
-                function (Breadcrumbs $current) : ?Breadcrumbs {
+                function (?Breadcrumbs $current) : ?Breadcrumbs {
                     return null;
                 }
             )
@@ -118,7 +141,7 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
         // away the header here.
         return $this->globalScreen()->layout()->factory()->content()
             ->withModification(
-                function (Legacy $content) use ($html) : Legacy {
+                function (?Legacy $content) use ($html) : Legacy {
                     $ui = $this->dic->ui();
                     return $ui->factory()->legacy($html);
                 }
@@ -133,7 +156,7 @@ class ilLSViewLayoutProvider extends AbstractModificationProvider implements Mod
             return null;
         }
         return $this->globalScreen()->layout()->factory()->title()->withModification(
-            function (string $content) : string {
+            function (?string $content) : string {
                 return $this->dic->language()->txt('obj_lso');
             }
         )->withHighPriority();
