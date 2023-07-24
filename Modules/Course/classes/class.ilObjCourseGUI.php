@@ -40,6 +40,10 @@ class ilObjCourseGUI extends ilContainerGUI
     const BREADCRUMB_DEFAULT = 0;
     const BREADCRUMB_CRS_ONLY = 1;
     const BREADCRUMB_FULL_PATH = 2;
+    /**
+     * @var ilNewsService
+     */
+    protected $news;
 
     /**
      * Constructor
@@ -66,6 +70,7 @@ class ilObjCourseGUI extends ilContainerGUI
         $this->SEARCH_USER = 1;
         $this->SEARCH_GROUP = 2;
         $this->SEARCH_COURSE = 3;
+        $this->news = $DIC->news();
     }
 
     public function gatewayObject()
@@ -869,13 +874,14 @@ class ilObjCourseGUI extends ilContainerGUI
         $ilAccess = $DIC['ilAccess'];
 
         $this->checkPermission('write');
-        
+
         include_once 'Modules/Course/classes/class.ilCourseFile.php';
         $file_obj = new ilCourseFile();
         $file_obj->setCourseId($this->object->getId());
-        $file_obj->setFileName(strlen($_POST['file_name']) ?
+        $name = (strlen($_POST['file_name']) ?
                                ilUtil::stripSlashes($_POST['file_name']) :
                                $_FILES['file']['name']);
+        $file_obj->setFileName(ilFileUtils::getValidFilename($name));
         $file_obj->setFileSize($_FILES['file']['size']);
         $file_obj->setFileType($_FILES['file']['type']);
         $file_obj->setTemporaryName($_FILES['file']['tmp_name']);
@@ -1231,18 +1237,7 @@ class ilObjCourseGUI extends ilContainerGUI
         ilObjectServiceSettingsGUI::updateServiceSettingsForm(
             $this->object->getId(),
             $form,
-            array(
-                ilObjectServiceSettingsGUI::CALENDAR_CONFIGURATION,
-                ilObjectServiceSettingsGUI::USE_NEWS,
-                ilObjectServiceSettingsGUI::AUTO_RATING_NEW_OBJECTS,
-                ilObjectServiceSettingsGUI::TAG_CLOUD,
-                ilObjectServiceSettingsGUI::CUSTOM_METADATA,
-                ilObjectServiceSettingsGUI::BADGES,
-                ilObjectServiceSettingsGUI::ORGU_POSITION_ACCESS,
-                ilObjectServiceSettingsGUI::SKILLS,
-                ilObjectServiceSettingsGUI::BOOKING,
-                ilObjectServiceSettingsGUI::EXTERNAL_MAIL_PREFIX
-            )
+            $this->getSubServices()
         );
         
         require_once('Services/Tracking/classes/class.ilChangeEvent.php');
@@ -1280,6 +1275,27 @@ class ilObjCourseGUI extends ilContainerGUI
 
         return $this->afterUpdate();
     }
+
+    protected function getSubServices() : array
+    {
+        $subs = array(
+            ilObjectServiceSettingsGUI::CALENDAR_CONFIGURATION,
+            ilObjectServiceSettingsGUI::AUTO_RATING_NEW_OBJECTS,
+            ilObjectServiceSettingsGUI::TAG_CLOUD,
+            ilObjectServiceSettingsGUI::CUSTOM_METADATA,
+            ilObjectServiceSettingsGUI::BADGES,
+            ilObjectServiceSettingsGUI::ORGU_POSITION_ACCESS,
+            ilObjectServiceSettingsGUI::SKILLS,
+            ilObjectServiceSettingsGUI::BOOKING,
+            ilObjectServiceSettingsGUI::EXTERNAL_MAIL_PREFIX
+        );
+        if ($this->news->isGloballyActivated()) {
+            $subs[] = ilObjectServiceSettingsGUI::USE_NEWS;
+        }
+
+        return $subs;
+    }
+
 
     // fau: studyCond - new function updateForMemcond
     public function updateForMemcondObject()
@@ -1796,18 +1812,7 @@ class ilObjCourseGUI extends ilContainerGUI
         ilObjectServiceSettingsGUI::initServiceSettingsForm(
             $this->object->getId(),
             $form,
-            array(
-                    ilObjectServiceSettingsGUI::CALENDAR_CONFIGURATION,
-                    ilObjectServiceSettingsGUI::USE_NEWS,
-                    ilObjectServiceSettingsGUI::AUTO_RATING_NEW_OBJECTS,
-                    ilObjectServiceSettingsGUI::TAG_CLOUD,
-                    ilObjectServiceSettingsGUI::CUSTOM_METADATA,
-                    ilObjectServiceSettingsGUI::BADGES,
-                    ilObjectServiceSettingsGUI::ORGU_POSITION_ACCESS,
-                    ilObjectServiceSettingsGUI::SKILLS,
-                    ilObjectServiceSettingsGUI::BOOKING,
-                    ilObjectServiceSettingsGUI::EXTERNAL_MAIL_PREFIX
-                )
+            $this->getSubServices()
         );
 
         $mem = new ilCheckboxInputGUI($this->lng->txt('crs_show_members'), 'show_members');

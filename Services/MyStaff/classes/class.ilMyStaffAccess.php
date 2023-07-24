@@ -34,11 +34,11 @@ class ilMyStaffAccess extends ilObjectAccess
      * @var self
      */
     protected static $instance = null;
-    /**
-     * @var
-     */
-    protected static $orgu_users_of_current_user_show_staff_permission;
 
+    /**
+     * @var array
+     */
+    protected $users_for_user = [];
 
     /**
      * @return self
@@ -85,10 +85,6 @@ class ilMyStaffAccess extends ilObjectAccess
             return false;
         }
 
-        if ($this->hasCurrentUserAccessToUser()) {
-            return true;
-        }
-
         if ($this->hasCurrentUserAccessToCourseMemberships()) {
             return true;
         }
@@ -98,6 +94,10 @@ class ilMyStaffAccess extends ilObjectAccess
         }
 
         if ($this->hasCurrentUserAccessToCompetences()) {
+            return true;
+        }
+
+        if ($this->hasCurrentUserAccessToUser()) {
             return true;
         }
 
@@ -113,6 +113,11 @@ class ilMyStaffAccess extends ilObjectAccess
         global $DIC;
 
         if (!$DIC->settings()->get("enable_my_staff")) {
+            return false;
+        }
+
+        $cert_set = new \ilSetting("certificate");
+        if (!$cert_set->get("active")) {
             return false;
         }
 
@@ -146,6 +151,11 @@ class ilMyStaffAccess extends ilObjectAccess
         global $DIC;
 
         if (!$DIC->settings()->get("enable_my_staff")) {
+            return false;
+        }
+
+        $skmg_set = new \ilSkillManagementSettings();
+        if (!$skmg_set->isActivated()) {
             return false;
         }
 
@@ -360,6 +370,10 @@ class ilMyStaffAccess extends ilObjectAccess
     {
         global $DIC;
 
+        if (isset($this->users_for_user[$user_id]) && $position_id === null) {
+            return $this->users_for_user[$user_id];
+        }
+
         $tmp_orgu_members = $this->buildTempTableOrguMemberships(self::TMP_DEFAULT_TABLE_NAME_PREFIX_ORGU_MEMBERS, array());
 
         $position_limitation = '';
@@ -414,6 +428,10 @@ class ilMyStaffAccess extends ilObjectAccess
 
         while ($rec = $DIC->database()->fetchAssoc($user_set)) {
             $arr_users[$rec['usr_id']] = $rec['usr_id'];
+        }
+
+        if ($position_id === null) {
+            $this->users_for_user[$user_id] = $arr_users;
         }
 
         return $arr_users;

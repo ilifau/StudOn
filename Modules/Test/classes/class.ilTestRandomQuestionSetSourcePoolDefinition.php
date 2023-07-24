@@ -298,20 +298,18 @@ class ilTestRandomQuestionSetSourcePoolDefinition
         $this->lifecycleFilter = empty($dbValue) ? array() : unserialize($dbValue);
     }
 
-
-    // fau: typeFilter - new functions to set/get filter by type tags
     /**
-     * Get the type filter asa list of type tags
+     * Get the type filter as a list of type tags
      * @return string[]
      */
-    public function getTypeFilterAsTypeTags()
+    public function getTypeFilterAsTypeTags() : array
     {
-        $map = array();
-        foreach (ilObjQuestionPool::_getQuestionTypes(true) as $trans => $row) {
+        $map = [];
+        foreach (ilObjQuestionPool::_getQuestionTypes(true) as $row) {
             $map[$row['question_type_id']] = $row['type_tag'];
         }
 
-        $tags = array();
+        $tags = [];
         foreach ($this->typeFilter as $type_id) {
             if (isset($map[$type_id])) {
                 $tags[] = $map[$type_id];
@@ -323,23 +321,23 @@ class ilTestRandomQuestionSetSourcePoolDefinition
 
     /**
      * Set the type filter from a list of type tags
-     * @param string
+     * @param string[] $tags
      */
-    public function setTypeFilterFromTypeTags($tags)
+    public function setTypeFilterFromTypeTags(array $tags)
     {
-        $map = array();
-        foreach (ilObjQuestionPool::_getQuestionTypes(true) as $trans => $row) {
+        $map = [];
+        foreach (ilObjQuestionPool::_getQuestionTypes(true) as $row) {
             $map[$row['type_tag']] = $row['question_type_id'];
         }
 
-        $this->typeFilter = array();
+        $this->typeFilter = [];
         foreach ($tags as $type_tag) {
             if (isset($map[$type_tag])) {
                 $this->typeFilter[] = $map[$type_tag];
             }
         }
     }
-    // fau.
+
 
     /*
     public function setOriginalFilterTaxId($originalFilterTaxId)
