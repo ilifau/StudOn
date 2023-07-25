@@ -1756,6 +1756,13 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_125();
 ?>
+<#126>
+<?php
+/**
+ * fau: fauService - replace needs_passed by send_passed in course
+ */
+\FAU\Setup\Setup::instance($ilDB)->study()->custom_step_126();
+?>
 
 
 

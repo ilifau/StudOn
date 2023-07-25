@@ -589,17 +589,20 @@ fau#:#fau_campo_learning_target#:#Learning objectives and skills
 fau#:#fau_campo_target_group#:#Target group
 fau#:#fau_campo_date_cancelled#:#Date is cancelled
 fau#:#fau_campo_settings#:#Campo Settings
-fau#:#fau_campo_needs_passed_label#:#Successful Participation
-fau#:#fau_campo_needs_passed_info#:#Determines which members have the participation in their Transcript Of Records verified for the selected module/area. The status is delivered to campo after the last course date.
-fau#:#fau_campo_needs_passed_true#:#Only passed members
-fau#:#fau_campo_needs_passed_false#:#All members
+fau#:#fau_campo_send_passed_alert#:#This setting is deactivated until the faculties have made an official decision on the inclusion of courses in the Transcript of Records. Exceptions can be clarified bliaterally with StudOn.
+fau#:#fau_campo_send_passed_label#:#Transcript Of Records
+fau#:#fau_campo_send_passed_info#:#Determines which members have the participation in their Transcript Of Records verified for the selected module/area. The status is delivered to campo after the last course date.
+fau#:#fau_campo_send_passed_lp#:#Only passed members
+fau#:#fau_campo_send_passed_all#:#All members
+fau#:#fau_campo_send_passed_all#:#None
 fau#:#fau_campo_member_status_for_campo#:#Status message to campo
 fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
-fau#:#fau_campo_member_status_registered_before_needs_passed#:#registered (from %s depending on the status in StudOn)
+fau#:#fau_campo_member_status_registered_before_lp#:#registered (from %s depending on the status in StudOn)
 fau#:#fau_campo_member_status_registered_before_all#:#registered (from %s on successfully participated)
-fau#:#fau_campo_member_status_registered_needs_passed#:#registered (not passed in StudOn)
+fau#:#fau_campo_member_status_registered_not_passed#:#registered (not passed in StudOn)
+fau#:#fau_campo_member_status_registered_never_passed#:#registered (will not change for this course)
 fau#:#fau_campo_member_status_passed_all#:#successfully participated (all members)
-fau#:#fau_campo_member_status_passed_needs_passed#:#successfully participated (passed members)
+fau#:#fau_campo_member_status_passed_lp#:#successfully participated (passed members)
 fau#:#fau_campo_member_status_not_synced#:#No status is sent for the semester
 fau#:#fau_my_modules_selection#:#My Module/Area Selections
 fau#:#fau_my_modules_list#:#My courses and groups with module/area selection

@@ -11,6 +11,10 @@ use FAU\RecordData;
  */
 class Course extends RecordData
 {
+    public const SEND_PASSED_NONE = 'none';
+    public const SEND_PASSED_LP = 'lp';
+    public const SEND_PASSED_ALL = 'all';
+    
     protected const tableName = 'fau_study_courses';
     protected const hasSequence = false;
     protected const keyTypes = [
@@ -41,7 +45,7 @@ class Course extends RecordData
         'ilias_obj_id' => 'integer',
         'ilias_dirty_since' => 'text',
         'ilias_problem' => 'text',
-        'needs_passed' => 'integer',
+        'send_passed' => 'text',
         'title_dirty' => 'integer',
         'description_dirty' => 'integer',
         'event_title_dirty' => 'integer',
@@ -77,7 +81,7 @@ class Course extends RecordData
     protected ?int $ilias_obj_id = null;
     protected ?string $ilias_dirty_since = null;
     protected ?string $ilias_problem = null;
-    protected ?int $needs_passed = 1;
+    protected ?string $send_passed = 'none';
     
     // dirty flags for changeable data in ILIAS course or group
     // will be set true in the campo sync if the underlying data is changed
@@ -440,21 +444,23 @@ class Course extends RecordData
     }
 
     /**
-     * @return bool
+     * @return string
      */
-    public function getNeedsPassed(): bool
+    public function getSendPassed(): string
     {
-        return (bool) $this->needs_passed;
+        return $this->send_passed ?? 'none';
     }
 
     /**
-     * @param bool $needs_passed
+     * @param string $send_passed
      * @return Course
      */
-    public function withNeedsPassed(bool $needs_passed): Course
+    public function withSendPassed(string $send_passed): Course
     {
         $clone = clone $this;
-        $clone->needs_passed = (int) $needs_passed;
+        if (in_array($send_passed, [self::SEND_PASSED_LP, self::SEND_PASSED_ALL, self::SEND_PASSED_NONE])) {
+            $clone->send_passed = $send_passed;
+        }
         return $clone;
     }
 

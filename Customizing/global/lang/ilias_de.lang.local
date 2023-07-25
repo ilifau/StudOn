@@ -588,17 +588,20 @@ fau#:#fau_campo_learning_target#:#Lernziele und Kompetenzen
 fau#:#fau_campo_target_group#:#Zielgruppe
 fau#:#fau_campo_date_cancelled#:#Termin fällt aus
 fau#:#fau_campo_settings#:#Einstellungen für Campo
-fau#:#fau_campo_needs_passed_label#:#Erfolgreiche Teilnahme
-fau#:#fau_campo_needs_passed_info#:#Legt fest, welche Mitglieder die Teilnahme in ihrem Transcript Of Records beim dafür gewählten Modul nachgewiesen bekommen. Der Status wird nach dem letzten Kurstermin an campo geliefert.
-fau#:#fau_campo_needs_passed_true#:#Nur bestandene Mitglieder
-fau#:#fau_campo_needs_passed_false#:#Alle Mitglieder
+fau#:#fau_campo_send_passed_alert#:#Diese Einstellung ist bis zu einer offiziellen Entscheidung der Fakultäten über eine Aunahme von Lehrveranstaltungen in den Transcript of Records deaktiviert. Ausnahmen können bilateral mit StudOn geklärt werden.
+fau#:#fau_campo_send_passed_label#:#Transcript Of Records
+fau#:#fau_campo_send_passed_info#:#Legt fest, welche Mitglieder die Teilnahme in ihrem Transcript Of Records beim dafür gewählten Modul nachgewiesen bekommen. Der Status wird nach dem letzten Kurstermin an campo geliefert.
+fau#:#fau_campo_send_passed_lp#:#Nur bestandene Mitglieder
+fau#:#fau_campo_send_passed_all#:#Alle Mitglieder
+fau#:#fau_campo_send_passed_none#:#Niemand
 fau#:#fau_campo_member_status_for_campo#:#Status-Meldung an campo
 fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
-fau#:#fau_campo_member_status_registered_before_needs_passed#:#registriert (ab %s abhängig vom Status in StudOn)
+fau#:#fau_campo_member_status_registered_before_lp#:#registriert (ab %s abhängig vom Status in StudOn)
 fau#:#fau_campo_member_status_registered_before_all#:#registriert (ab %s erfolgreich teilgenommen) 
-fau#:#fau_campo_member_status_registered_needs_passed#:#registriert (in StudOn nicht bestanden)	
+fau#:#fau_campo_member_status_registered_not_passed#:#registriert (in StudOn nicht bestanden)	
+fau#:#fau_campo_member_status_registered_never_passed#:#registriert (wird für diesen Kurs nicht geändert)	
 fau#:#fau_campo_member_status_passed_all#:#erfolgreich teilgenommen (alle Mitglieder)
-fau#:#fau_campo_member_status_passed_needs_passed#:#erfolgreich teilgenommen (bestandene Mitglieder)
+fau#:#fau_campo_member_status_passed_lp#:#erfolgreich teilgenommen (bestandene Mitglieder)
 fau#:#fau_campo_member_status_not_synced#:#Für das Semester wird kein Status gemeldet
 fau#:#fau_my_modules_selection#:#Meine Modul-/Kontenauswahlen
 fau#:#fau_my_modules_list#:#Meine Kurse und Gruppen mit Modul-/Kontenauswahl

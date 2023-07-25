@@ -182,7 +182,7 @@ class Repository extends RecordRepo
     {
         return "
             SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
-            CASE c.needs_passed WHEN 1 THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'passed' END AS `status`
+            CASE c.send_passed WHEN 'all' THEN 'passed' WHEN 'lp' THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'registered' END AS `status`
             FROM fau_study_courses c
             JOIN object_reference r ON r.obj_id = c.ilias_obj_id
             JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
