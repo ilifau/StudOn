@@ -185,19 +185,21 @@ class ilTestCampoTools
 
         // build the header row
         $header = array();
-        $header[] = 'mtknr';
+        $header[] = 'Matrikelnummer';
         if (in_array('lastname', $other_fields)) {
-            $header[] = 'nachname';
+            $header[] = 'Nachname';
         }
         if (in_array('firstname', $other_fields)) {
-            $header[] = 'vorname';
+            $header[] = 'Vorname';
         }
-        $header[] = 'bewertung';
+        $header[] = 'Kurzbezeichnung';
+        $header[] = 'Offizielle Bezeichnung';
+        $header[] = 'Bestanden';
         if (in_array('date', $other_fields)) {
-            $header[] = 'pdatum';
+            $header[] = 'Datum';
         }
         if (in_array('starttime', $other_fields)) {
-            $header[] = 'pbeginn';
+            $header[] = 'Beginn';
         }
         
         // build the date rows
@@ -236,10 +238,10 @@ class ilTestCampoTools
                     }
               //      if ($this->getOption('rating_type') == 'marked') {
               //          if ($this->getOption('mark_field') == 'short') {
-              //              $row[] = $participant->getMark();
+                            $row[] = $participant->getMark();
               //          } else {
                             // Noten für campo sollen als Zahlen ausgegeben werden, also die Kurzbezeichnung
-                            //$row[] = $participant->getMarkOfficial();
+                            $row[] = $participant->getMarkOfficial();
               //            $row[] = $participant->getMark();
               //          }
               /*      } else {*/
@@ -288,8 +290,7 @@ class ilTestCampoTools
         } else {
             return "";
         }
-    }
-    
+    }   
     
     /**
      * write the result data to CVS export file
