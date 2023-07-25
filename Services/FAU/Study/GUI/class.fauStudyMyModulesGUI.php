@@ -105,15 +105,16 @@ class fauStudyMyModulesGUI extends BaseGUI
                             $hardRestrictions = $this->dic->fau()->cond()->hard();
                             $hardRestrictions->checkByImportId($import_id, $user_id);
                             
+                            $default_member = new \FAU\User\Data\Member($obj_id, $user_id);
                             if (empty($module_id)) {
-                                $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id)->withModuleId(null);
+                                $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id, $default_member)->withModuleId(null);
                                 $this->dic->fau()->user()->repo()->save($member);
                             }
                             else {
                                 $options = $hardRestrictions->getCheckedModuleSelectOptions();
                                 $disabled_ids = $hardRestrictions->getCheckedModuleSelectDisabledIds();
                                 if (isset($options[$module_id]) && !in_array($module_id, $disabled_ids)) {
-                                    $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id)->withModuleId($module_id);
+                                    $member = $this->dic->fau()->user()->repo()->getMember($obj_id, $user_id, $default_member)->withModuleId($module_id);
                                     $this->dic->fau()->user()->repo()->save($member);
                                 }
                             }
@@ -163,7 +164,7 @@ class fauStudyMyModulesGUI extends BaseGUI
                 $item['needs_passed'] = $course->getNeedsPassed();
 
                 $member = $this->dic->fau()->user()->repo()->getMember($item['obj_id'], $this->dic->user()->getId());
-                $item['module_id'] = isset($member) ? $member->getModuleId() : null;
+                $item['module_id'] = (isset($member) ? $member->getModuleId() : null);
                 
                 $lp_status = \ilLPStatus::_lookupStatus($item['obj_id'], $this->dic->user()->getId(), false);
                 if ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM) {
