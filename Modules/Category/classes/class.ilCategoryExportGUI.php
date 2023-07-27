@@ -57,21 +57,14 @@ class ilCategoryExportGUI extends ilExportGUI
         $form->setTitle($this->lng->txt('fau_export_course_members'));
         $form->setDescription($this->lng->txt('fau_export_course_members_info'));
 
-        $term = new ilSelectInputGUI($this->lng->txt('studydata_semester'), 'term_id');
+        $term = new ilSelectInputGUI($this->lng->txt('studydata_semester'), 'term_ids');
+        $term->setMulti(true);
         $term->setInfo($this->lng->txt('fau_course_export_term_info'));
         $options = $this->dic->fau()->study()->getTermSearchOptions(null, true);
         $current = $this->dic->fau()->study()->getCurrentTerm()->toString();
-        $preferred = $this->dic->fau()->tools()->preferences()->getTermIdForExports();
+        $preferred = $this->dic->fau()->tools()->preferences()->getTermIdsForExports();
         $term->setOptions($options);
-        if (isset($options[$preferred])) {
-            $term->setValue($preferred);
-        }
-        elseif (isset($options[$current])) {
-            $term->setValue($current);
-        }
-        else {
-            $term->setValue((string) current($options));
-        }
+        $term->setValue($preferred);
         $form->addItem($term);
 
         $groups = new ilCheckboxInputGUI($this->lng->txt('fau_export_with_group_members'), 'export_with_groups');
@@ -88,12 +81,23 @@ class ilCategoryExportGUI extends ilExportGUI
 
     public function doExportCourseUsers()
     {
-        $this->dic->fau()->tools()->preferences()->setTermIdForExports((string) $_POST['term_id']);
+        $term_ids = [];
+        $terms = [];
+        foreach ((array) $_POST['term_ids'] as $term_id) {
+            $term_ids[] = (string) $term_id;
+            if (empty($term_id)) {
+                $terms[] = null;
+            }
+            else {
+                $terms[] = Term::fromString((string) $term_id);
+            }
+        }
+        $this->dic->fau()->tools()->preferences()->setTermIdsForExports($term_ids);
         $this->dic->fau()->tools()->preferences()->setExportWithGroups((bool) $_POST['export_with_groups']);
 
         $this->listExportFiles();
 
-        $export = new CourseUsersExport($this->obj->getRefId(), Term::fromString((string) $_POST['term_id']), (bool) $_POST['export_with_groups']);
+        $export = new CourseUsersExport($this->obj->getRefId(), $terms, (bool) $_POST['export_with_groups']);
         $file = $export->exportCoursesUsers();
 
         if (is_file($file)) {

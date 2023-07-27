@@ -15,7 +15,10 @@ class CourseUsersExport extends AbstractExport
     protected \ilLanguage $lng;
 
     protected int $cat_ref_id;
-    protected ?Term $term;
+    /**
+     * @var Term[] $terms
+     */
+    protected array $terms;
     protected bool $export_with_groups;
 
 
@@ -33,14 +36,15 @@ class CourseUsersExport extends AbstractExport
 
     /**
      * Constructor
-     * @param string $term_id
+     * @param Term[] $terms
      * @param int    $cat_ref_id
+     * @param bool  $export_with_groups
      */
-    public function __construct(int $cat_ref_id, ?Term $term, bool $export_with_groups = false)
+    public function __construct(int $cat_ref_id, array $terms, bool $export_with_groups = false)
     {
         parent::__construct();
 
-        $this->term = $term;
+        $this->terms = $terms;
         $this->cat_ref_id = $cat_ref_id;
         $this->export_with_groups = $export_with_groups;
     }
@@ -52,10 +56,12 @@ class CourseUsersExport extends AbstractExport
      */
     public function exportCoursesUsers(string $type = self::TYPE_EXCEL) : string
     {
-        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($this->cat_ref_id, $this->term, $this->export_with_groups) as $container) {
-            if ($this->dic->access()->checkAccess('manage_members', '', $container->getRefId())
-            ) {
-                $this->containers[$container->getObjId()] = $container;
+        foreach ($this->terms as $term) {
+            foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($this->cat_ref_id, $term, $this->export_with_groups) as $container) {
+                if ($this->dic->access()->checkAccess('manage_members', '', $container->getRefId())
+                ) {
+                    $this->containers[$container->getObjId()] = $container;
+                }
             }
         }
 
