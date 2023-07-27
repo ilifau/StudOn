@@ -163,18 +163,25 @@ class fauStudyMyModulesGUI extends BaseGUI
                 $item['term_year'] = $course->getTermYear();
                 $item['term_type_id'] = $course->getTermTypeId();
                 $item['send_passed'] = $course->getSendPassed();
-
-                $member = $this->dic->fau()->user()->repo()->getMember($item['obj_id'], $this->dic->user()->getId());
-                $item['module_id'] = (isset($member) ? $member->getModuleId() : null);
                 $item['show_studon_status'] = ($course->getSendPassed() == Course::SEND_PASSED_LP);
-                
-                $lp_status = \ilLPStatus::_lookupStatus($item['obj_id'], $this->dic->user()->getId(), false);
-                if ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM) {
+                if ($item['type'] == 'crs') {
+                    // courses save the passed status directly
+                    $passed = $this->dic->fau()->ilias()->repo()->getCoursePassedStatus((int) $item['obj_id'], $this->dic->user()->getId());
+                }
+                else {
+                    // groups get the passed status from the learning progress
+                    $lp_status = \ilLPStatus::_lookupStatus($item['obj_id'], $this->dic->user()->getId(), false);
+                    $passed = ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM);
+                }
+                if ($passed) {
                     $item['studon_status'] = $this->lng->txt('crs_member_passed');
                 }
                 else {
                     $item['studon_status'] = $this->lng->txt('crs_member_not_passed');
                 }
+
+                $member = $this->dic->fau()->user()->repo()->getMember($item['obj_id'], $this->dic->user()->getId());
+                $item['module_id'] = (isset($member) ? $member->getModuleId() : null);
                 
                 $last_date = $this->dic->fau()->sync()->repo()->getCourseMaxDateAsTimestamp($course->getCourseId()) ?? $term_end;
                 if (!in_array($term->toString(), $synced_term_ids)) {
@@ -193,9 +200,9 @@ class fauStudyMyModulesGUI extends BaseGUI
                 elseif ($course->getSendPassed() == Course::SEND_PASSED_ALL) {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_passed_all');
                 }
-                elseif ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM) {
+                elseif ($passed) {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_passed_lp');
-                }
+                } 
                 else {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_registered_not_passed');
                 }

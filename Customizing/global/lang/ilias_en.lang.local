@@ -598,18 +598,18 @@ fau#:#fau_campo_send_passed_all#:#None
 fau#:#fau_campo_member_status_for_campo#:#Status message to campo
 fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
 fau#:#fau_campo_member_status_registered_before_lp#:#registered (from %s depending on the status in StudOn)
-fau#:#fau_campo_member_status_registered_before_all#:#registered (from %s on successfully participated)
-fau#:#fau_campo_member_status_registered_not_passed#:#registered (not passed in StudOn)
+fau#:#fau_campo_member_status_registered_before_all#:#registered (from %s on completed)
+fau#:#fau_campo_member_status_registered_not_passed#:#registered (according to status in StudOn)
 fau#:#fau_campo_member_status_registered_never_passed#:#registered (will not change for this course)
-fau#:#fau_campo_member_status_passed_all#:#successfully participated (all members)
-fau#:#fau_campo_member_status_passed_lp#:#successfully participated (passed members)
+fau#:#fau_campo_member_status_passed_all#:#completed (all members)
+fau#:#fau_campo_member_status_passed_lp#:#completed (according to status in StudOn)
 fau#:#fau_campo_member_status_not_synced#:#No status is sent for the semester
 fau#:#fau_my_modules_selection#:#My Module/Area Selections
 fau#:#fau_my_modules_list#:#My courses and groups with module/area selection
 fau#:#fau_my_modules_not_found#:#No courses and groups with module/area selection found
 fau#:#fau_my_modules_save#:#Save the selections
 fau#:#fau_my_modules_is_saved#:#The selections have been saved.
-fau#:#fau_my_modules_info1#:#This page shows your StudOn courses and groups associated with courses in a semester. For each course you can choose a module/area to which the course should be assigned in your Transcript Of Records. However, this only happens if you are reported as "successfully participated" to campo. The status is reported after the last course date. The person responsible for the course or group can determine whether all members are reported as passed or only those who have the status "Processed" in StudOn.
+fau#:#fau_my_modules_info1#:#This page shows your StudOn courses and groups associated with courses in a semester. For each course you can choose a module/area to which the course should be assigned in your Transcript Of Records. However, this only happens if your status in the course is reported as "completed" to campo. The status is reported after the last course date. The person responsible for the course or group can determine whether all members are reported as completed or only those who have the status "passed" in StudOn.
 fau#:#fau_my_modules_info2#:#The selection list contains all modules/areas of the course assigned to your degree programme. A tick (✓) means that the requirements of the module/area are fulfilled. A cross (✗) means that they are not fulfilled. You can only select such modules if there is no selectable alternative. Then, with the acceptance of your course registration, it was decided that the requirements can be ignored.
 fau#:#fau_check_failed_no_studydata#:#You cannot take the course because there is no course data available for your account in the semester of the course.
 fau#:#fau_check_failed_restrictions#:#The restrictions for taking this course estrictions are not met.
