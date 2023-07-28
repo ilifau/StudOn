@@ -826,7 +826,7 @@ class ilObjTestSettingsGeneralGUI extends ilTestSettingsGUI
 
         // fau: testStatement - save form setting
         if ($form->getItemByPostVar('require_authorship_statement') instanceof ilFormPropertyGUI) {
-            $this->testOBJ->requireAuthorshipStatement($form->getItemByPostVar('require_authorship_statement')->getChecked());
+            $this->testOBJ->requireAuthorshipStatement((bool) $form->getInput('require_authorship_statement'));
         }
         // fau.
     }
