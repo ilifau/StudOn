@@ -63,6 +63,25 @@ class Objects
     }
 
     /**
+     * Get the ref_ids on a repository path for which a collected export of course data is possible
+     * @return int[]
+     */
+    public function getPathRefIdsWithCollectedExports(int $ref_id) : array
+    {
+        $export_ids = $this->dic->fau()->org()->repo()->getRefIdsWithCollectedExports();
+        
+        $result_ids = [];
+        $allowed = false;
+        foreach ($this->dic->repositoryTree()->getPathId($ref_id) as $path_id) {
+            if ($allowed || in_array($path_id, $export_ids)) {
+                $result_ids[] = $path_id;
+                $allowed = true;
+            }
+        }
+        return $result_ids;
+    }
+    
+    /**
      * Find the parent course of a group
      */
     public function findParentIliasCourse(int $ref_id) : ?int

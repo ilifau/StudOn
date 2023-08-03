@@ -1763,6 +1763,12 @@ if (!$ilDB->tableColumnExists('crs_waiting_list', 'module_id')) {
  */
 \FAU\Setup\Setup::instance($ilDB)->study()->custom_step_126();
 ?>
-
+<#127>
+<?php
+/**
+ * fau: fauService - add 'collected_exports' to orgunit
+ */
+\FAU\Setup\Setup::instance($ilDB)->org()->custom_step_127();
+?>
 
 

@@ -24,6 +24,7 @@ class Orgunit extends RecordData
         'ilias_ref_id' => 'integer',
         'no_manager' => 'integer',
         'collect_courses' => 'integer',
+        'collected_exports' => 'integer',
         'problem' => 'text'
     ];
 
@@ -40,6 +41,7 @@ class Orgunit extends RecordData
     protected ?int $ilias_ref_id;           // ref id of assigned ILIAS category
     protected ?int $no_manager;             // prevent automated manager role assignment in this category
     protected ?int $collect_courses;        // automatically create the courses of child organisations here
+    protected ?int $collected_exports;   // allow collected exports of course members or course statistics
     protected ?string $problem;             // problem notice from the check function
 
 
@@ -57,6 +59,7 @@ class Orgunit extends RecordData
         ?string $ilias_ref_id,
         ?int $no_manager,
         ?int $collect_courses,
+        ?int $collected_exports,
         ?string $problem
     )
     {
@@ -73,13 +76,14 @@ class Orgunit extends RecordData
         $this->ilias_ref_id = $ilias_ref_id;
         $this->no_manager = $no_manager;
         $this->collect_courses = $collect_courses;
+        $this->collected_exports = $collected_exports;
         $this->problem = $problem;
     }
 
     public static function model(): self
     {
         return new self(0,'',null,null,null,null,null,null,
-        '',null,null, null, null,null);
+        '',null,null, null, null, null, null);
     }
 
     /**
@@ -196,6 +200,14 @@ class Orgunit extends RecordData
     public function getCollectCourses() : ?int
     {
         return $this->collect_courses;
+    }
+    
+    /**
+     * @return int|null
+     */
+    public function getCollectedExports(): ?int
+    {
+        return $this->collected_exports;
     }
 
     /**
@@ -352,6 +364,17 @@ class Orgunit extends RecordData
     }
 
     /**
+     * @param int|null $collected_exports
+     * @return Orgunit
+     */
+    public function withCollectedExports(?int $collected_exports): self
+    {
+        $clone = clone $this;
+        $clone->collected_exports = $collected_exports;
+        return $clone;
+    }
+
+    /**
      * @param string|null $problem
      * @return Orgunit
      */
@@ -361,4 +384,5 @@ class Orgunit extends RecordData
         $clone->problem = $problem;
         return $clone;
     }
+
 }

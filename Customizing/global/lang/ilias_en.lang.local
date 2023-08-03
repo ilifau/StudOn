@@ -552,11 +552,15 @@ exercise#:#exc_mark#:#Grade/Points###fau: exCalc
 fau#:#educations#:#Educations
 fau#:#fau_educations#:#Educations
 fau#:#fau_educations_of#:#Educations of
-fau#:#fau_export_course_members#:#Export Conrse Members
-fau#:#fau_export_course_members_info#:#Exports an overview of all users who are members of courses within this category or are on the waiting list. Only courses for which you have the right to manage participants are taken into account.
-fau#:#fau_export_course_members_failed#:#The course members couldn't be exported!
-fau#:#fau_export_with_group_members#:#With Groups
-fau#:#fau_export_with_group_members_info#:#Exports also the members of groups within this category or within its courses
+fau#:#fau_export_course_members#:#Export Participants
+fau#:#fau_export_course_members_cat_info#:#Exports an overview of all users who are members in courses or are on their waiting lists. Only courses/groups for which you have the right to manage participants are taken into account.
+fau#:#fau_export_course_members_crs_info#:#Exports an overview of all users who are members of this course or are on its waiting list. The export contains information about other memberships/waiting lists with the specified criteria.
+fau#:#fau_export_course_members_grp_info#:#Exports an overview of all users who are members of this group or on its waiting list. The export contains information about other memberships/waiting lists with the specified criteria.
+fau#:#fau_export_course_members_base#:#StudOn Area
+fau#:#fau_export_course_members_base_info#:#Area in StudOn magazine for which the infomation about memberships / waiting lists should be collected
+fau#:#fau_export_course_members_with_groups#:#With Groups
+fau#:#fau_export_course_members_with_groups_info#:#Exports also the participants of groups in this area or within the courses
+fau#:#fau_export_course_members_failed#:#The course participants could not be exported!
 fau#:#fair_autofill_cron#:#Allocate Registrations with Equal Chances
 fau#:#fair_autofill_cron_info#:#After the expiration of the equal opportunity registration, the free places in groups and courses are automatically allocated.
 fau#:#fair_autofill_cron_result#:#Allocated Places: %s

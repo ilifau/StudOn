@@ -553,11 +553,15 @@ exercise#:#exc_mark#:#Note/Punkte###fau: exCalc
 fau#:#educations#:#Bildungen
 fau#:#fau_educations#:#Bildungen
 fau#:#fau_educations_of#:#Bildungen von
-fau#:#fau_export_course_members#:#Kursteilnehmer/innen exportieren
-fau#:#fau_export_course_members_info#:#Exportiert eine Übersicht aller Benutzer/innen, die in Lehrveranstaltungen innerhalb dieser Kategorie Mitglieder sind oder auf der Warteliste stehen. Es werden nur Kurse berücksichtigt, bei denen Sie das Recht zur Teilnehmerverwaltung haben.
+fau#:#fau_export_course_members#:#Teilnehmer/innen exportieren
+fau#:#fau_export_course_members_cat_info#:#Exportiert eine Übersicht aller Benutzer/innen, die in Lehrveranstaltungen Mitglieder sind oder auf deren Wartelisten stehen. Es werden nur Kurse/Gruppen berücksichtigt, bei denen Sie das Recht zur Teilnehmerverwaltung haben.
+fau#:#fau_export_course_members_crs_info#:#Exportiert eine Übersicht aller Benutzer/innen, die Mitglieder in diesem Kurs sind oder auf seiner Warteliste stehen. Der Export enthält Informationen über weitere Mitgliedschaften /Wartelisten mit den angegebenen Kriterien.
+fau#:#fau_export_course_members_grp_info#:#Exportiert eine Übersicht aller Benutzer/innen, die Mitglieder in dieser Gruppe oder auf ihrer Warteliste stehen. Der Export enthält Informationen über weitere Mitgliedschaften /Wartelisten mit den angegebenen Kriterien.
+fau#:#fau_export_course_members_base#:#StudOn-Bereich
+fau#:#fau_export_course_members_base_info#:#Bereich im StudOn-Magazin, für den die Infomationen über Mitgliedschaften / Wartelisten eingesammelt werden sollen
+fau#:#fau_export_course_members_with_groups#:#Mit Gruppen
+fau#:#fau_export_course_members_with_groups_info#:#Exportiert auch die Teilnehmer/innen von Gruppen in diesem Bereich oder innerhalb der Kurse
 fau#:#fau_export_course_members_failed#:#Die Kursteilnehmer/innen konnten nicht exportiert werden!
-fau#:#fau_export_with_group_members#:#Mit Gruppen
-fau#:#fau_export_with_group_members_info#:#Exportiert auch die Teilnehmer/innen von Gruppen in diesem Bereich oder innerhalb der Kurse
 fau#:#fair_autofill_cron#:#Chancengleiche Anmeldungen vergeben
 fau#:#fair_autofill_cron_info#:#Nach Ablauf der chancengleichen Anmeldung werden die freien Plätze in Gruppen und Kursen automatisch vergeben.
 fau#:#fair_autofill_cron_result#:#Vergebene Plätze: %s
