@@ -2542,12 +2542,14 @@ class ilObjCourseGUI extends ilContainerGUI
         }
         
         if ($ilAccess->checkAccess('write', '', $this->object->getRefId())) {
+            // fau: campoExport - set specific export tab for container
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilexportgui'
+                'ilcontainerexportgui'
             );
+            // fau.
         }
 
         if ($ilAccess->checkAccess('edit_permission', '', $this->ref_id)) {
@@ -2857,14 +2859,14 @@ class ilObjCourseGUI extends ilContainerGUI
                 $this->forwardToStyleSheet();
                 break;
 
-                
-            case 'ilexportgui':
+            // fau: campoExport - call container export gui    
+            case 'ilcontainerexportgui':
                 $this->tabs_gui->setTabActive('export');
-                include_once './Services/Export/classes/class.ilExportGUI.php';
-                $exp = new ilExportGUI($this);
+                $exp = new ilContainerExportGUI($this);
                 $exp->addFormat('xml');
                 $this->ctrl->forwardCommand($exp);
                 break;
+            // fau.
             
             case "ilcommonactiondispatchergui":
                 include_once("Services/Object/classes/class.ilCommonActionDispatcherGUI.php");

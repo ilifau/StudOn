@@ -173,20 +173,31 @@ class Repository extends RecordRepo
      * Get the base query for course members to sync back to campo
      * This query must be extended with a condition (term or ilias object)
      *
-     * The status is taken from the learning progress because groups don't have a setting for 'passed' in the member list
-     * In courses the status from the member list is written to the learning progress
-     * The status 'failed' can't be processed by campo - it is mapped to 'registered'
+     * - The status of courses is taken from the 'passed' flag in the obj_members table
+     * - The status of groups is taken from the learning progress because groups don't have a separate setting for 'passed'
+     * - The status 'failed' can't be processed by campo - it is mapped to 'registered'
      * @return string
      */
     protected function getMembersQueryToSyncBack() : string
     {
         return "
             SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
-            CASE c.needs_passed WHEN 1 THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'passed' END AS `status`
+            CASE c.send_passed WHEN 'all' THEN 'passed' WHEN 'lp' THEN (CASE om.passed WHEN 1 THEN 'passed' ELSE 'registered' END) ELSE 'registered' END AS `status`
             FROM fau_study_courses c
             JOIN object_reference r ON r.obj_id = c.ilias_obj_id
             JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
-            JOIN object_data o ON o.obj_id = fa.rol_id AND (o.title LIKE 'il_crs_member%' OR o.title LIKE 'il_grp_member%')
+            JOIN object_data o ON o.obj_id = fa.rol_id AND o.title LIKE 'il_crs_member%'
+            JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
+            JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
+            LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
+            LEFT JOIN obj_members om ON om.obj_id = r.obj_id AND om.usr_id = ua.usr_id
+			UNION
+            SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
+            CASE c.send_passed WHEN 'all' THEN 'passed' WHEN 'lp' THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'registered' END AS `status`
+            FROM fau_study_courses c
+            JOIN object_reference r ON r.obj_id = c.ilias_obj_id
+            JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
+            JOIN object_data o ON o.obj_id = fa.rol_id AND o.title LIKE 'il_grp_member%'
             JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
             JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
             LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id

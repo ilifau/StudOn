@@ -219,11 +219,11 @@ class ilObjCategoryGUI extends ilContainerGUI
                 $this->ctrl->forwardCommand($did);
                 break;
 
-            // fau: campoExport - call category export gui
-            case 'ilcategoryexportgui':
+            // fau: campoExport - call container export gui
+            case 'ilcontainerexportgui':
                 $this->prepareOutput();
                 $this->tabs_gui->activateTab('export');
-                $exp = new ilCategoryExportGUI($this);
+                $exp = new ilContainerExportGUI($this);
                 $this->ctrl->forwardCommand($exp);
                 break;
                 // fau.
@@ -515,12 +515,12 @@ class ilObjCategoryGUI extends ilContainerGUI
         }
 
         if ($ilAccess->checkAccess('write', '', $this->object->getRefId())) {
-            // fau: campoExport - set specific export tab for category
+            // fau: campoExport - set specific export tab for container
             $this->tabs_gui->addTarget(
                 'export',
-                $this->ctrl->getLinkTargetByClass('ilcategoryexportgui', ''),
+                $this->ctrl->getLinkTargetByClass('ilcontainerexportgui', ''),
                 'export',
-                'ilcategoryexportgui'
+                'ilcontainerexportgui'
             );
             // fau.
         }

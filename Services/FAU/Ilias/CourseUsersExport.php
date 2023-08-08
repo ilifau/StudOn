@@ -15,7 +15,10 @@ class CourseUsersExport extends AbstractExport
     protected \ilLanguage $lng;
 
     protected int $cat_ref_id;
-    protected ?Term $term;
+    /**
+     * @var Term[] $terms
+     */
+    protected array $terms;
     protected bool $export_with_groups;
 
 
@@ -32,37 +35,74 @@ class CourseUsersExport extends AbstractExport
     protected array $users_waiting = [];
 
     /**
-     * Constructor
-     * @param string $term_id
-     * @param int    $cat_ref_id
+     * Export of members and waiting users of courses or groups within a category
+     * 
+     * @param Term[] $terms
+     * @param int    $cat_ref_id - ref_id of the category to search for courses or groups within
+     * @param bool  $export_with_groups - export with memberships or waiting lists of groups     
      */
-    public function __construct(int $cat_ref_id, ?Term $term, bool $export_with_groups = false)
+    public function __construct(int $cat_ref_id, array $terms, bool $export_with_groups = false)
     {
         parent::__construct();
 
-        $this->term = $term;
+        $this->terms = $terms;
         $this->cat_ref_id = $cat_ref_id;
         $this->export_with_groups = $export_with_groups;
     }
 
     /**
-     * Export the course users
+     * Check if objects of a certain type can be used to filter the export of users
+     * @see exportCourseUsers
+     */
+    public static function supportsUsersFilterObjectType(string $type) : bool
+    {
+        return $type == 'crs' || $type = 'grp';
+    }
+    
+
+    /**
+     * Export the users of courses or groups
+     * 
+     * If no filter_obj_id is given, then the members and waiting users of all courses/groups in the constructor category are exported
+     * In this case the current user must have manage_memgers permission to export their data
+     * 
+     * If a filter_obj_id is given, then the list of exported users is restricted to the members and waiting users of that object
+     * In this case the list of membership / waiting statuses of all courses/groups in the category are added for each user
+     *
      * @param string $type  type constant for the export
+     * @param ?int $filter_obj_id id of course or group to restrict the users                     
      * @return string file path of an exported file
      */
-    public function exportCoursesUsers(string $type = self::TYPE_EXCEL) : string
+    public function exportCoursesUsers(string $type = self::TYPE_EXCEL, ?int $filter_obj_id = null) : string
     {
-        foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($this->cat_ref_id, $this->term, $this->export_with_groups) as $container) {
-            if ($this->dic->access()->checkAccess('manage_members', '', $container->getRefId())
-            ) {
-                $this->containers[$container->getObjId()] = $container;
+        if (count($this->terms) == 1) {
+            $term = reset($this->terms);
+        }
+        else {
+            $term = null;
+        }
+        
+        // get the membersips/waiting lists from courses or groups within the category
+        foreach ($this->terms as $term) {
+            foreach ($this->dic->fau()->ilias()->repo()->findCoursesOrGroups($this->cat_ref_id, $term, $this->export_with_groups) as $container) {
+                if (isset($filter_obj_id) || $this->dic->access()->checkAccess('manage_members', '', $container->getRefId())
+                ) {
+                    $this->containers[$container->getObjId()] = $container;
+                }
             }
         }
-
         $this->users_member = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds(array_keys($this->containers));
         $this->users_waiting = $this->dic->fau()->ilias()->repo()->getObjectsWaitingIds(array_keys($this->containers));
 
-        $user_ids = array_unique(array_merge(array_keys($this->users_member), array_keys($this->users_waiting)));
+        // get the users to export - either from the given object or from the courses or groups within the category
+        if (isset($filter_obj_id)) {
+            $obj_members = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds([$filter_obj_id]);
+            $obj_waiting = $this->dic->fau()->ilias()->repo()->getObjectsMemberIds([$filter_obj_id]);
+            $user_ids = array_unique(array_merge(array_keys($obj_members), array_keys($obj_waiting)));
+        }
+        else {
+            $user_ids = array_unique(array_merge(array_keys($this->users_member), array_keys($this->users_waiting)));
+        }
         $this->users = $this->dic->fau()->user()->getUserData($user_ids, $this->cat_ref_id);
 
         $columns = array(
@@ -88,7 +128,7 @@ class CourseUsersExport extends AbstractExport
                 'gender' => $user->getGender(),
                 'email' => $user->getEmail(),
                 'matriculation' => $user->getMatriculation(),
-                'studydata' => $this->dic->fau()->user()->getStudiesText($user->getPerson(), $this->term),
+                'studydata' => $this->dic->fau()->user()->getStudiesText($user->getPerson(), $term),
                 'educations' => $this->dic->fau()->user()->getEducationsText($user->getEducations()),
                 'memberships' => $this->getContainersAsText($this->users_member[$user->getUserId()] ?? []),
                 'waiting_lists' =>  $this->getContainersAsText($this->users_waiting[$user->getUserId()] ?? []),

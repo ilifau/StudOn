@@ -126,7 +126,17 @@ class Repository extends RecordRepo
         return $this->getIntegerList($query, 'id', $useCache);
     }
 
-
+    /**
+     * Get the ilias ref_ids of categories in wich collected course and menbership data can be exported
+     * @return int[]
+     */
+    public function getRefIdsWithCollectedExports($useCache = true): array
+    {
+        $query = "SELECT ilias_ref_id FROM fau_org_orgunits"
+            . " WHERE collected_exports > 0";
+        return $this->getIntegerList($query, 'ilias_ref_id', $useCache);
+    }
+    
     /**
      * Save record data of an allowed type
      * @param Orgunit $record

@@ -15,6 +15,10 @@ class FAUOrgSteps
     {
         $this->createOrgUnitsTable(false);
     }
+    
+    public function custom_step_127() {
+        $this->addOrgUnitsCollectedExports();
+    }
 
     protected function createOrgUnitsTable(bool $drop = false)
     {
@@ -46,5 +50,9 @@ class FAUOrgSteps
         }
     }
 
-
+    protected function addOrgUnitsCollectedExports() 
+    {
+        $this->db->addTableColumn('fau_org_orgunits', 'collected_exports', 
+            ['type' => 'integer',    'length' => 4,      'notnull' => false,    'default' => null]);    
+    }
 }

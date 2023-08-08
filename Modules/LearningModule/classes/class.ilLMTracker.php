@@ -639,7 +639,19 @@ class ilLMTracker
             }
         }
 
-        return 100 * $correct_answered / count($this->all_questions);
+        $num_deactivated = 0;
+        foreach ($this->page_questions as $p_id => $value) {
+            if (!ilPageObject::_lookupActive($p_id, "lm")) {
+                $num_deactivated++;
+            }
+        }
+
+        $num_questions = count($this->all_questions) - $num_deactivated;
+        if ($num_questions <= 0) {
+            return 0;
+        }
+
+        return 100 * $correct_answered / $num_questions;
     }
     // fau.
 

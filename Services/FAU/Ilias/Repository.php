@@ -79,6 +79,23 @@ class Repository extends RecordRepo
     }
 
     /**
+     * Get the passed status of a user in a course
+     * @param int $obj_id
+     * @param int $user_id
+     * @return bool
+     */
+    public function getCoursePassedStatus(int $obj_id, int $user_id) : bool 
+    {
+        $query = "SELECT passed FROM obj_members WHERE obj_id = " . $this->db->quote($obj_id, 'integer')
+            . " AND usr_id = " . $this->db->quote($user_id, 'integer');
+        $result = $this->db->query($query);
+        if ($row = $this->db->fetchAssoc($result)) {
+            return (bool) $row['passed'];
+        }
+        return false;
+    }
+    
+    /**
      * Get the id of groups with a subscription by a user
      * @param int   $user_id
      * @param int[] $obj_ids

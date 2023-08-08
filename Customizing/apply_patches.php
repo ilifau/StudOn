@@ -34,6 +34,9 @@ $p->login();
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [365259], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [365260], 'test_run' => false]);
 
+// Test courses for status messages with member ox33yhir in studon backup from 2.5.2023
+//$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20231', 'course_ids' => [365017, 365020, 365010], 'test_run' => false]);
+
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);
 
@@ -78,7 +81,7 @@ $p->login();
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 $p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
+$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2022-10-01 00:00:00'));
 //$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2022-10-01 00:00:00'));
 

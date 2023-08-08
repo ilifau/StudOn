@@ -143,6 +143,9 @@ class FAUStudySteps
         $this->addCourseTargetGroupAll();
     }
 
+    public function custom_step_126() {
+        $this->replaceCourseNeedsPassedBySendPassed();
+    }
 
     protected function createCoursesTable(bool $drop = false)
     {
@@ -699,5 +702,12 @@ class FAUStudySteps
     {
         $this->db->addTableColumn('fau_study_courses', 'target_group_all',
             ['type' => 'clob', 'notnull' => false, 'default' => null]);
+    }
+    
+    protected function replaceCourseNeedsPassedBySendPassed() 
+    {
+        $this->db->dropTableColumn('fau_study_courses', 'needs_passed');
+        $this->db->addTableColumn('fau_study_courses', 'send_passed',
+           ['type' => 'text', 'length' => 5, 'notnull' => true, 'default' => 'none']);
     }
 }

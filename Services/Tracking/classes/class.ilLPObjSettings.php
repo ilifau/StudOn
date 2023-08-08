@@ -199,14 +199,16 @@ class ilLPObjSettings
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-
-        $query = "REPLACE INTO ut_lp_settings (obj_id,obj_type,u_mode,visits) " .
+// fau: lpQuestionsPercent - clone questions percent
+        $query = "REPLACE INTO ut_lp_settings (obj_id,obj_type,u_mode,questions_percent,visits) " .
             "VALUES( " .
             $this->db->quote($a_new_obj_id, 'integer') . ", " .
             $this->db->quote($this->getObjType(), 'text') . ", " .
             $this->db->quote($this->getMode(), 'integer') . ", " .
+            $this->db->quote($this->getQuestionsPercent(), 'float') . ", " .
             $this->db->quote($this->getVisits(), 'integer') .
             ")";
+// fau.        
         $res = $ilDB->manipulate($query);
         return true;
     }

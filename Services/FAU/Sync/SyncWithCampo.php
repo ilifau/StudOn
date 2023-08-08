@@ -155,7 +155,7 @@ class SyncWithCampo extends SyncBase
                     ->withEventTitleDirty($old->isEventTitleDirty())
                     ->withEventDescriptionDirty($old->isEventDescriptionDirty())
                     ->withMaximumDirty($old->isMaximumDirty())
-                    ->withNeedsPassed($old->getNeedsPassed());
+                    ->withSendPassed($old->getSendPassed());
 
                 if ($old->hash() != $course->hash()) {
                     if ($old->getTitle() != $course->getTitle()

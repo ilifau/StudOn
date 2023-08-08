@@ -1,6 +1,7 @@
 <?php
 
 use FAU\BaseGUI;
+use FAU\Study\Data\Course;
 
 class fauCourseSettingsGUI extends BaseGUI
 {
@@ -18,13 +19,19 @@ class fauCourseSettingsGUI extends BaseGUI
                 $header = new ilFormSectionHeaderGUI();
                 $header->setTitle($this->lng->txt('fau_campo_settings'));
                 $form->addItem($header);
-                $radio = new ilRadioGroupInputGUI($this->lng->txt('fau_campo_needs_passed_label'), 'needs_passed');
-                $radio->setInfo($this->lng->txt('fau_campo_needs_passed_info'));
-                $radio->setValue($course->getNeedsPassed() ? 1 : 0);
-                $option = new ilRadioOption($this->lng->txt('fau_campo_needs_passed_false'), 0);
+                $radio = new ilRadioGroupInputGUI($this->lng->txt('fau_campo_send_passed_label'), 'send_passed');
+                $radio->setInfo($this->lng->txt('fau_campo_send_passed_info'));
+                $radio->setValue($course->getSendPassed());
+                $option = new ilRadioOption($this->lng->txt('fau_campo_send_passed_none'), Course::SEND_PASSED_NONE);
                 $radio->addOption($option);
-                $option = new ilRadioOption($this->lng->txt('fau_campo_needs_passed_true'), 1);
+                $option = new ilRadioOption($this->lng->txt('fau_campo_send_passed_lp'), Course::SEND_PASSED_LP);
                 $radio->addOption($option);
+                $option = new ilRadioOption($this->lng->txt('fau_campo_send_passed_all'), Course::SEND_PASSED_ALL);
+                $radio->addOption($option);
+                $radio->setAlert($this->lng->txt('fau_campo_send_passed_alert'));
+                if (!ilCust::administrationIsVisible()) {
+                    $radio->setDisabled(true);
+                }
                 $form->addItem($radio);
                 return;
             }
@@ -42,7 +49,7 @@ class fauCourseSettingsGUI extends BaseGUI
         $import_id = \FAU\Study\Data\ImportId::fromString($object->getImportId());
         if ($import_id->isForCampo()) {
             foreach($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($object->getId()) as $course) {
-                $course = $course->withNeedsPassed((bool) $form->getInput('needs_passed'));
+                $course = $course->withSendPassed((string) $form->getInput('send_passed'));
                 $this->dic->fau()->study()->repo()->save($course);
                 return;
             }
