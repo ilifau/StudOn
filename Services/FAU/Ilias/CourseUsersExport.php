@@ -56,7 +56,7 @@ class CourseUsersExport extends AbstractExport
      */
     public static function supportsUsersFilterObjectType(string $type) : bool
     {
-        return $type == 'crs' || $type = 'grp';
+        return ($type == 'crs' || $type == 'grp');
     }
     
 
