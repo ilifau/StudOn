@@ -264,6 +264,14 @@ class ilStartUpGUI
 
         $page_editor_html = $this->purgePlaceholders($page_editor_html);
 
+        // fau: samlAuth - provide a login URL with return target
+        $return = '';
+        if (isset($_GET['target'])) {
+            $return = '?returnTo=' . urlencode(ilUtil::stripSlashes($_GET['target']));
+        }
+        $page_editor_html = str_replace('SAML_LOGIN_URL',  './saml.php' . $return, $page_editor_html);
+        // fau.
+
         // check expired session and send message
         if ($GLOBALS['DIC']['ilAuthSession']->isExpired()) {
             ilUtil::sendFailure($GLOBALS['lng']->txt('auth_err_expired'));
