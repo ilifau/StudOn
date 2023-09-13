@@ -130,6 +130,12 @@ class ilErrorHandling extends PEAR
         //		 * Check for context? The current implementation e.g. would output HTML for
         //		   for SOAP.
 
+        // fau: consoleError - use a specific error handler for calls from the console 
+        if (!ilContext::usesHTTP()) {
+            return new ilConsoleHandler();
+        }
+        // fau.
+
         if ($this->isDevmodeActive()) {
             return $this->devmodeHandler();
         }
