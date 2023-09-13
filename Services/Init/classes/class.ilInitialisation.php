@@ -555,17 +555,9 @@ class ilInitialisation
         self::initGlobal("ilClientIniFile", $ilClientIniFile);
 
         // set constants
-        // fau: customPatches - tweak constants for applying patches
-        //      needed to prevent redirection attempts in case of errors
-        //      if the cleaning of the trash is called from a patch in the production platform
         define("SESSION_REMINDER_LEADTIME", 30);
         define("DEBUG", $ilClientIniFile->readVariable("system", "DEBUG"));
-        if (ilContext::getType() == ilContext::CONTEXT_PATCH) {
-            define("DEVMODE", '1');
-        }
-        else {
             define("DEVMODE", $ilClientIniFile->readVariable("system", "DEVMODE"));
-        }
         define("SHOWNOTICES", $ilClientIniFile->readVariable("system", "SHOWNOTICES"));
         define("DEBUGTOOLS", $ilClientIniFile->readVariable("system", "DEBUGTOOLS"));
         define("ROOT_FOLDER_ID", $ilClientIniFile->readVariable('system', 'ROOT_FOLDER_ID'));
@@ -573,14 +565,7 @@ class ilInitialisation
         define("ROLE_FOLDER_ID", $ilClientIniFile->readVariable('system', 'ROLE_FOLDER_ID'));
         define("MAIL_SETTINGS_ID", $ilClientIniFile->readVariable('system', 'MAIL_SETTINGS_ID'));
         $error_handler = $ilClientIniFile->readVariable('system', 'ERROR_HANDLER');
-        if (ilContext::getType() == ilContext::CONTEXT_PATCH) {
-            define("ERROR_HANDLER", 'PLAIN_TEXT');
-        }
-        else {
             define("ERROR_HANDLER", $error_handler ? $error_handler : "PRETTY_PAGE");
-        }
-        // fau.
-
 
         // this is for the online help installation, which sets OH_REF_ID to the
         // ref id of the online module
