@@ -217,6 +217,13 @@ class ilErrorHandling extends PEAR
             #$log->logError($a_error_obj->getCode(),$a_error_obj->getMessage());
         }
 
+        // fau: consoleError - force an exception handling for the legacy error
+        if (!ilContext::usesHTTP()) {
+            throw new Exception($a_error_obj->getMessage());
+            return;
+        }
+        // fau.
+        
         //echo $a_error_obj->getCode().":"; exit;
         if ($a_error_obj->getCode() == $this->FATAL) {
             trigger_error(stripslashes($a_error_obj->getMessage()), E_USER_ERROR);
