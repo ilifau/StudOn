@@ -324,6 +324,8 @@ class ilCleanupPatches
 		$error = "";
 		$trace = "";
 		$logstr = "";
+        $exception = null;
+        
 		while ($row = $ilDB->fetchAssoc($res))
 		{
 			if (isset($params['limit']) and $deleted_sum >= $params['limit'])
@@ -336,40 +338,40 @@ class ilCleanupPatches
 
 			echo $logstr."\n";
 
-			try
-			{
+			try {
 				ilRepUtil::removeObjectsFromSystem(array($row['ref_id']), false);
 			}
-			catch (Exception $e)
-			{
-				$ilLog->write("ilSpecificPatches::removeTrashedObjects: ".$e->getMessage()."\n".$e->getTraceAsString());
-				$error = $e->getMessage();
-				$trace = $e->getTraceAsString();
-				echo $e->getMessage();
-				echo $e->getTraceAsString();
+			catch (Exception $exception) {
+				$ilLog->write("ilSpecificPatches::removeTrashedObjects: ".$exception->getMessage()."\n". $exception->getTraceAsString());
 				break;
 			}
 
 			$deleted[$row['type']]++;
 			$deleted_sum++;
 		}
-
-		echo "Deleted: ";
-		var_dump($deleted);
-
+        
 		$sender = new ilMailMimeSenderSystem($ilSetting);
 		$mail = new ilMimeMail();
 		$mail->From($sender);
 		$mail->to('fred.neumann@ili.fau.de');
-		if ($error) {
+		
+        if (isset($exception)) {
 		    $mail->Subject('Cleanup Error');
-		    $mail->Body($logstr . "\n" . $error . "\n" . $trace);
+		    $mail->Body($logstr . "\n" . $exception->getMessage() . "\n" . $exception->getTraceAsString());
+            $mail->send();
+            
+            // re-trigger the exception to stop the cleanup process
+            throw $exception;
+
         }
 		else {
             $mail->Subject('Cleanup Success');
             $mail->Body("Deleted:\n" . print_r($deleted, true));
+            $mail->send();
+            
+            echo "Deleted: ";
+            var_dump($deleted);
         }
-		$mail->send();
 	}
 
     /**
