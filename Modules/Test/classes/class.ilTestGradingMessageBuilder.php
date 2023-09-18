@@ -173,8 +173,10 @@ class ilTestGradingMessageBuilder
         if ($this->getMaxPoints() > 0) {
             $percentage = $this->getReachedPoints() / $this->getMaxPoints();
         }
-        
-        return sprintf("%.2f", $percentage);
+        // fau: testGradingMessage 
+        return sprintf("%2.2f ", ($percentage) * 100) . "%";
+        //return sprintf("%.2f", $percentage);
+        // fau.
     }
 
     private function getReachedPoints()
