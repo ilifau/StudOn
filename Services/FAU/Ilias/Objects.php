@@ -48,6 +48,21 @@ class Objects
     }
 
     /**
+     * Get a ref id for an object id that is not in the trash
+     * @param int $obj_id
+     * @return int|null
+     */
+    public function getUntrashedReference(int $obj_id) : ?int
+    {
+        foreach (ilObject::_getAllReferences($obj_id) as $ref_id) {
+            if (!ilObject::_isInTrash($ref_id)) {
+                return $ref_id;
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Get the reference to the ilias course or group for a course
      */
     public function getIliasRefIdForCourse(Course $course) : ?int
