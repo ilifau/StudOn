@@ -57,7 +57,7 @@ class ilObjectGUI
     protected $toolbar;
 
     const COPY_WIZARD_NEEDS_PAGE = 1;
-    
+
 
     /**
     * object Definition Object
@@ -117,7 +117,7 @@ class ilObjectGUI
      * @var ilTabsGUI
      */
     protected $tabs_gui = null;
-    
+
     /**
      * @var ilCtrl
      */
@@ -222,7 +222,7 @@ class ilObjectGUI
 
         // get the object
         $this->assignObject();
-        
+
         // set context
         if (is_object($this->object)) {
             if ($this->call_by_reference && $this->ref_id == $_GET["ref_id"]) {
@@ -238,7 +238,7 @@ class ilObjectGUI
             $this->prepareOutput();
         }
     }
-    
+
     /**
      * Get object service
      *
@@ -248,7 +248,7 @@ class ilObjectGUI
     {
         return $this->object_service;
     }
-    
+
     /**
     * execute command
     */
@@ -265,7 +265,7 @@ class ilObjectGUI
                 }
                 $cmd .= "Object";
                 $this->$cmd();
-                    
+
                 break;
         }
 
@@ -280,7 +280,7 @@ class ilObjectGUI
     {
         return $this->call_by_reference;
     }
-    
+
     /**
     * if true, a creation screen is displayed
     * the current $_GET[ref_id] don't belong
@@ -291,7 +291,7 @@ class ilObjectGUI
     {
         $this->creation_mode = $a_mode;
     }
-    
+
     /**
     * get creation mode
     */
@@ -336,7 +336,7 @@ class ilObjectGUI
             if ($this->getCreationMode() != true) {
                 $this->setAdminTabs();
             }
-            
+
             return false;
         }
         // set locator
@@ -366,7 +366,7 @@ class ilObjectGUI
         } else {
             // set title and description and title icon
             $this->setTitleAndDescription();
-    
+
             // set tabs
             $this->setTabs();
 
@@ -377,10 +377,10 @@ class ilObjectGUI
                 $this->enableDragDropFileUpload();
             }
         }
-        
+
         return true;
     }
-    
+
     /**
     * called by prepare output
     */
@@ -396,7 +396,7 @@ class ilObjectGUI
         }
         $this->tpl->setTitle($this->object->getPresentationTitle());
         $this->tpl->setDescription($this->object->getLongDescription());
-            
+
         if (strtolower($_GET["baseClass"]) == "iladministrationgui") {
             // alt text would be same as heading -> empty alt text
             $this->tpl->setTitleIcon(ilObject::_getIcon("", "big", $this->object->getType()));
@@ -495,7 +495,7 @@ class ilObjectGUI
     protected function initHeaderAction($a_sub_type = null, $a_sub_id = null)
     {
         $ilAccess = $this->access;
-        
+
         if (!$this->creation_mode && $this->object) {
             include_once "Services/Object/classes/class.ilCommonActionDispatcherGUI.php";
             $dispatcher = new ilCommonActionDispatcherGUI(
@@ -505,27 +505,27 @@ class ilObjectGUI
                 $this->ref_id,
                 $this->object->getId()
             );
-            
+
             $dispatcher->setSubObject($a_sub_type, $a_sub_id);
-            
+
             include_once "Services/Object/classes/class.ilObjectListGUI.php";
             ilObjectListGUI::prepareJSLinks(
                 $this->ctrl->getLinkTarget($this, "redrawHeaderAction", "", true),
                 $this->ctrl->getLinkTargetByClass(array("ilcommonactiondispatchergui", "ilnotegui"), "", "", true, false),
                 $this->ctrl->getLinkTargetByClass(array("ilcommonactiondispatchergui", "iltagginggui"), "", "", true, false)
             );
-            
+
             $lg = $dispatcher->initHeaderAction();
-            
+
             if (is_object($lg)) {
                 // to enable add to desktop / remove from desktop
                 if ($this instanceof ilDesktopItemHandling) {
                     $lg->setContainerObject($this);
                 }
-                
+
                 // enable multi download
                 $lg->enableMultiDownload(true);
-                
+
                 // comments settings are always on (for the repository)
                 // should only be shown if active or permission to toggle
                 include_once "Services/Notes/classes/class.ilNote.php";
@@ -534,15 +534,15 @@ class ilObjectGUI
                     ilNote::commentsActivated($this->object->getId(), 0, $this->object->getType())) {
                     $lg->enableComments(true);
                 }
-                
+
                 $lg->enableNotes(true);
                 $lg->enableTags(true);
             }
-            
+
             return $lg;
         }
     }
-    
+
     /**
      * Insert header action into main template
      *
@@ -558,7 +558,7 @@ class ilObjectGUI
             $this->tpl->setHeaderActionMenu($a_list_gui->getHeaderAction());
         }
     }
-    
+
     /**
      * Add header action menu
      */
@@ -573,13 +573,13 @@ class ilObjectGUI
     protected function redrawHeaderActionObject()
     {
         $tpl = $this->tpl;
-        
+
         $lg = $this->initHeaderAction();
         echo $lg->getHeaderAction();
-        
+
         // we need to add onload code manually (rating, comments, etc.)
         echo $tpl->getOnLoadCodeForAsynch();
-        
+
         exit;
     }
 
@@ -618,7 +618,7 @@ class ilObjectGUI
                 get_class($this)
             );
         }
-        
+
         if ($this->checkPermissionBool("edit_permission")) {
             $this->tabs_gui->addTarget(
                 "perm_settings",
@@ -682,7 +682,7 @@ class ilObjectGUI
     {
         $ilLocator = $this->locator;
         $tpl = $this->tpl;
-        
+
         if ($this->omit_locator) {
             return;
         }
@@ -697,14 +697,14 @@ class ilObjectGUI
                 : $this->object->getRefId();
             $ilLocator->addRepositoryItems($ref_id);
         }
-        
+
         if (!$this->creation_mode) {
             $this->addLocatorItems();
         }
 
         $tpl->setLocator();
     }
-    
+
     /**
     * should be overwritten to add object specific items
     * (repository items are preloaded)
@@ -712,7 +712,7 @@ class ilObjectGUI
     protected function addLocatorItems()
     {
     }
-    
+
     protected function omitLocator($a_omit = true)
     {
         $this->omit_locator = $a_omit;
@@ -727,7 +727,7 @@ class ilObjectGUI
     protected function addAdminLocatorItems($a_do_not_add_object = false)
     {
         $ilLocator = $this->locator;
-        
+
         if ($_GET["admin_mode"] == "settings") {	// system settings
             $this->ctrl->setParameterByClass(
                 "ilobjsystemfoldergui",
@@ -772,7 +772,7 @@ class ilObjectGUI
         if (isset($_POST["mref_id"])) {
             $_SESSION["saved_post"] = array_unique(array_merge($_SESSION["saved_post"], $_POST["mref_id"]));
         }
-        
+
         include_once("./Services/Repository/classes/class.ilRepUtilGUI.php");
         $ru = new ilRepUtilGUI($this);
         $ru->deleteObjects($_GET["ref_id"], ilSession::get("saved_post"));
@@ -815,20 +815,20 @@ class ilObjectGUI
 
         $new_type = $_REQUEST["new_type"];
 
-        
+
         // add new object to custom parent container
         $this->ctrl->saveParameter($this, "crtptrefid");
         // use forced callback after object creation
         $this->ctrl->saveParameter($this, "crtcb");
-        
+
         if (!$this->checkPermissionBool("create", "", $new_type)) {
             $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
         } else {
             $this->lng->loadLanguageModule($new_type);
             $this->ctrl->setParameter($this, "new_type", $new_type);
-            
+
             $forms = $this->initCreationForms($new_type);
-            
+
             // copy form validation error: do not show other creation forms
             if ($_GET["cpfl"] && isset($forms[self::CFORM_CLONE])) {
                 $forms = array(self::CFORM_CLONE => $forms[self::CFORM_CLONE]);
@@ -852,7 +852,7 @@ class ilObjectGUI
             self::CFORM_IMPORT => $this->initImportForm($a_new_type),
             self::CFORM_CLONE => $this->fillCloneTemplate(null, $a_new_type)
             );
-        
+
         return $forms;
     }
 
@@ -864,14 +864,14 @@ class ilObjectGUI
     final protected function getCreationFormsHTML(array $a_forms)
     {
         $tpl = $this->tpl;
-        
+
         // #13168- sanity check
         foreach ($a_forms as $id => $form) {
             if (!$form instanceof ilPropertyFormGUI) {
                 unset($a_forms[$id]);
             }
         }
-        
+
         // no accordion if there is just one form
         if (sizeof($a_forms) == 1) {
             $form_type = key($a_forms);
@@ -962,7 +962,7 @@ class ilObjectGUI
     protected function initDidacticTemplate(ilPropertyFormGUI $form)
     {
         $lng = $this->lng;
-        
+
         $lng->loadLanguageModule('didactic');
         $existing_exclusive = false;
         $options = [];
@@ -971,7 +971,7 @@ class ilObjectGUI
                 $this->lng->txt('didactic_default_type_info'),
                 $this->lng->txt('objs_' . $this->type)
             ));
-        
+
         include_once './Services/DidacticTemplate/classes/class.ilDidacticTemplateSettings.php';
         $templates = ilDidacticTemplateSettings::getInstanceByObjectType($this->type)->getTemplates();
         if ($templates) {
@@ -988,7 +988,7 @@ class ilObjectGUI
                 }
             }
         }
-        
+
         $this->addDidacticTemplateOptions($options);
 
         if (sizeof($options) > 1) {
@@ -1029,10 +1029,10 @@ class ilObjectGUI
                 $type->addOption($option);
             }
         }
-                            
+
         return $form;
     }
-    
+
     /**
      * Add custom templates
      *
@@ -1048,7 +1048,7 @@ class ilObjectGUI
     public function cancelCreation()
     {
         $ilCtrl = $this->ctrl;
-        
+
         $ilCtrl->redirectByClass("ilrepositorygui", "frameset");
     }
 
@@ -1072,7 +1072,7 @@ class ilObjectGUI
 
         $this->lng->loadLanguageModule($new_type);
         $this->ctrl->setParameter($this, "new_type", $new_type);
-        
+
         $form = $this->initCreateForm($new_type);
         if ($form->checkInput()) {
             $this->ctrl->setParameter($this, "new_type", "");
@@ -1086,7 +1086,7 @@ class ilObjectGUI
             $newObj->setTitle($form->getInput("title"));
             $newObj->setDescription($form->getInput("desc"));
             $newObj->create();
-            
+
             $this->putObjectInTree($newObj);
 
             // apply didactic template?
@@ -1094,10 +1094,10 @@ class ilObjectGUI
             if ($dtpl) {
                 $newObj->applyDidacticTemplate($dtpl);
             }
-            
+
             // auto rating
             $this->handleAutoRating($newObj);
-            
+
             // additional paramters are added to afterSave()
             $args = func_get_args();
             if ($args) {
@@ -1112,7 +1112,7 @@ class ilObjectGUI
         $form->setValuesByPost();
         $tpl->setContent($form->getHtml());
     }
-    
+
     /**
      * Get didactic template setting from creation screen
      *
@@ -1143,7 +1143,7 @@ class ilObjectGUI
         if (!$a_parent_node_id) {
             $a_parent_node_id = $_GET["ref_id"];
         }
-        
+
         // add new object to custom parent container
         if ((int) $_REQUEST["crtptrefid"]) {
             $a_parent_node_id = (int) $_REQUEST["crtptrefid"];
@@ -1166,7 +1166,7 @@ class ilObjectGUI
         $rbac_log_roles = $rbacreview->getParentRoleIds($this->ref_id, false);
         $rbac_log = ilRbacLog::gatherFaPa($this->ref_id, array_keys($rbac_log_roles), true);
         ilRbacLog::add(ilRbacLog::CREATE_OBJECT, $this->ref_id, $rbac_log);
-        
+
         // use forced callback after object creation
         $this->callCreationCallback($a_obj);
     }
@@ -1223,9 +1223,9 @@ class ilObjectGUI
         if ($values) {
             $form->setValuesByArray($values);
         }
-        
+
         $this->addExternalEditFormCustom($form);
-        
+
         $tpl->setContent($form->getHTML());
     }
 
@@ -1233,7 +1233,7 @@ class ilObjectGUI
     {
         // has to be done AFTER setValuesByArray() ...
     }
-    
+
     /**
      * Init object edit form
      *
@@ -1311,7 +1311,7 @@ class ilObjectGUI
         $ilTabs = $this->tabs_gui;
         $tpl = $this->tpl;
         $ilErr = $this->ilErr;
-        
+
         if (!$this->checkPermissionBool("write")) {
             $ilErr->raiseError($this->lng->txt("permission_denied"), $ilErr->MESSAGE);
         }
@@ -1323,7 +1323,7 @@ class ilObjectGUI
             $this->object->setDescription($form->getInput("desc"));
             $this->updateCustom($form);
             $this->object->update();
-            
+
             $this->afterUpdate();
             return;
         }
@@ -1333,7 +1333,7 @@ class ilObjectGUI
         $form->setValuesByPost();
         $tpl->setContent($form->getHtml());
     }
-    
+
     /**
      * Validate custom values (if not possible with checkInput())
      *
@@ -1426,7 +1426,7 @@ class ilObjectGUI
 
         $form->addCommandButton("importFile", $this->lng->txt("import"));
         $form->addCommandButton("cancel", $this->lng->txt("cancel"));
-    
+
         return $form;
     }
 
@@ -1456,7 +1456,7 @@ class ilObjectGUI
 
         $this->lng->loadLanguageModule($new_type);
         $this->ctrl->setParameter($this, "new_type", $new_type);
-        
+
         $form = $this->initImportForm($new_type);
         if ($form->checkInput()) {
             // :todo: make some check on manifest file
@@ -1521,7 +1521,7 @@ class ilObjectGUI
                     }
                     $this->callCreationCallback($newObj);   // see #24244
                 }
-                
+
                 $this->afterImport($newObj);
             }
             // import failed
@@ -1644,14 +1644,14 @@ class ilObjectGUI
     public function isVisible($a_ref_id, $a_type)
     {
         $visible = $this->checkPermissionBool("visible,read", "", "", $a_ref_id);
-        
+
         if ($visible && $a_type == 'crs') {
             $tree = $this->tree;
             if ($crs_id = $tree->checkForParentType($a_ref_id, 'crs')) {
                 if (!$this->checkPermissionBool("write", "", "", $crs_id)) {
                     // Show only activated courses
                     $tmp_obj = &ilObjectFactory::getInstanceByRefId($crs_id, false);
-    
+
                     if (!$tmp_obj->isActivated()) {
                         unset($tmp_obj);
                         $visible = false;
@@ -1659,7 +1659,7 @@ class ilObjectGUI
                 }
             }
         }
-        
+
         return $visible;
     }
     // END Security: Hide objects which aren't accessible by the user.
@@ -1695,7 +1695,7 @@ class ilObjectGUI
             $_GET["ref_id"],
             $this->checkPermissionBool('write')
         );
-        
+
         $tpl->setContent($itab->getHTML());
     }
 
@@ -1709,11 +1709,11 @@ class ilObjectGUI
     public function deleteObject($a_error = false)
     {
         $ilCtrl = $this->ctrl;
-        
+
         if ($_GET["item_ref_id"] != "") {
             $_POST["id"] = array($_GET["item_ref_id"]);
         }
-        
+
         if (is_array($_POST["id"])) {
             foreach ($_POST["id"] as $idx => $id) {
                 $_POST["id"][$idx] = (int) $id;
@@ -1806,7 +1806,7 @@ class ilObjectGUI
     protected function __showButton($a_cmd, $a_text, $a_target = '')
     {
         $ilToolbar = $this->toolbar;
-        
+
         $ilToolbar->addButton($a_text, $this->ctrl->getLinkTarget($this, $a_cmd), $a_target);
     }
 
@@ -1815,7 +1815,7 @@ class ilObjectGUI
         ilSession::set("tbl_limit", $_POST["hitsperpage"]);
         $_GET["limit"] = $_POST["hitsperpage"];
     }
-    
+
 
     protected function &__initTableGUI()
     {
@@ -1823,7 +1823,7 @@ class ilObjectGUI
 
         return new ilTableGUI(0, false);
     }
-    
+
     /**
      * standard implementation for tables
      * use 'from' variable use different initial setting of table
@@ -1871,7 +1871,7 @@ class ilObjectGUI
         $this->ctrl->setParameterByClass("ilrepositorygui", "ref_id", $a_ref_id);
         $this->ctrl->redirectByClass(array("ilrepositorygui", $class), $a_cmd);
     }
-    
+
     // Object Cloning
     /**
      * Fill object clone template
@@ -1894,7 +1894,7 @@ class ilObjectGUI
             return $cp->showSourceSearch(null);
         }
     }
-    
+
     /**
      * Clone single (not container object)
      * Method is overwritten in ilContainerGUI
@@ -1905,10 +1905,10 @@ class ilObjectGUI
     {
         include_once('./Services/Link/classes/class.ilLink.php');
         include_once('Services/CopyWizard/classes/class.ilCopyWizardOptions.php');
-        
+
         $ilErr = $this->ilErr;
         $ilUser = $this->user;
-        
+
         $new_type = $_REQUEST['new_type'];
         if (!$this->checkPermissionBool("create", "", $new_type)) {
             $ilErr->raiseError($this->lng->txt('permission_denied'));
@@ -1921,30 +1921,30 @@ class ilObjectGUI
         if (!$this->checkPermissionBool("write", "", $new_type, (int) $_REQUEST['clone_source'])) {
             $ilErr->raiseError($this->lng->txt('permission_denied'));
         }
-        
+
         // Save wizard options
         $copy_id = ilCopyWizardOptions::_allocateCopyId();
         $wizard_options = ilCopyWizardOptions::_getInstance($copy_id);
         $wizard_options->saveOwner($ilUser->getId());
         $wizard_options->saveRoot((int) $_REQUEST['clone_source']);
-        
+
         $options = $_POST['cp_options'] ? $_POST['cp_options'] : array();
         foreach ($options as $source_id => $option) {
             $wizard_options->addEntry($source_id, $option);
         }
         $wizard_options->read();
-        
+
         $orig = ilObjectFactory::getInstanceByRefId((int) $_REQUEST['clone_source']);
         $new_obj = $orig->cloneObject((int) $_GET['ref_id'], $copy_id);
-        
+
         // Delete wizard options
         $wizard_options->deleteAll();
 
         ilUtil::sendSuccess($this->lng->txt("object_duplicated"), true);
         ilUtil::redirect(ilLink::_getLink($new_obj->getRefId()));
     }
-    
-    
+
+
     /**
     * Get center column
     */
@@ -1983,7 +1983,7 @@ class ilObjectGUI
             }
         }
     }
-    
+
     /**
     * Display right column
     */
@@ -1992,19 +1992,19 @@ class ilObjectGUI
         $ilUser = $this->user;
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
-        
+
         $obj_id = ilObject::_lookupObjId($this->object->getRefId());
         $obj_type = ilObject::_lookupType($obj_id);
 
         include_once("Services/Block/classes/class.ilColumnGUI.php");
         $column_gui = new ilColumnGUI($obj_type, IL_COL_RIGHT);
-        
+
         if ($column_gui->getScreenMode() == IL_SCREEN_FULL) {
             return "";
         }
-        
+
         $this->setColumnSettings($column_gui);
-        
+
         if ($ilCtrl->getNextClass() == "ilcolumngui" &&
             $column_gui->getCmdSide() == IL_COL_RIGHT &&
             $column_gui->getScreenMode() == IL_SCREEN_SIDE) {
@@ -2062,10 +2062,10 @@ class ilObjectGUI
                 }
 
                 ilSession::clear("il_rep_ref_id");
-                
+
                 include_once "Services/Object/exceptions/class.ilObjectException.php";
                 throw new ilObjectException($this->lng->txt("permission_denied"));
-                
+
             /*
             ilUtil::sendFailure($this->lng->txt("permission_denied"), true);
             ilUtil::redirect("goto.php?target=".$type."_".$a_ref_id);
@@ -2107,7 +2107,7 @@ class ilObjectGUI
             return $ilAccess->checkAccess($a_perm, $a_cmd, $a_ref_id);
         }
     }
-    
+
     /**
      * Goto repository root
      *
@@ -2121,7 +2121,7 @@ class ilObjectGUI
         $ilAccess = $DIC->access();
         $ilErr = $DIC["ilErr"];
         $lng = $DIC->language();
-        
+
         if ($ilAccess->checkAccess("read", "", ROOT_FOLDER_ID)) {
             $_GET["cmd"] = "frameset";
             $_GET["target"] = "";
@@ -2135,7 +2135,7 @@ class ilObjectGUI
             $ilErr->raiseError($lng->txt("msg_no_perm_read"), $ilErr->FATAL);
         }
     }
-    
+
     /**
      * Goto repository root
      *
@@ -2156,7 +2156,7 @@ class ilObjectGUI
         include("ilias.php");
         exit;
     }
-    
+
     /**
      * Enables the file upload into this object by dropping files.
      */
@@ -2164,10 +2164,10 @@ class ilObjectGUI
     {
         include_once("./Services/FileUpload/classes/class.ilFileUploadGUI.php");
         ilFileUploadGUI::initFileUpload();
-        
+
         $this->tpl->enableDragDropFileUpload($this->ref_id);
     }
-    
+
     /**
      * Activate rating automatically if parent container setting
      *

@@ -890,6 +890,7 @@ assessment#:#log_user_not_entered_values#:#ユーザは値を未入力です
 assessment#:#log_user_solution_willingly_deleted#:#ユーザは回答を削除しました。
 assessment#:#log_wrong_test_password_entered#:#受講者は間違ったテストパスワードを入力しました。入力: '%s'
 assessment#:#longmenu#:#Longmenu
+assessment#:#longmenu_answeroptions_differ#:#This question does not work correctly, as there are not the same amount of gaps in the text as in the correction options.###20 07 2023 new variable
 assessment#:#longmenu_text#:#長いメニューテキスト
 assessment#:#mailnottype#:#ユーザがテスト終了しても通知を送る
 assessment#:#mailnottype_desc#:#<strong>たっとえ</strong> テスト試行回数が上限をこえていなくてもテストオーナーへ通知する。
@@ -7552,6 +7553,8 @@ crs#:#crs_members_groups#:#グループのメンバーシップ
 crs#:#crs_members_map#:#コースメンバーのマップ
 crs#:#crs_members_print_title#:#コースメンバー
 crs#:#crs_min_one_admin#:#このコース割当てのための管理者が一人は必要です。
+crs#:#crs_my_courses_groups_enabled#:#My Courses and Groups###20 07 2023 new variable
+crs#:#crs_my_courses_groups_enabled_info#:#If activated, the section 'My Courses and Groups' is visible.###20 07 2023 new variable
 crs#:#crs_new_status#:#新しいステータスは次の通り:
 crs#:#crs_new_subscription#:#コース "%s"へユーザ が登録されました
 crs#:#crs_new_subscription_body#:#%sさんをコース "%s"へ登録しました。
@@ -7950,6 +7953,8 @@ dash#:#dash_studyprogramme#:#マイ学習プログラム
 dash#:#dash_tile#:#Tile
 dash#:#dash_view_courses_groups#:#セクション‘マイコースとグループ’
 dash#:#dash_view_favourites#:#‘Favourites’セクション
+dash#:#favourites_disabled_info#:#Add to favorites is deactivated. You may change this inside the repository settings.###20 07 2023 new variable
+dash#:#memberships_disabled_info#:#Subscriptions are deactivated. You may change this inside the course settings.###20 07 2023 new variable
 dateplaner#:#Fr_long#:#金曜日
 dateplaner#:#Fr_short#:#金
 dateplaner#:#Mo_long#:#月曜日
@@ -13041,7 +13046,9 @@ rbac#:#crs_visible#:#コースを表示
 rbac#:#crs_write#:#ユーザはコース設定編集と内容管理ができます
 rbac#:#crsr_copy#:#コースリンクをコピー
 rbac#:#crsr_delete#:#コースリンクを削除
+rbac#:#crsr_edit_learning_progress#:#User can edit learning progress settings###20 07 2023 new variable
 rbac#:#crsr_edit_permission#:#アクセス権限設定を変更
+rbac#:#crsr_read_learning_progress#:#User can view learning progress of other users###20 07 2023 new variable
 rbac#:#crsr_visible#:#コースリンクを表示
 rbac#:#crsr_write#:#コースリンクを編集
 rbac#:#crss_edit_permission#:#ユーザはコース管理のアクセス権設定変更ができます
@@ -13201,8 +13208,6 @@ rbac#:#iass_read_learning_progress#:#個別アセスメントの学習進捗情�
 rbac#:#iass_visible#:#個別アセスメントを表示します
 rbac#:#iass_write#:#個別アセスメントを編集
 rbac#:#il_lti_global_role#:#LTI User
-rbac#:#il_orgu_employee#:#組織のユニット従業員
-rbac#:#il_orgu_superior#:#組織のユニット上司
 rbac#:#il_sess_participant#:#セッション参加者
 rbac#:#il_sess_status_closed#:#非参加者限定セッション
 rbac#:#ilias_id#:#ILIAS-ID
@@ -13333,8 +13338,10 @@ rbac#:#orgu_cat_administrate_users#:#ユーザはこの組織ユニットのロ�
 rbac#:#orgu_copy#:#組織ユニットをコピー
 rbac#:#orgu_delete#:#ユーザは組織ユニットの移動または削除ができます
 rbac#:#orgu_edit_permission#:#ユーザはアクセス権設定を変更できます。
+rbac#:#orgu_employee#:#組織のユニット従業員
 rbac#:#orgu_read#:#ユーザは組織ユニットの読み込みアクセス権があります
 rbac#:#orgu_read_users#:#ユーザはこの組織ユニットに作成されたローカルユーザアカウントの読み込みができます。
+rbac#:#orgu_superior#:#組織のユニット上司
 rbac#:#orgu_view_learning_progress#:#学習履歴を表示
 rbac#:#orgu_view_learning_progress_rec#:#Unit incl. Subunitsの学習進捗を表示する
 rbac#:#orgu_visible#:#組織ユニットを表示
@@ -16292,6 +16299,7 @@ user#:#interests_general#:#一般的な興味
 user#:#interests_help_looking#:#ヘルプを探す
 user#:#interests_help_offered#:#ヘルプを提案
 user#:#msg_spoint_not_modified#:#開始点未修整
+user#:#no_deactivate_yourself#:#You cannot deactivate your own user account.###20 07 2023 new variable
 user#:#obj_ref_id_not_exist#:#入力のReference-IDが存在しません
 user#:#restrict_user_access#:#ユーザアカウントへの限定アクセス
 user#:#restrict_user_access_info#:#有効にするとユーザアカウントへのアクセスが制限されます。アクセス権は"ユーザアカウント"と"カテゴリ"の"ローカルユーザアカウントの読み込み”に依存します。

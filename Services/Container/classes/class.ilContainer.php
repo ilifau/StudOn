@@ -39,6 +39,10 @@ require_once "./Services/Object/classes/class.ilObject.php";
 class ilContainer extends ilObject
 {
     /**
+     * @var ilNewsService
+     */
+    protected $news;
+    /**
      * @var ilDB
      */
     protected $db;
@@ -151,6 +155,7 @@ class ilContainer extends ilObject
         $this->tree = $DIC->repositoryTree();
         $this->user = $DIC->user();
         $this->obj_definition = $DIC["objDefinition"];
+        $this->news = $DIC->news();
 
 
         $this->setting = $DIC["ilSetting"];
@@ -378,6 +383,9 @@ class ilContainer extends ilObject
      */
     public function isNewsTimelineEffective()
     {
+        if (!$this->news->isGloballyActivated()) {
+            return false;
+        }
         if ($this->getUseNews()) {
             if ($this->getNewsTimeline()) {
                 return true;
@@ -1195,7 +1203,10 @@ class ilContainer extends ilObject
             ilObjectServiceSettingsGUI::NEWS_VISIBILITY,
             $this->setting->get('block_activated_news', true)
         ));
-        $this->setUseNews(self::_lookupContainerSetting($this->getId(), ilObjectServiceSettingsGUI::USE_NEWS, true));
+        $this->setUseNews(
+            self::_lookupContainerSetting($this->getId(), ilObjectServiceSettingsGUI::USE_NEWS, true)
+            && $this->news->isGloballyActivated()
+        );
     }
 
 

@@ -485,20 +485,35 @@ class ilInitialisation
      * This method determines the current client and sets the
      * constant CLIENT_ID.
      */
-    protected static function determineClient()
+    protected static function determineClient() : void
     {
         global $ilIliasIniFile;
+
+        if (defined('CLIENT_ID')) {
+            return;
+        }
 
         // check whether ini file object exists
         if (!is_object($ilIliasIniFile)) {
             self::abortAndDie('Fatal Error: ilInitialisation::determineClient called without initialisation of ILIAS ini file object.');
         }
 
+        $default_client_id = $ilIliasIniFile->readVariable('clients', 'default');
+
+        $client_id_to_use = '';
         // fau: clientByUrl - always get the client from the ILIAS ini file
-        $clientId = $ilIliasIniFile->readVariable('clients', 'default');
+        //if (isset($_GET['client_id']) && is_string($_GET['client_id'])) {
+        //    $client_id_to_use = $_GET['client_id'];
+        //}
+        
+        //if ($client_id_to_use === '' && isset($_COOKIE['ilClientId']) && is_string($_COOKIE['ilClientId'])) {
+        //    $client_id_to_use = $_COOKIE['ilClientId'];
+        //}
         // fau.
 
-        define('CLIENT_ID', \ilUtil::getClientIdByString((string) $clientId)->toString());
+        $client_id_to_use = $client_id_to_use ?: $default_client_id;
+
+        define('CLIENT_ID', ilUtil::getClientIdByString($client_id_to_use)->toString());
     }
 
     /**
@@ -540,10 +555,8 @@ class ilInitialisation
 
         // invalid client id / client ini
         if ($ilClientIniFile->ERROR != "") {
-            $c = $_COOKIE["ilClientId"];
             $default_client = $ilIliasIniFile->readVariable("clients", "default");
-            ilUtil::setCookie("ilClientId", $default_client);
-            if (CLIENT_ID != "" && CLIENT_ID != $default_client) {
+            if (CLIENT_ID !== $default_client) {
                 $mess = array("en" => "Client does not exist.",
                         "de" => "Mandant ist ungültig.");
                 self::redirect("index.php?client_id=" . $default_client, null, $mess);
@@ -705,6 +718,15 @@ class ilInitialisation
         define('IL_COOKIE_DOMAIN', '');
     }
 
+    private static function setClientIdCookie() : void
+    {
+        if (defined('CLIENT_ID') &&
+            !defined('IL_PHPUNIT_TEST') &&
+            ilContext::supportsPersistentSessions()) {
+            ilUtil::setCookie('ilClientId', CLIENT_ID);
+        }
+    }
+
     /**
      * set session cookie params
      */
@@ -720,13 +742,22 @@ class ilInitialisation
             $cookie_secure = !$ilSetting->get('https', 0) && ilHTTPS::getInstance()->isDetected();
             define('IL_COOKIE_SECURE', $cookie_secure); // Default Value
 
-            session_set_cookie_params(
-                IL_COOKIE_EXPIRE,
-                IL_COOKIE_PATH,
-                IL_COOKIE_DOMAIN,
-                IL_COOKIE_SECURE,
-                IL_COOKIE_HTTPONLY
-            );
+            $cookie_parameters = [
+                'lifetime' => IL_COOKIE_EXPIRE,
+                'path' => IL_COOKIE_PATH,
+                'domain' => IL_COOKIE_DOMAIN,
+                'secure' => IL_COOKIE_SECURE,
+                'httponly' => IL_COOKIE_HTTPONLY,
+            ];
+
+            if (
+                $cookie_secure &&
+                (!isset(session_get_cookie_params()['samesite']) || strtolower(session_get_cookie_params()['samesite']) !== 'strict')
+            ) {
+                $cookie_parameters['samesite'] = 'Lax';
+            }
+
+            session_set_cookie_params($cookie_parameters);
         }
     }
 
@@ -1036,7 +1067,7 @@ class ilInitialisation
             ilSession::setClosingContext(ilSession::SESSION_CLOSE_LOGIN);
         }
 
-        $script = "login.php?target=" . $_GET["target"] . "&client_id=" . $_COOKIE["ilClientId"] .
+        $script = "login.php?target=" . $_GET["target"] . "&client_id=" . CLIENT_ID .
             "&auth_stat=" . $a_auth_stat;
 
         self::redirect(
@@ -1430,6 +1461,7 @@ class ilInitialisation
         );
 
         self::setSessionCookieParams();
+        self::setClientIdCookie();
 
         // Init GlobalScreen
         self::initGlobalScreen($DIC);
@@ -2014,7 +2046,7 @@ class ilInitialisation
             }
             $cmd = self::getCurrentCmd();
             if (
-                $cmd == "showTermsOfService" || $cmd == "showClientList" ||
+                $cmd == "showTermsOfService" ||
                 $cmd == 'showAccountMigration' || $cmd == 'migrateAccount' ||
                 $cmd == 'processCode' || $cmd == 'showLoginPage' || $cmd == 'showLogout' ||
                 $cmd == 'doStandardAuthentication' || $cmd == 'doCasAuthentication'

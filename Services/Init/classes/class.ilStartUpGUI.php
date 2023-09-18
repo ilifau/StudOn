@@ -1051,15 +1051,8 @@ class ilStartUpGUI
         if (ilPublicSectionSettings::getInstance()->isEnabledForDomain($_SERVER['SERVER_NAME']) &&
             $ilAccess->checkAccessOfUser(ANONYMOUS_USER_ID, "read", "", ROOT_FOLDER_ID)) {
             $rtpl->setCurrentBlock("homelink");
-            $rtpl->setVariable("CLIENT_ID", "?client_id=" . $_COOKIE["ilClientId"] . "&lang=" . $lng->getLangKey());
+            $rtpl->setVariable("CLIENT_ID", "?client_id=" . CLIENT_ID . "&lang=" . $lng->getLangKey());
             $rtpl->setVariable("TXT_HOME", $lng->txt("home"));
-            $rtpl->parseCurrentBlock();
-        }
-
-        if ($ilIliasIniFile->readVariable("clients", "list")) {
-            $rtpl->setCurrentBlock("client_list");
-            $rtpl->setVariable("TXT_CLIENT_LIST", $lng->txt("to_client_list"));
-            $rtpl->setVariable("CMD_CLIENT_LIST", $this->ctrl->getLinkTarget($this, "showClientList"));
             $rtpl->parseCurrentBlock();
         }
 
@@ -1434,18 +1427,6 @@ class ilStartUpGUI
             $tpl->parseCurrentBlock();
         }
 
-        if ($ilIliasIniFile->readVariable("clients", "list")) {
-            $tpl->setCurrentBlock("client_list");
-            $tpl->setVariable("TXT_CLIENT_LIST", $lng->txt("to_client_list"));
-            $this->ctrl->setParameter($this, "client_id", $client_id);
-            $tpl->setVariable(
-                "CMD_CLIENT_LIST",
-                $this->ctrl->getLinkTarget($this, "showClientList")
-            );
-            $tpl->parseCurrentBlock();
-            $this->ctrl->setParameter($this, "client_id", "");
-        }
-
         $tosWithdrawalGui = new ilTermsOfServiceWithdrawalGUIHelper($this->user);
 
         $tpl->setVariable("TXT_PAGEHEADLINE", $lng->txt("logout"));
@@ -1508,109 +1489,12 @@ class ilStartUpGUI
         // fau.
 
         // reset cookie
-        $client_id = $_COOKIE["ilClientId"];
         ilUtil::setCookie("ilClientId", "");
 
         // redirect and show logout information
-        $this->ctrl->setParameter($this, 'client_id', $client_id);
+        $this->ctrl->setParameter($this, 'client_id', CLIENT_ID);
         $this->ctrl->setParameter($this, 'lang', $user_language);
         $this->ctrl->redirect($this, 'showLogout');
-    }
-
-    /**
-    * show client list
-    */
-    public function showClientList()
-    {
-        global $tpl, $ilIliasIniFile, $lng;
-
-        if (!$ilIliasIniFile->readVariable("clients", "list")) {
-            $this->processIndexPHP();
-            return;
-        }
-
-        // fix #21612
-        $tpl->hideFooter(); // no client yet
-
-        $tpl->setVariable("PAGETITLE", $lng->txt("clientlist_clientlist"));
-
-        // load client list template
-        $tpl = self::initStartUpTemplate("tpl.client_list.html");
-
-        // load template for table
-        $tpl->addBlockfile("CLIENT_LIST", "client_list", "tpl.table.html");
-
-        // load template for table content data
-        $tpl->addBlockfile("TBL_CONTENT", "tbl_content", "tpl.obj_tbl_rows.html");
-
-        // load table content data
-        require_once("setup/classes/class.ilClientList.php");
-        require_once("setup/classes/class.ilClient.php");
-        require_once("./Services/Table/classes/class.ilTableGUI.php");
-        $clientlist = new \ilClientList();
-        $list = $clientlist->getClients();
-
-        if (count($list) == 0) {
-            header("Location: ./setup/setup.php");
-            exit();
-        }
-
-        $hasPublicSection = false;
-        foreach ($list as $key => $client) {
-            $client->setDSN();
-            if ($client->checkDatabaseExists(true)) {
-                $client->connect();
-                if ($client->ini->readVariable("client", "access") and $client->getSetting("setup_ok")) {
-                    $this->ctrl->setParameter($this, "client_id", $key);
-                    $tmp = array();
-                    $tmp[] = $client->getName();
-                    $tmp[] = "<a href=\"" . "login.php?cmd=force_login&client_id=" . urlencode($key) . "\">" . $lng->txt("clientlist_login_page") . "</a>";
-
-                    if ($client->getSetting('pub_section')) {
-                        $hasPublicSection = true;
-                        $tmp[] = "<a href=\"" . "ilias.php?baseClass=ilRepositoryGUI&client_id=" . urlencode($key) . "\">" . $lng->txt("clientlist_start_page") . "</a>";
-                    } else {
-                        $tmp[] = '';
-                    }
-
-                    $data[] = $tmp;
-                }
-            }
-        }
-
-        // create table
-        $tbl = new ilTableGUI('', false);
-
-        // title & header columns
-        if ($hasPublicSection) {
-            $tbl->setTitle($lng->txt("clientlist_available_clients"));
-            $tbl->setHeaderNames(array($lng->txt("clientlist_installation_name"), $lng->txt("clientlist_login"), $lng->txt("clientlist_public_access")));
-            $tbl->setHeaderVars(array("name","index","login"));
-            $tbl->setColumnWidth(array("50%","25%","25%"));
-        } else {
-            $tbl->setTitle($lng->txt("clientlist_available_clients"));
-            $tbl->setHeaderNames(array($lng->txt("clientlist_installation_name"), $lng->txt("clientlist_login"), ''));
-            $tbl->setHeaderVars(array("name","login",''));
-            $tbl->setColumnWidth(array("70%","25%",'1px'));
-        }
-
-        // control
-        $tbl->setOrderColumn($_GET["sort_by"], "name");
-        $tbl->setOrderDirection($_GET["sort_order"]);
-        $tbl->setLimit($_GET["limit"]);
-        $tbl->setOffset($_GET["offset"]);
-
-        // content
-        $tbl->setData($data);
-
-        $tbl->disable("icon");
-        $tbl->disable("numinfo");
-        $tbl->disable("sort");
-        $tbl->disable("footer");
-
-        // render table
-        $html_for_nothing = $tbl->render();
-        self::printToGlobalTemplate($tbl->getTemplateObject());
     }
 
     /**
@@ -1786,14 +1670,6 @@ class ilStartUpGUI
                 ilInitialisation::redirectToStartingPage();
                 return;
             }
-        }
-
-        // no valid session => show client list, if no client info is given
-        if (
-            !isset($_GET["client_id"]) &&
-            ($_GET["cmd"] == "") &&
-            $ilIliasIniFile->readVariable("clients", "list")) {
-            return $this->showClientList();
         }
 
         if (ilPublicSectionSettings::getInstance()->isEnabledForDomain($_SERVER['SERVER_NAME'])) {
@@ -2043,7 +1919,7 @@ class ilStartUpGUI
             $soap_client->call(
                 'deleteExpiredDualOptInUserObjects',
                 [
-                    $_COOKIE[session_name()] . '::' . $_COOKIE['ilClientId'],
+                    $_COOKIE[session_name()] . '::' . CLIENT_ID,
                     $exception->getCode() // user id
                 ]
             );
@@ -2085,8 +1961,8 @@ class ilStartUpGUI
         $view_title = $lng->txt('login_to_ilias');
         if ($a_show_back) {
             // #13400
-            $param = 'client_id=' . $_COOKIE['ilClientId'] . '&lang=' . $lng->getLangKey();
-            
+            $param = 'client_id=' . CLIENT_ID . '&lang=' . $lng->getLangKey();
+
             $tpl->setCurrentBlock('link_item_bl');
             $tpl->setVariable('LINK_TXT', $view_title);
             $tpl->setVariable('LINK_URL', 'login.php?cmd=force_login&' . $param);

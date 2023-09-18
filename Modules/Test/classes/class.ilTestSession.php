@@ -13,11 +13,11 @@
 class ilTestSession
 {
     const ACCESS_CODE_SESSION_INDEX = "tst_access_code";
-    
+
     const ACCESS_CODE_CHAR_DOMAIN = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    
+
     const ACCESS_CODE_LENGTH = 5;
-    
+
     /**
     * The unique identifier of the test session
     *
@@ -82,7 +82,7 @@ class ilTestSession
     private $lastFinishedPass;
 
     private $lastStartedPass;
-    
+
     private $objectiveOrientedContainerId;
 
     // fau: testStatement - session variable
@@ -139,7 +139,7 @@ class ilTestSession
     {
         return $this->ref_id;
     }
-    
+
     protected function activeIDExists($user_id, $test_id)
     {
         global $DIC;
@@ -176,13 +176,13 @@ class ilTestSession
         }
         return false;
     }
-    
+
     public function increaseTestPass()
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $ilLog = $DIC['ilLog'];
-        
+
         if (!$this->active_id) {
             require_once 'Modules/Test/exceptions/class.ilTestException.php';
             throw new ilTestException('missing active id on test pass increase!');
@@ -191,11 +191,11 @@ class ilTestSession
         $this->increasePass();
         $this->setLastSequence(0);
         $submitted = ($this->isSubmitted()) ? 1 : 0;
-        
+
         if (!isset($_SESSION[$this->active_id]['tst_last_increase_pass'])) {
             $_SESSION[$this->active_id]['tst_last_increase_pass'] = 0;
         }
-        
+
         // there has to be at least 10 seconds between new test passes (to ensure that noone double clicks the finish button and increases the test pass by more than 1)
         if (time() - $_SESSION[$this->active_id]['tst_last_increase_pass'] > 10) {
             $_SESSION[$this->active_id]['tst_last_increase_pass'] = time();
@@ -218,16 +218,16 @@ class ilTestSession
                 array(
                         'active_id' => array('integer', $this->getActiveId())
                     )
-                );
+            );
         }
     }
-    
+
     public function saveToDb()
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
         $ilLog = $DIC['ilLog'];
-        
+
         $submitted = ($this->isSubmitted()) ? 1 : 0;
         if ($this->active_id > 0) {
             $ilDB->update(
@@ -278,7 +278,7 @@ class ilTestSession
             }
         }
     }
-    
+
     public function loadTestSession($test_id, $user_id = "", $anonymous_id = "")
     {
         global $DIC;
@@ -338,7 +338,7 @@ class ilTestSession
             $this->unsetAccessCodeInSession();
         }
     }
-    
+
     /**
     * Loads the session data for a given active id
     *
@@ -375,37 +375,37 @@ class ilTestSession
 
         }
     }
-    
+
     public function getActiveId()
     {
         return $this->active_id;
     }
-    
+
     public function setUserId($user_id)
     {
         $this->user_id = $user_id;
     }
-    
+
     public function getUserId()
     {
         return $this->user_id;
     }
-    
+
     public function setTestId($test_id)
     {
         $this->test_id = $test_id;
     }
-    
+
     public function getTestId()
     {
         return $this->test_id;
     }
-    
+
     public function setAnonymousId($anonymous_id)
     {
         $this->anonymous_id = $anonymous_id;
     }
-    
+
     public function getAnonymousId()
     {
         return $this->anonymous_id;
@@ -415,17 +415,17 @@ class ilTestSession
     {
         $this->lastsequence = $lastsequence;
     }
-    
+
     public function getLastSequence()
     {
         return $this->lastsequence;
     }
-    
+
     public function setPass($pass)
     {
         $this->pass = $pass;
     }
-    
+
     public function getPass()
     {
         return $this->pass;
@@ -440,17 +440,17 @@ class ilTestSession
     {
         return $this->submitted;
     }
-    
+
     public function setSubmitted()
     {
         $this->submitted = true;
     }
-    
+
     public function getSubmittedTimestamp()
     {
         return $this->submittedTimestamp;
     }
-    
+
     public function setSubmittedTimestamp()
     {
         $this->submittedTimestamp = strftime("%Y-%m-%d %H:%M:%S");
@@ -559,17 +559,17 @@ class ilTestSession
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $res = $ilDB->queryF(
             "SELECT start_lock FROM tst_active WHERE active_id = %s",
             array('integer'),
             array($this->getActiveId())
         );
-        
+
         while ($row = $ilDB->fetchAssoc($res)) {
             return $row['start_lock'];
         }
-        
+
         return null;
     }
 
@@ -578,7 +578,7 @@ class ilTestSession
         if (!is_array($_SESSION[self::ACCESS_CODE_SESSION_INDEX])) {
             $_SESSION[self::ACCESS_CODE_SESSION_INDEX] = array();
         }
-        
+
         $_SESSION[self::ACCESS_CODE_SESSION_INDEX][$this->getTestId()] = $access_code;
     }
 
@@ -599,7 +599,7 @@ class ilTestSession
 
         return $_SESSION[self::ACCESS_CODE_SESSION_INDEX][$this->getTestId()];
     }
-    
+
     public function doesAccessCodeInSessionExists()
     {
         if (!is_array($_SESSION[self::ACCESS_CODE_SESSION_INDEX])) {
@@ -622,7 +622,7 @@ class ilTestSession
     {
         global $DIC;
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "SELECT anonymous_id FROM tst_active WHERE test_fi = %s AND anonymous_id = %s";
 
         $result = $ilDB->queryF(
@@ -630,7 +630,7 @@ class ilTestSession
             array('integer', 'text'),
             array($this->getTestId(), $code)
         );
-        
+
         return ($result->numRows() > 0);
     }
 
@@ -650,17 +650,30 @@ class ilTestSession
 
         return $code;
     }
-    
+
     public function isAnonymousUser()
     {
         return $this->getUserId() == ANONYMOUS_USER_ID;
     }
-    
+
+    public function isPasswordChecked() : bool
+    {
+        if (ilSession::get('pw_checked_' . $this->active_id) === null) {
+            return false;
+        }
+        return ilSession::get('pw_checked_' . $this->active_id);
+    }
+
+    public function setPasswordChecked(bool $value) : void
+    {
+        ilSession::set('pw_checked_' . $this->active_id, $value);
+    }
+
     /**
      * @var null|bool
      */
     private $reportableResultsAvailable = null;
-    
+
     /**
      * @param ilObjTest $testOBJ
      * @return bool
@@ -669,35 +682,35 @@ class ilTestSession
     {
         if ($this->reportableResultsAvailable === null) {
             $this->reportableResultsAvailable = true;
-            
+
             if (!$this->getActiveId()) {
                 $this->reportableResultsAvailable = false;
             }
-            
+
             if (!$testOBJ->canShowTestResults($this)) {
                 $this->reportableResultsAvailable = false;
             }
         }
-        
+
         return $this->reportableResultsAvailable;
     }
-    
+
     /**
      * @return bool
      */
     public function hasSinglePassReportable(ilObjTest $testObj)
     {
         global $DIC; /* @var ILIAS\DI\Container $DIC */
-        
+
         require_once 'Modules/Test/classes/class.ilTestPassesSelector.php';
         $testPassesSelector = new ilTestPassesSelector($DIC->database(), $testObj);
         $testPassesSelector->setActiveId($this->getActiveId());
         $testPassesSelector->setLastFinishedPass($this->getLastFinishedPass());
-        
+
         if (count($testPassesSelector->getReportablePasses()) == 1) {
             return true;
         }
-        
+
         return false;
     }
 }

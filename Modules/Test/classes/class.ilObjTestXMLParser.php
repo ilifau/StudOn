@@ -285,12 +285,11 @@ class ilObjTestXMLParser extends ilSaxParser
         $sourcePoolDefinition->setPoolQuestionCount((int) $attr['poolQuestCount']);
         $sourcePoolDefinition->setQuestionAmount((int) $attr['questAmount']);
         $sourcePoolDefinition->setSequencePosition((int) $attr['position']);
-        // fau: typeFilter - import type filter
+
         if (isset($attr['typeFilter']) && strlen($attr['typeFilter']) > 0) {
             $sourcePoolDefinition->setTypeFilterFromTypeTags(explode(',', $attr['typeFilter']));
         }
-        // fau.
-
+ 
         // fau: taxGroupFilter - import group filter
         if (!empty($attr['GroupTaxId'])) {
             $sourcePoolDefinition->setMappedGroupTaxId($attr['GroupTaxId']);
@@ -301,6 +300,10 @@ class ilObjTestXMLParser extends ilSaxParser
             $sourcePoolDefinition->setOrderBy($attr['orderBy']);
         }
         // fau.
+
+        if (isset($attr['typeFilter']) && strlen($attr['typeFilter']) > 0) {
+            $sourcePoolDefinition->setTypeFilterFromTypeTags(explode(',', $attr['typeFilter']));
+        }
 
         // #21330
         if (isset($attr['tax']) && isset($attr['taxNode'])) {
