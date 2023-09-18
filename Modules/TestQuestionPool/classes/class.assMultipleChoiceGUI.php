@@ -757,6 +757,7 @@ class assMultipleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScorin
                     $_POST['choice']['points'][$index],
                     $_POST['choice']['points_unchecked'][$index],
                     $index,
+                    "",
                     $_POST['choice']['answer_id'][$index]
                 );
             }

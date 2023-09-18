@@ -398,6 +398,7 @@ class ilPasswordAssistanceGUI
         $password = new ilPasswordInputGUI($this->lng->txt('password'), 'password');
         $password->setInfo(\ilUtil::getPasswordRequirementsInfo());
         $password->setRequired(true);
+        $password->setUseStripSlashes(false);
         $form->addItem($password);
 
         $key = new ilHiddenInputGUI('key');
@@ -484,7 +485,7 @@ class ilPasswordAssistanceGUI
         $form = $this->getAssignPasswordForm($pwassist_id);
         if (!$form->checkInput()) {
             $form->setValuesByPost();
-            $this->showAssistanceForm($form);
+            $this->showAssignPasswordForm($form, $pwassist_id);
             return;
         }
 

@@ -573,13 +573,14 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
             $url = $ilCtrl->getLinkTarget($this->getParentObject(), "openSubmissionView");
             $items[] = $this->ui_factory->link()->standard($this->lng->txt("exc_tbl_action_open_submission"), $url)->withOpenInNewViewport(true);
         }
-
         if (!$has_no_team_yet &&
             // fau: exGradeTime - check if individual deadline setting is allowed
             $this->exc->isIndividualDeadlineSettingAllowed() &&
             // fau.
             $a_ass->hasActiveIDl() &&
-            !$a_ass->hasReadOnlyIDl()) {
+            !$a_ass->hasReadOnlyIDl() &&
+            (!is_null($a_row["calc_deadline"]) || $a_ass->getDeadline())    // calculated or common deadline given
+        ) {
             $idl_id = $a_ass->hasTeam()
                 ? "t" . ilExAssignmentTeam::getTeamId($a_ass->getId(), $a_user_id)
                 : $a_user_id;

@@ -1332,6 +1332,7 @@ class assClozeTest extends assQuestion implements ilObjQuestionScoringAdjustable
                             } elseif ($gap->getType() == CLOZE_NUMERIC) {
                                 $value = str_replace(",", ".", $value);
                             }
+                            $value = htmlentities($value);
                             $solutionSubmit[trim($matches[1])] = $value;
                         }
                     }

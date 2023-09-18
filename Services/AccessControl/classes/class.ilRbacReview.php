@@ -31,13 +31,13 @@ class ilRbacReview
     /**
      * @var array
      */
-    protected static $assigned_users_cache = array();
+    protected static $assigned_users_cache = [];
 
     /**
      * @var array
      */
-    protected static $is_assigned_cache = array();
-    
+    protected static $is_assigned_cache = [];
+
     /**
      * @var ilLogger
      */
@@ -59,7 +59,7 @@ class ilRbacReview
 
         // set db & error handler
         (isset($ilDB)) ? $this->ilDB = &$ilDB : $this->ilDB = &$ilias->db;
-        
+
         if (!isset($ilErr)) {
             $ilErr = new ilErrorHandling();
             $ilErr->setErrorHandling(PEAR_ERROR_CALLBACK, array($ilErr,'errorHandler'));
@@ -81,14 +81,14 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if (empty($a_title)) {
             $message = get_class($this) . "::roleExists(): No title given!";
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
-        
+
         $clause = ($a_id) ? " AND obj_id != " . $ilDB->quote($a_id) . " " : "";
-        
+
         $q = "SELECT DISTINCT(obj_id) obj_id FROM object_data " .
              "WHERE title =" . $ilDB->quote($a_title) . " " .
              "AND type IN('role','rolt')" .
@@ -121,9 +121,9 @@ class ilRbacReview
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
 
-        $parent_roles = array();
-        $role_hierarchy = array();
-        
+        $parent_roles = [];
+        $role_hierarchy = [];
+
         foreach ($a_path as $ref_id) {
             $roles = $this->getRoleListByObject($ref_id, $a_templates);
             foreach ($roles as $role) {
@@ -159,16 +159,11 @@ class ilRbacReview
             $message = get_class($this) . "::getParentRoleIds(): No node_id (ref_id) given!";
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
-        
-        //var_dump($a_endnode_id);exit;
-        //$log->write("ilRBACreview::getParentRoleIds(), 0");
+
         $pathIds = $tree->getPathId($a_endnode_id);
-        
+
         // add system folder since it may not in the path
-        //$pathIds[0] = SYSTEM_FOLDER_ID;
         $pathIds[0] = ROLE_FOLDER_ID;
-        //$log->write("ilRBACreview::getParentRoleIds(), 1");
-        #return $this->getParentRoles($a_endnode_id,$a_templates,$a_keep_protected);
         return $this->__getParentRoles($pathIds, $a_templates);
     }
 
@@ -228,7 +223,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if (!isset($a_ref_id) or !isset($a_templates)) {
             $message = get_class($this) . "::getRoleListByObject(): Missing parameter!" .
                        "ref_id: " . $a_ref_id .
@@ -236,16 +231,16 @@ class ilRbacReview
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
 
-        $role_list = array();
+        $role_list = [];
 
         $where = $this->__setTemplateFilter($a_templates);
-    
+
         $query = "SELECT * FROM object_data " .
              "JOIN rbac_fa ON obj_id = rol_id " .
              $where .
              "AND object_data.obj_id = rbac_fa.rol_id " .
              "AND rbac_fa.parent = " . $ilDB->quote($a_ref_id, 'integer') . " ";
-             
+
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($res)) {
             $row["desc"] = $row["description"];
@@ -254,10 +249,10 @@ class ilRbacReview
         }
 
         $role_list = $this->__setRoleType($role_list);
-        
+
         return $role_list;
     }
-    
+
     /**
      * Returns a list of all assignable roles
      * @access	public
@@ -271,7 +266,7 @@ class ilRbacReview
 
         $ilDB = $DIC['ilDB'];
 
-        $role_list = array();
+        $role_list = [];
 
         $where = $this->__setTemplateFilter($a_templates);
 
@@ -294,7 +289,7 @@ class ilRbacReview
             $row["user_id"] = $row["owner"];
             $role_list[] = $row;
         }
-        
+
         $role_list = $this->__setRoleType($role_list);
 
         return $role_list;
@@ -312,7 +307,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = 'SELECT rol_id FROM rbac_fa fa ' .
                 'JOIN tree t1 ON t1.child = fa.parent ' .
                 'JOIN object_data obd ON fa.rol_id = obd.obj_id ' .
@@ -321,11 +316,11 @@ class ilRbacReview
                 'AND t1.child IN (' .
                 $GLOBALS['DIC']['tree']->getSubTreeQuery($ref_id, array('child')) . ' ' .
                 ') ';
-        
+
 
         $res = $ilDB->query($query);
-        
-        $role_list = array();
+
+        $role_list = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $role_list[] = $row->rol_id;
         }
@@ -351,14 +346,14 @@ class ilRbacReview
              "WHERE fa.assign = 'y' " .
              "AND fa.parent = " . $this->ilDB->quote($a_ref_id, 'integer') . " "
             ;
-        
+
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($res)) {
             $roles_data[] = $row;
         }
-        return $roles_data ? $roles_data : array();
+        return $roles_data ? $roles_data : [];
     }
-    
+
     /**
      * get roles and templates or only roles; returns string for where clause
      * @access	private
@@ -371,13 +366,13 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if ($a_templates === true) {
             $where = "WHERE " . $ilDB->in('object_data.type', array('role','rolt'), false, 'text') . " ";
         } else {
             $where = "WHERE " . $ilDB->in('object_data.type', array('role'), false, 'text') . " ";
         }
-        
+
         return $where;
     }
 
@@ -410,14 +405,14 @@ class ilRbacReview
                     $a_role_list[$key]["role_type"] = "linked";
                 }
             }
-            
+
             if ($val["protected"] == "y") {
                 $a_role_list[$key]["protected"] = true;
             } else {
                 $a_role_list[$key]["protected"] = false;
             }
         }
-        
+
         return $a_role_list;
     }
 
@@ -459,7 +454,7 @@ class ilRbacReview
 
         $ilBench = $DIC['ilBench'];
         $ilDB = $DIC['ilDB'];
-        
+
         if (!isset($a_rol_id)) {
             $message = get_class($this) . "::assignedUsers(): No role_id given!";
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
@@ -467,8 +462,8 @@ class ilRbacReview
         if (isset(self::$assigned_users_cache[$a_rol_id])) {
             return self::$assigned_users_cache[$a_rol_id];
         }
-        
-        $result_arr = array();
+
+        $result_arr = [];
 
         $query = "SELECT usr_id FROM rbac_ua WHERE rol_id= " . $ilDB->quote($a_rol_id, 'integer');
         $res = $ilDB->query($query);
@@ -511,7 +506,7 @@ class ilRbacReview
 
         return $is_assigned;
     }
-    
+
     /**
      * check if a specific user is assigned to at least one of the
      * given role ids.
@@ -538,7 +533,7 @@ class ilRbacReview
 
         return $ilDB->numRows($res) == 1;
     }
-    
+
     /**
      * get all assigned roles to a given user
      * @access	public
@@ -551,7 +546,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC->database();
-        
+
         $role_arr = [];
         $query = "SELECT rol_id FROM rbac_ua WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer');
 
@@ -561,7 +556,7 @@ class ilRbacReview
         }
         return $role_arr;
     }
-    
+
     /**
      * Get assigned global roles for an user
      * @param int	$a_usr_id	Id of user account
@@ -572,18 +567,18 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "SELECT ua.rol_id FROM rbac_ua ua " .
             "JOIN rbac_fa fa ON ua.rol_id = fa.rol_id " .
             "WHERE usr_id = " . $ilDB->quote($a_usr_id, 'integer') . ' ' .
             "AND parent = " . $ilDB->quote(ROLE_FOLDER_ID) . " " .
             "AND assign = 'y' ";
-        
+
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchObject($res)) {
             $role_arr[] = $row->rol_id;
         }
-        return $role_arr ? $role_arr : array();
+        return $role_arr ? $role_arr : [];
     }
 
     /**
@@ -619,11 +614,11 @@ class ilRbacReview
              "AND parent = " . $ilDB->quote($a_ref_id, 'integer') . " ";
         $res = $ilDB->query($query);
         $row = $ilDB->fetchObject($res);
-    
+
         $ilBench->stop("RBAC", "review_isAssignable");
         return $row->assign == 'y' ? true : false;
     }
-    
+
     /**
      * Temporary bugfix
      * @todo refactor rolf => DONE
@@ -634,7 +629,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "SELECT * FROM rbac_fa WHERE rol_id = " . $ilDB->quote($a_role_id, 'integer') . ' ' .
             "AND assign = " . $ilDB->quote('y', 'text');
         $res = $ilDB->query($query);
@@ -657,12 +652,12 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if (!isset($a_rol_id)) {
             $message = get_class($this) . "::getFoldersAssignedToRole(): No role_id given!";
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
-        
+
         if ($a_assignable) {
             $where = " AND assign ='y'";
         }
@@ -677,7 +672,7 @@ class ilRbacReview
         }
         return $folders;
     }
-    
+
     /**
      * Get roles of object
      * @param type $a_ref_id
@@ -690,7 +685,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if (!isset($a_ref_id)) {
             $GLOBALS['DIC']['ilLog']->logStack();
             throw new InvalidArgumentException(__METHOD__ . ': No ref_id given!');
@@ -703,16 +698,16 @@ class ilRbacReview
              $and;
 
         $res = $ilDB->query($query);
-        
-        $role_ids = array();
+
+        $role_ids = [];
         while ($row = $ilDB->fetchObject($res)) {
             $role_ids[] = $row->rol_id;
         }
         return $role_ids;
     }
-     
-    
-    
+
+
+
 
     /**
      * get all roles of a role folder including linked local roles that are created due to stopped inheritance
@@ -731,7 +726,7 @@ class ilRbacReview
         $ilBench = $DIC['ilBench'];
         $ilDB = $DIC['ilDB'];
         $ilLog = $DIC['ilLog'];
-        
+
         $ilBench->start("RBAC", "review_getRolesOfRoleFolder");
 
         if (!isset($a_ref_id)) {
@@ -739,7 +734,7 @@ class ilRbacReview
             ilLoggerFactory::getLogger('ac')->logStack();
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
-        
+
         if ($a_nonassignable === false) {
             $and = " AND assign='y'";
         }
@@ -755,9 +750,9 @@ class ilRbacReview
 
         $ilBench->stop("RBAC", "review_getRolesOfRoleFolder");
 
-        return $rol_id ? $rol_id : array();
+        return $rol_id ? $rol_id : [];
     }
-    
+
     /**
      * get only 'global' roles
      * @access	public
@@ -780,7 +775,7 @@ class ilRbacReview
 
         $ilDB = $DIC['ilDB'];
 
-        $lroles = array();
+        $lroles = [];
         foreach ($this->getRolesOfRoleFolder($a_ref_id) as $role_id) {
             if ($this->isAssignable($role_id, $a_ref_id)) {
                 $lroles[] = $role_id;
@@ -796,7 +791,7 @@ class ilRbacReview
      */
     public function getLocalPolicies($a_ref_id)
     {
-        $lroles = array();
+        $lroles = [];
         foreach ($this->getRolesOfRoleFolder($a_ref_id) as $role_id) {
             $lroles[] = $role_id;
         }
@@ -815,7 +810,7 @@ class ilRbacReview
             $ga[] = array('obj_id' => $role_id,
                           'role_type' => 'global');
         }
-        return $ga ? $ga : array();
+        return $ga ? $ga : [];
     }
 
     /**
@@ -834,7 +829,7 @@ class ilRbacReview
                               'role_type' => 'global');
             }
         }
-        return $ga ? $ga : array();
+        return $ga ? $ga : [];
     }
 
 
@@ -876,7 +871,7 @@ class ilRbacReview
                            'description' => $row->description);
         }
 
-        return $ops ? $ops : array();
+        return $ops ? $ops : [];
     }
 
     /**
@@ -899,9 +894,9 @@ class ilRbacReview
                          'description' => $row->description);
         }
 
-        return $ops ? $ops : array();
+        return $ops ? $ops : [];
     }
-    
+
     /**
      * get all possible operations of a specific role
      * The ref_id of the role folder (parent object) is necessary to distinguish local roles
@@ -920,19 +915,19 @@ class ilRbacReview
         if (!$a_parent) {
             $a_parent = ROLE_FOLDER_ID;
         }
-        
+
         $query = "SELECT ops_id,type FROM rbac_templates " .
             "WHERE rol_id = " . $ilDB->quote($a_rol_id, 'integer') . " " .
             "AND parent = " . $ilDB->quote($a_parent, 'integer');
         $res = $ilDB->query($query);
 
-        $ops_arr = array();
+        $ops_arr = [];
         while ($row = $ilDB->fetchObject($res)) {
             $ops_arr[$row->type][] = $row->ops_id;
         }
         return (array) $ops_arr;
     }
-    
+
     /**
      * Get active operations for a role
      * @param object $a_ref_id
@@ -945,18 +940,18 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = 'SELECT * FROM rbac_pa ' .
             'WHERE ref_id = ' . $ilDB->quote($a_ref_id, 'integer') . ' ' .
             'AND rol_id = ' . $ilDB->quote($a_role_id, 'integer') . ' ';
-            
+
         $res = $ilDB->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_ASSOC)) {
             return unserialize($row['ops_id']);
         }
-        return array();
+        return [];
     }
-    
+
 
     /**
      * get all possible operations of a specific role
@@ -974,7 +969,7 @@ class ilRbacReview
 
         $ilDB = $DIC['ilDB'];
         $ilLog = $DIC['ilLog'];
-        
+
         if (!isset($a_rol_id) or !isset($a_type)) {
             $message = get_class($this) . "::getOperationsOfRole(): Missing Parameter!" .
                        "role_id: " . $a_rol_id .
@@ -984,13 +979,13 @@ class ilRbacReview
             $this->ilErr->raiseError($message, $this->ilErr->WARNING);
         }
 
-        $ops_arr = array();
+        $ops_arr = [];
 
         // if no rolefolder id is given, assume global role folder as target
         if ($a_parent == 0) {
             $a_parent = ROLE_FOLDER_ID;
         }
-        
+
         $query = "SELECT ops_id FROM rbac_templates " .
              "WHERE type =" . $ilDB->quote($a_type, 'text') . " " .
              "AND rol_id = " . $ilDB->quote($a_rol_id, 'integer') . " " .
@@ -999,10 +994,10 @@ class ilRbacReview
         while ($row = $ilDB->fetchObject($res)) {
             $ops_arr[] = $row->ops_id;
         }
-        
+
         return $ops_arr;
     }
-    
+
     /**
      * @global ilDB $ilDB
      * @param type $a_role_id
@@ -1015,7 +1010,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "SELECT * FROM rbac_pa " .
             "WHERE rol_id = " . $ilDB->quote($a_role_id, 'integer') . " " .
             "AND ref_id = " . $ilDB->quote($a_ref_id, 'integer') . " ";
@@ -1025,7 +1020,7 @@ class ilRbacReview
             $ops = unserialize($row->ops_id);
         }
 
-        return $ops ? $ops : array();
+        return $ops ? $ops : [];
     }
 
     /**
@@ -1047,7 +1042,7 @@ class ilRbacReview
         }
 
         #$query = "SELECT * FROM rbac_ta WHERE typ_id = ".$ilDB->quote($a_typ_id,'integer');
-        
+
         $query = 'SELECT * FROM rbac_ta ta JOIN rbac_operations o ON ta.ops_id = o.ops_id ' .
             'WHERE typ_id = ' . $ilDB->quote($a_typ_id, 'integer') . ' ' .
             'ORDER BY op_order';
@@ -1058,7 +1053,7 @@ class ilRbacReview
             $ops_id[] = $row->ops_id;
         }
 
-        return $ops_id ? $ops_id : array();
+        return $ops_id ? $ops_id : [];
     }
 
     /**
@@ -1076,7 +1071,7 @@ class ilRbacReview
         $ilDB = $DIC['ilDB'];
 
         $query = "SELECT * FROM object_data WHERE type = 'typ' AND title = " . $ilDB->quote($a_type, 'text') . " ";
-            
+
 
         $res = $this->ilDB->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
@@ -1084,7 +1079,7 @@ class ilRbacReview
         }
         return false;
     }
-    
+
     /**
      * Get operations by type and class
      * @param string $a_type Type is "object" or
@@ -1097,13 +1092,13 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if ($a_class != 'create') {
             $condition = "AND class != " . $ilDB->quote('create', 'text');
         } else {
             $condition = "AND class = " . $ilDB->quote('create', 'text');
         }
-        
+
         $query = "SELECT ro.ops_id FROM rbac_operations ro " .
             "JOIN rbac_ta rt ON  ro.ops_id = rt.ops_id " .
             "JOIN object_data od ON rt.typ_id = od.obj_id " .
@@ -1111,17 +1106,17 @@ class ilRbacReview
             "AND title = " . $ilDB->quote($a_type, 'text') . " " .
             $condition . " " .
             "ORDER BY op_order ";
-            
+
         $res = $ilDB->query($query);
-        
-        $ops = array();
+
+        $ops = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $ops[] = $row->ops_id;
         }
         return $ops;
     }
 
-    
+
     /**
      * get all objects in which the inheritance of role with role_id was stopped
      * the function returns all reference ids of objects containing a role folder.
@@ -1131,26 +1126,26 @@ class ilRbacReview
      * @return	array	with ref_ids of objects
      * @todo refactor rolf => DONE
      */
-    public function getObjectsWithStopedInheritance($a_rol_id, $a_filter = array())
+    public function getObjectsWithStopedInheritance($a_rol_id, $a_filter = [])
     {
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         #$query = 'SELECT t.parent p FROM tree t JOIN rbac_fa fa ON fa.parent = child '.
         #	'WHERE assign = '.$ilDB->quote('n','text').' '.
         #	'AND rol_id = '.$ilDB->quote($a_rol_id,'integer').' ';
-        
+
         $query = 'SELECT parent p FROM rbac_fa ' .
                 'WHERE assign = ' . $ilDB->quote('n', 'text') . ' ' .
                 'AND rol_id = ' . $ilDB->quote($a_rol_id, 'integer') . ' ';
-        
+
         if ($a_filter) {
             $query .= ('AND ' . $ilDB->in('parent', (array) $a_filter, false, 'integer'));
         }
 
         $res = $ilDB->query($query);
-        $parent = array();
+        $parent = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $parent[] = $row->p;
         }
@@ -1169,12 +1164,12 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $q = "SELECT tree FROM tree WHERE child =" . $ilDB->quote($a_node_id) . " ";
         $r = $this->ilDB->query($q);
-        
+
         $row = $r->fetchRow(ilDBConstants::FETCHMODE_OBJECT);
-        
+
         if (!$row) {
             $message = sprintf(
                 '%s::isDeleted(): Role folder with ref_id %s not found!',
@@ -1190,10 +1185,10 @@ class ilRbacReview
         if ($row->tree < 0) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
      * Check if role is a global role
      * @param type $a_role_id
@@ -1204,7 +1199,7 @@ class ilRbacReview
     {
         return in_array($a_role_id, $this->getGlobalRoles());
     }
-    
+
     /**
      *
      * @global ilDB $ilDB
@@ -1219,7 +1214,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $assign = "y";
 
         switch ($a_filter) {
@@ -1239,7 +1234,7 @@ class ilRbacReview
             case self::FILTER_NOT_INTERNAL:
                 $where = 'WHERE ' . $ilDB->in('rbac_fa.rol_id', $this->getGlobalRoles(), true, 'integer');
                 break;
-                
+
             // all role templates
             case self::FILTER_TEMPLATES:
                 $where = "WHERE object_data.type = 'rolt'";
@@ -1250,14 +1245,14 @@ class ilRbacReview
             case 0:
             default:
                 if (!$a_user_id) {
-                    return array();
+                    return [];
                 }
 
                 $where = 'WHERE ' . $ilDB->in('rbac_fa.rol_id', $this->assignedRoles($a_user_id), false, 'integer') . ' ';
                 break;
         }
-        
-        $roles = array();
+
+        $roles = [];
 
         $query = "SELECT * FROM object_data " .
              "JOIN rbac_fa ON obj_id = rol_id " .
@@ -1271,7 +1266,7 @@ class ilRbacReview
                 '%' . $title_filter . '%'
             ));
         }
-        
+
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($res)) {
             $prefix = (substr($row["title"], 0, 3) == "il_") ? true : false;
@@ -1285,7 +1280,7 @@ class ilRbacReview
             if ($a_filter == 5 and $prefix) {
                 continue;
             }
-            
+
             $row["desc"] = $row["description"];
             $row["user_id"] = $row["owner"];
             $roles[] = $row;
@@ -1293,7 +1288,7 @@ class ilRbacReview
 
         $roles = $this->__setRoleType($roles);
 
-        return $roles ? $roles : array();
+        return $roles ? $roles : [];
     }
 
     /**
@@ -1312,7 +1307,7 @@ class ilRbacReview
         $q = "SELECT obj_id FROM object_data " .
              "WHERE title=" . $ilDB->quote($a_type, 'text') . " AND type='typ'";
         $r = $ilDB->query($q);
-        
+
         $row = $r->fetchRow(ilDBConstants::FETCHMODE_OBJECT);
         return $row->obj_id;
     }
@@ -1334,19 +1329,19 @@ class ilRbacReview
         $ilDB = $DIC['ilDB'];
 
         if (!count($operations)) {
-            return array();
+            return [];
         }
-        
+
         $query = 'SELECT ops_id FROM rbac_operations ' .
             'WHERE ' . $ilDB->in('operation', $operations, false, 'text');
-        
+
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchObject($res)) {
             $ops_ids[] = $row->ops_id;
         }
-        return $ops_ids ? $ops_ids : array();
+        return $ops_ids ? $ops_ids : [];
     }
-    
+
     /**
      * get operation id by name of operation
      * @access	public
@@ -1369,7 +1364,7 @@ class ilRbacReview
 
         // Cache operation ids
         if (!is_array(self::$_opsCache)) {
-            self::$_opsCache = array();
+            self::$_opsCache = [];
 
             $q = "SELECT ops_id, operation FROM rbac_operations";
             $r = $ilDB->query($q);
@@ -1384,7 +1379,7 @@ class ilRbacReview
         }
         return null;
     }
-    
+
     /**
      * Lookup operation ids
      * @param array $a_type_arr e.g array('cat','crs','grp'). The operation name (e.g. 'create_cat') is generated automatically
@@ -1396,33 +1391,33 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
-        $operations = array();
+
+        $operations = [];
         foreach ($a_type_arr as $type) {
             $operations[] = ('create_' . $type);
         }
-        
+
         if (!count($operations)) {
-            return array();
+            return [];
         }
-        
+
         $query = 'SELECT ops_id, operation FROM rbac_operations ' .
             'WHERE ' . $ilDB->in('operation', $operations, false, 'text');
-            
+
         $res = $ilDB->query($query);
-    
-        $ops_ids = array();
+
+        $ops_ids = [];
         while ($row = $ilDB->fetchObject($res)) {
             $type_arr = explode('_', $row->operation);
             $type = $type_arr[1];
-            
+
             $ops_ids[$type] = $row->ops_id;
         }
         return $ops_ids;
     }
 
 
-    
+
     /**
      * @todo refactor rolf => search calls
      * @global ilDB $ilDB
@@ -1442,10 +1437,10 @@ class ilRbacReview
              "WHERE rol_id = " . $ilDB->quote($a_role_id, 'integer') . " ";
         $res = $ilDB->query($query);
         $row = $ilDB->fetchAssoc($res);
-        
+
         return ilUtil::yn2tf($row['protected']);
     }
-    
+
     /**
      * Check if role is blocked at position
      * @global ilDB $ilDB
@@ -1458,7 +1453,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = 'SELECT blocked from rbac_fa ' .
                 'WHERE rol_id = ' . $ilDB->quote($a_role_id, 'integer') . ' ' .
                 'AND parent = ' . $ilDB->quote($a_ref_id, 'integer');
@@ -1468,7 +1463,7 @@ class ilRbacReview
         }
         return false;
     }
-    
+
     /**
      * Check if role is blocked in upper context
      * @param type $a_role_id
@@ -1480,7 +1475,7 @@ class ilRbacReview
 
         $ilDB = $DIC['ilDB'];
         $tree = $DIC['tree'];
-        
+
         if ($this->isBlockedAtPosition($a_role_id, $a_ref_id)) {
             return false;
         }
@@ -1488,12 +1483,12 @@ class ilRbacReview
                 'WHERE rol_id = ' . $ilDB->quote($a_role_id, 'integer') . ' ' .
                 'AND blocked = ' . $ilDB->quote(1, 'integer');
         $res = $ilDB->query($query);
-        
-        $parent_ids = array();
+
+        $parent_ids = [];
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             $parent_ids[] = $row->parent;
         }
-        
+
         foreach ($parent_ids as $parent_id) {
             if ($tree->isGrandChild($parent_id, $a_ref_id)) {
                 return true;
@@ -1501,7 +1496,7 @@ class ilRbacReview
         }
         return false;
     }
-    
+
     // this method alters the protected status of role regarding the current user's role assignment
     // and current postion in the hierarchy.
 
@@ -1518,58 +1513,40 @@ class ilRbacReview
      */
     protected function __setProtectedStatus($a_parent_roles, $a_role_hierarchy, $a_ref_id)
     {
-        //vd('refId',$a_ref_id,'parent roles',$a_parent_roles,'role-hierarchy',$a_role_hierarchy);
-        
         global $DIC;
 
         $rbacsystem = $DIC['rbacsystem'];
         $ilUser = $DIC['ilUser'];
         $log = $DIC['log'];
-        
+
         if (in_array(SYSTEM_ROLE_ID, $this->assignedRoles($ilUser->getId()))) {
             $leveladmin = true;
         } else {
             $leveladmin = false;
         }
-        #vd("RoleHierarchy",$a_role_hierarchy);
-        foreach ($a_role_hierarchy as $role_id => $rolf_id) {
-            //$log->write("ilRBACreview::__setProtectedStatus(), 0");
-            #echo "<br/>ROLF: ".$rolf_id." ROLE_ID: ".$role_id." (".$a_parent_roles[$role_id]['title'].") ";
-            //var_dump($leveladmin,$a_parent_roles[$role_id]['protected']);
 
+        foreach ($a_role_hierarchy as $role_id => $rolf_id) {
             if ($leveladmin == true) {
                 $a_parent_roles[$role_id]['protected'] = false;
                 continue;
             }
-                
+
             if ($a_parent_roles[$role_id]['protected'] == true) {
                 $arr_lvl_roles_user = array_intersect($this->assignedRoles($ilUser->getId()), array_keys($a_role_hierarchy, $rolf_id));
-                
-                #vd("intersection",$arr_lvl_roles_user);
-                
+
                 foreach ($arr_lvl_roles_user as $lvl_role_id) {
-                    #echo "<br/>level_role: ".$lvl_role_id;
-                    #echo "<br/>a_ref_id: ".$a_ref_id;
-                    
-                    //$log->write("ilRBACreview::__setProtectedStatus(), 1");
                     // check if role grants 'edit_permission' to parent
                     $rolf = $a_parent_roles[$role_id]['parent'];
-                    #$parent_obj = $GLOBALS['DIC']['tree']->getParentId($rolf);
                     if ($rbacsystem->checkPermission($rolf, $lvl_role_id, 'edit_permission')) {
-                        #echo "<br />Permission granted";
-                        //$log->write("ilRBACreview::__setProtectedStatus(), 2");
                         // user may change permissions of that higher-ranked role
                         $a_parent_roles[$role_id]['protected'] = false;
-                        
-                        // remember successful check
-                        //$leveladmin = true;
                     }
                 }
             }
         }
         return $a_parent_roles;
     }
-    
+
     /**
      * get operation list by object type
      * @access	public
@@ -1585,8 +1562,8 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-    
-        $arr = array();
+
+        $arr = [];
 
         if ($a_type) {
             $query = sprintf(
@@ -1614,7 +1591,7 @@ class ilRbacReview
         }
         return $arr;
     }
-    
+
     /**
      *
      * @param type $a_ops_arr
@@ -1623,7 +1600,7 @@ class ilRbacReview
      */
     public static function _groupOperationsByClass($a_ops_arr)
     {
-        $arr = array();
+        $arr = [];
 
         foreach ($a_ops_arr as $ops) {
             $arr[$ops['class']][] = array('ops_id' => $ops['ops_id'],
@@ -1645,23 +1622,23 @@ class ilRbacReview
     public function getObjectOfRole($a_role_id)
     {
         // internal cache
-        static $obj_cache = array();
+        static $obj_cache = [];
 
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
-        
+
+
         if (isset($obj_cache[$a_role_id]) and $obj_cache[$a_role_id]) {
             return $obj_cache[$a_role_id];
         }
-        
+
         $query = 'SELECT obr.obj_id FROM rbac_fa rfa ' .
                 'JOIN object_reference obr ON rfa.parent = obr.ref_id ' .
                 'WHERE assign = ' . $ilDB->quote('y', 'text') . ' ' .
                 'AND rol_id = ' . $ilDB->quote($a_role_id, 'integer') . ' ' .
                 'AND deleted IS NULL';
-        
+
         #$query = "SELECT obr.obj_id FROM rbac_fa rfa ".
         #	"JOIN tree ON rfa.parent = tree.child ".
         #	"JOIN object_reference obr ON tree.parent = obr.ref_id ".
@@ -1669,14 +1646,14 @@ class ilRbacReview
         #	"AND assign = 'y' ".
         #	"AND rol_id = ".$ilDB->quote($a_role_id,'integer')." ";
         $res = $ilDB->query($query);
-        
+
         $obj_cache[$a_role_id] = 0;
         while ($row = $ilDB->fetchObject($res)) {
             $obj_cache[$a_role_id] = $row->obj_id;
         }
         return $obj_cache[$a_role_id];
     }
-    
+
     /**
      * Get reference of role
      * @param object $a_role_id
@@ -1688,18 +1665,18 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = 'SELECT parent p_ref FROM rbac_fa ' .
                 'WHERE rol_id = ' . $ilDB->quote($a_role_id, 'integer') . ' ' .
                 'AND assign = ' . $ilDB->quote('y', 'text');
-        
+
         $res = $ilDB->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {
             return $row->p_ref;
         }
         return 0;
     }
-    
+
     /**
      * return if role is only attached to deleted role folders
      *
@@ -1722,8 +1699,8 @@ class ilRbacReview
         }
         return $deleted;
     }
-    
-    
+
+
     /**
      * @global ilDB $ilDB
      * @param type $role_ids
@@ -1736,8 +1713,8 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
-        $role_list = array();
+
+        $role_list = [];
 
         $where = $this->__setTemplateFilter($use_templates);
 
@@ -1746,18 +1723,18 @@ class ilRbacReview
              $where .
              "AND rbac_fa.assign = 'y' " .
              'AND ' . $ilDB->in('object_data.obj_id', $role_ids, false, 'integer');
-             
+
         $res = $ilDB->query($query);
         while ($row = $ilDB->fetchAssoc($res)) {
             $row["desc"] = $row["description"];
             $row["user_id"] = $row["owner"];
             $role_list[] = $row;
         }
-        
+
         $role_list = $this->__setRoleType($role_list);
         return $role_list;
     }
-    
+
     /**
      * get operation assignments
      * @return array array(array('typ_id' => $typ_id,'title' => $title,'ops_id => '$ops_is,'operation' => $operation),...
@@ -1773,7 +1750,7 @@ class ilRbacReview
              'JOIN object_data obj ON obj.obj_id = ta.typ_id ' .
              'JOIN rbac_operations ops ON ops.ops_id = ta.ops_id ';
         $res = $ilDB->query($query);
-        
+
         $counter = 0;
         while ($row = $ilDB->fetchObject($res)) {
             $info[$counter]['typ_id'] = $row->typ_id;
@@ -1782,9 +1759,9 @@ class ilRbacReview
             $info[$counter]['operation'] = $row->operation;
             $counter++;
         }
-        return $info ? $info : array();
+        return $info ? $info : [];
     }
-    
+
     /**
      * Check if role is deleteable at a specific position
      * @param object $a_role_id
@@ -1819,6 +1796,33 @@ class ilRbacReview
     }
 
 
+    public function getParentOfRole(int $role_id, ?int $object_ref = null) : ?int
+    {
+        global $DIC;
+        /** @var ilTree $tree */
+        $tree = $DIC['tree'];
+
+        if ($object_ref === null || $object_ref === ROLE_FOLDER_ID) {
+            return $this->getRoleFolderOfRole($role_id);
+        }
+
+
+        $path_ids = $tree->getPathId($object_ref);
+        array_unshift($path_ids, ROLE_FOLDER_ID);
+
+        while ($ref_id = array_pop($path_ids)) {
+            $roles = $this->getRoleListByObject($ref_id, false);
+            foreach ($roles as $role) {
+                if ((int) $role['obj_id'] === $role_id) {
+                    return $ref_id;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
     /**
      * Get role folder of role
      * @global ilDB $ilDB
@@ -1831,7 +1835,7 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         if (ilObject::_lookupType($a_role_id) == 'role') {
             $and = ('AND assign = ' . $ilDB->quote('y', 'text'));
         } else {
@@ -1847,7 +1851,7 @@ class ilRbacReview
         }
         return 0;
     }
-    
+
     /**
      * Get all user permissions on an object
      *
@@ -1860,27 +1864,27 @@ class ilRbacReview
         global $DIC;
 
         $ilDB = $DIC['ilDB'];
-        
+
         $query = "SELECT ops_id FROM rbac_pa JOIN rbac_ua " .
             "ON (rbac_pa.rol_id = rbac_ua.rol_id) " .
             "WHERE rbac_ua.usr_id = " . $ilDB->quote($a_user_id, 'integer') . " " .
             "AND rbac_pa.ref_id = " . $ilDB->quote($a_ref_id, 'integer') . " ";
 
         $res = $ilDB->query($query);
-        $all_ops = array();
+        $all_ops = [];
         while ($row = $ilDB->fetchObject($res)) {
             $ops = unserialize($row->ops_id);
             $all_ops = array_merge($all_ops, $ops);
         }
         $all_ops = array_unique($all_ops);
-        
+
         $set = $ilDB->query("SELECT operation FROM rbac_operations " .
             " WHERE " . $ilDB->in("ops_id", $all_ops, false, "integer"));
-        $perms = array();
+        $perms = [];
         while ($rec = $ilDB->fetchAssoc($set)) {
             $perms[] = $rec["operation"];
         }
-        
+
         return $perms;
     }
 
@@ -1905,13 +1909,13 @@ class ilRbacReview
     {
         return self::$is_assigned_cache[$a_role_id][$a_user_id];
     }
-    
+
     /**
      * Clear assigned users caches
      */
     public function clearCaches()
     {
-        self::$is_assigned_cache = array();
-        self::$assigned_users_cache = array();
+        self::$is_assigned_cache = [];
+        self::$assigned_users_cache = [];
     }
 } // END class.ilRbacReview

@@ -1554,9 +1554,6 @@ class ilObject
         $ilDB = $this->db;
         $ilAppEventHandler = $this->app_event_handler;
         $ilErr = $this->error;
-        /**
-         * @var $ilAppEventHandler ilAppEventHandler
-         */
 
         $remove = false;
 
@@ -1604,18 +1601,6 @@ class ilObject
 
             include_once './Services/DidacticTemplate/classes/class.ilDidacticTemplateObjSettings.php';
             ilDidacticTemplateObjSettings::deleteByObjId($this->getId());
-
-            /* remove notes (see infoscreen gui)
-               as they can be seen as personal data we are keeping them for now
-            include_once("Services/Notes/classes/class.ilNote.php");
-            foreach(array(IL_NOTE_PRIVATE, IL_NOTE_PUBLIC) as $note_type)
-            {
-                foreach(ilNote::_getNotesOfObject($this->id, 0, $this->type, $note_type) as $note)
-                {
-                    $note->delete();
-                }
-            }
-            */
 
             // BEGIN WebDAV: Delete WebDAV properties
             $query = "DELETE FROM dav_property " .
