@@ -249,75 +249,7 @@ class ilUserUtil
     }
     // fau.
 
-
-    // fau: courseDummyAcc - new function _createDummyAccount
-    /**
-    * Create a dummy account for course registration
-    *
-    * Account is created as inactive user user role
-    * Final user data will be set when user logs in by SSO
-    */
-    public static function _createDummyAccount(
-        $a_identity,
-        $a_firstname = '',
-        $a_lastname = '',
-        $a_email = ''
-    ) {
-        global $ilias, $rbacadmin;
-
-        $userObj = new ilObjUser();
-
-        // set arguments (may differ)
-        $userObj->setLogin($a_identity);
-        $userObj->setFirstname($a_firstname);
-        $userObj->setLastname($a_lastname);
-        $userObj->setEmail($a_email);
-
-        // set authentication
-        $userObj->setPasswd(rand(10000, 99999));
-
-        // set the identity as external account for shibboleth authentication
-        // if it is not already set by another account
-        if (empty(ilObjUser::_findLoginByField('ext_account', $a_identity))) {
-            $userObj->setExternalAccount($a_identity);
-            $userObj->setAuthMode('shibboleth');
-        }
-        else {
-            $userObj->setAuthMode('local');
-        }
-
-        // set dependent data
-        $userObj->setFullname();
-        $userObj->setTitle($userObj->getFullname());
-        $userObj->setDescription($userObj->getEmail());
-
-        // set time limit
-        $userObj->setTimeLimitOwner(7);
-        $userObj->setTimeLimitUnlimited(1);     // TODO: may be different for external users
-        $userObj->setTimeLimitFrom(time());		// ""
-        $userObj->setTimeLimitUntil(time());    // ""
-
-        // create the user object
-        $userObj->create();
-        $userObj->setActive(0);                 // inactive user
-        $userObj->updateOwner();
-        $userObj->saveAsNew();
-
-        //set personal preferences
-        $userObj->setLanguage("de");
-        $userObj->setPref("hits_per_page", max($ilias->getSetting("hits_per_page"), 100));
-        $userObj->setPref("show_users_online", "y");
-        $userObj->writePrefs();
-
-        // assign the user role
-        // todo: role id 4 is hard-coded
-        $rbacadmin->assignUser(4, $userObj->getId(), true);
-
-        // return the user id
-        return $userObj->getId();
-    }
-    // fau.
-
+    
 
     // fau: samlAuth - get the logout link dependent from authentication
     /**
