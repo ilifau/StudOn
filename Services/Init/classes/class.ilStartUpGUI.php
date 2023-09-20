@@ -277,6 +277,13 @@ class ilStartUpGUI
             ilUtil::sendFailure($GLOBALS['lng']->txt('auth_err_expired'));
         }
 
+        // fau: samlAuth - show a message if a reason is provided in the login link 
+        if (isset($this->httpRequest->getQueryParams()['reason'])) {
+            $reason = ilUtil::secureString($this->httpRequest->getQueryParams()['reason']);
+            ilUtil::sendFailure($GLOBALS['lng']->txt($reason) . $GLOBALS['lng']->txt('err_wrong_login_assist'));
+        }
+        // fau.
+
         if (strlen($page_editor_html)) {
             $tpl->setVariable('LPE', $page_editor_html);
         }
