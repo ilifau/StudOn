@@ -90,13 +90,19 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 if (!ilCust::get('shib_allow_create')) {
                     $this->getLogger()->warning('Creation of new users from SAML authentication is prevented.');
                     $this->handleAuthenticationFail($status, 'shib_user_not_found');
+                    $factory = new ilSamlAuthFactory();
+                    $auth = $factory->auth();
+                    $auth->logout(ILIAS_HTTP_PATH . '/login.php?cmd=force_login&reason=shib_user_not_found');
                     return false;
                 }
 
                 // check the minimum attributes needed for new users
                 if (empty($this->identity->getGivenName()) || empty($this->identity->getSn())) {
-                    $this->getLogger()->warning('Could not create new user because firstname or lastname is m missing in SAML attributes.');
+                    $this->getLogger()->warning('Could not create new user because firstname or lastname is missing in SAML attributes.');
                     $this->handleAuthenticationFail($status, 'shib_data_missing');
+                    $factory = new ilSamlAuthFactory();
+                    $auth = $factory->auth();
+                    $auth->logout(ILIAS_HTTP_PATH . '/login.php?cmd=force_login&reason=shib_data_missing');
                     return false;
                 }
                 $user = $this->getNewUser($login);
