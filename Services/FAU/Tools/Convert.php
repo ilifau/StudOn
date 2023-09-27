@@ -84,8 +84,8 @@ class Convert
         }
 
         try {
-            $date = new \ilDate($unix_timestamp, IL_CAL_UNIX);
-            return $date->get(IL_CAL_DATE);
+            $datetime = new \ilDateTime($unix_timestamp, IL_CAL_UNIX);
+            return $datetime->get(IL_CAL_DATE);
         }
         catch (Throwable $throwable) {
             return null;

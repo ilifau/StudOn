@@ -44,6 +44,8 @@ $p->login();
 //$p->applyPatch('ilFauPatches.cleanupDoubleAccounts');
 //$p->applyPatch('ilFauPatches.migrateToShibboleth', ['logins' => ['ox33yhir']]);
 
+//$p->applyPatch('ilFauPatches.remindExmatriculation', ['logins' => ['fred.neumann']]);
+
 /*****************
 * Specific actions
 ******************/
@@ -67,6 +69,7 @@ $p->login();
 //$p->applyPatch('ilSpecificPatches.renameObjects');
 //$p->applyPatch('ilSpecificPatches.syncExamUsers', ["deactivate_missing" => true, "deactivate_participants" => true]);
 
+
 /***********
  * Cleanups
  **********/
@@ -82,7 +85,7 @@ $p->login();
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'grp', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'crs', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'cat', 'deleted_before' => '2022-10-01 00:00:00', 'limit' => null));
-$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2022-10-01 00:00:00'));
+//$p->applyPatch('ilCleanupPatches.deleteOldPageHistory', array('delete_until' => '2022-10-01 00:00:00'));
 //$p->applyPatch('ilCleanupPatches.moveDeletedMediaObjects', array('keep_deleted_after' => '2022-10-01 00:00:00'));
 
 //$p->applyPatch('ilCleanupPatches.setOldUsersInactive', array('inactive_since' => '2022-04-01 00:00:00', 'limit' => null));

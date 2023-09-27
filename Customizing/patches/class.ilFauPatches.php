@@ -315,6 +315,79 @@ JOIN object_reference r2 ON r2.obj_id = o2.obj_id AND r2.deleted IS NULL
         }
     }
 
+
+    public function remindExmatriculation($params = ['logins' => []])
+    {
+        global $DIC;
+        $studyService = $this->dic->fau()->study();
+        
+        $mail_template = file_get_contents(__DIR__ . '/remind_exmatriculation.html');
+
+        $switch_time = $studyService->getTermEndTime($studyService->getCurrentTerm());
+        $switch_date = new ilDate($this->dic->fau()->tools()->convert()->unixToDbDate($switch_time), IL_CAL_DATE);
+        $switch_date_display = ilDatePresentation::formatDate($switch_date);
+        $next_term_string = $studyService->getNextTerm()->toString();
+        
+        $query = "
+SELECT usr_id, login, firstname, lastname, ext_account, email
+FROM usr_data u
+JOIN fau_user_persons p ON p.user_id = u.usr_id
+WHERE u.auth_mode = 'shibboleth'
+AND u.active = 1 
+AND (u.time_limit_unlimited = 1 OR u.time_limit_until > $switch_time)
+AND u.ext_account IS NOT NULL
+AND p.employee IS NULL
+AND p.guest IS NULL
+AND p.student IS NOT NULL
+AND p.studydata NOT LIKE '%\"P$next_term_string\":%'
+ORDER BY lastname, firstname, login
+        ";
+        
+        echo $query;        
+        
+        if (!empty($params['logins'])) {
+            $query = "
+                SELECT usr_id, login, firstname, lastname, ext_account, email 
+                FROM usr_data u WHERE " 
+                . $this->dic->database()->in('login', $params['logins'], false, 'text');
+            
+            echo "\n". $query;
+        }
+
+        $result = $this->dic->database()->query($query);
+        $count = 0;
+        while ($row = $this->dic->database()->fetchAssoc($result)) {
+            $count++;
+
+            $lastname = $row['lastname'];
+            $firstname = $row['firstname'];
+            $usr_id = $row['usr_id'];
+            $login = $row['login'];
+            $ext_account = $row['ext_account'];
+            $email = $row['email'];
+            
+            echo "\n". $lastname . ',' . $firstname . ', ' . $login . ' => ' . $ext_account;
+            
+            $salutation = ilMail::getSalutation($usr_id);
+            $to = $email;
+
+            $body = $mail_template;
+            $body = str_replace('{date}', $switch_date_display, $body);
+            $body = str_replace('{salutation}', $salutation, $body);
+            $body = str_replace('{login}', $login, $body);
+
+            $mail = new ilMimeMail();
+            $mail->To($to);
+            $mail->Subject('StudOn-Nutzung nach dem ' . $switch_date_display);
+            $mail->Body($body);
+            $mail->From(new ilMailMimeSenderSystem($this->dic->settings()));
+            $mail->send();
+        }
+        
+        echo "\nTotal:" . $count;
+    }
+
+
     /**
      * Remove courses that were automatically created because the old courses lost their campo connection
      * This happened because up to March 3, 2023 all courses were transferred to studon, after that date only the released ones
