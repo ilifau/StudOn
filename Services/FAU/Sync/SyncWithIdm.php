@@ -93,7 +93,7 @@ class SyncWithIdm extends SyncBase
                 continue;
             }
 
-            $this->info("\nMIGRATE " . $userData->getFirstname() . ' ' . $userData->getLastname() . ' (' . $userData->getLogin() . ')');
+            $this->info("MIGRATE " . $userData->getFirstname() . ' ' . $userData->getLastname() . ' (' . $userData->getLogin() . ')');
             $count++;
             
             $userObj = new ilObjUser($userData->getUserId());
@@ -160,7 +160,7 @@ class SyncWithIdm extends SyncBase
                 continue;
             }
             
-            $this->info("\nMIGRATE " . $userData->getFirstname() . ' ' . $userData->getLastname() . ' (' . $userData->getLogin() . ')');
+            $this->info("MIGRATE " . $userData->getFirstname() . ' ' . $userData->getLastname() . ' (' . $userData->getLogin() . ')');
             $count++;
 
             $userObj = new ilObjUser($userData->getUserId());
