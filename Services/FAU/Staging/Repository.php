@@ -63,6 +63,15 @@ class Repository extends RecordRepo
     {
         return $this->getAllRecords(Identity::model(), false);
     }
+
+    /**
+     * @return string[]
+     */
+    public function getPersistentIds() : array
+    {
+        $query = "SELECT pk_persistent_id FROM identities";
+        return $this->getStringList($query, 'pk_persistent_id', false);
+    }
     
     /**
      * @return Achievement[]

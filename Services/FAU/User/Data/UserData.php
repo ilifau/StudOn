@@ -20,7 +20,9 @@ class UserData extends RecordData
         'lastname' => 'text',
         'gender' => 'text',
         'email' => 'text',
-        'matriculation' => 'text'
+        'matriculation' => 'text',
+        'ext_account' => 'text',
+        'idle_ext_account' => 'text'
     ];
 
 
@@ -31,6 +33,8 @@ class UserData extends RecordData
     protected ?string $gender;
     protected ?string $mail;
     protected ?string $matriculation;
+    protected ?string $ext_account;
+    protected ?string $idle_ext_account;
 
     protected ?Person $person = null;
     protected ?bool $public_profile = false;
@@ -46,7 +50,9 @@ class UserData extends RecordData
         string $lastname,
         ?string $gender,
         ?string $email,
-        ?string $matriculation
+        ?string $matriculation,
+        ?string $ext_account,
+        ?string $idle_ext_account
     ) {
         $this->usr_id = $usr_id;
         $this->login = $login;
@@ -55,11 +61,13 @@ class UserData extends RecordData
         $this->gender = $gender;
         $this->email = $email;
         $this->matriculation = $matriculation;
+        $this->ext_account = $ext_account;
+        $this->idle_ext_account = $idle_ext_account;
     }
 
     public static function model()
     {
-        return new self(0, '', '', '', null, null, null, null);
+        return new self(0, '', '', '', null, null, null, null, null);
     }
 
     /**
@@ -116,6 +124,22 @@ class UserData extends RecordData
     public function getMatriculation() : ?string
     {
         return $this->matriculation;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getExtAccount(): ?string
+    {
+        return $this->ext_account;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getIdleExtAccount(): ?string
+    {
+        return $this->idle_ext_account;
     }
 
     /**

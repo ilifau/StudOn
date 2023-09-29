@@ -42,9 +42,8 @@ $p->login();
 
 //$p->applyPatch('ilFauPatches.removeUntouchedDoubleCourses');
 //$p->applyPatch('ilFauPatches.cleanupDoubleAccounts');
-//$p->applyPatch('ilFauPatches.migrateToShibboleth', ['logins' => ['ox33yhir']]);
 
-//$p->applyPatch('ilFauPatches.remindExmatriculation', ['logins' => ['fred.neumann']]);
+//$p->applyPatch('ilFauPatches.remindExmatriculation', ['login' => 'fred.neumann']);
 
 /*****************
 * Specific actions

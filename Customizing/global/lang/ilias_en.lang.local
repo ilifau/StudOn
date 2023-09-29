@@ -724,6 +724,8 @@ fau#:#sso_change_none#:#None of the accounts belong to me. I would like a new St
 fau#:#sso_change_please_select#:#Please select one of the options offered!
 fau#:#sso_change_password_required#:#The password must be entered!
 fau#:#sso_change_password_is_wrong#:#The password entered is incorrect!
+fau#:#sso_mail_migrate_local#:#Migration of your StudOn Account %s to Local Login
+fau#:#sso_mail_migrate_sso#:#Migration of your StudOn Account %s to Single Sign-On
 fau#:#studycond_add_condition#:#add condition
 fau#:#studycond_add_course_condition#:#Add Study Condition
 fau#:#studycond_add_doc_condition#:#Add Promotion Condition

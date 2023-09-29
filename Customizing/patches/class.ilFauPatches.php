@@ -269,54 +269,8 @@ JOIN object_reference r2 ON r2.obj_id = o2.obj_id AND r2.deleted IS NULL
             $this->dic->database()->manipulate($query2);
         }
     }
-
-
-    public function migrateToShibboleth($params = ['logins' => []])
-    {
-        $mail_template = file_get_contents(__DIR__ . '/migrate_to_shibboleth.html');
-
-        $query = "SELECT usr_id, login, firstname, lastname, auth_mode, ext_account FROM usr_data WHERE auth_mode <> 'shibboleth' AND ext_account IS NOT NULL";
-        if (!empty($params['logins'])) {
-            $query .= ' AND ' . $this->dic->database()->in('login', $params['logins'], false, 'text');
-        }
-
-        $result = $this->dic->database()->query($query);
-        while ($row = $this->dic->database()->fetchAssoc($result)) {
-
-            $usr_id = $row['usr_id'];
-            $login = $row['login'];
-            $ext_account = $row['ext_account'];
-
-
-            if (empty($this->dic->fau()->staging()->repo()->getIdentity($ext_account))) {
-                continue;
-            }
-
-            echo "\n". $login . ' => ' . $ext_account;
-
-            $user = new ilObjUser($usr_id);
-            $user->setAuthMode('shibboleth');
-            $user->update();
-
-            $salutation = ilMail::getSalutation($usr_id);
-            $to = $user->getEmail();
-
-            $body = $mail_template;
-            $body = str_replace('{salutation}', $salutation, $body);
-            $body = str_replace('{login}', $login, $body);
-            $body = str_replace('{ext_account}', $ext_account, $body);
-
-            $mail = new ilMimeMail();
-            $mail->To($to);
-            $mail->Subject('Umstellung Ihres StudOn-Accounts auf Single Sign-On');
-            $mail->Body($body);
-            $mail->From(new ilMailMimeSenderSystem($this->dic->settings()));
-            $mail->send();
-        }
-    }
-
-
-    public function remindExmatriculation($params = ['logins' => []])
+    
+    public function remindExmatriculation($params = ['login' => null])
     {
         global $DIC;
         $studyService = $this->dic->fau()->study();
@@ -345,11 +299,11 @@ ORDER BY lastname, firstname, login
         
         echo $query;        
         
-        if (!empty($params['logins'])) {
+        if (!empty($params['login'])) {
             $query = "
                 SELECT usr_id, login, firstname, lastname, ext_account, email 
-                FROM usr_data u WHERE " 
-                . $this->dic->database()->in('login', $params['logins'], false, 'text');
+                FROM usr_data u WHERE login = " 
+                . $this->dic->database()->quote($params['login'], 'text');
             
             echo "\n". $query;
         }

@@ -803,6 +803,8 @@ fau#:#sso_change_none#:#Keines der Konten gehört zu mir. Ich möchte ein neues 
 fau#:#sso_change_please_select#:#Bitte wählen Sie eine der angebotenen Optionen!
 fau#:#sso_change_password_required#:#Die Eingabe des Passworts ist erforderlich!
 fau#:#sso_change_password_is_wrong#:#Das eingegebene Passwort ist falsch!
+fau#:#sso_mail_migrate_local#:#Umstellung Ihres StudOn-Benutzerkontos %s auf lokale Anmeldung
+fau#:#sso_mail_migrate_sso#:#Umstellung Ihres StudOn-Benutzerkontos %s auf Single Sign-On
 fau#:#fau_read_only#:#Schreibgeschützt
 fau#:#fau_your_courses_of_study#:#Ihre Studiengänge
 fau#:#fau_transfer_course#:#Campo-Verbindung übertragen

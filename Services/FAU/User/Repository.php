@@ -275,7 +275,7 @@ class Repository extends RecordRepo
      */
     public function getUserData(array $user_ids) : array
     {
-        $query = "SELECT usr_id, login, firstname, lastname, gender, email, matriculation FROM usr_data WHERE "
+        $query = "SELECT usr_id, login, firstname, lastname, gender, email, matriculation, ext_account, idle_ext_account FROM usr_data WHERE "
             . $this->db->in('usr_id', $user_ids, false, 'integer');
         return $this->queryRecords($query, UserData::model(), false, true);
     }
@@ -287,7 +287,7 @@ class Repository extends RecordRepo
      */
     public function getUserDataOfPersons(array $person_ids) : array
     {
-        $query = "SELECT u.usr_id, u.login, u.firstname, u.lastname, u.gender, u.email, u.matriculation 
+        $query = "SELECT u.usr_id, u.login, u.firstname, u.lastname, u.gender, u.email, u.matriculation, u.ext_account, u.idle_ext_account 
             FROM usr_data u
             JOIN fau_user_persons p ON p.user_id = u.usr_id
             WHERE " . $this->db->in('person_id', $person_ids, false, 'integer');
@@ -295,6 +295,34 @@ class Repository extends RecordRepo
 
     }
 
+    /**
+     * Get the basic data of user accounts with single sign-on
+     * @return UserData[]
+     */
+    public function getUserDataWithSSO(string $login = null) : array
+    {
+        $query = "SELECT usr_id, login, firstname, lastname, gender, email, matriculation, ext_account, idle_ext_account FROM usr_data WHERE auth_mode = 'shibboleth'";
+        if (isset($login)) {
+            $query .= " AND login = " . $this->db->quote($login, 'text');
+        }
+        return $this->queryRecords($query, UserData::model());
+    }
+
+    /**
+     * Get the basic data of user accounts with former single sign-on
+     * These accounts have the former ext_account in the field idle_ext_account
+     * @return UserData[]
+     */
+    public function getUserDataWithFormerSSO(string $login = null) : array
+    {
+        $query = "SELECT usr_id, login, firstname, lastname, gender, email, matriculation, ext_account, idle_ext_account FROM usr_data WHERE auth_mode <> 'shibboleth' AND idle_ext_account IS NOT NULL";
+        if (isset($login)) {
+            $query .= " AND login = " . $this->db->quote($login, 'text');
+        }
+        return $this->queryRecords($query, UserData::model());
+    }
+
+    
     /**
      * Add the info about public profile to the data of users
      * @param UserData[] $users

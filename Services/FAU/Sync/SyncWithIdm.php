@@ -16,13 +16,18 @@ use ILIAS\DI\Exceptions\Exception;
  */
 class SyncWithIdm extends SyncBase
 {
-
+    const ROLE_USER = 4;
+    const ROLE_GUEST = 5;
+    
+    
     /**
      * Synchronize data (called by cron job)
-     * Counted items are the persons
+     * Counted items are the updated persons
      */
     public function synchronize() : void
     {
+        $this-$this->migrateToLocal();
+        $this->migrateToSSO();
         $this->syncPersonData();
     }
 
@@ -60,6 +65,145 @@ class SyncWithIdm extends SyncBase
     }
 
 
+
+    /**
+     * Migrate accounts from SSO to local authentication if no idm data is available
+     * @param string|null $login
+     * @return void
+     * @throws \ilDateTimeException
+     */
+    public function migrateToLocal(string $login = null) 
+    {
+        $mail_template_de = file_get_contents(__DIR__ . '/templates/mail_migrate_local_de.html');
+        $mail_template_en = file_get_contents(__DIR__ . '/templates/mail_migrate_local_en.html');
+
+        $now = new \ilDateTime(time(), IL_CAL_UNIX);
+        $limit = new \ilDate($now->get(IL_CAL_DATE), IL_CAL_DATE);
+        $limit->increment(IL_CAL_YEAR, 1);
+
+        $this->info("Set account limits to " . \ilDatePresentation::formatDate($limit));
+        
+        $persistent_ids = $this->staging->repo()->getPersistentIds();
+        $users = $this->user->repo()->getUserDataWithSSO($login);
+
+        $count = 0;
+        foreach ($users as $userData) {
+            
+            if (in_array($userData->getExtAccount(), $persistent_ids)) {
+                continue;
+            }
+
+            $this->info("\nMIGRATE " . $userData->getFirstname() . ' ' . $userData->getLastname() . ' (' . $userData->getLogin() . ')');
+            $count++;
+            
+            $userObj = new ilObjUser($userData->getUserId());
+            $userObj->setAuthMode('local');
+            $userObj->setPasswd(random_bytes(20), IL_PASSWD_PLAIN);
+            $userObj->setIdleExtAccount($userObj->getExternalAccount());
+            $userObj->setExternalAccount(null);
+            $userObj->setTimeLimitUnlimited(false);
+            $userObj->setTimeLimitFrom($now->get(IL_CAL_UNIX));
+            $userObj->setTimeLimitUntil($limit->get(IL_CAL_UNIX));
+            $userObj->update();
+
+            $this->dic->rbac()->admin()->assignUser(self::ROLE_GUEST, $userObj->getId());
+            $this->dic->rbac()->admin()->deassignUser(self::ROLE_USER, $userObj->getId());
+
+            $salutation = \ilMail::getSalutation($userObj->getId());
+            $to = $userObj->getEmail();
+
+            $body = $userObj->getLanguage() == 'de' ? $mail_template_de : $mail_template_en;
+            $body = str_replace('{limit}', \ilDatePresentation::formatDate($limit), $body);
+            $body = str_replace('{salutation}', $salutation, $body);
+            $body = str_replace('{login}', $userObj->getLogin(), $body);
+
+            $mail = new \ilMimeMail();
+            $mail->To($userObj->getEmail());
+            $mail->Subject(sprintf($this->dic->language()->txtlng('fau', 'sso_mail_migrate_local', $userObj->getLanguage()), $userObj->getLogin()));
+            $mail->Body($body);
+            $mail->From(new \ilMailMimeSenderSystem($this->dic->settings()));
+            $mail->send();
+        }
+        $this->info("Migrated: " . $count);
+    }
+
+    /**
+     * Migrate accounts from local authentication to SSO if idm data is available
+     * @param string|null $login
+     * @return void
+     * @throws \ilDateTimeException
+     */
+    public function migrateToSSO(string $login = null)
+    {
+        $mail_template_de = file_get_contents(__DIR__ . '/templates/mail_migrate_sso_de.html');
+        $mail_template_en = file_get_contents(__DIR__ . '/templates/mail_migrate_sso_en.html');
+        
+        $persistent_ids = $this->staging->repo()->getPersistentIds();
+        if (empty($persistent_ids)) {
+            // no or wrong connection to the idm database
+            return;
+        }
+        $users = $this->user->repo()->getUserDataWithFormerSSO($login);
+
+        $count = 0;
+        foreach ($users as $userData) {
+
+            if (!in_array($userData->getIdleExtAccount(), $persistent_ids)) {
+                continue;
+            }
+
+            // prevent double use of external account
+            if (ilObjUser::_checkExternalAuthAccount('shibboleth', $userData->getIdleExtAccount())) {
+                $userObj = new ilObjUser($userData->getUserId());
+                $userObj->setIdleExtAccount(null);
+                $userObj->update();
+                continue;
+            }
+            
+            $this->info("\nMIGRATE " . $userData->getFirstname() . ' ' . $userData->getLastname() . ' (' . $userData->getLogin() . ')');
+            $count++;
+
+            $userObj = new ilObjUser($userData->getUserId());
+            $userObj->setAuthMode('shibboleth');
+            $userObj->setExternalAccount($userObj->getIdleExtAccount());
+            $userObj->setIdleExtAccount(null);
+
+            // reset agreement to force a new acceptance if user is not active
+            if (!$userObj->getActive() || !$userObj->checkTimeLimit()) {
+                $userObj->setAgreeDate(null);
+            }
+
+            // activate an inactive or timed out account 
+            // it is assumed that all users with idm data are allowed to access studon
+            $userObj->setActive(1, 6);
+            $userObj->setTimeLimitUnlimited(true);
+            $userObj->setTimeLimitOwner(7);
+            $userObj->update();
+
+            // apply the IDM data and update the user
+            // this also sets the global role according to the shibboleth assignment rules
+            $identity = $this->dic->fau()->staging()->repo()->getIdentity($userObj->getExternalAccount());
+            $this->applyIdentityToUser($identity, $userObj);
+
+            $salutation = \ilMail::getSalutation($userObj->getId());
+            $to = $userObj->getEmail();
+
+            $body = $userObj->getLanguage() == 'de' ? $mail_template_de : $mail_template_en;
+            $body = str_replace('{salutation}', $salutation, $body);
+            $body = str_replace('{login}', $userObj->getLogin(), $body);
+            $body = str_replace('{ext_account}', $userObj->getExternalAccount(), $body);
+
+            $mail = new \ilMimeMail();
+            $mail->To($userObj->getEmail());
+            $mail->Subject(sprintf($this->dic->language()->txtlng('fau', 'sso_mail_migrate_sso', $userObj->getLanguage()), $userObj->getLogin()));
+            $mail->Body($body);
+            $mail->From(new \ilMailMimeSenderSystem($this->dic->settings()));
+            $mail->send();
+        }
+        $this->info("Migrated: " . $count);
+    }
+
+    
     /**
      * Apply the basic IDM data to a user account
      * Note: the id must exist, external account and auth mode must be already set
@@ -167,7 +311,7 @@ class SyncWithIdm extends SyncBase
 
     /**
      * Nest a flat list of study data by the period of the studies
-     * Add "P" as prefix for the
+     * Add "P" as prefix for the index otherwise the index is treated as numeric which may cause problems
      *
      * @param $studydata
      * @return array
