@@ -57,11 +57,11 @@ class SyncWithIdm extends SyncBase
             // update the found user
             if (!empty($user_id)) {
                 $userObj = new ilObjUser($user_id);
-                $this->info('UPDATE ' . $userObj->getFullname() . ' (' . $userObj->getLogin() .') ...') ;
                 $this->applyIdentityToUser($identity, $userObj);
                 $this->increaseItemsUpdated();
             }
         }
+        $this->info('Synced: ' . $this->getItemsUpdated());
     }
 
 
@@ -74,6 +74,8 @@ class SyncWithIdm extends SyncBase
      */
     public function migrateToLocal(string $login = null) 
     {
+        $this->info('migrateToLocal...');
+        
         $mail_template_de = file_get_contents(__DIR__ . '/templates/mail_migrate_local_de.html');
         $mail_template_en = file_get_contents(__DIR__ . '/templates/mail_migrate_local_en.html');
 
@@ -135,6 +137,8 @@ class SyncWithIdm extends SyncBase
      */
     public function migrateToSSO(string $login = null)
     {
+        $this->info('migrateToSSO...');
+        
         $mail_template_de = file_get_contents(__DIR__ . '/templates/mail_migrate_sso_de.html');
         $mail_template_en = file_get_contents(__DIR__ . '/templates/mail_migrate_sso_en.html');
         
