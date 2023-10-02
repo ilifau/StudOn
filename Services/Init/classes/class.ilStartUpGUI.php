@@ -1137,7 +1137,7 @@ class ilStartUpGUI
         $radio = new ilRadioGroupInputGUI($this->lng->txt('sso_change_selecte_login'), 'selected_login');
         foreach ($logins as $login) {
             $option = new ilRadioOption($login, $login);
-            $password = new ilPasswordInputGUI($this->lng->txt('password'), 'password');
+            $password = new ilPasswordInputGUI($this->lng->txt('password'), 'password[]');
             $password->setRequired(true);
             $password->setRetype(false);
             $option->addSubItem($password);
@@ -1195,13 +1195,15 @@ class ilStartUpGUI
             return;
         }
         $user = new ilObjUser($user_id);
+        
+        $password = implode('', (array) ($_POST['password'] ?? []));
 
-        if (empty($post['password'])) {
+        if (empty($password)) {
             ilUtil::sendFailure($this->lng->txt('sso_change_password_required'));
             $this->showChangeToSso();
         }
 
-        else if (!ilUserPasswordManager::getInstance()->verifyPassword($user, $post['password'])) {
+        else if (!ilUserPasswordManager::getInstance()->verifyPassword($user, $password)) {
             ilUtil::sendFailure($this->lng->txt('sso_change_password_is_wrong'));
             $this->showChangeToSso();
         }
