@@ -1046,7 +1046,6 @@ ilias.questions.showCorrectAnswers =function(a_id, given_answers, is_final) {
 // fau.
 	
 	switch (questions[a_id].type) {
-
 		case 'assSingleChoice':
 			var max = 0; // #10772
 			for (var i=0;i<questions[a_id].answers.length;i++) {

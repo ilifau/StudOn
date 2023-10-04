@@ -30,7 +30,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
         $lng = $DIC->language();
 
         $this->user_id = (int) $a_user_id;
-    
+
         parent::__construct($a_parent_obj, $a_parent_cmd);
 
         $this->setTitle($lng->txt("prtf_portfolios"));
@@ -48,7 +48,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
         $this->addCommandButton("saveTitles", $lng->txt("prtf_save_status_and_titles"));
 
         $this->getItems();
-        
+
         $lng->loadLanguageModule("wsp");
 
         // fau: visibilityHints - init access handler
@@ -64,9 +64,9 @@ class ilPortfolioTableGUI extends ilTable2GUI
         $access_handler = new ilPortfolioAccessHandler();
 
         $data = ilObjPortfolio::getPortfoliosOfUser($this->user_id);
-        
+
         $this->shared_objects = $access_handler->getObjectsIShare(false);
-        
+
         $this->setData($data);
     }
 
@@ -77,7 +77,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
     {
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
-        
+
         $this->tpl->setCurrentBlock("title_form");
         $this->tpl->setVariable("VAL_ID", $a_set["id"]);
         $this->tpl->setVariable("VAL_TITLE", ilUtil::prepareFormOutput($a_set["title"]));
@@ -114,7 +114,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
             ($a_set["is_default"]) ? $lng->txt("yes") : ""
         );
         $this->tpl->parseCurrentBlock();
-        
+
         $prtf_path = array(get_class($this->parent_obj), "ilobjportfoliogui");
 
         $ilCtrl->setParameterByClass("ilobjportfoliogui", "prt_id", $a_set["id"]);
@@ -124,7 +124,7 @@ class ilPortfolioTableGUI extends ilTable2GUI
             "URL_ACTION",
             $ilCtrl->getLinkTargetByClass($prtf_path, "preview")
         );
-        $this->tpl->setVariable("TXT_ACTION", $lng->txt("user_profile_preview"));
+        $this->tpl->setVariable("TXT_ACTION", $lng->txt("preview"));
         $this->tpl->parseCurrentBlock();
 
         $this->tpl->setVariable(
@@ -133,20 +133,20 @@ class ilPortfolioTableGUI extends ilTable2GUI
         );
         $this->tpl->setVariable("TXT_ACTION", $lng->txt("prtf_edit_portfolio"));
         $this->tpl->parseCurrentBlock();
-        
+
         $ilCtrl->setParameterByClass("ilobjportfoliogui", "prt_id", "");
 
         if ($a_set["is_online"]) {
             if (!$a_set["is_default"]) {
                 $ilCtrl->setParameter($this->parent_obj, "prt_id", $a_set["id"]);
-                
+
                 $this->tpl->setVariable(
                     "URL_ACTION",
                     $ilCtrl->getLinkTarget($this->parent_obj, "setDefaultConfirmation")
                 );
                 $this->tpl->setVariable("TXT_ACTION", $lng->txt("prtf_set_as_default"));
                 $this->tpl->parseCurrentBlock();
-                
+
                 $ilCtrl->setParameter($this->parent_obj, "prt_id", "");
             } else {
                 $this->tpl->setVariable(
