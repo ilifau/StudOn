@@ -32,6 +32,7 @@ use FAU\Study\Data\ImportId;
 use FAU\Study\Data\SearchCondition;
 use FAU\Study\Data\SearchResultEvent;
 use FAU\Study\Data\SearchResultObject;
+use FAU\Study\Data\EventType;
 
 /**
  * Repository for accessing data of study related data
@@ -262,13 +263,22 @@ class Repository extends RecordRepo
 
 
     /**
-     * Gat a single Event
+     * Get a single Event
      * @return Event|null
      */
     public function getEvent(int $event_id, ?Event $default = null) : ?RecordData
     {
         $query = "SELECT * from fau_study_events WHERE event_id = " . $this->db->quote($event_id, 'integer');
         return $this->getSingleRecord($query, Event::model(), $default);
+    }
+
+    /**
+     * Get all eventTypes
+     * @return EventType[]
+     */
+    public function getEventTypes() : array
+    {
+        return $this->getAllRecords(EventType::model());
     }
 
     /**
@@ -662,6 +672,8 @@ class Repository extends RecordRepo
         $modJoin = '';
         $cosJoin = '';
         $treeJoin = '';
+        $titleCond = '';
+        $typeCond = '';
 
         if (!empty($condition->getCosIdsArray())) {
             $modJoin = "JOIN fau_study_mod_events me ON me.event_id = c.event_id";
@@ -690,6 +702,9 @@ class Repository extends RecordRepo
                 . $this->db->like('o.title', 'text', $pattern)
                 . ")";
         }
+        if (!empty($condition->getEventType())) {
+            $typeCond = " AND eventtype = " . $this->db->quote($condition->getEventType(), 'text');
+        }
 
         $query = "
             SELECT DISTINCT e.event_id, e.eventtype , e.title, e.shorttext, e.guest, c.course_id, r.obj_id, r.ref_id, o.type
@@ -703,6 +718,7 @@ class Repository extends RecordRepo
             WHERE c.term_year = " . $this->db->quote($condition->getTerm()->getYear(), 'integer') . "
             AND c.term_type_id = ". $this->db->quote($condition->getTerm()->getTypeId(), 'integer') . "      
             $titleCond
+            $typeCond
         ";
 
         //\ilUtil::sendInfo(nl2br($query), true);

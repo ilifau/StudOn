@@ -167,7 +167,13 @@ class fauStudySearchGUI extends BaseGUI
             $term->setValue((string) current($options));
         }
         $form->addItem($term);
+        
 
+        $type = new ilSelectInputGUI($this->lng->txt('fau_campo_event_type'), 'event_type');
+        $type->setOptions($this->dic->fau()->study()->getEventTypesSelectOptions(''));
+        $type->setValue($condition->getEventType());
+        $form->addItem($type);
+        
         $cos = new fauComboInputGUI($this->lng->txt('studydata_cos'), 'cos_ids');
         $cos->setOptions($this->dic->fau()->study()->getCourseOfStudySelectOptions(0));
         $cos->setValue($condition->getCosIds());
@@ -199,6 +205,9 @@ class fauStudySearchGUI extends BaseGUI
 
         /** @var ilSelectInputGUI $term */
         $term = $form->getItemByPostVar('term_id');
+        
+        /** @var ilSelectInputGUI $event_type */
+        $event_type = $form->getItemByPostVar('event_type');
 
         /** @var fauComboInputGUI $cos */
         $cos = $form->getItemByPostVar('cos_ids');
@@ -212,6 +221,7 @@ class fauStudySearchGUI extends BaseGUI
         return new SearchCondition(
             (string) $pattern->getValue(),
             (string) $term->getValue(),
+            (string) $event_type->getValue(),
             (string) $cos->getValue(),
             (string) $mod->getValue(),
             (int) $ref->getValue(),

@@ -133,6 +133,23 @@ class Service extends SubService
     /**
      * Get the select options for courses of study
      */
+    public function getEventTypesSelectOptions(?string $emptyId = null) : array
+    {
+        $options = [];
+        if (isset($emptyId)) {
+            $options[$emptyId] = $this->lng->txt("please_select");
+        }
+        foreach ($this->repo()->getEventTypes() as $type) {
+            $options[$type->getTypeDe()] = $type->getTrans($this->lng->getLangKey());
+        }
+
+        asort($options,  SORT_NATURAL);
+        return $options;
+    }
+    
+    /**
+     * Get the select options for courses of study
+     */
     public function getCourseOfStudySelectOptions(?int $emptyId = null) : array
     {
         $options = [];

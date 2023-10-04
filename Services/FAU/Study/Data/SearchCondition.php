@@ -4,11 +4,17 @@ namespace FAU\Study\Data;
 
 use FAU\RecordData;
 
+/**
+ * Condition for searching campo courses
+ * This model is stored fpr users via \FAU\Tools\Preferences::setSearchCondition
+ * It does not have an own database table
+ */
 class SearchCondition extends RecordData
 {
     protected const otherTypes = [
         'pattern' => 'text',
         'term_id' => 'text',
+        'event_type' => 'text',
         'cos_ids' => 'text',
         'module_ids' => 'text',
         'ilias_ref_id' => 'integer',
@@ -22,6 +28,7 @@ class SearchCondition extends RecordData
     // search input
     protected ?string $pattern;
     protected ?string $term_id;
+    protected ?string $event_type;
     protected ?string $cos_ids;
     protected ?string $module_ids;
     protected ?int $ilias_ref_id;
@@ -37,6 +44,7 @@ class SearchCondition extends RecordData
     public function __construct(
         string $pattern,
         string $term_id,
+        string $event_type, 
         string $cos_ids,
         string $module_ids,
         int $ilias_ref_id,
@@ -44,6 +52,7 @@ class SearchCondition extends RecordData
     ) {
         $this->pattern = $pattern;
         $this->term_id = $term_id;
+        $this->event_type = $event_type;
         $this->cos_ids = $cos_ids;
         $this->module_ids = $module_ids;
         $this->ilias_ref_id = $ilias_ref_id;
@@ -52,7 +61,7 @@ class SearchCondition extends RecordData
 
     public static function model() : self
     {
-        return new self('', '', '', '',0, false);
+        return new self('', '', '', '', '',0, false);
     }
 
     /**
@@ -84,6 +93,15 @@ class SearchCondition extends RecordData
     public function getTerm() : Term
     {
         return Term::fromString($this->term_id);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getEventType(): string
+    {
+        return (string) $this->event_type;
     }
 
     /**
