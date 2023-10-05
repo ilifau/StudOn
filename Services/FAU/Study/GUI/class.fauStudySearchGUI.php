@@ -112,7 +112,6 @@ class fauStudySearchGUI extends BaseGUI
     {
         $form = $this->getSearchForm($this->search->getCondition());
         $form->checkInput();
-        $form->setValuesByPost();
         // this also resets the count of found records and the paging
         $this->search->setCondition($this->getSearchFormCondition($form));
         $this->search->clearCacheForCondition();
@@ -174,6 +173,14 @@ class fauStudySearchGUI extends BaseGUI
         $type->setValue($condition->getEventType());
         $form->addItem($type);
         
+        $fitting = new ilCheckboxInputGUI($this->lng->txt('fau_search_fit'), 'fitting');
+        $fitting->setInfo($this->lng->txt('fau_search_fit_info'));
+        $fitting->setChecked($condition->getFitting());
+            $studydata = new ilNonEditableValueGUI($this->lng->txt('studydata'),'', true);
+            $studydata->setValue(nl2br($this->dic->fau()->user()->getStudiesAsText($this->dic->user()->getId())));
+            $fitting->addSubItem($studydata);
+        $form->addItem($fitting);
+        
         $cos = new fauComboInputGUI($this->lng->txt('studydata_cos'), 'cos_ids');
         $cos->setOptions($this->dic->fau()->study()->getCourseOfStudySelectOptions(0));
         $cos->setValue($condition->getCosIds());
@@ -200,32 +207,14 @@ class fauStudySearchGUI extends BaseGUI
      */
     protected function getSearchFormCondition(ilPropertyFormGUI $form) : SearchCondition
     {
-        /** @var ilTextInputGUI $pattern */
-        $pattern = $form->getItemByPostVar('pattern');
-
-        /** @var ilSelectInputGUI $term */
-        $term = $form->getItemByPostVar('term_id');
-        
-        /** @var ilSelectInputGUI $event_type */
-        $event_type = $form->getItemByPostVar('event_type');
-
-        /** @var fauComboInputGUI $cos */
-        $cos = $form->getItemByPostVar('cos_ids');
-
-        /** @var fauComboInputGUI $mod */
-        $mod = $form->getItemByPostVar('module_ids');
-
-        /** @var fauRepositorySelectorInputGUI $ref */
-        $ref = $form->getItemByPostVar('search_ref_id');
-
         return new SearchCondition(
-            (string) $pattern->getValue(),
-            (string) $term->getValue(),
-            (string) $event_type->getValue(),
-            (string) $cos->getValue(),
-            (string) $mod->getValue(),
-            (int) $ref->getValue(),
-            false
+            (string) $form->getInput('pattern'),
+            (string) $form->getInput('term_id'),
+            (string) $form->getInput('event_type'),
+            (string) $form->getInput('cos_ids'),
+            (string) $form->getInput('module_ids'),
+            (int) $form->getInput('search_ref_id'),
+            (bool) $form->getInput('fitting')
         );
     }
 

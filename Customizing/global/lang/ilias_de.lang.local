@@ -690,6 +690,8 @@ fau#:#fau_rhythm_block_sa_so#:#Blockveranstaltung + Sa/So
 fau#:#fau_rhythm_single#:#Einzelveranstaltung
 fau#:#fau_rhythm_by_agreement#:#Nach Vereinbarung
 fau#:#fau_search#:#Lehrveranstaltungen aus Campo suchen
+fau#:#fau_search_fit#:#Für mein Studium geeignet
+fau#:#fau_search_fit_info#:#Gesucht werden Veranstaltungen, die für den eigenen Studiengang im angegebenen Semester geeignet sind
 fau#:#fau_search_found_events#:#Gefundene Lehrveranstaltungen:
 fau#:#fau_search_ilias_course#:#StudOn-Kurs
 fau#:#fau_search_ilias_course_not#:#Kein StudOn-Kurs

@@ -687,6 +687,8 @@ fau#:#fau_rhythm_block_sa_so#:#Block event with Sat/Sun
 fau#:#fau_rhythm_single#:#Single event
 fau#:#fau_rhythm_by_agreement#:#By Agreement
 fau#:#fau_search#:#Search Events from Campo
+fau#:#fau_search_fit#:#Suitable for my studyies
+fau#:#fau_search_fit_info#:#Searchees for courses that are suitable for the own study program in the specified semester
 fau#:#fau_search_found_events#:#Found Events:
 fau#:#fau_search_ilias_course#:#StudOn Course
 fau#:#fau_search_ilias_course_not#:#No StudOn Course

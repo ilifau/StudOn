@@ -6,6 +6,7 @@ use ILIAS\DI\Container;
 use FAU\Study\Data\SearchCondition;
 use FAU\Study\Data\SearchResultEvent;
 use ilObject;
+use FAU\Study\Data\ImportId;
 
 class Search
 {
@@ -80,6 +81,14 @@ class Search
             $result = $this->repo->searchEvents($condition);
             foreach ($result as $event) {
 
+                // check for events thet fit to the own courses of study
+                if ($condition->getFitting()) {
+                    $import_id = new ImportId($condition->getTermId(), $event->getEventId());
+                    if (!$this->dic->fau()->cond()->hard()->checkByImportId($import_id, $this->dic->user()->getId())) {
+                        continue;
+                    }
+                }
+                
                 if (empty($event->getObjects())) {
                     // add event without ilias object
                     $list[$event->getSortKey()] = $event;

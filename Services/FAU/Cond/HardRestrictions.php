@@ -409,7 +409,7 @@ class HardRestrictions
     }
 
     /**
-     * Check if a user can join an ILIAS object
+     * Check if a user can join courses of an event given by import_id
      */
     public function checkByImportId(ImportId $import_id, int $user_id) : bool
     {
