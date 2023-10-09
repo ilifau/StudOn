@@ -68,7 +68,6 @@ shib_allow_create = "1"                 ;allow the creation of user accounts by 
 shib_create_limited = ""				;time limit for shib created accounts, e.g. 2015-10-01
 shib_log_accounts = ""                  ;comma separated list of accounts for which a shibboleth login should be logged
 shib_devmode_identity = ""              ;force an identity at shibboleth authentication in devmode (to fetch idm data)
-shib_devmode_login = ""                 ;force a login at shibboleth authentication in devmode (to get a studon user)
 
 studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are checked (comma-separated without spaces)
 
