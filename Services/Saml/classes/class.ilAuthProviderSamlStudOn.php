@@ -51,13 +51,7 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 $this->fetchIdentity();
             }
 
-            // get the studon login name for the idm data
-            if (DEVMODE and ilCust::get('shib_devmode_login')) {
-                $login = ilCust::get('shib_devmode_login');
-            } else {
-                $login = $this->findLogin();
-            }
-
+            $login = $this->findLogin();
             // take an already selected login fon the SSO change
             if (empty($login) && !empty($status->getSsoChangeSelectedLogin())) {
                 $login = $status->getSsoChangeSelectedLogin();
