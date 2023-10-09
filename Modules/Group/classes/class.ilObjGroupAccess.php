@@ -383,7 +383,7 @@ class ilObjGroupAccess extends ilObjectAccess
         $waiting = ilGroupWaitingList::lookupListSize($a_obj_id);
         $free_places = max($max_members - $members, 0);
         $info['reg_info_members'] = $members;
-        $info['reg_info_sbscribers'] = $waiting;
+        $info['reg_info_subscribers'] = $waiting;
         $info['reg_info_free_places'] = $free_places;
         $info['ref_info_is_assigned'] = $partObj->isAssigned();
 
