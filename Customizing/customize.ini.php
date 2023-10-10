@@ -67,7 +67,8 @@ search_enable_autocomplete = "1"        ;enable auto-complete in object search f
 shib_allow_create = "1"                 ;allow the creation of user accounts by shibboleth
 shib_create_limited = ""				;time limit for shib created accounts, e.g. 2015-10-01
 shib_log_accounts = ""                  ;comma separated list of accounts for which a shibboleth login should be logged
-shib_devmode_identity = ""              ;force an identity at shibboleth authentication in devmode (to fetch idm data)
+shib_switch_uid_from = ""               ;uid (idm login) which should be switched to another uid after SSO for testing purposes
+shib_switch_uid_to = ""                 ;uid (idm login) which should be taken after SSO for testing purposes
 
 studydata_check_ref_ids = "";           ;list of ref_ids for which studydata are checked (comma-separated without spaces)
 

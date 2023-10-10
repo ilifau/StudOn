@@ -44,12 +44,20 @@ class ilAuthProviderSamlStudOn extends ilAuthProviderSaml
                 return false;
             }
 
-            // get the idm data
-            if (DEVMODE and ilCust::get('shib_devmode_identity')) {
-                $this->fetchIdentity(ilCust::get('shib_devmode_identity'));
-            } else {
-                $this->fetchIdentity();
+            // optionally switch the identity to another user for testing purposes
+            if ($this->uid == ilCust::get('shib_switch_uid_from') 
+                && !empty(ilCust::get('shib_switch_uid_to'))) {
+                $this->uid = ilCust::get('shib_switch_uid_to');
             }
+
+            // get the idm data for the identity
+            $this->fetchIdentity();
+            if (empty($this->identity->getPkPersistentId())) {
+                $this->getLogger()->warning('No Identity found with uid in SAML data.');
+                $this->handleAuthenticationFail($status, 'auth_shib_not_configured');
+                return false;
+            }
+            
 
             $login = $this->findLogin();
             // take an already selected login fon the SSO change
