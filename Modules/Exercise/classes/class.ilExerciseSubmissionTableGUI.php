@@ -294,13 +294,14 @@ abstract class ilExerciseSubmissionTableGUI extends ilTable2GUI
                     }
 
                     // #18327
-                    if (!$ilAccess->checkAccessOfUser($team_member_id, "read", "", $this->exc->getRefId()) &&
+                    // fau: uncomment code to fix problem with individual deadlines. Needs to be reverted after ilias fix of https://mantis.ilias.de/view.php?id=38088
+      /*              if (!$ilAccess->checkAccessOfUser($team_member_id, "read", "", $this->exc->getRefId()) &&
                         is_array($info = $ilAccess->getInfo())) {
                         $this->tpl->setCurrentBlock('team_access_warning');
                         $this->tpl->setVariable('TEAM_PARENT_ACCESS', $info[0]["text"]);
                         $this->tpl->parseCurrentBlock();
                     }
-
+*/ // fau.
                     $this->tpl->setCurrentBlock("team_member");
                     $this->tpl->setVariable("TXT_MEMBER_NAME", $team_member_name);
                     $this->tpl->parseCurrentBlock();
