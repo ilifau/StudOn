@@ -405,7 +405,9 @@ class ilLPStatusCollection extends ilLPStatus
 
             case 'lso':
                 $participants = ilLearningSequenceParticipants::_getInstanceByObjId($objId);
-                return $participants->isMember($objId);
+                // fau: fixLPinLsoCollection - fix determination of learning progress ba collection of items in learning sequence
+                return $participants->isMember($usrId);
+                // fau.
         }
 
         return true;
