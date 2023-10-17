@@ -315,9 +315,11 @@ class ilLearningSequenceRoles
                 $data['notification'] = 1;
             }
 
-            foreach ($profile_data[$usr_id] as $field => $value) {
+            // fau: fixLsoMissingProfile - fault tolerance for missing profile data
+            foreach ($profile_data[$usr_id] ?? [] as $field => $value) {
                 $data[$field] = $value;
             }
+            // fau.
 
             if ($tracking_enabled) {
                 if (in_array($usr_id, $completed)) {
