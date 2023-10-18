@@ -1166,7 +1166,9 @@ class ilRegistrationSettingsGUI
 
         // fau: regCodes - init new codes form
         include_once './Services/Registration/classes/class.ilRegistrationCode.php';
-        $this->initCodesForm(new ilRegistrationCode());
+        $codeObj = new ilRegistrationCode();
+        $codeObj->use_limit = 5000;
+        $this->initCodesForm($codeObj);
         // fau.
 
         $this->tpl->setContent($this->form_gui->getHTML());
