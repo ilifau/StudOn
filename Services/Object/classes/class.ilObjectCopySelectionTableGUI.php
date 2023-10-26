@@ -39,7 +39,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
 
     private $type = '';
     private $selected_reference = null;
-    
+
     /**
      *
      * @param object $a_parent_class
@@ -58,38 +58,44 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
         $ilCtrl = $DIC->ctrl();
         $ilUser = $DIC->user();
         $objDefinition = $DIC["objDefinition"];
-        
+
         parent::__construct($a_parent_class, $a_parent_cmd);
         $this->type = $a_type;
-        
+
         $this->lng = $lng;
         $this->ctrl = $ilCtrl;
-        
+
         $this->setTitle($this->lng->txt($this->type . '_wizard_page'));
-        
-        
+
+
         $this->addColumn($this->lng->txt('title'), '', '55%');
         $this->addColumn($this->lng->txt('copy'), '', '15%');
         $this->addColumn($this->lng->txt('link'), '', '15%');
         $this->addColumn($this->lng->txt('omit'), '', '15%');
-        
+
         $this->setEnableHeader(true);
         $this->setFormAction($ilCtrl->getFormAction($this->getParentObject()));
         $this->setRowTemplate("tpl.obj_copy_selection_row.html", "Services/Object");
         $this->setEnableTitle(true);
         $this->setEnableNumInfo(true);
         $this->setLimit(999999);
-        
+
         $this->setFormName('cmd');
 
+        $submit_button_label = $this->lng->txt('obj_' . $this->type . '_duplicate');
+        if ($this->parent_obj->getSubMode() === ilObjectCopyGUI::SUBMODE_CONTENT_ONLY) {
+            $submit_button_label = $this->lng->txt('cntr_adopt_content');
+        }
 
-        $this->addCommandButton('copyContainerToTargets', $this->lng->txt('obj_' . $this->type . '_duplicate'));
+
+        $this->addCommandButton('copyContainerToTargets', $submit_button_label);
+        
         // fau: copyBySoap - add button to send an email when copying is finished
-
         if (ilCust::get('ilias_copy_by_soap')) {
-            $this->addCommandButton('copyContainerWithMail', $this->lng->txt('obj_' . $this->type . '_duplicate') . ' ' . $this->lng->txt('object_copy_with_mail_suffix'));
+            $this->addCommandButton('copyContainerWithMail', $submit_button_label . ' ' . $this->lng->txt('object_copy_with_mail_suffix'));
         }
         // fau.
+        
         if ($a_back_cmd == "") {        // see bug #25991
             $this->addCommandButton("cancel", $this->lng->txt('cancel'));
         } else {
@@ -105,7 +111,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
     {
         return $this->type;
     }
-    
+
     /**
      *
      * @param object $a_source
@@ -116,7 +122,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
         $tree = $this->tree;
         $objDefinition = $this->obj_definition;
         $ilAccess = $this->access;
-        
+
         $first = true;
         foreach ($tree->getSubTree($root = $tree->getNodeData($a_source)) as $node) {
             if ($node['type'] == 'rolf') {
@@ -125,8 +131,8 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
             if (!$ilAccess->checkAccess('visible', '', $node['child'])) {
                 continue;
             }
-            
-            
+
+
             $r = array();
             $r['last'] = false;
             $r['source'] = $first;
@@ -138,7 +144,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
             $r['perm_copy'] = $ilAccess->checkAccess('copy', '', $node['child']);
             $r['link'] = $objDefinition->allowLink($node['type']);
             $r['perm_link'] = true;
-            
+
             // #11905
             if (!trim($r['title']) && $r['type'] == 'sess') {
                 // use session date as title if no object title
@@ -146,9 +152,9 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
                 $app_info = ilSessionAppointment::_lookupAppointment($node["obj_id"]);
                 $r['title'] = ilSessionAppointment::_appointmentToString($app_info['start'], $app_info['end'], $app_info['fullday']);
             }
-            
+
             $rows[] = $r;
-            
+
             $first = false;
         }
         $rows[] = array('last' => true);
@@ -172,8 +178,8 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
             $this->tpl->parseCurrentBlock();
             return true;
         }
-        
-        
+
+
         for ($i = 0; $i < $s['depth']; $i++) {
             $this->tpl->touchBlock('padding');
             $this->tpl->touchBlock('end_padding');
@@ -181,7 +187,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
         $this->tpl->setVariable('TREE_IMG', ilObject::_getIcon(ilObject::_lookupObjId($s['ref_id']), "tiny", $s['type']));
         $this->tpl->setVariable('TREE_ALT_IMG', $this->lng->txt('obj_' . $s['type']));
         $this->tpl->setVariable('TREE_TITLE', $s['title']);
-        
+
         if ($s['source']) {
             return true;
         }
@@ -201,7 +207,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
             $this->tpl->parseCurrentBlock();
         }
 
-        
+
         // Link
         if ($s['perm_link'] and $s['link']) {
             $this->tpl->setCurrentBlock('radio_link');
@@ -218,7 +224,7 @@ class ilObjectCopySelectionTableGUI extends ilTable2GUI
             $this->tpl->setVariable('TXT_MISSING_LINK_PERM', $this->lng->txt('missing_perm'));
             $this->tpl->parseCurrentBlock();
         }
-        
+
         // Omit
         $this->tpl->setCurrentBlock('omit_radio');
         $this->tpl->setVariable('TXT_OMIT', $this->lng->txt('omit'));

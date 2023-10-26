@@ -1224,14 +1224,14 @@ class ilObjUserGUI extends ilObjectGUI
         $acfrom = new ilDateTimeInputGUI($this->lng->txt("crs_from"), "time_limit_from");
         $acfrom->setRequired(true);
         $acfrom->setShowTime(true);
-        //		$ac->addSubItem($acfrom);
+        $acfrom->setMinuteStepSize(1);
         $op2->addSubItem($acfrom);
 
         // access.to
         $acto = new ilDateTimeInputGUI($this->lng->txt("crs_to"), "time_limit_until");
         $acto->setRequired(true);
         $acto->setShowTime(true);
-        //		$ac->addSubItem($acto);
+        $acto->setMinuteStepSize(1);
         $op2->addSubItem($acto);
 
         //		$this->form_gui->addItem($ac);
@@ -2157,14 +2157,25 @@ class ilObjUserGUI extends ilObjectGUI
         global $DIC;
 
         $ilUser = $DIC['ilUser'];
+
+        /** @var ilCtrl $ilCtrl */
         $ilCtrl = $DIC['ilCtrl'];
+
+        if (strstr($a_target, ilPersonalProfileGUI::CHANGE_EMAIL_CMD) === $a_target
+            && $ilUser->getId() !== ANONYMOUS_USER_ID) {
+            $class = ilPersonalProfileGUI::class;
+            $cmd = ilPersonalProfileGUI::CHANGE_EMAIL_CMD;
+            $ilCtrl->clearParametersByClass($class);
+            $ilCtrl->setParameterByClass($class, 'token', str_replace($cmd, '', $a_target));
+            $ilCtrl->redirectByClass(['ildashboardgui', $class], $cmd);
+        }
 
         // #10888
         if ($a_target == md5("usrdelown")) {
             if ($ilUser->getId() != ANONYMOUS_USER_ID &&
                 $ilUser->hasDeletionFlag()) {
                 $ilCtrl->initBaseClass("ildashboardgui");
-                $ilCtrl->redirectByClass(array("ildashboardgui", "ilpersonalsettingsgui"), "deleteOwnAccount3");
+                $ilCtrl->redirectByClass(['ildashboardgui', 'ilpersonalsettingsgui'], "deleteOwnAccount3");
             }
             exit("This account is not flagged for deletion."); // #12160
         }

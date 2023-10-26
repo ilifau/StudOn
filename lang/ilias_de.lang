@@ -4419,7 +4419,7 @@ common#:#lang_timeformat#:#H:i:s
 common#:#lang_timeformat_no_sec#:#H:i
 common#:#lang_uninstall_changes#:#Lokale Änderungen entfernen
 common#:#lang_uninstall_changes_confirm#:#Möchten Sie wirklich alle lokalen Änderungen an den ausgewählten Sprachen löschen und diese auf den Standard der aktuellen ILIAS-Version zurücksetzen?
-common#:#lang_uninstall_confirm#:#Möchten Sie die ausgewählten Sprachen wirklich deinstallieren?
+common#:#lang_uninstall_confirm#:#Möchten Sie die ausgewählten Sprachen wirklich deinstallieren? Damit gehen auch alle lokalen Änderungen an den jeweiligen Sprachen unwiederbringlich verloren, wenn diese nicht zuvor gesichert oder exportiert wurden.
 common#:#langfile_found#:#Sprachdatei gefunden
 common#:#language#:#Sprache
 common#:#language_not_installed#:#ist nicht installiert. Bitte installieren Sie die Sprache zuerst.
@@ -8288,7 +8288,7 @@ dateplaner#:#cal_show_weeks_info#:#Zeigt die Wochen im Seitenblock "Kalender" an
 dateplaner#:#cal_start#:#Anfang
 dateplaner#:#cal_subscription#:#Abonnieren
 dateplaner#:#cal_subscription_header#:#Kalender-Adresse
-dateplaner#:#cal_subscription_info#:#Verwenden Sie die folgende Adresse, um mittels anderer Anwendungen auf Ihren Kalender zuzugreifen. Sie können diese Adresse kopieren und in jeden Kalender einfügen, der das iCal-Format unterstützt.
+dateplaner#:#cal_subscription_info#:#Verwenden Sie eine der folgenden Adressen, um mittels anderer Anwendungen auf Ihren Kalender zuzugreifen. Sie können diese Adresse kopieren und in jeden Kalender einfügen, der das iCal-Format unterstützt. Der Google-Kalender unterstützt keine iCal Dateien die größer als 1MB sind. Deshalb werden beim Export mit der iCal-URL für Google-Kalender alle Kalendertermine verworfen die älter als 30 Tage sind.
 dateplaner#:#cal_subscription_url#:#Kalender URL:
 dateplaner#:#cal_sync_cache#:#Termin-Cache
 dateplaner#:#cal_sync_cache_info#:#Wenn aktiviert, werden Kalendertermine zur Synchronisation mit externen Kalendern nur alle x-Minuten aktualisiert.
@@ -8589,9 +8589,9 @@ dcl#:#dcl_save_record#:#Eintrag speichern
 dcl#:#dcl_select#:#Auswahl der Tabelle
 dcl#:#dcl_selection_options#:#Optionen
 dcl#:#dcl_selection_type#:#Typ
-dcl#:#dcl_selection_type_combobox#:#Combobox (Dropdown)
+dcl#:#dcl_selection_type_combobox#:#Einfachauswahl (Dropdown)
 dcl#:#dcl_selection_type_multi#:#Mehrfachauswahl
-dcl#:#dcl_selection_type_single#:#Einfachauswahl
+dcl#:#dcl_selection_type_single#:#Einfachauswahl (Liste)
 dcl#:#dcl_simulate_import#:#Import simulieren
 dcl#:#dcl_simulate_info#:#Hierbei werden keine Datensätze angelegt, sondern nur Feedback zu Fehlern in der Import-Datei gegeben. Dadurch können Sie fehlerhafte Imports vermeiden.
 dcl#:#dcl_skipped_delete_records#:#%s Datensätze wurden aufgrund der Rechteeinstellungen nicht gelöscht
@@ -14582,6 +14582,7 @@ skmg#:#skmg_confirm_user_removal#:#Wollen Sie wirklich die folgenden Benutzer au
 skmg#:#skmg_cont_profiles_info#:#In dieser Ansicht können Sie die Kompetenzprofile mit Kompetenzeinträgen auswählen, die im Zusammenhang mit dem derzeit geöffneten Objekt (Kurs/Gruppe) stehen. Um zu der globalen Ansicht mit allen Ihnen zugewiesenen Kompetenzprofilen und sämtlichen Kompetenzeinträgen zu gelangen, klicken Sie auf den unten stehenden Link.
 skmg#:#skmg_context_global#:#Global
 skmg#:#skmg_context_local#:#Lokal
+skmg#:#skmg_count_references#:#Anzahl referenzierter Kompetenzen:
 skmg#:#skmg_create_sctp#:#Vorlagenkategorie erstellen
 skmg#:#skmg_create_skill_category#:#Kategorie erstellen
 skmg#:#skmg_create_skill_template#:#Vorlage erstellen
@@ -15422,7 +15423,7 @@ survey#:#not_sent_only#:#Nur an neue Empfänger versenden (die bislang noch kein
 survey#:#not_used#:#noch nicht verwendet
 survey#:#nr_max_answers#:#Maximum
 survey#:#nr_min_answers#:#Minimum
-survey#:#obligatory#:#verpflichtend
+survey#:#obligatory#:#Verpflichtend
 survey#:#off#:#Aus
 survey#:#offline#:#offline (nicht aktiviert)
 survey#:#on#:#An
@@ -15476,7 +15477,7 @@ survey#:#reset_filter#:#Filter zurücksetzen
 survey#:#results#:#Ergebnisse
 survey#:#resume_survey#:#Umfrage fortsetzen
 survey#:#row_text#:#Zeile
-survey#:#save_obligatory_state#:#verpflichtend-Status und Sortierung speichern
+survey#:#save_obligatory_state#:#„Verpflichtend“-Status und Sortierung speichern
 survey#:#save_phrase#:#Als Phrase speichern
 survey#:#save_phrase_introduction#:#Wenn Sie die unten aufgeführten Antworten für sich als Standard-Phrase speichern wollen, geben Sie bitte noch einen Titel für die Phrase ein. Sie können auf diese Phrase jederzeit zugreifen, wenn Sie Phrasen zu einer ordinalen Frage hinzufügen.
 survey#:#save_reuse_message#:#Nachrichteninhalt für weitere Verwendung speichern
@@ -15511,7 +15512,7 @@ survey#:#spl_online_property#:#Online
 survey#:#spl_online_property_description#:#Wenn der Fragenpool nicht online ist, kann er nicht in Umfragen verwendet werden.
 survey#:#spl_paste_no_objects#:#Es sind keine Fragen in der Zwischenablage vorhanden. Bitte nutzen Sie hierfür die Kopieren- oder Verschieben-Schaltflächen.
 survey#:#spl_paste_success#:#Fragen eingefügt
-survey#:#spl_save_obligatory_state#:#verpflichtend-Status speichern
+survey#:#spl_save_obligatory_state#:#„Verpflichtend“-Status speichern
 survey#:#start_date#:#Startdatum
 survey#:#start_date_not_reached#:#Sie können die Umfrage erst starten, wenn das Startdatum erreicht ist!
 survey#:#start_survey#:#Umfrage beginnen
@@ -16297,6 +16298,7 @@ user#:#clipboard_remove_btn#:#Aus Zwischenablage entfernen
 user#:#clipboard_table_title#:#Zwischenablage (Benutzerkonten)
 user#:#clipboard_user_added#:#Die ausgewählten Benutzer wurden der Zwischenablage hinzugefügt.
 user#:#confirm_delete_starting_point#:#Sind Sie sich sicher, dass diese Regel gelöscht werden soll?
+user#:#confirm_logout_for_email_change#:#Sie haben Ihre E-Mail-Adresse geändert. Um diese Änderung abzuschliessen, ist die Eingabe Ihres Passworts notwendig. Sie werden daher abgemeldet und haben daraufhin 5 Minuten Zeit, sich wieder anzumelden, um die Änderungen abzuschliessen. Alle anderen Änderungen werden gespeichert, bevor Sie abgemeldet werden.
 user#:#create_starting_point#:#Regel erstellen
 user#:#criteria#:#Kriterium
 user#:#del_mail_body#:#Hallo %1$s, %2$s Sie haben sich seit längerer Zeit nicht mehr auf %3$s angemeldet. Daher wird ihr ILIAS-Konto voraussichtlich am %4$s gelöscht. Um Ihr ILIAS-Konto zu behalten, müssen Sie sich vor dem genannten Tag erneut einloggen.
@@ -16304,8 +16306,9 @@ user#:#del_mail_subject#:#Ihr ILIAS-Konto wird bald gelöscht
 user#:#delete_inactive_user_accounts_frequency#:#Intervall
 user#:#delete_inactive_user_accounts_frequency_desc#:#Intervall, mit welchem auf Löschung sowie auf E-Mail-Versand getestet wird.
 user#:#editing_this_role#:#Regel editieren
-user#:#enable_local_user_administration#:#Lokale Benutzerverwaltung aktivieren
-user#:#enable_local_user_administration_info#:#Wenn aktiviert, können Benutzerzugänge in Kategorien und Organisationseinheiten angelegt und verwaltet werden.
+user#:#email_could_not_be_changed#:#Ihre E-Mail-Adresse konnte nicht geändert werden.
+user#:#enable_local_user_administration#:#Lokale Konten
+user#:#enable_local_user_administration_info#:#In Kategorien und Organisationseinheiten erscheint ein Reiter „Lokale Konten”. Dort können lokale ILIAS-Konten angelegt, importiert und verwaltet werden. Damit können auch Personen ohne Zugriff auf die Administration neue ILIAS-Konten anlegen.
 user#:#feedhash#:#Newsfeed-Hash
 user#:#has_role#:#Rolle
 user#:#inform_user_mail_info#:#An die oben eingetragene E-Mail-Adresse wird eine Benachrichtigung gesendet. Deren Inhalt kann definiert werden in der Administration: „Konten und Rollen » ILIAS-Konten”, Reiter „Einstellungen : Benachrichtigung über Neuanmeldung”

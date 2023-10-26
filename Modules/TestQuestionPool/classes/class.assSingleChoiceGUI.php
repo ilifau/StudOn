@@ -324,7 +324,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
             }
             $template->parseCurrentBlock();
         }
-        $questiontext = $this->object->getQuestion();
+        $questiontext = $this->object->getQuestionForHTMLOutput();
         if ($show_feedback && $this->hasInlineFeedback()) {
             $questiontext .= $this->buildFocusAnchorHtml();
         }
@@ -416,7 +416,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
 
             $template->parseCurrentBlock();
         }
-        $questiontext = $this->object->getQuestion();
+        $questiontext = $this->object->getQuestionForHTMLOutput();
         if ($showInlineFeedback && $this->hasInlineFeedback()) {
             $questiontext .= $this->buildFocusAnchorHtml();
         }
@@ -536,8 +536,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
             }
             $template->parseCurrentBlock();
         }
-        $questiontext = $this->object->getQuestion();
-        $template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         $questionoutput = $template->get();
         $pageoutput = $this->outQuestionPage("", $is_postponed, $active_id, $questionoutput, $show_feedback);
         return $pageoutput;
@@ -669,7 +668,7 @@ class assSingleChoiceGUI extends assQuestionGUI implements ilGuiQuestionScoringA
             foreach ($_POST['choice']['answer'] as $index => $answer) {
                 $answertext = $answer;
                 $answertext = preg_replace('/\[tex\](.*)\[\/tex\]/', '<span class="latex">$1</span>', $answertext);
-                $this->object->addAnswer($answertext, $_POST['choice']['points'][$index], $index,"", $_POST['choice']['answer_id'][$index]);
+                $this->object->addAnswer($answertext, $_POST['choice']['points'][$index], $index, "", $_POST['choice']['answer_id'][$index]);
             }
         }
         // fau.

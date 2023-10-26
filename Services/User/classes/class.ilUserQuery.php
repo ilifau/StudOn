@@ -59,7 +59,7 @@ class ilUserQuery
         "last_login",
         "active"
     );
-    
+
     /**
      * Constructor
      */
@@ -70,7 +70,7 @@ class ilUserQuery
         $this->logger = $DIC->logger()->usr();
     }
 
-    // fau: getter and setter for ref_id to filter educations
+    // fau: userData - getter and setter for ref_id to filter educations
     /**
      * Set the ref_id to filter the list of educations
      */
@@ -106,7 +106,7 @@ class ilUserQuery
         }
         $this->udf_filter = $valid_udfs;
     }
-    
+
     /**
      * Get udf filter
      *
@@ -116,7 +116,7 @@ class ilUserQuery
     {
         return $this->udf_filter;
     }
-    
+
     /**
      * Set order field (column in usr_data)
      * Default order is 'login'
@@ -126,7 +126,7 @@ class ilUserQuery
     {
         $this->order_field = $a_order;
     }
-    
+
     /**
      * Set order direction
      * 'asc' or 'desc'
@@ -137,7 +137,7 @@ class ilUserQuery
     {
         $this->order_dir = $a_dir;
     }
-    
+
     /**
      * Set offset
      * @param int $a_offset
@@ -146,7 +146,7 @@ class ilUserQuery
     {
         $this->offset = $a_offset;
     }
-    
+
     /**
      * Set result limit
      * Default is 50
@@ -156,7 +156,7 @@ class ilUserQuery
     {
         $this->limit = $a_limit;
     }
-    
+
     /**
      * Text (like) filter in login, firstname, lastname or email
      * @param string filter
@@ -165,7 +165,7 @@ class ilUserQuery
     {
         $this->text_filter = $a_filter;
     }
-    
+
     /**
      * Set activation filter
      * 'active' or 'inactive' or empty
@@ -175,7 +175,7 @@ class ilUserQuery
     {
         $this->activation = $a_activation;
     }
-    
+
     /**
      * Set last login filter
      * @param ilDateTime $dt
@@ -184,7 +184,7 @@ class ilUserQuery
     {
         $this->last_login = $dt;
     }
-    
+
     /**
      * Enable limited access filter
      * @param bool
@@ -193,7 +193,7 @@ class ilUserQuery
     {
         $this->limited_access = $a_status;
     }
-    
+
     /**
      * Enable no course filter
      * @param bool $a_no_course
@@ -202,7 +202,7 @@ class ilUserQuery
     {
         $this->no_courses = $a_no_course;
     }
-    
+
     /**
      * Enable no group filter
      * @param bool $a_no_group
@@ -211,7 +211,7 @@ class ilUserQuery
     {
         $this->no_groups = $a_no_group;
     }
-    
+
     /**
      * Set course / group filter
      * object_id of course or group
@@ -221,7 +221,7 @@ class ilUserQuery
     {
         $this->crs_grp = $a_cg_id;
     }
-    
+
     /**
      * Set role filter
      * obj_id of role
@@ -231,7 +231,7 @@ class ilUserQuery
     {
         $this->role = $a_role_id;
     }
-    
+
     /**
      * Set user folder filter
      * reference id of user folder or category (local user administration)
@@ -241,7 +241,7 @@ class ilUserQuery
     {
         $this->user_folder = $a_fold_id;
     }
-    
+
     /**
      * Set additional fields (columns in usr_data or 'online_time')
      * @param array $additional_fields
@@ -250,7 +250,7 @@ class ilUserQuery
     {
         $this->additional_fields = (array) $a_add;
     }
-    
+
     /**
      * Array with user ids to query against
      * @param array $a_filter
@@ -259,7 +259,7 @@ class ilUserQuery
     {
         $this->users = $a_filter;
     }
-    
+
     /**
      * set first letter lastname filter
      * @param string $a_fll
@@ -288,7 +288,7 @@ class ilUserQuery
     {
         $this->authentication_method = $a_authentication;
     }
-    
+
     /**
      * Query usr_data
      * @return array ('cnt', 'set')
@@ -337,10 +337,10 @@ class ilUserQuery
         // count query
         $count_query = "SELECT count(usr_data.usr_id) cnt" .
             " FROM usr_data";
-        
+
         $all_multi_fields = array("interests_general", "interests_help_offered", "interests_help_looking");
         $multi_fields = array();
-        
+
         $sql_fields = array();
         foreach ($this->default_fields as $idx => $field) {
             if (!$field) {
@@ -412,7 +412,7 @@ class ilUserQuery
             $count_query .= $add;
             $where = " AND";
         }
-        
+
         if ($this->text_filter != "") {		// email, name, login
             $add = $where . " (" . $ilDB->like("usr_data.login", "text", "%" . $this->text_filter . "%") . " " .
                 "OR " . $ilDB->like("usr_data.firstname", "text", "%" . $this->text_filter . "%") . " " .
@@ -423,7 +423,7 @@ class ilUserQuery
             $count_query .= $add;
             $where = " AND";
         }
-        
+
         if ($this->activation != "") {		// activation
             if ($this->activation == "inactive") {
                 $add = $where . " usr_data.active = " . $ilDB->quote(0, "integer") . " ";
@@ -436,7 +436,7 @@ class ilUserQuery
         }
 
         if ($this->last_login instanceof ilDateTime) {	// last login
-            if (ilDateTime::_before($this->last_login, new ilDateTime(time(), IL_CAL_UNIX), IL_CAL_DAY)) {
+            if (ilDateTime::_before($this->last_login, new ilDateTime(time() + (60 * 60 * 24), IL_CAL_UNIX), IL_CAL_DAY)) {
                 $add = $where . " usr_data.last_login < " .
                     $ilDB->quote($this->last_login->get(IL_CAL_DATETIME), "timestamp");
                 $query .= $add;
@@ -521,7 +521,7 @@ class ilUserQuery
         //			$where = " AND";
         //		}
         // fau.
-        
+
         if ($this->user_folder) {
             $add = $where . " " . $ilDB->in('usr_data.time_limit_owner', $this->user_folder, false, 'integer');
             $query .= $add;
@@ -545,7 +545,7 @@ class ilUserQuery
                     $query .= " ORDER BY usr_data.active ASC, usr_data.time_limit_unlimited ASC, usr_data.time_limit_until ASC";
                 }
                 break;
-                
+
             case "online_time":
                 if ($this->order_dir == "desc") {
                     $query .= " ORDER BY ut_online.online_time DESC";
@@ -590,18 +590,18 @@ class ilUserQuery
 
         $offset = (int) $this->offset;
         $limit = (int) $this->limit;
-        
+
         // #9866: validate offset against rowcount
         if ($offset >= $cnt) {
             $offset = 0;
         }
-        
+
         $ilDB->setLimit($limit, $offset);
-        
+
         if (sizeof($multi_fields)) {
             $usr_ids = array();
         }
-        
+
         // set query
         $set = $ilDB->query($query);
         $result = array();
@@ -638,7 +638,7 @@ class ilUserQuery
         }
         return array("cnt" => $cnt, "set" => $result);
     }
-    
+
     // fau: userData add ref id to filter the display of educations as parameter
     /**
      * Get data for user administration list.
