@@ -21,3 +21,4 @@ common#:#txt_registered#:#<p>You are successfully registered in the exam platfor
 common#:#txt_registered_pw_is_login#:#<p>You are successfully registered in the exam platform.</p><p>Please remember your username/password: <strong>%s</strong></p><p>Then click the button below to get into the platform.</p>
 registration#:#registration_code_required_info#:#Please enter first the registration code that you got from the supervisor of the exam. Then click "Register", to enter your personal data.
 registration#:#reg_login_is_generated#:#Your username is automatically generated and will be shown after registration. Please have your pen and paper ready.
+registration#:#use_fau_email#:#Please enter your @fau email address here if you are studying at FAU

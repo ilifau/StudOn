@@ -312,13 +312,14 @@ class ilAccountRegistrationGUI
         
         // #14272
         // fau: regCodes - check for registration type and code to set email required
-        if ($this->registration_settings->activationEnabled()) {
+  //      if ($this->registration_settings->activationEnabled()) {
             // fau.
             $mail_obj = $this->form->getItemByPostVar('usr_email');
             if ($mail_obj) { // #16087
                 $mail_obj->setRequired(true);
             }
-        }
+            $mail_obj->setInfo($this->lng->txt('use_fau_email'));
+  //      }
 
         if (\ilTermsOfServiceHelper::isEnabled() && $this->termsOfServiceEvaluation->hasDocument()) {
             $document = $this->termsOfServiceEvaluation->document();

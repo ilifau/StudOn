@@ -21,3 +21,4 @@ common#:#txt_registered#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattfo
 common#:#txt_registered_pw_is_login#:#<p>Sie haben sich erfolgreich bei der Prüfungsplattform registriert.</p><p>Bitte notieren Sie Ihren Benutzernamen/Ihr Passwort: <strong>%s</strong></p><p>Klicken Sie dann auf den untenstehenden Button, um in die Plattform zu gelangen.</p>
 registration#:#registration_code_required_info#:#Bitte geben Sie zunächst den Registrierungs-Code ein, den Sie von der Prüfungsaufsicht erhalten haben. Klicken Sie dann auf "Registrieren", um ihre Daten einzugeben.
 registration#:#reg_login_is_generated#:#Ihr Benutzername wird automatisch erzeugt und Ihnen nach der Registrierung angezeigt. Bitte halten sie dazu Papier und Stift bereit.
+registration#:#use_fau_email#:#Tragen Sie hier bitte Ihre @fau E-Mail-Adresse ein, falls Sie an der FAU studieren
