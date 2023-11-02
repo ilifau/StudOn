@@ -2355,9 +2355,6 @@ class ilExAssignment
         $mfu = $storage->getMultiFeedbackUploadPath($ilUser->getId());
         ilUtil::delDir($mfu, true);
         ilUtil::moveUploadedFile($a_file["tmp_name"], "multi_feedback.zip", $mfu . "/" . "multi_feedback.zip");
-        // fau: fixUnzipEncoding - enable fix
-        ilUtil::enableUnzipEncodingFix();
-        // fau.
         ilUtil::unzip($mfu . "/multi_feedback.zip", true);
         $subdirs = ilUtil::getDir($mfu);
         $subdir = "notfound";

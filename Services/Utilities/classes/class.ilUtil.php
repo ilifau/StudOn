@@ -39,10 +39,6 @@ class ilUtil
 {
     protected static $db_supports_distinct_umlauts;
 
-    // fau: fixUnzipEncoding - static variable
-    protected static $fix_unzip_encoding;
-    // fau.
-
     // fau: joinLink - new function _getLoginLink()
     public static function _getLoginLink($a_target = "")
     {
@@ -1723,26 +1719,18 @@ class ilUtil
         chdir($unzippable_zip_directory);
         $unzip_command = PATH_TO_UNZIP;
 
-            // fau: fixUnzipEncoding - get and apply the encoding switch
-        $switch = "";
-        if (self::$fix_unzip_encoding) {
-            $switch = self::getUnzipEncodingSwitch($unzippable_zip_filename);
-        }
         // real unzip
         if (!$overwrite_existing) {
-            $unzip_parameters = $switch . ilUtil::escapeShellArg($unzippable_zip_filename);
+            $unzip_parameters = ilUtil::escapeShellArg($unzippable_zip_filename);
         } else {
-            $unzip_parameters = "-o " . $switch . ilUtil::escapeShellArg($unzippable_zip_filename);
+            $unzip_parameters = "-o " . ilUtil::escapeShellArg($unzippable_zip_filename);
         }
-        // fau.
         ilUtil::execQuoted($unzip_command, $unzip_parameters);
         // move back
         chdir($current_directory);
 
         // remove all sym links
         clearstatcache();			// prevent is_link from using cache
-
-        // sanitize filenames
         $dir_realpath = realpath($unzippable_zip_directory);
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($unzippable_zip_directory)) as $name => $f) {
             // fau: fixUnzipPermissions - set the correct permissions
@@ -1793,87 +1781,6 @@ class ilUtil
 
         ilUtil::delDir($temporary_unzip_directory);
     }
-
-    // fau: fixUnzipEncoding - new function enableUnzipEncodingFix()
-    /**
-     * Enable the encoding fix for unzip
-     * @see self::unzip
-     */
-    public static function enableUnzipEncodingFix()
-    {
-        self::$fix_unzip_encoding = true;
-    }
-    // fau.
-
-    // fau: fixUnzipEncoding - new function getUnzipEncodingSwitch()
-    /**
-     * Get the encoding switch for unzip
-     * Unzip on ubuntu 16.04 and 18.04 treats windows zip archives as if they have code page 866 (russian).
-     * That would result in kyrillic letters for german umlaute
-     * This function tries to detect an handle a wrong decoding
-     * If kyrillic characters exist in the file names (without extensions) but are fewer than a threshold,
-     * then a wrong decoding is assumed and the western code page is forced
-     *
-     * @see https://mantis.ilias.de/view.php?id=25383
-     *
-     * @param $file
-     * @return string
-     */
-    public static function getUnzipEncodingSwitch($file)
-    {
-        // this setting is studon specific
-        $unzip_keep_min_kyrillic_percent = ilCust::get('unzip_keep_min_kyrillic_percent');
-        if (empty($unzip_keep_min_kyrillic_percent)) {
-            return '';
-        }
-
-        $kyrillic = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
-        $chars = [];
-        for ( $k = 0; $k < mb_strlen($kyrillic); $k++) {
-            $chars[] = mb_substr($kyrillic, $k, 1);
-        }
-
-        // list the ZIP files, trying utf8 encoding
-        $unzip = PATH_TO_UNZIP;
-        $unzipcmd = ' -Z -1 ' . ilUtil::escapeShellArg($file);
-        $files = ilUtil::execQuoted($unzip, $unzipcmd);
-
-//        echo "<pre />";
-//        var_dump($files);
-
-        $all = 0;
-        $found = 0;
-        foreach ($files as $file) {
-            $info = pathinfo($file);
-            $filename = $info['filename'];
-
-//            echo $filename;
-//            echo "\n";
-
-            $all += mb_strlen($filename);
-            for ( $c = 0; $c < mb_strlen($filename); $c++) {
-                if (in_array(mb_substr($filename, $c, 1), $chars)) {
-                    $found++;
-                }
-            }
-        }
-
-        if ($all > 0 && $found > 0 && (100 * $found / $all < (int) $unzip_keep_min_kyrillic_percent)) {
-            $switch =  "-O CP850 ";
-        }
-        else {
-            $switch = "";
-        }
-
-//        echo "all: $all \n";
-//        echo "found:  $found \n";
-//        echo "switch: $switch \n";
-//        exit;
-
-        return $switch;
-    }
-    // fau.
-
 
     /**
     *	zips given directory/file into given zip.file

@@ -920,9 +920,6 @@ class ilObjMediaObjectGUI extends ilObjectGUI
         if (@is_file($file)) {
             $cur_files_r = iterator_to_array(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($mob_dir)));
 
-            // fau: fixUnzipEncoding - enable fix
-            ilUtil::enableUnzipEncodingFix();
-            // fau.
             ilUtil::unzip($file, true);
             unlink($file);
 

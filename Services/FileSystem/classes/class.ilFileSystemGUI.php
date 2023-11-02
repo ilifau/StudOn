@@ -902,9 +902,6 @@ class ilFileSystemGUI
             $cur_files = array_keys(ilUtil::getDir($cur_dir));
             $cur_files_r = iterator_to_array(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($cur_dir)));
 
-            // fau: fixUnzipEncoding - enable fix
-            ilUtil::enableUnzipEncodingFix();
-            // fau.
             if ($this->getAllowDirectories()) {
                 ilUtil::unzip($a_file, true);
             } else {
