@@ -2100,15 +2100,17 @@ class ilExAssignment
         $idl = $this->getIndividualDeadlines();
         foreach ($idl as $user_id => $v) {
             if (!isset($mem[$user_id])) {
-                $name = ilObjUser::_lookupName($user_id);
-                $mem[$user_id] =
-                    array(
-                        "name" => $name["lastname"] . ", " . $name["firstname"],
-                        "login" => $name["login"],
-                        "usr_id" => $user_id,
-                        "lastname" => $name["lastname"],
-                        "firstname" => $name["firstname"]
-                    );
+                if (ilObjUser::_exists($user_id)) {
+                    $name = ilObjUser::_lookupName($user_id);
+                    $mem[$user_id] =
+                        array(
+                            "name" => $name["lastname"] . ", " . $name["firstname"],
+                            "login" => $name["login"],
+                            "usr_id" => $user_id,
+                            "lastname" => $name["lastname"],
+                            "firstname" => $name["firstname"]
+                        );
+                }
             }
         }
 
@@ -2353,9 +2355,6 @@ class ilExAssignment
         $mfu = $storage->getMultiFeedbackUploadPath($ilUser->getId());
         ilUtil::delDir($mfu, true);
         ilUtil::moveUploadedFile($a_file["tmp_name"], "multi_feedback.zip", $mfu . "/" . "multi_feedback.zip");
-        // fau: fixUnzipEncoding - enable fix
-        ilUtil::enableUnzipEncodingFix();
-        // fau.
         ilUtil::unzip($mfu . "/multi_feedback.zip", true);
         $subdirs = ilUtil::getDir($mfu);
         $subdir = "notfound";

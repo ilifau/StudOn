@@ -22,6 +22,9 @@ use ILIAS\Filesystem\Util\LegacyPathHelper;
 use ILIAS\FileUpload\DTO\ProcessingStatus;
 use ILIAS\FileUpload\DTO\UploadResult;
 
+/** @noRector */
+require_once './include/Unicode/UtfNormal.php';
+
 /**
 * Util class
 * various functions, usage as namespace
@@ -35,10 +38,6 @@ use ILIAS\FileUpload\DTO\UploadResult;
 class ilUtil
 {
     protected static $db_supports_distinct_umlauts;
-
-    // fau: fixUnzipEncoding - static variable
-    protected static $fix_unzip_encoding;
-    // fau.
 
     // fau: joinLink - new function _getLoginLink()
     public static function _getLoginLink($a_target = "")
@@ -1690,101 +1689,50 @@ class ilUtil
         //@chmod($a_dir, $a_mod);
     }
 
-
-    /**
-    * unzip file
-    *
-    * @param	string	$a_file		full path/filename
-    * @param	boolean	$overwrite	pass true to overwrite existing files
-    * @static
-    *
-    */
-    public static function unzip($a_file, $overwrite = false, $a_flat = false)
-    {
+    public static function unzip(
+        string $path_to_zip_file,
+        bool $overwrite_existing = false,
+        bool $unpack_flat = false
+    ) {
         global $DIC;
 
         $log = $DIC->logger()->root();
 
-        if (!is_file($a_file)) {
+        if (!is_file($path_to_zip_file)) {
             return;
         }
 
-        // if flat, move file to temp directory first
-        if ($a_flat) {
-            $tmpdir = ilUtil::ilTempnam();
-            ilUtil::makeDir($tmpdir);
-            copy($a_file, $tmpdir . DIRECTORY_SEPARATOR . basename($a_file));
-            $orig_file = $a_file;
-            $a_file = $tmpdir . DIRECTORY_SEPARATOR . basename($a_file);
-            $origpathinfo = pathinfo($orig_file);
-        }
+        // we unpack the zip always in a temp directory
+        $temporary_unzip_directory = ilUtil::ilTempnam();
+        ilUtil::makeDir($temporary_unzip_directory);
+        copy($path_to_zip_file, $temporary_unzip_directory . DIRECTORY_SEPARATOR . basename($path_to_zip_file));
+        $original_path_to_zip_file = $path_to_zip_file;
+        $path_to_zip_file = $temporary_unzip_directory . DIRECTORY_SEPARATOR . basename($path_to_zip_file);
+        $original_zip_path_info = pathinfo($original_path_to_zip_file);
+        $unzippable_zip_path_info = pathinfo($path_to_zip_file);
 
-        $pathinfo = pathinfo($a_file);
-        $dir = $pathinfo["dirname"];
-        $file = $pathinfo["basename"];
+        $unzippable_zip_directory = $unzippable_zip_path_info["dirname"];
+        $unzippable_zip_filename = $unzippable_zip_path_info["basename"];
 
         // unzip
-        $cdir = getcwd();
-        chdir($dir);
-        $unzip = PATH_TO_UNZIP;
+        $current_directory = getcwd();
+        chdir($unzippable_zip_directory);
+        $unzip_command = PATH_TO_UNZIP;
 
-        // the following workaround has been removed due to bug
-        // http://www.ilias.de/mantis/view.php?id=7578
-        // since the workaround is quite old, it may not be necessary
-        // anymore, alex 9 Oct 2012
-        /*
-                // workaround for unzip problem (unzip of subdirectories fails, so
-                // we create the subdirectories ourselves first)
-                // get list
-                $unzipcmd = "-Z -1 ".ilUtil::escapeShellArg($file);
-                $arr = ilUtil::execQuoted($unzip, $unzipcmd);
-                $zdirs = array();
-
-                foreach($arr as $line)
-                {
-                    if(is_int(strpos($line, "/")))
-                    {
-                        $zdir = substr($line, 0, strrpos($line, "/"));
-                        $nr = substr_count($zdir, "/");
-                        //echo $zdir." ".$nr."<br>";
-                        while ($zdir != "")
-                        {
-                            $nr = substr_count($zdir, "/");
-                            $zdirs[$zdir] = $nr;				// collect directories
-                            //echo $dir." ".$nr."<br>";
-                            $zdir = substr($zdir, 0, strrpos($zdir, "/"));
-                        }
-                    }
-                }
-
-                asort($zdirs);
-
-                foreach($zdirs as $zdir => $nr)				// create directories
-                {
-                    ilUtil::createDirectory($zdir);
-                }
-        */
-
-        // fau: fixUnzipEncoding - get and apply the encoding switch
-        $switch = "";
-        if (self::$fix_unzip_encoding) {
-            $switch = self::getUnzipEncodingSwitch($file);
-        }
         // real unzip
-        if (!$overwrite) {
-            $unzipcmd = $switch . ilUtil::escapeShellArg($file);
+        if (!$overwrite_existing) {
+            $unzip_parameters = ilUtil::escapeShellArg($unzippable_zip_filename);
         } else {
-            $unzipcmd = "-o " . $switch . ilUtil::escapeShellArg($file);
+            $unzip_parameters = "-o " . ilUtil::escapeShellArg($unzippable_zip_filename);
         }
-        ilUtil::execQuoted($unzip, $unzipcmd);
-        // fau.
-
-        chdir($cdir);
+        ilUtil::execQuoted($unzip_command, $unzip_parameters);
+        // move back
+        chdir($current_directory);
 
         // remove all sym links
         clearstatcache();			// prevent is_link from using cache
-        $dir_realpath = realpath($dir);
-        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir)) as $name => $f) {
+        $dir_realpath = realpath($unzippable_zip_directory);
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($unzippable_zip_directory)) as $name => $f) {
             // fau: fixUnzipPermissions - set the correct permissions
             if (is_dir($name)) {
                 chmod($name, 0755);
@@ -1800,104 +1748,39 @@ class ilUtil
                     $log->info("Removed symlink " . $name);
                 }
             }
+            if (is_file($name) && $name !== ilFileUtils::getValidFilename($name)) {
+                // rename file if it contains invalid suffix
+                $new_name = ilFileUtils::getValidFilename($name);
+                rename($name, $new_name);
+            }
         }
 
-        // if flat, get all files and move them to original directory
-        if ($a_flat) {
-            include_once("./Services/Utilities/classes/class.ilFileUtils.php");
-            $filearray = array();
-            ilFileUtils::recursive_dirscan($tmpdir, $filearray);
-            if (is_array($filearray["file"])) {
-                foreach ($filearray["file"] as $k => $f) {
-                    if (substr($f, 0, 1) != "." && $f != basename($orig_file)) {
-                        copy($filearray["path"][$k] . $f, $origpathinfo["dirname"] . DIRECTORY_SEPARATOR . $f);
+        // rename executables
+        self::renameExecutables($unzippable_zip_directory);
+
+        // now we have to move the files to the original directory. if $a_flat is true, we move the files only without directories, otherwise we move the whole directory
+        if ($unpack_flat) {
+            $file_array = [];
+            ilFileUtils::recursive_dirscan($temporary_unzip_directory, $file_array);
+            if (is_array($file_array["file"])) {
+                foreach ($file_array["file"] as $k => $f) {
+                    if (
+                        substr($f, 0, 1) !== "."
+                        && $f !== basename($original_path_to_zip_file)
+                    ) {
+                        copy(
+                            $file_array["path"][$k] . $f,
+                            $original_zip_path_info["dirname"] . DIRECTORY_SEPARATOR . $f
+                        );
                     }
                 }
             }
-            ilUtil::delDir($tmpdir);
+        } else {
+            self::rCopy($temporary_unzip_directory, $original_zip_path_info["dirname"]);
         }
+
+        ilUtil::delDir($temporary_unzip_directory);
     }
-
-    // fau: fixUnzipEncoding - new function enableUnzipEncodingFix()
-    /**
-     * Enable the encoding fix for unzip
-     * @see self::unzip
-     */
-    public static function enableUnzipEncodingFix()
-    {
-        self::$fix_unzip_encoding = true;
-    }
-    // fau.
-
-    // fau: fixUnzipEncoding - new function getUnzipEncodingSwitch()
-    /**
-     * Get the encoding switch for unzip
-     * Unzip on ubuntu 16.04 and 18.04 treats windows zip archives as if they have code page 866 (russian).
-     * That would result in kyrillic letters for german umlaute
-     * This function tries to detect an handle a wrong decoding
-     * If kyrillic characters exist in the file names (without extensions) but are fewer than a threshold,
-     * then a wrong decoding is assumed and the western code page is forced
-     *
-     * @see https://mantis.ilias.de/view.php?id=25383
-     *
-     * @param $file
-     * @return string
-     */
-    public static function getUnzipEncodingSwitch($file)
-    {
-        // this setting is studon specific
-        $unzip_keep_min_kyrillic_percent = ilCust::get('unzip_keep_min_kyrillic_percent');
-        if (empty($unzip_keep_min_kyrillic_percent)) {
-            return '';
-        }
-
-        $kyrillic = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя";
-        $chars = [];
-        for ( $k = 0; $k < mb_strlen($kyrillic); $k++) {
-            $chars[] = mb_substr($kyrillic, $k, 1);
-        }
-
-        // list the ZIP files, trying utf8 encoding
-        $unzip = PATH_TO_UNZIP;
-        $unzipcmd = ' -Z -1 ' . ilUtil::escapeShellArg($file);
-        $files = ilUtil::execQuoted($unzip, $unzipcmd);
-
-//        echo "<pre />";
-//        var_dump($files);
-
-        $all = 0;
-        $found = 0;
-        foreach ($files as $file) {
-            $info = pathinfo($file);
-            $filename = $info['filename'];
-
-//            echo $filename;
-//            echo "\n";
-
-            $all += mb_strlen($filename);
-            for ( $c = 0; $c < mb_strlen($filename); $c++) {
-                if (in_array(mb_substr($filename, $c, 1), $chars)) {
-                    $found++;
-                }
-            }
-        }
-
-        if ($all > 0 && $found > 0 && (100 * $found / $all < (int) $unzip_keep_min_kyrillic_percent)) {
-            $switch =  "-O CP850 ";
-        }
-        else {
-            $switch = "";
-        }
-
-//        echo "all: $all \n";
-//        echo "found:  $found \n";
-//        echo "switch: $switch \n";
-//        exit;
-
-        return $switch;
-    }
-    // fau.
-
 
     /**
     *	zips given directory/file into given zip.file
@@ -3818,10 +3701,12 @@ class ilUtil
     * @static
     *
     */
-    public static function rRenameSuffix($a_dir, $a_old_suffix, $a_new_suffix)
+    public static function rRenameSuffix(string $a_dir, string $a_old_suffix, string $a_new_suffix) : bool
     {
-        if ($a_dir == "/" || $a_dir == "" || is_int(strpos($a_dir, ".."))
-            || trim($a_old_suffix) == "") {
+        if ($a_dir === "/"
+            || $a_dir === ""
+            || strpos($a_dir, "..") !== false
+            || trim($a_old_suffix) === "") {
             return false;
         }
 
@@ -3832,19 +3717,28 @@ class ilUtil
 
         // read a_dir
         $dir = opendir($a_dir);
+        if ($dir === false) {
+            return false;
+        }
+
+        $prohibited = [
+            '...'
+        ];
 
         while ($file = readdir($dir)) {
-            if ($file != "." and
-            $file != "..") {
+            if (
+                $file !== "."
+                && $file !== ".."
+            ) {
                 // triple dot is not allowed in filenames
-                if ($file === '...') {
+                if (in_array($file, $prohibited)) {
                     unlink($a_dir . "/" . $file);
                     continue;
                 }
 
                 // directories
                 if (@is_dir($a_dir . "/" . $file)) {
-                    ilUtil::rRenameSuffix($a_dir . "/" . $file, $a_old_suffix, $a_new_suffix);
+                    self::rRenameSuffix($a_dir . "/" . $file, $a_old_suffix, $a_new_suffix);
                 }
 
                 // files
@@ -3864,8 +3758,7 @@ class ilUtil
 
                     $path_info = pathinfo($a_dir . "/" . $file);
 
-                    if (strtolower($path_info["extension"]) ==
-                    strtolower($a_old_suffix)) {
+                    if (strtolower($path_info["extension"]) === strtolower($a_old_suffix)) {
                         $pos = strrpos($a_dir . "/" . $file, ".");
                         $new_name = substr($a_dir . "/" . $file, 0, $pos) . "." . $a_new_suffix;
                         // check if file exists
@@ -3929,7 +3822,7 @@ class ilUtil
                 ? $security->getPasswordMaxLength()
                 : 10;
             if ($min > $max) {
-                $max = $max + 1;
+                $max = $min + 1;
             }
             $random = new \ilRandom();
             $length = $random->int($min, $max);

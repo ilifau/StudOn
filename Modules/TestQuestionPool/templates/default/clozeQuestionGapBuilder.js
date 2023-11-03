@@ -54,7 +54,7 @@ var ClozeQuestionGapBuilder = (function () {
 		if (ClozeSettings.gaps_php === null) {
 			ClozeSettings.gaps_php = [];
 		}
-		
+
 		ClozeSettings.gaps_php[0].forEach(
 			(gap) => {
 				if (gap.type === 'text' || gap.type === 'select') {
@@ -445,7 +445,9 @@ var ClozeQuestionGapBuilder = (function () {
 		var regex = new RegExp(regexExpression, 'i');
 		var stringBuild = '';
 		ClozeSettings.gaps_php[0][gap_count - 1].values.forEach(function (entry) {
-			stringBuild += entry.answer + ',';
+      if (entry.answer !== undefined) {
+  			stringBuild += entry.answer.replace(/\[/g, '[&hairsp;') + ',';
+    }
 		});
 		stringBuild = stringBuild.replace(/,+$/, '');
 		var newText = text.replace(regex, '[gap ' + gap_count + ']' + stringBuild + '[/gap]');
@@ -1567,7 +1569,8 @@ var ClozeGapCombinationBuilder = (function () {
 					var value = parseInt(k, 10) + 1;
 					if (pos === value) {
 						$.each(obj_inner_values.values, function (l, value) {
-							buildOptionsValue += '<option value="' + value.answer + '">' + value.answer + '</option>';
+							let cleaned_answer_value = value.answer.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+              buildOptionsValue += '<option value="' + value.answer + '">' + cleaned_answer_value + '</option>';
 						});
 						if (obj_inner_values.type == 'numeric') {
 							buildOptionsValue += '<option value="out_of_bound">' + ClozeSettings.outofbound_text + '</option>';

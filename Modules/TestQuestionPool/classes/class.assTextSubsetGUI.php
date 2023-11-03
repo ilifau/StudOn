@@ -181,7 +181,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
                 array_push($solutions, array("value1" => join(",", $bestsolutions), "points" => $index));
             }
         }
-        
+
         // generate the question output
         include_once "./Services/UICore/classes/class.ilTemplate.php";
         $template = new ilTemplate("tpl.il_as_qpl_textsubset_output_solution.html", true, true, "Modules/TestQuestionPool");
@@ -213,7 +213,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
                     }
                 }
                 $template->setCurrentBlock("textsubset_row");
-                $template->setVariable("SOLUTION", $solutions[$i]["value1"]);
+                $template->setVariable("SOLUTION", $this->escapeTemplatePlaceholders($solutions[$i]["value1"]));
                 $template->setVariable("COUNTER", $i + 1);
                 if ($result_output) {
                     $points = $solutions[$i]["points"];
@@ -223,9 +223,8 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
                 $template->parseCurrentBlock();
             }
         }
-        $questiontext = $this->object->getQuestion();
         if ($show_question_text == true) {
-            $template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($questiontext, true));
+            $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         }
         $questionoutput = $template->get();
         $feedback = ($show_feedback && !$this->isTestPresentationContext()) ? $this->getAnswerFeedbackOutput($active_id, $pass) : "";
@@ -234,7 +233,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
                 $this->hasCorrectSolution($active_id, $pass) ?
                 ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_CORRECT : ilAssQuestionFeedback::CSS_CLASS_FEEDBACK_WRONG
             );
-            
+
             $solutiontemplate->setVariable("ILC_FB_CSS_CLASS", $cssClass);
             $solutiontemplate->setVariable("FEEDBACK", $this->object->prepareTextareaOutput($feedback, true));
         }
@@ -247,7 +246,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
         }
         return $solutionoutput;
     }
-    
+
     public function getPreview($show_question_only = false, $showInlineFeedback = false)
     {
         $solutions = is_object($this->getPreviewSession()) ? (array) $this->getPreviewSession()->getParticipantsSolution() : array();
@@ -259,7 +258,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             $template->setCurrentBlock("textsubset_row");
             foreach ($solutions as $idx => $solution_value) {
                 if ($idx == $i) {
-                    $template->setVariable("TEXTFIELD_VALUE", " value=\"" . $solution_value . "\"");
+                    $template->setVariable("TEXTFIELD_VALUE", " value=\"" . $this->escapeTemplatePlaceholders($solution_value) . "\"");
                 }
             }
             $template->setVariable("COUNTER", $i + 1);
@@ -267,8 +266,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             $template->setVariable("TEXTFIELD_SIZE", $width);
             $template->parseCurrentBlock();
         }
-        $questiontext = $this->object->getQuestion();
-        $template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         $questionoutput = $template->get();
         if (!$show_question_only) {
             // get page object output
@@ -292,7 +290,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             // hey.
             $solutions = $this->object->getUserSolutionPreferingIntermediate($active_id, $pass);
         }
-        
+
         // generate the question output
         include_once "./Services/UICore/classes/class.ilTemplate.php";
         $template = new ilTemplate("tpl.il_as_qpl_textsubset_output.html", true, true, "Modules/TestQuestionPool");
@@ -301,7 +299,7 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             $template->setCurrentBlock("textsubset_row");
             foreach ($solutions as $idx => $solution_value) {
                 if ($idx == $i) {
-                    $template->setVariable("TEXTFIELD_VALUE", " value=\"" . ilUtil::prepareFormOutput(html_entity_decode($solution_value["value1"])) . "\"");
+                    $template->setVariable("TEXTFIELD_VALUE", " value=\"" . $this->escapeTemplatePlaceholders($solution_value["value1"]) . "\"");
                 }
             }
             $template->setVariable("COUNTER", $i + 1);
@@ -309,13 +307,12 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
             $template->setVariable("TEXTFIELD_SIZE", $width);
             $template->parseCurrentBlock();
         }
-        $questiontext = $this->object->getQuestion();
-        $template->setVariable("QUESTIONTEXT", $this->object->prepareTextareaOutput($questiontext, true));
+        $template->setVariable("QUESTIONTEXT", $this->object->getQuestionForHTMLOutput());
         $questionoutput = $template->get();
         $pageoutput = $this->outQuestionPage("", $is_postponed, $active_id, $questionoutput);
         return $pageoutput;
     }
-    
+
     public function getSpecificFeedbackOutput($userSolution)
     {
         $output = "";
@@ -477,18 +474,18 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
         }
         return $tpl;
     }
-    
+
     public function getAnswersFrequency($relevantAnswers, $questionIndex)
     {
         $answers = array();
-        
+
         foreach ($relevantAnswers as $ans) {
             if (!isset($answers[$ans['value1']])) {
                 $answers[$ans['value1']] = array(
                     'answer' => $ans['value1'], 'frequency' => 0
                 );
             }
-            
+
             $answers[$ans['value1']]['frequency']++;
         }
         $answers = $this->completeAddAnswerAction($answers, $questionIndex);
@@ -526,17 +523,17 @@ class assTextSubsetGUI extends assQuestionGUI implements ilGuiQuestionScoringAdj
         $choices->setQuestionObject($this->object);
         $choices->setValues($this->object->getAnswers());
         $form->addItem($choices);
-        
+
         return $form;
     }
-    
+
     /**
      * @param ilPropertyFormGUI $form
      */
     public function saveCorrectionsFormProperties(ilPropertyFormGUI $form)
     {
         $points = $form->getInput('answers')['points'];
-        
+
         foreach ($this->object->getAnswers() as $index => $answer) {
             /* @var ASS_AnswerBinaryStateImage $answer */
             $answer->setPoints((float) $points[$index]);
