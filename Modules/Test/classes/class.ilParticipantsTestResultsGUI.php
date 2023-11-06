@@ -603,7 +603,7 @@ class ilParticipantsTestResultsGUI
                     $subject, 				// subject
                     $body, 					// message
                     array(), 				// attachments
-                    array('system') 		// type
+                    0                       // use placholders
                 );
                 
                 if ($error) {
