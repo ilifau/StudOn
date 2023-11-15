@@ -13,18 +13,13 @@ $p->login();
  * Patches for FAU
  ********************/
 
-//$p->applyPatch('ilFauPatches.migrateConditions');
-//$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
-//$p->applyPatch('ilFauPatches.sendMailsToSolveConflicts');
-
+// Cron-Jobs
+//$p->applyPatch('ilFauPatches.syncWithOrg');
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
 //$p->applyPatch('ilFauPatches.syncToCampo');
 
-//$p->applyPatch('ilFauPatches.findParentCategoryForEvent', ['event_id' => 111384]);
-//$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
-//$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
 
 // Create or Update ILI courses
 //$p->applyPatch('ilFauPatches.syncWithIlias', ['orgunit_id' => 2429]);
@@ -34,16 +29,26 @@ $p->login();
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [365259], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20231', 'course_ids' => [365260], 'test_run' => false]);
 
+// Test Courses at SZ
+// $p->applyPatch('ilFauPatches.createCourses', ['term' => '20232', 'course_ids' => [385311, 385312, 385313, 385314], 'test_run' => false]);
+
+
 // Test courses for status messages with member ox33yhir in studon backup from 2.5.2023
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20231', 'course_ids' => [365017, 365020, 365010], 'test_run' => false]);
-
 //$p->applyPatch('ilFauPatches.createCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);
 //$p->applyPatch('ilFauPatches.updateCourses', ['term' => '20232', 'course_ids' => [313368, 313371, 313372, 313373, 319805], 'test_run' => false]);
 
+// Execute every semester
+//$p->applyPatch('ilFauPatches.remindExmatriculation', ['login' => 'fred.neumann']);
+
+// Helper patches
+//$p->applyPatch('ilFauPatches.createMissingOrgRoles', ['exclude' => [1115]]);
+//$p->applyPatch('ilFauPatches.checkOrgUnitRelations');
+//$p->applyPatch('ilFauPatches.sendMailsToSolveConflicts');
+//$p->applyPatch('ilFauPatches.moveLostCourses', ['term' => '20222']);
 //$p->applyPatch('ilFauPatches.removeUntouchedDoubleCourses');
 //$p->applyPatch('ilFauPatches.cleanupDoubleAccounts');
 
-//$p->applyPatch('ilFauPatches.remindExmatriculation', ['login' => 'fred.neumann']);
 
 /*****************
 * Specific actions
@@ -51,20 +56,10 @@ $p->login();
 
 //$p->applyPatch('ilSpecificPatches.addOnlineHelpToRepository', array('obj_id'=>24751, 'parent_ref_id'=>8803));
 //$p->applyPatch('ilSpecificPatches.replacePageTexts', array('parent_id'=>0, 'search'=>'studon.uni-erlangen.de', 'replace'=> 'studon.fau.de'));
-//$p->applyPatch('ilSpecificPatches.mergeQuestionPoolsAsTaxonomy', array('containerRefId' => 1187922, 'targetRefId' => 1307954, 'navTax' =>'Thema', 'randomTax' => "Verwendung", 'randomNodes' => array('Übung'=> 0.75, 'Klausur' => 1)));
-//$p->applyPatch('ilSpecificPatches.compareAccountingQuestionResults');
-//$p->applyPatch('ilSpecificPatches.convertAccountingQuestionResults');
 //$p->applyPatch('ilSpecificPatches.changeRemoteMediaUrlPrefix', array('search'=> 'http://', 'replace' => 'https://', 'update' => false));
 //$p->applyPatch('ilSpecificPatches.removeCourseMembersWhenOnWaitingList', array('obj_id' => 2569770));
 //$p->applyPatch('ilSpecificPatches.countExerciseUploads', array('start_id'=> 737000));
 //$p->applyPatch('ilSpecificPatches.sendMassMail', array('subject' => 'Update am 14.3.2022 / Update on 3/14/2022', 'bodyfile'=> 'data/mail.txt'));
-//$p->applyPatch('ilSpecificPatches.moveVhbIdentifiersToKeywords');
-
-//$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2019-10-14_bis_2020-10-24/online.log'));
-//$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2020-10-24_bis_2021-01-01/online.log'));
-//$p->applyPatch('ilSpecificPatches.importUsersOnline', array('inputfile'=> 'data/logs/2021-01-01_bis_2021-02-15/online.log'));
-
-//$p->applyPatch('ilSpecificPatches.migratePorgNumbers');
 //$p->applyPatch('ilSpecificPatches.renameObjects');
 //$p->applyPatch('ilSpecificPatches.syncExamUsers', ["deactivate_missing" => true, "deactivate_participants" => true]);
 

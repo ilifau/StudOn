@@ -25,6 +25,18 @@ class ilFauPatches
         $service = $this->dic->fau()->sync()->campo();
         $service->synchronize();
     }
+    
+    public function syncPersonData()
+    {
+        $service = $this->dic->fau()->sync()->idm();
+        $service->synchronize();
+    }
+
+    public function syncWithIlias($params = ['orgunit_id' => null])
+    {
+        $service = $this->dic->fau()->sync()->ilias();
+        $service->synchronize($params['orgunit_id']);
+    }
 
     public function syncToCampo()
     {
@@ -32,37 +44,10 @@ class ilFauPatches
         $service->synchronize();
     }
 
-
-    public function syncRestrictions()
+    public function syncWithOrg()
     {
-        $service = $this->dic->fau()->sync()->campo();
-        $service->syncModuleRestrictions();
-        $service->syncEventRestrictions();
-    }
-
-    /**
-     * todo: move to cron job if performance is ok
-     */
-    public function syncPersonData()
-    {
-        $service = $this->dic->fau()->sync()->idm();
+        $service = $this->dic->fau()->sync()->org();
         $service->synchronize();
-    }
-
-    /**
-     * Migrate the conditions from the old study tables to the new fau_study tables
-     */
-    public function migrateConditions()
-    {
-        Setup::instance($this->dic->database())->cond()->fillCosConditionsFromStudydata($this->dic->fau()->staging()->database());
-        Setup::instance($this->dic->database())->cond()->fillDocConditionsFromStudydata();
-    }
-
-
-    public function syncWithIlias($params = ['orgunit_id' => null])
-    {
-        $service = $this->dic->fau()->sync()->ilias();
-        $service->synchronize($params['orgunit_id']);
     }
 
     /**
@@ -102,24 +87,14 @@ class ilFauPatches
     }
 
     /**
-     * Create the emissing manager and author roles in a category
+     * Create the missing manager and author roles in a category
      */
     public function createMissingOrgRoles($params = ['exclude' => []])
     {
         $service = $this->dic->fau()->sync()->ilias();
         $service->createMissingOrgRoles($params['exclude']);
     }
-
-    /**
-     * Find the parent category in which the courses of an event should be created
-     */
-    public function findParentCategoryForEvent($params = ['event_id' => 0])
-    {
-        $treeMatching = $this->dic->fau()->sync()->trees();
-        $ref_id = $treeMatching->findParentCategoryForEvent($params['event_id']);
-        var_dump($ref_id);
-    }
-
+    
     /**
      *
      */
