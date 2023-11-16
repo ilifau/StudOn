@@ -72,7 +72,7 @@ $p->login();
 // Insert the result to _page_ids
 // $p->applyPatch('ilSpecificPatches.splitH5PPageContents');
 
-//$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,copa,crsr,dcl,exc,feed,frm,glo,grpr,htlm,iass,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xhfp,xflc,xlvo,xpdl,xsrl,xvid,xxco', 'deleted_before' => '2023-04-01 00:00:00', 'limit' => null));
+$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'bibl,blog,book,catr,chtr,copa,crsr,dcl,exc,feed,frm,glo,grpr,htlm,iass,itgr,lm,mcst,mep,poll,prg,prtt,qpl,sahs,sess,spl,svy,tst,webr,wiki,xcos,xhfp,xflc,xlvo,xpdl,xsrl,xvid,xxco', 'deleted_before' => '2023-04-02 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'file', 'deleted_before' => '2023-04-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'lso', 'deleted_before' => '2023-04-01 00:00:00', 'limit' => null));
 //$p->applyPatch('ilCleanupPatches.RemoveTrashedObjects', array('types' => 'fold', 'deleted_before' => '2023-04-01 00:00:00', 'limit' => null));
