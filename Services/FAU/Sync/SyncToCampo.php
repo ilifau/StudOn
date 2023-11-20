@@ -5,6 +5,7 @@ namespace FAU\Sync;
 use ILIAS\DI\Container;
 use FAU\Study\Data\Term;
 use FAU\Staging\Data\StudOnMember;
+use FAU\Study\Data\Course;
 
 /**
  * Synchronisation of course settings and members from StudOn to campo
@@ -59,8 +60,17 @@ class SyncToCampo extends SyncBase
         $this->info('sync StudOnMembers for Term ' . $term->toString() . '...');
         // get the members noted in the staging database
         $existing = $this->staging->repo()->getStudOnMembers($term);
-        // get the courses in the tern that have an ilias object assigned
-        $course_ids = $this->sync->repo()->getCourseIdsToSyncBack($term);
+        // get the sending setting of courses in the term
+        $sending = $this->sync->repo()->getCourseSendPassedToSyncBack($term);
+        // Get the module ids of modules for which a 'passed' status of members should be sent to campo
+        $passing_module_ids = $this->sync->repo()->getModuleIdsToSendPassed();
+        
+        /* 
+            2023-11-20: no check for end time
+            The option to send a status for all course members is removed
+            Status is only sent if the learning progress is set
+            There is no need anymore to wait for a course end
+            
         // get the timestamps of the maximum individual dates of all courses indexed by course ids
         $times = $this->sync->repo()->getCoursesMaxDatesAsTimestamps();
         // earlies maximum date of courses for which a passed status should be sent
@@ -69,11 +79,25 @@ class SyncToCampo extends SyncBase
         );
         // fallback end date for courses without a planned or individual end date
         $term_end = $this->study->getTermEndTime($term);
+        */
         
         foreach ($this->sync->repo()->getMembersOfCoursesToSyncBack($term) as $member) {
+            /* 
+                2023-11-20: no check for end time (see above)
+            
             $end_time = $times[$member->getCourseId()] ?? $term_end;
             if ($end_time > $earliest_passed) {
                 $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+            }
+            */
+            
+            if ($member->getStatus() == StudOnMember::STATUS_PASSED) {
+                
+                // don't send a 'passed' status if neither the module nor the course allows it
+                if (!in_array($member->getModuleId(), $passing_module_ids)
+                    && (!isset($sending[$member->getCourseId()]) || $sending[$member->getCourseId()] != Course::SEND_PASSED_LP)) {
+                    $member = $member->withStatus(StudOnMember::STATUS_REGISTERED);
+                }
             }
             
             if (!isset($existing[$member->key()])) {
@@ -91,49 +115,11 @@ class SyncToCampo extends SyncBase
         // delete remaining existing members in campo that are no longer assigned in studon
         // don't delete those of older courses where the studon object is deleted or connected with another course
         foreach ($existing as $member) {
-            if (in_array($member->getCourseId(), $course_ids)) {
+            if (isset($sending[$member->getCourseId()])) {
                 $this->staging->repo()->delete($member);
                 $this->increaseItemsDeleted();
             }
         }
     }
-
-
-    /**
-     * Update all members of an ilias object in the staging table
-     */
-    public function syncMembersOfObject(int $obj_id) : void
-    {
-        foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($obj_id) as $course) {
-            $course_id = $course->getCourseId();
-        }
-        if (empty($course_id)) {
-            return;
-        }
-
-        $this->info('sync StudOnMembers Of Object...');
-        // get the members noted in the staging database
-        $existing = $this->staging->repo()->getStudOnMembersOfCourse($course_id);
-
-        foreach ($this->sync->repo()->getMembersOfIliasObjectToSyncBack($obj_id) as $member) {
-            if (!isset($existing[$member->key()])) {
-                $this->staging->repo()->save($member);
-                $this->increaseItemsAdded();
-            }
-            elseif ($existing[$member->key()]->hash() != $member->hash()) {
-                $this->staging->repo()->save($member);
-                $this->increaseItemsUpdated();
-            }
-            // existing member in campo is still assigned in studon
-            unset($existing[$member->key()]);
-        }
-
-        // delete remaining existing members in campo that are no longer assigned in studon
-        foreach ($existing as $member) {
-            $this->staging->repo()->delete($member);
-            $this->increaseItemsDeleted();
-        }
-    }
-
 }
 

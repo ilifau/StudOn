@@ -18,7 +18,7 @@ $p->login();
 //$p->applyPatch('ilFauPatches.syncPersonData');
 //$p->applyPatch('ilFauPatches.syncCampoData');
 //$p->applyPatch('ilFauPatches.syncWithIlias');
-//$p->applyPatch('ilFauPatches.syncToCampo');
+$p->applyPatch('ilFauPatches.syncToCampo');
 
 
 // Create or Update ILI courses

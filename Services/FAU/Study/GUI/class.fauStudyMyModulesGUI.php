@@ -4,7 +4,6 @@ use FAU\BaseGUI;
 use ILIAS\UI\Component\Input\Container\Filter\Standard;
 
 use ILIAS\UI\Component\Item\Group;
-use ILIAS\UI\Component\ViewControl\Pagination;
 use FAU\Study\Data\ImportId;
 use FAU\Study\Data\Term;
 use FAU\Study\Data\Course;
@@ -140,73 +139,56 @@ class fauStudyMyModulesGUI extends BaseGUI
         
         $icon_crs = $this->factory->symbol()->icon()->standard('crs', $this->lng->txt('obj_crs'), 'medium');
         $icon_grp = $this->factory->symbol()->icon()->standard('grp', $this->lng->txt('obj_grp'), 'medium');
-
-        $earliest_passed = $this->dic->fau()->tools()->convert()->dbDateToUnix(
-            $this->dic->fau()->tools()->convert()->unixToDbDate(time() - 86400)
-        );
-
+        
         $synced_term_ids = [];
         foreach ($this->dic->fau()->sync()->getTermsToSync(true) as $term) {
             $synced_term_ids[] = $term->toString();
         }
+        
+        $sending_module_ids = $this->dic->fau()->sync()->repo()->getModuleIdsToSendPassed();
         
         $data_items = [];
         $provider =  new ilPDSelectedItemsBlockMembershipsProvider($this->dic->user());
         foreach ($provider->getItems(['crs', 'grp']) as $item) {
             foreach ($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($item['obj_id']) as $course) {
                 $term = new Term($course->getTermYear() , $course->getTermTypeId());
-                // fallback end date for courses without a planned or individual end date
-                $term_end = $this->dic->fau()->study()->getTermEndTime($term);
 
                 $item['course_id'] = $course->getCourseId();
                 $item['event_id'] = $course->getEventId();
                 $item['term_year'] = $course->getTermYear();
                 $item['term_type_id'] = $course->getTermTypeId();
-                $item['send_passed'] = $course->getSendPassed();
-                $item['show_studon_status'] = ($course->getSendPassed() == Course::SEND_PASSED_LP);
-                if ($item['type'] == 'crs') {
-                    // courses save the passed status directly
-                    $passed = $this->dic->fau()->ilias()->repo()->getCoursePassedStatus((int) $item['obj_id'], $this->dic->user()->getId());
-                }
-                else {
-                    // groups get the passed status from the learning progress
-                    $lp_status = \ilLPStatus::_lookupStatus($item['obj_id'], $this->dic->user()->getId(), false);
-                    $passed = ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM);
-                }
-                if ($passed) {
-                    $item['studon_status'] = $this->lng->txt('crs_member_passed');
-                }
-                else {
-                    $item['studon_status'] = $this->lng->txt('crs_member_not_passed');
-                }
 
                 $member = $this->dic->fau()->user()->repo()->getMember($item['obj_id'], $this->dic->user()->getId());
                 $item['module_id'] = (isset($member) ? $member->getModuleId() : null);
-                
-                $last_date = $this->dic->fau()->sync()->repo()->getCourseMaxDateAsTimestamp($course->getCourseId()) ?? $term_end;
-                if (!in_array($term->toString(), $synced_term_ids)) {
+
+                if(!isset($item['module_id'])) {
+                    $item['campo_status'] = null;
+                }
+                elseif (!in_array($term->toString(), $synced_term_ids)) {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_not_synced');
                 }
-                elseif ($course->getSendPassed() == Course::SEND_PASSED_NONE) {
+                elseif ($course->getSendPassed() != Course::SEND_PASSED_LP && !in_array($item['module_id'], $sending_module_ids)) {
                     $item['campo_status'] = $this->lng->txt('fau_campo_member_status_registered_never_passed');
                 }
-                elseif (!empty($last_date) && $last_date >= $earliest_passed) {
-                    $date_pres = ilDatePresentation::formatDate(new ilDate($last_date, IL_CAL_UNIX));
-                    
-                    $item['campo_status'] = sprintf($this->lng->txt($course->getSendPassed() == Course::SEND_PASSED_ALL
-                        ? 'fau_campo_member_status_registered_before_all' 
-                        : 'fau_campo_member_status_registered_before_lp'), $date_pres); 
-                }
-                elseif ($course->getSendPassed() == Course::SEND_PASSED_ALL) {
-                    $item['campo_status'] = $this->lng->txt('fau_campo_member_status_passed_all');
-                }
-                elseif ($passed) {
-                    $item['campo_status'] = $this->lng->txt('fau_campo_member_status_passed_lp');
-                } 
                 else {
-                    $item['campo_status'] = $this->lng->txt('fau_campo_member_status_registered_not_passed');
+                    if ($item['type'] == 'crs') {
+                        // courses save the passed status directly
+                        $passed = $this->dic->fau()->ilias()->repo()->getCoursePassedStatus((int) $item['obj_id'], $this->dic->user()->getId());
+                    }
+                    else {
+                        // groups get the passed status from the learning progress
+                        $lp_status = \ilLPStatus::_lookupStatus($item['obj_id'], $this->dic->user()->getId(), false);
+                        $passed = ($lp_status == ilLPStatus::LP_STATUS_COMPLETED_NUM);
+                    }
+
+                    if ($passed) {
+                        $item['campo_status'] = $this->lng->txt('fau_campo_member_status_passed_lp');
+                    }
+                    else {
+                        $item['campo_status'] = $this->lng->txt('fau_campo_member_status_registered_lp');
+                    }
                 }
-                
+                 
                 $data_items[] = $item;
             }
         }
@@ -222,12 +204,11 @@ class fauStudyMyModulesGUI extends BaseGUI
             $description = $info_gui->getLinksLine($import_id, $item['ref_id'])
                 . $this->getModuleSelectionHtml($import_id->toString(), 'module_ids[' . $item['course_id'] . ']', $item['module_id']);
             
-            $props = [
-                $this->lng->txt('fau_campo_member_status_for_campo') => $item['campo_status'],
-            ];
-            
-            if ($item['show_studon_status']) {
-                $props[ $this->lng->txt('fau_campo_member_status_in_studon')] =  $item['studon_status'];
+            $props = [];
+            if (isset($item['campo_status'])) {
+                $props = [
+                    $this->lng->txt('fau_campo_member_status_for_campo') => $item['campo_status'],
+                ];
             }
             
             $gui_item = $this->factory->item()->standard('<a href="' . $link . '">'.$item['title'].'</a>')
