@@ -592,27 +592,23 @@ fau#:#fau_campo_learning_target#:#Lernziele und Kompetenzen
 fau#:#fau_campo_target_group#:#Zielgruppe
 fau#:#fau_campo_date_cancelled#:#Termin fällt aus
 fau#:#fau_campo_settings#:#Einstellungen für Campo
-fau#:#fau_campo_send_passed_alert#:#Diese Einstellung ist bis zu einer offiziellen Entscheidung der Fakultäten über eine Aunahme von Lehrveranstaltungen in den Transcript of Records deaktiviert. Ausnahmen können bilateral mit StudOn geklärt werden.
-fau#:#fau_campo_send_passed_label#:#Transcript Of Records
-fau#:#fau_campo_send_passed_info#:#Legt fest, welche Mitglieder die Teilnahme in ihrem Transcript Of Records beim dafür gewählten Modul nachgewiesen bekommen. Der Status wird nach dem letzten Kurstermin an campo geliefert.
-fau#:#fau_campo_send_passed_lp#:#Nur bestandene Mitglieder
-fau#:#fau_campo_send_passed_all#:#Alle Mitglieder
-fau#:#fau_campo_send_passed_none#:#Niemand
+fau#:#fau_campo_send_passed_alert#:#Diese Einstellung ist nur für StudOn-Administratoren sichtbar und sollte nur in Ausnahmefällen gesetzt werden. Standardmäßig ist die Übermittlung des Status abhängig vom Studiengang des gewählten Moduls.
+fau#:#fau_campo_send_passed_label#:#Anzeige im Transcript Of Records
+fau#:#fau_campo_send_passed_info#:#Legt fest, welche Mitglieder die Lehrveranstaltung in ihrem Transcript Of Records beim dafür gewählten Modul angezeigt bekommen.
+fau#:#fau_campo_send_passed_lp#:#Alle bestandenen Mitglieder mit einem gewählten Modul
+fau#:#fau_campo_send_passed_none#:#Bestandene Mitglieder mit einem gewählten Modul, das die Anzeige der Lehrveranstaltung erlaubt
 fau#:#fau_campo_member_status_for_campo#:#Status-Meldung an campo
-fau#:#fau_campo_member_status_in_studon#:#Status in StudOn
-fau#:#fau_campo_member_status_registered_before_lp#:#registriert (ab %s abhängig vom Status in StudOn)
-fau#:#fau_campo_member_status_registered_before_all#:#registriert (ab %s bearbeitet) 
-fau#:#fau_campo_member_status_registered_not_passed#:#registriert (entsprechend Status in StudOn)	
-fau#:#fau_campo_member_status_registered_never_passed#:#registriert (wird für diesen Kurs nicht geändert)	
-fau#:#fau_campo_member_status_passed_all#:#bearbeitet (alle Mitglieder)
+fau#:#fau_campo_member_status_in_studon#:#Status in StudOn 
+fau#:#fau_campo_member_status_registered_lp#:#registriert (entsprechend Status in StudOn)	
 fau#:#fau_campo_member_status_passed_lp#:#bearbeitet (entsprechend Status in StudOn)
+fau#:#fau_campo_member_status_registered_never_passed#:#registriert (wird nicht geändert)	
 fau#:#fau_campo_member_status_not_synced#:#Für das Semester wird kein Status gemeldet
 fau#:#fau_my_modules_selection#:#Meine Modul-/Kontenauswahlen
 fau#:#fau_my_modules_list#:#Meine Kurse und Gruppen mit Modul-/Kontenauswahl
 fau#:#fau_my_modules_not_found#:#Keine Kurse und Gruppen mit Modul-/Kotenauswahl gefunden
 fau#:#fau_my_modules_save#:#Auswahlen speichern
 fau#:#fau_my_modules_is_saved#:#Die Auswahlen wurden gespeichert.
-fau#:#fau_my_modules_info1#:#Diese Seite zeigt Ihre Kurse und Gruppen, die mit Lehrveranstaltungen eines Semesters verbunden sind. Für jede Veranstaltung können Sie ein Modul/Konto wählen, dem die Veranstaltung in Ihrem Transcript Of Records zugeordnet werden soll. Dies geschieht aber nur, wenn sie als „bearbeitet“ an campo gemeldet wird. Die Meldung erfolgt nach dem letzten Veranstaltungstermin. Die Kurs- oder Gruppenverantwortlichen können festlegen, ob "bearbeitet" für alle Mitglieder gemeldet wird, oder nur diejenigen, die im StudOn-Kurs StudOn den Status "bestanden" haben.
+fau#:#fau_my_modules_info1#:#Diese Seite zeigt Ihre Kurse und Gruppen, die mit Lehrveranstaltungen eines Semesters verbunden sind. Für jede Veranstaltung können Sie ein Modul/Konto wählen, dem die Veranstaltung in Campo zugeordnet werden soll. In den Transcript of Records wird die Veranstaltung nur bei wenigen Studiengängen aufgenommen, wenn zudem der Status in StudOn auf "Bearbeitet" gesetzt wurde. Sie bekommen das nach der Modulwahl angezeigt.
 fau#:#fau_my_modules_info2#:#Die Auswahlliste enthält alle Module/Konten der Lehrveranstaltung, die Ihrem Studiengang zugeordnet sind. Ein Haken (✓) bedeutet, dass die Voraussetzungen erfüllt sind. Ein Kreuz (✗) bedeutet, dass sie nicht erfüllt sind. Solche Einträge können Sie nur wählen, wenn es keine wählbare Alternative gibt. Dann wurde mit der Annahme Ihres Aufnahmeantrags entschieden, dass die Voraussetzungen ignoriert werden können.
 fau#:#fau_check_failed_no_studydata#:#Sie können die Veranstaltung nicht belegen, da für Ihren Account im Semester der Lehrveranstaltung keine Studiengangsdaten verfügbar sind.
 fau#:#fau_check_failed_restrictions#:#Die Voraussetzungen zur Belegung dieser Lehrveranstaltung sind nicht erfüllt.

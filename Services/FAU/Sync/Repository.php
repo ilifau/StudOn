@@ -167,22 +167,22 @@ class Repository extends RecordRepo
                 ." AND obj_id = ". $this->db->quote($obj_id, 'integer');
         $this->db->manipulate($query);
     }
-
-
+    
+    
     /**
-     * Get the base query for course members to sync back to campo
-     * This query must be extended with a condition (term or ilias object)
+     * Get the members of all courses in a term for sending back to campo
      *
      * - The status of courses is taken from the 'passed' flag in the obj_members table
      * - The status of groups is taken from the learning progress because groups don't have a separate setting for 'passed'
      * - The status 'failed' can't be processed by campo - it is mapped to 'registered'
-     * @return string
+     *
+     * @return StudOnMember[]
      */
-    protected function getMembersQueryToSyncBack() : string
+    public function getMembersOfCoursesToSyncBack(Term $term) : array
     {
-        return "
+        $query = "
             SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
-            CASE c.send_passed WHEN 'all' THEN 'passed' WHEN 'lp' THEN (CASE om.passed WHEN 1 THEN 'passed' ELSE 'registered' END) ELSE 'registered' END AS `status`
+            CASE om.passed WHEN 1 THEN 'passed' ELSE 'registered' END AS `status`
             FROM fau_study_courses c
             JOIN object_reference r ON r.obj_id = c.ilias_obj_id
             JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
@@ -190,10 +190,12 @@ class Repository extends RecordRepo
             JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
             JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
             LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
-            LEFT JOIN obj_members om ON om.obj_id = r.obj_id AND om.usr_id = ua.usr_id
+            LEFT JOIN obj_members om ON om.obj_id = r.obj_id AND om.usr_id = ua.usr_id " .
+            " WHERE c.term_year = " . $this->db->quote($term->getYear(), 'integer') .
+            " AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer') . "
 			UNION
             SELECT c.course_id, p.person_id, m.module_id, c.term_year, c.term_type_id,
-            CASE c.send_passed WHEN 'all' THEN 'passed' WHEN 'lp' THEN (CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END) ELSE 'registered' END AS `status`
+            CASE s.status WHEN 2 THEN 'passed' ELSE 'registered' END AS `status`
             FROM fau_study_courses c
             JOIN object_reference r ON r.obj_id = c.ilias_obj_id
             JOIN rbac_fa fa ON fa.parent = r.ref_id AND fa.assign = 'y'
@@ -201,39 +203,55 @@ class Repository extends RecordRepo
             JOIN rbac_ua ua ON ua.rol_id = fa.rol_id
             JOIN fau_user_persons p ON p.user_id = ua.usr_id AND p.person_id IS NOT NULL
             LEFT JOIN fau_user_members m ON m.obj_id = r.obj_id AND m.user_id = ua.usr_id
-            LEFT JOIN ut_lp_marks s ON s.obj_id = r.obj_id AND s.usr_id = p.user_id
-        ";
-    }
-
-
-    /**
-     * Get the members of an ilias course for sending back to campo
-     * @return StudOnMember[]
-     */
-    public function getMembersOfIliasObjectToSyncBack(int $obj_id) : array
-    {
-        $query = $this->getMembersQueryToSyncBack() .
-            " WHERE c.ilias_obj_id = " . $this->db->quote($obj_id, 'integer');
-
-        return $this->queryRecords($query, StudOnMember::model(), false, true);
-    }
-
-
-    /**
-     * Get the members of all courses in a term for sending back to campo
-     * @return StudOnMember[]
-     */
-    public function getMembersOfCoursesToSyncBack(Term $term) : array
-    {
-        $query = $this->getMembersQueryToSyncBack() .
+            LEFT JOIN ut_lp_marks s ON s.obj_id = r.obj_id AND s.usr_id = p.user_id " .
             " WHERE c.term_year = " . $this->db->quote($term->getYear(), 'integer') .
             " AND c.term_type_id = ". $this->db->quote($term->getTypeId(), 'integer');
-
+        
         return $this->queryRecords($query, StudOnMember::model(), false, true);
     }
 
+
     /**
-     * Get the maximum members of all courses in a term for sending back to campo
+     * Get the 'send_passed' settings of courses in a term where members or settings can be sent back to campo
+     * @param Term $term
+     * @return array    course_id => send_passed
+     */
+    public function getCourseSendPassedToSyncBack(Term $term) : array
+    {
+        $query = "SELECT course_id, send_passed FROM fau_study_courses"
+            ." WHERE term_year = " . $this->db->quote($term->getYear(), 'integer')
+            ." AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer');
+        $result = $this->db->query($query);
+
+        $send = [];
+        while ($row = $this->db->fetchAssoc($result)) {
+            $send[$row['course_id']] = $row['send_passed'];
+        }
+
+        return $send;
+    }
+    
+    
+    /**
+     * Get the module ids of modules for which a 'passed' status of members should be sent to campo
+     * Members of the same courses which are 'passed' may get a different status sent back depending on the module which they have chosen
+     * @return int[]
+     */
+    public function getModuleIdsToSendPassed() : array
+    {
+        $query = "
+            SELECT distinct module_id 
+            FROM fau_study_module_cos mc
+            JOIN fau_study_cos c ON c.cos_id = mc.cos_id
+            WHERE c.subject = 'Evangelische Theologie'
+        ";
+        
+        return $this->getIntegerList($query, 'module_id');
+    }
+    
+
+    /**
+     * Get the course data with maximum members of all courses in a term for sending back to campo
      * @param Term $term
      * @return StudOnCourse[]
      */
@@ -311,21 +329,5 @@ class Repository extends RecordRepo
             }
         }
         return null;
-    }
-
-    
-
-    /**
-     * Get the ids of courses in a term where members or settings can be sent back to campo
-     * @param Term $term
-     * @return array
-     */
-    public function getCourseIdsToSyncBack(Term $term) : array
-    {
-        $query = "SELECT course_id FROM fau_study_courses"
-            ." WHERE term_year = " . $this->db->quote($term->getYear(), 'integer')
-            ." AND term_type_id = " . $this->db->quote($term->getTypeId(), 'integer')
-            ." AND ilias_obj_id IS NOT NULL";
-        return $this->getIntegerList($query, 'course_id', false);
     }
 }

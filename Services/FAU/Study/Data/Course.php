@@ -13,7 +13,6 @@ class Course extends RecordData
 {
     public const SEND_PASSED_NONE = 'none';
     public const SEND_PASSED_LP = 'lp';
-    public const SEND_PASSED_ALL = 'all';
     
     protected const tableName = 'fau_study_courses';
     protected const hasSequence = false;
@@ -81,7 +80,7 @@ class Course extends RecordData
     protected ?int $ilias_obj_id = null;
     protected ?string $ilias_dirty_since = null;
     protected ?string $ilias_problem = null;
-    protected ?string $send_passed = 'none';
+    protected ?string $send_passed = self::SEND_PASSED_NONE;
     
     // dirty flags for changeable data in ILIAS course or group
     // will be set true in the campo sync if the underlying data is changed
@@ -458,7 +457,7 @@ class Course extends RecordData
     public function withSendPassed(string $send_passed): Course
     {
         $clone = clone $this;
-        if (in_array($send_passed, [self::SEND_PASSED_LP, self::SEND_PASSED_ALL, self::SEND_PASSED_NONE])) {
+        if (in_array($send_passed, [self::SEND_PASSED_LP, self::SEND_PASSED_NONE])) {
             $clone->send_passed = $send_passed;
         }
         return $clone;

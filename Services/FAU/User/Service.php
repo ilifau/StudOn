@@ -362,44 +362,4 @@ class Service extends SubService
             $this->repo()->delete($member);
         }
     }
-
-    /**
-     * Force a saving of course or group members for campo
-     * Only members that have a person id from campo will be saved
-     * @param int[] $obj_ids  course or group ids for which the members should be saved
-     * @return array [ int[], int[] ]   saved and ignored user_ids
-     */
-    public function saveMembershipsForced(array $obj_ids) : array
-    {
-        $saved = [];
-        $ignored = [];
-
-        foreach ($obj_ids as $obj_id) {
-            switch (\ilObject::_lookupType($obj_id)) {
-                case 'crs':
-                    $participants = new \ilCourseParticipants($obj_id);
-                    break;
-                case 'grp':
-                    $participants = new \ilGroupParticipants($obj_id);
-                    break;
-                default:
-                    continue 2;
-            }
-
-            foreach ($participants->getMembers() as $user_id) {
-                $person = $this->repo()->getPersonOfUser((int) $user_id);
-                if (empty($person) || empty($person->getPersonId())) {
-                    $ignored[] = $user_id;
-                }
-                else {
-                    $this->saveMembership($obj_id, (int) $user_id, null, true);
-                    $saved[] = $user_id;
-                }
-            }
-
-            // directly write the members back to the staging database
-            $this->dic->fau()->sync()->toCampo()->syncMembersOfObject($obj_id);
-        }
-        return [array_unique($saved), array_unique($ignored)];
-    }
 }

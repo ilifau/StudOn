@@ -14,7 +14,7 @@ class fauCourseSettingsGUI extends BaseGUI
     public function addCampoSettingsToForm($form, $object)
     {
         $import_id = \FAU\Study\Data\ImportId::fromString($object->getImportId());
-        if ($import_id->isForCampo()) {
+        if ($import_id->isForCampo() && ilCust::administrationIsVisible()) {
             foreach($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($object->getId()) as $course) {
                 $header = new ilFormSectionHeaderGUI();
                 $header->setTitle($this->lng->txt('fau_campo_settings'));
@@ -26,12 +26,7 @@ class fauCourseSettingsGUI extends BaseGUI
                 $radio->addOption($option);
                 $option = new ilRadioOption($this->lng->txt('fau_campo_send_passed_lp'), Course::SEND_PASSED_LP);
                 $radio->addOption($option);
-                $option = new ilRadioOption($this->lng->txt('fau_campo_send_passed_all'), Course::SEND_PASSED_ALL);
-                $radio->addOption($option);
                 $radio->setAlert($this->lng->txt('fau_campo_send_passed_alert'));
-                if (!ilCust::administrationIsVisible()) {
-                    $radio->setDisabled(true);
-                }
                 $form->addItem($radio);
                 return;
             }
@@ -47,7 +42,7 @@ class fauCourseSettingsGUI extends BaseGUI
     public function saveCampoSettingsFromForm($form, $object)
     {
         $import_id = \FAU\Study\Data\ImportId::fromString($object->getImportId());
-        if ($import_id->isForCampo()) {
+        if ($import_id->isForCampo() && ilCust::administrationIsVisible()) {
             foreach($this->dic->fau()->study()->repo()->getCoursesByIliasObjId($object->getId()) as $course) {
                 $course = $course->withSendPassed((string) $form->getInput('send_passed'));
                 $this->dic->fau()->study()->repo()->save($course);
